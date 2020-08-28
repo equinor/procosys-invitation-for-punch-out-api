@@ -14,13 +14,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Equinor.ProCoSys.PunchOut.Command\Equinor.ProCoSys.PunchOut.Command.csproj" />
+    <ProjectReference Include="..\Equinor.ProCoSys.PunchOut.Database\Equinor.ProCoSys.PunchOut.Database.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.PunchOut.Domain\Equinor.ProCoSys.PunchOut.Domain.csproj" />
+    <ProjectReference Include="..\Equinor.ProCoSys.PunchOut.Query\Equinor.ProCoSys.PunchOut.Query.csproj" />
   </ItemGroup>
 
 
