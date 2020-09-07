@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="ServiceResult" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Equinor.Procosys.CPO.BlobStorage\Equinor.Procosys.CPO.BlobStorage.csproj" />
+    <ProjectReference Include="..\Equinor.Procosys.CPO.Domain\Equinor.Procosys.CPO.Domain.csproj" />
+    <ProjectReference Include="..\Equinor.Procosys.CPO.Infrastructure\Equinor.Procosys.CPO.Infrastructure.csproj" />
+    <ProjectReference Include="..\Equinor.Procosys.CPO.MainApi\Equinor.Procosys.CPO.MainApi.csproj" />
+  </ItemGroup>
+
+</Project>
