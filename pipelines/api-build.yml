@@ -13,11 +13,11 @@ resources:
 
 # Global variables for the pipeline
 variables:
- - template: templates/variables/punchout-variables.yml@templates
+ - template: templates/variables/ipo-variables.yml@templates
  - template: templates/variables/procosys-global-variables.yml@templates
 
  - name: 'repositoryName'
-   value: 'punchout/api'
+   value: 'ipo/api'
 
  - name: 'versionNumber'
    value: '1.000.0.'
@@ -33,12 +33,11 @@ stages:
     containerRegistry: '${{ variables.containerRegistryName }}'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnectionName }}'
-    dockerfilePath: '$(Build.SourcesDirectory)/src/Dockerfile' # Need input
+    dockerfilePath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.WebApi/Dockerfile'
 
   jobs:
-
   # Docker Build
-  - template: /templates/pipelines/dockerbuild-punchout.yml@templates
+  - template: /templates/pipelines/dockerbuild-ipo.yml@templates
     parameters:
       deploymentName: 'docker_build'
       dependsOn: ''
@@ -52,7 +51,7 @@ stages:
       dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
 
   # Docker Build and Push (Master Only)
-  - template: /templates/pipelines/dockerbuild-punchout.yml@templates
+  - template: /templates/pipelines/dockerbuild-ipo.yml@templates
     parameters:
       deploymentName: 'docker_build_and_push_master_only'
       dependsOn: ''
@@ -65,13 +64,13 @@ stages:
       repository: '${{ variables.repositoryName }}'
       dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
 
-  # # Create Migration Script
-  # - template: /templates/pipelines/createsqlmigrate-punchout.yml@templates
-  #   parameters:
-  #     dependsOn: ''
-  #     deploymentName: 'create_migration_script'
-  #     envGroup: '${{ variables.envGroupName }}'
-  #     serviceConnection: '${{ variables.nonProdServiceConnection }}'
+  # Create Migration Script
+  - template: /templates/pipelines/createsqlmigrate-ipo.yml@templates
+    parameters:
+      dependsOn: ''
+      deploymentName: 'create_migration_script'
+      envGroup: '${{ variables.envGroupName }}'
+      serviceConnection: '${{ variables.nonProdServiceConnection }}'
 
 # Dev deploy stage
 - stage: dev
@@ -87,7 +86,7 @@ stages:
 
   jobs:
   # Run Migration Script (Predeploy)
-  # - template: /templates/pipelines/runsqlmigrate-punchout.yml@templates
+  # - template: /templates/pipelines/runsqlmigrate-ipo.yml@templates
   #   parameters:
   #     dependsOn: ''
   #     deploymentName: 'run_migration_script'
@@ -100,7 +99,7 @@ stages:
   #     databaseName: '${{ variables.sqlDatabaseName }}'
 
   # Deploy to AKS
-  - template: /templates/pipelines/kubernetes/punchout-deploy.yml@templates
+  - template: /templates/pipelines/kubernetes/ipo-deploy.yml@templates
     parameters:
       deploymentName: 'deploy_to_k8s'
       # dependsOn: 'run_migration_script'
@@ -110,6 +109,96 @@ stages:
       envGroup: '${{ variables.envGroupName }}'
       dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
       clusterName: '${{ variables.aksTestName }}'
+      kvClientIdName: '${{ variables.kvClientIdName }}'
+      kvUriName: '${{ variables.kvUriName }}'
+      kvClientSecretName: '${{ variables.kvClientSecretName }}'
+      kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvName: '${{ variables.kvName }}'
+      kvRgName: '${{ variables.envRgName }}'
+      aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
+
+# Test deploy stage
+- stage: test
+  displayName: 'Test'
+  dependsOn: 'common'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    envName: 'test'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    serviceConnection: '${{ variables.nonProdServiceConnection }}'
+    containerRegistry: '${{ variables.containerRegistryName }}' 
+    aspNetCoreEnvironment: 'Development'
+
+  jobs:
+  # Run Migration Script (Predeploy)
+  # - template: /templates/pipelines/runsqlmigrate-ipo.yml@templates
+  #   parameters:
+  #     dependsOn: ''
+  #     deploymentName: 'run_migration_script'
+  #     envGroup: '${{ variables.envGroupName }}'
+  #     serviceConnection: '${{ variables.serviceConnection }}'
+  #     kvName: '${{ variables.commonKeyVault }}'
+  #     kvRgName: '${{ variables.commonRgName }}'
+  #     kvSecret: '${{ variables.sqlAdminUserName }}-${{ variables.envName }}'
+  #     serverName: '${{ variables.sqlServerName }}.database.windows.net'
+  #     databaseName: '${{ variables.sqlDatabaseName }}'
+
+  # Deploy to AKS
+  - template: /templates/pipelines/kubernetes/ipo-deploy.yml@templates
+    parameters:
+      deploymentName: 'deploy_to_k8s'
+      # dependsOn: 'run_migration_script'
+      serviceConnection: '${{ variables.serviceConnection }}'
+      env: '${{ variables.envName }}'
+      envRg: '${{ variables.aksRgName }}'
+      envGroup: '${{ variables.envGroupName }}'
+      dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
+      clusterName: '${{ variables.aksTestName }}'
+      kvClientIdName: '${{ variables.kvClientIdName }}'
+      kvUriName: '${{ variables.kvUriName }}'
+      kvClientSecretName: '${{ variables.kvClientSecretName }}'
+      kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvName: '${{ variables.kvName }}'
+      kvRgName: '${{ variables.envRgName }}'
+      aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
+
+# Prod deploy stage
+- stage: prod
+  displayName: 'Prod'
+  dependsOn: 'common'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  variables:
+    envName: 'prod'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    serviceConnection: '${{ variables.prodServiceConnection }}'
+    containerRegistry: '${{ variables.containerRegistryName }}' 
+    aspNetCoreEnvironment: 'Production'
+
+  jobs:
+  # # Run Migration Script (Predeploy)
+  # - template: /templates/pipelines/runsqlmigrate-preservation.yml@templates
+  #   parameters:
+  #     dependsOn: ''
+  #     deploymentName: 'run_migration_script'      
+  #     envGroup: '${{ variables.envGroupName }}'
+  #     serviceConnection: '${{ variables.serviceConnection }}'
+  #     kvName: '${{ variables.commonKeyVault }}'
+  #     kvRgName: 'pcs-common-rg'
+  #     kvSecret: '${{ variables.sqlAdminUserName }}-${{ variables.envName }}'
+  #     serverName: '${{ variables.sqlServerName }}.database.windows.net'
+  #     databaseName: '${{ variables.sqlDatabaseName }}'      
+
+  # Deploy to AKS
+  - template: /templates/pipelines/kubernetes/ipo-deploy.yml@templates
+    parameters:
+      deploymentName: 'deploy_to_k8s'
+      # dependsOn: 'run_migration_script'
+      serviceConnection: '${{ variables.serviceConnection }}'
+      env: '${{ variables.envName }}'
+      envRg: '${{ variables.aksRgName }}'
+      envGroup: '${{ variables.envGroupName }}'
+      dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
+      clusterName: '${{ variables.aksProdName }}'
       kvClientIdName: '${{ variables.kvClientIdName }}'
       kvUriName: '${{ variables.kvUriName }}'
       kvClientSecretName: '${{ variables.kvClientSecretName }}'
