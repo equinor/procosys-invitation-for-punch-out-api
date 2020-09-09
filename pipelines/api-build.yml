@@ -33,7 +33,7 @@ stages:
     containerRegistry: '${{ variables.containerRegistryName }}'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnectionName }}'
-    dockerfilePath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.WebApi/Dockerfile'
+    dockerfilePath: '$(Build.SourcesDirectory)/src/Equinor.ProCoSys.IPO.WebApi/Dockerfile'
 
   jobs:
   # Docker Build
