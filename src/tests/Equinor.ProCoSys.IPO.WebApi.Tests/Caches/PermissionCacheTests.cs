@@ -37,8 +37,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1, Project2}));
             _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(TestPlant))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1, Permission2}));
-            _permissionApiServiceMock.Setup(p => p.GetContentRestrictionsAsync(TestPlant))
-                .Returns(Task.FromResult<IList<string>>(new List<string> {Restriction1, Restriction2}));
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
             optionsMock
@@ -97,40 +95,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsForUserOid_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
-        {
-            // Act
-            var result = await _dut.GetContentRestrictionsForUserOidAsync(TestPlant, Oid);
-
-            // Assert
-            AssertRestrictions(result);
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(TestPlant), Times.Once);
-        }
-
-        [TestMethod]
-        public async Task GetContentRestrictionsForUserOid_ShouldReturnPermissionsFromCacheSecondTime()
-        {
-            await _dut.GetContentRestrictionsForUserOidAsync(TestPlant, Oid);
-            // Act
-            var result = await _dut.GetContentRestrictionsForUserOidAsync(TestPlant, Oid);
-
-            // Assert
-            AssertRestrictions(result);
-            // since GetContentRestrictionsForUserOidAsync has been called twice, but GetContentRestrictionsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(TestPlant), Times.Once);
-        }
-
-        [TestMethod]
         public async Task GetPermissionsForUserOid_ShouldThrowExceptionWhenOidIsEmty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetPermissionsForUserAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
         public async Task GetProjectNamesForUserOid_ShouldThrowExceptionWhenOidIsEmty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetProjectNamesForUserOidAsync(TestPlant, Guid.Empty));
-
-        [TestMethod]
-        public async Task GetContentRestrictionsForUserOid_ShouldThrowExceptionWhenOidIsEmty()
-            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetContentRestrictionsForUserOidAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
         public void ClearAll_ShouldClearAllPermissionCaches()

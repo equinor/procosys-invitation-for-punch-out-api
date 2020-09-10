@@ -54,7 +54,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
             await AddRoleForAllPermissionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
             await AddUserDataClaimForAllProjectsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
-            await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
 
             return principal;
         }
@@ -96,13 +95,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
         {
             var projectNames = await _permissionCache.GetProjectNamesForUserOidAsync(plantId, userOid);
             projectNames?.ToList().ForEach(projectName => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetProjectClaimValue(projectName))));
-        }
-
-        private async Task AddUserDataClaimForAllContentRestrictionsToIdentityAsync(ClaimsIdentity claimsIdentity, string plantId, Guid userOid)
-        {
-            var contentRestrictions = await _permissionCache.GetContentRestrictionsForUserOidAsync(plantId, userOid);
-            contentRestrictions?.ToList().ForEach(
-                contentRestriction => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetContentRestrictionClaimValue(contentRestriction))));
         }
 
         private static Claim CreateClaim(string claimType, string claimValue)
