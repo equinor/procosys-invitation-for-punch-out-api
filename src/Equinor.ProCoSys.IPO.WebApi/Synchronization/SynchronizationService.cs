@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.Time;
-using Equinor.ProCoSys.IPO.MainApi.Certificate;
 using Equinor.ProCoSys.IPO.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -31,7 +30,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IApplicationAuthenticator _authenticator;
         private readonly IPlantCache _plantCache;
         private readonly IOptionsMonitor<SynchronizationOptions> _options;
-        private readonly ICertificateApiService _certificateApiService;
 
         public SynchronizationService(
             ILogger<SynchronizationService> logger,
@@ -44,8 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IClaimsTransformation claimsTransformation,
             IApplicationAuthenticator authenticator,
             IPlantCache plantCache,
-            IOptionsMonitor<SynchronizationOptions> options,
-            ICertificateApiService certificateApiService)
+            IOptionsMonitor<SynchronizationOptions> options)
         {
             _logger = logger;
             _telemetryClient = telemetryClient;
@@ -58,7 +55,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _bearerTokenSetter = bearerTokenSetter;
             _plantCache = plantCache;
             _options = options;
-            _certificateApiService = certificateApiService;
             _synchronizationUserOid = options.CurrentValue.UserOid;
         }
 
