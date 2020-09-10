@@ -46,16 +46,5 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
             return true;
         }
-
-        private async Task<bool> HasCurrentUserAccessToContentAsync(ITagCommandRequest tagCommandRequest)
-        {
-            if (_contentRestrictionsChecker.HasCurrentUserExplicitNoRestrictions())
-            {
-                return true;
-            }
-
-            // TODO: Add access checks here and return it instead of false.
-            return false;
-        }
     }
 }
