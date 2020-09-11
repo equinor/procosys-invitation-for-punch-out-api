@@ -12,8 +12,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
     {
         public static string ClaimsIssuer = "ProCoSys";
         public static string ProjectPrefix = "PCS_Project##";
-        public static string ContentRestrictionPrefix = "PCS_ContentRestriction##";
-        public static string NoRestrictions = "%";
 
         private readonly IPlantProvider _plantProvider;
         private readonly IPlantCache _plantCache;
@@ -59,8 +57,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
         }
 
         public static string GetProjectClaimValue(string projectName) => $"{ProjectPrefix}{projectName}";
-
-        public static string GetContentRestrictionClaimValue(string contentRestriction) => $"{ContentRestrictionPrefix}{contentRestriction}";
 
         private ClaimsIdentity GetOrCreateClaimsIdentityForThisIssuer(ClaimsPrincipal principal)
         {

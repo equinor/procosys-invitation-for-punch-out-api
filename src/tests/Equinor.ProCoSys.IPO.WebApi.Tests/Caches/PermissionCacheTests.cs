@@ -115,7 +115,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
             dut.ClearAll(TestPlant, Oid);
 
             // Assert
-            cacheManagerMock.Verify(c => c.Remove(It.IsAny<string>()), Times.Exactly(3));
+            cacheManagerMock.Verify(c => c.Remove(It.IsAny<string>()), Times.Exactly(2));
         }
 
         private void AssertPermissions(IList<string> result)
