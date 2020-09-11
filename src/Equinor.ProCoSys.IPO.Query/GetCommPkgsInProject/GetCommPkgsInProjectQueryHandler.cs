@@ -9,8 +9,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
-    public class
-        GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<List<ProcosysCommPkgDto>>>
+    public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<List<ProcosysCommPkgDto>>>
     {
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPlantProvider _plantProvider;
@@ -27,10 +26,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
             CancellationToken cancellationToken)
         {
             var mainApiCommPkgs = await _commPkgApiService
-                                      .SearchCommPkgsByCommPkgNoAsync(
-                                          _plantProvider.Plant, request.ProjectId,
-                                          request.StartsWithCommPkgNo)
-                                  ?? new List<ProcosysCommPkg>();
+                .SearchCommPkgsByCommPkgNoAsync(
+                   _plantProvider.Plant, request.ProjectId,
+                   request.StartsWithCommPkgNo)
+                   ?? new List<ProcosysCommPkg>();
 
             var commPkgDtos = mainApiCommPkgs
                 .Select(commPkg => new ProcosysCommPkgDto(
