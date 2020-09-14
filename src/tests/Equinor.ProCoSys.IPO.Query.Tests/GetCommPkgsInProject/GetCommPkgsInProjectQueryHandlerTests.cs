@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
     public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
-        private IList<ProcosysCommPkg> _mainApiCommPkgs;
+        private IList<ProCoSysCommPkg> _mainApiCommPkgs;
         private GetCommPkgsInProjectQuery _query;
 
         private readonly int _projectId = 1;
@@ -27,17 +27,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
-                _mainApiCommPkgs = new List<ProcosysCommPkg>
+                _mainApiCommPkgs = new List<ProCoSysCommPkg>
                 {
-                    new ProcosysCommPkg
+                    new ProCoSysCommPkg
                     {
                         Id = 1, CommPkgNo = "CommPkgNo1", Description = "Desc1", CommStatus = "PB"
                     },
-                    new ProcosysCommPkg
+                    new ProCoSysCommPkg
                     {
                         Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK"
                     },
-                    new ProcosysCommPkg {Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"}
+                    new ProCoSysCommPkg {Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"}
                 };
 
                 _commPkgApiServiceMock
@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 _commPkgApiServiceMock
                     .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectId, _commPkgStartsWith))
-                    .Returns(Task.FromResult<IList<ProcosysCommPkg>>(null));
+                    .Returns(Task.FromResult<IList<ProCoSysCommPkg>>(null));
 
                 var result = await dut.Handle(_query, default);
 
@@ -95,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             }
         }
 
-        private void AssertCommPkgData(ProcosysCommPkg PCSCommPkg, ProcosysCommPkgDto commPkgDto)
+        private void AssertCommPkgData(ProCoSysCommPkg PCSCommPkg, ProCoSysCommPkgDto commPkgDto)
         {
             Assert.AreEqual(PCSCommPkg.Id, commPkgDto.Id);
             Assert.AreEqual(PCSCommPkg.CommPkgNo, commPkgDto.CommPkgNo);
