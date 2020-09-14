@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProcosysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, int projectId,
+        public async Task<IList<ProCoSysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, int projectId,
             string startsWithCommPkgNo)
         {
             if (!await _plantCache.IsValidPlantForCurrentUserAsync(plant))
@@ -35,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var items = new List<ProcosysCommPkg>();
+            var items = new List<ProCoSysCommPkg>();
 
             var url = $"{_baseAddress}CommPkg/Search" +
                       $"?plantId={plant}" +
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
                       $"&projectId={projectId}" +
                       $"&api-version={_apiVersion}";
 
-            var commPkgSearchResult = await _mainApiClient.QueryAndDeserializeAsync<ProcosysCommPkgSearchResult>(url);
+            var commPkgSearchResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
 
             if (commPkgSearchResult?.Items != null && commPkgSearchResult.Items.Any())
             {

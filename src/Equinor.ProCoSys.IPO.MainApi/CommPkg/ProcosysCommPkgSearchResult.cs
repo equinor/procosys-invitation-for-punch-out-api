@@ -2,8 +2,8 @@
 
 namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
 {
-    public class ProcosysCommPkgSearchResult
+    public class ProCoSysCommPkgSearchResult
     {
-        public List<ProcosysCommPkg> Items { get; set; }
+        public List<ProCoSysCommPkg> Items { get; set; }
     }
 }

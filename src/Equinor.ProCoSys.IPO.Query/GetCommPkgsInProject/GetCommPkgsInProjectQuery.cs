@@ -4,7 +4,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
-    public class GetCommPkgsInProjectQuery : IRequest<Result<List<ProcosysCommPkgDto>>>
+    public class GetCommPkgsInProjectQuery : IRequest<Result<List<ProCoSysCommPkgDto>>>
     {
         public GetCommPkgsInProjectQuery(int projectId, string startsWithCommPkgNo)
         {

@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IBearerTokenApiClient> _mainApiClient;
         private Mock<IPlantCache> _plantCache;
-        private ProcosysCommPkgSearchResult _searchPageWithThreeItems;
+        private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
         private MainApiCommPkgService _dut;
 
         [TestInitialize]
@@ -34,25 +34,25 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
                 .Setup(x => x.IsValidPlantForCurrentUserAsync("PCS$TESTPLANT"))
                 .Returns(Task.FromResult(true));
 
-            _searchPageWithThreeItems = new ProcosysCommPkgSearchResult
+            _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
-                Items = new List<ProcosysCommPkg>
+                Items = new List<ProCoSysCommPkg>
                         {
-                            new ProcosysCommPkg
+                            new ProCoSysCommPkg
                             {
                                 Description = "Description1",
                                 Id = 111111111,
                                 CommPkgNo = "CommNo1",
                                 CommStatus = "OK"
                             },
-                            new ProcosysCommPkg
+                            new ProCoSysCommPkg
                             {
                                 Description = "Description2",
                                 Id = 222222222,
                                 CommPkgNo = "CommNo2",
                                 CommStatus = "PA"
                             },
-                            new ProcosysCommPkg
+                            new ProCoSysCommPkg
                             {
                                 Description = "Description3",
                                 Id = 333333333,
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
             };
 
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProcosysCommPkgSearchResult>(It.IsAny<string>()))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>()))
                 .Returns(Task.FromResult(_searchPageWithThreeItems));
 
             _dut = new MainApiCommPkgService(_mainApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
@@ -88,8 +88,8 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<ProcosysCommPkgSearchResult>(It.IsAny<string>()))
-                .Returns(Task.FromResult<ProcosysCommPkgSearchResult>(null));
+                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>()))
+                .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(null));
 
             var result = await _dut.SearchCommPkgsByCommPkgNoAsync("PCS$TESTPLANT", 1, "A");
 

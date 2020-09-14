@@ -1,8 +1,8 @@
 ﻿namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
-    public class ProcosysCommPkgDto
+    public class ProCoSysCommPkgDto
     {
-        public ProcosysCommPkgDto(
+        public ProCoSysCommPkgDto(
             long id,
             string commPkgNo,
             string description,
