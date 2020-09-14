@@ -23,13 +23,14 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Project
 
         private const string _plant = "PCS$TESTPLANT";
         private const string _project1Name = "NameA";
-        private const string _project2Name = "NameB";
         private const string _project1Description = "Description1";
-        private const string _poject2Description = "Description2";
 
         [TestInitialize]
         public void Setup()
         {
+            const string Project2Name = "NameB";
+            const string Project2Description = "Description2";
+
             _mainApiOptions = new Mock<IOptionsMonitor<MainApiOptions>>();
             _mainApiOptions
                 .Setup(x => x.CurrentValue)
@@ -41,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Project
                 .Returns(Task.FromResult(true));
 
             _proCoSysProject1 = new ProCoSysProject {Id = 1, Name = _project1Name, Description = _project1Description};
-            _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = _project2Name, Description = _poject2Description};
+            _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = Project2Name, Description = Project2Description};
 
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>()))
