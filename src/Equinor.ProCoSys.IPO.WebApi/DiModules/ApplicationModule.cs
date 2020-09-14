@@ -33,7 +33,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             TimeService.SetProvider(new SystemTimeProvider());
 
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
-            services.Configure<TagOptions>(configuration.GetSection("ApiOptions"));
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
@@ -67,7 +66,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IPlantSetter>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<IAccessValidator, AccessValidator>();
             services.AddScoped<IProjectAccessChecker, ProjectAccessChecker>();
-            services.AddScoped<IContentRestrictionsChecker, ContentRestrictionsChecker>();
             services.AddScoped<IEventDispatcher, EventDispatcher>();
             services.AddScoped<IUnitOfWork>(x => x.GetRequiredService<IPOContext>());
             services.AddScoped<IReadOnlyContext, IPOContext>();

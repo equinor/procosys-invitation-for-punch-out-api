@@ -65,43 +65,5 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Permission
             // Assert
             Assert.AreEqual(0, result.Count);
         }
-
-        [TestMethod]
-        public async Task GetContentRestrictions_ShouldReturnThreePermissions_OnValidPlant()
-        {
-            // Arrange
-            _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>()))
-                .Returns(Task.FromResult(new List<string>{ "A", "B", "C" }));
-            // Act
-            var result = await _dut.GetContentRestrictionsAsync(_plant);
-
-            // Assert
-            Assert.AreEqual(3, result.Count);
-        }
-
-        [TestMethod]
-        public async Task GetContentRestrictions_ShouldReturnNoPermissions_OnValidPlant()
-        {
-            // Arrange
-            _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>()))
-                .Returns(Task.FromResult(new List<string>()));
-            // Act
-            var result = await _dut.GetContentRestrictionsAsync(_plant);
-
-            // Assert
-            Assert.AreEqual(0, result.Count);
-        }
-
-        [TestMethod]
-        public async Task GetContentRestrictions_ShouldReturnNoPermissions_OnInValidPlant()
-        {
-            // Act
-            var result = await _dut.GetContentRestrictionsAsync("INVALIDPLANT");
-
-            // Assert
-            Assert.AreEqual(0, result.Count);
-        }
     }
 }

@@ -8,7 +8,6 @@ namespace Equinor.ProCoSys.IPO.Domain
     {
         Task<IList<string>> GetPermissionsForUserAsync(string plantId, Guid userOid);
         Task<IList<string>> GetProjectNamesForUserOidAsync(string plantId, Guid userOid);
-        Task<IList<string>> GetContentRestrictionsForUserOidAsync(string plantId, Guid userOid);
         void ClearAll(string plantId, Guid userOid);
     }
 }

@@ -12,8 +12,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
     {
         public static string ClaimsIssuer = "ProCoSys";
         public static string ProjectPrefix = "PCS_Project##";
-        public static string ContentRestrictionPrefix = "PCS_ContentRestriction##";
-        public static string NoRestrictions = "%";
 
         private readonly IPlantProvider _plantProvider;
         private readonly IPlantCache _plantCache;
@@ -54,14 +52,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
             await AddRoleForAllPermissionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
             await AddUserDataClaimForAllProjectsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
-            await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
 
             return principal;
         }
 
         public static string GetProjectClaimValue(string projectName) => $"{ProjectPrefix}{projectName}";
-
-        public static string GetContentRestrictionClaimValue(string contentRestriction) => $"{ContentRestrictionPrefix}{contentRestriction}";
 
         private ClaimsIdentity GetOrCreateClaimsIdentityForThisIssuer(ClaimsPrincipal principal)
         {
@@ -96,13 +91,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
         {
             var projectNames = await _permissionCache.GetProjectNamesForUserOidAsync(plantId, userOid);
             projectNames?.ToList().ForEach(projectName => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetProjectClaimValue(projectName))));
-        }
-
-        private async Task AddUserDataClaimForAllContentRestrictionsToIdentityAsync(ClaimsIdentity claimsIdentity, string plantId, Guid userOid)
-        {
-            var contentRestrictions = await _permissionCache.GetContentRestrictionsForUserOidAsync(plantId, userOid);
-            contentRestrictions?.ToList().ForEach(
-                contentRestriction => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetContentRestrictionClaimValue(contentRestriction))));
         }
 
         private static Claim CreateClaim(string claimType, string claimValue)
