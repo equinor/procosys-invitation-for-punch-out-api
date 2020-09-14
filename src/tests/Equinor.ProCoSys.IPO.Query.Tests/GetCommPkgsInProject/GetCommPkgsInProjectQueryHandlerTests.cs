@@ -37,7 +37,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                     {
                         Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK"
                     },
-                    new ProCoSysCommPkg {Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"}
+                    new ProCoSysCommPkg
+                    {
+                        Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"
+                    }
                 };
 
                 _commPkgApiServiceMock
