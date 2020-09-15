@@ -35,8 +35,6 @@ namespace Equinor.ProCoSys.IPO.MainApi.McPkg
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var items = new List<ProCoSysMcPkg>();
-
             var url = $"{_baseAddress}McPkg/Search" +
                       $"?plantId={plant}" +
                       $"&startsWithMcPkgNo={WebUtility.UrlEncode(startsWithMcPkgNo)}" +
@@ -45,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.McPkg
 
             var mcPkgSearchResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(url);
 
+            var items = new List<ProCoSysMcPkg>();
             if (mcPkgSearchResult?.Items != null && mcPkgSearchResult.Items.Any())
             {
                 items.AddRange(mcPkgSearchResult.Items);
