@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.MainApi;
 using Equinor.ProCoSys.IPO.MainApi.Client;
 using Equinor.ProCoSys.IPO.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.MainApi.Permission;
 using Equinor.ProCoSys.IPO.MainApi.Plant;
 using Equinor.ProCoSys.IPO.MainApi.Project;
@@ -84,6 +85,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IPermissionApiService, MainApiPermissionService>();
             services.AddScoped<IBlobStorage, AzureBlobService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
+            services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
 
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
 
