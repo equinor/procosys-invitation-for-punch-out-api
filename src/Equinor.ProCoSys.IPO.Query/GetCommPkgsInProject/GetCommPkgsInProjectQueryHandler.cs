@@ -9,7 +9,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
-    public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<List<ProcosysCommPkgDto>>>
+    public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<List<ProCoSysCommPkgDto>>>
     {
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPlantProvider _plantProvider;
@@ -22,23 +22,23 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
             _commPkgApiService = commPkgApiService;
         }
 
-        public async Task<Result<List<ProcosysCommPkgDto>>> Handle(GetCommPkgsInProjectQuery request,
+        public async Task<Result<List<ProCoSysCommPkgDto>>> Handle(GetCommPkgsInProjectQuery request,
             CancellationToken cancellationToken)
         {
             var mainApiCommPkgs = await _commPkgApiService
                 .SearchCommPkgsByCommPkgNoAsync(
                    _plantProvider.Plant, request.ProjectId,
                    request.StartsWithCommPkgNo)
-                   ?? new List<ProcosysCommPkg>();
+                   ?? new List<ProCoSysCommPkg>();
 
             var commPkgDtos = mainApiCommPkgs
-                .Select(commPkg => new ProcosysCommPkgDto(
+                .Select(commPkg => new ProCoSysCommPkgDto(
                     commPkg.Id,
                     commPkg.CommPkgNo,
                     commPkg.Description,
                     commPkg.CommStatus)).ToList();
 
-            return new SuccessResult<List<ProcosysCommPkgDto>>(commPkgDtos);
+            return new SuccessResult<List<ProCoSysCommPkgDto>>(commPkgDtos);
         }
     }
 }

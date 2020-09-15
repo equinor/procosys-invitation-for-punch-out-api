@@ -35,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var items = new List<ProCoSysCommPkg>();
+            var projects = new List<ProCoSysCommPkg>();
 
             var url = $"{_baseAddress}CommPkg/Search" +
                       $"?plantId={plant}" +
@@ -47,10 +47,10 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
 
             if (commPkgSearchResult?.Items != null && commPkgSearchResult.Items.Any())
             {
-                items.AddRange(commPkgSearchResult.Items);
+                projects.AddRange(commPkgSearchResult.Items);
             }
             
-            return items;
+            return projects;
         }
     }
 }
