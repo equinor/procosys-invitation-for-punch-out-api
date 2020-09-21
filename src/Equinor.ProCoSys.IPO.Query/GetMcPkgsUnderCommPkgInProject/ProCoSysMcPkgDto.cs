@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsInProject
+﻿namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
     public class ProCoSysMcPkgDto
     {

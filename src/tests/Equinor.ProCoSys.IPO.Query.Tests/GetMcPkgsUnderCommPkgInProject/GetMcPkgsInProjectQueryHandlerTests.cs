@@ -3,24 +3,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.Query.GetMcPkgsInProject;
+using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsInProject
+namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
 {
     [TestClass]
-    public class SearchMcPkgsByMcPkgNoQueryHandlerTests : ReadOnlyTestsBase
+    public class GetMcPkgsByCommPkgNoInProjectQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private IList<ProCoSysMcPkg> _mainApiMcPkgs;
-        private GetMcPkgsInProjectQuery _query;
+        private GetMcPkgsUnderCommPkgInProjectQuery _query;
 
-        private readonly int _projectId = 1;
-        private readonly string _mcPkgStartsWith = "C";
+        private readonly string _projectName = "Dummy project";
+        private readonly string _commPkgNo = "Comm-1";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -44,10 +44,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsInProject
                 };
 
                 _mcPkgApiServiceMock
-                    .Setup(x => x.SearchMcPkgsByMcPkgNoAsync(TestPlant, _projectId, _mcPkgStartsWith))
+                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(TestPlant, _projectName, _commPkgNo))
                     .Returns(Task.FromResult(_mainApiMcPkgs));
 
-                _query = new GetMcPkgsInProjectQuery(_projectId, _mcPkgStartsWith);
+                _query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectName, _commPkgNo);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsInProject
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetMcPkgsInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
+                var dut = new GetMcPkgsUnderCommPkgInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsInProject
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetMcPkgsInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
+                var dut = new GetMcPkgsUnderCommPkgInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Count);
@@ -86,9 +86,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsInProject
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetMcPkgsInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
+                var dut = new GetMcPkgsUnderCommPkgInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
                 _mcPkgApiServiceMock
-                    .Setup(x => x.SearchMcPkgsByMcPkgNoAsync(TestPlant, _projectId, _mcPkgStartsWith))
+                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(TestPlant, _projectName, _commPkgNo))
                     .Returns(Task.FromResult<IList<ProCoSysMcPkg>>(null));
 
                 var result = await dut.Handle(_query, default);

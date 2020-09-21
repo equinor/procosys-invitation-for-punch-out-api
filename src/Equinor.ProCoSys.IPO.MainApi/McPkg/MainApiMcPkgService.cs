@@ -27,29 +27,31 @@ namespace Equinor.ProCoSys.IPO.MainApi.McPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProCoSysMcPkg>> SearchMcPkgsByMcPkgNoAsync(string plant, int projectId,
-            string startsWithMcPkgNo)
+        public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
+            string plant, 
+            string projectName,
+            string commPkgNo)
         {
             if (!await _plantCache.IsValidPlantForCurrentUserAsync(plant))
             {
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var url = $"{_baseAddress}McPkg/Search" +
+            var url = $"{_baseAddress}McPkg/McPkgs" +
                       $"?plantId={plant}" +
-                      $"&startsWithMcPkgNo={WebUtility.UrlEncode(startsWithMcPkgNo)}" +
-                      $"&projectId={projectId}" +
+                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                      $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgSearchResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(url);
+            var mcPkgsResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(url);
 
-            var items = new List<ProCoSysMcPkg>();
-            if (mcPkgSearchResult?.Items != null && mcPkgSearchResult.Items.Any())
+            var mcPkgs = new List<ProCoSysMcPkg>();
+            if (mcPkgsResult?.Items != null && mcPkgsResult.Items.Any())
             {
-                items.AddRange(mcPkgSearchResult.Items);
+                mcPkgs.AddRange(mcPkgsResult.Items);
             }
 
-            return items;
+            return mcPkgs;
         }
     }
 }
