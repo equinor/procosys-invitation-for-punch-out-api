@@ -37,19 +37,13 @@ namespace Equinor.ProCoSys.IPO.MainApi.McPkg
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var url = $"{_baseAddress}McPkg/McPkgs" +
+            var url = $"{_baseAddress}McPkgs" +
                       $"?plantId={plant}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgsResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(url);
-
-            var mcPkgs = new List<ProCoSysMcPkg>();
-            if (mcPkgsResult?.Items != null && mcPkgsResult.Items.Any())
-            {
-                mcPkgs.AddRange(mcPkgsResult.Items);
-            }
+            var mcPkgs = await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
 
             return mcPkgs;
         }

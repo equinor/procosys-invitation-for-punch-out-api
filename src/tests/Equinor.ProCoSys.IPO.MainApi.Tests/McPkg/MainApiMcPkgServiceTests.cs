@@ -17,8 +17,10 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.McPkg
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IBearerTokenApiClient> _mainApiClient;
         private Mock<IPlantCache> _plantCache;
-        private ProCoSysMcPkgSearchResult _searchPageWithThreeItems;
         private MainApiMcPkgService _dut;
+        private ProCoSysMcPkg _proCoSysMcPkg1;
+        private ProCoSysMcPkg _proCoSysMcPkg2;
+        private ProCoSysMcPkg _proCoSysMcPkg3;
 
         private const string _plant = "PCS$TESTPLANT";
 
@@ -36,70 +38,49 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.McPkg
                 .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
                 .Returns(Task.FromResult(true));
 
-            _searchPageWithThreeItems = new ProCoSysMcPkgSearchResult
-            {
-                Items = new List<ProCoSysMcPkg>
-                        {
-                            new ProCoSysMcPkg
-                            {
-                                Id = 111111111,
-                                McPkgNo = "McNo1",
-                                Description = "Description1"
-                            },
-                            new ProCoSysMcPkg
-                            {
-                                Id = 222222222,
-                                McPkgNo = "McNo2",
-                                Description = "Description2"
-                            },
-                            new ProCoSysMcPkg
-                            {
-                                Id = 333333333,
-                                McPkgNo = "McNo3",
-                                Description = "Description3"
-                            }
-                        }
-            };
+            _proCoSysMcPkg1 = new ProCoSysMcPkg {Id = 111111111, McPkgNo = "McNo1", Description = "Description1"};
+            _proCoSysMcPkg2 = new ProCoSysMcPkg {Id = 222222222, McPkgNo = "McNo2", Description = "Description2"};
+            _proCoSysMcPkg3 = new ProCoSysMcPkg {Id = 333333333, McPkgNo = "McNo3", Description = "Description3"};
 
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(It.IsAny<string>()))
-                .Returns(Task.FromResult(_searchPageWithThreeItems));
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<ProCoSysMcPkg> { _proCoSysMcPkg1, _proCoSysMcPkg2, _proCoSysMcPkg3 }));
 
             _dut = new MainApiMcPkgService(_mainApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
         }
 
         [TestMethod]
-        public async Task SearchMcPkgsByMcPkgNo_ShouldReturnCorrectNumberOfMcPkgs()
+        public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectNumberOfMcPkgs()
         {
             // Act
-            var result = await _dut.SearchMcPkgsByMcPkgNoAsync(_plant, 2, "C");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project2", "C");
 
             // Assert
             Assert.AreEqual(3, result.Count);
         }
 
         [TestMethod]
-        public async Task SearchMcPkgsByMcPkgNo_ShouldThrowException_WhenPlantIsInvalid()
+        public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldThrowException_WhenPlantIsInvalid()
             => await Assert.ThrowsExceptionAsync<ArgumentException>(async ()
-                => await _dut.SearchMcPkgsByMcPkgNoAsync("INVALIDPLANT", 2, "A"));
+                => await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync("INVALIDPLANT", "Project2", "A"));
 
         [TestMethod]
-        public async Task SearchMcPkgsByMcPkgNo_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysMcPkgSearchResult>(It.IsAny<string>()))
-                .Returns(Task.FromResult<ProCoSysMcPkgSearchResult>(null));
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<ProCoSysMcPkg>()));
 
-            var result = await _dut.SearchMcPkgsByMcPkgNoAsync(_plant, 1, "A");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project1", "A");
 
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public async Task SearchMcPkgsByMcPkgNo_ShouldReturnCorrectProperties()
+        public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.SearchMcPkgsByMcPkgNoAsync(_plant, 3, "C");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project3", "C");
 
             // Assert
             var mcPkg = result.First();

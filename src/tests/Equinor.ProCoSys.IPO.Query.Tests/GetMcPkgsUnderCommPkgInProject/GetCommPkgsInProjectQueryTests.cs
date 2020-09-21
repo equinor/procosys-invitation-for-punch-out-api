@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
 {
     [TestClass]
-    public class SearchMcPkgsByMcPkgNoQueryTests
+    public class GetMcPkgsUnderCommPkgInProjectQueryTests
     {
         [TestMethod]
         public void Constructor_SetsProperties()
