@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
-using Equinor.ProCoSys.IPO.Query.GetMcPkgsInProject;
+using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.Query.GetProjectsInPlant;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -69,10 +69,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
-            [FromQuery] int projectId,
-            [FromQuery] string startsWithMcPkgNo)
+            [FromQuery] string projectName,
+            [FromQuery] string commPkgNo)
         {
-            var result = await _mediator.Send(new GetMcPkgsInProjectQuery(projectId, startsWithMcPkgNo));
+            var result = await _mediator.Send(new GetMcPkgsUnderCommPkgInProjectQuery(projectName, commPkgNo));
             return this.FromResult(result);
         }
     }

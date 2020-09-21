@@ -7,14 +7,14 @@ using Equinor.ProCoSys.IPO.MainApi.McPkg;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsInProject
+namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
-    public class GetMcPkgsInProjectQueryHandler : IRequestHandler<GetMcPkgsInProjectQuery, Result<List<ProCoSysMcPkgDto>>>
+    public class GetMcPkgsUnderCommPkgInProjectQueryHandler : IRequestHandler<GetMcPkgsUnderCommPkgInProjectQuery, Result<List<ProCoSysMcPkgDto>>>
     {
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPlantProvider _plantProvider;
 
-        public GetMcPkgsInProjectQueryHandler(
+        public GetMcPkgsUnderCommPkgInProjectQueryHandler(
             IMcPkgApiService mcPkgApiService,
             IPlantProvider plantProvider)
         {
@@ -22,13 +22,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsInProject
             _mcPkgApiService = mcPkgApiService;
         }
 
-        public async Task<Result<List<ProCoSysMcPkgDto>>> Handle(GetMcPkgsInProjectQuery request,
+        public async Task<Result<List<ProCoSysMcPkgDto>>> Handle(GetMcPkgsUnderCommPkgInProjectQuery request,
             CancellationToken cancellationToken)
         {
             var mainApiMcPkgs = await _mcPkgApiService
-                .SearchMcPkgsByMcPkgNoAsync(
-                   _plantProvider.Plant, request.ProjectId,
-                   request.StartsWithMcPkgNo)
+                .GetMcPkgsByCommPkgNoAndProjectNameAsync(
+                   _plantProvider.Plant, request.ProjectName,
+                   request.CommPkgNo)
                    ?? new List<ProCoSysMcPkg>();
 
             var mcPkgDtos = mainApiMcPkgs
