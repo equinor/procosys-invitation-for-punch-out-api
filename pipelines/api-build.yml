@@ -167,7 +167,7 @@ stages:
 # Prod deploy stage
 - stage: prod
   displayName: 'Prod'
-  dependsOn: 'prod'
+  dependsOn: 'test'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     env: 'prod'
