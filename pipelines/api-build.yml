@@ -114,6 +114,8 @@ stages:
       kvUriName: '${{ variables.kvUriName }}'
       kvClientSecretName: '${{ variables.kvClientSecretName }}'
       kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvTenantIdSecret: '${{ variables.kvTenantIdSecret }}'
+      kvConnStringsSecret: '${{ variables.kvConnStringsSecret }}'
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
@@ -121,7 +123,7 @@ stages:
 # Test deploy stage
 - stage: test
   displayName: 'Test'
-  dependsOn: 'common'
+  dependsOn: 'dev'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
     env: 'test'
