@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.MainApi.Client;
@@ -49,20 +48,13 @@ namespace Equinor.ProCoSys.IPO.MainApi.Project
                 throw new ArgumentException($"Invalid plant: {plant}");
             }
 
-            var items = new List<ProCoSysProject>();
-
             var url = $"{_baseAddress}Projects" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}";
 
-            var projectsResult = await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
+            var projects = await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
 
-            if (projectsResult.Any())
-            {
-                items.AddRange(projectsResult);
-            }
-
-            return items;
+            return projects;
         }
     }
 }
