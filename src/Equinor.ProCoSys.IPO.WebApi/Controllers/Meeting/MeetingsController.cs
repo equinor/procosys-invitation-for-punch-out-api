@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Meeting
             string plant,
             [FromBody] CreateMeetingDto dto)
         {
-            var result = await _mediator.Send(new CreateMeetingCommand());
+            var result = await _mediator.Send(new CreateMeetingCommand(dto.Title, dto.Location, dto.StartDate, dto.EndDate, dto.ParticipantOids));
             return this.FromResult(result);
         }
     }

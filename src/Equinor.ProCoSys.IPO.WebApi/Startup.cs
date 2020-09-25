@@ -137,6 +137,19 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 options.EnableForHttps = true;
             });
 
+            services.AddFusionIntegration(options =>
+            {
+                options.UseServiceInformation("PCS IPO", _environment.EnvironmentName); // Environment identifier
+                options.UseDefaultEndpointResolver("ci");                               // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
+                options.UseDefaultTokenProvider(opts =>
+                {
+                    opts.ClientId = Configuration["Meetings:ClientId"];                  // Application client ID
+                    opts.ClientSecret = Configuration["Meetings:ClientSecret"];          // Application client secret
+                });
+                options.AddMeetings();
+                options.DisableClaimsTransformation();                                  // Disable this - Fusion adds relevant claims
+            });
+
             services.AddApplicationInsightsTelemetry();
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);

@@ -1,11 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Meeting
 {
     public class MeetingDto
     {
+        public MeetingDto(
+            Guid id,
+            string title,
+            string location,
+            DateTime startTime,
+            DateTime endTime)
+        {
+
+        }
     }
 }
