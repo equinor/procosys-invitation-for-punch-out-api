@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Permission
+namespace Equinor.ProCoSys.IPO.ForeignApi.Permission
 {
     public interface IPermissionApiService
     {

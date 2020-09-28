@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Plant
+namespace Equinor.ProCoSys.IPO.ForeignApi.Plant
 {
     [DebuggerDisplay("{Title} ({Id})")]
     public class ProCoSysPlant

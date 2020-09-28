@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Plant
+namespace Equinor.ProCoSys.IPO.ForeignApi.Plant
 {
     public class MainApiPlantService : IPlantApiService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
-        private readonly IBearerTokenApiClient _mainApiClient;
+        private readonly IBearerTokenApiClient _foreignApiClient;
 
         public MainApiPlantService(
-            IBearerTokenApiClient mainApiClient,
+            IBearerTokenApiClient foreignApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _mainApiClient = mainApiClient;
+            _foreignApiClient = foreignApiClient;
             _apiVersion = options.CurrentValue.ApiVersion;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
@@ -24,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Plant
         public async Task<List<ProCoSysPlant>> GetPlantsAsync()
         {
             var url = $"{_baseAddress}Plants?api-version={_apiVersion}";
-            return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
         }
     }
 }

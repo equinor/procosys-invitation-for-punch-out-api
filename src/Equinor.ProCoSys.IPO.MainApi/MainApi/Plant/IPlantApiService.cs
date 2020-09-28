@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Plant
+namespace Equinor.ProCoSys.IPO.ForeignApi.Plant
 {
     public interface IPlantApiService
     {

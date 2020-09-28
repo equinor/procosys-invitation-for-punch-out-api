@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.MainApi.Project
+﻿namespace Equinor.ProCoSys.IPO.ForeignApi.Project
 {
     public class ProCoSysProject
     {

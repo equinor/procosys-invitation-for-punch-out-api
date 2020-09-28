@@ -2,25 +2,26 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Project
+namespace Equinor.ProCoSys.IPO.ForeignApi.Project
 {
     public class MainApiProjectService : IProjectApiService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
-        private readonly IBearerTokenApiClient _mainApiClient;
+        private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly IPlantCache _plantCache;
 
         public MainApiProjectService(
-            IBearerTokenApiClient mainApiClient,
+            IBearerTokenApiClient foreignApiClient,
             IPlantCache plantCache,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _mainApiClient = mainApiClient;
+            _foreignApiClient = foreignApiClient;
             _plantCache = plantCache;
             _apiVersion = options.CurrentValue.ApiVersion;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
@@ -38,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Project
                 $"&projectName={WebUtility.UrlEncode(name)}" +
                 $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
+            return await _foreignApiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
         }
 
         public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant)
@@ -52,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Project
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}";
 
-            var projects = await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
+            var projects = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
 
             return projects;
         }
