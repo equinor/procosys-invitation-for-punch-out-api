@@ -4,7 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

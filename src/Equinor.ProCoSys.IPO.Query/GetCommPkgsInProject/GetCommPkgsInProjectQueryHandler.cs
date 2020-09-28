@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using MediatR;
 using ServiceResult;
 

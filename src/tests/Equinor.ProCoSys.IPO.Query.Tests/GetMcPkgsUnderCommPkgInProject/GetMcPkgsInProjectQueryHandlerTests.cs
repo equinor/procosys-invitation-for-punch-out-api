@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Equinor.ProCoSys.IPO.Infrastructure.Caching;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Caches

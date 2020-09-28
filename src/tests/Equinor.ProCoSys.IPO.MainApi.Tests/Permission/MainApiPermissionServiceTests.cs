@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.Permission;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

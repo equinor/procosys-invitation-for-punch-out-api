@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;

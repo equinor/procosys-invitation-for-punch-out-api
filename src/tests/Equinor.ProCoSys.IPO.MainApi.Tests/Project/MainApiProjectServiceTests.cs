@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Project;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

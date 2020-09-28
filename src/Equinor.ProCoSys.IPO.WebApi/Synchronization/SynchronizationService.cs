@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.Time;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;

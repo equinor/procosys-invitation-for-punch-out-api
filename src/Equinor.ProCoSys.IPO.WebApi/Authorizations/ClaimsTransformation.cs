@@ -3,7 +3,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
