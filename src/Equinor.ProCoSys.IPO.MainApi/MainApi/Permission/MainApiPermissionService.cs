@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.ForeignApi.Permission
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
 {
     public class MainApiPermissionService : IPermissionApiService
     {

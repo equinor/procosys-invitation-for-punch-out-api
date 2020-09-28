@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.ForeignApi.Plant
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant
 {
     public class MainApiPlantService : IPlantApiService
     {

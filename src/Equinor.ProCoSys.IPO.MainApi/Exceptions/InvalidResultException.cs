@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Exceptions
+namespace Equinor.ProCoSys.IPO.ForeignApi.Exceptions
 {
     public class InvalidResultException : Exception
     {

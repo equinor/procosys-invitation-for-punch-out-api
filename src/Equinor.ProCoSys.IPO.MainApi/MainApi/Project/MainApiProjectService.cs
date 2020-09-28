@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
-using Equinor.ProCoSys.IPO.ForeignApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.ForeignApi.Project
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
 {
     public class MainApiProjectService : IProjectApiService
     {
