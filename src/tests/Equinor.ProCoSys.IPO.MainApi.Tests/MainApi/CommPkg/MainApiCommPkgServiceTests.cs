@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.CommPkg;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.CommPkg
 {
     [TestClass]
     public class MainApiCommPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _mainApiClient;
+        private Mock<IBearerTokenApiClient> _foreignApiClient;
         private Mock<IPlantCache> _plantCache;
         private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
         private MainApiCommPkgService _dut;
@@ -30,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _mainApiClient = new Mock<IBearerTokenApiClient>();
+            _foreignApiClient = new Mock<IBearerTokenApiClient>();
             _plantCache = new Mock<IPlantCache>();
             _plantCache
                 .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
@@ -64,11 +65,11 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
                         }
             };
 
-            _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>()))
+            _foreignApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_searchPageWithThreeItems));
 
-            _dut = new MainApiCommPkgService(_mainApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
+            _dut = new MainApiCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
         }
 
         [TestMethod]
@@ -89,8 +90,8 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.CommPkg
         [TestMethod]
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
-            _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>()))
+            _foreignApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(null));
 
             var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, 1, "A");

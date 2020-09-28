@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.MainApi.McPkg
+﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
     public class ProCoSysMcPkg
     {

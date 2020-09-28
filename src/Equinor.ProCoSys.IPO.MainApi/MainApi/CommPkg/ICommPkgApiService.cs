@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public interface ICommPkgApiService
     {

@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.MainApi.McPkg
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
     public class MainApiMcPkgService : IMcPkgApiService
     {
-        private readonly IBearerTokenApiClient _mainApiClient;
+        private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;
         private readonly IPlantCache _plantCache;
         private readonly string _apiVersion;
 
         public MainApiMcPkgService(
-            IBearerTokenApiClient mainApiClient,
+            IBearerTokenApiClient foreignApiClient,
             IOptionsMonitor<MainApiOptions> options,
             IPlantCache plantCache)
         {
-            _mainApiClient = mainApiClient;
+            _foreignApiClient = foreignApiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _plantCache = plantCache;
             _apiVersion = options.CurrentValue.ApiVersion;
@@ -43,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.McPkg
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgs = await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
+            var mcPkgs = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
 
             return mcPkgs;
         }

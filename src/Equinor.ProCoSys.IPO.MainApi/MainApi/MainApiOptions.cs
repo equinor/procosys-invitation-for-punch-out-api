@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.MainApi
+﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi
 {
     public class MainApiOptions
     {

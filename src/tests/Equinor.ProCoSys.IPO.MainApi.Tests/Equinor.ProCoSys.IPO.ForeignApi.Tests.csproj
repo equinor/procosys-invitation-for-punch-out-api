@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.MainApi.csproj" />
+    <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 
 </Project>

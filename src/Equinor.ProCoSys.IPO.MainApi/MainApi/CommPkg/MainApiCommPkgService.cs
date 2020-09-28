@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Plant;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public class MainApiCommPkgService : ICommPkgApiService
     {
-        private readonly IBearerTokenApiClient _mainApiClient;
+        private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;
         private readonly IPlantCache _plantCache;
         private readonly string _apiVersion;
 
         public MainApiCommPkgService(
-            IBearerTokenApiClient mainApiClient,
+            IBearerTokenApiClient foreignApiClient,
             IOptionsMonitor<MainApiOptions> options,
             IPlantCache plantCache)
         {
-            _mainApiClient = mainApiClient;
+            _foreignApiClient = foreignApiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _plantCache = plantCache;
             _apiVersion = options.CurrentValue.ApiVersion;
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.CommPkg
                       $"&projectId={projectId}" +
                       $"&api-version={_apiVersion}";
 
-            var commPkgSearchResult = await _mainApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
+            var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
 
             if (commPkgSearchResult?.Items != null && commPkgSearchResult.Items.Any())
             {
