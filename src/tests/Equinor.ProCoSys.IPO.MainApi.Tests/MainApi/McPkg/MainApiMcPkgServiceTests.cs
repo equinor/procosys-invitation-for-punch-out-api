@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.McPkg
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
 {
     [TestClass]
     public class MainApiMcPkgServiceTests

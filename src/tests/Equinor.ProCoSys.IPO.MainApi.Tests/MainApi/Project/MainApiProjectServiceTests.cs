@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
-using Equinor.ProCoSys.IPO.ForeignApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Project
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
 {
     [TestClass]
     public class MainApiProjectServiceTests
@@ -46,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Project
             _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = Project2Name, Description = Project2Description};
 
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>()))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject> {_proCoSysProject1, _proCoSysProject2}));
 
             _dut = new MainApiProjectService(_mainApiClient.Object, _plantCache.Object, _mainApiOptions.Object);
@@ -87,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Project
         public async Task GetProjectsByPlant_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>()))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject>()));
 
             var result = await _dut.GetProjectsInPlantAsync(_plant);

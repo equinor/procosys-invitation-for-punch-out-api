@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Permission
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Permission
 {
     [TestClass]
     public class MainApiPermissionServiceTests
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Permission
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>()))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string>{ "A", "B", "C" }));
             // Act
             var result = await _dut.GetPermissionsAsync(_plant);
@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Permission
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>()))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null) )
                 .Returns(Task.FromResult(new List<string>()));
             // Act
             var result = await _dut.GetPermissionsAsync(_plant);

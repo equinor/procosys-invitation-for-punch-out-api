@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Client
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.Client
 {
     [TestClass]
     public class BearerTokenApiClientTests

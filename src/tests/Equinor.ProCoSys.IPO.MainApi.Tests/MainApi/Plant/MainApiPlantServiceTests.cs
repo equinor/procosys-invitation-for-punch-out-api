@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
-using Equinor.ProCoSys.IPO.ForeignApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Plant
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Plant
 {
     [TestClass]
     public class MainApiPlantServiceTests
@@ -27,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.MainApi.Tests.Plant
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             var mainApiClient = new Mock<IBearerTokenApiClient>();
             mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>()))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPlant>
                 {
                     new ProCoSysPlant { Id = _plantId, Title = _plantTitle },
