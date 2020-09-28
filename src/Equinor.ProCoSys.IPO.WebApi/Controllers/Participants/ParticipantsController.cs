@@ -19,19 +19,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         public ParticipantsController(IMediator mediator) => _mediator = mediator;
 
         /// <summary>
-        /// Gets functional roles from ProCoSys library API by classification
+        /// Gets functional roles from ProCoSys library API with IPO classification 
         /// </summary>
         /// <param name="plant"></param>
-        /// <param name="classification"></param>
-        /// <returns>All ProCoSys functional roles which are of the given classification</returns>
+        /// <returns>All ProCoSys functional roles which have classification IPO</returns>
         [Authorize(Roles = Permissions.LIBRARY_FUNCTIONAL_ROLE_READ)]
         [HttpGet("/FunctionalRoles")]
-        public async Task<ActionResult<List<ProCoSysFunctionalRoleDto>>> GetFunctionalRoles(
+        public async Task<ActionResult<List<ProCoSysFunctionalRoleDto>>> GetFunctionalRolesForIpo(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
-            string plant,
-            [FromQuery] string classification)
+            string plant)
         {
-            var result = await _mediator.Send(new GetFunctionalRolesQuery(classification));
+            const string classification = "IPO";
+            var result = await _mediator.Send(new GetFunctionalRolesForIpoQuery(classification));
             return this.FromResult(result);
         }
     }

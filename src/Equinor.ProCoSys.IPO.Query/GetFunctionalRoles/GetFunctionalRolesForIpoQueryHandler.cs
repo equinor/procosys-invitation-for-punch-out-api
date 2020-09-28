@@ -9,12 +9,12 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
 {
-    public class GetFunctionalRolesQueryHandler : IRequestHandler<GetFunctionalRolesQuery, Result<List<ProCoSysFunctionalRoleDto>>>
+    public class GetFunctionalRolesForIpoQueryHandler : IRequestHandler<GetFunctionalRolesForIpoQuery, Result<List<ProCoSysFunctionalRoleDto>>>
     {
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IPlantProvider _plantProvider;
 
-        public GetFunctionalRolesQueryHandler(
+        public GetFunctionalRolesForIpoQueryHandler(
             IFunctionalRoleApiService functionalRoleApiService,
             IPlantProvider plantProvider)
         {
@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
             _functionalRoleApiService = functionalRoleApiService;
         }
 
-        public async Task<Result<List<ProCoSysFunctionalRoleDto>>> Handle(GetFunctionalRolesQuery request,
+        public async Task<Result<List<ProCoSysFunctionalRoleDto>>> Handle(GetFunctionalRolesForIpoQuery request,
             CancellationToken cancellationToken)
         {
             var mainApiFunctionalRoles = await _functionalRoleApiService

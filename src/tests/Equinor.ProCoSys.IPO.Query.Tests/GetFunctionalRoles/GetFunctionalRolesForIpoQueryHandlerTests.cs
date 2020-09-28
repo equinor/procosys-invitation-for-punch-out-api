@@ -13,11 +13,11 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
 {
     [TestClass]
-    public class GetFunctionalRolesQueryHandlerTests : ReadOnlyTestsBase
+    public class GetFunctionalRolesForIpoQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private IList<ProCoSysFunctionalRole> _libraryApiFunctionalRoles;
-        private GetFunctionalRolesQuery _query;
+        private GetFunctionalRolesForIpoQuery _query;
 
         private const string _classification = "Classification";
 
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
                     .Setup(x => x.GetFunctionalRolesByClassificationAsync(TestPlant, _classification))
                     .Returns(Task.FromResult(_libraryApiFunctionalRoles));
 
-                _query = new GetFunctionalRolesQuery(_classification);
+                _query = new GetFunctionalRolesForIpoQuery(_classification);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetFunctionalRolesQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
+                var dut = new GetFunctionalRolesForIpoQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetFunctionalRolesQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
+                var dut = new GetFunctionalRolesForIpoQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(2, result.Data.Count);
@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetFunctionalRolesQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
+                var dut = new GetFunctionalRolesForIpoQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
                 _functionalRoleApiServiceMock
                     .Setup(x => x.GetFunctionalRolesByClassificationAsync(TestPlant, _classification))
                     .Returns(Task.FromResult<IList<ProCoSysFunctionalRole>>(null));
