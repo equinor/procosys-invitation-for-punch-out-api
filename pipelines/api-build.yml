@@ -131,7 +131,7 @@ stages:
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     serviceConnection: '${{ variables.nonProdServiceConnection }}'
     containerRegistry: '${{ variables.containerRegistryName }}' 
-    aspNetCoreEnvironment: 'Development'
+    aspNetCoreEnvironment: 'Test'
 
   jobs:
   # Run Migration Script (Predeploy)
