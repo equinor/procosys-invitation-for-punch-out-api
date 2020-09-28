@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Client
+namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 {
     public interface IBearerTokenProvider
     {
-        ValueTask<string> GetBearerTokenOnBehalfOfCurrentUserAsync();
+        ValueTask<string> GetBearerTokenForMainApiOnBehalfOfCurrentUserAsync();
+        ValueTask<string> GetBearerTokenForLibraryApiOnBehalfOfCurrentUserAsync();
     }
 }
