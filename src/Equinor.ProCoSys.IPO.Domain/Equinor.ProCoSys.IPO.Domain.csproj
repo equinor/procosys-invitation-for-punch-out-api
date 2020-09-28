@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AggregateModels\" />
     <Folder Include="Events\" />
   </ItemGroup>
 
