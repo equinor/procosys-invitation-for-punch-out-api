@@ -14,6 +14,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
     [Route("FunctionalRoles")]
     public class ParticipantsController : ControllerBase
     {
+        private const string _classification = "IPO";
+
         private readonly IMediator _mediator;
 
         public ParticipantsController(IMediator mediator) => _mediator = mediator;
@@ -29,8 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant)
         {
-            const string classification = "IPO";
-            var result = await _mediator.Send(new GetFunctionalRolesForIpoQuery(classification));
+            var result = await _mediator.Send(new GetFunctionalRolesForIpoQuery(_classification));
             return this.FromResult(result);
         }
     }
