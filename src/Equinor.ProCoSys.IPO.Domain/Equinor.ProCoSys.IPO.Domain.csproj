@@ -8,8 +8,4 @@
     <PackageReference Include="MediatR" Version="8.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Events\" />
-  </ItemGroup>
-
 </Project>

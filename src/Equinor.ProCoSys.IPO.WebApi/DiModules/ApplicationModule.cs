@@ -1,7 +1,9 @@
 ﻿using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -21,6 +23,7 @@ using Equinor.ProCoSys.IPO.WebApi.Caches;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
+using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -74,6 +77,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ISynchronizationService, SynchronizationService>();
 
             services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IInvitationRepository, InvitationRepository>();
 
             services.AddScoped<Authenticator>();
             services.AddScoped<IBearerTokenProvider>(x => x.GetRequiredService<Authenticator>());

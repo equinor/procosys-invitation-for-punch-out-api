@@ -140,7 +140,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddFusionIntegration(options =>
             {
                 options.UseServiceInformation("PCS IPO", _environment.EnvironmentName); // Environment identifier
-                options.UseDefaultEndpointResolver("ci");                               // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
+                options.UseDefaultEndpointResolver(Configuration["Meetings:Environment"]);                               // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
                 options.UseDefaultTokenProvider(opts =>
                 {
                     opts.ClientId = Configuration["Meetings:ClientId"];                  // Application client ID
