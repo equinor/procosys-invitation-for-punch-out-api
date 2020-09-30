@@ -31,15 +31,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
                 {
                     new ProCoSysMcPkg
                     {
-                        Id = 1, McPkgNo = "McPkgNo1", Description = "Desc1"
+                        Id = 1, McPkgNo = "McPkgNo1", Description = "Desc1", DisciplineCode = "A"
                     },
                     new ProCoSysMcPkg
                     {
-                        Id = 2, McPkgNo = "McPkgNo2", Description = "Desc2"
+                        Id = 2, McPkgNo = "McPkgNo2", Description = "Desc2", DisciplineCode = "A"
                     },
                     new ProCoSysMcPkg
                     {
-                        Id = 3, McPkgNo = "McPkgNo3", Description = "Desc3"
+                        Id = 3, McPkgNo = "McPkgNo3", Description = "Desc3", DisciplineCode = "B"
                     }
                 };
 
@@ -103,6 +103,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
             Assert.AreEqual(PCSMcPkg.Id, mcPkgDto.Id);
             Assert.AreEqual(PCSMcPkg.McPkgNo, mcPkgDto.McPkgNo);
             Assert.AreEqual(PCSMcPkg.Description, mcPkgDto.Description);
+            Assert.AreEqual(PCSMcPkg.DisciplineCode, mcPkgDto.DisciplineCode);
         }
     }
 }

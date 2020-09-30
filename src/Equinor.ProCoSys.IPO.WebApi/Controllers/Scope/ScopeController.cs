@@ -60,8 +60,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// Gets McPkgs from ProCoSys main API by McPkgNos
         /// </summary>
         /// <param name="plant"></param>
-        /// <param name="projectId"></param>
-        /// <param name="startsWithMcPkgNo"></param>
+        /// <param name="projectName"></param>
+        /// <param name="commPkgNo"></param>
         /// <returns>All ProCoSys mcpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.MCPKG_READ)]
         [HttpGet("/McPkgs")]
