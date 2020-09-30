@@ -39,9 +39,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
                 .Returns(Task.FromResult(true));
 
-            _proCoSysMcPkg1 = new ProCoSysMcPkg {Id = 111111111, McPkgNo = "McNo1", Description = "Description1"};
-            _proCoSysMcPkg2 = new ProCoSysMcPkg {Id = 222222222, McPkgNo = "McNo2", Description = "Description2"};
-            _proCoSysMcPkg3 = new ProCoSysMcPkg {Id = 333333333, McPkgNo = "McNo3", Description = "Description3"};
+            _proCoSysMcPkg1 = new ProCoSysMcPkg {Id = 111111111, McPkgNo = "McNo1", Description = "Description1", DisciplineCode = "A"};
+            _proCoSysMcPkg2 = new ProCoSysMcPkg {Id = 222222222, McPkgNo = "McNo2", Description = "Description2", DisciplineCode = "A" };
+            _proCoSysMcPkg3 = new ProCoSysMcPkg {Id = 333333333, McPkgNo = "McNo3", Description = "Description3", DisciplineCode = "B" };
 
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
@@ -88,6 +88,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual(111111111, mcPkg.Id);
             Assert.AreEqual("McNo1", mcPkg.McPkgNo);
             Assert.AreEqual("Description1", mcPkg.Description);
+            Assert.AreEqual("A", mcPkg.DisciplineCode);
         }
     }
 }
