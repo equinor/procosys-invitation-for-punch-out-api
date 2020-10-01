@@ -17,6 +17,7 @@ COPY tests/Equinor.ProCoSys.IPO.Query.Tests/*.csproj ./tests/Equinor.ProCoSys.IP
 COPY Equinor.ProCoSys.IPO.WebApi/*.csproj ./Equinor.ProCoSys.IPO.WebApi/
 COPY tests/Equinor.ProCoSys.IPO.WebApi.Tests/*.csproj ./tests/Equinor.ProCoSys.IPO.WebApi.Tests/
 COPY tests/Equinor.ProCoSys.IPO.Test.Common/*.csproj ./tests/Equinor.ProCoSys.IPO.Test.Common/
+COPY nuget.config .
 
 # Restore NuGet packages
 RUN dotnet restore
