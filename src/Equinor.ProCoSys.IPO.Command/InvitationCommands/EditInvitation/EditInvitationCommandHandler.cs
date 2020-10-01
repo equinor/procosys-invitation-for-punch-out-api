@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Fusion.Integration.Meeting;
 using MediatR;
@@ -12,13 +11,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<Unit>>
     {
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IUnitOfWork _unitOfWork;
         private readonly IFusionMeetingClient _meetingClient;
 
-        public EditInvitationCommandHandler(IInvitationRepository invitationRepository, IUnitOfWork unitOfWork, IFusionMeetingClient meetingClient)
+        public EditInvitationCommandHandler(IInvitationRepository invitationRepository, IFusionMeetingClient meetingClient)
         {
             _invitationRepository = invitationRepository;
-            _unitOfWork = unitOfWork;
             _meetingClient = meetingClient;
         }
 
@@ -34,8 +31,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 builder.UpdateParticipants(request.Meeting.ParticipantOids.Select(p => new BuilderParticipant(ParticipantType.Required, p)));
                 builder.InviteBodyHtml = request.Meeting.BodyHtml;
             });
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }
     }
