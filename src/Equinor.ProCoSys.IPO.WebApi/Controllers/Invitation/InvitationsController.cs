@@ -18,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         public InvitationsController(IMediator mediator) => _mediator = mediator;
 
+        // TODO: Add permissions
         [HttpGet("{id}")]
         public async Task<ActionResult<int>> GetInvitationById(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        // TODO: Add permissions
         [HttpPost]
         public async Task<ActionResult<int>> CreateInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -48,6 +50,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        // TODO: Add permissions
         [HttpPut("{id}")]
         public async Task<ActionResult<int>> EditInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
