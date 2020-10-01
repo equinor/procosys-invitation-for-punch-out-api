@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Client
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.Client
 {
     internal class FakeHttpMessageHandler : DelegatingHandler
     {

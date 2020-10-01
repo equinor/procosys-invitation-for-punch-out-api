@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.Infrastructure.Caching;
-using Equinor.ProCoSys.IPO.MainApi.Permission;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Caches

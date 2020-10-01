@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.DIModules;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
+using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Seeding;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,12 +40,15 @@ namespace Equinor.ProCoSys.IPO.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            if (_environment.IsDevelopment())
+            if (_environment.IsDevelopment() || _environment.IsTest())
             {
                 if (Configuration.GetValue<bool>("MigrateDatabase"))
                 {
                     services.AddHostedService<DatabaseMigrator>();
                 }
+            }
+            if (_environment.IsDevelopment())
+            {
                 if (Configuration.GetValue<bool>("SeedDummyData"))
                 {
                     services.AddHostedService<Seeder>();
@@ -52,10 +56,10 @@ namespace Equinor.ProCoSys.IPO.WebApi
             }
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    Configuration.Bind("API", options);
-                });
+                    .AddJwtBearer(options =>
+                    {
+                        Configuration.Bind("API", options);
+                    });
 
             services.AddCors(options =>
             {
@@ -97,8 +101,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProCoSys IPO API", Version = "v1" });
 
-                //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
-                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
+    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows

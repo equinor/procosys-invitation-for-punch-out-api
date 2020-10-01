@@ -2,12 +2,12 @@
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.MainApi.Tests.Client
+namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.Client
 {
     [TestClass]
     public class BearerTokenApiClientTests

@@ -31,7 +31,7 @@ stages:
   variables:
     envName: 'common'
     containerRegistry: '${{ variables.containerRegistryName }}'
-    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnectionName }}'
     dockerfilePath: '$(Build.SourcesDirectory)/src/Equinor.ProCoSys.IPO.WebApi/Dockerfile'
 
@@ -78,8 +78,9 @@ stages:
   dependsOn: 'common'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
-    envName: 'dev'
-    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    env: 'dev'
+    envName: 'non-prod'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     serviceConnection: '${{ variables.nonProdServiceConnection }}'
     containerRegistry: '${{ variables.containerRegistryName }}' 
     aspNetCoreEnvironment: 'Development'
@@ -104,7 +105,7 @@ stages:
       deploymentName: 'deploy_to_k8s'
       # dependsOn: 'run_migration_script'
       serviceConnection: '${{ variables.serviceConnection }}'
-      env: '${{ variables.envName }}'
+      env: '${{ variables.env }}'
       envRg: '${{ variables.aksRgName }}'
       envGroup: '${{ variables.envGroupName }}'
       dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
@@ -113,6 +114,8 @@ stages:
       kvUriName: '${{ variables.kvUriName }}'
       kvClientSecretName: '${{ variables.kvClientSecretName }}'
       kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvTenantIdSecret: '${{ variables.kvTenantIdSecret }}'
+      kvConnStringsSecret: '${{ variables.kvConnStringsSecret }}'
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
@@ -120,14 +123,15 @@ stages:
 # Test deploy stage
 - stage: test
   displayName: 'Test'
-  dependsOn: 'common'
+  dependsOn: 'dev'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
-    envName: 'test'
-    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    env: 'test'
+    envName: 'non-prod'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     serviceConnection: '${{ variables.nonProdServiceConnection }}'
     containerRegistry: '${{ variables.containerRegistryName }}' 
-    aspNetCoreEnvironment: 'Development'
+    aspNetCoreEnvironment: 'Test'
 
   jobs:
   # Run Migration Script (Predeploy)
@@ -149,7 +153,7 @@ stages:
       deploymentName: 'deploy_to_k8s'
       # dependsOn: 'run_migration_script'
       serviceConnection: '${{ variables.serviceConnection }}'
-      env: '${{ variables.envName }}'
+      env: '${{ variables.env }}'
       envRg: '${{ variables.aksRgName }}'
       envGroup: '${{ variables.envGroupName }}'
       dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
@@ -158,6 +162,8 @@ stages:
       kvUriName: '${{ variables.kvUriName }}'
       kvClientSecretName: '${{ variables.kvClientSecretName }}'
       kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvTenantIdSecret: '${{ variables.kvTenantIdSecret }}'
+      kvConnStringsSecret: '${{ variables.kvConnStringsSecret }}'
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
@@ -165,9 +171,10 @@ stages:
 # Prod deploy stage
 - stage: prod
   displayName: 'Prod'
-  dependsOn: 'common'
+  dependsOn: 'test'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:
+    env: 'prod'
     envName: 'prod'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
     serviceConnection: '${{ variables.prodServiceConnection }}'
@@ -194,7 +201,7 @@ stages:
       deploymentName: 'deploy_to_k8s'
       # dependsOn: 'run_migration_script'
       serviceConnection: '${{ variables.serviceConnection }}'
-      env: '${{ variables.envName }}'
+      env: '${{ variables.env }}'
       envRg: '${{ variables.aksRgName }}'
       envGroup: '${{ variables.envGroupName }}'
       dockerImage: '${{ variables.containerRegistry }}.azurecr.io/${{ variables.repositoryName }}:${{ variables.versionNumber }}$(Build.BuildId)'
@@ -203,6 +210,8 @@ stages:
       kvUriName: '${{ variables.kvUriName }}'
       kvClientSecretName: '${{ variables.kvClientSecretName }}'
       kvIkeySecretName: '${{ variables.kvIkeySecretName }}'
+      kvTenantIdSecret: '${{ variables.kvTenantIdSecret }}'
+      kvConnStringsSecret: '${{ variables.kvConnStringsSecret }}'
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'

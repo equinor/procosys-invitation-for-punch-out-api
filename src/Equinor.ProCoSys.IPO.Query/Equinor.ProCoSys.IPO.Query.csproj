@@ -14,7 +14,7 @@
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Infrastructure\Equinor.ProCoSys.IPO.Infrastructure.csproj" />
-    <ProjectReference Include="..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.MainApi.csproj" />
+    <ProjectReference Include="..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 
 </Project>

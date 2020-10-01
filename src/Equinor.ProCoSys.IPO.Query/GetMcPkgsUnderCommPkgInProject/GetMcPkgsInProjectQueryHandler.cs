@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using ServiceResult;
 
@@ -35,7 +35,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
                 .Select(mcPkg => new ProCoSysMcPkgDto(
                     mcPkg.Id,
                     mcPkg.McPkgNo,
-                    mcPkg.Description)).ToList();
+                    mcPkg.Description,
+                    mcPkg.DisciplineCode)).ToList();
 
             return new SuccessResult<List<ProCoSysMcPkgDto>>(mcPkgDtos);
         }

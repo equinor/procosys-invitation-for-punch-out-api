@@ -31,9 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Query.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi.Tests", "tests\Equinor.ProCoSys.IPO.WebApi.Tests\Equinor.ProCoSys.IPO.WebApi.Tests.csproj", "{065C9A62-0885-4238-8893-B10BE15E5201}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.MainApi", "Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.MainApi.csproj", "{CFF1281F-84A3-4A73-B32E-ED6A666C187F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.ForeignApi", "Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj", "{CFF1281F-84A3-4A73-B32E-ED6A666C187F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.MainApi.Tests", "tests\Equinor.ProCoSys.IPO.MainApi.Tests\Equinor.ProCoSys.IPO.MainApi.Tests.csproj", "{3628443D-47B4-4D7A-AB08-3E0F613E5015}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.ForeignApi.Tests", "tests\Equinor.ProCoSys.IPO.MainApi.Tests\Equinor.ProCoSys.IPO.ForeignApi.Tests.csproj", "{3628443D-47B4-4D7A-AB08-3E0F613E5015}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Test.Common", "tests\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj", "{AF5AC8E5-6A5F-4560-86BC-7E35FE1F01F3}"
 EndProject

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.MainApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -13,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         private readonly IOptions<AuthenticatorOptions> _options;
         private bool _canUseOnBehalfOf;
         private string _requestToken;
-        private string _onBehalfOfUserToken;
         private string _applicationToken;
+        private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
 
         public Authenticator(IOptions<AuthenticatorOptions> options) => _options = options;
 
@@ -24,11 +25,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
             _canUseOnBehalfOf = isUserToken;
         }
 
-        public async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUserAsync()
+        public async ValueTask<string> GetBearerTokenForMainApiOnBehalfOfCurrentUserAsync()
+            => await GetBearerTokenOnBehalfOfCurrentUser(_options.Value.MainApiScope);
+
+        public async ValueTask<string> GetBearerTokenForLibraryApiOnBehalfOfCurrentUserAsync() 
+            => await GetBearerTokenOnBehalfOfCurrentUser(_options.Value.LibraryApiScope);
+
+        private async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUser(string apiScope)
         {
             if (_canUseOnBehalfOf)
             {
-                if (_onBehalfOfUserToken == null)
+                if (!_oboTokens.ContainsKey(apiScope))
                 {
                     var app = ConfidentialClientApplicationBuilder
                         .Create(_options.Value.IPOApiClientId)
@@ -37,17 +44,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
                         .Build();
 
                     var tokenResult = await app
-                        .AcquireTokenOnBehalfOf(new List<string> { _options.Value.MainApiScope }, new UserAssertion(_requestToken.ToString()))
+                        .AcquireTokenOnBehalfOf(new List<string> { apiScope },
+                            new UserAssertion(_requestToken))
                         .ExecuteAsync();
 
-                    _onBehalfOfUserToken = tokenResult.AccessToken;
+                    _oboTokens.TryAdd(apiScope, tokenResult.AccessToken);
                 }
-                return _onBehalfOfUserToken;
+
+                return _oboTokens[apiScope];
             }
-            else
-            {
-                return _requestToken;
-            }
+
+            return _requestToken;
         }
 
         public async ValueTask<string> GetBearerTokenForApplicationAsync()

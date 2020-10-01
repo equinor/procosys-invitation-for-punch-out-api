@@ -7,16 +7,19 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Caching;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
-using Equinor.ProCoSys.IPO.MainApi;
-using Equinor.ProCoSys.IPO.MainApi.Client;
-using Equinor.ProCoSys.IPO.MainApi.CommPkg;
-using Equinor.ProCoSys.IPO.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.MainApi.Permission;
-using Equinor.ProCoSys.IPO.MainApi.Plant;
-using Equinor.ProCoSys.IPO.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Caches;
@@ -38,6 +41,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             TimeService.SetProvider(new SystemTimeProvider());
 
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
+            services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
@@ -90,6 +94,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBlobStorage, AzureBlobService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
+            services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
 
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
 
