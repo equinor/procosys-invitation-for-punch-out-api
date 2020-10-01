@@ -38,7 +38,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         {
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
-                    new CreateMeetingCommand(dto.Meeting.Title, dto.Meeting.BodyHtml, dto.Meeting.Location, dto.Meeting.StartTime, dto.Meeting.EndTime, dto.Meeting.ParticipantOids)));
+                    new CreateMeetingCommand(
+                        dto.Meeting.Title,
+                        dto.Meeting.BodyHtml,
+                        dto.Meeting.Location,
+                        dto.Meeting.StartTime,
+                        dto.Meeting.EndTime,
+                        dto.Meeting.ParticipantOids)));
             return this.FromResult(result);
         }
 
@@ -53,7 +59,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             var result = await _mediator.Send(
                 new EditInvitationCommand(
                     id,
-                    new EditMeetingCommand(dto.Meeting.Title, dto.Meeting.BodyHtml, dto.Meeting.Location, dto.Meeting.StartTime, dto.Meeting.EndTime, dto.Meeting.ParticipantOids)));
+                    new EditMeetingCommand(
+                        dto.Meeting.Title,
+                        dto.Meeting.BodyHtml,
+                        dto.Meeting.Location,
+                        dto.Meeting.StartTime,
+                        dto.Meeting.EndTime,
+                        dto.Meeting.ParticipantOids)));
             return this.FromResult(result);
         }
     }
