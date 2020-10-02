@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -28,6 +29,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
     {
         private const string AllowAllOriginsCorsPolicy = "AllowAllOrigins";
         private readonly IWebHostEnvironment _environment;
+        private string meetingsId;
+        private string meetingsSecret;
 
         public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
@@ -101,8 +104,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProCoSys IPO API", Version = "v1" });
 
-    //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
-    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows
@@ -157,14 +160,19 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddApplicationInsightsTelemetry();
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
+
+            meetingsId = Configuration["Meetings:ClientId"];
+            meetingsSecret = Configuration["Meetings:ClientSecret"];
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                logger.LogInformation("MeetingsId: " + meetingsId);
+                logger.LogInformation("MeetingsSecret: " + meetingsSecret);
             }
 
             app.UseGlobalExceptionHandling();
