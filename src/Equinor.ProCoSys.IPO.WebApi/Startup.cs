@@ -154,7 +154,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 options.DisableClaimsTransformation();                                  // Disable this - Fusion adds relevant claims
             });
 
-            services.AddApplicationInsightsTelemetry();
+            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
         }

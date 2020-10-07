@@ -41,7 +41,7 @@ stages:
     parameters:
       deploymentName: 'docker_build'
       dependsOn: ''
-      condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+      condition: and(always(), eq(variables['Build.Reason'], 'PullRequest'))
       envGroup: '${{ variables.envGroupName }}'
       buildCommand: build
       versionNumber: ${{ variables.versionNumber }}
@@ -55,7 +55,7 @@ stages:
     parameters:
       deploymentName: 'docker_build_and_push_master_only'
       dependsOn: ''
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       envGroup: '${{ variables.envGroupName }}'
       buildCommand: buildAndPush
       versionNumber: ${{ variables.versionNumber }}
@@ -76,7 +76,7 @@ stages:
 - stage: dev
   displayName: 'Dev'
   dependsOn: 'common'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: succeeded()
   variables:
     env: 'dev'
     envName: 'non-prod'
@@ -124,7 +124,7 @@ stages:
 - stage: test
   displayName: 'Test'
   dependsOn: 'dev'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: succeeded()
   variables:
     env: 'test'
     envName: 'non-prod'
