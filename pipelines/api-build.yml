@@ -124,7 +124,7 @@ stages:
 - stage: test
   displayName: 'Test'
   dependsOn: 'dev'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: succeeded()
   variables:
     env: 'test'
     envName: 'non-prod'
