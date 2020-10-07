@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
     {
         public static void Main(string[] args)
         {
-            Environment.SetEnvironmentVariable("ApplicationInsights:InstrumentationKey", null);
+            Environment.SetEnvironmentVariable("ApplicationInsights--InstrumentationKey", null);
             var host = CreateHostBuilder(args).Build();
             host.Run();
         }
