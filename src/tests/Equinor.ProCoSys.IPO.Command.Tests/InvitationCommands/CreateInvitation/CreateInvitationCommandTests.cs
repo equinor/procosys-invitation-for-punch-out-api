@@ -18,7 +18,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     "location",
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    new List<Guid> { new Guid("12345678-1234-1234-1234-123456123456") });
+                    new List<Guid> { new Guid("12345678-1234-1234-1234-123456123456") },
+                    new List<string> { "abc@example.com" });
             var dut = new CreateInvitationCommand(meeting);
 
             Assert.AreEqual(meeting, dut.Meeting);
@@ -30,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.IsNotNull(dut.Meeting.ParticipantOids);
             Assert.AreEqual(1, dut.Meeting.ParticipantOids.Count());
             Assert.AreEqual("12345678-1234-1234-1234-123456123456", dut.Meeting.ParticipantOids.First().ToString());
+            Assert.AreEqual("abc@example.com", dut.Meeting.ParticipantEmails.First().ToString());
         }
     }
 }

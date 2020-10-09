@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _plant = "PCS$TEST_PLANT";
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private List<Guid> _participantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
+        private List<string> _participantEmails = new List<string>() { "abc@example.com" };
 
         private Invitation _createdInvitation;
         private int _saveChangesCount;
@@ -85,7 +86,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     "location",
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    _participantIds);
+                    _participantIds,
+                    _participantEmails);
             var command = new CreateInvitationCommand(meeting);
 
             await dut.Handle(command, default);
@@ -105,7 +107,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     "location",
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    _participantIds);
+                    _participantIds,
+                    _participantEmails);
             var command = new CreateInvitationCommand(meeting);
 
             var result = await dut.Handle(command, default);

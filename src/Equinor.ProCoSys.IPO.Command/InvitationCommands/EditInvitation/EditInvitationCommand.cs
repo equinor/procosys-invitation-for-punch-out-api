@@ -20,19 +20,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     public class EditMeetingCommand
     {
         public EditMeetingCommand(
-            string meetingTitle,
-            string meetingBodyHtml,
-            string meetingLocation,
-            DateTime meetingStartTime,
-            DateTime meetingEndTime,
-            IEnumerable<Guid> meetingParticipantOids)
+            string title,
+            string bodyHtml,
+            string location,
+            DateTime startTime,
+            DateTime endTime,
+            IEnumerable<Guid> participantOids,
+            IEnumerable<string> participantEmails)
         {
-            Title = meetingTitle;
-            BodyHtml = meetingBodyHtml;
-            Location = meetingLocation;
-            StartTime = meetingStartTime;
-            EndTime = meetingEndTime;
-            ParticipantOids = meetingParticipantOids;
+            Title = title;
+            BodyHtml = bodyHtml;
+            Location = location;
+            StartTime = startTime;
+            EndTime = endTime;
+            ParticipantOids = participantOids ?? new List<Guid>();
+            ParticipantEmails = participantEmails ?? new List<string>();
         }
 
         public string Title { get; }
@@ -41,5 +43,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
         public IEnumerable<Guid> ParticipantOids { get; }
+        public IEnumerable<string> ParticipantEmails { get; }
     }
 }

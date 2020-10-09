@@ -20,14 +20,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             string location,
             DateTime startTime,
             DateTime endTime,
-            IEnumerable<Guid> participantOids)
+            IEnumerable<Guid> participantOids,
+            IEnumerable<string> participantEmails)
         {
             Title = title;
             BodyHtml = bodyHtml;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            ParticipantOids = participantOids;
+            ParticipantOids = participantOids ?? new List<Guid>();
+            ParticipantEmails = participantEmails ?? new List<string>();
         }
 
         public string Title { get; }
@@ -36,5 +38,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
         public IEnumerable<Guid> ParticipantOids { get; }
+        public IEnumerable<string> ParticipantEmails { get; }
     }
 }
