@@ -13,28 +13,20 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
     {
         private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;
-        private readonly IPlantCache _plantCache;
         private readonly string _apiVersion;
 
         public MainApiCommPkgService(
             IBearerTokenApiClient foreignApiClient,
-            IOptionsMonitor<MainApiOptions> options,
-            IPlantCache plantCache)
+            IOptionsMonitor<MainApiOptions> options)
         {
             _foreignApiClient = foreignApiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
-            _plantCache = plantCache;
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
         public async Task<IList<ProCoSysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, int projectId,
             string startsWithCommPkgNo)
         {
-            if (!await _plantCache.IsValidPlantForCurrentUserAsync(plant))
-            {
-                throw new ArgumentException($"Invalid plant: {plant}");
-            }
-
             var projects = new List<ProCoSysCommPkg>();
 
             var url = $"{_baseAddress}CommPkg/Search" +

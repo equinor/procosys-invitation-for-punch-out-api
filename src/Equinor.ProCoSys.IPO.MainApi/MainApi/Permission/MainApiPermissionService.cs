@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.Project;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
@@ -36,15 +36,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
         public async Task<IList<string>> GetPermissionsAsync(string plantId)
         {
             var url = $"{_baseAddress}Permissions" +
-                      $"?plantId={plantId}" +
-                      $"&api-version={_apiVersion}";
-
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<string>>(url) ?? new List<string>();
-        }
-
-        public async Task<IList<string>> GetContentRestrictionsAsync(string plantId)
-        {
-            var url = $"{_baseAddress}ContentRestrictions" +
                       $"?plantId={plantId}" +
                       $"&api-version={_apiVersion}";
 
