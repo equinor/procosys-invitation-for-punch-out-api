@@ -15,9 +15,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 
         public async Task InvokeAsync(HttpContext context, IHttpContextAccessor httpContextAccessor, IPlantSetter plantSetter)
         {
-            var plant = httpContextAccessor?.HttpContext?.Request?.Headers[PlantHeader].ToString().ToUpperInvariant() ??
-                        throw new Exception("Could not determine current plant");
-            plantSetter.SetPlant(plant);
+            var headers = httpContextAccessor?.HttpContext?.Request?.Headers;
+            if (headers == null)
+            {
+                throw new Exception("Could not determine request headers");
+            }
+
+            if (headers.Keys.Contains(PlantHeader))
+            {
+                var plant = headers[PlantHeader].ToString().ToUpperInvariant();
+                plantSetter.SetPlant(plant);
+            }
 
             // Call the next delegate/middleware in the pipeline
             await _next(context);
