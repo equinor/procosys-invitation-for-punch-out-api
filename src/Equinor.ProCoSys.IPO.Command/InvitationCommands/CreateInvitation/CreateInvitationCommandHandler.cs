@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -34,13 +35,31 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _invitationRepository.Add(invitation);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            var participants = new List<BuilderParticipant>();
+            // Required, by OID
+            participants.AddRange(
+                request.Meeting.RequiredParticipantOids.Select(p =>
+                    new BuilderParticipant(ParticipantType.Required, new ParticipantIdentifier(p))));
+            // Required, by Email
+            participants.AddRange(
+                request.Meeting.RequiredParticipantEmails.Select(p =>
+                    new BuilderParticipant(ParticipantType.Required, new ParticipantIdentifier(p))));
+            // Optional, by OID
+            participants.AddRange(
+                request.Meeting.OptionalParticipantOids.Select(p =>
+                    new BuilderParticipant(ParticipantType.Optional, new ParticipantIdentifier(p))));
+            // Optional, by Email
+            participants.AddRange(
+                request.Meeting.OptionalParticipantEmails.Select(p =>
+                    new BuilderParticipant(ParticipantType.Optional, new ParticipantIdentifier(p))));
+
+
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
                 meetingBuilder
                 .StandaloneMeeting(request.Meeting.Title, request.Meeting.Location)
                 .StartsOn(request.Meeting.StartTime, request.Meeting.EndTime)
-                .WithParticipants(request.Meeting.ParticipantOids.Select(p =>
-                    new BuilderParticipant(ParticipantType.Required, new ParticipantIdentifier(p))))
+                .WithParticipants(participants)
                 .EnableOutlookIntegration(OutlookMode.All)
                 .WithClassification(MeetingClassification.Restricted)
                 .WithInviteBodyHtml(request.Meeting.BodyHtml);

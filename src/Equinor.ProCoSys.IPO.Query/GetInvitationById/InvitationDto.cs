@@ -12,14 +12,22 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
     public class MeetingDto
     {
-        public MeetingDto(string title, string bodyHtml, string location, DateTime startTime, DateTime endTime, IEnumerable<Guid> participantOids)
+        public MeetingDto(
+            string title,
+            string bodyHtml,
+            string location,
+            DateTime startTime,
+            DateTime endTime,
+            IEnumerable<ParticipantDto> requiredParticipants,
+            IEnumerable<ParticipantDto> optionalParticipants)
         {
             Title = title;
             BodyHtml = bodyHtml;
             Location = location;
             StartTimeUtc = startTime;
             EndTimeUtc = endTime;
-            ParticipantOids = participantOids;
+            RequiredParticipants = requiredParticipants;
+            OptionalParticipants = optionalParticipants;
         }
 
         public string Title { get; }
@@ -27,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public string Location { get; }
         public DateTime StartTimeUtc { get; }
         public DateTime EndTimeUtc { get; }
-        public IEnumerable<Guid> ParticipantOids { get; }
+        public IEnumerable<ParticipantDto> RequiredParticipants { get; }
+        public IEnumerable<ParticipantDto> OptionalParticipants { get; }
     }
 }
