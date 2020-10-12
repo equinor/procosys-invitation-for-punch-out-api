@@ -9,6 +9,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
     [TestClass]
     public class CreateInvitationCommandTests
     {
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly string _type = "DP";
+
         [TestMethod]
         public void Constructor_SetsProperties()
         {
@@ -19,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                     new List<Guid> { new Guid("12345678-1234-1234-1234-123456123456") });
-            var dut = new CreateInvitationCommand(meeting);
+            var dut = new CreateInvitationCommand(_title, _projectName, _type, meeting, null, null);
 
             Assert.AreEqual(meeting, dut.Meeting);
             Assert.AreEqual("title", dut.Meeting.Title);

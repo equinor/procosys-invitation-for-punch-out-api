@@ -21,6 +21,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IUnitOfWork> _unitOfWorkMock;
 
         private readonly string _plant = "PCS$TEST_PLANT";
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly string _type = "DP";
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private List<Guid> _participantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
 
@@ -86,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                     _participantIds);
-            var command = new CreateInvitationCommand(meeting);
+            var command = new CreateInvitationCommand(_title,_projectName, _type, meeting, null, null);
 
             await dut.Handle(command, default);
 
@@ -106,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                     _participantIds);
-            var command = new CreateInvitationCommand(meeting);
+            var command = new CreateInvitationCommand(_title, _projectName, _type, meeting, null, null);
 
             var result = await dut.Handle(command, default);
 

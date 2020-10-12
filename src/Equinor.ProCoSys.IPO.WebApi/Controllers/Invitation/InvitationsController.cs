@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -38,15 +39,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
+            var mcPkgs = dto.McPkgScope?.Select(mc =>
+                new McPkgScopeForCommand(mc.McPkgNo, mc.Description, mc.CommPkgNo)).ToList();
+            var commPkgs = dto.CommPkgScope?.Select(c =>
+                new CommPkgScopeForCommand(c.CommPkgNo, c.Description, c.Status)).ToList();
+
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
+                    dto.Title,
+                    dto.ProjectName,
+                    dto.Type,
                     new CreateMeetingCommand(
                         dto.Meeting.Title,
                         dto.Meeting.BodyHtml,
                         dto.Meeting.Location,
                         dto.Meeting.StartTime,
                         dto.Meeting.EndTime,
-                        dto.Meeting.ParticipantOids)));
+                        dto.Meeting.ParticipantOids),
+                    mcPkgs,
+                    commPkgs
+                    ));
             return this.FromResult(result);
         }
 

@@ -19,6 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IInvitationRepository> _invitationRepositoryMock;
 
         private readonly string _plant = "PCS$TEST_PLANT";
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly string _type = "DP";
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private List<Guid> _participantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
         private Invitation _invitation;
@@ -59,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     Title = string.Empty
                 })));
 
-            _invitation = new Invitation(_plant) { MeetingId = _meetingId };
+            _invitation = new Invitation(_plant, _projectName, _title, _type) { MeetingId = _meetingId };
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

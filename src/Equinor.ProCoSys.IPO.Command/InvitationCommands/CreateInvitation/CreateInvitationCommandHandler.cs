@@ -30,8 +30,23 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            var invitation = new Invitation(_plantProvider.Plant);
+            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Type);
             _invitationRepository.Add(invitation);
+            if (request.CommPkgScope.Count > 0)
+            {
+                foreach (var commPkg in request.CommPkgScope)
+                {
+                    invitation.AddCommPkg(new CommPkg(_plantProvider.Plant, request.ProjectName, commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
+                }
+            }
+
+            if (request.McPkgScope.Count > 0)
+            {
+                foreach (var mcPkg in request.McPkgScope)
+                {
+                    invitation.AddMcPkg(new McPkg(_plantProvider.Plant, request.ProjectName, mcPkg.CommPkgNo, mcPkg.McPkgNo, mcPkg.Description));
+                }
+            }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>

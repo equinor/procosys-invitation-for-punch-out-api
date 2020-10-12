@@ -6,6 +6,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     public class CreateInvitationDto
     {
         public CreateMeetingDto Meeting { get; set; }
+        public string Title { get; set; }
+        public string ProjectName { get; set; }
+        public string Type { get; set; }
+        //public IEnumerable<ParticipantDto> Participants { get; set; }
+        public IEnumerable<McPkgDto> McPkgScope { get; set; }
+        public IEnumerable<CommPkgDto> CommPkgScope { get; set; }
     }
 
     public class CreateMeetingDto
