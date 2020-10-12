@@ -46,8 +46,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                         dto.Meeting.Location,
                         dto.Meeting.StartTime,
                         dto.Meeting.EndTime,
-                        dto.Meeting.ParticipantOids,
-                        dto.Meeting.ParticipantEmails)));
+                        dto.Meeting.RequiredParticipantOids,
+                        dto.Meeting.RequiredParticipantEmails,
+                        dto.Meeting.OptionalParticipantOids,
+                        dto.Meeting.OptionalParticipantEmails)));
             return this.FromResult(result);
         }
 
@@ -69,8 +71,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                         dto.Meeting.Location,
                         dto.Meeting.StartTime,
                         dto.Meeting.EndTime,
-                        dto.Meeting.ParticipantOids,
-                        dto.Meeting.ParticipantEmails)));
+                        dto.Meeting.RequiredParticipantOids,
+                        dto.Meeting.RequiredParticipantEmails,
+                        dto.Meeting.OptionalParticipantOids,
+                        dto.Meeting.OptionalParticipantEmails)));
             return this.FromResult(result);
         }
     }

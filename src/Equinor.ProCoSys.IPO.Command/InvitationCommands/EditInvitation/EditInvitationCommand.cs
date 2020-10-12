@@ -25,16 +25,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             string location,
             DateTime startTime,
             DateTime endTime,
-            IEnumerable<Guid> participantOids,
-            IEnumerable<string> participantEmails)
+            IEnumerable<Guid> requiredParticipantOids,
+            IEnumerable<string> requiredParticipantEmails,
+            IEnumerable<Guid> optionalParticipantOids,
+            IEnumerable<string> optionalParticipantEmails)
         {
             Title = title;
             BodyHtml = bodyHtml;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            ParticipantOids = participantOids ?? new List<Guid>();
-            ParticipantEmails = participantEmails ?? new List<string>();
+            RequiredParticipantOids = requiredParticipantOids ?? new List<Guid>();
+            RequiredParticipantEmails = requiredParticipantEmails ?? new List<string>();
+            OptionalParticipantOids = optionalParticipantOids ?? new List<Guid>();
+            OptionalParticipantEmails = optionalParticipantEmails ?? new List<string>();
         }
 
         public string Title { get; }
@@ -42,7 +46,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IEnumerable<Guid> ParticipantOids { get; }
-        public IEnumerable<string> ParticipantEmails { get; }
+        public IEnumerable<Guid> RequiredParticipantOids { get; }
+        public IEnumerable<string> RequiredParticipantEmails { get; }
+        public IEnumerable<Guid> OptionalParticipantOids { get; }
+        public IEnumerable<string> OptionalParticipantEmails { get; }
+
     }
 }

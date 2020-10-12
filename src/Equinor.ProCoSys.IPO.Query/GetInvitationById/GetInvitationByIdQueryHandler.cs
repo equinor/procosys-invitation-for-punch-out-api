@@ -39,7 +39,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     meeting.Location,
                     meeting.StartDate.DatetimeUtc,
                     meeting.EndDate.DatetimeUtc,
-                    meeting.Participants.Select(p =>
+                    meeting.Participants.Where(p => p.Type == ParticipantType.Required).Select(p =>
+                        new ParticipantDto(p.Person.Id, p.Person.Mail, p.Person.Name, (MeetingResponse)(p.OutlookResponse ?? OutlookResponse.Unknown))),
+                    meeting.Participants.Where(p => p.Type == ParticipantType.Optional).Select(p =>
                         new ParticipantDto(p.Person.Id, p.Person.Mail, p.Person.Name, (MeetingResponse)(p.OutlookResponse ?? OutlookResponse.Unknown))));
             }
 

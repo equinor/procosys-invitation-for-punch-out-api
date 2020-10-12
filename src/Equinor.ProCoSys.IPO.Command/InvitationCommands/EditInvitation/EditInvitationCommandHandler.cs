@@ -25,14 +25,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
 
             var participants = new List<BuilderParticipant>();
-            // By OID
+            // Required, by OID
             participants.AddRange(
-                request.Meeting.ParticipantOids.Select(p =>
+                request.Meeting.RequiredParticipantOids.Select(p =>
                     new BuilderParticipant(ParticipantType.Required, new ParticipantIdentifier(p))));
-            // By Email
+            // Required, by Email
             participants.AddRange(
-                request.Meeting.ParticipantEmails.Select(p =>
+                request.Meeting.RequiredParticipantEmails.Select(p =>
                     new BuilderParticipant(ParticipantType.Required, new ParticipantIdentifier(p))));
+            // Optional, by OID
+            participants.AddRange(
+                request.Meeting.OptionalParticipantOids.Select(p =>
+                    new BuilderParticipant(ParticipantType.Optional, new ParticipantIdentifier(p))));
+            // Optional, by Email
+            participants.AddRange(
+                request.Meeting.OptionalParticipantEmails.Select(p =>
+                    new BuilderParticipant(ParticipantType.Optional, new ParticipantIdentifier(p))));
 
             var meeting = await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
             {

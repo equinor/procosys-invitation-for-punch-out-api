@@ -9,6 +9,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
     [TestClass]
     public class EditInvitationCommandTests
     {
+        private readonly List<Guid> _requiredParticipantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
+        private readonly List<string> _requiredParticipantEmails = new List<string>() { "abc@example.com" };
+        private readonly List<Guid> _optionalParticipantIds = new List<Guid>() { new Guid("33333333-4444-4444-4444-555555555555") };
+        private readonly List<string> _optionalParticipantEmails = new List<string>() { "def@example.com" };
+
         [TestMethod]
         public void Constructor_SetsProperties()
         {
@@ -18,8 +23,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     "location",
                     new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                     new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    new List<Guid> { new Guid("12345678-1234-1234-1234-123456123456") },
-                    new List<string> { "abc@example.com" });
+                    _requiredParticipantIds,
+                    _requiredParticipantEmails,
+                    _optionalParticipantIds,
+                    _optionalParticipantEmails);
             var dut = new EditInvitationCommand(1, meeting);
 
             Assert.AreEqual(1, dut.InvitationId);
@@ -29,10 +36,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual("location", dut.Meeting.Location);
             Assert.AreEqual(new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc), dut.Meeting.StartTime);
             Assert.AreEqual(new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc), dut.Meeting.EndTime);
-            Assert.IsNotNull(dut.Meeting.ParticipantOids);
-            Assert.AreEqual(1, dut.Meeting.ParticipantOids.Count());
-            Assert.AreEqual("12345678-1234-1234-1234-123456123456", dut.Meeting.ParticipantOids.First().ToString());
-            Assert.AreEqual("abc@example.com", dut.Meeting.ParticipantEmails.First().ToString());
+            Assert.IsNotNull(dut.Meeting.RequiredParticipantOids);
+            Assert.AreEqual(1, dut.Meeting.RequiredParticipantOids.Count());
+            Assert.AreEqual(_requiredParticipantIds.First(), dut.Meeting.RequiredParticipantOids.First());
+            Assert.AreEqual(_requiredParticipantEmails.First(), dut.Meeting.RequiredParticipantEmails.First());
+            Assert.AreEqual(_optionalParticipantIds.First(), dut.Meeting.OptionalParticipantOids.First());
+            Assert.AreEqual(_optionalParticipantEmails.First(), dut.Meeting.OptionalParticipantEmails.First());
         }
     }
 }
