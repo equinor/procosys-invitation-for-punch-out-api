@@ -7,6 +7,5 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
     {
         Task<IList<string>> GetPermissionsAsync(string plantId);
         Task<IList<string>> GetProjectsAsync(string plantId);
-        Task<IList<string>> GetContentRestrictionsAsync(string plantId);
     }
 }
