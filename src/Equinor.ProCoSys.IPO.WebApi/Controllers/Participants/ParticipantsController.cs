@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="plant"></param>
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
         /// <returns>All persons in ProCoSys whom have access to the user group MC Contr. MCCR/PL/Preserv MLA</returns>
-        //TODO Add permissions
+        [Authorize(Roles = Permissions.USER_READ)]
         [HttpGet("/Persons/ByUserGroup/Contractor")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetContractorPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="plant"></param>
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
         /// <returns>All persons in ProCoSys whom have access to the user group MC Lead & Discipline</returns>
-        //TODO Add permissions
+        [Authorize(Roles = Permissions.USER_READ)]
         [HttpGet("/Persons/ByUserGroup/Construction")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetConstructionPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
