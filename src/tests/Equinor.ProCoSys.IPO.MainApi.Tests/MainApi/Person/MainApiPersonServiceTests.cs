@@ -64,6 +64,43 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
+        public async Task GetPersons_ShouldReturnCorrectNumberOfPersons()
+        {
+            // Act
+            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+
+            // Assert
+            Assert.AreEqual(3, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetPersons_ShouldReturnEmptyList_WhenResultIsInvalid()
+        {
+            _foreignApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysPerson>()));
+
+            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetPersons_ShouldReturnCorrectProperties()
+        {
+            // Act
+            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+
+            // Assert
+            var person = result.First();
+            Assert.AreEqual("12345678-1234-123456789123", person.AzureOid);
+            Assert.AreEqual("F1", person.FirstName);
+            Assert.AreEqual("L1", person.LastName);
+            Assert.AreEqual("U1", person.UserName);
+            Assert.AreEqual("E1", person.Email);
+        }
+
+        [TestMethod]
         public async Task GetPersonsByUserGroup_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
