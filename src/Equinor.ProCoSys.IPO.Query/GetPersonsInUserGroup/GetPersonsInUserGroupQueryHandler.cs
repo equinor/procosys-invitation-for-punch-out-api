@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
                    _plantProvider.Plant,
                    request.SearchString,
                    request.UserGroup)
-                 ?? new List<ProCoSysPerson>();
+                ?? new List<ProCoSysPerson>();
 
             var personDtos = mainApiPersons
                 .Select(person => new ProCoSysPersonDto(

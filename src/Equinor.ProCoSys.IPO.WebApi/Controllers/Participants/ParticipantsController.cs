@@ -13,7 +13,7 @@ using ServiceResult.ApiExtensions;
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
 {
     [ApiController]
-    [Route("FunctionalRoles")]
+    [Route("Participants")]
     public class ParticipantsController : ControllerBase
     {
         private const string _classification = "IPO";
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="plant"></param>
         /// <returns>All ProCoSys functional roles which have classification IPO</returns>
         [Authorize(Roles = Permissions.LIBRARY_FUNCTIONAL_ROLE_READ)]
-        [HttpGet("/FunctionalRoles")]
+        [HttpGet("/FunctionalRoles/ByClassification/IPO")]
         public async Task<ActionResult<List<ProCoSysFunctionalRoleDto>>> GetFunctionalRolesForIpo(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant)
