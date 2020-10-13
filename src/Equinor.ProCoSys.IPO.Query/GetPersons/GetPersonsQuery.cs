@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
 using MediatR;
 using ServiceResult;
 

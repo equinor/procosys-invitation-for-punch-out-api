@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
 using MediatR;
 using ServiceResult;
 

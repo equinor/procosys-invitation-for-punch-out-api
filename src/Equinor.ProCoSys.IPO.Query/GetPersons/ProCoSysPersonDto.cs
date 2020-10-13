@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
+﻿namespace Equinor.ProCoSys.IPO.Query.GetPersons
 {
     public class ProCoSysPersonDto
     {
