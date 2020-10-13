@@ -7,7 +7,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetPersonsByUserName
+namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
 {
     public class GetPersonsInUserGroupQueryHandler : IRequestHandler<GetPersonsInUserGroupQuery, Result<List<ProCoSysPersonDto>>>
     {
