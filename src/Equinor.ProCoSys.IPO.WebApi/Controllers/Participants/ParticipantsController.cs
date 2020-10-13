@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Query.GetFunctionalRoles;
+using Equinor.ProCoSys.IPO.Query.GetPersons;
 using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -35,6 +36,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
             string plant)
         {
             var result = await _mediator.Send(new GetFunctionalRolesForIpoQuery(_classification));
+            return this.FromResult(result);
+        }
+
+        /// <summary>
+        /// Gets persons from ProCoSys main API
+        /// </summary>
+        /// <param name="plant"></param>
+        /// <param name="searchString">Search string (start of first name, last name, or username)</param>
+        /// <returns>All ProCoSys persons in specified plant</returns>
+        [Authorize(Roles = Permissions.USER_READ)]
+        [HttpGet("/Persons")]
+        public async Task<ActionResult<List<ProCoSysPersonDto>>> GetPersons(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
+            string plant,
+            string searchString)
+        {
+            var result = await _mediator.Send(new GetPersonsQuery(searchString));
             return this.FromResult(result);
         }
 

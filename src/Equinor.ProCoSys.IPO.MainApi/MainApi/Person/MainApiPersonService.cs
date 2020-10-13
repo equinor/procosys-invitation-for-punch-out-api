@@ -22,6 +22,22 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
+        public async Task<IList<ProCoSysPerson>> GetPersonsAsync(
+            string plant,
+            string searchString,
+            long numberOfRows = 1000)
+        {
+            var url = $"{_baseAddress}Person/PersonSearch" +
+                      $"?plantId={plant}" +
+                      $"&searchString={WebUtility.UrlEncode(searchString)}" +
+                      $"&numberOfRows={numberOfRows}" +
+                      $"&api-version={_apiVersion}";
+
+            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+
+            return persons;
+        }
+
         public async Task<IList<ProCoSysPerson>> GetPersonsByUserGroupAsync(
             string plant,
             string searchString,
