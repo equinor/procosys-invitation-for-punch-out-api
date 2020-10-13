@@ -14,7 +14,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
         private readonly Uri _baseAddress;
         private readonly IBearerTokenApiClient _foreignApiClient;
 
-        public MainApiPermissionService(IBearerTokenApiClient foreignApiClient,
+        public MainApiPermissionService(
+            IBearerTokenApiClient foreignApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _foreignApiClient = foreignApiClient;
