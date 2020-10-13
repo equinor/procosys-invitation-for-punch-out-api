@@ -66,5 +66,43 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Permission
             // Assert
             Assert.AreEqual(0, result.Count);
         }
+ 
+        [TestMethod]
+        public async Task GetAllProjectsAsync_ShouldReturnThreeProjects_OnValidPlant()
+        {
+            // Arrange
+            _mainApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysProject>{ new ProCoSysProject(), new ProCoSysProject() }));
+            // Act
+            var result = await _dut.GetAllProjectsAsync(_plant);
+
+            // Assert
+            Assert.AreEqual(2, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetAllProjectsAsync_ShouldReturnNoProjects_OnValidPlant()
+        {
+            // Arrange
+            _mainApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysProject>()));
+            // Act
+            var result = await _dut.GetAllProjectsAsync(_plant);
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetAllProjectsAsync_ShouldReturnNoProjects_OnInValidPlant()
+        {
+            // Act
+            var result = await _dut.GetAllProjectsAsync("INVALIDPLANT");
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
     }
 }
