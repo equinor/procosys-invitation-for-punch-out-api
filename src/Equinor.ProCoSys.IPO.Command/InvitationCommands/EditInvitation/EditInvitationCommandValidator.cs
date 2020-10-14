@@ -6,6 +6,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     {
         public EditInvitationCommandValidator()
         {
+            RuleForEach(x => x.Meeting.RequiredParticipantEmails).EmailAddress();
+            RuleForEach(x => x.Meeting.OptionalParticipantEmails).EmailAddress();
         }
     }
 }

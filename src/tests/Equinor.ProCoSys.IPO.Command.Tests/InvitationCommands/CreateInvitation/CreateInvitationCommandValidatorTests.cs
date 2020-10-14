@@ -33,7 +33,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             "location",
             new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
             new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-            new List<Guid> { new Guid("12345678-1234-1234-1234-123456123456") });
+            new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") },
+            new List<string>() { "abc@example.com" },
+            new List<Guid>() { new Guid("33333333-4444-4444-4444-555555555555") },
+            new List<string>() { "def@example.com" });
 
         [TestInitialize]
         public void Setup_OkState()

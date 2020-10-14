@@ -21,9 +21,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private readonly string _plant = "PCS$TEST_PLANT";
         private readonly string _projectName = "Project name";
         private readonly string _title = "Test title";
-        private readonly string _type = "DP";
+        private readonly DisciplineType _type = DisciplineType.DP;
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private List<Guid> _participantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
+        private readonly List<Guid> _requiredParticipantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
+        private readonly List<string> _requiredParticipantEmails = new List<string>() { "abc@example.com" };
+        private readonly List<Guid> _optionalParticipantIds = new List<Guid>() { new Guid("33333333-4444-4444-4444-555555555555") };
+        private readonly List<string> _optionalParticipantEmails = new List<string>() { "def@example.com" };
         private Invitation _invitation;
 
         [TestInitialize]
@@ -81,7 +84,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                         "location",
                         new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                         new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                        _participantIds));
+                        _requiredParticipantIds,
+                        _requiredParticipantEmails,
+                        _optionalParticipantIds,
+                        _optionalParticipantEmails));
 
             var dut = new EditInvitationCommandHandler(_invitationRepositoryMock.Object, _meetingClientMock.Object);
 

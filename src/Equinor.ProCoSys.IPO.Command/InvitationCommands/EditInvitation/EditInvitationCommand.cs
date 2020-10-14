@@ -20,19 +20,25 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     public class EditMeetingCommand
     {
         public EditMeetingCommand(
-            string meetingTitle,
-            string meetingBodyHtml,
-            string meetingLocation,
-            DateTime meetingStartTime,
-            DateTime meetingEndTime,
-            IEnumerable<Guid> meetingParticipantOids)
+            string title,
+            string bodyHtml,
+            string location,
+            DateTime startTime,
+            DateTime endTime,
+            IEnumerable<Guid> requiredParticipantOids,
+            IEnumerable<string> requiredParticipantEmails,
+            IEnumerable<Guid> optionalParticipantOids,
+            IEnumerable<string> optionalParticipantEmails)
         {
-            Title = meetingTitle;
-            BodyHtml = meetingBodyHtml;
-            Location = meetingLocation;
-            StartTime = meetingStartTime;
-            EndTime = meetingEndTime;
-            ParticipantOids = meetingParticipantOids;
+            Title = title;
+            BodyHtml = bodyHtml;
+            Location = location;
+            StartTime = startTime;
+            EndTime = endTime;
+            RequiredParticipantOids = requiredParticipantOids ?? new List<Guid>();
+            RequiredParticipantEmails = requiredParticipantEmails ?? new List<string>();
+            OptionalParticipantOids = optionalParticipantOids ?? new List<Guid>();
+            OptionalParticipantEmails = optionalParticipantEmails ?? new List<string>();
         }
 
         public string Title { get; }
@@ -40,6 +46,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IEnumerable<Guid> ParticipantOids { get; }
+        public IEnumerable<Guid> RequiredParticipantOids { get; }
+        public IEnumerable<string> RequiredParticipantEmails { get; }
+        public IEnumerable<Guid> OptionalParticipantOids { get; }
+        public IEnumerable<string> OptionalParticipantEmails { get; }
+
     }
 }

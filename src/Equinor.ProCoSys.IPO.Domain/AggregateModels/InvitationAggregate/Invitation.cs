@@ -10,13 +10,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
+        private readonly List<Participant> _participants = new List<Participant>();
 
         private Invitation()
             : base(null)
         {
         }
 
-        public Invitation(string plant, string projectName, string title, string type)
+        public Invitation(string plant, string projectName, string title, DisciplineType type)
             : base(plant)
         {
             ProjectName = projectName;
@@ -25,9 +26,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
-        public string Type { get; set; }
+        public DisciplineType Type { get; set; }
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
+        public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
 
         public Guid MeetingId { get; set; }
 
@@ -67,6 +69,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _mcPkgs.Add(mcPkg);
+        }
+
+        public void AddParticipant(Participant participant)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (participant.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't relate item in {participant.Plant} to item in {Plant}");
+            }
+
+            _participants.Add(participant);
         }
 
         public void SetCreated(Person createdBy)

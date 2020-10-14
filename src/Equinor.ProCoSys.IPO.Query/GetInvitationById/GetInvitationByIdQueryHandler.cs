@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -8,6 +7,7 @@ using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
+using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Invitation), request.Id));
             }
 
-            var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml());
+            var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
             MeetingDto meetingDto = null;
             if (meeting != null)
             {
@@ -40,7 +40,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     meeting.Location,
                     meeting.StartDate.DatetimeUtc,
                     meeting.EndDate.DatetimeUtc,
-                    meeting.Participants.Select(p => p.Person.Id ?? Guid.Empty));
+                    meeting.Participants.Where(p => p.Type == ParticipantType.Required).Select(p =>
+                        new ParticipantDto(p.Person.Id, p.Person.Mail, p.Person.Name, (MeetingResponse)(p.OutlookResponse ?? OutlookResponse.Unknown))),
+                    meeting.Participants.Where(p => p.Type == ParticipantType.Optional).Select(p =>
+                        new ParticipantDto(p.Person.Id, p.Person.Mail, p.Person.Name, (MeetingResponse)(p.OutlookResponse ?? OutlookResponse.Unknown))));
             }
 
             return new SuccessResult<InvitationDto>(new InvitationDto(meetingDto));

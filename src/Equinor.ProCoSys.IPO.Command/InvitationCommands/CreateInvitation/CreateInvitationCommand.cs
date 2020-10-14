@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
 
@@ -9,51 +10,37 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         public CreateInvitationCommand(
             string title,
+            string bodyHtml,
+            string location,
+            DateTime startTime,
+            DateTime endTime,
             string projectName,
-            string type,
-            CreateMeetingCommand meeting,
+            DisciplineType type,
+            IList<ParticipantsForCommand> participants,
             IList<McPkgScopeForCommand> mcPkgScope,
             IList<CommPkgScopeForCommand> commPkgScope)
         {
             McPkgScope = mcPkgScope ?? new List<McPkgScopeForCommand>();
             CommPkgScope = commPkgScope ?? new List<CommPkgScopeForCommand>();
-            Meeting = meeting;
-            Title = title;
-            ProjectName = projectName;
-            Type = type;
-        }
-
-        public CreateMeetingCommand Meeting { get; }
-        public IList<McPkgScopeForCommand> McPkgScope { get; }
-        public IList<CommPkgScopeForCommand> CommPkgScope { get; }
-        public string Title { get; }
-        public string Type { get; }
-        public string ProjectName { get; }
-    }
-
-    public class CreateMeetingCommand
-    {
-        public CreateMeetingCommand(
-            string title,
-            string bodyHtml,
-            string location,
-            DateTime startTime,
-            DateTime endTime,
-            IEnumerable<Guid> participantOids)
-        {
-            Title = title;
+            Participants = participants;
             BodyHtml = bodyHtml;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            ParticipantOids = participantOids;
+            ProjectName = projectName;
+            Type = type;
+            Title = title;
         }
 
-        public string Title { get; }
         public string BodyHtml { get; }
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IEnumerable<Guid> ParticipantOids { get; }
+        public IList<McPkgScopeForCommand> McPkgScope { get; }
+        public IList<CommPkgScopeForCommand> CommPkgScope { get; }
+        public IList<ParticipantsForCommand> Participants { get; }
+        public string Title { get; }
+        public DisciplineType Type { get; }
+        public string ProjectName { get; }
     }
 }

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="InvitationCommands\CreateInvitation\**" />
+    <EmbeddedResource Remove="InvitationCommands\CreateInvitation\**" />
+    <None Remove="InvitationCommands\CreateInvitation\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="9.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
     <PackageReference Include="Moq" Version="4.14.5" />
