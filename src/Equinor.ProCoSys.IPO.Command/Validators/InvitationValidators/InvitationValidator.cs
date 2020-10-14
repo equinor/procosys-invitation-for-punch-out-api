@@ -101,7 +101,10 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 return false;
             }
 
-            return participants[0].Organization == Organization.Contractor && participants[1].Organization == Organization.ConstructionCompany;
+            return participants[0].Organization == Organization.Contractor && 
+                   participants[0].ExternalEmail == null &&
+                   participants[1].Organization == Organization.ConstructionCompany &&
+                   participants[0].ExternalEmail == null;
         }
     }
 }

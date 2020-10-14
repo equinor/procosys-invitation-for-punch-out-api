@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command, token) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
                     $"Contractor and Construction Company must be invited!")
-                .Must((command, token) => ParticipantMustContainEmail(command.Participants))
+                .Must((command, token) => ParticipantListMustBeValid(command.Participants))
                 .WithMessage(command =>
                     $"Each participant must contain an email!");
 
@@ -35,8 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);
 
-
-            bool ParticipantMustContainEmail(IList<ParticipantsForCommand> participants)
+            bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);
         }
     }
