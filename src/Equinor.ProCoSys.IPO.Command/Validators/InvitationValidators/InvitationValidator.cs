@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
@@ -34,6 +35,10 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidPerson(ParticipantsForCommand participant)
         {
+            if (participant.Person.Email == null && participant.Person.AzureOid == Guid.Empty)
+            {
+                return false;
+            }
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.Person.Email);
             return participant.ExternalEmail == null && participant.FunctionalRole == null && isValidEmail;
         }
@@ -42,14 +47,14 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         {
             if (participant.FunctionalRole.UsePersonalEmail)
             {
-                if (participant.FunctionalRole.Persons == null || participant.FunctionalRole.Persons.Count < 1)
+                if (participant.FunctionalRole.Persons.Count < 1)
                 {
                     return false;
                 }
             }
             else
             {
-                if (!(new EmailAddressAttribute().IsValid(participant.FunctionalRole.Email)))
+                if (participant.FunctionalRole.Email == null || !(new EmailAddressAttribute().IsValid(participant.FunctionalRole.Email)))
                 {
                     return false;
                 }
