@@ -4,9 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
-using Equinor.ProCoSys.IPO.ForeignApi.Project;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,7 +16,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IBearerTokenApiClient> _mainApiClient;
-        private Mock<IPlantCache> _plantCache;
         private ProCoSysProject _proCoSysProject1;
         private ProCoSysProject _proCoSysProject2;
         private MainApiProjectService _dut;
@@ -38,10 +35,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions {ApiVersion = "4.0", BaseAddress = "http://example.com"});
             _mainApiClient = new Mock<IBearerTokenApiClient>();
-            _plantCache = new Mock<IPlantCache>();
-            _plantCache
-                .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
-                .Returns(Task.FromResult(true));
 
             _proCoSysProject1 = new ProCoSysProject {Id = 1, Name = _project1Name, Description = _project1Description};
             _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = Project2Name, Description = Project2Description};
@@ -50,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject> {_proCoSysProject1, _proCoSysProject2}));
 
-            _dut = new MainApiProjectService(_mainApiClient.Object, _plantCache.Object, _mainApiOptions.Object);
+            _dut = new MainApiProjectService(_mainApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
@@ -78,11 +71,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
             // Assert
             Assert.AreEqual(2, result.Count);
         }
-
-        [TestMethod]
-        public async Task GetProjectsByPlant_ShouldThrowException_WhenPlantIsInvalid()
-            => await Assert.ThrowsExceptionAsync<ArgumentException>(async ()
-                => await _dut.GetProjectsInPlantAsync("INVALIDPLANT"));
 
         [TestMethod]
         public async Task GetProjectsByPlant_ShouldReturnEmptyList_WhenResultIsInvalid()

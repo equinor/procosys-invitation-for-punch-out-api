@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -17,7 +16,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IBearerTokenApiClient> _foreignApiClient;
-        private Mock<IPlantCache> _plantCache;
         private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
         private MainApiCommPkgService _dut;
 
@@ -32,10 +30,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
             _foreignApiClient = new Mock<IBearerTokenApiClient>();
-            _plantCache = new Mock<IPlantCache>();
-            _plantCache
-                .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
-                .Returns(Task.FromResult(true));
 
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
@@ -69,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_searchPageWithThreeItems));
 
-            _dut = new MainApiCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
+            _dut = new MainApiCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
@@ -81,11 +75,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             // Assert
             Assert.AreEqual(3, result.Count);
         }
-
-        [TestMethod]
-        public async Task SearchCommPkgsByCommPkgNo_ShouldThrowException_WhenPlantIsInvalid()
-            => await Assert.ThrowsExceptionAsync<ArgumentException>(async ()
-                => await _dut.SearchCommPkgsByCommPkgNoAsync("INVALIDPLANT", 2, "A"));
 
         [TestMethod]
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenResultIsInvalid()

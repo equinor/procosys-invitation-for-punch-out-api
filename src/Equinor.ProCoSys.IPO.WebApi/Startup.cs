@@ -190,9 +190,9 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
             app.UseCurrentPlant();
             app.UseCurrentBearerToken();
-
             app.UseAuthentication();
             app.UseCurrentUser();
+            app.UsePlantValidator();
             app.UseVerifyOidInDb();
             app.UseAuthorization();
 

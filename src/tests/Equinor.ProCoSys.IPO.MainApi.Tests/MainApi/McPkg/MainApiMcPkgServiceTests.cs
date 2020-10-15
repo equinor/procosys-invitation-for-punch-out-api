@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -17,7 +16,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IBearerTokenApiClient> _foreignApiClient;
-        private Mock<IPlantCache> _plantCache;
         private MainApiMcPkgService _dut;
         private ProCoSysMcPkg _proCoSysMcPkg1;
         private ProCoSysMcPkg _proCoSysMcPkg2;
@@ -34,10 +32,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
             _foreignApiClient = new Mock<IBearerTokenApiClient>();
-            _plantCache = new Mock<IPlantCache>();
-            _plantCache
-                .Setup(x => x.IsValidPlantForCurrentUserAsync(_plant))
-                .Returns(Task.FromResult(true));
 
             _proCoSysMcPkg1 = new ProCoSysMcPkg {Id = 111111111, McPkgNo = "McNo1", Description = "Description1", DisciplineCode = "A"};
             _proCoSysMcPkg2 = new ProCoSysMcPkg {Id = 222222222, McPkgNo = "McNo2", Description = "Description2", DisciplineCode = "A" };
@@ -47,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg> { _proCoSysMcPkg1, _proCoSysMcPkg2, _proCoSysMcPkg3 }));
 
-            _dut = new MainApiMcPkgService(_foreignApiClient.Object, _mainApiOptions.Object, _plantCache.Object);
+            _dut = new MainApiMcPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
@@ -59,11 +53,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             // Assert
             Assert.AreEqual(3, result.Count);
         }
-
-        [TestMethod]
-        public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldThrowException_WhenPlantIsInvalid()
-            => await Assert.ThrowsExceptionAsync<ArgumentException>(async ()
-                => await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync("INVALIDPLANT", "Project2", "A"));
 
         [TestMethod]
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnEmptyList_WhenResultIsInvalid()

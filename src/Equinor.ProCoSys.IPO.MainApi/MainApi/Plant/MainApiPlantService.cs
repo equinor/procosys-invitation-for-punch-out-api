@@ -21,9 +21,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
 
-        public async Task<List<ProCoSysPlant>> GetPlantsAsync()
+        public async Task<List<ProCoSysPlant>> GetAllPlantsAsync()
         {
-            var url = $"{_baseAddress}Plants?api-version={_apiVersion}";
+            var url = $"{_baseAddress}Plants?includePlantsWithoutAccess=true&api-version={_apiVersion}";
             return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
         }
     }

@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             string plant)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var projects = await _permissionCache.GetProjectNamesForUserOidAsync(plant, currentUserOid);
+            var projects = await _permissionCache.GetProjectsForUserAsync(plant, currentUserOid);
             return projects;
         }
 
@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
         public async Task<IList<string>> GetPlants()
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var plants = await _plantCache.GetPlantIdsForUserOidAsync(currentUserOid);
+            var plants = await _plantCache.GetPlantWithAccessForUserAsync(currentUserOid);
             return plants;
         }
     }

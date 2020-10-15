@@ -11,6 +11,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             RuleFor(x => x.EndTime).GreaterThan(x => x.StartTime);
             RuleFor(x => x.Location).MaximumLength(1024);
             RuleFor(x => x.Title).MaximumLength(1024);
+            RuleForEach(x => x.RequiredParticipantEmails).EmailAddress();
+            RuleForEach(x => x.OptionalParticipantEmails).EmailAddress();
         }
     }
 }
