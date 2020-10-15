@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -17,10 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     {
         private readonly string projectName = "Project name";
         private readonly string title = "Test title";
-        private readonly string body = "body";
-        private readonly string _ocation = "location A";
         private readonly DisciplineType typeDP = DisciplineType.DP;
-        private readonly DisciplineType typeMDP = DisciplineType.MDP;
 
         private readonly IList<McPkgScopeForCommand> mcPkgScope = new List<McPkgScopeForCommand>
         {
