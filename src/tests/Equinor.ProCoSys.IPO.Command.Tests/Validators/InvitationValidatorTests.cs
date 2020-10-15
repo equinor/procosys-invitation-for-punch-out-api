@@ -93,28 +93,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public void IsValidScope_CommPkgAndMcPkgScope_ReturnsFalse()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context);
-                var result = dut.IsValidScope(mcPkgScope, commPkgScope);
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
-        public void IsValidScope_NoScope_ReturnsFalse()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context);
-                var result = dut.IsValidScope(new List<McPkgScopeForCommand>(), new List<CommPkgScopeForCommand>());
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
         public void IsValidScope_McPkgScopeOnly_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -137,6 +115,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public void IsValidScope_CommPkgAndMcPkgScope_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = dut.IsValidScope(mcPkgScope, commPkgScope);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidScope_NoScope_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = dut.IsValidScope(new List<McPkgScopeForCommand>(), new List<CommPkgScopeForCommand>());
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
         public void RequiredParticipantsMustBeInvited_RequiredParticipantsInvited_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -154,6 +154,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context);
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand>());
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void RequiredParticipantsMustBeInvited_OnlyExteralParticipantsInvited_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
+                    new ParticipantsForCommand(
+                        Organization.Contractor,
+                        "external@test.com",
+                        null,
+                        null,
+                        0),
+                    new ParticipantsForCommand(
+                        Organization.ConstructionCompany,
+                        "external2@test.com",
+                        null,
+                        null,
+                        1)
+                });
                 Assert.IsFalse(result);
             }
         }
@@ -204,22 +228,137 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             }
         }
 
-        //[TestMethod]
-        //public void IsValidParticipantList_FunctionalRoleWithUseGroupdEmailMissingEmail_ReturnsFalse()
-        //{
-        //    using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-        //    {
-        //        var dut = new InvitationValidator(context);
-        //        var functionalRoleWithoutEmail = 
-        //            new ParticipantsForCommand(
-        //                Organization.Commissioning,
-        //                null,
-        //                null,
-        //                new FunctionalRoleForCommand("FR1", "test", false, null),
-        //                0);
-        //        var result = dut.RequiredParticipantsMustBeInvited(participantsOnlyRequired.Append(functionalRoleWithoutEmail));
-        //        Assert.IsFalse(result);
-        //    }
-        //}
+        [TestMethod]
+        public void IsValidParticipantList_RequiredParticipantsListAndThreeExtra_ReturnsTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var fr =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", "fr1@test.com", false, null),
+                        2);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Operation,
+                        null,
+                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", "zoey@test.com", true), 
+                        null,
+                        3);
+                var external =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        "External@test.com",
+                        null,
+                        null,
+                        4);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], fr, person, external });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_FunctionalRoleUsingGroupEmailInvalidEmail_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var functionalRoleWithoutEmail =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", "test", false, null),
+                        0);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand>{participantsOnlyRequired[0], participantsOnlyRequired[1], functionalRoleWithoutEmail});
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_FunctionalRoleUsingGroupEmailMissingEmail_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var functionalRoleWithoutEmail =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", null, false, null),
+                        0);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], functionalRoleWithoutEmail });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_ParticipantWithFunctionalRoleAndExternalEmail_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var participantWithFunctionalRoleAndExternalEmail =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        "external@test.com",
+                        null,
+                        new FunctionalRoleForCommand("FR1", "fr1@test.com", false, null),
+                        0);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_PersonMissingEmailAndOid_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", null, true), 
+                        null,
+                        4);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], person });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_PersonInvalidEmail_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", "test", true),
+                        null,
+                        4);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], person });
+                Assert.IsFalse(result);
+            }
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 select invitation).AnyAsync(token);
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
-        {
+        { 
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail);
             return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
         }
@@ -67,8 +67,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                     return false;
                 }
             }
-
-            return true;
+            
+            return participant.Person == null && participant.ExternalEmail == null;
         }
 
         public bool IsValidParticipantList(IList<ParticipantsForCommand> participants)
