@@ -19,12 +19,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
         private IList<ProCoSysFunctionalRole> _libraryApiFunctionalRoles;
         private GetFunctionalRolesForIpoQuery _query;
 
+        private Person person;
         private const string _classification = "Classification";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                person = new Person() { AzureOid = "123456", FirstName = "F1", LastName = "F2", UserName = "UN1", Email = "E1@email.com" };
+
                 _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
                 _libraryApiFunctionalRoles = new List<ProCoSysFunctionalRole>
                 {
@@ -34,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
                     },
                     new ProCoSysFunctionalRole
                     {
-                        Code = "C2", Description = "D2", Email = "e2@email.com", InformationEmail = "ie1@email.com", UsePersonalEmail = false
+                        Code = "C2", Description = "D2", Email = "e2@email.com", InformationEmail = "ie1@email.com", UsePersonalEmail = false, Persons = new List<Person>() { person }
                     }
                 };
 
@@ -99,6 +102,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
             Assert.AreEqual(pcsFunctionalRole.Description, functionalRoleDto.Description);
             Assert.AreEqual(pcsFunctionalRole.Email, functionalRoleDto.Email);
             Assert.AreEqual(pcsFunctionalRole.InformationEmail, functionalRoleDto.InformationEmail);
+            Assert.AreEqual(pcsFunctionalRole.Persons, functionalRoleDto.Persons);
         }
     }
 }
