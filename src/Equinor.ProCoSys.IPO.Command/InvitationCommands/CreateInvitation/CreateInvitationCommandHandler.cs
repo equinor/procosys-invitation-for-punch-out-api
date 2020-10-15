@@ -122,51 +122,59 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(participant.FunctionalRole.Email)));
                     }
-                    if (participant.FunctionalRole.Persons != null) 
-                    { 
-                        foreach (var p in participant.FunctionalRole.Persons)
+                   
+                    foreach (var p in participant.FunctionalRole.Persons)
+                    {
+                        invitation.AddParticipant(new Participant(
+                            _plantProvider.Plant,
+                            participant.Organization,
+                            Domain.AggregateModels.InvitationAggregate.ParticipantType.FunctionalRole,
+                            participant.FunctionalRole.Code,
+                            p.FirstName,
+                            p.LastName,
+                            p.Email,
+                            p.AzureOid,
+                            participant.SortKey));
+                        if (p.AzureOid == Guid.Empty)
                         {
-                            invitation.AddParticipant(new Participant(
-                                _plantProvider.Plant,
-                                participant.Organization,
-                                Domain.AggregateModels.InvitationAggregate.ParticipantType.FunctionalRole,
-                                participant.FunctionalRole.Code,
-                                p.FirstName,
-                                p.LastName,
-                                p.Email,
-                                p.AzureOid,
-                                participant.SortKey));
-                            if (p.AzureOid == Guid.Empty)
-                            {
-                                participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                    new ParticipantIdentifier(p.Email)));
-                            }
-                            else
-                            {
-                                participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                    new ParticipantIdentifier(p.AzureOid)));
-                            }
+                            participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
+                                new ParticipantIdentifier(p.Email)));
+                        }
+                        else
+                        {
+                            participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
+                                new ParticipantIdentifier(p.AzureOid)));
                         }
                     }
                 }
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
+            try
             {
-                meetingBuilder
-                .StandaloneMeeting(request.Title, request.Location)
-                .StartsOn(request.StartTime, request.EndTime)
-                .WithParticipants(participants)
-                .EnableOutlookIntegration(OutlookMode.All)
-                .WithClassification(MeetingClassification.Restricted)
-                .WithInviteBodyHtml(request.BodyHtml);
-            });
-            invitation.MeetingId = meeting.Id;
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+                var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
+                {
+                    meetingBuilder
+                        .StandaloneMeeting(request.Title, request.Location)
+                        .StartsOn(request.StartTime, request.EndTime)
+                        .WithParticipants(participants)
+                        .EnableOutlookIntegration(OutlookMode.All)
+                        .WithClassification(MeetingClassification.Restricted)
+                        .WithInviteBodyHtml(request.BodyHtml);
+                });
+                invitation.MeetingId = meeting.Id;
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return new SuccessResult<int>(invitation.Id);
+                return new SuccessResult<int>(invitation.Id);
+            }
+            catch
+            {
+                _invitationRepository.Remove(invitation);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
+            }
+            
         }
     }
 }

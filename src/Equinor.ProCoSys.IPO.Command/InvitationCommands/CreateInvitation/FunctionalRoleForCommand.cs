@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             Code = code;
             Email = email;
             UsePersonalEmail = usePersonalEmail;
-            Persons = persons;
+            Persons = persons ?? new List<PersonForCommand>();
         }
         public string Code { get; set; }
         public string Email { get; set; }

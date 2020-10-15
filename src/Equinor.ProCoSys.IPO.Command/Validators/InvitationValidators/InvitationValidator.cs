@@ -55,17 +55,14 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 }
             }
 
-            if (participant.FunctionalRole.Persons != null)
+            foreach (var person in participant.FunctionalRole.Persons)
             {
-                foreach (var person in participant.FunctionalRole.Persons)
+                if (!(new EmailAddressAttribute().IsValid(person.Email)))
                 {
-                    if (!(new EmailAddressAttribute().IsValid(person.Email)))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-            
+
             return true;
         }
 

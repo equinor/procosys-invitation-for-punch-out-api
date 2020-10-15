@@ -49,8 +49,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         public void Setup_OkState()
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_mcPkgScope, null)).Returns(true);
-
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _command = new CreateInvitationCommand(
                 _title,
                 _body,
@@ -60,8 +61,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _projectName,
                 _type,
                 _participants,
-                _mcPkgScope,
-                null);
+                null,
+                _commPkgScope);
             _dut = new CreateInvitationCommandValidator(_invitationValidatorMock.Object);
         }
 
@@ -83,6 +84,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this title already exists in project!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenScopeIsInvalid()
+        {
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(false);
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Scope must be valid. Either mc scope or comm pgk scope must be added, but not both!"));
         }
 
         [TestMethod]
