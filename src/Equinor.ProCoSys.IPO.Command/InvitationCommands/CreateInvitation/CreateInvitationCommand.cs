@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             McPkgScope = mcPkgScope ?? new List<McPkgScopeForCommand>();
             CommPkgScope = commPkgScope ?? new List<CommPkgScopeForCommand>();
-            Participants = participants;
+            Participants = participants ?? new List<ParticipantsForCommand>();
             BodyHtml = bodyHtml;
             Location = location;
             StartTime = startTime;

@@ -14,21 +14,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     [TestClass]
     public class InvitationValidatorTests : ReadOnlyTestsBase
     {
-        private readonly string projectName = "Project name";
-        private readonly string title = "Test title";
-        private readonly DisciplineType typeDP = DisciplineType.DP;
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly DisciplineType _typeDp = DisciplineType.DP;
 
-        private readonly IList<McPkgScopeForCommand> mcPkgScope = new List<McPkgScopeForCommand>
+        private readonly IList<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
         {
             new McPkgScopeForCommand("MC01", "D1", "COMM-01")
         };
 
-        private readonly IList<CommPkgScopeForCommand> commPkgScope = new List<CommPkgScopeForCommand>
+        private readonly IList<CommPkgScopeForCommand> _commPkgScope = new List<CommPkgScopeForCommand>
         {
             new CommPkgScopeForCommand("COMM-02", "D2", "PA")
         };
 
-        private readonly List<ParticipantsForCommand> participantsOnlyRequired = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForCommand> _participantsOnlyRequired = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, projectName, title, typeDP);
+                var invitation = new Invitation(TestPlant, _projectName, _title, _typeDp);
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();
             }
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync(projectName, title, default);
+                var result = await dut.TitleExistsOnProjectAsync(_projectName, _title, default);
                 Assert.IsTrue(result);
             }
         }
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync("newProject", title, default);
+                var result = await dut.TitleExistsOnProjectAsync("newProject", _title, default);
                 Assert.IsFalse(result);
             }
         }
@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync(projectName, "new title", default);
+                var result = await dut.TitleExistsOnProjectAsync(_projectName, "new title", default);
                 Assert.IsFalse(result);
             }
         }
@@ -94,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.IsValidScope(mcPkgScope, new List<CommPkgScopeForCommand>());
+                var result = dut.IsValidScope(_mcPkgScope, new List<CommPkgScopeForCommand>());
                 Assert.IsTrue(result);
             }
         }
@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.IsValidScope(new List<McPkgScopeForCommand>(), commPkgScope);
+                var result = dut.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope);
                 Assert.IsTrue(result);
             }
         }
@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.IsValidScope(mcPkgScope, commPkgScope);
+                var result = dut.IsValidScope(_mcPkgScope, _commPkgScope);
                 Assert.IsFalse(result);
             }
         }
@@ -138,7 +138,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.RequiredParticipantsMustBeInvited(participantsOnlyRequired);
+                var result = dut.RequiredParticipantsMustBeInvited(_participantsOnlyRequired);
                 Assert.IsTrue(result);
             }
         }
@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand>{participantsOnlyRequired[0]});
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand>{_participantsOnlyRequired[0]});
                 Assert.IsFalse(result);
             }
         }
@@ -219,7 +219,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = dut.RequiredParticipantsMustBeInvited(participantsOnlyRequired);
+                var result = dut.RequiredParticipantsMustBeInvited(_participantsOnlyRequired);
                 Assert.IsTrue(result);
             }
         }
@@ -252,7 +252,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], fr, person, external });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr, person, external });
                 Assert.IsTrue(result);
             }
         }
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new FunctionalRoleForCommand("FR1", "test", false, null),
                         0);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand>{participantsOnlyRequired[0], participantsOnlyRequired[1], functionalRoleWithoutEmail});
+                    new List<ParticipantsForCommand>{_participantsOnlyRequired[0], _participantsOnlyRequired[1], functionalRoleWithoutEmail});
                 Assert.IsFalse(result);
             }
         }
@@ -292,7 +292,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new FunctionalRoleForCommand("FR1", null, false, null),
                         0);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], functionalRoleWithoutEmail });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], functionalRoleWithoutEmail });
                 Assert.IsFalse(result);
             }
         }
@@ -312,7 +312,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new FunctionalRoleForCommand("FR1", "fr1@test.com", false, null),
                         0);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
             }
         }
@@ -332,7 +332,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }
@@ -352,7 +352,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { participantsOnlyRequired[0], participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }
