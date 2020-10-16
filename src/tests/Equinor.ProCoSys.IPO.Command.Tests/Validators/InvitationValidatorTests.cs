@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync(_projectName, _title, default);
+                var result = await dut.IpoTitleExistsInProjectAsync(_projectName, _title, default);
                 Assert.IsTrue(result);
             }
         }
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync("newProject", _title, default);
+                var result = await dut.IpoTitleExistsInProjectAsync("newProject", _title, default);
                 Assert.IsFalse(result);
             }
         }
@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context);
-                var result = await dut.TitleExistsOnProjectAsync(_projectName, "new title", default);
+                var result = await dut.IpoTitleExistsInProjectAsync(_projectName, "new title", default);
                 Assert.IsFalse(result);
             }
         }

@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             IList<CommPkgScopeForCommand> commPkgScope) 
                 => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
 
-        public async Task<bool> TitleExistsOnProjectAsync(string projectName, string title, CancellationToken token)
+        public async Task<bool> IpoTitleExistsInProjectAsync(string projectName, string title, CancellationToken token)
         => await(from invitation in _context.QuerySet<Invitation>()
                 where invitation.Title == title && invitation.ProjectName == projectName
                 select invitation).AnyAsync(token);

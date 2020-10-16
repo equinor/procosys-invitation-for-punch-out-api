@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command, token) => MustHaveValidScope(command.McPkgScope, command.CommPkgScope))
                 .WithMessage(command =>
-                    $"Scope must be valid. Either mc scope or comm pgk scope must be added, but not both!")
+                    $"Not a valid scope! Choose either mc scope or comm pkg scope")
                 .Must((command, token) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
                     $"Contractor and Construction Company must be invited!")
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"Each participant must contain an email or oid!");
 
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
-                => !await invitationValidator.TitleExistsOnProjectAsync(projectName, title, token);
+                => !await invitationValidator.IpoTitleExistsInProjectAsync(projectName, title, token);
 
             bool MustHaveValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);
