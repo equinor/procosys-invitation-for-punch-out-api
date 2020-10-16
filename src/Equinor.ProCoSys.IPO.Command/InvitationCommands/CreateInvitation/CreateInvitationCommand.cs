@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         public CreateInvitationCommand(
             string title,
-            string bodyHtml,
+            string description,
             string location,
             DateTime startTime,
             DateTime endTime,
@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             McPkgScope = mcPkgScope ?? new List<McPkgScopeForCommand>();
             CommPkgScope = commPkgScope ?? new List<CommPkgScopeForCommand>();
             Participants = participants;
-            BodyHtml = bodyHtml;
+            Description = description;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             Title = title;
         }
 
-        public string BodyHtml { get; }
+        public string Description { get; }
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }

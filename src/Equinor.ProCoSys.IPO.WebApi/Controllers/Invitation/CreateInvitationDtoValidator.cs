@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 .NotNull()
                 .MinimumLength(3)
                 .WithMessage("Project name must be at least 3 characters");
-            RuleFor(x => x.BodyHtml)
+            RuleFor(x => x.Description)
                 .MaximumLength(4000)
                 .WithMessage("Description can be max 4000 characters");
             RuleFor(x => x.EndTime).GreaterThan(x => x.StartTime);

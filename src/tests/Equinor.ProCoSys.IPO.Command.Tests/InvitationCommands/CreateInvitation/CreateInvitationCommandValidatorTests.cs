@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private CreateInvitationCommand _command;
         private readonly string _projectName = "Project name";
         private readonly string _title = "Test title";
-        private readonly string _body = "body";
+        private readonly string _description = "body";
         private readonly string _location = "location A";
         private readonly DisciplineType _type = DisciplineType.DP;
 
@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
             _command = new CreateInvitationCommand(
                 _title,
-                _body,
+                _description,
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),

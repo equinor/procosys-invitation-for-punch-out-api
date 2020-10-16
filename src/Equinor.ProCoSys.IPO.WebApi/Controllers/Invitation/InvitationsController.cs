@@ -70,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
                     dto.Title,
-                    dto.BodyHtml,
+                    dto.Description,
                     dto.Location,
                     dto.StartTime,
                     dto.EndTime,
