@@ -21,6 +21,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _location = "location A";
         private readonly DisciplineType _type = DisciplineType.DP;
 
+        private readonly IList<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
+        {
+            new McPkgScopeForCommand("MC01", "D1", "COMM-01")
+        };
         private readonly IList<CommPkgScopeForCommand> _commPkgScope = new List<CommPkgScopeForCommand>
         {
             new CommPkgScopeForCommand("COMM-02", "D2", "PA")
@@ -74,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenInvitationWithSameTitleExistsInProject()
         {
-            _invitationValidatorMock.Setup(inv => inv.IpoTitleExistsInProjectAsync(_projectName, _title, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.TitleExistsOnProjectAsync(_projectName, _title, default)).Returns(Task.FromResult(true));
 
             var result = _dut.Validate(_command);
 
@@ -92,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either mc scope or comm pkg scope."));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Scope must be valid. Either mc scope or comm pgk scope must be added, but not both!"));
         }
 
         [TestMethod]
