@@ -10,6 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> TitleExistsOnProjectAsync(string projectName, string title, CancellationToken token);
         bool IsValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
-        bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants); 
+        bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
+        bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants); 
     }
 }

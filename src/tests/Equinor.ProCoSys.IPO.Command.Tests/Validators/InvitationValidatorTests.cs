@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(Guid.Empty, "Ola", "Nordmann", "ola@test.com", true),
+                new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Ola", "Nordmann", "ola@test.com", true),
                 null,
                 1)
         };
@@ -241,7 +241,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", "zoey@test.com", true), 
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", "zoey@test.com", true), 
                         null,
                         3);
                 var external =
@@ -253,6 +253,44 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         4);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr, person, external });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_RequiredParticipantsListAndPersonWithOnlyGuid_ReturnsTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Operation,
+                        null,
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", null, true),
+                        null,
+                        3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_RequiredParticipantsListAndPersonWithOnlyEmail_ReturnsTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Operation,
+                        null,
+                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        null,
+                        3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
         }
@@ -328,7 +366,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", null, true), 
+                        new PersonForCommand(null, "Zoey", "Smith", null, true), 
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -348,11 +386,106 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", "test", true),
+                        null,
+                        4);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_PersonEmptyGuidAndInvalidEmail_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
                         new PersonForCommand(Guid.Empty, "Zoey", "Smith", "test", true),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void OnlyRequiredParticipantsHaveLowestSortKeys_OnlyRequiredParticipantsInvited_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(_participantsOnlyRequired);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void OnlyRequiredParticipantsHaveLowestSortKeys_AdditionalParticipantsHaveHighSortKey_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        null,
+                        3);
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public void OnlyRequiredParticipantsHaveLowestSortKeys_RequiredParticipantsHaveWrongSortKey_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> {
+                    new ParticipantsForCommand(
+                        Organization.Contractor,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                        0),
+                    new ParticipantsForCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new PersonForCommand(null, "Ola", "Nordmann", "ola@test.com", true),
+                        null,
+                        0)
+                });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void OnlyRequiredParticipantsHaveLowestSortKeys_AdditionalParticipantsHaveLowSortKey_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        null,
+                        0);
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }

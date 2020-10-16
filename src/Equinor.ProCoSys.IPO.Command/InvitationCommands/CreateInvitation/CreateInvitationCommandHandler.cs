@@ -74,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         null,
                         null,
                         participant.ExternalEmail,
-                        Guid.Empty,
+                        null,
                         participant.SortKey));
                     participants.Add(new BuilderParticipant(ParticipantType.Required,
                         new ParticipantIdentifier(participant.ExternalEmail)));
@@ -93,15 +93,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participant.Person.AzureOid,
                         participant.SortKey));
 
-                    if (participant.Person.AzureOid == Guid.Empty)
+                    if (participant.Person.AzureOid != null && participant.Person.AzureOid != Guid.Empty)
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.Person.Email)));
+                            new ParticipantIdentifier(participant.Person.AzureOid ?? Guid.Empty)));
                     }
                     else
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.Person.AzureOid)));
+                            new ParticipantIdentifier(participant.Person.Email)));
                     }
                 }
 
@@ -117,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             null,
                             null,
                             participant.FunctionalRole.Email,
-                            Guid.Empty,
+                            null,
                             participant.SortKey));
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(participant.FunctionalRole.Email)));
@@ -135,15 +135,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             p.Email,
                             p.AzureOid,
                             participant.SortKey));
-                        if (p.AzureOid == Guid.Empty)
+                        if (p.AzureOid != null && p.AzureOid != Guid.Empty)
                         {
                             participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                new ParticipantIdentifier(p.Email)));
+                                new ParticipantIdentifier(p.AzureOid ?? Guid.Empty)));
                         }
                         else
                         {
                             participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                new ParticipantIdentifier(p.AzureOid)));
+                                new ParticipantIdentifier(p.Email)));
                         }
                     }
                 }

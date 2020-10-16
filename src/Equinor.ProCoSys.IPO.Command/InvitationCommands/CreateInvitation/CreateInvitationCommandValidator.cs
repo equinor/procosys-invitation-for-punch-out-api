@@ -22,9 +22,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command, token) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
                     $"Contractor and Construction Company must be invited!")
+                .Must((command, token) => RequiredParticipantsHaveLowestSortKeys(command.Participants))
+                .WithMessage(command =>
+                    $"SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
                 .Must((command, token) => ParticipantListMustBeValid(command.Participants))
                 .WithMessage(command =>
-                    $"Each participant must contain an email!");
+                    $"Each participant must contain an email or oid!");
 
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
                 => !await invitationValidator.TitleExistsOnProjectAsync(projectName, title, token);
@@ -34,6 +37,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);
+
+            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
+                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants); 
 
             bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);

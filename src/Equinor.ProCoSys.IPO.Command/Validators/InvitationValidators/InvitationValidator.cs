@@ -35,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidPerson(ParticipantsForCommand participant)
         {
-            if (participant.Person.Email == null && participant.Person.AzureOid == Guid.Empty)
+            if (participant.Person.Email == null && (participant.Person.AzureOid == Guid.Empty || participant.Person.AzureOid == null))
             {
                 return false;
             }
@@ -103,10 +103,28 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 return false;
             }
 
-            return participants[0].Organization == Organization.Contractor && 
+            return participants[0].Organization == Organization.Contractor &&
                    participants[0].ExternalEmail == null &&
                    participants[1].Organization == Organization.ConstructionCompany &&
-                   participants[0].ExternalEmail == null;
+                   participants[1].ExternalEmail == null;
+        }
+
+        public bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
+        {
+            if (participants.Count < 2 || participants[0].SortKey != 0 || participants[1].SortKey != 1)
+            {
+                return false;
+            }
+
+            for (var i = 2; i < participants.Count; i++)
+            {
+                if (participants[i].SortKey == 0 || participants[i].SortKey == 1)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

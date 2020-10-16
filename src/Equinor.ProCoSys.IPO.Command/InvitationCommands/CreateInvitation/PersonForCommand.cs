@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     public class PersonForCommand : IRequest<Result<Unit>>
     {
         public PersonForCommand(
-            Guid azureOid,
+            Guid? azureOid,
             string firstName,
             string lastName,
             string email,
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             Email = email;
             Required = required;
         }
-        public Guid AzureOid { get; set; }
+        public Guid? AzureOid { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

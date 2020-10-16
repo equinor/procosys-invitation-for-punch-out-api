@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    [Migration("20201014115300_CreateInvitationTablesAndProperties")]
+    [Migration("20201016071724_CreateInvitationTablesAndProperties")]
     partial class CreateInvitationTablesAndProperties
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

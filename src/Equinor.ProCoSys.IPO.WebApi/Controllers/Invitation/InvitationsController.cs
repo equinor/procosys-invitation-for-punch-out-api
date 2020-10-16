@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                         p.Organization,
                         p.ExternalEmail,
                         p.Person != null
-                            ? new PersonForCommand(p.Person.AzureOid ?? Guid.Empty, p.Person.FirstName, p.Person.LastName, p.Person.Email,
+                            ? new PersonForCommand(p.Person.AzureOid, p.Person.FirstName, p.Person.LastName, p.Person.Email,
                                 p.Person.Required)
                             : null,
                         p.FunctionalRole != null 
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                                 p.FunctionalRole.UsePersonalEmail,
                                 p.FunctionalRole.Persons?.Select(person =>
                                     new PersonForCommand(
-                                        person.AzureOid ?? Guid.Empty,
+                                        person.AzureOid,
                                         person.FirstName, 
                                         person.LastName, 
                                         person.Email,

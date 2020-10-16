@@ -10,12 +10,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "ProjectName",
                 table: "Invitations",
-                nullable: true);
+                nullable: false);
 
             migrationBuilder.AddColumn<string>(
                 name: "Title",
                 table: "Invitations",
-                nullable: true);
+                nullable: false);
 
             migrationBuilder.AddColumn<int>(
                 name: "Type",
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     Status = table.Column<string>(nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(nullable: false),
                     CreatedById = table.Column<int>(nullable: false),
-                    InvitationId = table.Column<int>(nullable: true)
+                    InvitationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     Description = table.Column<string>(nullable: true),
                     CreatedAtUtc = table.Column<DateTime>(nullable: false),
                     CreatedById = table.Column<int>(nullable: false),
-                    InvitationId = table.Column<int>(nullable: true)
+                    InvitationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -91,7 +91,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     SortKey = table.Column<int>(nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(nullable: false),
                     CreatedById = table.Column<int>(nullable: false),
-                    InvitationId = table.Column<int>(nullable: true)
+                    InvitationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

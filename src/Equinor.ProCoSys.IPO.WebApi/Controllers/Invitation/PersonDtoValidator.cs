@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using FluentValidation;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -6,8 +7,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     {
         public PersonDtoValidator()
         {
-            RuleFor(x => x.FirstName).NotNull();
-            RuleFor(x => x.LastName).MaximumLength(8192);
+            RuleFor(x => x.FirstName)
+                .NotNull()
+                .MinimumLength(1)
+                .MaximumLength(Participant.FirstNameMaxLength)
+                .WithMessage("First name must be between 1 and " + Participant.FirstNameMaxLength + " characters");
+            RuleFor(x => x.LastName)
+                .NotNull()
+                .MinimumLength(1)
+                .MaximumLength(Participant.FirstNameMaxLength)
+                .WithMessage("Last name must be between 1 and " + Participant.FirstNameMaxLength + " characters");
             RuleFor(x => x.Email).EmailAddress();
         }
     }

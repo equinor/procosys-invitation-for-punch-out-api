@@ -7,6 +7,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class Participant : PlantEntityBase, ICreationAuditable
     {
+        public const int FunctionalRoleCodeMaxLength = 255;
+        public const int FirstNameMaxLength = 255;
+        public const int LastNameMaxLength = 255;
+
         protected Participant()
             : base(null)
         {
@@ -20,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string firstName, 
             string lastName, 
             string email,
-            Guid azureOid,
+            Guid? azureOid,
             int sortKey)
             : base(plant)
         {
@@ -40,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
         public string Email { get; private set; }
-        public Guid AzureOid { get; private set; }
+        public Guid? AzureOid { get; private set; }
         public int SortKey { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }

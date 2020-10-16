@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(Guid.Empty, "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(null, "Ola", "Nordman", "ola@test.com", true),
                 null,
                 1)
         };
@@ -52,6 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
             _command = new CreateInvitationCommand(
                 _title,
                 _body,
@@ -120,6 +121,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Contractor and Construction Company must be invited"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenRequiredParticipantsDoNotHaveLowestSortKeys()
+        {
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(false);
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company"));
         }
     }
 }
