@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Fusion.Integration.Meeting;
 using MediatR;
 using ServiceResult;
-using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -38,131 +37,42 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (request.CommPkgScope.Count > 0)
             {
-                foreach (var commPkg in request.CommPkgScope)
-                {
-                    invitation.AddCommPkg(new CommPkg(
-                        _plantProvider.Plant, 
-                        request.ProjectName, 
-                        commPkg.CommPkgNo, 
-                        commPkg.Description,
-                        commPkg.Status));
-                }
+                AddCommPkgs(invitation, request.CommPkgScope, request.ProjectName);
             }
 
             if (request.McPkgScope.Count > 0)
             {
-                foreach (var mcPkg in request.McPkgScope)
-                {
-                    invitation.AddMcPkg(new McPkg(
-                        _plantProvider.Plant, 
-                        request.ProjectName, 
-                        mcPkg.CommPkgNo, 
-                        mcPkg.McPkgNo, 
-                        mcPkg.Description));
-                }
+                AddMcPkgs(invitation, request.McPkgScope, request.ProjectName);
             }
 
             foreach (var participant in request.Participants)
             {
                 if (participant.Organization == Organization.External)
                 {
-                    invitation.AddParticipant(new Participant(
-                        _plantProvider.Plant,
-                        participant.Organization,
-                        Domain.AggregateModels.InvitationAggregate.ParticipantType.Person,
-                        null,
-                        null,
-                        null,
-                        participant.ExternalEmail,
-                        null,
-                        participant.SortKey));
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(participant.ExternalEmail)));
+                    participants = AddExternalParticipant(invitation, participants, participant);
                 }
 
                 if (participant.Person != null)
                 {
-                    invitation.AddParticipant(new Participant(
-                        _plantProvider.Plant,
+                    participants = AddPersonParticipant(
+                        invitation, 
+                        participants, 
+                        participant.Person, 
                         participant.Organization,
-                        Domain.AggregateModels.InvitationAggregate.ParticipantType.Person,
-                        null,
-                        participant.Person.FirstName,
-                        participant.Person.LastName,
-                        participant.Person.Email,
-                        participant.Person.AzureOid,
-                        participant.SortKey));
-
-                    if (participant.Person.AzureOid != null && participant.Person.AzureOid != Guid.Empty)
-                    {
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.Person.AzureOid ?? Guid.Empty)));
-                    }
-                    else
-                    {
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.Person.Email)));
-                    }
+                        participant.SortKey);
                 }
 
                 if (participant.FunctionalRole != null)
                 {
-                    if (!participant.FunctionalRole.UsePersonalEmail)
-                    {
-                        invitation.AddParticipant(new Participant(
-                            _plantProvider.Plant,
-                            participant.Organization,
-                            Domain.AggregateModels.InvitationAggregate.ParticipantType.FunctionalRole,
-                            participant.FunctionalRole.Code,
-                            null,
-                            null,
-                            participant.FunctionalRole.Email,
-                            null,
-                            participant.SortKey));
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.FunctionalRole.Email)));
-                    }
-                   
-                    foreach (var p in participant.FunctionalRole.Persons)
-                    {
-                        invitation.AddParticipant(new Participant(
-                            _plantProvider.Plant,
-                            participant.Organization,
-                            Domain.AggregateModels.InvitationAggregate.ParticipantType.FunctionalRole,
-                            participant.FunctionalRole.Code,
-                            p.FirstName,
-                            p.LastName,
-                            p.Email,
-                            p.AzureOid,
-                            participant.SortKey));
-                        if (p.AzureOid != null && p.AzureOid != Guid.Empty)
-                        {
-                            participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                new ParticipantIdentifier(p.AzureOid ?? Guid.Empty)));
-                        }
-                        else
-                        {
-                            participants.Add(new BuilderParticipant(p.Required ? ParticipantType.Required : ParticipantType.Optional,
-                                new ParticipantIdentifier(p.Email)));
-                        }
-                    }
+                    participants = AddFunctionalRoleParticipant(invitation, participants, participant);
                 }
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             try
             {
-                var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
-                {
-                    meetingBuilder
-                        .StandaloneMeeting(request.Title, request.Location)
-                        .StartsOn(request.StartTime, request.EndTime)
-                        .WithParticipants(participants)
-                        .EnableOutlookIntegration(OutlookMode.All)
-                        .WithClassification(MeetingClassification.Restricted)
-                        .WithInviteBodyHtml(request.BodyHtml);
-                });
-                invitation.MeetingId = meeting.Id;
+                var meetingId = await CreateOutlookMeeting(request, participants);
+                invitation.MeetingId = meetingId;
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 return new SuccessResult<int>(invitation.Id);
@@ -174,7 +84,132 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
             }
-            
+        }
+
+        private List<BuilderParticipant> AddFunctionalRoleParticipant(
+            Invitation invitation,
+            List<BuilderParticipant> participants, 
+            ParticipantsForCommand participant)
+        {
+            if (!participant.FunctionalRole.UsePersonalEmail)
+            {
+                invitation.AddParticipant(new Participant(
+                    _plantProvider.Plant,
+                    participant.Organization,
+                    IpoParticipantType.FunctionalRole,
+                    participant.FunctionalRole.Code,
+                    null,
+                    null,
+                    participant.FunctionalRole.Email,
+                    null,
+                    participant.SortKey));
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(participant.FunctionalRole.Email)));
+            }
+
+            foreach (var p in participant.FunctionalRole.Persons)
+            {
+                participants = AddPersonParticipant(
+                    invitation,
+                    participants,
+                    p,
+                    participant.Organization,
+                    participant.SortKey);
+            }
+            return participants;
+        }
+
+        private List<BuilderParticipant> AddPersonParticipant(
+            Invitation invitation,
+            List<BuilderParticipant> participants, 
+            PersonForCommand person,
+            Organization organization,
+            int sortKey,
+            string functionalRoleCode = null)
+        {
+            invitation.AddParticipant(new Participant(
+                _plantProvider.Plant,
+                organization,
+                functionalRoleCode != null ? IpoParticipantType.FunctionalRole : IpoParticipantType.Person,
+                functionalRoleCode,
+                person.FirstName,
+                person.LastName,
+                person.Email,
+                person.AzureOid,
+                sortKey));
+
+            if (person.AzureOid != null && person.AzureOid != Guid.Empty)
+            {
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(person.AzureOid ?? Guid.Empty)));
+            }
+            else
+            {
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(person.Email)));
+            }
+            return participants;
+        }
+
+        private List<BuilderParticipant> AddExternalParticipant(
+            Invitation invitation, 
+            List<BuilderParticipant> participants, 
+            ParticipantsForCommand participant)
+        {
+            invitation.AddParticipant(new Participant(
+                _plantProvider.Plant,
+                participant.Organization,
+                IpoParticipantType.Person,
+                null,
+                null,
+                null,
+                participant.ExternalEmail,
+                null,
+                participant.SortKey));
+            participants.Add(new BuilderParticipant(ParticipantType.Required,
+                new ParticipantIdentifier(participant.ExternalEmail)));
+            return participants;
+        }
+
+        private void AddCommPkgs(Invitation invitation, IEnumerable<CommPkgScopeForCommand> commPkgScope, string projectName)
+        {
+            foreach (var commPkg in commPkgScope)
+            {
+                invitation.AddCommPkg(new CommPkg(
+                    _plantProvider.Plant,
+                    projectName,
+                    commPkg.CommPkgNo,
+                    commPkg.Description,
+                    commPkg.Status));
+            }
+        }
+
+        private void AddMcPkgs(Invitation invitation, IEnumerable<McPkgScopeForCommand> mcPkgScope, string projectName)
+        {
+            foreach (var mcPkg in mcPkgScope)
+            {
+                invitation.AddMcPkg(new McPkg(
+                    _plantProvider.Plant,
+                    projectName,
+                    mcPkg.CommPkgNo,
+                    mcPkg.McPkgNo,
+                    mcPkg.Description));
+            }
+        }
+
+        private async Task<Guid> CreateOutlookMeeting(CreateInvitationCommand request, IReadOnlyCollection<BuilderParticipant> participants)
+        {
+            var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
+            {
+                meetingBuilder
+                    .StandaloneMeeting(request.Title, request.Location)
+                    .StartsOn(request.StartTime, request.EndTime)
+                    .WithParticipants(participants)
+                    .EnableOutlookIntegration(OutlookMode.All)
+                    .WithClassification(MeetingClassification.Restricted)
+                    .WithInviteBodyHtml(request.BodyHtml);
+            });
+            return meeting.Id;
         }
     }
 }

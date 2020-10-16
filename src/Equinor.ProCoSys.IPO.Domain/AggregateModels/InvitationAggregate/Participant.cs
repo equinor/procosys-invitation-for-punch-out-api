@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Participant(
             string plant, 
             Organization organization, 
-            ParticipantType type, 
+            IpoParticipantType type, 
             string functionalRoleCode, 
             string firstName, 
             string lastName, 
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public Organization Organization { get; private set; }
-        public ParticipantType Type { get; private set; }
+        public IpoParticipantType Type { get; private set; }
         public string FunctionalRoleCode { get; private set; }
         public string FirstName { get; private set; }
         public string LastName { get; private set; }
