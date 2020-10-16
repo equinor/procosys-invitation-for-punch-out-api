@@ -15,8 +15,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             RuleFor(x => x.LastName)
                 .NotNull()
                 .MinimumLength(1)
-                .MaximumLength(Participant.FirstNameMaxLength)
-                .WithMessage("Last name must be between 1 and " + Participant.FirstNameMaxLength + " characters");
+                .MaximumLength(Participant.LastNameMaxLength)
+                .WithMessage("Last name must be between 1 and " + Participant.LastNameMaxLength + " characters");
             RuleFor(x => x.Email).EmailAddress();
         }
     }
