@@ -1,46 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
-    public class Invitation : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable
+    public class Attachment : PlantEntityBase, ICreationAuditable, IModificationAuditable
     {
-        private readonly List<Attachment> _attachments = new List<Attachment>();
+        public const int FileNameLengthMax = 255;
+        public const int PathLengthMax = 1024;
 
-        private Invitation()
+        protected Attachment()
             : base(null)
         {
         }
 
-        public Invitation(string plant)
+        public Attachment(string plant, string fileName)
             : base(plant)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+
+            BlobStorageId = Guid.NewGuid(); 
+            FileName = fileName;
         }
 
-        public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
-        public Guid MeetingId { get; set; }
+        public Guid BlobStorageId { get; }
+        public string FileName { get; protected set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
-
-        public void AddAttachment(Attachment attachment)
-        {
-            if (attachment == null)
-            {
-                throw new ArgumentNullException(nameof(attachment));
-            }
-
-            if (attachment.Plant != Plant)
-            {
-                throw new ArgumentException($"Can't relate item in {attachment.Plant} to item in {Plant}");
-            }
-
-            _attachments.Add(attachment);
-        }
 
         public void SetCreated(Person createdBy)
         {
