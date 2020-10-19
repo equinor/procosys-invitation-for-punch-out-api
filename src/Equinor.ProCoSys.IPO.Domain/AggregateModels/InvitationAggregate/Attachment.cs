@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -23,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentNullException(nameof(fileName));
             }
 
-            BlobStorageId = Guid.NewGuid(); 
+            BlobStorageId = Guid.NewGuid();
             FileName = fileName;
         }
 
@@ -33,6 +34,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
+
+        public string BlobPath => Path.Combine(Plant.Substring(4), BlobStorageId.ToString(), FileName);
 
         public void SetCreated(Person createdBy)
         {

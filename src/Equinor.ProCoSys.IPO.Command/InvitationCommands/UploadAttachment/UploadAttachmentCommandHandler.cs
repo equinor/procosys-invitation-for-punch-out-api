@@ -45,17 +45,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
 
             if (attachment == null)
             {
-                attachment = new Attachment(
-                    _plantProvider.Plant,
-                    request.FileName);
+                attachment = new Attachment(_plantProvider.Plant, request.FileName);
                 invitation.AddAttachment(attachment);
             }
 
-            var blobPath = Path.Combine(_plantProvider.Plant.Substring(4), attachment.BlobStorageId.ToString());
-            var fullBlobPath = Path.Combine(_blobStorageOptions.CurrentValue.BlobContainer,
-                                            blobPath,
-                                            attachment.FileName)
-                                            .Replace("\\", "/");
+            var fullBlobPath = Path.Combine(_blobStorageOptions.CurrentValue.BlobContainer, attachment.BlobPath).Replace("\\", "/");
 
             await _blobStorage.UploadAsync(fullBlobPath, request.Content, request.OverWriteIfExists, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
