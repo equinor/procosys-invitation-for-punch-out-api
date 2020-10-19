@@ -22,10 +22,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         private readonly string TestPlant = "TestPlant";
         private readonly string Permission1 = "A";
         private readonly string Permission2 = "B";
-        private readonly string Project1 = "P1";
-        private readonly string Project2 = "P2";
-        private readonly string Restriction1 = "R1";
-        private readonly string Restriction2 = "R2";
+        private readonly string Project1WithAccess = "P1";
+        private readonly string Project2WithAccess = "P2";
+        private readonly string ProjectWithoutAccess = "P3";
 
         [TestInitialize]
         public void Setup()
@@ -33,8 +32,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
 
             _permissionApiServiceMock = new Mock<IPermissionApiService>();
-            _permissionApiServiceMock.Setup(p => p.GetProjectsAsync(TestPlant))
-                .Returns(Task.FromResult<IList<string>>(new List<string> {Project1, Project2}));
+            _permissionApiServiceMock.Setup(p => p.GetAllProjectsAsync(TestPlant))
+                .Returns(Task.FromResult<IList<ProCoSysProject>>(new List<ProCoSysProject>
+            {
+                new ProCoSysProject {Name = Project1WithAccess, HasAccess = true},
+                new ProCoSysProject {Name = Project2WithAccess, HasAccess = true},
+                new ProCoSysProject {Name = ProjectWithoutAccess}
+            }));
             _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(TestPlant))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1, Permission2}));
 
@@ -47,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUserOid_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
+        public async Task GetPermissionsForUser_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
         {
             // Act
             var result = await _dut.GetPermissionsForUserAsync(TestPlant, Oid);
@@ -58,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUserOid_ShouldReturnPermissionsFromCacheSecondTime()
+        public async Task GetPermissionsForUser_ShouldReturnPermissionsFromCacheSecondTime()
         {
             await _dut.GetPermissionsForUserAsync(TestPlant, Oid);
             // Act
@@ -66,41 +70,41 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
 
             // Assert
             AssertPermissions(result);
-            // since GetPermissionsForUserOidAsync has been called twice, but GetPermissionsAsync has been called once, the second Get uses cache
+            // since GetPermissionsForUserAsync has been called twice, but GetPermissionsAsync has been called once, the second Get uses cache
             _permissionApiServiceMock.Verify(p => p.GetPermissionsAsync(TestPlant), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetProjectsForUserOid_ShouldReturnProjectsFromPermissionApiServiceFirstTime()
+        public async Task GetProjectsForUser_ShouldReturnProjectsFromPermissionApiServiceFirstTime()
         {
             // Act
-            var result = await _dut.GetProjectNamesForUserOidAsync(TestPlant, Oid);
+            var result = await _dut.GetProjectsForUserAsync(TestPlant, Oid);
 
             // Assert
             AssertProjects(result);
-            _permissionApiServiceMock.Verify(p => p.GetProjectsAsync(TestPlant), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetAllProjectsAsync(TestPlant), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetProjectsForUserOid_ShouldReturnProjectsFromCacheSecondTime()
+        public async Task GetProjectsForUser_ShouldReturnProjectsFromCacheSecondTime()
         {
-            await _dut.GetProjectNamesForUserOidAsync(TestPlant, Oid);
+            await _dut.GetProjectsForUserAsync(TestPlant, Oid);
             // Act
-            var result = await _dut.GetProjectNamesForUserOidAsync(TestPlant, Oid);
+            var result = await _dut.GetProjectsForUserAsync(TestPlant, Oid);
 
             // Assert
             AssertProjects(result);
-            // since GetProjectsForUserOidAsync has been called twice, but GetProjectsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetProjectsAsync(TestPlant), Times.Once);
+            // since GetProjectsForUserAsync has been called twice, but GetProjectsAsync has been called once, the second Get uses cache
+            _permissionApiServiceMock.Verify(p => p.GetAllProjectsAsync(TestPlant), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUserOid_ShouldThrowExceptionWhenOidIsEmty()
+        public async Task GetPermissionsForUser_ShouldThrowExceptionWhenOidIsEmpty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetPermissionsForUserAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
-        public async Task GetProjectNamesForUserOid_ShouldThrowExceptionWhenOidIsEmty()
-            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetProjectNamesForUserOidAsync(TestPlant, Guid.Empty));
+        public async Task GetProjectsForUser_ShouldThrowExceptionWhenOidIsEmpty()
+            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetProjectsForUserAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
         public void ClearAll_ShouldClearAllPermissionCaches()
@@ -128,15 +132,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         private void AssertProjects(IList<string> result)
         {
             Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(Project1, result.First());
-            Assert.AreEqual(Project2, result.Last());
-        }
-
-        private void AssertRestrictions(IList<string> result)
-        {
-            Assert.AreEqual(2, result.Count);
-            Assert.AreEqual(Restriction1, result.First());
-            Assert.AreEqual(Restriction2, result.Last());
+            Assert.AreEqual(Project1WithAccess, result.First());
+            Assert.AreEqual(Project2WithAccess, result.Last());
         }
     }
 }

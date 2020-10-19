@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             string plant)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var projects = await _permissionCache.GetProjectNamesForUserOidAsync(plant, currentUserOid);
+            var projects = await _permissionCache.GetProjectsForUserAsync(plant, currentUserOid);
             return projects;
         }
 

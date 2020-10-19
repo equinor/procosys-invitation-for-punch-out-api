@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
@@ -14,7 +12,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
         private readonly Uri _baseAddress;
         private readonly IBearerTokenApiClient _foreignApiClient;
 
-        public MainApiPermissionService(IBearerTokenApiClient foreignApiClient,
+        public MainApiPermissionService(
+            IBearerTokenApiClient foreignApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _foreignApiClient = foreignApiClient;
@@ -22,15 +21,14 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
         
-        public async Task<IList<string>> GetProjectsAsync(string plantId)
+        public async Task<IList<ProCoSysProject>> GetAllProjectsAsync(string plantId)
         {
             var url = $"{_baseAddress}Projects" +
                       $"?plantId={plantId}" +
                       "&withCommPkgsOnly=false" +
                       $"&api-version={_apiVersion}";
 
-            var projects = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
-            return projects != null ? projects.Select(p => p.Name).ToList() : new List<string>();
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url) ?? new List<ProCoSysProject>();
         }
 
         public async Task<IList<string>> GetPermissionsAsync(string plantId)

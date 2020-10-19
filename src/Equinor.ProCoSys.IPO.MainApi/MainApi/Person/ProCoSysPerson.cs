@@ -1,6 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
+﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 {
-    public class Person
+    public class ProCoSysPerson
     {
         public string AzureOid { get; set; }
 

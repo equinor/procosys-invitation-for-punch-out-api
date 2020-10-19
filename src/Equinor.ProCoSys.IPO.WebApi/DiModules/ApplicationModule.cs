@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -72,6 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IPlantSetter>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<IAccessValidator, AccessValidator>();
             services.AddScoped<IProjectAccessChecker, ProjectAccessChecker>();
+            services.AddScoped<IProjectChecker, ProjectChecker>();
             services.AddScoped<IEventDispatcher, EventDispatcher>();
             services.AddScoped<IUnitOfWork>(x => x.GetRequiredService<IPOContext>());
             services.AddScoped<IReadOnlyContext, IPOContext>();
@@ -92,6 +94,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
+            services.AddScoped<IPersonApiService, MainApiPersonService>();
 
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
 

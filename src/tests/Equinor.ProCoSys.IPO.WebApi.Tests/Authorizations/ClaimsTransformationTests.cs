@@ -41,12 +41,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             var permissionCacheMock = new Mock<IPermissionCache>();
             permissionCacheMock.Setup(p => p.GetPermissionsForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant1, Permission2_Plant1}));
-            permissionCacheMock.Setup(p => p.GetProjectNamesForUserOidAsync(Plant1, Oid))
+            permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant1, Project2_Plant1}));
 
             permissionCacheMock.Setup(p => p.GetPermissionsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant2}));
-            permissionCacheMock.Setup(p => p.GetProjectNamesForUserOidAsync(Plant2, Oid))
+            permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant2}));
 
             _principalWithOid = new ClaimsPrincipal();
