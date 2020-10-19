@@ -4,6 +4,7 @@ using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
+using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -98,6 +99,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 stream);
 
             var result = await _mediator.Send(command);
+            return this.FromResult(result);
+        }
+
+        // TODO: Add permissions
+        [HttpGet("{id}/Attachments/{attachmentId}")]
+        public async Task<ActionResult<int>> GetAttachment(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromRoute] int id,
+            [FromRoute] int attachmentId)
+        {
+            var result = await _mediator.Send(new GetAttachmentByIdQuery(id, attachmentId));
             return this.FromResult(result);
         }
     }
