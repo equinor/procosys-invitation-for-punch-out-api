@@ -8,6 +8,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class Invitation : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable
     {
+        public const int ProjectNameMaxLength = 512;
+        public const int TitleMaxLength = 1024;
+
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
         private readonly List<Participant> _participants = new List<Participant>();

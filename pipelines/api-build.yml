@@ -76,7 +76,7 @@ stages:
 - stage: dev
   displayName: 'Dev'
   dependsOn: 'common'
-  condition: succeeded()
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   variables:
     env: 'dev'
     envName: 'non-prod'
