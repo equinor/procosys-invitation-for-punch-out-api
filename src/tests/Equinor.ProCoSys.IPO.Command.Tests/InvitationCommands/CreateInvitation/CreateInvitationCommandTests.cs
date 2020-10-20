@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
@@ -9,38 +10,56 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
     [TestClass]
     public class CreateInvitationCommandTests
     {
-        private readonly List<Guid> _requiredParticipantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
-        private readonly List<string> _requiredParticipantEmails = new List<string>() { "abc@example.com" };
-        private readonly List<Guid> _optionalParticipantIds = new List<Guid>() { new Guid("33333333-4444-4444-4444-555555555555") };
-        private readonly List<string> _optionalParticipantEmails = new List<string>() { "def@example.com" };
+        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        {
+            new ParticipantsForCommand(
+                Organization.Contractor,
+                null, 
+                null, 
+                new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                0),
+            new ParticipantsForCommand(
+                Organization.ConstructionCompany,
+                null,
+                new PersonForCommand(null, "Ola", "Nordman", "ola@test.com", true), 
+                null,
+                1)
+        };
+
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly string _description = "Body";
+        private readonly string _location = "Outside";
+        private readonly DisciplineType _type = DisciplineType.DP;
+        private readonly List<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
+        {
+            new McPkgScopeForCommand("MC1", "MC description", "comm parent"),
+            new McPkgScopeForCommand("MC2", "MC description 2", "comm parent")
+        };
 
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var meeting = new CreateMeetingCommand(
-                    "title",
-                    "body",
-                    "location",
-                    new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    _requiredParticipantIds,
-                    _requiredParticipantEmails,
-                    _optionalParticipantIds,
-                    _optionalParticipantEmails);
-            var dut = new CreateInvitationCommand(meeting);
+            var dut = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type, 
+                _participants, 
+                _mcPkgScope,
+                null);
 
-            Assert.AreEqual(meeting, dut.Meeting);
-            Assert.AreEqual("title", dut.Meeting.Title);
-            Assert.AreEqual("body", dut.Meeting.BodyHtml);
-            Assert.AreEqual("location", dut.Meeting.Location);
-            Assert.AreEqual(new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc), dut.Meeting.StartTime);
-            Assert.AreEqual(new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc), dut.Meeting.EndTime);
-            Assert.IsNotNull(dut.Meeting.RequiredParticipantOids);
-            Assert.AreEqual(1, dut.Meeting.RequiredParticipantOids.Count());
-            Assert.AreEqual(_requiredParticipantIds.First(), dut.Meeting.RequiredParticipantOids.First());
-            Assert.AreEqual(_requiredParticipantEmails.First(), dut.Meeting.RequiredParticipantEmails.First());
-            Assert.AreEqual(_optionalParticipantIds.First(), dut.Meeting.OptionalParticipantOids.First());
-            Assert.AreEqual(_optionalParticipantEmails.First(), dut.Meeting.OptionalParticipantEmails.First());
+            Assert.AreEqual(_participants, dut.Participants);
+            Assert.AreEqual(_title, dut.Title);
+            Assert.AreEqual(_description, dut.Description);
+            Assert.AreEqual(_location, dut.Location);
+            Assert.AreEqual(new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc), dut.StartTime);
+            Assert.AreEqual(new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc), dut.EndTime);
+            Assert.AreEqual(2, dut.Participants.Count());
+            Assert.AreEqual(_participants.First(), dut.Participants.First());
         }
     }
 }

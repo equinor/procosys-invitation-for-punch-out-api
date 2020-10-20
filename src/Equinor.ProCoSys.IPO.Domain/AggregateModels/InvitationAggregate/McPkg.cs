@@ -5,26 +5,26 @@ using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
-    public class CommPkg : PlantEntityBase, ICreationAuditable
+    public class McPkg : PlantEntityBase, ICreationAuditable
     {
-        protected CommPkg()
+        protected McPkg()
             : base(null)
         {
         }
 
-        public CommPkg(string plant, string projectName, string commPkgNo, string description, string status)
+        public McPkg(string plant, string projectName, string commPkgNo, string mcPkgNo, string description)
             : base(plant)
         {
             ProjectName = projectName;
             CommPkgNo = commPkgNo;
             Description = description;
-            Status = status;
+            McPkgNo = mcPkgNo;
         }
 
         public string ProjectName { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; private set; }
-        public string Status { get; private set; }
+        public string McPkgNo { get; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)

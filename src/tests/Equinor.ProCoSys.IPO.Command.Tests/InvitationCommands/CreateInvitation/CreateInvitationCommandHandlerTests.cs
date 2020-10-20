@@ -21,12 +21,34 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IUnitOfWork> _unitOfWorkMock;
 
         private readonly string _plant = "PCS$TEST_PLANT";
-        private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private List<Guid> _requiredParticipantIds = new List<Guid>() { new Guid("22222222-3333-3333-3333-444444444444") };
-        private List<string> _requiredParticipantEmails = new List<string>() { "abc@example.com" };
-        private List<Guid> _optionalParticipantIds = new List<Guid>() { new Guid("33333333-4444-4444-4444-555555555555") };
-        private List<string> _optionalParticipantEmails = new List<string>() { "def@example.com" };
+        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        {
+            new ParticipantsForCommand(
+                Organization.Contractor,
+                null,
+                null,
+                new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                0),
+            new ParticipantsForCommand(
+                Organization.ConstructionCompany,
+                null,
+                new PersonForCommand(null, "Ola", "Nordman", "ola@test.com", true),
+                null,
+                1)
+        };
 
+        private readonly string _projectName = "Project name";
+        private readonly string _title = "Test title";
+        private readonly string _description = "Body";
+        private readonly string _location = "Outside";
+        private readonly DisciplineType _type = DisciplineType.DP;
+        private readonly List<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
+        {
+            new McPkgScopeForCommand("MC1", "MC description", "comm parent"),
+            new McPkgScopeForCommand("MC2", "MC description 2", "comm parent")
+        };
+
+        private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _createdInvitation;
         private int _saveChangesCount;
 
@@ -82,17 +104,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         {
             var dut = new CreateInvitationCommandHandler(_plantProviderMock.Object, _meetingClientMock.Object, _invitationRepositoryMock.Object, _unitOfWorkMock.Object);
 
-            var meeting = new CreateMeetingCommand(
-                    "title",
-                    "body",
-                    "location",
-                    new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    _requiredParticipantIds,
-                    _requiredParticipantEmails,
-                    _optionalParticipantIds,
-                    _optionalParticipantEmails);
-            var command = new CreateInvitationCommand(meeting);
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null);
 
             await dut.Handle(command, default);
 
@@ -105,17 +127,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         {
             var dut = new CreateInvitationCommandHandler(_plantProviderMock.Object, _meetingClientMock.Object, _invitationRepositoryMock.Object, _unitOfWorkMock.Object);
 
-            var meeting = new CreateMeetingCommand(
-                    "title",
-                    "body",
-                    "location",
-                    new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                    _requiredParticipantIds,
-                    _requiredParticipantEmails,
-                    _optionalParticipantIds,
-                    _optionalParticipantEmails);
-            var command = new CreateInvitationCommand(meeting);
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null);
 
             var result = await dut.Handle(command, default);
 

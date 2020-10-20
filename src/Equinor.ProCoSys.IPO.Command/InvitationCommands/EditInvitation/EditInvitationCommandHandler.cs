@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Fusion.Integration.Meeting;
 using MediatR;
 using ServiceResult;
+using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
