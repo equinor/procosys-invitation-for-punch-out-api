@@ -36,13 +36,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 
             var attachment = invitation.Attachments.SingleOrDefault(a => a.Id == request.AttachmentId);
 
-            //var attachment = await
-            //    (from a in _context.QuerySet<Attachment>()
-            //         // also join tag to return null if request.InvitationId not exists
-            //     join invitation in _context.QuerySet<Invitation>() on request.InvitationId equals invitation.Id
-            //     where a.Id == request.AttachmentId
-            //     select a).SingleOrDefaultAsync(cancellationToken);
-
             if (attachment == null)
             {
                 return new NotFoundResult<Uri>($"Invitation with ID {request.InvitationId} or Attachment with ID {request.AttachmentId} not found");
