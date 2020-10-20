@@ -43,6 +43,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         
         public virtual DbSet<Person> Persons { get; set; }
         public virtual DbSet<Invitation> Invitations { get; set; }
+        public virtual DbSet<McPkg> McPkgs { get; set; }
+        public virtual DbSet<CommPkg> CommPkgs { get; set; }
+        public virtual DbSet<Participant> Participants { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {

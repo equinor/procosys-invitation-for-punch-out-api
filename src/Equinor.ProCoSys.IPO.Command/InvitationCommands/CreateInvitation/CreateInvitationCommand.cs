@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
 
@@ -7,43 +8,39 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
     public class CreateInvitationCommand : IRequest<Result<int>>
     {
-        public CreateInvitationCommand(CreateMeetingCommand meeting) => Meeting = meeting;
-
-        public CreateMeetingCommand Meeting { get; }
-    }
-
-    public class CreateMeetingCommand
-    {
-        public CreateMeetingCommand(
+        public CreateInvitationCommand(
             string title,
-            string bodyHtml,
+            string description,
             string location,
             DateTime startTime,
             DateTime endTime,
-            IEnumerable<Guid> requiredParticipantOids,
-            IEnumerable<string> requiredParticipantEmails,
-            IEnumerable<Guid> optionalParticipantOids,
-            IEnumerable<string> optionalParticipantEmails)
+            string projectName,
+            DisciplineType type,
+            IList<ParticipantsForCommand> participants,
+            IList<McPkgScopeForCommand> mcPkgScope,
+            IList<CommPkgScopeForCommand> commPkgScope)
         {
-            Title = title;
-            BodyHtml = bodyHtml;
+            McPkgScope = mcPkgScope ?? new List<McPkgScopeForCommand>();
+            CommPkgScope = commPkgScope ?? new List<CommPkgScopeForCommand>();
+            Participants = participants;
+            Description = description;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            RequiredParticipantOids = requiredParticipantOids ?? new List<Guid>();
-            RequiredParticipantEmails = requiredParticipantEmails ?? new List<string>();
-            OptionalParticipantOids = optionalParticipantOids ?? new List<Guid>();
-            OptionalParticipantEmails = optionalParticipantEmails ?? new List<string>();
+            ProjectName = projectName;
+            Type = type;
+            Title = title;
         }
 
-        public string Title { get; }
-        public string BodyHtml { get; }
+        public string Description { get; }
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IEnumerable<Guid> RequiredParticipantOids { get; }
-        public IEnumerable<string> RequiredParticipantEmails { get; }
-        public IEnumerable<Guid> OptionalParticipantOids { get; }
-        public IEnumerable<string> OptionalParticipantEmails { get; }
+        public IList<McPkgScopeForCommand> McPkgScope { get; }
+        public IList<CommPkgScopeForCommand> CommPkgScope { get; }
+        public IList<ParticipantsForCommand> Participants { get; }
+        public string Title { get; }
+        public DisciplineType Type { get; }
+        public string ProjectName { get; }
     }
 }

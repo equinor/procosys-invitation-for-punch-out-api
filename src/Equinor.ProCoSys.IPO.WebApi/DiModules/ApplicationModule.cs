@@ -102,6 +102,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IAttachmentValidator, AttachmentValidator>();
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
+            services.AddScoped<IInvitationValidator, InvitationValidator>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<ICacheManager, CacheManager>();

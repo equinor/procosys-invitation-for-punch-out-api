@@ -7,6 +7,7 @@ using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
+using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
