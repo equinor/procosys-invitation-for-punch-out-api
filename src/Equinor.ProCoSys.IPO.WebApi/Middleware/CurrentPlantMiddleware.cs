@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 {
@@ -13,8 +14,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 
         public CurrentPlantMiddleware(RequestDelegate next) => _next = next;
 
-        public async Task InvokeAsync(HttpContext context, IHttpContextAccessor httpContextAccessor, IPlantSetter plantSetter)
+        public async Task InvokeAsync(
+            HttpContext context,
+            IHttpContextAccessor httpContextAccessor,
+            IPlantSetter plantSetter,
+            ILogger<CurrentPlantMiddleware> logger)
         {
+            logger.LogInformation($"----- {GetType().Name} start");
             var headers = httpContextAccessor?.HttpContext?.Request?.Headers;
             if (headers == null)
             {
@@ -27,6 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 plantSetter.SetPlant(plant);
             }
 
+            logger.LogInformation($"----- {GetType().Name} complete");
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }
