@@ -16,6 +16,12 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             _context = context;
         }
 
+        public async Task<bool> AttachmentExistsAsync(int invitationId, int attachmentId, CancellationToken cancellationToken)
+        {
+            var invitation = await GetInvitationWithAttachments(invitationId, cancellationToken);
+            return invitation?.Attachments.SingleOrDefault(a => a.Id == attachmentId) != null;
+        }
+
         public async Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken)
         {
             var invitation = await GetInvitationWithAttachments(invitationId, cancellationToken);

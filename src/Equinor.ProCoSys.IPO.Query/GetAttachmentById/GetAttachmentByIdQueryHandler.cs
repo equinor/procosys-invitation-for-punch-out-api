@@ -30,12 +30,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 
         public async Task<Result<Uri>> Handle(GetAttachmentByIdQuery request, CancellationToken cancellationToken)
         {
-            var attachment = await
-                (from a in _context.QuerySet<Attachment>()
-                     // also join tag to return null if request.TagId not exists
-                 join invitation in _context.QuerySet<Invitation>() on request.InvitationId equals invitation.Id
-                 where a.Id == request.AttachmentId
-                 select a).SingleOrDefaultAsync(cancellationToken);
+            var invitation = await _context.QuerySet<Invitation>()
+                .Include(i => i.Attachments)
+                .SingleOrDefaultAsync(i => i.Id == request.InvitationId);
+
+            var attachment = invitation.Attachments.SingleOrDefault(a => a.Id == request.AttachmentId);
+
+            //var attachment = await
+            //    (from a in _context.QuerySet<Attachment>()
+            //         // also join tag to return null if request.InvitationId not exists
+            //     join invitation in _context.QuerySet<Invitation>() on request.InvitationId equals invitation.Id
+            //     where a.Id == request.AttachmentId
+            //     select a).SingleOrDefaultAsync(cancellationToken);
 
             if (attachment == null)
             {
