@@ -70,8 +70,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException($"Can't remove item in {attachment.Plant} from item in {Plant}");
             }
-
-        public int? ModifiedById { get; private set; }
+        }
 
         public void AddCommPkg(CommPkg commPkg)
         {
