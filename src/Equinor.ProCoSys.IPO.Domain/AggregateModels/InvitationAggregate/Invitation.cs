@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -42,6 +43,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _attachments.Add(attachment);
         }
 
+        public void RemoveAttachment(Attachment attachment)
+        {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (attachment.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {attachment.Plant} from item in {Plant}");
+            }
+
+            _attachments.Remove(attachment);
+        }
+        
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;
