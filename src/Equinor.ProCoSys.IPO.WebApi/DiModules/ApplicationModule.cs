@@ -1,7 +1,5 @@
 ﻿using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
-using Equinor.ProCoSys.IPO.Command.Validators;
-using Equinor.ProCoSys.IPO.Command.Validators.AttachmentValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain;
@@ -99,7 +97,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
             services.AddScoped<IPersonApiService, MainApiPersonService>();
 
-            services.AddScoped<IAttachmentValidator, AttachmentValidator>();
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
             services.AddScoped<IInvitationValidator, InvitationValidator>();
