@@ -16,11 +16,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
 
             RuleFor(command => command)
                 .MustAsync((command, token) => BeAnExistingInvitationAsync(command.InvitationId, token))
-                    .WithMessage(command => $"Invitation doesn't exist. Invitation={command.InvitationId}.")
+                    .WithMessage(command => $"Invitation doesn't exist! Invitation={command.InvitationId}.")
                 .MustAsync((command, token) => BeAnExistingAttachmentAsync(command.InvitationId, command.AttachmentId, token))
-                    .WithMessage(command => $"Attachment doesn't exist. Attachment={command.AttachmentId}.")
+                    .WithMessage(command => $"Attachment doesn't exist! Attachment={command.AttachmentId}.")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
-                    .WithMessage(command => $"Not a valid row version. Row version={command.RowVersion}."); ;
+                    .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}."); ;
 
             async Task<bool> BeAnExistingInvitationAsync(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ExistsAsync(invitationId, cancellationToken);
