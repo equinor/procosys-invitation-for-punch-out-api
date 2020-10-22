@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -49,12 +50,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant2}));
 
+            var loggerMock = new Mock<ILogger<ClaimsTransformation>>();
+
             _principalWithOid = new ClaimsPrincipal();
             var claimsIdentity = new ClaimsIdentity();
             claimsIdentity.AddClaim(new Claim(ClaimsExtensions.OidType, Oid.ToString()));
             _principalWithOid.AddIdentity(claimsIdentity);
             
-            _dut = new ClaimsTransformation(_plantProviderMock.Object, _plantCacheMock.Object, permissionCacheMock.Object);
+            _dut = new ClaimsTransformation(
+                _plantProviderMock.Object,
+                _plantCacheMock.Object,
+                permissionCacheMock.Object,
+                loggerMock.Object);
         }
 
         [TestMethod]
