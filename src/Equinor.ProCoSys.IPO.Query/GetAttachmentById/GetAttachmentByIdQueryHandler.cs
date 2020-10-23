@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
         {
             var invitation = await _context.QuerySet<Invitation>()
                 .Include(i => i.Attachments)
-                .SingleOrDefaultAsync(i => i.Id == request.InvitationId);
+                .SingleOrDefaultAsync(i => i.Id == request.InvitationId, cancellationToken);
 
             var attachment = invitation.Attachments.SingleOrDefault(a => a.Id == request.AttachmentId);
 
