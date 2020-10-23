@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.IPO.Command.Validators
+namespace Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators
 {
     public class RowVersionValidator : IRowVersionValidator
     {
@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators
         {
             try
             {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 Convert.FromBase64String(input);
                 return true;
             }

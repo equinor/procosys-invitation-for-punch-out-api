@@ -11,6 +11,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         bool IsValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
-        bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants); 
+        bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);
+        Task<bool> AttachmentExistsAsync(int invitationId, int attachmentId, CancellationToken cancellationToken);
+        Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
+        Task<bool> ExistsAsync(int invitationId, CancellationToken cancellationToken);
     }
 }

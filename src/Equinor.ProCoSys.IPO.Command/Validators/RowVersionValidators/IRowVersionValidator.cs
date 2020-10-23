@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Command.Validators
+﻿namespace Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators
 {
     public interface IRowVersionValidator
     {
