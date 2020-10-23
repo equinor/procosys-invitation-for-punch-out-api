@@ -9,7 +9,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     public class Attachment : PlantEntityBase, ICreationAuditable, IModificationAuditable
     {
         public const int FileNameLengthMax = 255;
-        public const int PathLengthMax = 1024;
 
         protected Attachment()
             : base(null)
