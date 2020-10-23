@@ -154,7 +154,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         // TODO: Add permissions
         [HttpGet("{id}/Attachments")]
-        public async Task<ActionResult<List<AttachmentDto>>> GetTagAttachments(
+        public async Task<ActionResult<List<AttachmentDto>>> GetAttachments(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -167,7 +167,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         // TODO: Add permissions
         [HttpDelete("{id}/Attachments/{attachmentId}")]
-        public async Task<ActionResult<int>> DeleteTagAttachment(
+        public async Task<ActionResult<int>> DeleteAttachment(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
