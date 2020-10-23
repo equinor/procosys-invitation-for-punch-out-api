@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
     public class UploadAttachmentCommandValidatorTests
     {
         private Mock<IInvitationValidator> _validatorMock;
-        private UploadAttachementCommandValidator _dut;
+        private UploadAttachmentCommandValidator _dut;
 
         [TestInitialize]
         public void Setup()
@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
                 .Returns(Task.FromResult(true));
             _validatorMock.Setup(x => x.AttachmentWithFileNameExistsAsync(1, "existingfile.txt", It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(true));
-            _dut = new UploadAttachementCommandValidator(_validatorMock.Object);
+            _dut = new UploadAttachmentCommandValidator(_validatorMock.Object);
         }
 
         [TestMethod]

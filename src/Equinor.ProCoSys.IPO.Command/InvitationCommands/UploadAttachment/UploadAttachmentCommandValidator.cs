@@ -5,9 +5,9 @@ using FluentValidation;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
 {
-    public class UploadAttachementCommandValidator : AbstractValidator<UploadAttachmentCommand>
+    public class UploadAttachmentCommandValidator : AbstractValidator<UploadAttachmentCommand>
     {
-        public UploadAttachementCommandValidator(IInvitationValidator invitationValidator)
+        public UploadAttachmentCommandValidator(IInvitationValidator invitationValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
