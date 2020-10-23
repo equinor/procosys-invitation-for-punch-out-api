@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 
         public async Task<Result<List<AttachmentDto>>> Handle(GetAttachmentsQuery request, CancellationToken cancellationToken)
         {
-            // Get tag with all attachments
+            // Get invitation with all attachments
             var invitation = await
                 (from i in _context.QuerySet<Invitation>()
                         .Include(i => i.Attachments)
