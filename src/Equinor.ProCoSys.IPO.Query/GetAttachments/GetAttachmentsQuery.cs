@@ -6,7 +6,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 {
     public class GetAttachmentsQuery : IRequest<Result<List<AttachmentDto>>>
     {
-        public GetAttachmentsQuery(int tagId) => InvitationId = tagId;
+        public GetAttachmentsQuery(int invitationId) => InvitationId = invitationId;
 
         public int InvitationId { get; }
     }
