@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
                 .MustAsync((command, token) => BeAnExistingAttachmentAsync(command.InvitationId, command.AttachmentId, token))
                     .WithMessage(command => $"Attachment doesn't exist! Attachment={command.AttachmentId}.")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
-                    .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}."); ;
+                    .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}.");
 
             async Task<bool> BeAnExistingInvitationAsync(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ExistsAsync(invitationId, cancellationToken);
