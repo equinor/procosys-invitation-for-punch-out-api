@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -49,6 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.McScopeIsUnderSameCommPkg(new List<McPkgScopeForCommand>())).Returns(true);
             _command = new CreateInvitationCommand(
                 _title,
                 _description,
@@ -294,6 +296,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either mc scope or comm pkg scope"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenMcScopeIsNotUnderSameCommPkg()
+        {
+            _invitationValidatorMock.Setup(inv => inv.McScopeIsUnderSameCommPkg(new List<McPkgScopeForCommand>())).Returns(false);
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! All mc packages must be under same comm pkg"));
         }
 
         [TestMethod]

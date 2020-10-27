@@ -59,6 +59,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _commPkgs.Add(commPkg);
         }
 
+        public void RemoveCommPkg(CommPkg commPkg)
+        {
+            if (commPkg == null)
+            {
+                throw new ArgumentNullException(nameof(commPkg));
+            }
+
+            if (commPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {commPkg.Plant} from item in {Plant}");
+            }
+
+            _commPkgs.Remove(commPkg);
+        }
+
         public void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
@@ -74,6 +89,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _mcPkgs.Add(mcPkg);
         }
 
+        public void RemoveMcPkg(McPkg mcPkg)
+        {
+            if (mcPkg == null)
+            {
+                throw new ArgumentNullException(nameof(mcPkg));
+            }
+
+            if (mcPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {mcPkg.Plant} from item in {Plant}");
+            }
+
+            _mcPkgs.Remove(mcPkg);
+        }
+
         public void AddParticipant(Participant participant)
         {
             if (participant == null)
@@ -87,6 +117,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Add(participant);
+        }
+
+        public void RemoveParticipant(Participant participant)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (participant.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {participant.Plant} from item in {Plant}");
+            }
+
+            _participants.Remove(participant);
         }
 
         public void SetCreated(Person createdBy)

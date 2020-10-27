@@ -1,13 +1,13 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class FunctionalRoleForCommandValidator : AbstractValidator<FunctionalRoleForCommand>
     {
         public FunctionalRoleForCommandValidator()
         {
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .Must((command) => 

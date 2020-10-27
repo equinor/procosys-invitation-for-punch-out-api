@@ -163,11 +163,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 null,
                 null,
                 null,
-                participant.ExternalEmail,
+                participant.ExternalEmail.Email,
                 null,
                 participant.SortKey));
             participants.Add(new BuilderParticipant(ParticipantType.Required,
-                new ParticipantIdentifier(participant.ExternalEmail)));
+                new ParticipantIdentifier(participant.ExternalEmail.Email)));
             return participants;
         }
 

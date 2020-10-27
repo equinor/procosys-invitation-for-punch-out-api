@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class ParticipantsForCommandValidator : AbstractValidator<ParticipantsForCommand>
     {
         public ParticipantsForCommandValidator()
         {
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .Must((command) => command.SortKey >= 0)

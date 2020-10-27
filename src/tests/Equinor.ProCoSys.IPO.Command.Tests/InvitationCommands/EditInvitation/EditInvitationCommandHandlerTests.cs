@@ -78,16 +78,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         {
             var command = new EditInvitationCommand(
                     10,
-                    new EditMeetingCommand(
                         "title",
                         "body",
                         "location",
                         new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                        new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                        _requiredParticipantIds,
-                        _requiredParticipantEmails,
-                        _optionalParticipantIds,
-                        _optionalParticipantEmails));
+                        new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc)
+                    );
 
             var dut = new EditInvitationCommandHandler(_invitationRepositoryMock.Object, _meetingClientMock.Object);
 

@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         public CreateInvitationCommandValidator(IInvitationValidator invitationValidator)
         {
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .Must((command) => command.Participants != null)
@@ -44,6 +44,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => MustHaveValidScope(command.McPkgScope, command.CommPkgScope))
                 .WithMessage(command =>
                     $"Not a valid scope! Choose either mc scope or comm pkg scope")
+                .Must((command) => McScopeMustBeUnderSameCommPkg(command.McPkgScope)) //TODO skriv tester på dette
+                .WithMessage(command =>
+                    $"Not a valid scope! All mc packages must be under same comm pkg")
                 .Must((command) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
                     $"Contractor and Construction Company must be invited!")
@@ -59,6 +62,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             bool MustHaveValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);
+            
+            bool McScopeMustBeUnderSameCommPkg(IList<McPkgScopeForCommand> mcPkgScope)
+                => invitationValidator.McScopeIsUnderSameCommPkg(mcPkgScope);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);

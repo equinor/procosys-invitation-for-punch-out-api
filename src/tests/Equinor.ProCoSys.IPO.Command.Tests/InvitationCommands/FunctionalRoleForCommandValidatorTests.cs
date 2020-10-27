@@ -1,7 +1,7 @@
-﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
 {
     [TestClass]
     public class FunctionalRoleForCommandValidatorTests
