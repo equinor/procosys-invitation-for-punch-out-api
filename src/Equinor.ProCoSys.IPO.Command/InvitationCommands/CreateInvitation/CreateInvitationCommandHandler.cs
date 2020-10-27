@@ -55,9 +55,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 if (participant.Person != null)
                 {
                     participants = AddPersonParticipant(
-                        invitation, 
-                        participants, 
-                        participant.Person, 
+                        invitation,
+                        participants,
+                        participant.Person,
                         participant.Organization,
                         participant.SortKey);
                 }
@@ -68,22 +68,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             try
             {
                 var meetingId = await CreateOutlookMeeting(request, participants);
                 invitation.MeetingId = meetingId;
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return new SuccessResult<int>(invitation.Id);
             }
             catch
             {
-                _invitationRepository.Remove(invitation);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
             }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return new SuccessResult<int>(invitation.Id);
         }
 
         private List<BuilderParticipant> AddFunctionalRoleParticipant(
