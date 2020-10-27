@@ -163,6 +163,22 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             }
         }
 
+        [TestMethod]
+        public async Task Handler_ShouldThrowException_IfMeetingIsNotFound()
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            {
+                _meetingClientMock
+                    .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                    .Returns(Task.FromResult<GeneralMeeting>(null));
+
+                var query = new GetInvitationByIdQuery(_invitationId);
+                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+
+                await Assert.ThrowsExceptionAsync<Exception>(() => dut.Handle(query, default));
+            }
+        }
+
         private static void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
         {
             var functionalRoleParticipant = invitation.Participants.First();

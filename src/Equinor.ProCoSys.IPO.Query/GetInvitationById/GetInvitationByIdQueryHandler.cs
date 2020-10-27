@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,10 +37,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             }
 
             var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
+            if (meeting == null)
+            {
+                throw new Exception($"Could not get meeting with id {invitation.MeetingId} from Fusion");
+            }
 
-            var invitationResult = ConvertToInvitationDto(invitation, meeting);
+            var invitationDto = ConvertToInvitationDto(invitation, meeting);
 
-            return new SuccessResult<InvitationDto>(invitationResult);
+            return new SuccessResult<InvitationDto>(invitationDto);
         }
 
         private static InvitationDto ConvertToInvitationDto(Invitation invitation, GeneralMeeting meeting)
