@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private List<BuilderParticipant> AddFunctionalRoleParticipant(
             Invitation invitation,
-            List<BuilderParticipant> participants, 
+            List<BuilderParticipant> participants,
             ParticipantsForCommand participant)
         {
             if (!participant.FunctionalRole.UsePersonalEmail)
@@ -102,21 +102,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     new ParticipantIdentifier(participant.FunctionalRole.Email)));
             }
 
-            foreach (var p in participant.FunctionalRole.Persons)
+            foreach (var person in participant.FunctionalRole.Persons)
             {
                 participants = AddPersonParticipant(
                     invitation,
                     participants,
-                    p,
+                    person,
                     participant.Organization,
-                    participant.SortKey);
+                    participant.SortKey,
+                    participant.FunctionalRole.Code);
             }
             return participants;
         }
 
         private List<BuilderParticipant> AddPersonParticipant(
             Invitation invitation,
-            List<BuilderParticipant> participants, 
+            List<BuilderParticipant> participants,
             PersonForCommand person,
             Organization organization,
             int sortKey,
@@ -125,7 +126,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             invitation.AddParticipant(new Participant(
                 _plantProvider.Plant,
                 organization,
-                functionalRoleCode != null ? IpoParticipantType.FunctionalRole : IpoParticipantType.Person,
+                IpoParticipantType.Person,
                 functionalRoleCode,
                 person.FirstName,
                 person.LastName,
@@ -147,8 +148,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         }
 
         private List<BuilderParticipant> AddExternalParticipant(
-            Invitation invitation, 
-            List<BuilderParticipant> participants, 
+            Invitation invitation,
+            List<BuilderParticipant> participants,
             ParticipantsForCommand participant)
         {
             invitation.AddParticipant(new Participant(
