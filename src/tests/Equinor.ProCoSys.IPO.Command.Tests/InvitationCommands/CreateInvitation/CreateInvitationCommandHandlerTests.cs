@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             await dut.Handle(command, default);
 
             Assert.IsNotNull(_createdInvitation);
-            Assert.AreEqual(2, _saveChangesCount);
+            Assert.AreEqual(1, _saveChangesCount);
         }
 
         [TestMethod]

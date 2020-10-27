@@ -116,14 +116,20 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             }
         }
 
-        [TestMethod]
-        public async Task HandleGetRequirementTypeByIdQuery_UnknownId_ShouldReturnNull()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
-                var result = await dut.Handle(new GetInvitationByIdQuery(246), default);
 
+        [TestMethod]
+        public async Task Handler_ShouldReturnNotFound_IfInvitationIsNotFound()
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            {
+                const int UnknownId = 500;
+                var query = new GetInvitationByIdQuery(UnknownId);
+                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.NotFound, result.ResultType);
                 Assert.IsNull(result.Data);
             }
         }
@@ -143,23 +149,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var invitationDto = result.Data;
                 AssertInvitation(invitationDto, _invitation);
-            }
-        }
-
-        [TestMethod]
-        public async Task Handler_ShouldReturnNotFound_IfInvitationIsNotFound()
-        {
-            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            {
-                var UnknownId = 500;
-                var query = new GetInvitationByIdQuery(UnknownId);
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
-
-                var result = await dut.Handle(query, default);
-
-                Assert.IsNotNull(result);
-                Assert.AreEqual(ResultType.NotFound, result.ResultType);
-                Assert.IsNull(result.Data);
             }
         }
 
