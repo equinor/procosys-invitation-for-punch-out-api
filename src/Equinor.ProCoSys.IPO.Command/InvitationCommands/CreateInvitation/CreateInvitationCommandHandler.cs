@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
             var participants = new List<BuilderParticipant>();
-            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Type);
+            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Description, request.Type);
             _invitationRepository.Add(invitation);
 
             if (request.CommPkgScope.Count > 0)
