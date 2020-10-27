@@ -1,41 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class InvitationDto
     {
-        public InvitationDto(MeetingDto meeting) => Meeting = meeting;
-
-        public MeetingDto Meeting { get; }
-    }
-
-    public class MeetingDto
-    {
-        public MeetingDto(
+        public InvitationDto(
+            string projectName,
             string title,
-            string bodyHtml,
+            string description,
             string location,
-            DateTime startTime,
-            DateTime endTime,
-            IEnumerable<ParticipantDto> requiredParticipants,
-            IEnumerable<ParticipantDto> optionalParticipants)
+            DisciplineType type)
         {
+            ProjectName = projectName;
             Title = title;
-            BodyHtml = bodyHtml;
+            Description = description;
             Location = location;
-            StartTimeUtc = startTime;
-            EndTimeUtc = endTime;
-            RequiredParticipants = requiredParticipants;
-            OptionalParticipants = optionalParticipants;
+            Type = type;
         }
 
+        public string ProjectName { get; }
         public string Title { get; }
-        public string BodyHtml { get; }
+        public string Description { get; }
         public string Location { get; }
-        public DateTime StartTimeUtc { get; }
-        public DateTime EndTimeUtc { get; }
-        public IEnumerable<ParticipantDto> RequiredParticipants { get; }
-        public IEnumerable<ParticipantDto> OptionalParticipants { get; }
+        public DisciplineType Type { get; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public IEnumerable<ParticipantDto> Participants { get; set; }
+        public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
+        public IEnumerable<CommPkgScopeDto> CommPkgScope { get; set; }
     }
 }
