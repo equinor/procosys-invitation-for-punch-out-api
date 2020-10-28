@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var PersonParticipant = new Participant(
                     TestPlant,
-                    Organization.Contractor,
+                    Organization.ConstructionCompany,
                     IpoParticipantType.Person,
                     null,
                     "FirstName",
