@@ -82,12 +82,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode 
                          && p.Type == IpoParticipantType.Person);
 
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, participant.Email,
+                    yield return new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
                         null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant))
                 {
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, participant.Email,
+                    yield return new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
                         ConvertToPersonDto(participant), null);
                 }
             }
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
 
         private static FunctionalRoleDto ConvertToFunctionalRoleDto(Participant participant, IEnumerable<Participant> personsInFunctionalRole)
-            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToPersonDto(personsInFunctionalRole));
+            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToPersonDto(personsInFunctionalRole)) {Id = participant.Id};
 
         private static PersonDto ConvertToPersonDto(Participant participant)
             => new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid.ToString(), participant.Email);

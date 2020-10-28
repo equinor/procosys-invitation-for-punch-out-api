@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public ParticipantDto(
             Organization organization,
             int sortKey,
-            string externalEmail,
+            ExternalEmailDto externalEmail,
             PersonDto person,
             FunctionalRoleDto functionalRole)
         {
@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         public Organization Organization { get; }
         public int SortKey { get; }
-        public string ExternalEmail { get; }
+        public ExternalEmailDto ExternalEmail { get; }
         public PersonDto Person { get; }
         public FunctionalRoleDto FunctionalRole { get; }
     }

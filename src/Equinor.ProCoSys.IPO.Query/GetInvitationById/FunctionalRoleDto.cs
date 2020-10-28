@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             Persons = persons;
         }
 
+        public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
         public IEnumerable<PersonDto> Persons { get; }
