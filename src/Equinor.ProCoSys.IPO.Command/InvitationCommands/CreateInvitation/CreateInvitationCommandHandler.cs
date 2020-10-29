@@ -102,6 +102,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     new ParticipantIdentifier(participant.FunctionalRole.Email)));
             }
 
+            else
+            {
+                invitation.AddParticipant(new Participant(
+                    _plantProvider.Plant,
+                    participant.Organization,
+                    IpoParticipantType.FunctionalRole,
+                    participant.FunctionalRole.Code,
+                    null,
+                    null,
+                    null,
+                    null,
+                    participant.SortKey));
+            }
+
             foreach (var person in participant.FunctionalRole.Persons)
             {
                 participants = AddPersonParticipant(
