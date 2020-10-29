@@ -82,10 +82,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode 
                          && p.Type == IpoParticipantType.Person);
 
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
+                    yield return new ParticipantDto(participant.Organization, participant.SortKey, null,
                         null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole));
                 }
-                else if (ParticipantIsNotInFunctionalRole(participant))
+                else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
+                {
+                    yield return new ParticipantDto(participant.Organization, participant.SortKey, null,
+                        ConvertToPersonDto(participant), null);
+                }
+                else if (participant.Organization == Organization.External)
                 {
                     yield return new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
                         ConvertToPersonDto(participant), null);
