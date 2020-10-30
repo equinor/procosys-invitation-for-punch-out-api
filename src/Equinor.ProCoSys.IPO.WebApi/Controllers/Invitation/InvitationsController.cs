@@ -41,8 +41,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
-            var mcPkgs = GetMcPkgForCommands(dto.McPkgScope);
-            var commPkgs = GetCommPkgForCommands(dto.CommPkgScope);
+            //var mcPkgs = GetMcPkgForCommands(dto.McPkgScope);
+            //var commPkgs = GetCommPkgForCommands(dto.CommPkgScope);
             var participants = GetParticipantsForCommands(dto.Participants);
 
             var result = await _mediator.Send(
@@ -55,51 +55,51 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.ProjectName,
                     dto.Type,
                     participants,
-                    mcPkgs,
-                    commPkgs));
+                    dto.McPkgScope,
+                    dto.CommPkgScope));
             return this.FromResult(result);
         }
 
-        // TODO: Add permissions
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditInvitation(
-            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
-            [Required]
-            string plant,
-            [FromRoute] int id,
-            [FromBody] EditInvitationDto dto)
-        {
-            var updatedMcPkgs = GetMcPkgForCommands(dto.UpdatedMcPkgScope);
-            var newMcPkgs = GetMcPkgForCommands(dto.NewMcPkgScope);
-            var updatedCommPkgs = GetCommPkgForCommands(dto.UpdatedCommPkgScope);
-            var newCommPkgs = GetCommPkgForCommands(dto.NewCommPkgScope);
-            var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
-            var newParticipants = GetParticipantsForCommands(dto.NewParticipants);
+        //// TODO: Add permissions
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> EditInvitation(
+        //    [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+        //    [Required]
+        //    string plant,
+        //    [FromRoute] int id,
+        //    [FromBody] EditInvitationDto dto)
+        //{
+        //    var updatedMcPkgs = GetMcPkgForCommands(dto.UpdatedMcPkgScope);
+        //    var newMcPkgs = GetMcPkgForCommands(dto.NewMcPkgScope);
+        //    var updatedCommPkgs = GetCommPkgForCommands(dto.UpdatedCommPkgScope);
+        //    var newCommPkgs = GetCommPkgForCommands(dto.NewCommPkgScope);
+        //    var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
+        //    var newParticipants = GetParticipantsForCommands(dto.NewParticipants);
 
-            var result = await _mediator.Send(
-                new EditInvitationCommand(
-                    id,
-                    dto.Title,
-                    dto.Description,
-                    dto.Location,
-                    dto.StartTime,
-                    dto.EndTime,
-                    dto.ProjectName,
-                    dto.Type,
-                    updatedParticipants,
-                    newParticipants,
-                    updatedMcPkgs,
-                    newMcPkgs,
-                    updatedCommPkgs,
-                    newCommPkgs));
-            return this.FromResult(result);
-        }
+        //    var result = await _mediator.Send(
+        //        new EditInvitationCommand(
+        //            id,
+        //            dto.Title,
+        //            dto.Description,
+        //            dto.Location,
+        //            dto.StartTime,
+        //            dto.EndTime,
+        //            dto.ProjectName,
+        //            dto.Type,
+        //            updatedParticipants,
+        //            newParticipants,
+        //            updatedMcPkgs,
+        //            newMcPkgs,
+        //            updatedCommPkgs,
+        //            newCommPkgs));
+        //    return this.FromResult(result);
+        //}
 
         private IList<McPkgScopeForCommand> GetMcPkgForCommands(IEnumerable<McPkgDto> dto)
-            => dto?.Select(mc => new McPkgScopeForCommand(mc.McPkgNo, mc.Description, mc.CommPkgNo, mc.Id)).ToList();
+            => dto?.Select(mc => new McPkgScopeForCommand(mc.McPkgNo, mc.CommPkgNo)).ToList();
 
-        private IList<CommPkgScopeForCommand> GetCommPkgForCommands(IEnumerable<CommPkgDto> dto)
-            => dto?.Select(c => new CommPkgScopeForCommand(c.CommPkgNo, c.Description, c.Status, c.Id)).ToList();
+        //private IList<CommPkgScopeForCommand> GetCommPkgForCommands(IEnumerable<CommPkgDto> dto)
+        //    => dto?.Select(c => new CommPkgScopeForCommand(c.CommPkgNo, c.Description, c.Status, c.Id)).ToList();
 
         private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<ParticipantDto> dto)
             => dto?.Select(p =>
@@ -122,13 +122,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.FunctionalRole != null
                         ? new FunctionalRoleForCommand(
                             p.FunctionalRole.Code,
-                            p.FunctionalRole.Email,
-                            p.FunctionalRole.UsePersonalEmail,
                             p.FunctionalRole.Persons?.Select(person =>
                                 new PersonForCommand(
                                     person.AzureOid,
-                                    person.FirstName,
-                                    person.LastName,
+                                    p.Person.FirstName,
+                                    p.Person.LastName,
                                     person.Email,
                                     person.Required,
                                     person.Id)).ToList(),

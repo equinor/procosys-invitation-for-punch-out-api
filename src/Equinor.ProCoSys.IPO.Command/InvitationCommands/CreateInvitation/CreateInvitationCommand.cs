@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
@@ -17,11 +18,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             string projectName,
             DisciplineType type,
             IList<ParticipantsForCommand> participants,
-            IList<McPkgScopeForCommand> mcPkgScope,
-            IList<CommPkgScopeForCommand> commPkgScope)
+            IEnumerable<string> mcPkgScope,
+            IEnumerable<string> commPkgScope)
         {
-            McPkgScope = mcPkgScope ?? new List<McPkgScopeForCommand>();
-            CommPkgScope = commPkgScope ?? new List<CommPkgScopeForCommand>();
+            McPkgScope = mcPkgScope != null ? mcPkgScope.ToList() : new List<string>();
+            CommPkgScope = commPkgScope != null ? commPkgScope.ToList() : new List<string>();
             Participants = participants;
             Description = description;
             Location = location;
@@ -36,8 +37,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IList<McPkgScopeForCommand> McPkgScope { get; }
-        public IList<CommPkgScopeForCommand> CommPkgScope { get; }
+        public IList<string> McPkgScope { get; }
+        public IList<string> CommPkgScope { get; }
         public IList<ParticipantsForCommand> Participants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }

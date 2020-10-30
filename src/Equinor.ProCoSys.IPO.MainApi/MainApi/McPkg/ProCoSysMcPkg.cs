@@ -6,5 +6,6 @@
         public string McPkgNo { get; set; }
         public string Description { get; set; }
         public string DisciplineCode { get; set; }
+        public string CommPkgNo { get; set; }
     }
 }

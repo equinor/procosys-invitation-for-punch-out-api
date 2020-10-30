@@ -53,5 +53,33 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 
             return persons;
         }
+
+        public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
+        {
+            var url = $"{_baseAddress}Person/PersonsByOids" +
+                      $"?plantId={plant}" +
+                      $"&api-version={_apiVersion}";
+            foreach (var oid in azureOids)
+            {
+                url += $"&azureOids={oid}";
+            }
+
+            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+
+            return persons;
+        }
+
+        public async Task<ProCoSysPerson> GetPersonByOidsInUserGroupAsync(string plant, string azureOid, string userGroup)
+        {
+            var url = $"{_baseAddress}Person/PersonSearch/ByUserGroup" +
+                      $"?plantId={plant}" +
+                      $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
+                      $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
+                      $"&api-version={_apiVersion}";
+
+            var person = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+
+            return person;
+        }
     }
 }
