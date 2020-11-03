@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -41,8 +40,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
-            //var mcPkgs = GetMcPkgForCommands(dto.McPkgScope);
-            //var commPkgs = GetCommPkgForCommands(dto.CommPkgScope);
             var participants = GetParticipantsForCommands(dto.Participants);
 
             var result = await _mediator.Send(

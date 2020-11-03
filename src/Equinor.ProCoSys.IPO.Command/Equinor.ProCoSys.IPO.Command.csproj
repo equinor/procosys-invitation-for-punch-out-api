@@ -5,10 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="InvitationCommands\EditInvitation\**" />
     <Compile Remove="MeetingCommands\**" />
     <Compile Remove="ResponsibleCommands\**" />
+    <EmbeddedResource Remove="InvitationCommands\EditInvitation\**" />
     <EmbeddedResource Remove="MeetingCommands\**" />
     <EmbeddedResource Remove="ResponsibleCommands\**" />
+    <None Remove="InvitationCommands\EditInvitation\**" />
     <None Remove="MeetingCommands\**" />
     <None Remove="ResponsibleCommands\**" />
   </ItemGroup>

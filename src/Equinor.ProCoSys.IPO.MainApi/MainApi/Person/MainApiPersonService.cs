@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 
         public async Task<ProCoSysPerson> GetPersonByOidsInUserGroupAsync(string plant, string azureOid, string userGroup)
         {
-            var url = $"{_baseAddress}Person/PersonSearch/ByUserGroup" +
+            var url = $"{_baseAddress}Person/PersonByOidInUserGroup" +
                       $"?plantId={plant}" +
                       $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
                       $"&userGroup={WebUtility.UrlEncode(userGroup)}" +

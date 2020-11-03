@@ -18,19 +18,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public InvitationValidator(IReadOnlyContext context) => _context = context;
 
         public bool IsValidScope(
-            IList<McPkgScopeForCommand> mcPkgScope,
-            IList<CommPkgScopeForCommand> commPkgScope) 
+            IList<string> mcPkgScope,
+            IList<string> commPkgScope) 
                 => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
-
-        public bool McScopeIsUnderSameCommPkg(IList<McPkgScopeForCommand> mcPkgScope)
-        {
-            if (mcPkgScope.Any())
-            {
-                var commPkgNo = mcPkgScope.Select(mc => mc.CommPkgNo).First();
-                return mcPkgScope.All(mcPkg => mcPkg.CommPkgNo == commPkgNo);
-            }
-            return true;
-        }
 
         public async Task<bool> IpoTitleExistsInProjectAsync(string projectName, string title, CancellationToken token)
         => await(from invitation in _context.QuerySet<Invitation>()
@@ -62,21 +52,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidFunctionalRole(ParticipantsForCommand participant)
         {
-            if (participant.FunctionalRole.UsePersonalEmail)
-            {
-                if (participant.FunctionalRole.Persons.Count < 1)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (participant.FunctionalRole.Email == null || !(new EmailAddressAttribute().IsValid(participant.FunctionalRole.Email)))
-                {
-                    return false;
-                }
-            }
-
             foreach (var person in participant.FunctionalRole.Persons)
             {
                 if (!(new EmailAddressAttribute().IsValid(person.Email)))
@@ -154,50 +129,50 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> ParticipantExistsAsync(ParticipantsForCommand participant, CancellationToken token)
         {
-            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, token))
-            {
-                return false;
-            }
-            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, token))
-            {
-                return false;
-            }
-            if (participant.FunctionalRole != null)
-            {
-                if (!participant.FunctionalRole.UsePersonalEmail && !await ParticipantExists(participant.FunctionalRole.Id, token))
-                {
-                    return false;
-                }
+            //if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, token))
+            //{
+            //    return false;
+            //}
+            //if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, token))
+            //{
+            //    return false;
+            //}
+            //if (participant.FunctionalRole != null)
+            //{
+            //    if (!participant.FunctionalRole.UsePersonalEmail && !await ParticipantExists(participant.FunctionalRole.Id, token))
+            //    {
+            //        return false;
+            //    }
 
-                foreach (var person in participant.FunctionalRole.Persons)
-                {
-                    if (!await ParticipantExists(person.Id, token))
-                    {
-                        return false;
-                    }
-                }
-            }
+            //    foreach (var person in participant.FunctionalRole.Persons)
+            //    {
+            //        if (!await ParticipantExists(person.Id, token))
+            //        {
+            //            return false;
+            //        }
+            //    }
+            //}
             return true;
         }
 
         public bool ParticipantMustHaveId(ParticipantsForCommand participant)
         {
-            if (participant.Person != null  && participant.Person.Id == null)
-            {
-                return false;
-            }
-            if (participant.FunctionalRole != null)
-            {
-                if (!participant.FunctionalRole.UsePersonalEmail && participant.FunctionalRole.Id == null)
-                {
-                    return false;
-                }
+            //if (participant.Person != null  && participant.Person.Id == null)
+            //{
+            //    return false;
+            //}
+            //if (participant.FunctionalRole != null)
+            //{
+            //    if (!participant.FunctionalRole.UsePersonalEmail && participant.FunctionalRole.Id == null)
+            //    {
+            //        return false;
+            //    }
 
-                if (participant.FunctionalRole.Persons.Any(person => person.Id == null))
-                {
-                    return false;
-                }
-            }
+            //    if (participant.FunctionalRole.Persons.Any(person => person.Id == null))
+            //    {
+            //        return false;
+            //    }
+            //}
             return participant.ExternalEmail == null || participant.ExternalEmail.Id != null;
         }
 

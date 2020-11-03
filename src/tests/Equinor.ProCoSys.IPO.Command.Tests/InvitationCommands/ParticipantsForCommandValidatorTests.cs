@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
     {
         private ParticipantsForCommandValidator _dut;
         private ParticipantsForCommand _validCommand;
-        private ParticipantsForCommand _invalidCommand;
+        private ParticipantsForCommand _invalidCommandNegativeSortKey;
 
         [TestInitialize]
         public void Setup_OkState()
@@ -20,9 +20,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                    new FunctionalRoleForCommand("FR1", null),
                     0);
-            _invalidCommand = new ParticipantsForCommand(
+            _invalidCommandNegativeSortKey = new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
                     new PersonForCommand(null, "Ola", "Nordman", "ola@test.com", true),
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         [TestMethod]
         public void Validate_ShouldFail_WhenSortKeyIsNegative()
         {
-            var result = _dut.Validate(_invalidCommand);
+            var result = _dut.Validate(_invalidCommandNegativeSortKey);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

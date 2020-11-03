@@ -9,8 +9,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
     {
         Task<bool> IpoTitleExistsInProjectAsync(string projectName, string title, CancellationToken token);
         Task<bool> IpoTitleExistsInProjectOnAnotherIpoAsync(string projectName, string title, int id, CancellationToken token);
-        bool IsValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope);
-        bool McScopeIsUnderSameCommPkg(IList<McPkgScopeForCommand> mcPkgScope);
+        bool IsValidScope(IList<string> mcPkgScope, IList<string> commPkgScope);
         Task<bool> ParticipantExistsAsync(ParticipantsForCommand participant, CancellationToken token);
         bool ParticipantMustHaveId(ParticipantsForCommand participant);
         Task<bool> ProjectNameIsNotChangedAsync(string projectName, int id, CancellationToken token);

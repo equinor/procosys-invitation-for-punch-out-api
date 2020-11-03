@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Organization.Contractor,
                 null, 
                 null, 
-                new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                new FunctionalRoleForCommand("FR1", null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
@@ -32,10 +32,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _description = "Body";
         private readonly string _location = "Outside";
         private readonly DisciplineType _type = DisciplineType.DP;
-        private readonly List<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
+        private readonly List<string> _mcPkgScope = new List<string>
         {
-            new McPkgScopeForCommand("MC1", "MC description", "comm parent"),
-            new McPkgScopeForCommand("MC2", "MC description 2", "comm parent")
+            "MC1",
+            "MC2"
         };
 
         [TestMethod]

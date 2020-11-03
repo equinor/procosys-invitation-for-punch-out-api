@@ -22,17 +22,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _location = "location A";
         private readonly DisciplineType _type = DisciplineType.DP;
 
-        private readonly IList<CommPkgScopeForCommand> _commPkgScope = new List<CommPkgScopeForCommand>
-        {
-            new CommPkgScopeForCommand("COMM-02", "D2", "PA")
-        };
+        private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                new FunctionalRoleForCommand("FR1", null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
@@ -46,11 +43,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         public void Setup_OkState()
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.McScopeIsUnderSameCommPkg(new List<McPkgScopeForCommand>())).Returns(true);
             _command = new CreateInvitationCommand(
                 _title,
                 _description,
@@ -289,25 +285,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenScopeIsInvalid()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(false);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(false);
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either mc scope or comm pkg scope"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenMcScopeIsNotUnderSameCommPkg()
-        {
-            _invitationValidatorMock.Setup(inv => inv.McScopeIsUnderSameCommPkg(new List<McPkgScopeForCommand>())).Returns(false);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! All mc packages must be under same comm pkg"));
         }
 
         [TestMethod]

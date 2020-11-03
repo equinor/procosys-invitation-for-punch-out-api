@@ -44,9 +44,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => MustHaveValidScope(command.McPkgScope, command.CommPkgScope))
                 .WithMessage(command =>
                     $"Not a valid scope! Choose either mc scope or comm pkg scope")
-                .Must((command) => McScopeMustBeUnderSameCommPkg(command.McPkgScope)) //TODO skriv tester på dette
-                .WithMessage(command =>
-                    $"Not a valid scope! All mc packages must be under same comm pkg")
                 .Must((command) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
                     $"Contractor and Construction Company must be invited!")
@@ -60,11 +57,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
                 => !await invitationValidator.IpoTitleExistsInProjectAsync(projectName, title, token);
 
-            bool MustHaveValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope)
+            bool MustHaveValidScope(IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);
-            
-            bool McScopeMustBeUnderSameCommPkg(IList<McPkgScopeForCommand> mcPkgScope)
-                => invitationValidator.McScopeIsUnderSameCommPkg(mcPkgScope);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);

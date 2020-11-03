@@ -17,8 +17,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
     public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCommand, Result<int>>
     {
-        private const string _contractorUserGroup = "MC_CONTRACTOR_MLA";
-        private const string _constructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
+        private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
 
         private readonly IPlantProvider _plantProvider;
         private readonly IFusionMeetingClient _meetingClient;
@@ -91,17 +91,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<ParticipantsForCommand> ipoParticipants)
         {
             var functionalRoleParticipants =
-                ipoParticipants
-                    .Where(p => p.FunctionalRole != null)
-                    .Select(p => p).ToList();
-            var personsWithOids = ipoParticipants.Where(p => p.Person?.AzureOid != null)
-                .Select(p => p).ToList();
+                ipoParticipants.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
+            var personsWithOids = ipoParticipants.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
             var personParticipantsWithEmails = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
                 .Select(p => p).ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
 
-            participants = await AddFunctionalRoleParticipantsAsync(invitation, participants, functionalRoleParticipants);
-            participants = await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids);
+            participants = functionalRoleParticipants.Count > 0
+                ? await AddFunctionalRoleParticipantsAsync(invitation, participants, functionalRoleParticipants)
+                : participants;
+            participants = personsWithOids.Count > 0
+                ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids)
+                : participants;
             participants = AddExternalParticipant(invitation, participants, externalEmailParticipants);
             participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails);
 
@@ -122,7 +123,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
                if (fr != null)
                {
-                    
                     invitation.AddParticipant(new Participant(
                         _plantProvider.Plant,
                         participant.Organization,
@@ -163,7 +163,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 participants.Add(new BuilderParticipant(ParticipantType.Optional,
                                     new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
                             }
-                            
                         }
                     }
                }
@@ -184,7 +183,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participants,
                     participant.Person,
                     participant.SortKey,
-                    _contractorUserGroup);
+                    ContractorUserGroup);
             }
             if (personParticipantsWithOids.Any(p => p.SortKey == 1))
             {
@@ -194,30 +193,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participants,
                     participant.Person,
                     participant.SortKey,
-                    _constructionUserGroup);
+                    ConstructionUserGroup);
             }
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
-            var persons =
-                await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids);
-            
-            foreach (var participant in personParticipantsWithOids)
+            var persons = oids.Count > 0
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                : new List<ProCoSysPerson>();
+            if (persons.Any())
             {
-               var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
-               if (person != null)
-               {
-                   invitation.AddParticipant(new Participant(
-                       _plantProvider.Plant,
-                       participant.Organization,
-                       IpoParticipantType.Person,
-                       null,
-                       person.FirstName,
-                       person.LastName,
-                       person.Email,
-                       new Guid(person.AzureOid),
-                       participant.SortKey));
-                   participants.Add(new BuilderParticipant(ParticipantType.Required,
-                       new ParticipantIdentifier(new Guid(person.AzureOid))));
-               }
+                foreach (var participant in personParticipantsWithOids)
+                {
+                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
+                    if (person != null)
+                    {
+                        invitation.AddParticipant(new Participant(
+                            _plantProvider.Plant,
+                            participant.Organization,
+                            IpoParticipantType.Person,
+                            null,
+                            person.FirstName,
+                            person.LastName,
+                            person.Email,
+                            new Guid(person.AzureOid),
+                            participant.SortKey));
+                        participants.Add(new BuilderParticipant(ParticipantType.Required,
+                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+                    }
+                }
             }
 
             return participants;
@@ -235,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 invitation.AddParticipant(new Participant(
                     _plantProvider.Plant,
-                    userGroup == _constructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                    userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
                     IpoParticipantType.Person,
                     null,
                     p.FirstName,
@@ -309,7 +311,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new Exception("Comm pkg scope must be within a system");
+                    throw new Exception("Comm pkg scope must be within a system"); //TODO: skal vi ha exception som vises helt til brukeren?
                 }
             }
 
@@ -334,7 +336,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialCommPkgNo = initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new Exception("Mc pkg scope must be withing a comm pkg");
+                    throw new Exception("Mc pkg scope must be withing a comm pkg"); //TODO: skal vi ha exception som vises helt til brukeren?
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
