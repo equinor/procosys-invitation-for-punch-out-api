@@ -63,8 +63,45 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
             };
 
+            AddOutlookResponseToParticipantsAsync(meeting, invitationResult);
+
             return invitationResult;
         }
+
+        private static void AddOutlookResponseToParticipantsAsync(
+            GeneralMeeting meeting,
+            InvitationDto invitationResult)
+        {
+            foreach (var participant in invitationResult.Participants)
+            {
+                if (participant.Person != null)
+                {
+                    var participantPersonResponse = GetOutlookResponseByEmailAsync(meeting, participant.Person?.Email);
+                    participant.Person.Response = participantPersonResponse;
+                }
+                foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
+                {
+                    var functionalRolePersonResponse = GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email);
+                    personInFunctionalRole.Response = functionalRolePersonResponse;
+                }
+                if (participant.ExternalEmail != null)
+                {
+                    var externalEmailResponse =
+                      GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail);
+                    participant.ExternalEmail.Response = externalEmailResponse;
+                }
+                if (participant.FunctionalRole?.Email != null)
+                {
+                    var functionalRoleResponse =
+                     GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email);
+                    participant.FunctionalRole.Response = functionalRoleResponse;
+                }
+            }
+        }
+
+        private static OutlookResponse? GetOutlookResponseByEmailAsync(GeneralMeeting meeting, string email) =>
+            meeting.Participants.SingleOrDefault(p => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
+                    ?.OutlookResponse;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
@@ -72,8 +109,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs) 
             => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo));
 
-        private static IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
+        private static List<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
         {
+            var participantDtos = new List<ParticipantDto>();
+
             foreach (var participant in participants)
             {
                 if (participant.Type == IpoParticipantType.FunctionalRole)
@@ -82,20 +121,22 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode 
                          && p.Type == IpoParticipantType.Person);
 
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole));
+                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
+                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        ConvertToPersonDto(participant), null);
+                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
+                        ConvertToPersonDto(participant), null));
                 }
                 else if (participant.Organization == Organization.External)
                 {
-                    yield return new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
-                        ConvertToPersonDto(participant), null);
+                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
+                        ConvertToPersonDto(participant), null));
                 }
             }
+
+            return participantDtos;
         }
 
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
@@ -107,6 +148,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid.ToString(), participant.Email);
 
         private static IEnumerable<PersonDto> ConvertToPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
-            => personsInFunctionalRole.Select(ConvertToPersonDto);
+            => personsInFunctionalRole.Select(ConvertToPersonDto).ToList();
     }
 }
