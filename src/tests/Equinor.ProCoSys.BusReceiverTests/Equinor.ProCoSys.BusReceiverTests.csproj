@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj" />
+    <ProjectReference Include="..\..\Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj" />
   </ItemGroup>
 
 </Project>
