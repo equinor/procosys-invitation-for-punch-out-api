@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query
         public string LastName { get; }
         public string AzureOid { get; }
         public string Email { get; }
+        public bool Required { get; set; }
         public OutlookResponse? Response { get; set; }
     }
 }

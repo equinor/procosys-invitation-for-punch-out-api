@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
-        public OutlookResponse? Response { get; set; }
         public IEnumerable<PersonDto> Persons { get; }
+        public OutlookResponse? Response { get; set; }
     }
 }

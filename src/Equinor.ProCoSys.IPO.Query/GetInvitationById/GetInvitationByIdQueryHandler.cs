@@ -64,14 +64,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
             };
 
-            AddOutlookResponseToParticipantsAsync(meeting, invitationResult);
+            AddParticipantTypeAndOutlookResponseToParticipants(meeting, invitationResult);
 
             return invitationResult;
         }
 
-        private static void AddOutlookResponseToParticipantsAsync(
-            GeneralMeeting meeting,
-            InvitationDto invitationResult)
+        private static void AddParticipantTypeAndOutlookResponseToParticipants(GeneralMeeting meeting, InvitationDto invitationResult)
         {
             foreach (var participant in invitationResult.Participants)
             {
@@ -80,29 +78,37 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     var participantPersonResponse = GetOutlookResponseByEmailAsync(meeting, participant.Person?.Email);
                     participant.Person.Response = participantPersonResponse;
                 }
+
                 foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
                 {
+                    var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email);
+                    personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
+
                     var functionalRolePersonResponse = GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email);
                     personInFunctionalRole.Response = functionalRolePersonResponse;
                 }
+
                 if (participant.ExternalEmail != null)
                 {
-                    var externalEmailResponse =
-                      GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail);
+                   var externalEmailResponse = GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail);
                     participant.ExternalEmail.Response = externalEmailResponse;
                 }
+
                 if (participant.FunctionalRole?.Email != null)
                 {
-                    var functionalRoleResponse =
-                     GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email);
+                    var functionalRoleResponse = GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email);
                     participant.FunctionalRole.Response = functionalRoleResponse;
                 }
             }
         }
 
-        private static OutlookResponse? GetOutlookResponseByEmailAsync(GeneralMeeting meeting, string email) =>
-            meeting.Participants.SingleOrDefault(p => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
-                    ?.OutlookResponse;
+        private static OutlookResponse? GetOutlookResponseByEmailAsync(GeneralMeeting meeting, string email)
+            => meeting.Participants.SingleOrDefault(p 
+            => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
+            ?.OutlookResponse;
+
+        private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
+            => meeting.Participants.SingleOrDefault(p => p.Person.Mail == email)?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
@@ -110,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs) 
             => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo));
 
-        private static List<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
+        private static IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
         {
             var participantDtos = new List<ParticipantDto>();
 
