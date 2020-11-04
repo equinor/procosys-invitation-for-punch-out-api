@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
+﻿using Fusion.Integration.Meeting;
+
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class ExternalEmailDto
     {
@@ -12,5 +14,6 @@
 
         public int Id { get; }
         public string ExternalEmail { get; }
+        public OutlookResponse? Response { get; set; }
     }
 }

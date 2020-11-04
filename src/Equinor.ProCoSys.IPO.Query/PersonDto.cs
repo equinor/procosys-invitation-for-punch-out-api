@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.Query
+﻿using Fusion.Integration.Meeting;
+
+namespace Equinor.ProCoSys.IPO.Query
 {
     public class PersonDto
     {
@@ -21,5 +23,6 @@
         public string LastName { get; }
         public string AzureOid { get; }
         public string Email { get; }
+        public OutlookResponse? Response { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
@@ -17,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
+        public OutlookResponse? Response { get; set; }
         public IEnumerable<PersonDto> Persons { get; }
     }
 }
