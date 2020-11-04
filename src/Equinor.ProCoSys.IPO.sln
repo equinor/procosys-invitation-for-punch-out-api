@@ -39,9 +39,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Test.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.BlobStorage", "Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj", "{F2ECB765-2E38-43B3-BB94-050F9D1E2CB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.BusReceiver", "Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj", "{C0EE2B05-8119-4599-BAF6-223AECD35386}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.BusReceiver", "Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj", "{C0EE2B05-8119-4599-BAF6-223AECD35386}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.BusReceiverTests", "Equinor.ProCoSys.BusReceiverTests\Equinor.ProCoSys.BusReceiverTests.csproj", "{40014EFF-F137-459A-8F07-0A54C5DB4BDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.BusReceiverTests", "tests\Equinor.ProCoSys.BusReceiverTests\Equinor.ProCoSys.BusReceiverTests.csproj", "{40014EFF-F137-459A-8F07-0A54C5DB4BDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
