@@ -1,4 +1,6 @@
-﻿using Equinor.ProCoSys.IPO.BlobStorage;
+﻿using Equinor.ProCoSys.BusReceiver;
+using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
@@ -30,6 +32,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -43,7 +46,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
-            services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
             services.Configure<AuthenticatorOptions>(configuration.GetSection("Authenticator"));
 
             services.AddDbContext<IPOContext>(options =>
@@ -55,7 +57,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddHttpClient();
 
             // Hosted services
-            services.AddHostedService<TimedSynchronization>();
+
+            //services.AddHostedService<PcsBusReceiver>(br => new PcsBusReceiver(configuration, br, br.GetService<ILogger<PcsBusReceiver>>()));
 
             // Transient - Created each time it is requested from the service container
 
@@ -78,8 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IEventDispatcher, EventDispatcher>();
             services.AddScoped<IUnitOfWork>(x => x.GetRequiredService<IPOContext>());
             services.AddScoped<IReadOnlyContext, IPOContext>();
-            services.AddScoped<ISynchronizationService, SynchronizationService>();
-
+            services.AddScoped<IBusReceiverService, BusReceiverService>();
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<IInvitationRepository, InvitationRepository>();
 
@@ -103,6 +105,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<ICacheManager, CacheManager>();
+            services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
         }
     }
 }

@@ -1,0 +1,15 @@
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
+
+namespace Equinor.ProCoSys.BusReceiver.Interfaces
+{
+    public interface IPcsSubscriptionClient
+    {
+        public PcsTopic PcsTopic { get; }
+        void RegisterPcsMessageHandler(Func<IPcsSubscriptionClient, Message, CancellationToken, Task> handler, MessageHandlerOptions messageHandlerOptions);
+        Task CompleteAsync(string token);
+        Task CloseAsync();
+    }
+}

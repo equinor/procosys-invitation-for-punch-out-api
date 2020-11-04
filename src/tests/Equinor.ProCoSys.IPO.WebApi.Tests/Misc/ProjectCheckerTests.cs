@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
     {
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         private readonly string Plant = "Plant";
-        private readonly string Project = "Project";
+        private readonly string Project = "project";
 
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
