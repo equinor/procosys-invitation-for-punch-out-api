@@ -54,7 +54,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.Title,
                 invitation.Description,
                 meeting.Location,
-                invitation.Type)
+                invitation.Type,
+                invitation.RowVersion.ConvertToString())
             {
                 StartTime = meeting.StartDate.DatetimeUtc,
                 EndTime = meeting.EndDate.DatetimeUtc,
@@ -122,17 +123,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                          && p.Type == IpoParticipantType.Person);
 
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
+                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole), participant.RowVersion.ConvertToString()));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        ConvertToPersonDto(participant), null));
+                        ConvertToPersonDto(participant), null, participant.RowVersion.ConvertToString()));
                 }
                 else if (participant.Organization == Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
-                        ConvertToPersonDto(participant), null));
+                        ConvertToPersonDto(participant), null, participant.RowVersion.ConvertToString()));
                 }
             }
 
