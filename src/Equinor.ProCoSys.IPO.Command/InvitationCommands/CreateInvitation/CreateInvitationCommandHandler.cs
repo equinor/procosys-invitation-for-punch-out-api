@@ -313,7 +313,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new Exception("Comm pkg scope must be within a system"); //TODO: skal vi ha exception som vises helt til brukeren?
+                    throw new Exception("Comm pkg scope must be within a system");
                 }
             }
 
@@ -338,7 +338,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialCommPkgNo = initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new Exception("Mc pkg scope must be withing a comm pkg"); //TODO: skal vi ha exception som vises helt til brukeren?
+                    throw new Exception("Mc pkg scope must be within a comm pkg");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)

@@ -31,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Title = title;
             Description = description;
             Type = type;
+            Status = IpoStatus.Planned;
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
@@ -41,6 +42,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
 
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
+
+        public IpoStatus Status { get; private set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }

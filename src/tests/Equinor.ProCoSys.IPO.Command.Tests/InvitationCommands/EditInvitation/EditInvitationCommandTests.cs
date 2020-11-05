@@ -26,38 +26,38 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 1)
         };
 
-        private readonly string _projectName = "Project name";
-        private readonly string _title = "Test title";
-        private readonly string _description = "Body";
-        private readonly string _location = "Outside";
-        private readonly DisciplineType _type = DisciplineType.DP;
+        private const string ProjectName = "Project name";
+        private const string Title = "Test title";
+        private const string Description = "Body";
+        private const string Location = "Outside";
+        private const DisciplineType Type = DisciplineType.DP;
         private readonly List<string> _mcPkgScope = new List<string>
         {
             "MC1",
             "MC2"
         };
-        private readonly string _rowVersion = "AAAAAAAAABA=";
+        private const string RowVersion = "AAAAAAAAABA=";
         [TestMethod]
         public void Constructor_SetsProperties()
         {
             var dut = new EditInvitationCommand(
                 1,
-                _title,
-                _description,
-                _location,
+                Title,
+                Description,
+                Location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
-                _type,
+                ProjectName,
+                Type,
                 _participants,
                 _mcPkgScope,
                 null,
-                _rowVersion);
+                RowVersion);
 
             Assert.AreEqual(1, dut.InvitationId);
-            Assert.AreEqual(_title, dut.Title);
-            Assert.AreEqual(_description, dut.Description);
-            Assert.AreEqual(_location, dut.Location);
+            Assert.AreEqual(Title, dut.Title);
+            Assert.AreEqual(Description, dut.Description);
+            Assert.AreEqual(Location, dut.Location);
             Assert.AreEqual(new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc), dut.StartTime);
             Assert.AreEqual(new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc), dut.EndTime);
             Assert.IsNotNull(dut.UpdatedParticipants);

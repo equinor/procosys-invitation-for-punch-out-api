@@ -22,6 +22,12 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 where ipo.Id == invitationId
                 select ipo).AnyAsync(token);
 
+        public async Task<bool> IpoIsInPlannedStage(int invitationId, CancellationToken token) => 
+            await(from ipo in _context.QuerySet<Invitation>()
+                    where ipo.Id == invitationId && ipo.Status == IpoStatus.Planned
+                    select ipo).AnyAsync(token);
+
+
         public bool IsValidScope(
             IList<string> mcPkgScope,
             IList<string> commPkgScope) 
@@ -149,31 +155,31 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        private async Task<bool> ParticipantExists(int? id, CancellationToken token) 
+        private async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
-                where p.Id == id
-                select p).AnyAsync(token);
+                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
+                     select p).AnyAsync(token);
 
-        public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, CancellationToken token)
+        public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token)
         {
-            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, token))
+            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, invitationId, token))
             {
                 return false;
             }
-            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, token))
+            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, invitationId, token))
             {
                 return false;
             }
             if (participant.FunctionalRole != null)
             {
-                if (!await ParticipantExists(participant.FunctionalRole.Id, token))
+                if (!await ParticipantExists(participant.FunctionalRole.Id, invitationId, token))
                 {
                     return false;
                 }
 
                 foreach (var person in participant.FunctionalRole.Persons)
                 {
-                    if (person.Id != null && !await ParticipantExists(person.Id, token))
+                    if (person.Id != null && !await ParticipantExists(person.Id, invitationId, token))
                     {
                         return false;
                     }
