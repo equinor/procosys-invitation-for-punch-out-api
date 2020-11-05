@@ -79,13 +79,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     participant.Person.Response = participantPersonResponse;
                 }
 
-                foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
+                if (participant.FunctionalRole?.Persons != null)
                 {
-                    var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email);
-                    personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
+                    foreach (var personInFunctionalRole in participant.FunctionalRole?.Persons)
+                    {
+                        var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email);
+                        personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
 
-                    var functionalRolePersonResponse = GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email);
-                    personInFunctionalRole.Response = functionalRolePersonResponse;
+                        var functionalRolePersonResponse =
+                            GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email);
+                        personInFunctionalRole.Response = functionalRolePersonResponse;
+                    }
                 }
 
                 if (participant.ExternalEmail != null)

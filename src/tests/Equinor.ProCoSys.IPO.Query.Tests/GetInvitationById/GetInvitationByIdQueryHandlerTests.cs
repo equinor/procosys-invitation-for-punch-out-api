@@ -102,13 +102,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 Location = string.Empty,
                                 Organizer = new ApiPersonDetailsV1(),
                                 OutlookMode = string.Empty,
-                                Participants = new List<ApiMeetingParticipant>(),
+                                Participants = new List<ApiMeetingParticipant>()
+                                {
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = "P1@email.com"
+                                        },
+                                        OutlookResponse = "Required"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = "FR1@email.com"
+                                        },
+                                        OutlookResponse = "Accepted"
+                                    }
+                                },
                                 Project = null,
                                 ResponsiblePersons = new List<ApiPersonDetailsV1>(),
                                 Series = null,
                                 Title = string.Empty
                             })));
-
 
                 _invitation.SetProtectedIdForTesting(_invitationId);
                 context.Invitations.Add(_invitation);
