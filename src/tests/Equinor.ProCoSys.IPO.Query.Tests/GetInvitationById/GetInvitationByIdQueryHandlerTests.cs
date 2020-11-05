@@ -137,7 +137,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             }
         }
 
-
         [TestMethod]
         public async Task Handler_ShouldReturnNotFound_IfInvitationIsNotFound()
         {
