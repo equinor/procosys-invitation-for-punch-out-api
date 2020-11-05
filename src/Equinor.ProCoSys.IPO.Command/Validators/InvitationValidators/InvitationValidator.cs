@@ -17,6 +17,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public InvitationValidator(IReadOnlyContext context) => _context = context;
 
+        public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken token) =>
+            await (from ipo in _context.QuerySet<Invitation>()
+                where ipo.Id == invitationId
+                select ipo).AnyAsync(token);
+
         public bool IsValidScope(
             IList<string> mcPkgScope,
             IList<string> commPkgScope) 
@@ -119,63 +124,39 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return true;
         }
 
-        public bool NewParticipantsCannotHaveLowestSortKeys(IList<ParticipantsForCommand> participants) 
-            => participants.All(p => p.SortKey >= 2);
-
         private async Task<bool> ParticipantExists(int? id, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
                 where p.Id == id
                 select p).AnyAsync(token);
 
-        public async Task<bool> ParticipantExistsAsync(ParticipantsForCommand participant, CancellationToken token)
+        public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, CancellationToken token)
         {
-            //if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, token))
-            //{
-            //    return false;
-            //}
-            //if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, token))
-            //{
-            //    return false;
-            //}
-            //if (participant.FunctionalRole != null)
-            //{
-            //    if (!participant.FunctionalRole.UsePersonalEmail && !await ParticipantExists(participant.FunctionalRole.Id, token))
-            //    {
-            //        return false;
-            //    }
+            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, token))
+            {
+                return false;
+            }
+            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, token))
+            {
+                return false;
+            }
+            if (participant.FunctionalRole != null)
+            {
+                if (!await ParticipantExists(participant.FunctionalRole.Id, token))
+                {
+                    return false;
+                }
 
-            //    foreach (var person in participant.FunctionalRole.Persons)
-            //    {
-            //        if (!await ParticipantExists(person.Id, token))
-            //        {
-            //            return false;
-            //        }
-            //    }
-            //}
+                foreach (var person in participant.FunctionalRole.Persons)
+                {
+                    if (person.Id != null && !await ParticipantExists(person.Id, token))
+                    {
+                        return false;
+                    }
+                }
+            }
             return true;
         }
-
-        public bool ParticipantMustHaveId(ParticipantsForCommand participant)
-        {
-            //if (participant.Person != null  && participant.Person.Id == null)
-            //{
-            //    return false;
-            //}
-            //if (participant.FunctionalRole != null)
-            //{
-            //    if (!participant.FunctionalRole.UsePersonalEmail && participant.FunctionalRole.Id == null)
-            //    {
-            //        return false;
-            //    }
-
-            //    if (participant.FunctionalRole.Persons.Any(person => person.Id == null))
-            //    {
-            //        return false;
-            //    }
-            //}
-            return participant.ExternalEmail == null || participant.ExternalEmail.Id != null;
-        }
-
+        
         public async Task<bool> ProjectNameIsNotChangedAsync(string projectName, int id, CancellationToken token) 
             => await (from invitation in _context.QuerySet<Invitation>() 
                 where invitation.Id == id && invitation.ProjectName == projectName

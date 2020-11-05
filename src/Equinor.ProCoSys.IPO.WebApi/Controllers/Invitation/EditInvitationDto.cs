@@ -15,12 +15,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public DisciplineType Type { get; set; }
         // Existing participants not included in UpdatedParticipants will be deleted.
         public IEnumerable<ParticipantDto> UpdatedParticipants { get; set; }
-        public IEnumerable<ParticipantDto> NewParticipants { get; set; }
         // Existing mc pkgs not included in UpdatedMcPkgScope will be deleted.
-        public IEnumerable<McPkgDto> UpdatedMcPkgScope { get; set; }
-        public IEnumerable<McPkgDto> NewMcPkgScope { get; set; }
+        public IEnumerable<string> UpdatedMcPkgScope { get; set; }
         // Existing comm pkgs not included in UpdatedCommPkgScope will be deleted.
-        public IEnumerable<CommPkgDto> UpdatedCommPkgScope { get; set; }
-        public IEnumerable<CommPkgDto> NewCommPkgScope { get; set; }
+        public IEnumerable<string> UpdatedCommPkgScope { get; set; }
+        public string RowVersion { get; set; }
     }
 }

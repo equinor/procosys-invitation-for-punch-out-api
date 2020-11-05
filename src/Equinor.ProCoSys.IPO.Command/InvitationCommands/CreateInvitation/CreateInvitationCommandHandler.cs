@@ -248,6 +248,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
                     new ParticipantIdentifier(new Guid(p.AzureOid))));
             }
+            else
+            {
+                throw new Exception("Person does not have necessary permissions");
+            }
 
             return participants;
         }

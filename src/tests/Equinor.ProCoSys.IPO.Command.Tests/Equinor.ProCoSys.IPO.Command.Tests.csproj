@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="InvitationCommands\EditInvitation\EditInvitationCommandHandlerTests.cs" />
-    <Compile Remove="InvitationCommands\EditInvitation\EditInvitationCommandTests.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="9.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.0" />
     <PackageReference Include="Moq" Version="4.14.5" />
@@ -27,10 +22,6 @@
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Command\Equinor.ProCoSys.IPO.Command.csproj" />
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="InvitationCommands\EditInvitation\" />
   </ItemGroup>
 
 </Project>

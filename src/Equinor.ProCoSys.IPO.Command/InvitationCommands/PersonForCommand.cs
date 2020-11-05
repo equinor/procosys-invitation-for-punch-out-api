@@ -12,7 +12,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             string lastName,
             string email,
             bool required,
-            int? id = null)
+            int? id = null,
+            string rowVersion = null)
         {
             AzureOid = azureOid;
             FirstName = firstName;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             Email = email;
             Required = required;
             Id = id;
+            RowVersion = rowVersion;
         }
         public Guid? AzureOid { get; set; }
         public string FirstName { get; set; }
@@ -27,5 +29,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public string Email { get; set; }
         public bool Required { get; set; }
         public int? Id { get; set; }
+        public string RowVersion { get; set; }
     }
 }

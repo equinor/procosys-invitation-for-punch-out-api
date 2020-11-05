@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
@@ -18,19 +19,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             string projectName,
             DisciplineType type,
             IList<ParticipantsForCommand> updatedParticipants,
-            IList<ParticipantsForCommand> newParticipants,
-            IList<McPkgScopeForCommand> updatedMcPkgScope,
-            IList<McPkgScopeForCommand> newMcPkgScope,
-            IList<CommPkgScopeForCommand> updatedCommPkgScope,
-            IList<CommPkgScopeForCommand> newCommPkgScope)
+            IEnumerable<string> updatedMcPkgScope,
+            IEnumerable<string> updatedCommPkgScope,
+            string rowVersion)
         {
             InvitationId = invitationId;
-            UpdatedMcPkgScope = updatedMcPkgScope ?? new List<McPkgScopeForCommand>();
-            UpdatedCommPkgScope = updatedCommPkgScope ?? new List<CommPkgScopeForCommand>();
+            UpdatedMcPkgScope = updatedMcPkgScope != null ? updatedMcPkgScope.ToList() : new List<string>();
+            UpdatedCommPkgScope = updatedCommPkgScope != null ? updatedCommPkgScope.ToList() : new List<string>();
             UpdatedParticipants = updatedParticipants;
-            NewMcPkgScope = newMcPkgScope ?? new List<McPkgScopeForCommand>();
-            NewCommPkgScope = newCommPkgScope ?? new List<CommPkgScopeForCommand>();
-            NewParticipants = newParticipants ?? new List<ParticipantsForCommand>();
             Description = description;
             Location = location;
             StartTime = startTime;
@@ -38,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             ProjectName = projectName;
             Type = type;
             Title = title;
+            RowVersion = rowVersion;
         }
 
         public int InvitationId { get; }
@@ -45,14 +42,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IList<McPkgScopeForCommand> UpdatedMcPkgScope { get; }
-        public IList<McPkgScopeForCommand> NewMcPkgScope { get; }
-        public IList<CommPkgScopeForCommand> UpdatedCommPkgScope { get; }
-        public IList<CommPkgScopeForCommand> NewCommPkgScope { get; }
+        public IList<string> UpdatedMcPkgScope { get; }
+        public IList<string> UpdatedCommPkgScope { get; }
         public IList<ParticipantsForCommand> UpdatedParticipants { get; }
-        public IList<ParticipantsForCommand> NewParticipants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }
         public string ProjectName { get; }
+        public string RowVersion { get; }
     }
 }

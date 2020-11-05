@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -21,6 +22,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private int _invitation1Id;
         private int _invitation2Id;
         private int _invitation3Id;
+        private int _participantId1;
+        private int _participantId2;
+        private int _participantId3;
         private readonly DisciplineType _typeDp = DisciplineType.DP;
 
         private readonly IList<string> _mcPkgScope = new List<string>
@@ -56,6 +60,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var invitation = new Invitation(TestPlant, _projectName, _title1, _typeDp);
                 context.Invitations.Add(invitation);
                 _invitation1Id = invitation.Id;
+                var participant1 = new Participant(TestPlant, Organization.Contractor, IpoParticipantType.Person, null, "First1", "Last", "first1@last.com", null, 0);
+                var participant2 = new Participant(TestPlant, Organization.ConstructionCompany, IpoParticipantType.Person, null, "First2", "Last", "first2@last.com", null, 1);
+                var participant3 = new Participant(TestPlant, Organization.Supplier, IpoParticipantType.Person, null, "First3", "Last", "first3@last.com", null, 2);
+                invitation.AddParticipant(participant1);
+                invitation.AddParticipant(participant2);
+                invitation.AddParticipant(participant3);
+                
                 var invitation2 = new Invitation(TestPlant, _projectName, _title2, _typeDp);
                 context.Invitations.Add(invitation2);
                 _invitation2Id = invitation2.Id;
@@ -63,6 +74,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 context.Invitations.Add(invitation3);
                 _invitation3Id = invitation3.Id;
                 context.SaveChangesAsync().Wait();
+                _participantId1 = participant1.Id;
+                _participantId2 = participant2.Id;
+                _participantId3 = participant3.Id;
             }
         }
 
@@ -580,7 +594,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public void ParticipantMustHaveId_ExternalWithId_ReturnsTrue()
+        public async Task ParticipantWithIdExistsAsync_ExternalParticipantHasIdAndExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -589,17 +603,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new ExternalEmailForCommand("test@email.com", 1),
+                        new ExternalEmailForCommand("test@email.com", _participantId1),
                         null,
                         null,
                         3);
-                var result = dut.ParticipantMustHaveId(externalPerson);
+                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void ParticipantMustHaveId_PersonWithId_ReturnsTrue()
+        public async Task ParticipantWithIdExistsAsync_PersonWithIdExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -609,16 +623,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 1),
+                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, _participantId1),
                         null,
                         3);
-                var result = dut.ParticipantMustHaveId(person);
+                var result = await dut.ParticipantWithIdExistsAsync(person, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void ParticipantMustHaveId_FunctionalRoleWithId_ReturnsTrue()
+        public async Task ParticipantWithIdExistsAsync_FunctionalRoleWithIdExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -629,15 +643,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new FunctionalRoleForCommand("FR1", null, 1),
+                        new FunctionalRoleForCommand("FR1", null, _participantId1),
                         0);
-                var result = dut.ParticipantMustHaveId(functionalRole);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void ParticipantMustHaveId_FunctionalRoleWithPersonsWithId_ReturnsTrue()
+        public async Task ParticipantWithIdExistsAsync_FunctionalRoleWithPersonsWithId_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -649,18 +663,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", new List<PersonForCommand> {
-                            new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 2),
-                            new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false, 1)
-                            }, 
-                            1),
+                            new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, _participantId1),
+                            new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false, _participantId2)
+                            },
+                            _participantId3),
                         0);
-                var result = dut.ParticipantMustHaveId(functionalRole);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void ParticipantMustHaveId_ExternalEmailWithoutId_ReturnsFalse()
+        public async Task ParticipantWithIdExistsAsync_ExternalEmailWithIdDoesntExist_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -669,75 +683,99 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new ExternalEmailForCommand("test@email.com"), 
+                        new ExternalEmailForCommand("test@email.com", 200), 
                         null,
                         null,
                         3);
-                var result = dut.ParticipantMustHaveId(externalPerson);
+                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, default);
                 Assert.IsFalse(result);
             }
         }
 
-        //[TestMethod]
-        //public void ParticipantMustHaveId_PersonWithoutId_ReturnsFalse()
-        //{
-        //    using (var context =
-        //        new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-        //    {
-        //        var dut = new InvitationValidator(context);
-        //        var person =
-        //            new ParticipantsForCommand(
-        //                Organization.Commissioning,
-        //                null,
-        //                new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true), 
-        //                null,
-        //                3);
-        //        var result = dut.ParticipantMustHaveId(person);
-        //        Assert.IsFalse(result);
-        //    }
-        //}
+        [TestMethod]
+        public async Task ParticipantWithIdExistsAsync_PersonWithIdDoesntExist_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 500),
+                        null,
+                        3);
+                var result = await dut.ParticipantWithIdExistsAsync(person, default);
+                Assert.IsFalse(result);
+            }
+        }
 
-        //[TestMethod]
-        //public void ParticipantMustHaveId_FunctionalRoleWithoutId_ReturnsFalse()
-        //{
-        //    using (var context =
-        //        new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-        //    {
-        //        var dut = new InvitationValidator(context);
-        //        var functionalRole =
-        //            new ParticipantsForCommand(
-        //                Organization.Commissioning,
-        //                null,
-        //                null,
-        //                new FunctionalRoleForCommand("FR1", null),
-        //                0);
-        //        var result = dut.ParticipantMustHaveId(functionalRole);
-        //        Assert.IsFalse(result);
-        //    }
-        //}
+        [TestMethod]
+        public async Task ParticipantWithIdExistsAsync_FunctionalRoleWithIdDoesntExist_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var functionalRole =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", null, 400),
+                        0);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, default);
+                Assert.IsFalse(result);
+            }
+        }
 
-        //[TestMethod]
-        //public void ParticipantMustHaveId_FunctionalRoleWithPersonsWithoutId_ReturnsFalse()
-        //{
-        //    using (var context =
-        //        new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-        //    {
-        //        var dut = new InvitationValidator(context);
-        //        var functionalRole =
-        //            new ParticipantsForCommand(
-        //                Organization.Commissioning,
-        //                null,
-        //                null,
-        //                new FunctionalRoleForCommand("FR1", new List<PersonForCommand> { 
-        //                    new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 2),
-        //                    new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false)
-        //                    }
-        //                ),
-        //                0);
-        //        var result = dut.ParticipantMustHaveId(functionalRole);
-        //        Assert.IsFalse(result);
-        //    }
-        //}
+        [TestMethod]
+        public async Task ParticipantMustHaveId_FunctionalRoleWithPersonsWithIdDoesntExist_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var functionalRole =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("FR1", new List<PersonForCommand> {
+                            new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 400),
+                            new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false, 500)
+                            }
+                        ),
+                        0);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoExistsAsync_ExistingInvitationId_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = await dut.IpoExistsAsync(_invitation1Id, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoExistsAsync_NonExistingInvitationId_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context);
+                var result = await dut.IpoExistsAsync(100, default);
+                Assert.IsFalse(result);
+            }
+        }
 
     }
 }

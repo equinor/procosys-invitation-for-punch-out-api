@@ -5,6 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using MediatR;
 using ServiceResult;
@@ -14,21 +18,36 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
     public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<Unit>>
     {
+        private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
+        private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
+
         private readonly IInvitationRepository _invitationRepository;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly IPersonApiService _personApiService;
+        private readonly IFunctionalRoleApiService _functionalRoleApiService;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
             IFusionMeetingClient meetingClient,
             IPlantProvider plantProvider,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IMcPkgApiService mcPkgApiService,
+            ICommPkgApiService commPkgApiService,
+            IPersonApiService personApiService,
+            IFunctionalRoleApiService functionalRoleApiService)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
             _plantProvider = plantProvider;
             _unitOfWork = unitOfWork;
+            _mcPkgApiService = mcPkgApiService;
+            _commPkgApiService = commPkgApiService;
+            _personApiService = personApiService;
+            _functionalRoleApiService = functionalRoleApiService;
         }
 
         public async Task<Result<Unit>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -39,35 +58,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             invitation.ProjectName = request.ProjectName;
             invitation.Type = request.Type;
 
-            UpdateMcPkgs(request.UpdatedMcPkgScope, invitation);
-            UpdateCommPkgs(request.UpdatedCommPkgScope, invitation);
-            AddMcPkgs(invitation, request.NewMcPkgScope, request.ProjectName);
-            AddCommPkgs(invitation, request.NewCommPkgScope, request.ProjectName);
+            UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, request.ProjectName);
+            UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, request.ProjectName);
 
-            participants = UpdateParticipants(participants, request.UpdatedParticipants, invitation);
-
-            foreach (var participant in request.NewParticipants)
-            {
-                if (participant.Organization == Organization.External)
-                {
-                    participants = AddExternalParticipant(invitation, participants, participant);
-                }
-
-                if (participant.Person != null)
-                {
-                    participants = AddPersonParticipant(
-                        invitation,
-                        participants,
-                        participant.Person,
-                        participant.Organization,
-                        participant.SortKey);
-                }
-
-                if (participant.FunctionalRole != null)
-                {
-                    participants = AddFunctionalRoleParticipant(invitation, participants, participant);
-                }
-            }
+            participants = await UpdateParticipants1(participants, request.UpdatedParticipants, invitation);
 
             await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
             {
@@ -78,24 +72,44 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 builder.UpdateParticipants(participants);
                 builder.InviteBodyHtml = request.Description;
             });
+            invitation.SetRowVersion(invitation.RowVersion.ConvertToString());
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private void UpdateMcPkgs(IList<McPkgScopeForCommand> mcPkgs, Invitation invitation)
+        private void UpdateMcPkgScope(Invitation invitation, IList<string> mcPkgNos, string projectName)
         {
-            var updatedMcPkgIds = mcPkgs.Select(mc => mc.Id);
-            var excludedMcPkgs = invitation.McPkgs.Where(mc => !updatedMcPkgIds.Contains(mc.Id)).ToList();
+            var currentMcScope = invitation.McPkgs;
+            var excludedMcPkgs = currentMcScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
             foreach (var mcPkgToDelete in excludedMcPkgs)
             {
                 invitation.RemoveMcPkg(mcPkgToDelete);
                 _invitationRepository.RemoveMcPkg(mcPkgToDelete);
             }
+
+            var currentMcPkgNos = currentMcScope.Select(mc => mc.McPkgNo);
+            var newMcPkgs = mcPkgNos.Where(mcPkgNo => currentMcPkgNos.Contains(mcPkgNo)).ToList();
+            if (newMcPkgs.Count > 0)
+            {
+                AddMcPkgs(invitation, newMcPkgs, projectName,
+                    currentMcScope.Count > 0 ? currentMcScope.First().CommPkgNo : null);
+            }
         }
 
-        private void AddMcPkgs(Invitation invitation, IEnumerable<McPkgScopeForCommand> mcPkgScope, string projectName)
+        private async void AddMcPkgs(Invitation invitation, IList<string> mcPkgNos, string projectName, string commPkgNo)
         {
-            foreach (var mcPkg in mcPkgScope)
+            var mcPkgDetailsList =
+                await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
+            var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
+            if (initialMcPkg != null)
+            {
+                var initialCommPkgNo = commPkgNo ?? initialMcPkg.CommPkgNo;
+                if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
+                {
+                    throw new Exception("Mc pkg scope must be withing a comm pkg"); //TODO: skal vi ha exception som vises helt til brukeren?
+                }
+            }
+            foreach (var mcPkg in mcPkgDetailsList)
             {
                 invitation.AddMcPkg(new McPkg(
                     _plantProvider.Plant,
@@ -106,238 +120,399 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
         }
 
-        private void UpdateCommPkgs(IList<CommPkgScopeForCommand> commPkgs, Invitation invitation)
+        private void UpdateCommPkgScope(Invitation invitation, IList<string> commPkgNos, string projectName)
         {
-            var updatedCommPkgIds = commPkgs.Select(c => c.Id);
-            var excludedMcPkgs = invitation.CommPkgs.Where(c => !updatedCommPkgIds.Contains(c.Id)).ToList();
-            foreach (var commPkgToDelete in excludedMcPkgs)
+            var currentCommPkgScope = invitation.CommPkgs;
+            var excludedCommPkgs = currentCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
+            foreach (var commPkgToDelete in excludedCommPkgs)
             {
                 invitation.RemoveCommPkg(commPkgToDelete);
                 _invitationRepository.RemoveCommPkg(commPkgToDelete);
             }
-        }
 
-        private void AddCommPkgs(Invitation invitation, IEnumerable<CommPkgScopeForCommand> commPkgScope, string projectName)
-        {
-            foreach (var commPkg in commPkgScope)
+            var existingCommPkgs = currentCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
+            var newCommPkgs = commPkgNos.Any(commPkgNo => existingCommPkgs.Contains(commPkgNo));
+            if (newCommPkgs)
             {
-                invitation.AddCommPkg(new CommPkg(
-                    _plantProvider.Plant,
-                    projectName,
-                    commPkg.CommPkgNo,
-                    commPkg.Description,
-                    commPkg.Status));
+                AddCommPkgs(invitation, commPkgNos, existingCommPkgs, projectName);
             }
         }
 
-        private List<BuilderParticipant> UpdateParticipants(
+        private async void AddCommPkgs(Invitation invitation, IList<string> newCommPkgNos, IList<string> existingCommPkgNos, string projectName)
+        {
+            var commPkgDetailsList =
+                await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, newCommPkgNos);
+
+            var initialCommPkg = commPkgDetailsList.FirstOrDefault();
+            if (initialCommPkg != null)
+            {
+                var initialSystemId = initialCommPkg.SystemId;
+                if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
+                {
+                    throw new Exception("Comm pkg scope must be within a system"); //TODO: skal vi ha exception som vises helt til brukeren?
+                }
+            }
+
+            foreach (var commPkg in commPkgDetailsList)
+            {
+                if (!existingCommPkgNos.Contains(commPkg.CommPkgNo))
+                {
+                    invitation.AddCommPkg(new CommPkg(
+                        _plantProvider.Plant,
+                        projectName,
+                        commPkg.CommPkgNo,
+                        commPkg.Description,
+                        commPkg.CommStatus));
+                }
+            }
+        }
+
+        private async Task<List<BuilderParticipant>> UpdateParticipants1(
             List<BuilderParticipant> participants,
-            IEnumerable<ParticipantsForCommand> participantsToUpdate, 
+            IList<ParticipantsForCommand> participantsToUpdate,
             Invitation invitation)
         {
-            var updatedParticipantIds = new List<int?>();
-            foreach (var participant in participantsToUpdate)
-            {
-                if (participant.ExternalEmail != null)
-                {
-                    updatedParticipantIds.Add(participant.ExternalEmail.Id);
-                    var participantToUpdate = invitation.Participants.Single(p => p.Id == participant.ExternalEmail.Id);
-                    UpdateExternalParticipant(
-                        participantToUpdate, 
-                        participant.ExternalEmail.Email, 
-                        participant.SortKey);
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(participant.ExternalEmail.Email)));
-                }
-                else if (participant.Person != null)
-                {
-                    updatedParticipantIds.Add(participant.Person.Id);
-                    var participantToUpdate = invitation.Participants.Single(p => p.Id == participant.Person.Id);
-                    UpdatePersonParticipant(
-                        participantToUpdate, 
-                        participant.SortKey, 
-                        participant.Organization, 
-                        participant.Person);
-                    AddPersonToParticipantList(participants, participant.Person);
-                }
-                else
-                {
-                    if (!participant.FunctionalRole.UsePersonalEmail)
-                    {
-                        updatedParticipantIds.Add(participant.FunctionalRole.Id);
-                        var participantToUpdate = invitation.Participants.Single(p => p.Id == participant.FunctionalRole.Id);
-                        UpdateFunctionalRoleParticipant(
-                            participantToUpdate,
-                            participant.SortKey,
-                            participant.Organization,
-                            participant.FunctionalRole);
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(participant.FunctionalRole.Email)));
-                    }
+            var existingParticipants = invitation.Participants.ToList();
 
-                    foreach (var person in participant.FunctionalRole.Persons)
-                    {
-                        updatedParticipantIds.Add(person.Id);
-                        var participantToUpdate = invitation.Participants.Single(p => p.Id == person.Id);
-                        UpdatePersonParticipant(
-                            participantToUpdate,
-                            participant.SortKey,
-                            participant.Organization,
-                            person,
-                            participant.FunctionalRole.Code);
-                        AddPersonToParticipantList(participants, person);
-                    }
-                }
-            }
-            var excludedParticipants = invitation.Participants.Where(p => !updatedParticipantIds.Contains(p.Id)).ToList();
-            foreach (var participantToDelete in excludedParticipants)
+            var functionalRoleParticipants =
+                participantsToUpdate.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
+            var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.FunctionalRole.Id).ToList();
+            var personsWithOids = participantsToUpdate.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
+            var personsWithOidsIds = personsWithOids.Select(p => p.Person.Id).ToList();
+            var personParticipantsWithEmails = participantsToUpdate.Where(p => p.Person != null && p.Person.AzureOid == null)
+                .Select(p => p).ToList();
+            var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.Person.Id).ToList();
+            var externalEmailParticipants = participantsToUpdate.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
+            var externalEmailParticipantsIds = personParticipantsWithEmails.Select(p => p.ExternalEmail.Id).ToList();
+
+            var participantsToUpdateIds = externalEmailParticipantsIds
+                .Concat(personsWithOidsIds)
+                .Concat(personParticipantsWithEmailsIds)
+                .Concat(functionalRoleParticipantIds);
+
+            var participantsToDelete = existingParticipants.Where(p => !participantsToUpdateIds.Contains(p.Id));
+            foreach (var participantToDelete in participantsToDelete)
             {
                 invitation.RemoveParticipant(participantToDelete);
                 _invitationRepository.RemoveParticipant(participantToDelete);
             }
 
-            return participants;
-        }
-
-        private List<BuilderParticipant> AddPersonToParticipantList(
-            List<BuilderParticipant> participants,
-            PersonForCommand person
-            )
-        {
-            if (person.AzureOid != null && person.AzureOid != Guid.Empty)
-            {
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(person.AzureOid ?? Guid.Empty)));
-            }
-            else
-            {
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(person.Email)));
-            }
+            participants = functionalRoleParticipants.Count > 0
+                ? await UpdateFunctionalRoleParticipantsAsync(invitation, participants, functionalRoleParticipants, existingParticipants)
+                : participants;
+            participants = personsWithOids.Count > 0
+                ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids, existingParticipants)
+                : participants;
+            participants = AddExternalParticipant(invitation, participants, externalEmailParticipants, existingParticipants);
+            participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails, existingParticipants);
 
             return participants;
         }
 
-        private void UpdateFunctionalRoleParticipant(
-            Participant participant,
-            int sortKey,
-            Organization organization,
-            FunctionalRoleForCommand fr)
-        {
-            participant.SortKey = sortKey;
-            participant.Email = fr.Email;
-            participant.FirstName = null;
-            participant.LastName = null;
-            participant.Organization = organization;
-            participant.Type = IpoParticipantType.FunctionalRole;
-            participant.AzureOid = null;
-            participant.FunctionalRoleCode = fr.Code;
-        }
-
-        private void UpdatePersonParticipant(
-            Participant participant, 
-            int sortKey, 
-            Organization organization, 
-            PersonForCommand person, 
-            string code = null)
-        {
-            participant.SortKey = sortKey;
-            participant.Email = person.Email;
-            participant.FirstName = person.FirstName;
-            participant.LastName = person.LastName;
-            participant.Organization = organization;
-            participant.Type = IpoParticipantType.Person;
-            participant.AzureOid = person.AzureOid;
-            participant.FunctionalRoleCode = code;
-        }
-
-        private void UpdateExternalParticipant(
-            Participant participant, 
-            string externalEmail, 
-            int sortKey)
-        {
-            participant.SortKey = sortKey;
-            participant.Email = externalEmail;
-            participant.FirstName = null;
-            participant.LastName = null;
-            participant.Organization = Organization.External;
-            participant.Type = IpoParticipantType.Person;
-            participant.AzureOid = null;
-            participant.FunctionalRoleCode = null;
-        }
-
-        private List<BuilderParticipant> AddFunctionalRoleParticipant(
+        private async Task<List<BuilderParticipant>> UpdateFunctionalRoleParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            ParticipantsForCommand participant)
+            IList<ParticipantsForCommand> functionalRoleParticipants,
+            IList<Participant> existingParticipants)
         {
-            if (!participant.FunctionalRole.UsePersonalEmail)
-            {
-                invitation.AddParticipant(new Participant(
-                    _plantProvider.Plant,
-                    participant.Organization,
-                    IpoParticipantType.FunctionalRole,
-                    participant.FunctionalRole.Code,
-                    null,
-                    null,
-                    participant.FunctionalRole.Email,
-                    null,
-                    participant.SortKey));
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(participant.FunctionalRole.Email)));
-            }
+            var codes = functionalRoleParticipants.Select(p => p.FunctionalRole.Code).ToList();
+            var functionalRoles =
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
 
-            foreach (var p in participant.FunctionalRole.Persons)
+            foreach (var participant in functionalRoleParticipants)
             {
-                participants = AddPersonParticipant(
+                var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
+                if (fr != null)
+                {
+                    var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.FunctionalRole.Id);
+                    if (existingParticipant != null)
+                    {
+                        invitation.UpdateParticipant(
+                            existingParticipant.Id,
+                            participant.Organization,
+                            IpoParticipantType.FunctionalRole,
+                            fr.Code,
+                            null,
+                            null,
+                            fr.Email,
+                            null,
+                            participant.SortKey,
+                            existingParticipant.RowVersion.ConvertToString());
+                    }
+                    else
+                    {
+                        invitation.AddParticipant(new Participant(
+                            _plantProvider.Plant,
+                            participant.Organization,
+                            IpoParticipantType.FunctionalRole,
+                            fr.Code,
+                            null,
+                            null,
+                            fr.Email,
+                            null,
+                            participant.SortKey));
+                    }
+                    
+                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true)
+                    {
+                        participants.Add(new BuilderParticipant(ParticipantType.Required,
+                            new ParticipantIdentifier(fr.Email)));
+                    }
+                    foreach (var person in participant.FunctionalRole.Persons)
+                    {
+                        var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());
+                        if (frPerson != null)
+                        {
+                            var existingPerson = existingParticipants.SingleOrDefault(p => p.Id == person.Id);
+                            if (existingPerson != null)
+                            {
+                                invitation.UpdateParticipant(
+                                    existingPerson.Id,
+                                    participant.Organization,
+                                    IpoParticipantType.Person,
+                                    participant.FunctionalRole.Code,
+                                    frPerson.FirstName,
+                                    frPerson.LastName,
+                                    frPerson.Email,
+                                    new Guid(frPerson.AzureOid),
+                                    participant.SortKey,
+                                    existingPerson.RowVersion.ConvertToString());
+                            }
+                            else
+                            {
+                                invitation.AddParticipant(new Participant(
+                                    _plantProvider.Plant,
+                                    participant.Organization,
+                                    IpoParticipantType.Person,
+                                    fr.Code,
+                                    frPerson.FirstName,
+                                    frPerson.LastName,
+                                    frPerson.Email,
+                                    new Guid(frPerson.AzureOid),
+                                    participant.SortKey));
+                            }
+
+                            if (person.Required)
+                            {
+                                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
+                            }
+                            else
+                            {
+                                participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
+                            }
+                        }
+                    }
+                }
+            }
+            return participants;
+        }
+
+        private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
+            Invitation invitation,
+            List<BuilderParticipant> participants,
+            IList<ParticipantsForCommand> personParticipantsWithOids,
+            IList<Participant> existingParticipants)
+        {
+            if (personParticipantsWithOids.Any(p => p.SortKey == 0))
+            {
+                var participant = personParticipantsWithOids.Single(p => p.SortKey == 0);
+                participants = await AddContractorOrConstructionCompany(
                     invitation,
                     participants,
-                    p,
-                    participant.Organization,
-                    participant.SortKey);
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    ContractorUserGroup);
+            }
+            if (personParticipantsWithOids.Any(p => p.SortKey == 1))
+            {
+                var participant = personParticipantsWithOids.Single(p => p.SortKey == 1);
+                participants = await AddContractorOrConstructionCompany(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    ConstructionUserGroup);
+            }
+            var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
+            var persons = oids.Count > 0
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                : new List<ProCoSysPerson>();
+            if (persons.Any())
+            {
+                foreach (var participant in personParticipantsWithOids)
+                {
+                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
+                    if (person != null)
+                    {
+                        var existingParticipant =
+                            existingParticipants.SingleOrDefault(p => p.Id == participant.Person.Id);
+                        if (existingParticipant != null)
+                        {
+                            invitation.UpdateParticipant(
+                                existingParticipant.Id,
+                                participant.Organization,
+                                IpoParticipantType.Person,
+                                null,
+                                person.FirstName,
+                                person.LastName,
+                                person.Email,
+                                new Guid(person.AzureOid),
+                                participant.SortKey,
+                                existingParticipant.RowVersion.ConvertToString());
+                        }
+                        else
+                        {
+                            invitation.AddParticipant(new Participant(
+                                _plantProvider.Plant,
+                                participant.Organization,
+                                IpoParticipantType.Person,
+                                null,
+                                person.FirstName,
+                                person.LastName,
+                                person.Email,
+                                new Guid(person.AzureOid),
+                                participant.SortKey));
+                        }
+                        participants.Add(new BuilderParticipant(ParticipantType.Required,
+                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+                    }
+                }
+            }
+
+            return participants;
+        }
+
+        private async Task<List<BuilderParticipant>> AddContractorOrConstructionCompany(
+            Invitation invitation,
+            List<BuilderParticipant> participants,
+            IList<Participant> existingParticipants,
+            PersonForCommand person,
+            int sortKey,
+            string userGroup)
+        {
+            var personFromMain = await _personApiService.GetPersonByOidsInUserGroupAsync(_plantProvider.Plant, person.AzureOid.ToString(), userGroup);
+            if (personFromMain != null)
+            {
+                var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == person.Id);
+                if (existingParticipant != null)
+                {
+                    invitation.UpdateParticipant(
+                        existingParticipant.Id,
+                        userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                        IpoParticipantType.Person,
+                        null,
+                        personFromMain.FirstName,
+                        personFromMain.LastName,
+                        personFromMain.Email,
+                        new Guid(personFromMain.AzureOid),
+                        sortKey,
+                        existingParticipant.RowVersion.ConvertToString());
+                }
+                else
+                {
+                    invitation.AddParticipant(new Participant(
+                        _plantProvider.Plant,
+                        userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                        IpoParticipantType.Person,
+                        null,
+                        personFromMain.FirstName,
+                        personFromMain.LastName,
+                        personFromMain.Email,
+                        new Guid(personFromMain.AzureOid),
+                        sortKey));
+                }
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(new Guid(personFromMain.AzureOid))));
             }
             return participants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipant(
+        private List<BuilderParticipant> AddPersonParticipantsWithEmails(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            PersonForCommand person,
-            Organization organization,
-            int sortKey,
-            string functionalRoleCode = null)
+            IEnumerable<ParticipantsForCommand> personsParticipantsWithEmail,
+            IList<Participant> existingParticipants)
         {
-            invitation.AddParticipant(new Participant(
-                _plantProvider.Plant,
-                organization,
-                functionalRoleCode != null ? IpoParticipantType.FunctionalRole : IpoParticipantType.Person,
-                functionalRoleCode,
-                person.FirstName,
-                person.LastName,
-                person.Email,
-                person.AzureOid,
-                sortKey));
-
-            return AddPersonToParticipantList(participants, person);
+            foreach (var participant in personsParticipantsWithEmail)
+            {
+                var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.Person.Id);
+                if (existingParticipant != null)
+                {
+                    invitation.UpdateParticipant(
+                        existingParticipant.Id,
+                        participant.Organization,
+                        IpoParticipantType.Person,
+                        null,
+                        participant.Person.FirstName,
+                        participant.Person.LastName,
+                        participant.Person.Email,
+                        null,
+                        participant.SortKey,
+                        existingParticipant.RowVersion.ConvertToString());
+                }
+                else
+                {
+                    invitation.AddParticipant(new Participant(
+                        _plantProvider.Plant,
+                        participant.Organization,
+                        IpoParticipantType.Person,
+                        null,
+                        participant.Person.FirstName,
+                        participant.Person.LastName,
+                        participant.Person.Email,
+                        null,
+                        participant.SortKey));
+                }
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(participant.ExternalEmail.Email)));
+            }
+            return participants;
         }
 
         private List<BuilderParticipant> AddExternalParticipant(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            ParticipantsForCommand participant)
+            IEnumerable<ParticipantsForCommand> participantsWithExternalEmail,
+            IList<Participant> existingParticipants)
         {
-            invitation.AddParticipant(new Participant(
-                _plantProvider.Plant,
-                participant.Organization,
-                IpoParticipantType.Person,
-                null,
-                null,
-                null,
-                participant.ExternalEmail.Email,
-                null,
-                participant.SortKey));
-            participants.Add(new BuilderParticipant(ParticipantType.Required,
-                new ParticipantIdentifier(participant.ExternalEmail.Email)));
+            foreach (var participant in participantsWithExternalEmail)
+            {
+                var existingParticipant =
+                    existingParticipants.SingleOrDefault(p => p.Id == participant.ExternalEmail.Id);
+                if (existingParticipant != null)
+                {
+                    invitation.UpdateParticipant(
+                        existingParticipant.Id,
+                        participant.Organization,
+                        IpoParticipantType.Person,
+                        null,
+                        null,
+                        null,
+                        participant.ExternalEmail.Email,
+                        null,
+                        participant.SortKey,
+                        existingParticipant.RowVersion.ConvertToString());
+                }
+                else
+                {
+                    invitation.AddParticipant(new Participant(
+                        _plantProvider.Plant,
+                        participant.Organization,
+                        IpoParticipantType.Person,
+                        null,
+                        null,
+                        null,
+                        participant.ExternalEmail.Email,
+                        null,
+                        participant.SortKey));
+                }
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(participant.ExternalEmail.Email)));
+            }
             return participants;
         }
     }

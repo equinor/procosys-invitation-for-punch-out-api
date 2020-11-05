@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -132,6 +133,30 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Remove(participant);
+        }
+
+        public void UpdateParticipant(
+            int participantId,
+            Organization organization,
+            IpoParticipantType type,
+            string functionalRoleCode,
+            string firstName,
+            string lastName,
+            string email,
+            Guid? azureOid,
+            int sortKey,
+            string participantRowVersion)
+        {
+            var participant = Participants.Single(p => p.Id == participantId);
+            participant.Organization = organization;
+            participant.Type = type;
+            participant.FunctionalRoleCode = functionalRoleCode;
+            participant.FirstName = firstName;
+            participant.LastName = lastName;
+            participant.Email = email;
+            participant.AzureOid = azureOid;
+            participant.SortKey = sortKey;
+            participant.SetRowVersion(participantRowVersion);
         }
 
         public void SetCreated(Person createdBy)

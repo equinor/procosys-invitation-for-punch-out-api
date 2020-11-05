@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -57,46 +58,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        //// TODO: Add permissions
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> EditInvitation(
-        //    [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
-        //    [Required]
-        //    string plant,
-        //    [FromRoute] int id,
-        //    [FromBody] EditInvitationDto dto)
-        //{
-        //    var updatedMcPkgs = GetMcPkgForCommands(dto.UpdatedMcPkgScope);
-        //    var newMcPkgs = GetMcPkgForCommands(dto.NewMcPkgScope);
-        //    var updatedCommPkgs = GetCommPkgForCommands(dto.UpdatedCommPkgScope);
-        //    var newCommPkgs = GetCommPkgForCommands(dto.NewCommPkgScope);
-        //    var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
-        //    var newParticipants = GetParticipantsForCommands(dto.NewParticipants);
+        // TODO: Add permissions
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] EditInvitationDto dto)
+        {
+            var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
 
-        //    var result = await _mediator.Send(
-        //        new EditInvitationCommand(
-        //            id,
-        //            dto.Title,
-        //            dto.Description,
-        //            dto.Location,
-        //            dto.StartTime,
-        //            dto.EndTime,
-        //            dto.ProjectName,
-        //            dto.Type,
-        //            updatedParticipants,
-        //            newParticipants,
-        //            updatedMcPkgs,
-        //            newMcPkgs,
-        //            updatedCommPkgs,
-        //            newCommPkgs));
-        //    return this.FromResult(result);
-        //}
-
-        private IList<McPkgScopeForCommand> GetMcPkgForCommands(IEnumerable<McPkgDto> dto)
-            => dto?.Select(mc => new McPkgScopeForCommand(mc.McPkgNo, mc.CommPkgNo)).ToList();
-
-        //private IList<CommPkgScopeForCommand> GetCommPkgForCommands(IEnumerable<CommPkgDto> dto)
-        //    => dto?.Select(c => new CommPkgScopeForCommand(c.CommPkgNo, c.Description, c.Status, c.Id)).ToList();
+            var result = await _mediator.Send(
+                new EditInvitationCommand(
+                    id,
+                    dto.Title,
+                    dto.Description,
+                    dto.Location,
+                    dto.StartTime,
+                    dto.EndTime,
+                    dto.ProjectName,
+                    dto.Type,
+                    updatedParticipants,
+                    dto.UpdatedMcPkgScope,
+                    dto.UpdatedCommPkgScope,
+                    dto.RowVersion));
+            return this.FromResult(result);
+        }
 
         private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<ParticipantDto> dto)
             => dto?.Select(p =>
@@ -105,7 +93,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.ExternalEmail != null
                         ? new ExternalEmailForCommand(
                             p.ExternalEmail.Email,
-                            p.ExternalEmail.Id)
+                            p.ExternalEmail.Id,
+                            p.ExternalEmail.RowVersion)
                     : null,
                     p.Person != null
                         ? new PersonForCommand(
@@ -114,7 +103,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.Person.LastName,
                             p.Person.Email,
                             p.Person.Required,
-                            p.Person.Id)
+                            p.Person.Id,
+                            p.Person.RowVersion)
                         : null,
                     p.FunctionalRole != null
                         ? new FunctionalRoleForCommand(
@@ -126,8 +116,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                                     p.Person.LastName,
                                     person.Email,
                                     person.Required,
-                                    person.Id)).ToList(),
-                            p.FunctionalRole.Id)
+                                    person.Id,
+                                    person.RowVersion)).ToList(),
+                            p.FunctionalRole.Id,
+                            p.FunctionalRole.RowVersion)
                         : null,
                     p.SortKey)
             ).ToList();
