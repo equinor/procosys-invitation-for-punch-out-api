@@ -55,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.Description,
                 meeting.Location,
                 invitation.Type,
+                invitation.Status,
                 invitation.RowVersion.ConvertToString())
             {
                 StartTime = meeting.StartDate.DatetimeUtc,
