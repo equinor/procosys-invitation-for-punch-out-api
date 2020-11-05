@@ -129,17 +129,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                          && p.Type == IpoParticipantType.Person);
 
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole), participant.RowVersion.ConvertToString()));
+                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        ConvertToPersonDto(participant), null, participant.RowVersion.ConvertToString()));
+                        ConvertToPersonDto(participant), null));
                 }
                 else if (participant.Organization == Organization.External)
                 {
-                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, new ExternalEmailDto(participant.Id, participant.Email),
-                        ConvertToPersonDto(participant), null, participant.RowVersion.ConvertToString()));
+                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey,
+                        new ExternalEmailDto(participant.Id, participant.Email,
+                            participant.RowVersion.ConvertToString()),
+                        ConvertToPersonDto(participant), null));
                 }
             }
 
@@ -149,10 +151,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
 
         private static FunctionalRoleDto ConvertToFunctionalRoleDto(Participant participant, IEnumerable<Participant> personsInFunctionalRole)
-            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToPersonDto(personsInFunctionalRole)) {Id = participant.Id};
+            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
 
         private static PersonDto ConvertToPersonDto(Participant participant)
-            => new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid.ToString(), participant.Email);
+            => new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid.ToString(), participant.Email, participant.RowVersion.ConvertToString());
 
         private static IEnumerable<PersonDto> ConvertToPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToPersonDto).ToList();
