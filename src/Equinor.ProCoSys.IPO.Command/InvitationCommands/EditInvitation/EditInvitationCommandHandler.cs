@@ -316,6 +316,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         }
                     }
                 }
+                else if (participant.SortKey < 2)
+                { 
+                    throw new Exception($"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on required participant {participant.Organization}");
+                }
             }
             return participants;
         }
