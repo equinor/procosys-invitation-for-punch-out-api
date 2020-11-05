@@ -68,38 +68,38 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Permission
         }
  
         [TestMethod]
-        public async Task GetAllProjectsAsync_ShouldReturnTwoProjects_OnValidPlant()
+        public async Task GetAllOpenProjectsAsync_ShouldReturnTwoProjects_OnValidPlant()
         {
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject>{ new ProCoSysProject(), new ProCoSysProject() }));
             // Act
-            var result = await _dut.GetAllProjectsAsync(_plant);
+            var result = await _dut.GetAllOpenProjectsAsync(_plant);
 
             // Assert
             Assert.AreEqual(2, result.Count);
         }
 
         [TestMethod]
-        public async Task GetAllProjectsAsync_ShouldReturnNoProjects_OnValidPlant()
+        public async Task GetAllOpenProjectsAsync_ShouldReturnNoProjects_OnValidPlant()
         {
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject>()));
             // Act
-            var result = await _dut.GetAllProjectsAsync(_plant);
+            var result = await _dut.GetAllOpenProjectsAsync(_plant);
 
             // Assert
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public async Task GetAllProjectsAsync_ShouldReturnNoProjects_OnInvalidPlant()
+        public async Task GetAllOpenProjectsAsync_ShouldReturnNoProjects_OnInvalidPlant()
         {
             // Act
-            var result = await _dut.GetAllProjectsAsync("INVALIDPLANT");
+            var result = await _dut.GetAllOpenProjectsAsync("INVALIDPLANT");
 
             // Assert
             Assert.AreEqual(0, result.Count);

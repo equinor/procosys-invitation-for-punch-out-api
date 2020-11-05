@@ -7,7 +7,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
-    public class EditInvitationCommand : IRequest<Result<Unit>>
+    public class EditInvitationCommand : IRequest<Result<string>>
     {
         public EditInvitationCommand(
             int invitationId,

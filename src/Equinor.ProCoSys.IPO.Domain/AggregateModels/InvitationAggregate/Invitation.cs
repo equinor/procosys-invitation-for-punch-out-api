@@ -11,39 +11,71 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public const int ProjectNameMaxLength = 512;
         public const int TitleMaxLength = 1024;
+        public const int DescriptionMaxLength = 4096;
 
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
         private readonly List<Participant> _participants = new List<Participant>();
+
+        private readonly List<Attachment> _attachments = new List<Attachment>();
 
         private Invitation()
             : base(null)
         {
         }
 
-        public Invitation(string plant, string projectName, string title, DisciplineType type)
+        public Invitation(string plant, string projectName, string title, string description, DisciplineType type)
             : base(plant)
         {
             ProjectName = projectName;
             Title = title;
+            Description = description;
             Type = type;
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
         public DisciplineType Type { get; set; }
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
 
+        public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
         public Guid MeetingId { get; set; }
-
         public DateTime CreatedAtUtc { get; private set; }
-
         public int CreatedById { get; private set; }
-
         public DateTime? ModifiedAtUtc { get; private set; }
-
         public int? ModifiedById { get; private set; }
+
+        public void AddAttachment(Attachment attachment)
+        {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (attachment.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't relate item in {attachment.Plant} to item in {Plant}");
+            }
+
+            _attachments.Add(attachment);
+        }
+
+        public void RemoveAttachment(Attachment attachment)
+        {
+            if (attachment == null)
+            {
+                throw new ArgumentNullException(nameof(attachment));
+            }
+
+            if (attachment.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {attachment.Plant} from item in {Plant}");
+            }
+
+            _attachments.Remove(attachment);
+        }
 
         public void AddCommPkg(CommPkg commPkg)
         {

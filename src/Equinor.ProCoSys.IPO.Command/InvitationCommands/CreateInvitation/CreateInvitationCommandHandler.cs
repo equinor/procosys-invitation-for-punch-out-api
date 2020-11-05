@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
             var participants = new List<BuilderParticipant>();
-            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Type);
+            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Description, request.Type);
             _invitationRepository.Add(invitation);
 
             if (request.CommPkgScope.Count > 0)
@@ -67,22 +67,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             try
             {
                 var meetingId = await CreateOutlookMeeting(request, participants);
                 invitation.MeetingId = meetingId;
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-                return new SuccessResult<int>(invitation.Id);
             }
             catch
             {
-                _invitationRepository.Remove(invitation);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
             }
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return new SuccessResult<int>(invitation.Id);
         }
 
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
@@ -232,12 +227,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             int sortKey,
             string userGroup)
         {
+            var organization = userGroup == ConstructionUserGroup
+                ? Organization.ConstructionCompany
+                : Organization.Contractor;
             var p = await _personApiService.GetPersonByOidsInUserGroupAsync(_plantProvider.Plant, person.AzureOid.ToString(), userGroup);
             if (p != null)
             {
                 invitation.AddParticipant(new Participant(
                     _plantProvider.Plant,
-                    userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                    organization,
                     IpoParticipantType.Person,
                     null,
                     p.FirstName,
@@ -250,7 +248,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             else
             {
-                throw new Exception("Person does not have necessary permissions");
+                throw new Exception($"Person does not have required privileges to be the {organization} participant");
             }
 
             return participants;

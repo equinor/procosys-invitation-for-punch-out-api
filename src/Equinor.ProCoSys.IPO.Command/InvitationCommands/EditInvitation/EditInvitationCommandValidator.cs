@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.Validators;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
+using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 

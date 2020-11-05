@@ -7,7 +7,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
     {
         public InvitationRepository(IPOContext context)
             : base(context, context.Invitations, 
-                context.Invitations.Include(x => x.Participants).Include(x => x.McPkgs).Include(x => x.CommPkgs))
+                context.Invitations
+                    .Include(x => x.Participants)
+                    .Include(x => x.McPkgs)
+                    .Include(x => x.CommPkgs)
+                    .Include(i => i.Attachments))
         {
         }
 

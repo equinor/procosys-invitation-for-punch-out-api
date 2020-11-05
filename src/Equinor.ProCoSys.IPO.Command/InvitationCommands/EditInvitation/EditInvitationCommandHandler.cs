@@ -16,7 +16,7 @@ using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
-    public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<Unit>>
+    public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<string>>
     {
         private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
         private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
@@ -50,49 +50,57 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _functionalRoleApiService = functionalRoleApiService;
         }
 
-        public async Task<Result<Unit>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
         {
             var participants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             invitation.Title = request.Title;
-            invitation.ProjectName = request.ProjectName;
+            invitation.Description = request.Description;
             invitation.Type = request.Type;
 
             UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, request.ProjectName);
             UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, request.ProjectName);
 
-            participants = await UpdateParticipants1(participants, request.UpdatedParticipants, invitation);
+            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
 
-            await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
+            try
             {
-                builder.UpdateTitle(request.Title);
-                builder.UpdateLocation(request.Location);
-                builder.UpdateStartDate(request.StartTime);
-                builder.UpdateEndDate(request.EndTime);
-                builder.UpdateParticipants(participants);
-                builder.InviteBodyHtml = request.Description;
-            });
-            invitation.SetRowVersion(invitation.RowVersion.ConvertToString());
+                await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
+                {
+                    builder.UpdateTitle(request.Title);
+                    builder.UpdateLocation(request.Location);
+                    builder.UpdateStartDate(request.StartTime);
+                    builder.UpdateEndDate(request.EndTime);
+                    builder.UpdateParticipants(participants);
+                    builder.InviteBodyHtml = request.Description;
+                });
+            }
+            catch
+            {
+                return new UnexpectedResult<string>("Error: Could not update outlook meeting.");
+            }
+
+            invitation.SetRowVersion(request.RowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<Unit>(Unit.Value);
+            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
         private void UpdateMcPkgScope(Invitation invitation, IList<string> mcPkgNos, string projectName)
         {
-            var currentMcScope = invitation.McPkgs;
-            var excludedMcPkgs = currentMcScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
+            var existingMcPkgScope = invitation.McPkgs;
+            var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
             foreach (var mcPkgToDelete in excludedMcPkgs)
             {
                 invitation.RemoveMcPkg(mcPkgToDelete);
                 _invitationRepository.RemoveMcPkg(mcPkgToDelete);
             }
 
-            var currentMcPkgNos = currentMcScope.Select(mc => mc.McPkgNo);
-            var newMcPkgs = mcPkgNos.Where(mcPkgNo => currentMcPkgNos.Contains(mcPkgNo)).ToList();
+            var existingMcPkgNos = existingMcPkgScope.Select(mc => mc.McPkgNo);
+            var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
             if (newMcPkgs.Count > 0)
             {
                 AddMcPkgs(invitation, newMcPkgs, projectName,
-                    currentMcScope.Count > 0 ? currentMcScope.First().CommPkgNo : null);
+                    existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().CommPkgNo : null);
             }
         }
 
@@ -122,19 +130,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
         private void UpdateCommPkgScope(Invitation invitation, IList<string> commPkgNos, string projectName)
         {
-            var currentCommPkgScope = invitation.CommPkgs;
-            var excludedCommPkgs = currentCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
+            var existingCommPkgScope = invitation.CommPkgs;
+            var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
             foreach (var commPkgToDelete in excludedCommPkgs)
             {
                 invitation.RemoveCommPkg(commPkgToDelete);
                 _invitationRepository.RemoveCommPkg(commPkgToDelete);
             }
 
-            var existingCommPkgs = currentCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
-            var newCommPkgs = commPkgNos.Any(commPkgNo => existingCommPkgs.Contains(commPkgNo));
-            if (newCommPkgs)
+            var existingCommPkgs = existingCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
+            var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
+            if (newCommPkgs.Count > 0)
             {
-                AddCommPkgs(invitation, commPkgNos, existingCommPkgs, projectName);
+                AddCommPkgs(invitation, newCommPkgs, existingCommPkgs, projectName);
             }
         }
 
@@ -167,7 +175,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
         }
 
-        private async Task<List<BuilderParticipant>> UpdateParticipants1(
+        private async Task<List<BuilderParticipant>> UpdateParticipants(
             List<BuilderParticipant> participants,
             IList<ParticipantsForCommand> participantsToUpdate,
             Invitation invitation)
@@ -177,11 +185,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var functionalRoleParticipants =
                 participantsToUpdate.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
             var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.FunctionalRole.Id).ToList();
+
             var personsWithOids = participantsToUpdate.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
             var personsWithOidsIds = personsWithOids.Select(p => p.Person.Id).ToList();
+
             var personParticipantsWithEmails = participantsToUpdate.Where(p => p.Person != null && p.Person.AzureOid == null)
                 .Select(p => p).ToList();
             var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.Person.Id).ToList();
+
             var externalEmailParticipants = participantsToUpdate.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
             var externalEmailParticipantsIds = personParticipantsWithEmails.Select(p => p.ExternalEmail.Id).ToList();
 
@@ -237,7 +248,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             fr.Email,
                             null,
                             participant.SortKey,
-                            existingParticipant.RowVersion.ConvertToString());
+                            participant.FunctionalRole.RowVersion);
                     }
                     else
                     {
@@ -276,7 +287,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     frPerson.Email,
                                     new Guid(frPerson.AzureOid),
                                     participant.SortKey,
-                                    existingPerson.RowVersion.ConvertToString());
+                                    person.RowVersion);
                             }
                             else
                             {
@@ -362,7 +373,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 person.Email,
                                 new Guid(person.AzureOid),
                                 participant.SortKey,
-                                existingParticipant.RowVersion.ConvertToString());
+                                participant.Person.RowVersion);
                         }
                         else
                         {
@@ -394,6 +405,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             int sortKey,
             string userGroup)
         {
+            var organization = userGroup == ConstructionUserGroup
+                ? Organization.ConstructionCompany
+                : Organization.Contractor;
             var personFromMain = await _personApiService.GetPersonByOidsInUserGroupAsync(_plantProvider.Plant, person.AzureOid.ToString(), userGroup);
             if (personFromMain != null)
             {
@@ -402,7 +416,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 {
                     invitation.UpdateParticipant(
                         existingParticipant.Id,
-                        userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                        organization,
                         IpoParticipantType.Person,
                         null,
                         personFromMain.FirstName,
@@ -410,13 +424,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         personFromMain.Email,
                         new Guid(personFromMain.AzureOid),
                         sortKey,
-                        existingParticipant.RowVersion.ConvertToString());
+                        person.RowVersion);
                 }
                 else
                 {
                     invitation.AddParticipant(new Participant(
                         _plantProvider.Plant,
-                        userGroup == ConstructionUserGroup ? Organization.ConstructionCompany : Organization.Contractor,
+                        organization,
                         IpoParticipantType.Person,
                         null,
                         personFromMain.FirstName,
@@ -427,6 +441,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 }
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
                     new ParticipantIdentifier(new Guid(personFromMain.AzureOid))));
+            }
+            else
+            {
+                throw new Exception($"Person does not have required privileges to be the {organization} participant");
             }
             return participants;
         }
@@ -452,7 +470,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participant.Person.Email,
                         null,
                         participant.SortKey,
-                        existingParticipant.RowVersion.ConvertToString());
+                        participant.Person.RowVersion);
                 }
                 else
                 {
@@ -495,7 +513,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participant.ExternalEmail.Email,
                         null,
                         participant.SortKey,
-                        existingParticipant.RowVersion.ConvertToString());
+                        participant.ExternalEmail.RowVersion);
                 }
                 else
                 {
