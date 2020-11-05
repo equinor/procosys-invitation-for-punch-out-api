@@ -25,6 +25,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasMaxLength(Invitation.TitleMaxLength)
                 .IsRequired();
 
+            builder.Property(x => x.Description)
+                .HasMaxLength(Invitation.DescriptionMaxLength);
+
             builder
                 .HasMany(x => x.McPkgs)
                 .WithOne()

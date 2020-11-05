@@ -11,6 +11,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public const int ProjectNameMaxLength = 512;
         public const int TitleMaxLength = 1024;
+        public const int DescriptionMaxLength = 4096;
 
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
@@ -23,15 +24,17 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         {
         }
 
-        public Invitation(string plant, string projectName, string title, DisciplineType type)
+        public Invitation(string plant, string projectName, string title, string description, DisciplineType type)
             : base(plant)
         {
             ProjectName = projectName;
             Title = title;
+            Description = description;
             Type = type;
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
+        public string Description { get; set; }
         public DisciplineType Type { get; set; }
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
