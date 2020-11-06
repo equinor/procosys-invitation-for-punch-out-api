@@ -31,8 +31,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public DisciplineType Type { get; }
         public IpoStatus Status { get; }
         public string RowVersion { get; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartTimeUtc { get; set; }
+        public DateTime EndTimeUtc { get; set; }
         public IEnumerable<ParticipantDto> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
         public IEnumerable<CommPkgScopeDto> CommPkgScope { get; set; }
