@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     null,
                     participant.SortKey));
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(participant.ExternalEmail.Email)));
+                    new ParticipantIdentifier(participant.Person.Email)));
             }
 
             return participants;
@@ -359,6 +359,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 meetingBuilder
                     .StandaloneMeeting(request.Title, request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
+                    .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .EnableOutlookIntegration(OutlookMode.All)
                     .WithClassification(MeetingClassification.Restricted)

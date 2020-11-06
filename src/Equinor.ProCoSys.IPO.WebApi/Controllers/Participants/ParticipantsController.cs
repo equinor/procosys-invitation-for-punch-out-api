@@ -17,8 +17,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
     public class ParticipantsController : ControllerBase
     {
         private const string _classification = "IPO";
-        private const string _contractorUserGroup = "MC_CONTRACTOR_MLA";
-        private const string _constructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private const string _contractorUserGroup = "CONTRACTOR_PKG_ENG";
+        private const string _constructionUserGroup = "CONTRACTOR_PKG_ENG";
 
         private readonly IMediator _mediator;
 
