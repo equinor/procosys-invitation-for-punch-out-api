@@ -69,8 +69,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 {
                     builder.UpdateTitle(request.Title);
                     builder.UpdateLocation(request.Location);
-                    builder.UpdateStartDate(request.StartTime);
-                    builder.UpdateEndDate(request.EndTime);
+                    builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateParticipants(participants);
                     builder.InviteBodyHtml = request.Description;
                 });
