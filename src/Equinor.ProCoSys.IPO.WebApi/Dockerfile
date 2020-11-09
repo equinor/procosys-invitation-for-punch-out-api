@@ -2,7 +2,6 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /src
 
 # Copy project files separately and restore NuGet packages to create layers. Skip test projects!
-COPY *.sln .
 COPY Equinor.ProCoSys.IPO.Command/*.csproj ./Equinor.ProCoSys.IPO.Command/
 COPY Equinor.ProCoSys.IPO.Domain/*.csproj ./Equinor.ProCoSys.IPO.Domain/
 COPY Equinor.ProCoSys.IPO.Infrastructure/*.csproj ./Equinor.ProCoSys.IPO.Infrastructure/
@@ -16,10 +15,10 @@ COPY nuget.config .
 COPY . .
 
 # Set workdir where main project is
-WORKDIR "/src/Equinor.Procosys.IPO.WebApi"
+WORKDIR "/src/Equinor.ProCoSys.IPO.WebApi"
 
 # Build
-RUN dotnet build "Equinor.Procosys.IPO.WebApi.csproj" -c Release
+RUN dotnet build "Equinor.ProCoSys.IPO.WebApi.csproj" -c Release
 
 # Publish the application
 FROM build AS publish
