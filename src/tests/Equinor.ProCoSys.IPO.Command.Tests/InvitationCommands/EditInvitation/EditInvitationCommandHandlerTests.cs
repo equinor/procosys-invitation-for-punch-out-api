@@ -32,36 +32,36 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
-        private const string Plant = "PCS$TEST_PLANT";
-        private const string RowVersion = "AAAAAAAAABA=";
-        private const string ProjectName = "Project name";
-        private const string Title = "Test title";
-        private const string NewTitle = "Test title 2";
-        private const string Description = "Test description";
-        private const string NewDescription = "Test description 2";
-        private const DisciplineType Type = DisciplineType.DP;
+        private const string _plant = "PCS$TEST_PLANT";
+        private const string _rowVersion = "AAAAAAAAABA=";
+        private const string _projectName = "Project name";
+        private const string _title = "Test title";
+        private const string _newTitle = "Test title 2";
+        private const string _description = "Test description";
+        private const string _newDescription = "Test description 2";
+        private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _invitation;
         private int _saveChangesCount;
-        private static Guid AzureOid = new Guid("11111111-1111-2222-3333-333333333333");
-        private static Guid NewAzureOid = new Guid("11111111-2222-2222-3333-333333333333");
-        private const string FrCode = "FR1";
-        private const string NewFrCode = "NEWFR1";
-        private const string McPkgNo1 = "MC1";
-        private const string McPkgNo2 = "MC2";
-        private const string CommPkgNo = "Comm1";
+        private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
+        private static Guid _newAzureOid = new Guid("11111111-2222-2222-3333-333333333333");
+        private const string _functionalRoleCode = "FR1";
+        private const string _newFunctionalRoleCode = "NEWFR1";
+        private const string _mcPkgNo1 = "MC1";
+        private const string _mcPkgNo2 = "MC2";
+        private const string _commPkgNo = "Comm1";
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(FrCode, null),
+                new FunctionalRoleForCommand(_functionalRoleCode, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(AzureOid,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
                 null,
                 1)
         };
@@ -72,25 +72,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(NewFrCode, null),
+                new FunctionalRoleForCommand(_newFunctionalRoleCode, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(NewAzureOid,  "Kari", "Nordman", "kari@test.com", true),
+                new PersonForCommand(_newAzureOid,  "Kari", "Nordman", "kari@test.com", true),
                 null,
                 1)
         };
 
         private readonly List<string> _mcPkgScope = new List<string>
         {
-            McPkgNo1,
-            McPkgNo2
+            _mcPkgNo1,
+            _mcPkgNo2
         };
 
         private readonly List<string> _commPkgScope = new List<string>
         {
-            CommPkgNo
+            _commPkgNo
         };
 
         [TestInitialize]
@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock
                 .Setup(x => x.Plant)
-                .Returns(Plant);
+                .Returns(_plant);
 
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
@@ -135,51 +135,51 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Callback(() => _saveChangesCount++);
 
             //mock comm pkg response from main API
-            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = CommPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 123};
+            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 123};
             IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails };
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(Plant, ProjectName, _commPkgScope))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, _commPkgScope))
                 .Returns(Task.FromResult(pcsCommPkgDetails));
 
             //mock mc pkg response from main API
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1 };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2 };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1 };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2 };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(Plant, ProjectName, _mcPkgScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             //mock person response from main API
             var personDetails = new ProCoSysPerson
             {
-                AzureOid = AzureOid.ToString(),
+                AzureOid = _azureOid.ToString(),
                 FirstName = "Ola",
                 LastName = "Nordman",
                 Email = "ola@test.com"
             };
             var newPersonDetails = new ProCoSysPerson
             {
-                AzureOid = NewAzureOid.ToString(),
+                AzureOid = _newAzureOid.ToString(),
                 FirstName = "Kari",
                 LastName = "Nordman",
                 Email = "kari@test.com"
             };
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(Plant,
-                    AzureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
+                    _azureOid.ToString(), "MC_LEAD_DISCIPLINE"))
                 .Returns(Task.FromResult(personDetails));
             _personApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(Plant,
-                    NewAzureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
+                    _newAzureOid.ToString(), "MC_LEAD_DISCIPLINE"))
                 .Returns(Task.FromResult(newPersonDetails));
 
             //mock functional role response from main API
             var frDetails = new ProCoSysFunctionalRole
             {
-                Code = FrCode,
+                Code = _functionalRoleCode,
                 Description = "FR description",
                 Email = "fr@email.com",
                 InformationEmail = null,
@@ -188,7 +188,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
             var newFrDetails = new ProCoSysFunctionalRole
             {
-                Code = NewFrCode,
+                Code = _newFunctionalRoleCode,
                 Description = "FR description2",
                 Email = "fr2@email.com",
                 InformationEmail = null,
@@ -199,18 +199,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             IList<ProCoSysFunctionalRole> newPcsFrDetails = new List<ProCoSysFunctionalRole> { newFrDetails };
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(Plant, new List<string> { FrCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(pcsFrDetails));
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(Plant, new List<string> { NewFrCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _newFunctionalRoleCode }))
                 .Returns(Task.FromResult(newPcsFrDetails));
 
             //create invitation
-            _invitation = new Invitation(Plant, ProjectName, Title, Description, Type) { MeetingId = _meetingId };
-            _invitation.AddMcPkg(new McPkg(Plant, ProjectName, CommPkgNo, McPkgNo1, "d"));
-            _invitation.AddMcPkg(new McPkg(Plant, ProjectName, CommPkgNo, McPkgNo2, "d2"));
-            _invitation.AddParticipant(new Participant(Plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null,null,null,0));
-            _invitation.AddParticipant(new Participant(Plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
+            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d"));
+            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2"));
+            _invitation.AddParticipant(new Participant(_plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null,null,null,0));
+            _invitation.AddParticipant(new Participant(_plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -220,17 +220,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             //command
             _command = new EditInvitationCommand(
                 _invitation.Id,
-                NewTitle,
-                NewDescription,
+                _newTitle,
+                _newDescription,
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                ProjectName,
-                Type,
+                _projectName,
+                _type,
                 _updatedParticipants,
                 null,
                 _commPkgScope,
-                RowVersion);
+                _rowVersion);
 
             _dut = new EditInvitationCommandHandler(
                 _invitationRepositoryMock.Object,
@@ -254,42 +254,42 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateInvitation()
         {
-            Assert.AreEqual(Title, _invitation.Title);
-            Assert.AreEqual(Description, _invitation.Description);
-            Assert.AreEqual(Type, _invitation.Type);
+            Assert.AreEqual(_title, _invitation.Title);
+            Assert.AreEqual(_description, _invitation.Description);
+            Assert.AreEqual(_type, _invitation.Type);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(NewTitle, _invitation.Title);
-            Assert.AreEqual(NewDescription, _invitation.Description);
+            Assert.AreEqual(_newTitle, _invitation.Title);
+            Assert.AreEqual(_newDescription, _invitation.Description);
         }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateScope()
         {
             Assert.AreEqual(2, _invitation.McPkgs.Count);
-            Assert.AreEqual(McPkgNo1, _invitation.McPkgs.ToList()[0].McPkgNo);
-            Assert.AreEqual(McPkgNo2, _invitation.McPkgs.ToList()[1].McPkgNo);
+            Assert.AreEqual(_mcPkgNo1, _invitation.McPkgs.ToList()[0].McPkgNo);
+            Assert.AreEqual(_mcPkgNo2, _invitation.McPkgs.ToList()[1].McPkgNo);
             Assert.AreEqual(0, _invitation.CommPkgs.Count);
 
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(0, _invitation.McPkgs.Count);
             Assert.AreEqual(1, _invitation.CommPkgs.Count);
-            Assert.AreEqual(CommPkgNo, _invitation.CommPkgs.ToList()[0].CommPkgNo);
+            Assert.AreEqual(_commPkgNo, _invitation.CommPkgs.ToList()[0].CommPkgNo);
     }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateParticipants()
         {
             Assert.AreEqual(2, _invitation.Participants.Count);
-            Assert.AreEqual(AzureOid, _invitation.Participants.ToList()[1].AzureOid);
-            Assert.AreEqual(FrCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
+            Assert.AreEqual(_azureOid, _invitation.Participants.ToList()[1].AzureOid);
+            Assert.AreEqual(_functionalRoleCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(NewAzureOid, _invitation.Participants.ToList()[1].AzureOid);
-            Assert.AreEqual(NewFrCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
+            Assert.AreEqual(_newAzureOid, _invitation.Participants.ToList()[1].AzureOid);
+            Assert.AreEqual(_newFunctionalRoleCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
         }
 
         [TestMethod]
@@ -301,8 +301,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             // Assert
             // In real life EF Core will create a new RowVersion when save.
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
-            Assert.AreEqual(RowVersion, result.Data);
-            Assert.AreEqual(RowVersion, _invitation.RowVersion.ConvertToString());
+            Assert.AreEqual(_rowVersion, result.Data);
+            Assert.AreEqual(_rowVersion, _invitation.RowVersion.ConvertToString());
         }
     }
 }

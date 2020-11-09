@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
+                //input validators
                 .Must((command) => command.Participants != null)
                 .WithMessage(command =>
                     $"Participants cannot be null!")
@@ -38,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => command.Location == null || command.Location.Length < 1024)
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
+                //business validators
                 .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, token))
                 .WithMessage(command =>
                     $"IPO with this title already exists in project! Title={command.Title}")

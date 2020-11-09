@@ -30,11 +30,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
 
-        private const string FrCode = "FR1";
-        private const string McPkgNo1 = "MC1";
-        private const string McPkgNo2 = "MC2";
-        private const string CommPkgNo = "Comm1";
-        private static Guid AzureOid = new Guid("11111111-1111-2222-2222-333333333333");
+        private const string _functionalRoleCode = "FR1";
+        private const string _mcPkgNo1 = "MC1";
+        private const string _mcPkgNo2 = "MC2";
+        private const string _commPkgNo = "Comm1";
+        private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private readonly string _plant = "PCS$TEST_PLANT";
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
@@ -43,18 +43,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(FrCode, null),
+                new FunctionalRoleForCommand(_functionalRoleCode, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(AzureOid,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
                 null,
                 1)
         };
 
         private ProCoSysPerson _personDetails;
-        private ProCoSysFunctionalRole _frDetails;
+        private ProCoSysFunctionalRole _functionalRoleDetails;
 
         private readonly string _projectName = "Project name";
         private readonly string _title = "Test title";
@@ -63,8 +63,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly DisciplineType _type = DisciplineType.DP;
         private readonly List<string> _mcPkgScope = new List<string>
         {
-            McPkgNo1,
-            McPkgNo2
+            _mcPkgNo1,
+            _mcPkgNo2
         };
 
         private ProCoSysMcPkg _mcPkgDetails1;
@@ -124,8 +124,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
-            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1};
-            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2};
+            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1};
+            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2};
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
@@ -135,7 +135,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _personDetails = new ProCoSysPerson
             {
-                AzureOid = AzureOid.ToString(),
+                AzureOid = _azureOid.ToString(),
                 FirstName = "Ola",
                 LastName = "Nordman",
                 Email = "ola@test.com"
@@ -144,23 +144,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
-                    AzureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                    _azureOid.ToString(), "MC_LEAD_DISCIPLINE"))
                 .Returns(Task.FromResult(_personDetails));
 
-            _frDetails = new ProCoSysFunctionalRole
+            _functionalRoleDetails = new ProCoSysFunctionalRole
             {
-                Code = FrCode,
+                Code = _functionalRoleCode,
                 Description = "FR description",
                 Email = "fr@email.com",
                 InformationEmail = null,
                 Persons = null,
                 UsePersonalEmail = false
             };
-            IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole>{ _frDetails };
+            IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole>{ _functionalRoleDetails };
 
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { FrCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(frDetails));
 
             _command = new CreateInvitationCommand(
@@ -187,7 +187,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public async Task Invitation_is_added_to_repository_test()
+        public async Task HandleCreateInvitationCommand_ShouldAddInvitationToRepository()
         {
             await _dut.Handle(_command, default);
 
@@ -196,30 +196,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public async Task McPkgs_are_added_to_invitation()
+        public async Task HandleCreateInvitationCommand_ShouldAddMcPkgsToInvitation()
         {
             await _dut.Handle(_command, default);
 
             var mcPkgs = _createdInvitation.McPkgs.Select(mc => mc).ToList();
             Assert.AreEqual(mcPkgs.Count, 2);
-            Assert.AreEqual(mcPkgs[0].McPkgNo, McPkgNo1);
-            Assert.AreEqual(mcPkgs[1].McPkgNo, McPkgNo2);
+            Assert.AreEqual(mcPkgs[0].McPkgNo, _mcPkgNo1);
+            Assert.AreEqual(mcPkgs[1].McPkgNo, _mcPkgNo2);
         }
 
         [TestMethod]
-        public async Task Participants_are_added_to_invitation()
+        public async Task HandleCreateInvitationCommand_ShouldAddParticipantsToInvitation()
         {
             await _dut.Handle(_command, default);
 
             var participants = _createdInvitation.Participants.Select(p => p).ToList();
             Assert.AreEqual(participants.Count, 2);
-            Assert.AreEqual(participants[0].FunctionalRoleCode, FrCode);
+            Assert.AreEqual(participants[0].FunctionalRoleCode, _functionalRoleCode);
             Assert.IsNull(participants[1].FunctionalRoleCode);
-            Assert.AreEqual(participants[1].AzureOid, AzureOid);
+            Assert.AreEqual(participants[1].AzureOid, _azureOid);
       }
 
         [TestMethod]
-        public async Task Meeting_is_created_and_meeting_id_is_set_on_invitation_test()
+        public async Task HandleCreateInvitationCommand_ShouldCreateMeetingAndMeetingIdToInvitation()
         {
             await _dut.Handle(_command, default);
 

@@ -16,12 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingIpo(command.InvitationId, token))
-                .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => BeAnIpoInPlannedStage(command.InvitationId, token))
-                .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
-                .Must(command => HaveAValidRowVersion(command.RowVersion))
-                .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
+                //input validators
                 .Must((command) => command.UpdatedParticipants != null)
                 .WithMessage(command =>
                     $"Participants cannot be null!")
@@ -31,9 +26,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     command.ProjectName.Length < Invitation.ProjectNameMaxLength)
                 .WithMessage(command =>
                     $"Project name must be between 3 and {Invitation.ProjectNameMaxLength} characters! ProjectName={command.ProjectName}")
-                .MustAsync((command, token) => ProjectMustNotBeChanged(command.ProjectName, command.InvitationId, token))
-                .WithMessage(command =>
-                    $"Project name cannot be changed! ProjectName={command.ProjectName}")
                 .Must((command) => command.Description == null || command.Description.Length < 4000)
                 .WithMessage(command =>
                     $"Description cannot be more than 4000 characters! Description={command.Description}")
@@ -49,6 +41,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must((command) => command.Location == null || command.Location.Length < 1024)
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
+                //business validators
+                .MustAsync((command, token) => ProjectMustNotBeChanged(command.ProjectName, command.InvitationId, token))
+                .WithMessage(command =>
+                    $"Project name cannot be changed! ProjectName={command.ProjectName}")
+                .MustAsync((command, token) => BeAnExistingIpo(command.InvitationId, token))
+                .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
+                .MustAsync((command, token) => BeAnIpoInPlannedStage(command.InvitationId, token))
+                .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
+                .Must(command => HaveAValidRowVersion(command.RowVersion))
+                .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
                 .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, command.InvitationId, token))
                 .WithMessage(command =>
                     $"IPO with this title already exists in project! Title={command.Title}")
