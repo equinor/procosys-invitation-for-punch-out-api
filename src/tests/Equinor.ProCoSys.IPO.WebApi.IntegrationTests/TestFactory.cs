@@ -220,7 +220,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddPlannerUser(commonProCoSysPlants, commonProCoSysProjects);
 
-            AddPreserverUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddViewerUser(commonProCoSysPlants, commonProCoSysProjects);
     
             AddHackerUser(commonProCoSysProjects);
             
@@ -241,7 +241,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             }
         }
 
-        // Authenticated client without any roles
+        // Authenticated client without any permissions
         private void AddHackerUser(List<ProCoSysProject> commonProCoSysProjects)
             => _testUsers.Add(HackerUser,
                 new TestUser
@@ -261,8 +261,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ProCoSysProjects = commonProCoSysProjects
                 });
 
-        // Authenticated client with necessary roles to view IPO
-        private void AddPreserverUser(
+        // Authenticated client with necessary permissions to view IPO
+        private void AddViewerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
             => _testUsers.Add(ViewerUser,
@@ -286,7 +286,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ProCoSysProjects = commonProCoSysProjects
                 });
 
-        // Authenticated user with necessary roles to Create and Update Invitations
+        // Authenticated user with necessary permissions to Create and Update Invitations
         private void AddPlannerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
