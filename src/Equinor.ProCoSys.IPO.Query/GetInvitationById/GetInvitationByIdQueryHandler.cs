@@ -107,12 +107,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         }
 
         private static OutlookResponse? GetOutlookResponseByEmailAsync(GeneralMeeting meeting, string email)
-            => meeting.Participants.SingleOrDefault(p 
+            => meeting.Participants.FirstOrDefault(p 
             => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
             ?.OutlookResponse;
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
-            => meeting.Participants.SingleOrDefault(p => p.Person.Mail == email)?.Type;
+            => meeting.Participants.FirstOrDefault(p => p.Person.Mail == email)?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
