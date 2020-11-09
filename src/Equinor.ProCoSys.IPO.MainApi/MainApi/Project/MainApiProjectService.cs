@@ -36,7 +36,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
         {
             var url = $"{_baseAddress}Projects" +
                       $"?plantId={plant}" +
-                      $"&api-version={_apiVersion}";
+                      $"&api-version={_apiVersion}" +
+                      "&includeInstallations=false";
 
             var projects = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
 

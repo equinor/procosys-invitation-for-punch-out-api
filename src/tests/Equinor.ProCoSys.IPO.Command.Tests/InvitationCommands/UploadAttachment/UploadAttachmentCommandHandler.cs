@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         [TestInitialize]
         public void Setup()
         {
-            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation", DisciplineType.DP);
+            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation","Description", DisciplineType.DP);
             _invitation.AddAttachment(new Attachment(PLANT, "ExistingFile.txt"));
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

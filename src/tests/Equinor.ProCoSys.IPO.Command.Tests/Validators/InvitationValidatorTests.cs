@@ -17,6 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     {
         private readonly string _projectName = "Project name";
         private readonly string _title = "Test title";
+        private readonly string _description = "Test description";
         private readonly DisciplineType _typeDp = DisciplineType.DP;
 
         private readonly IList<McPkgScopeForCommand> _mcPkgScope = new List<McPkgScopeForCommand>
@@ -54,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, _projectName, _title, _typeDp);
+                var invitation = new Invitation(TestPlant, _projectName, _title, _description, _typeDp);
                 foreach (var attachment in _attachments)
                 {
                     invitation.AddAttachment(attachment);

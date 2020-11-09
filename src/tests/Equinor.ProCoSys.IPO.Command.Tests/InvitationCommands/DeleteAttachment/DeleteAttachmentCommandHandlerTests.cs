@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         [TestInitialize]
         public void Setup()
         {
-            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation", DisciplineType.DP);
+            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation", "Description", DisciplineType.DP);
             var attachment = new TestableAttachment(PLANT, "ExistingFile.txt");
             attachment.SetId(2);
             _invitation.AddAttachment(attachment);
