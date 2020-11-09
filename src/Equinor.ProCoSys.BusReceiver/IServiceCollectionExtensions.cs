@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.BusReceiver
     {
         public static IServiceCollection AddPcsServiceBusIntegration(this IServiceCollection services, Action<PcsServiceBusConfig> options)
         {
-            var optionsBuilder = new PcsServiceBusConfig(services);
+            var optionsBuilder = new PcsServiceBusConfig();
             options(optionsBuilder);
 
             var pcsSubscriptionClients = new PcsSubscriptionClients();

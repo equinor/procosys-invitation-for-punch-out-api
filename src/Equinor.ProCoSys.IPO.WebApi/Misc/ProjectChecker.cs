@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
 
             if (request is IProjectRequest projectRequest && !await _permissionCache.IsAValidProjectAsync(plant, userOid, projectRequest.ProjectName))
             {
-                throw new InValidProjectException($"project '{projectRequest.ProjectName}' is not a valid project in '{plant}'");
+                throw new InValidProjectException($"Project '{projectRequest.ProjectName}' is not a valid project in '{plant}'");
             }
         }
     }

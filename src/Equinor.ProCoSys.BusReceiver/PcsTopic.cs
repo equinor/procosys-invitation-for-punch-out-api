@@ -3,7 +3,7 @@
     public enum PcsTopic
     {
         Project,
-        Commpkg,
-        Mcpkg
+        CommPkg,
+        McPkg
     }
 }

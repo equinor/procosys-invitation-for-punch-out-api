@@ -39,13 +39,7 @@ namespace Equinor.ProCoSys.BusReceiverTests
         }
 
         [TestMethod]
-        public void DisposeTest()
-        { 
-            _dut.Dispose();
-        }
-
-        [TestMethod]
-        public void StopAsyncTest()
+        public void StopAsync_ShouldCallCloseAllAsyncOnceTest()
         {
             _dut.StopAsync(new CancellationToken());
 
@@ -53,7 +47,7 @@ namespace Equinor.ProCoSys.BusReceiverTests
         }
 
         [TestMethod]
-        public void StartAsyncTest()
+        public void StartAsync_ShouldVerifyRegisterOcsMessageHandlerWasCalledAndMaxConcurrentCallsWasSetTest()
         {
             _dut.StartAsync(new CancellationToken());
 
@@ -62,7 +56,7 @@ namespace Equinor.ProCoSys.BusReceiverTests
         }
 
         [TestMethod]
-        public async Task ProcessMessageAsyncTest()
+        public async Task ProcessMessageAsync_ShouldCallProcessMessageAsyncTest()
         {
             var client = new Mock<IPcsSubscriptionClient>();
             var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"asdf\", \"ProjectName\" : \"ew2f\", \"Description\" : \"sdf\"}}"));

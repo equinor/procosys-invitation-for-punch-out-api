@@ -34,23 +34,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
                     _plantSetter.SetPlant(projectEvent.ProjectSchema);
                     _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
-                    await _unitOfWork.SaveChangesAsync(token);
                     break;
-                case PcsTopic.Commpkg:
+                case PcsTopic.CommPkg:
                     var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
 
                     _plantSetter.SetPlant(commPkgEvent.ProjectSchema);
                     _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo, commPkgEvent.Description);
-                    await _unitOfWork.SaveChangesAsync(token);
                     break;
-                case PcsTopic.Mcpkg:
+                case PcsTopic.McPkg:
                     var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
 
                     _plantSetter.SetPlant(mcPkgEvent.ProjectSchema);
                     _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
-                    await _unitOfWork.SaveChangesAsync(token);
                     break;
             }
+            await _unitOfWork.SaveChangesAsync(token);
         }
     }
 }

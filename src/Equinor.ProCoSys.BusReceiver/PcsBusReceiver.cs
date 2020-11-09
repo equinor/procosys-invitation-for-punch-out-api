@@ -9,13 +9,16 @@ using Microsoft.Extensions.Logging;
 namespace Equinor.ProCoSys.BusReceiver
 {
     
-    public class PcsBusReceiver : IHostedService, IDisposable
+    public class PcsBusReceiver : IHostedService
     {
         private readonly ILogger<PcsBusReceiver> _logger;
         private readonly IPcsSubscriptionClients _subscriptionClients;
         private readonly IBusReceiverServiceFactory _busReceiverServiceFactory;
 
-        public PcsBusReceiver(ILogger<PcsBusReceiver> logger, IPcsSubscriptionClients subscriptionClients, IBusReceiverServiceFactory busReceiverServiceFactory)
+        public PcsBusReceiver(
+            ILogger<PcsBusReceiver> logger,
+            IPcsSubscriptionClients subscriptionClients,
+            IBusReceiverServiceFactory busReceiverServiceFactory)
         {
             _logger = logger;
             _subscriptionClients = subscriptionClients;
@@ -57,12 +60,8 @@ namespace Equinor.ProCoSys.BusReceiver
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-        }
-
         // Use this handler to examine the exceptions received on the message pump.
-        Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
         {
             _logger.LogError($"Message handler encountered an exception {exceptionReceivedEventArgs.Exception}.");
             var context = exceptionReceivedEventArgs.ExceptionReceivedContext;

@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.BusReceiver.Interfaces
 {
     public interface IPcsSubscriptionClients
     {
-        public Task CloseAllAsync();
+        Task CloseAllAsync();
         void RegisterPcsMessageHandler(Func<IPcsSubscriptionClient, Message, CancellationToken, Task> handler, MessageHandlerOptions options);
     }
 }

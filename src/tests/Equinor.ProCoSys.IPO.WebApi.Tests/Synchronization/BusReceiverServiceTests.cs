@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
             var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"ProjectName\" : \"{project}\", \"CommPkgNo\" :\"{commPkgNo}\", \"Description\" : \"{description}\"}}"));
-            await _dut.ProcessMessageAsync(PcsTopic.Commpkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
 
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingMcPkgTopicWithoutFailure()
         {
             var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"ProjectName\" : \"{project}\", \"McPkgNo\" : \"{mcPkgNo}\", \"Description\" : \"{description}\"}}"));
-            await _dut.ProcessMessageAsync(PcsTopic.Mcpkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
 
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);

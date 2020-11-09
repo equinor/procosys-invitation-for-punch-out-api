@@ -23,7 +23,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public string ProjectName { get; private set; }
         public string CommPkgNo { get; private set; }
-        // TODO: Is this correct to set throouogh public setter?
         public string Description { get; set; }
         public string McPkgNo { get; }
         public DateTime CreatedAtUtc { get; private set; }
