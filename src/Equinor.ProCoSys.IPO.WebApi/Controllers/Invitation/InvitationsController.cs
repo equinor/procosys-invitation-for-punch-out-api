@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -47,33 +48,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
-            var mcPkgs = dto.McPkgScope?.Select(mc =>
-                new McPkgScopeForCommand(mc.McPkgNo, mc.Description, mc.CommPkgNo)).ToList();
-            var commPkgs = dto.CommPkgScope?.Select(c =>
-                new CommPkgScopeForCommand(c.CommPkgNo, c.Description, c.Status)).ToList();
-            var participants = dto.Participants.Select(p =>
-                new ParticipantsForCommand(
-                        p.Organization,
-                        p.ExternalEmail,
-                        p.Person != null
-                            ? new PersonForCommand(p.Person.AzureOid, p.Person.FirstName, p.Person.LastName, p.Person.Email,
-                                p.Person.Required)
-                            : null,
-                        p.FunctionalRole != null 
-                            ? new FunctionalRoleForCommand(
-                                p.FunctionalRole.Code,
-                                p.FunctionalRole.Email,
-                                p.FunctionalRole.UsePersonalEmail,
-                                p.FunctionalRole.Persons?.Select(person =>
-                                    new PersonForCommand(
-                                        person.AzureOid,
-                                        person.FirstName, 
-                                        person.LastName, 
-                                        person.Email,
-                                        person.Required)).ToList()) 
-                            : null,
-                        p.SortKey)
-            ).ToList();
+            var participants = GetParticipantsForCommands(dto.Participants);
 
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
@@ -85,14 +60,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.ProjectName,
                     dto.Type,
                     participants,
-                    mcPkgs,
-                    commPkgs));
+                    dto.McPkgScope,
+                    dto.CommPkgScope));
             return this.FromResult(result);
         }
 
         // TODO: Add permissions
         [HttpPut("{id}")]
-        public async Task<ActionResult<int>> EditInvitation(
+        public async Task<IActionResult> EditInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -100,21 +75,62 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] EditInvitationDto dto)
         {
+            var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
+
             var result = await _mediator.Send(
                 new EditInvitationCommand(
                     id,
-                    new EditMeetingCommand(
-                        dto.Meeting.Title,
-                        dto.Meeting.BodyHtml,
-                        dto.Meeting.Location,
-                        dto.Meeting.StartTime,
-                        dto.Meeting.EndTime,
-                        dto.Meeting.RequiredParticipantOids,
-                        dto.Meeting.RequiredParticipantEmails,
-                        dto.Meeting.OptionalParticipantOids,
-                        dto.Meeting.OptionalParticipantEmails)));
+                    dto.Title,
+                    dto.Description,
+                    dto.Location,
+                    dto.StartTime,
+                    dto.EndTime,
+                    dto.ProjectName,
+                    dto.Type,
+                    updatedParticipants,
+                    dto.UpdatedMcPkgScope,
+                    dto.UpdatedCommPkgScope,
+                    dto.RowVersion));
             return this.FromResult(result);
         }
+
+        private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<ParticipantDto> dto)
+            => dto?.Select(p =>
+                new ParticipantsForCommand(
+                    p.Organization,
+                    p.ExternalEmail != null
+                        ? new ExternalEmailForCommand(
+                            p.ExternalEmail.Email,
+                            p.ExternalEmail.Id,
+                            p.ExternalEmail.RowVersion)
+                        : null,
+                    p.Person != null
+                        ? new PersonForCommand(
+                            p.Person.AzureOid,
+                            p.Person.FirstName,
+                            p.Person.LastName,
+                            p.Person.Email,
+                            p.Person.Required,
+                            p.Person.Id,
+                            p.Person.RowVersion)
+                        : null,
+                    p.FunctionalRole != null
+                        ? new FunctionalRoleForCommand(
+                            p.FunctionalRole.Code,
+                            p.FunctionalRole.Persons?.Select(person =>
+                                new PersonForCommand(
+                                    person.AzureOid,
+                                    p.Person.FirstName,
+                                    p.Person.LastName,
+                                    person.Email,
+                                    person.Required,
+                                    person.Id,
+                                    person.RowVersion)).ToList(),
+                            p.FunctionalRole.Id,
+                            p.FunctionalRole.RowVersion)
+                        : null,
+                    p.SortKey)
+            ).ToList();
 
         // TODO: Add permissions
         [HttpPost("{id}/Attachments")]

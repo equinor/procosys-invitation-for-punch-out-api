@@ -11,6 +11,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
         {
             builder.ConfigurePlant();
             builder.ConfigureCreationAudit();
+            builder.ConfigureModificationAudit();
             builder.ConfigureConcurrencyToken();
 
             builder.Property(x => x.Organization)

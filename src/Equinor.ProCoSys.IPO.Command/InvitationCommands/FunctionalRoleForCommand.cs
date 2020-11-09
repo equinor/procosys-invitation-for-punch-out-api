@@ -2,24 +2,24 @@
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class FunctionalRoleForCommand : IRequest<Result<Unit>>
     {
         public FunctionalRoleForCommand(
             string code,
-            string email,
-            bool usePersonalEmail,
-            IList<PersonForCommand> persons)
+            IList<PersonForCommand> persons,
+            int? id = null,
+            string rowVersion = null)
         {
             Code = code;
-            Email = email;
-            UsePersonalEmail = usePersonalEmail;
             Persons = persons ?? new List<PersonForCommand>();
+            Id = id;
+            RowVersion = rowVersion;
         }
         public string Code { get; set; }
-        public string Email { get; set; }
-        public bool UsePersonalEmail { get; set; }
         public IList<PersonForCommand> Persons { get; set; }
+        public int? Id { get; set; }
+        public string RowVersion { get; set; }
     }
 }

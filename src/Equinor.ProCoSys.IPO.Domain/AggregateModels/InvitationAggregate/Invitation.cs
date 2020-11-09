@@ -31,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Title = title;
             Description = description;
             Type = type;
+            Status = IpoStatus.Planned;
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
@@ -41,6 +42,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
 
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
+
+        public IpoStatus Status { get; private set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
@@ -92,6 +95,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _commPkgs.Add(commPkg);
         }
 
+        public void RemoveCommPkg(CommPkg commPkg)
+        {
+            if (commPkg == null)
+            {
+                throw new ArgumentNullException(nameof(commPkg));
+            }
+
+            if (commPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {commPkg.Plant} from item in {Plant}");
+            }
+
+            _commPkgs.Remove(commPkg);
+        }
+
         public void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
@@ -107,6 +125,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _mcPkgs.Add(mcPkg);
         }
 
+        public void RemoveMcPkg(McPkg mcPkg)
+        {
+            if (mcPkg == null)
+            {
+                throw new ArgumentNullException(nameof(mcPkg));
+            }
+
+            if (mcPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {mcPkg.Plant} from item in {Plant}");
+            }
+
+            _mcPkgs.Remove(mcPkg);
+        }
+
         public void AddParticipant(Participant participant)
         {
             if (participant == null)
@@ -120,6 +153,45 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Add(participant);
+        }
+
+        public void RemoveParticipant(Participant participant)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (participant.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {participant.Plant} from item in {Plant}");
+            }
+
+            _participants.Remove(participant);
+        }
+
+        public void UpdateParticipant(
+            int participantId,
+            Organization organization,
+            IpoParticipantType type,
+            string functionalRoleCode,
+            string firstName,
+            string lastName,
+            string email,
+            Guid? azureOid,
+            int sortKey,
+            string participantRowVersion)
+        {
+            var participant = Participants.Single(p => p.Id == participantId);
+            participant.Organization = organization;
+            participant.Type = type;
+            participant.FunctionalRoleCode = functionalRoleCode;
+            participant.FirstName = firstName;
+            participant.LastName = lastName;
+            participant.Email = email;
+            participant.AzureOid = azureOid;
+            participant.SortKey = sortKey;
+            participant.SetRowVersion(participantRowVersion);
         }
 
         public void SetCreated(Person createdBy)

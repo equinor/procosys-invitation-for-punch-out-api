@@ -1,55 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
-    public class EditInvitationCommand : IRequest<Result<Unit>>
+    public class EditInvitationCommand : IRequest<Result<string>>
     {
-        public EditInvitationCommand(int invitationId, EditMeetingCommand meeting)
-        {
-            InvitationId = invitationId;
-            Meeting = meeting;
-        }
-
-        public int InvitationId { get; }
-        public EditMeetingCommand Meeting { get; }
-    }
-
-    public class EditMeetingCommand
-    {
-        public EditMeetingCommand(
+        public EditInvitationCommand(
+            int invitationId,
             string title,
-            string bodyHtml,
+            string description,
             string location,
             DateTime startTime,
             DateTime endTime,
-            IEnumerable<Guid> requiredParticipantOids,
-            IEnumerable<string> requiredParticipantEmails,
-            IEnumerable<Guid> optionalParticipantOids,
-            IEnumerable<string> optionalParticipantEmails)
+            string projectName,
+            DisciplineType type,
+            IList<ParticipantsForCommand> updatedParticipants,
+            IEnumerable<string> updatedMcPkgScope,
+            IEnumerable<string> updatedCommPkgScope,
+            string rowVersion)
         {
-            Title = title;
-            BodyHtml = bodyHtml;
+            InvitationId = invitationId;
+            UpdatedMcPkgScope = updatedMcPkgScope != null ? updatedMcPkgScope.ToList() : new List<string>();
+            UpdatedCommPkgScope = updatedCommPkgScope != null ? updatedCommPkgScope.ToList() : new List<string>();
+            UpdatedParticipants = updatedParticipants;
+            Description = description;
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            RequiredParticipantOids = requiredParticipantOids ?? new List<Guid>();
-            RequiredParticipantEmails = requiredParticipantEmails ?? new List<string>();
-            OptionalParticipantOids = optionalParticipantOids ?? new List<Guid>();
-            OptionalParticipantEmails = optionalParticipantEmails ?? new List<string>();
+            ProjectName = projectName;
+            Type = type;
+            Title = title;
+            RowVersion = rowVersion;
         }
 
-        public string Title { get; }
-        public string BodyHtml { get; }
+        public int InvitationId { get; }
+        public string Description { get; }
         public string Location { get; }
         public DateTime StartTime { get; }
         public DateTime EndTime { get; }
-        public IEnumerable<Guid> RequiredParticipantOids { get; }
-        public IEnumerable<string> RequiredParticipantEmails { get; }
-        public IEnumerable<Guid> OptionalParticipantOids { get; }
-        public IEnumerable<string> OptionalParticipantEmails { get; }
-
+        public IList<string> UpdatedMcPkgScope { get; }
+        public IList<string> UpdatedCommPkgScope { get; }
+        public IList<ParticipantsForCommand> UpdatedParticipants { get; }
+        public string Title { get; }
+        public DisciplineType Type { get; }
+        public string ProjectName { get; }
+        public string RowVersion { get; }
     }
 }

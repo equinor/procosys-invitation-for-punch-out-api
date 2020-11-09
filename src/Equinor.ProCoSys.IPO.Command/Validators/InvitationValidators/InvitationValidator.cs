@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +17,20 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public InvitationValidator(IReadOnlyContext context) => _context = context;
 
+        public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken token) =>
+            await (from ipo in _context.QuerySet<Invitation>()
+                where ipo.Id == invitationId
+                select ipo).AnyAsync(token);
+
+        public async Task<bool> IpoIsInPlannedStage(int invitationId, CancellationToken token) => 
+            await(from ipo in _context.QuerySet<Invitation>()
+                    where ipo.Id == invitationId && ipo.Status == IpoStatus.Planned
+                    select ipo).AnyAsync(token);
+
+
         public bool IsValidScope(
-            IList<McPkgScopeForCommand> mcPkgScope,
-            IList<CommPkgScopeForCommand> commPkgScope) 
+            IList<string> mcPkgScope,
+            IList<string> commPkgScope) 
                 => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
 
         public async Task<bool> IpoTitleExistsInProjectAsync(string projectName, string title, CancellationToken token)
@@ -27,9 +38,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 where invitation.Title == title && invitation.ProjectName == projectName
                 select invitation).AnyAsync(token);
 
+        public async Task<bool> IpoTitleExistsInProjectOnAnotherIpoAsync(string projectName, string title, int id, CancellationToken token)
+            => await (from invitation in _context.QuerySet<Invitation>()
+                where invitation.Title == title && 
+                      invitation.ProjectName == projectName &&
+                      invitation.Id != id
+                select invitation).AnyAsync(token);
+
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
-            var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail);
+            var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
             return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
         }
 
@@ -45,21 +63,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidFunctionalRole(ParticipantsForCommand participant)
         {
-            if (participant.FunctionalRole.UsePersonalEmail)
-            {
-                if (participant.FunctionalRole.Persons.Count < 1)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (participant.FunctionalRole.Email == null || !(new EmailAddressAttribute().IsValid(participant.FunctionalRole.Email)))
-                {
-                    return false;
-                }
-            }
-
             foreach (var person in participant.FunctionalRole.Persons)
             {
                 if (!(new EmailAddressAttribute().IsValid(person.Email)))
@@ -119,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             for (var i = 2; i < participants.Count; i++)
             {
                 if (participants[i].SortKey == 0 || participants[i].SortKey == 1)
-                {
+                { 
                     return false;
                 }
             }
@@ -151,5 +154,43 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                                     select i).SingleOrDefaultAsync(cancellationToken);
             return invitation;
         }
+
+        private async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
+            => await(from p in _context.QuerySet<Participant>()
+                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
+                     select p).AnyAsync(token);
+
+        public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token)
+        {
+            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, invitationId, token))
+            {
+                return false;
+            }
+            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, invitationId, token))
+            {
+                return false;
+            }
+            if (participant.FunctionalRole != null)
+            {
+                if (!await ParticipantExists(participant.FunctionalRole.Id, invitationId, token))
+                {
+                    return false;
+                }
+
+                foreach (var person in participant.FunctionalRole.Persons)
+                {
+                    if (person.Id != null && !await ParticipantExists(person.Id, invitationId, token))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        public async Task<bool> ProjectNameIsNotChangedAsync(string projectName, int id, CancellationToken token) 
+            => await (from invitation in _context.QuerySet<Invitation>() 
+                where invitation.Id == id && invitation.ProjectName == projectName
+                select invitation).AnyAsync(token);
     }
 }
