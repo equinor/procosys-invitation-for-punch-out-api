@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
+using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -23,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
     public class TestFactory : WebApplicationFactory<Startup>
     {
+        private readonly string _signerOid = "00000000-0000-0000-0000-000000000001";
         private readonly string _plannerOid = "00000000-0000-0000-0000-000000000002";
         private readonly string _preserverOid = "00000000-0000-0000-0000-000000000003";
         private readonly string _hackerOid = "00000000-0000-0000-0000-000000000666";
@@ -35,21 +37,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private readonly Mock<IPlantApiService> _plantApiServiceMock = new Mock<IPlantApiService>();
         private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
+        public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
 
         public static string AnonymousUser => "NN";
-        public static string LibraryAdminUser => "Arne Admin";
+        public static string SignerUser => "Sigurd Signer";
         public static string PlannerUser => "Pernilla Planner";
         public static string ViewerUser => "Vidar Viewer";
         public static string HackerUser => "Harry Hacker";
         public static string PlantWithAccess => SeedingData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
         public static string UnknownPlant => "UNKNOWN_PLANT";
-        public static string ProjectWithAccess => SeedingData.ProjectCode;
+        public static string ProjectWithAccess => SeedingData.ProjectName;
         public static string ProjectWithoutAccess => "Project999";
         public static string AValidRowVersion => "AAAAAAAAAAA=";
 
+        public SeedingData SeedingData { get; }
+
         public TestFactory()
         {
+            SeedingData = new SeedingData();
+
             var projectDir = Directory.GetCurrentDirectory();
             _connectionString = GetTestDbConnectionString(projectDir);
             _configPath = Path.Combine(projectDir, "appsettings.json");
@@ -105,8 +112,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.PostConfigureAll<JwtBearerOptions>(jwtBearerOptions =>
                     jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
+                // Add mocks to external resources here
                 services.AddScoped(serviceProvider => _plantApiServiceMock.Object);
                 services.AddScoped(serviceProvider => _permissionApiServiceMock.Object);
+                services.AddScoped(serviceProvider => FusionMeetingClientMock.Object);
+                // todo Mock ICommPkgApiService, IMcPkgApiService, IPersonApiService and IFunctionalRoleApiService ++
             });
 
             builder.ConfigureServices(services =>
@@ -151,7 +161,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         dbContext.Database.Migrate();
                     }
 
-                    dbContext.Seed(scope.ServiceProvider);
+                    dbContext.Seed(scope.ServiceProvider, SeedingData);
                 }
             }
         }
@@ -218,6 +228,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddAnonymousUser();
 
+            AddSignerUser(commonProCoSysPlants, commonProCoSysProjects);
+            
             AddPlannerUser(commonProCoSysPlants, commonProCoSysProjects);
 
             AddViewerUser(commonProCoSysPlants, commonProCoSysProjects);
@@ -281,7 +293,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.MCPKG_READ,
                         Permissions.PROJECT_READ,
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
-                        Permissions.USER_READ
+                        Permissions.USER_READ,
+                        Permissions.IPO_READ
+                    },
+                    ProCoSysProjects = commonProCoSysProjects
+                });
+
+        // Authenticated user with necessary permissions to Sign Invitations
+        private void AddSignerUser(
+            List<ProCoSysPlant> commonProCoSysPlants,
+            List<ProCoSysProject> commonProCoSysProjects)
+            => _testUsers.Add(SignerUser,
+                new TestUser
+                {
+                    Profile =
+                        new TestProfile
+                        {
+                            FullName = SignerUser,
+                            Oid = _signerOid
+                        },
+                    ProCoSysPlants = commonProCoSysPlants,
+                    ProCoSysPermissions = new List<string>
+                    {
+                        Permissions.COMMPKG_READ,
+                        Permissions.MCPKG_READ,
+                        Permissions.PROJECT_READ,
+                        Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
+                        Permissions.USER_READ,
+                        Permissions.IPO_READ,
+                        Permissions.IPO_SIGN,
+                        Permissions.IPO_ATTACHFILE,
+                        Permissions.IPO_DETACHFILE
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -300,7 +342,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                             Oid = _plannerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>(),
+                    ProCoSysPermissions = new List<string>
+                    {
+                        Permissions.COMMPKG_READ,
+                        Permissions.MCPKG_READ,
+                        Permissions.PROJECT_READ,
+                        Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
+                        Permissions.USER_READ,
+                        Permissions.IPO_READ,
+                        Permissions.IPO_WRITE,
+                        Permissions.IPO_CREATE,
+                        Permissions.IPO_DELETE,
+                        Permissions.IPO_ATTACHFILE,
+                        Permissions.IPO_DETACHFILE,
+                        Permissions.IPO_VOIDUNVOID
+                    },
                     ProCoSysProjects = commonProCoSysProjects
                 });
 

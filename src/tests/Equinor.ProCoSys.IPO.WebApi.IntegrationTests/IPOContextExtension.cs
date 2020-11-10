@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             }
         }
 
-        public static void Seed(this IPOContext dbContext, IServiceProvider serviceProvider)
+        public static void Seed(this IPOContext dbContext, IServiceProvider serviceProvider, SeedingData seedingData)
         {
             var userProvider = serviceProvider.GetRequiredService<CurrentUserProvider>();
             var plantProvider = serviceProvider.GetRequiredService<PlantProvider>();
@@ -39,7 +39,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var plant = plantProvider.Plant;
 
-            SeedInvitations(dbContext, plant);
+            var invitation = SeedInvitation(dbContext, plant);
+            seedingData.InvitationIds.Add(invitation.Id);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
@@ -49,12 +50,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             dbContext.SaveChangesAsync().Wait();
         }
 
-        private static void SeedInvitations(IPOContext dbContext, string plant)
+        private static Invitation SeedInvitation(IPOContext dbContext, string plant)
         {
             var invitationRepository = new InvitationRepository(dbContext);
-            var invitation = new Invitation(plant, SeedingData.ProjectCode, SeedingData.Invitation, SeedingData.InvitationDescription, DisciplineType.DP);
+            var invitation = new Invitation(
+                plant,
+                SeedingData.ProjectName,
+                SeedingData.Invitation,
+                SeedingData.InvitationDescription,
+                DisciplineType.DP)
+            {
+                MeetingId = SeedingData.MeetingId
+            };
             invitationRepository.Add(invitation);
             dbContext.SaveChangesAsync().Wait();
+
+            return invitation;
         }
     }
 }

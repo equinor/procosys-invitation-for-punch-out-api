@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -24,11 +26,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             {
                 if (!await plantCache.IsAValidPlantAsync(plantId))
                 {
-                    var error = $"Plant '{plantId}' is not a valid plant";
-                    logger.LogError(error);
-                    context.Response.StatusCode = 400;
-                    context.Response.ContentType = "application/text";
-                    await context.Response.WriteAsync(error);
+                    var errors = new Dictionary<string, string[]>
+                    {
+                        {CurrentPlantMiddleware.PlantHeader, new[] {$"Plant '{plantId}' is not a valid plant"}}
+                    };
+                    await context.WriteBadRequestAsync(errors, logger);
                     return;
                 }
             }

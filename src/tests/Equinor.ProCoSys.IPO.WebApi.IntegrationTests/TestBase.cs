@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         }
 
         public HttpClient AnonymousClient(string plant) => TestFactory.GetClientForPlant(TestFactory.AnonymousUser, plant);
-        public HttpClient LibraryAdminClient(string plant) => TestFactory.GetClientForPlant(TestFactory.LibraryAdminUser, plant);
+        public HttpClient SignerClient(string plant) => TestFactory.GetClientForPlant(TestFactory.SignerUser, plant);
         public HttpClient PlannerClient(string plant) => TestFactory.GetClientForPlant(TestFactory.PlannerUser, plant);
         public HttpClient ViewerClient(string plant) => TestFactory.GetClientForPlant(TestFactory.ViewerUser, plant);
         public HttpClient AuthenticatedHackerClient(string plant) => TestFactory.GetClientForPlant(TestFactory.HackerUser, plant);
