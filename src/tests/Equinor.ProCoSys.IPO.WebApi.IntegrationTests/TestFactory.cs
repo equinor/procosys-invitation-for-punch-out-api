@@ -5,8 +5,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Fusion.Integration.Meeting;
@@ -38,6 +42,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private readonly Mock<IPlantApiService> _plantApiServiceMock = new Mock<IPlantApiService>();
         private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
+        public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
+        public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
+        public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
+        public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
 
         public static string AnonymousUser => "NN";
         public static string SignerUser => "Sigurd Signer";
@@ -112,11 +120,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.PostConfigureAll<JwtBearerOptions>(jwtBearerOptions =>
                     jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
-                // Add mocks to external resources here
+                // Add mocks to all external resources here
                 services.AddScoped(serviceProvider => _plantApiServiceMock.Object);
                 services.AddScoped(serviceProvider => _permissionApiServiceMock.Object);
                 services.AddScoped(serviceProvider => FusionMeetingClientMock.Object);
-                // todo Mock ICommPkgApiService, IMcPkgApiService, IPersonApiService and IFunctionalRoleApiService ++
+                services.AddScoped(serviceProvider => CommPkgApiServiceMock.Object);
+                services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
+                services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
+                services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
             });
 
             builder.ConfigureServices(services =>

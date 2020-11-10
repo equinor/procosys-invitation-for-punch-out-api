@@ -59,6 +59,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .FusionMeetingClientMock
                     .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
                     .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
+
+            // Todo Setup necessary mocks for other external resources here
         }
     }
 }
