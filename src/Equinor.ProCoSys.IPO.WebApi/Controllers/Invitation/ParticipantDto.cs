@@ -6,7 +6,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     {
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
-        public string ExternalEmail { get; set; }
+        public ExternalEmailDto ExternalEmail { get; set; }
         public PersonDto Person { get; set; }
         public FunctionalRoleDto FunctionalRole { get; set; }
     }

@@ -11,9 +11,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         public CreateInvitationCommandValidator(IInvitationValidator invitationValidator)
         {
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
+                //input validators
                 .Must((command) => command.Participants != null)
                 .WithMessage(command =>
                     $"Participants cannot be null!")
@@ -38,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => command.Location == null || command.Location.Length < 1024)
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
+                //business validators
                 .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, token))
                 .WithMessage(command =>
                     $"IPO with this title already exists in project! Title={command.Title}")
@@ -57,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
                 => !await invitationValidator.IpoTitleExistsInProjectAsync(projectName, title, token);
 
-            bool MustHaveValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope)
+            bool MustHaveValidScope(IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)

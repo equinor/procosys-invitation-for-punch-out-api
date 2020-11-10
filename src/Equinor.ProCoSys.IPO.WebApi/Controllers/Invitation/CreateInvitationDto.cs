@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public string ProjectName { get; set; }
         public DisciplineType Type { get; set; }
         public IEnumerable<ParticipantDto> Participants { get; set; }
-        public IEnumerable<McPkgDto> McPkgScope { get; set; }
-        public IEnumerable<CommPkgDto> CommPkgScope { get; set; }
+        public IEnumerable<string> McPkgScope { get; set; }
+        public IEnumerable<string> CommPkgScope { get; set; }
     }
 }

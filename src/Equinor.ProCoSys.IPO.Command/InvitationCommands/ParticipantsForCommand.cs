@@ -2,13 +2,13 @@
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class ParticipantsForCommand : IRequest<Result<Unit>>
     {
         public ParticipantsForCommand(
             Organization organization,
-            string externalEmail,
+            ExternalEmailForCommand externalEmail,
             PersonForCommand person,
             FunctionalRoleForCommand functionalRole,
             int sortKey)
@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         }
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
-        public string ExternalEmail { get; set; }
+        public ExternalEmailForCommand ExternalEmail { get; set; }
         public PersonForCommand Person { get; set; }
         public FunctionalRoleForCommand FunctionalRole { get; set; }
     }

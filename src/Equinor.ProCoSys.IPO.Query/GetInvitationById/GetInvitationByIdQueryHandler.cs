@@ -55,10 +55,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.Description,
                 meeting.Location,
                 invitation.Type,
+                invitation.Status,
                 invitation.RowVersion.ConvertToString())
             {
-                StartTime = meeting.StartDate.DatetimeUtc,
-                EndTime = meeting.EndDate.DatetimeUtc,
+                StartTimeUtc = meeting.StartDate.DatetimeUtc,
+                EndTimeUtc = meeting.EndDate.DatetimeUtc,
                 Participants = ConvertToParticipantDto(invitation.Participants),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
