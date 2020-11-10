@@ -46,6 +46,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string Email { get; set; }
         public Guid? AzureOid { get; set; }
         public int SortKey { get; set; }
+        //public bool Attended { get; set; }
+        //public string Note { get; set; }
+        //public DateTime? SignedAt { get; set; }
+        //public string SignedBy { get; set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }

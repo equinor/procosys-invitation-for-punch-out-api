@@ -81,5 +81,22 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 
             return person;
         }
+
+        public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(
+            string plant,
+            string azureOid,
+            string functionalRoleCode)
+        {
+            var url = $"{_baseAddress}Person/PersonByOidInFunctionalRole" +
+                      $"?plantId={plant}" +
+                      $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
+                      $"&functionalRoleCode={WebUtility.UrlEncode(functionalRoleCode)}" +
+                      $"&api-version={_apiVersion}";
+
+            var person = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+
+            return person;
+        }
+
     }
 }

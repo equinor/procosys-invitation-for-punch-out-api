@@ -133,6 +133,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             ).ToList();
 
         // TODO: Add permissions
+        [HttpPut("{id}")]
+        //public async Task<ActionResult<int>> SignInvitation(
+        //    [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+        //    [Required]
+        //    [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+        //    string plant,
+        //    [FromRoute] int id,
+        //    [FromBody] SignInvitationDto dto)
+        //{
+        //    var result = await _mediator.Send(
+        //        new EditInvitationCommand(
+        //            id,
+        //            new EditMeetingCommand(
+        //                dto.Meeting.Title,
+        //                dto.Meeting.BodyHtml,
+        //                dto.Meeting.Location,
+        //                dto.Meeting.StartTime,
+        //                dto.Meeting.EndTime,
+        //                dto.Meeting.RequiredParticipantOids,
+        //                dto.Meeting.RequiredParticipantEmails,
+        //                dto.Meeting.OptionalParticipantOids,
+        //                dto.Meeting.OptionalParticipantEmails)));
+        //    return this.FromResult(result);
+        //}
+
+        // TODO: Add permissions
         [HttpPost("{id}/Attachments")]
         public async Task<ActionResult<int>> UploadAttachment(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
