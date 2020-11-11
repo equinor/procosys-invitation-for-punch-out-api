@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             var oid = httpContextAccessor.HttpContext.User.Claims.TryGetOid();
             if (oid.HasValue)
             {
-                currentUserSetter.SetCurrentUser(oid.Value);
+                currentUserSetter.SetCurrentUserOid(oid.Value);
             }
 
             logger.LogInformation($"----- {GetType().Name} complete");
