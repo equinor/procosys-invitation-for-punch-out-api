@@ -75,6 +75,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IAccessValidator, AccessValidator>();
             services.AddScoped<IProjectAccessChecker, ProjectAccessChecker>();
             services.AddScoped<IProjectChecker, ProjectChecker>();
+            services.AddScoped<IInvitationHelper, InvitationHelper>();
             services.AddScoped<IEventDispatcher, EventDispatcher>();
             services.AddScoped<IUnitOfWork>(x => x.GetRequiredService<IPOContext>());
             services.AddScoped<IReadOnlyContext, IPOContext>();
