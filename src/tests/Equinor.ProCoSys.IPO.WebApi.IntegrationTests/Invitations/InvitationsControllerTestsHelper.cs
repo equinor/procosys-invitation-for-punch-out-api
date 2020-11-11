@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             // todo Add correct payload to be able to create an invitation (i.e run a positive test)
             var bodyPayload = new
             {
-                projectName = SeedingData.ProjectName,
+                projectName = KnownTestData.ProjectName,
                 title,
                 description,
                 location,

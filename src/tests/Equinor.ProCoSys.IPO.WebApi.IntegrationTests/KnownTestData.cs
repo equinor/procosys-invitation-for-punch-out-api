@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
-    public class SeedingData
+    public class KnownTestData
     {
         public static string Plant => "PCS$PLANT1";
         public static string ProjectName => "TestProject";

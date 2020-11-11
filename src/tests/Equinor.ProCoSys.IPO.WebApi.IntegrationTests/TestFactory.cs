@@ -52,18 +52,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public static string PlannerUser => "Pernilla Planner";
         public static string ViewerUser => "Vidar Viewer";
         public static string HackerUser => "Harry Hacker";
-        public static string PlantWithAccess => SeedingData.Plant;
+        public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
         public static string UnknownPlant => "UNKNOWN_PLANT";
-        public static string ProjectWithAccess => SeedingData.ProjectName;
+        public static string ProjectWithAccess => KnownTestData.ProjectName;
         public static string ProjectWithoutAccess => "Project999";
         public static string AValidRowVersion => "AAAAAAAAAAA=";
 
-        public SeedingData SeedingData { get; }
+        public KnownTestData KnownTestData { get; }
 
         public TestFactory()
         {
-            SeedingData = new SeedingData();
+            KnownTestData = new KnownTestData();
 
             var projectDir = Directory.GetCurrentDirectory();
             _connectionString = GetTestDbConnectionString(projectDir);
@@ -172,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         dbContext.Database.Migrate();
                     }
 
-                    dbContext.Seed(scope.ServiceProvider, SeedingData);
+                    dbContext.Seed(scope.ServiceProvider, KnownTestData);
                 }
             }
         }

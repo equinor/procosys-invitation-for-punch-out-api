@@ -24,12 +24,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             }
         }
 
-        public static void Seed(this IPOContext dbContext, IServiceProvider serviceProvider, SeedingData seedingData)
+        public static void Seed(this IPOContext dbContext, IServiceProvider serviceProvider, KnownTestData knownTestData)
         {
             var userProvider = serviceProvider.GetRequiredService<CurrentUserProvider>();
             var plantProvider = serviceProvider.GetRequiredService<PlantProvider>();
             userProvider.SetCurrentUserOid(new Guid(_seederOid));
-            plantProvider.SetPlant(SeedingData.Plant);
+            plantProvider.SetPlant(KnownTestData.Plant);
             
             /* 
              * Add the initial seeder user. Don't do this through the UnitOfWork as this expects/requires the current user to exist in the database.
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var plant = plantProvider.Plant;
 
             var invitation = SeedInvitation(dbContext, plant);
-            seedingData.InvitationIds.Add(invitation.Id);
+            knownTestData.InvitationIds.Add(invitation.Id);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
@@ -55,12 +55,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var invitationRepository = new InvitationRepository(dbContext);
             var invitation = new Invitation(
                 plant,
-                SeedingData.ProjectName,
-                SeedingData.Invitation,
-                SeedingData.InvitationDescription,
+                KnownTestData.ProjectName,
+                KnownTestData.Invitation,
+                KnownTestData.InvitationDescription,
                 DisciplineType.DP)
             {
-                MeetingId = SeedingData.MeetingId
+                MeetingId = KnownTestData.MeetingId
             };
             invitationRepository.Add(invitation);
             dbContext.SaveChangesAsync().Wait();

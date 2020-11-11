@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     [TestClass]
     public class InvitationsControllerTestsBase : TestBase
     {
-        protected int InitialInvitationId = TestFactory.SeedingData.InvitationIds.First();
+        protected int InitialInvitationId = TestFactory.KnownTestData.InvitationIds.First();
 
         [TestInitialize]
         public void TestInitialize()
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 DateEnd = new ApiDateTimeTimeZoneModel(),
                 DateStart = new ApiDateTimeTimeZoneModel(),
                 ExternalId = null,
-                Id = SeedingData.MeetingId,
+                Id = KnownTestData.MeetingId,
                 InviteBodyHtml = string.Empty,
                 IsDisabled = false,
                 IsOnlineMeeting = false,
