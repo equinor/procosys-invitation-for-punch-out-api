@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
     {
         private readonly string _signerOid = "00000000-0000-0000-0000-000000000001";
         private readonly string _plannerOid = "00000000-0000-0000-0000-000000000002";
-        private readonly string _preserverOid = "00000000-0000-0000-0000-000000000003";
+        private readonly string _viewerOid = "00000000-0000-0000-0000-000000000003";
         private readonly string _hackerOid = "00000000-0000-0000-0000-000000000666";
         private readonly string _integrationTestEnvironment = "IntegrationTests";
         private readonly string _connectionString;
@@ -295,7 +295,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         new TestProfile
                         {
                             FullName = ViewerUser,
-                            Oid = _preserverOid
+                            Oid = _viewerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
                     ProCoSysPermissions = new List<string>
