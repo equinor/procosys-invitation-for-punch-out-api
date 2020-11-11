@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         {
             var dut = new GetInvitationByIdQuery(2);
 
-            Assert.AreEqual(2, dut.Id);
+            Assert.AreEqual(2, dut.InvitationId);
         }
     }
 }
