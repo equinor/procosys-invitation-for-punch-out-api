@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
-    public class CreateInvitationCommand : IRequest<Result<int>>
+    public class CreateInvitationCommand : IRequest<Result<int>>, IProjectRequest
     {
         public CreateInvitationCommand(
             string title,

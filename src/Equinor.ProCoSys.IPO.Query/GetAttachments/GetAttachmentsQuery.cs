@@ -4,7 +4,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 {
-    public class GetAttachmentsQuery : IRequest<Result<List<AttachmentDto>>>
+    public class GetAttachmentsQuery : IRequest<Result<List<AttachmentDto>>>, IInvitationQueryRequest
     {
         public GetAttachmentsQuery(int invitationId) => InvitationId = invitationId;
 
