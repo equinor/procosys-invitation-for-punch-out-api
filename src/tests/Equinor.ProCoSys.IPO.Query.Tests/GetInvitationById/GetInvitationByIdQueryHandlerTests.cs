@@ -6,7 +6,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Test.Common;
-using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -21,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
     public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBase
     {
         private Invitation _invitation;
-        private int _invitationId = 246;
+        private int _invitationId;
         
         private Mock<IFusionMeetingClient> _meetingClientMock;
 
@@ -131,9 +130,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 Title = string.Empty
                             })));
 
-                _invitation.SetProtectedIdForTesting(_invitationId);
                 context.Invitations.Add(_invitation);
                 context.SaveChangesAsync().Wait();
+                _invitationId = _invitation.Id;
             }
         }
 
