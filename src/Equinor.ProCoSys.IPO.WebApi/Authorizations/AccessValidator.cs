@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             }
 
 
-            if (request is IIPOCommandRequest ipoCommandRequest)
+            if (request is IInvitationCommandRequest ipoCommandRequest)
             {
                 var projectName = "Todo"; // todo await _ipoHelper.GetProjectNameAsync(ipoCommandRequest.IPOId);
                 var accessToProject = _projectAccessChecker.HasCurrentUserAccessToProject(projectName);
@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return accessToProject;
             }
 
-            if (request is IIPOQueryRequest ipoQueryRequest)
+            if (request is IInvitationQueryRequest ipoQueryRequest)
             {
                 var projectName = "Todo"; // todo await _ipoHelper.GetProjectNameAsync(ipoCommandRequest.IPOId);
                 if (!_projectAccessChecker.HasCurrentUserAccessToProject(projectName))
