@@ -14,16 +14,19 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     [TestClass]
     public class InvitationRepositoryTests : RepositoryTestBase
     {
-        private const int InvitationId = 5;
+        private const int InvitationWithMcPkgId = 5;
         private const int McPkgId = 51;
+        private const int CommPkgId = 71;
         private const int ParticipantId = 1;
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbSetMock;
 
         private InvitationRepository _dut;
         private McPkg _mcPkg;
+        private CommPkg _commPkg;
         private Participant _participant;
-        private Invitation _invitation;
+        private Invitation _invitationWithMcPkg;
+        private Invitation _invitationWithCommPkg;
 
         [TestInitialize]
         public void Setup()
@@ -31,24 +34,39 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             var mcPkgMock = new Mock<McPkg>();
             mcPkgMock.SetupGet(m => m.Plant).Returns(TestPlant);
 
-            var responsibleMock = new Mock<Participant>();
-            responsibleMock.SetupGet(x => x.Plant).Returns(TestPlant);
+            var participantMock = new Mock<Participant>();
+            participantMock.SetupGet(x => x.Plant).Returns(TestPlant);
 
             _mcPkg = new McPkg(TestPlant, "ProjectName", "Comm1", "MC1", "Description");
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _participant = new Participant(TestPlant, Organization.Contractor, IpoParticipantType.FunctionalRole, "FR", null, null, "fr@test.com", null, 0);
+            _commPkg = new CommPkg(TestPlant, "ProjectName", "Comm1", "Description", "OK");
+            _commPkg.SetProtectedIdForTesting(CommPkgId);
+
+            _participant = new Participant(
+                TestPlant,
+                Organization.Contractor,
+                IpoParticipantType.FunctionalRole,
+                "FR",
+                null,
+                null,
+                "fr@test.com",
+                null,
+                0);
             _participant.SetProtectedIdForTesting(ParticipantId);
 
-            _invitation = new Invitation(TestPlant, "ProjectName", "Title", "D", DisciplineType.DP);
-            _invitation.SetProtectedIdForTesting(InvitationId);
+            _invitationWithMcPkg = new Invitation(TestPlant, "ProjectName", "Title", "D", DisciplineType.DP);
+            _invitationWithMcPkg.SetProtectedIdForTesting(InvitationWithMcPkgId);
+            _invitationWithCommPkg = new Invitation(TestPlant, "ProjectName", "Title 2", "D", DisciplineType.DP);
 
-            _invitation.AddMcPkg(_mcPkg);
-            _invitation.AddParticipant(_participant);
+            _invitationWithMcPkg.AddMcPkg(_mcPkg);
+            _invitationWithMcPkg.AddParticipant(_participant);
+            _invitationWithCommPkg.AddCommPkg(_commPkg);
 
             _invitations = new List<Invitation>
             {
-                _invitation
+                _invitationWithMcPkg,
+                _invitationWithCommPkg
             };
 
             _dbSetMock = _invitations.AsQueryable().BuildMockDbSet();
@@ -66,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             var result = await _dut.GetAllAsync();
 
-            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual(2, result.Count);
         }
 
         [TestMethod]
@@ -80,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestMethod]
         public async Task Exists_KnownId_ShouldReturnTrue()
         {
-            var result = await _dut.Exists(InvitationId);
+            var result = await _dut.Exists(InvitationWithMcPkgId);
 
             Assert.IsTrue(result);
         }
@@ -96,9 +114,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestMethod]
         public async Task GetById_KnownId_ShouldReturnInvitation()
         {
-            var result = await _dut.GetByIdAsync(InvitationId);
+            var result = await _dut.GetByIdAsync(InvitationWithMcPkgId);
 
-            Assert.AreEqual(InvitationId, result.Id);
+            Assert.AreEqual(InvitationWithMcPkgId, result.Id);
         }
 
         [TestMethod]
@@ -112,9 +130,78 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestMethod]
         public void Add_Invitation_ShouldCallAddForInvitation()
         {
-            _dut.Add(_invitation);
+            _dut.Add(_invitationWithMcPkg);
 
-            _dbSetMock.Verify(s => s.Add(_invitation), Times.Once);
+            _dbSetMock.Verify(x => x.Add(_invitationWithMcPkg), Times.Once);
+        }
+
+        [TestMethod]
+        public void RemoveMcPkg_KnownMcPkg_ShouldRemoveMcPkg()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+
+            _invitationWithMcPkg.RemoveMcPkg(_mcPkg);
+
+            Assert.AreEqual(0, _invitationWithMcPkg.McPkgs.Count);
+        }
+
+        [TestMethod]
+        public void RemoveMcPkg_UnknownMcPkg_ShouldNotRemoveMcPkg()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+
+            _invitationWithMcPkg.RemoveMcPkg(new McPkg(TestPlant, "Project name", "Comm1", "MC 02", "D"));
+
+            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+        }
+
+        [TestMethod]
+        public void RemoveParticipant_KnownParticipant_ShouldRemoveParticipant()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
+
+            _invitationWithMcPkg.RemoveParticipant(_participant);
+
+            Assert.AreEqual(0, _invitationWithMcPkg.Participants.Count);
+        }
+
+        [TestMethod]
+        public void RemoveParticipant_UnknownParticipant_ShouldNotRemoveParticipant()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
+
+            _invitationWithMcPkg.RemoveParticipant(new Participant(
+                TestPlant,
+                Organization.Operation,
+                IpoParticipantType.FunctionalRole,
+                "FR 2",
+                null,
+                null,
+                "fr@test.com",
+                null,
+                2));
+
+            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
+        }
+
+        [TestMethod]
+        public void RemoveCommPkg_KnownCommPkg_ShouldRemoveCommPkg()
+        {
+            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+
+            _invitationWithCommPkg.RemoveCommPkg(_commPkg);
+
+            Assert.AreEqual(0, _invitationWithCommPkg.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void RemoveCommPkg_UnknownCommPkg_ShouldNotRemoveCommPkg()
+        {
+            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+
+            _invitationWithCommPkg.RemoveCommPkg(new CommPkg(TestPlant, "Project name", "Comm2", "D", "PA"));
+
+            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
         }
     }
 }

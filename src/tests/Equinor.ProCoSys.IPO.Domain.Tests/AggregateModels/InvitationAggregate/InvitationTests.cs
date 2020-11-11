@@ -42,11 +42,37 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK");
             _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK");
 
-            _personParticipant = new Participant(TestPlant, Organization.Contractor, IpoParticipantType.Person, null, "Ola", "Nordmann", "ola@test.com", new Guid("11111111-1111-2222-2222-333333333333"), 0);
+            _personParticipant = new Participant(
+                TestPlant, Organization.Contractor,
+                IpoParticipantType.Person,
+                null,
+                "Ola",
+                "Nordmann",
+                "ola@test.com",
+                new Guid("11111111-1111-2222-2222-333333333333"),
+                0);
             _personParticipant.SetProtectedIdForTesting(_personParticipantId);
-            _functionalRoleParticipant = new Participant(TestPlant, Organization.ConstructionCompany, IpoParticipantType.FunctionalRole, "FR1", null, null, "fr1@test.com", null, 1);
+            _functionalRoleParticipant = new Participant(
+                TestPlant,
+                Organization.ConstructionCompany,
+                IpoParticipantType.FunctionalRole,
+                "FR1",
+                null,
+                null,
+                "fr1@test.com",
+                null,
+                1);
             _functionalRoleParticipant.SetProtectedIdForTesting(_functionalRoleParticipantId);
-            _externalParticipant = new Participant(TestPlant, Organization.External, IpoParticipantType.Person, null, null, null, "external@ext.com", null, 2);
+            _externalParticipant = new Participant(
+                TestPlant,
+                Organization.External,
+                IpoParticipantType.Person,
+                null,
+                null,
+                null,
+                "external@ext.com",
+                null,
+                2);
             _externalParticipant.SetProtectedIdForTesting(_externalParticipantId);
 
             _dutWithMcPkgScope.AddParticipant(_personParticipant);
@@ -175,7 +201,17 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             Assert.IsTrue(_dutWithMcPkgScope.Participants.Contains(_externalParticipant));
 
-            _dutWithMcPkgScope.UpdateParticipant(_externalParticipantId, Organization.Operation, IpoParticipantType.Person, null, "Kari", "Traa", "kari@test.com", new Guid("11111111-2222-2222-2222-333333333333"), 2, "AAAAAAAAABA=");
+            _dutWithMcPkgScope.UpdateParticipant(
+                _externalParticipantId,
+                Organization.Operation,
+                IpoParticipantType.Person,
+                null,
+                "Kari",
+                "Traa",
+                "kari@test.com",
+                new Guid("11111111-2222-2222-2222-333333333333"),
+                2,
+                "AAAAAAAAABA=");
 
             Assert.AreEqual(3, _dutWithMcPkgScope.Participants.Count);
             var updatedParticipant =
