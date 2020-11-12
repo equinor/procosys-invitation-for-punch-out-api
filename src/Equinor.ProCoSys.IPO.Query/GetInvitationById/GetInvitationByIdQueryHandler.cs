@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 if (participant.Person != null)
                 {
-                    var participantPersonResponse = GetOutlookResponseByEmailAsync(meeting, participant.Person?.Email);
+                    var participantPersonResponse = GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email);
                     participant.Person.Response = participantPersonResponse;
                 }
 
@@ -84,11 +84,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 {
                     foreach (var personInFunctionalRole in participant.FunctionalRole?.Persons)
                     {
-                        var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email);
+                        var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email);
                         personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
 
                         var functionalRolePersonResponse =
-                            GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email);
+                            GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Person.Email);
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
                 }
@@ -139,14 +139,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        ConvertToPersonDto(participant), null));
+                        ConvertToInvitedPersonDto(participant), null));
                 }
                 else if (participant.Organization == Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey,
                         new ExternalEmailDto(participant.Id, participant.Email,
                             participant.RowVersion.ConvertToString()),
-                        ConvertToPersonDto(participant), null));
+                        ConvertToInvitedPersonDto(participant), null));
                 }
             }
 
@@ -156,12 +156,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
 
         private static FunctionalRoleDto ConvertToFunctionalRoleDto(Participant participant, IEnumerable<Participant> personsInFunctionalRole)
-            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
+            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToInvitedPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
 
-        private static PersonDto ConvertToPersonDto(Participant participant)
-            => new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid.ToString(), participant.Email, participant.RowVersion.ConvertToString());
+        private static InvitedPersonDto ConvertToInvitedPersonDto(Participant participant)
+            => new InvitedPersonDto(new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid ?? Guid.Empty, participant.Email, participant.RowVersion.ConvertToString())); 
 
-        private static IEnumerable<PersonDto> ConvertToPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
-            => personsInFunctionalRole.Select(ConvertToPersonDto).ToList();
+        private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
+            => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
     }
 }

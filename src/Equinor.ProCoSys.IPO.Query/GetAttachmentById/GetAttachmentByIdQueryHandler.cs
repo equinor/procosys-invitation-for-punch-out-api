@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,7 +12,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
-    public class GetAttachmentByIdQueryHandler : IRequestHandler<GetAttachmentByIdQuery, Result<Uri>>
+    public class GetAttachmentByIdQueryHandler : IRequestHandler<GetAttachmentByIdQuery, Result<AttachmentDto>>
     {
         private readonly IReadOnlyContext _context;
         private readonly IBlobStorage _blobStorage;
@@ -27,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
             _blobStorageOptions = blobStorageOptions;
         }
 
-        public async Task<Result<Uri>> Handle(GetAttachmentByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<AttachmentDto>> Handle(GetAttachmentByIdQuery request, CancellationToken cancellationToken)
         {
             var invitation = await _context.QuerySet<Invitation>()
                 .Include(i => i.Attachments)
@@ -37,17 +35,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 
             if (attachment == null)
             {
-                return new NotFoundResult<Uri>($"Invitation with ID {request.InvitationId} or Attachment with ID {request.AttachmentId} not found");
+                return new NotFoundResult<AttachmentDto>($"Invitation with ID {request.InvitationId} or Attachment with ID {request.AttachmentId} not found");
             }
 
-            var now = TimeService.UtcNow;
-            var fullBlobPath = Path.Combine(_blobStorageOptions.CurrentValue.BlobContainer, attachment.BlobPath).Replace("\\", "/");
+            var uploadedBy = await _context.QuerySet<Person>().FirstOrDefaultAsync(x => x.Id == (attachment.ModifiedById ?? attachment.CreatedById));
 
-            var uri = _blobStorage.GetDownloadSasUri(
-                fullBlobPath,
-                new DateTimeOffset(now.AddMinutes(_blobStorageOptions.CurrentValue.BlobClockSkewMinutes * -1)),
-                new DateTimeOffset(now.AddMinutes(_blobStorageOptions.CurrentValue.BlobClockSkewMinutes)));
-            return new SuccessResult<Uri>(uri);
+            var uri = attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue);
+            return new SuccessResult<AttachmentDto>(
+                new AttachmentDto(
+                    attachment.Id,
+                    attachment.FileName,
+                    attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
+                    attachment.ModifiedAtUtc ?? attachment.CreatedAtUtc,
+                    new PersonDto(uploadedBy.Id, uploadedBy.FirstName, uploadedBy.LastName, uploadedBy.Oid, null, uploadedBy.RowVersion.ConvertToString()),
+                    attachment.RowVersion.ConvertToString()));
         }
     }
 }

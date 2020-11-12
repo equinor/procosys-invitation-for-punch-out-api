@@ -1,4 +1,4 @@
-﻿using Fusion.Integration.Meeting;
+﻿using System;
 
 namespace Equinor.ProCoSys.IPO.Query
 {
@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Query
             int id,
             string firstName,
             string lastName,
-            string azureOid,
+            Guid azureOid,
             string email,
             string rowVersion)
         {
@@ -23,10 +23,8 @@ namespace Equinor.ProCoSys.IPO.Query
         public int Id { get; }
         public string FirstName { get; }
         public string LastName { get; }
-        public string AzureOid { get; }
+        public Guid AzureOid { get; }
         public string Email { get; }
-        public bool Required { get; set; }
-        public OutlookResponse? Response { get; set; }
         public string RowVersion { get; }
     }
 }
