@@ -8,20 +8,17 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
 {
-    public class SignInvitationCommandHandler : IRequestHandler<SignInvitationCommand, Result<string>>
+    public class CompleteInvitationCommandHandler : IRequestHandler<CompleteInvitationCommand, Result<string>>
     {
-        private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
-        private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
-
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public SignInvitationCommandHandler(
+        public CompleteInvitationCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -35,60 +32,66 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation
             _personApiService = personApiService;
         }
 
-        public async Task<Result<string>> Handle(SignInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(CompleteInvitationCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
             var participants = invitation.Participants.Where(p => 
                 p.SortKey == 0 && 
                 p.Organization == Organization.Contractor && 
-                p.AzureOid == currentUserAzureOid).ToList(); //completing
-            if (participants[0].FunctionalRoleCode != null)
+                p.AzureOid == currentUserAzureOid).ToList();
+
+            if (!participants.Any() || participants[0].FunctionalRoleCode != null)
             {
-                var functionalRoleParticipant = participants.SingleOrDefault(p => p.Type == IpoParticipantType.FunctionalRole);
-                await CompleteIpoAsPersonInFunctionalRoleAsync(invitation, functionalRoleParticipant);
+                var functionalRole = invitation.Participants
+                    .SingleOrDefault(p => p.SortKey == 0 &&
+                                          p.FunctionalRoleCode != null &&
+                                          p.Type == IpoParticipantType.FunctionalRole);
+
+                await CompleteIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
             }
             else
             {
-                var personParticipant = participants.SingleOrDefault();
-                await CompleteIpoAsPersonAsync(invitation, personParticipant);
+                CompleteIpoAsPersonAsync(invitation, participants.SingleOrDefault(), request.ParticipantRowVersion);
             }
 
+            invitation.SetRowVersion(request.InvitationRowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
         private async Task CompleteIpoAsPersonInFunctionalRoleAsync(
-            Invitation invitation, 
-            Participant participant)
+            Invitation invitation,
+            Participant participant,
+            string participantRowVersion)
         {
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,
                 _currentUserProvider.GetCurrentUserOid().ToString(),
                 participant.FunctionalRoleCode);
-            //if (person != null)
-            //{
-            //    invitation.Status = IpoStatus.Completed;
-            //    participant.SignedBy = person.UserName;
-            //    participant.SignedAt = new DateTime();
-            //}
-        }
 
-        private async Task CompleteIpoAsPersonAsync(
-            Invitation invitation,
-            Participant participant)
-        {
-            var person = await _personApiService.GetPersonByOidsInUserGroupAsync(
-                _plantProvider.Plant,
-                _currentUserProvider.GetCurrentUserOid().ToString(),
-                ContractorUserGroup);
             if (person != null)
             {
-                //invitation.Status = IpoStatus.Completed;
-                //participant.SignedBy = person.UserName;
-                //participant.SignedAt = new DateTime();
+                invitation.Status = IpoStatus.Completed;
+                participant.SignedBy = person.UserName;
+                participant.SignedAt = new DateTime();
+                participant.SetRowVersion(participantRowVersion);
+            }
+            else
+            {
+                throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
         }
 
+        private void CompleteIpoAsPersonAsync(
+            Invitation invitation,
+            Participant participant,
+            string participantRowVersion)
+        {
+            invitation.Status = IpoStatus.Completed;
+            participant.SignedBy = participant.UserName;
+            participant.SignedAt = new DateTime();
+            participant.SetRowVersion(participantRowVersion);
+        }
     }
 }

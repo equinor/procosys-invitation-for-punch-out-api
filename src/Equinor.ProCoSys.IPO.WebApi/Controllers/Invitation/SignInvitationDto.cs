@@ -2,8 +2,9 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
-    public class SignInvitationDto
+    public class CompleteInvitationDto
     {
-        public IEnumerable<ParticipantWhenSigningDto> Participants { get; set; }
+        public string InvitationRowVersion;
+        public string ParticipantRowVersion;
     }
 }

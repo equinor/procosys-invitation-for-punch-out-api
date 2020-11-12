@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
@@ -92,6 +93,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.UpdatedMcPkgScope,
                     dto.UpdatedCommPkgScope,
                     dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Complete")]
+        public async Task<ActionResult<string>> CompleteInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int invitationId,
+            [FromBody] CompleteInvitationDto dto)
+        {
+            var result = await _mediator.Send(
+                new CompleteInvitationCommand(invitationId, dto.InvitationRowVersion, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 

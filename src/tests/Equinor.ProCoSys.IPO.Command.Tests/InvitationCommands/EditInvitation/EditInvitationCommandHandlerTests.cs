@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _commPkgNo = "Comm1";
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForCommand>_participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
@@ -157,14 +157,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 AzureOid = _azureOid.ToString(),
                 FirstName = "Ola",
                 LastName = "Nordman",
-                Email = "ola@test.com"
+                Email = "ola@test.com",
+                UserName = "ON"
             };
             var newPersonDetails = new ProCoSysPerson
             {
                 AzureOid = _newAzureOid.ToString(),
                 FirstName = "Kari",
                 LastName = "Nordman",
-                Email = "kari@test.com"
+                Email = "kari@test.com",
+                UserName = "KN"
             };
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
@@ -209,8 +211,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d"));
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2"));
-            _invitation.AddParticipant(new Participant(_plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null,null,null,0));
-            _invitation.AddParticipant(new Participant(_plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
+            _invitation.AddParticipant(new Participant(_plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null, null,null,null,0));
+            _invitation.AddParticipant(new Participant(_plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, null, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

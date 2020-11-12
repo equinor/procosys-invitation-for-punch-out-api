@@ -19,6 +19,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoExistsAsync(int invitationId, CancellationToken token);
-        Task<bool> IpoIsInPlannedStage(int invitationId, CancellationToken token);
+        Task<bool> IpoIsInPlannedStageAsync(int invitationId, CancellationToken token);
+        Task<bool> ValidContractorParticipantExistsAsync(int invitationId, CancellationToken token);
+        Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token);
     }
 }

@@ -70,9 +70,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 }
                 context.Invitations.Add(invitation);
                 _invitation1Id = invitation.Id;
-                var participant1 = new Participant(TestPlant, Organization.Contractor, IpoParticipantType.Person, null, "First1", "Last", "first1@last.com", null, 0);
-                var participant2 = new Participant(TestPlant, Organization.ConstructionCompany, IpoParticipantType.Person, null, "First2", "Last", "first2@last.com", null, 1);
-                var participant3 = new Participant(TestPlant, Organization.Supplier, IpoParticipantType.Person, null, "First3", "Last", "first3@last.com", null, 2);
+                var participant1 = new Participant(TestPlant, Organization.Contractor, IpoParticipantType.Person, null, "First1", "Last", "UN1", "first1@last.com", null, 0);
+                var participant2 = new Participant(TestPlant, Organization.ConstructionCompany, IpoParticipantType.Person, null, "First2", "Last", "UN2", "first2@last.com", null, 1);
+                var participant3 = new Participant(TestPlant, Organization.Supplier, IpoParticipantType.Person, null, "First3", "Last", "first3@last.com", "UN3", null, 2);
                 invitation.AddParticipant(participant1);
                 invitation.AddParticipant(participant2);
                 invitation.AddParticipant(participant3);

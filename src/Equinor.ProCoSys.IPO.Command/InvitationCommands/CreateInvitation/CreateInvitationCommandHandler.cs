@@ -125,6 +125,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         fr.Code,
                         null,
                         null,
+                        null,
                         fr.Email,
                         null,
                         participant.SortKey));
@@ -145,6 +146,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 fr.Code,
                                 frPerson.FirstName,
                                 frPerson.LastName,
+                                frPerson.UserName,
                                 frPerson.Email,
                                 new Guid(frPerson.AzureOid),
                                 participant.SortKey));
@@ -208,6 +210,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             null,
                             person.FirstName,
                             person.LastName,
+                            person.UserName,
                             person.Email,
                             new Guid(person.AzureOid),
                             participant.SortKey));
@@ -240,6 +243,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     null,
                     p.FirstName,
                     p.LastName,
+                    p.UserName,
                     p.Email,
                     new Guid(p.AzureOid),
                     sortKey));
@@ -268,6 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     null,
                     participant.Person.FirstName, 
                     participant.Person.LastName,
+                    null,
                     participant.Person.Email,
                     null,
                     participant.SortKey));
@@ -289,6 +294,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     _plantProvider.Plant,
                     participant.Organization,
                     IpoParticipantType.Person,
+                    null,
                     null,
                     null,
                     null,
