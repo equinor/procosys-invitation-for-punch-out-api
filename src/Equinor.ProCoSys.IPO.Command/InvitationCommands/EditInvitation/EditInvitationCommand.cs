@@ -7,7 +7,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
-    public class EditInvitationCommand : IRequest<Result<string>>
+    public class EditInvitationCommand : IRequest<Result<string>>, IInvitationCommandRequest
     {
         public EditInvitationCommand(
             int invitationId,
@@ -47,6 +47,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public IList<ParticipantsForCommand> UpdatedParticipants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }
+        
+        // todo Lykke - Elisabeth: This prop should be removed. In projectName is found via InvitationId
         public string ProjectName { get; }
         public string RowVersion { get; }
     }

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
-    public class GetMcPkgsUnderCommPkgInProjectQuery : IRequest<Result<List<ProCoSysMcPkgDto>>>
+    public class GetMcPkgsUnderCommPkgInProjectQuery : IRequest<Result<List<ProCoSysMcPkgDto>>>, IProjectRequest
     {
         public GetMcPkgsUnderCommPkgInProjectQuery(string projectName, string commPkgNo)
         {

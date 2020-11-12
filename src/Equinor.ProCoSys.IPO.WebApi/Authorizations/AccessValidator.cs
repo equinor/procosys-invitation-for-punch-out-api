@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query;
+using Equinor.ProCoSys.IPO.WebApi.Misc;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -12,15 +13,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
     {
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectAccessChecker _projectAccessChecker;
+        private readonly IInvitationHelper _invitationHelper;
         private readonly ILogger<AccessValidator> _logger;
 
         public AccessValidator(
-            ICurrentUserProvider currentUserProvider, 
+            ICurrentUserProvider currentUserProvider,
             IProjectAccessChecker projectAccessChecker,
+            IInvitationHelper invitationHelper,
             ILogger<AccessValidator> logger)
         {
             _currentUserProvider = currentUserProvider;
             _projectAccessChecker = projectAccessChecker;
+            _invitationHelper = invitationHelper;
             _logger = logger;
         }
 
@@ -32,29 +36,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             }
 
             var userOid = _currentUserProvider.GetCurrentUserOid();
-            if (request is IProjectRequest projectRequest && !_projectAccessChecker.HasCurrentUserAccessToProject(projectRequest.ProjectName))
+            if (request is IProjectRequest projectRequest &&
+                !_projectAccessChecker.HasCurrentUserAccessToProject(projectRequest.ProjectName))
             {
                 _logger.LogWarning($"Current user {userOid} don't have access to project {projectRequest.ProjectName}");
                 return false;
             }
 
 
-            if (request is IInvitationCommandRequest ipoCommandRequest)
+
+            if (request is IInvitationCommandRequest invitationCommandRequest)
             {
-                var projectName = "Todo"; // todo await _ipoHelper.GetProjectNameAsync(ipoCommandRequest.IPOId);
+                if (!await HasCurrentUserAccessToProjectAsync(invitationCommandRequest.InvitationId, userOid))
+                {
+                    return false;
+                }
+            }
+
+            if (request is IInvitationQueryRequest invitationQueryRequest)
+            {
+                if (!await HasCurrentUserAccessToProjectAsync(invitationQueryRequest.InvitationId, userOid))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<bool> HasCurrentUserAccessToProjectAsync(int invitationId, Guid userOid)
+        {
+            var projectName = await _invitationHelper.GetProjectNameAsync(invitationId);
+            if (projectName != null)
+            {
                 var accessToProject = _projectAccessChecker.HasCurrentUserAccessToProject(projectName);
 
                 if (!accessToProject)
-                {
-                    _logger.LogWarning($"Current user {userOid} don't have access to project {projectName}");
-                }
-                return accessToProject;
-            }
-
-            if (request is IInvitationQueryRequest ipoQueryRequest)
-            {
-                var projectName = "Todo"; // todo await _ipoHelper.GetProjectNameAsync(ipoCommandRequest.IPOId);
-                if (!_projectAccessChecker.HasCurrentUserAccessToProject(projectName))
                 {
                     _logger.LogWarning($"Current user {userOid} don't have access to project {projectName}");
                     return false;
