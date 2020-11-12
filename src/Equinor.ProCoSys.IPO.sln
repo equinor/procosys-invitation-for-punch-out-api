@@ -16,6 +16,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{946E8B4F-9EA5-4301-AFAD-14299C816709}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		..\pipelines\api-build.yml = ..\pipelines\api-build.yml
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject
@@ -38,6 +39,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Test.Common", "tests\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj", "{AF5AC8E5-6A5F-4560-86BC-7E35FE1F01F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.BlobStorage", "Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj", "{F2ECB765-2E38-43B3-BB94-050F9D1E2CB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.IPO.WebApi.IntegrationTests", "tests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests.csproj", "{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +104,10 @@ Global
 		{F2ECB765-2E38-43B3-BB94-050F9D1E2CB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2ECB765-2E38-43B3-BB94-050F9D1E2CB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2ECB765-2E38-43B3-BB94-050F9D1E2CB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,6 +120,7 @@ Global
 		{065C9A62-0885-4238-8893-B10BE15E5201} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 		{3628443D-47B4-4D7A-AB08-3E0F613E5015} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 		{AF5AC8E5-6A5F-4560-86BC-7E35FE1F01F3} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
+		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C79730D0-E4C2-474A-9D04-1C07256B6DF3}

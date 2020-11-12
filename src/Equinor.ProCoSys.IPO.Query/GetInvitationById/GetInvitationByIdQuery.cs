@@ -3,10 +3,10 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
-    public class GetInvitationByIdQuery : IRequest<Result<InvitationDto>>
+    public class GetInvitationByIdQuery : IRequest<Result<InvitationDto>>, IInvitationQueryRequest
     {
-        public GetInvitationByIdQuery(int id) => Id = id;
+        public GetInvitationByIdQuery(int invitationId) => InvitationId = invitationId;
 
-        public int Id { get; }
+        public int InvitationId { get; }
     }
 }
