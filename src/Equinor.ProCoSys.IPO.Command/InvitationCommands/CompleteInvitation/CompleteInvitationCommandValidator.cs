@@ -13,6 +13,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
+                .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
+                .WithMessage(command =>
+                    $"IPO with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, token) => BeAnInvitationInPlannedStage(command.InvitationId, token))
                 .WithMessage(command =>
                     "Invitation is not in planned stage, and thus cannot be completed!")
@@ -28,6 +31,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
                 .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
                     "Person signing is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!");
+
+            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
+                => await invitationValidator.IpoExistsAsync(invitationId, token);
 
             async Task<bool> BeAnInvitationInPlannedStage(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoIsInPlannedStageAsync(invitationId, token);

@@ -1,0 +1,145 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitation
+{
+    [TestClass]
+    public class CompleteInvitationCommandHandlerTests
+    {
+        private Mock<IPlantProvider> _plantProviderMock;
+        private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<ICurrentUserProvider> _currentUserProviderMock;
+
+        private CompleteInvitationCommand _command;
+        private CompleteInvitationCommandHandler _dut;
+        private const string _plant = "PCS$TEST_PLANT";
+        private const string _projectName = "Project name";
+        private const string _title = "Test title";
+        private const string _description = "Test description";
+        private const DisciplineType _type = DisciplineType.DP;
+        private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
+        private const string _invitationRowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private int _saveChangesCount;
+        private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
+        private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
+        private const string _functionalRoleCode = "FR1";
+        private Invitation _invitation;
+
+        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        {
+            new ParticipantsForCommand(
+                Organization.Contractor,
+                null,
+                null,
+                new FunctionalRoleForCommand(_functionalRoleCode, null),
+                0),
+            new ParticipantsForCommand(
+                Organization.ConstructionCompany,
+                null,
+                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
+                null,
+                1)
+        };
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _plantProviderMock = new Mock<IPlantProvider>();
+            _plantProviderMock
+                .Setup(x => x.Plant)
+                .Returns(_plant);
+
+            _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _unitOfWorkMock
+                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+                .Callback(() => _saveChangesCount++);
+
+            _currentUserProviderMock = new Mock<ICurrentUserProvider>();
+            _currentUserProviderMock
+                .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+
+            //mock person response from main API
+            var personDetails = new ProCoSysPerson
+            {
+                AzureOid = _azureOidForCurrentUser.ToString(),
+                FirstName = "Ola",
+                LastName = "Nordman",
+                Email = "ola@test.com",
+                UserName = "ON"
+            };
+
+            _personApiServiceMock = new Mock<IPersonApiService>();
+            _personApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
+                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
+                .Returns(Task.FromResult(personDetails));
+
+            //create invitation
+            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation.AddParticipant(new Participant(_plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null, null,null,null,0));
+            _invitation.AddParticipant(new Participant(_plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, null, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
+
+            _invitationRepositoryMock = new Mock<IInvitationRepository>();
+            _invitationRepositoryMock
+                .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
+                .Returns(Task.FromResult(_invitation));
+
+            //command
+            _command = new CompleteInvitationCommand(
+                _invitation.Id,
+                _invitationRowVersion,
+                _participantRowVersion);
+
+            _dut = new CompleteInvitationCommandHandler(
+                _plantProviderMock.Object,
+                _invitationRepositoryMock.Object,
+                _unitOfWorkMock.Object,
+                _currentUserProviderMock.Object,
+                _personApiServiceMock.Object);
+        }
+
+        [TestMethod]
+        public async Task CompleteIpoIpoCommand_ShouldCompleteInvitation()
+        {
+            Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
+            var participant = _invitation.Participants.FirstOrDefault();
+            Assert.IsNotNull(participant);
+            Assert.IsNull(participant.SignedAt);
+            Assert.IsNull(participant.SignedBy);
+
+            await _dut.Handle(_command, default);
+
+            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
+            Assert.IsNotNull(participant.SignedAt);
+            Assert.AreEqual("ON", participant.SignedBy);
+        }
+
+        [TestMethod]
+        public async Task HandlingCompleteIpoCommand_ShouldSetAndReturnRowVersion()
+        {
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            // In real life EF Core will create a new RowVersion when save.
+            // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
+            Assert.AreEqual(_invitationRowVersion, result.Data);
+            Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
+            Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+        }
+    }
+}

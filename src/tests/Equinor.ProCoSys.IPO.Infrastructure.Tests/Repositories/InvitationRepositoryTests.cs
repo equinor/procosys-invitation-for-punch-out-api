@@ -50,6 +50,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 "FR",
                 null,
                 null,
+                null,
                 "fr@test.com",
                 null,
                 0);
@@ -175,6 +176,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 Organization.Operation,
                 IpoParticipantType.FunctionalRole,
                 "FR 2",
+                null,
                 null,
                 null,
                 "fr@test.com",

@@ -48,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 "Ola",
                 "Nordmann",
+                "ON",
                 "ola@test.com",
                 new Guid("11111111-1111-2222-2222-333333333333"),
                 0);
@@ -59,6 +60,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 "FR1",
                 null,
                 null,
+                null,
                 "fr1@test.com",
                 null,
                 1);
@@ -67,6 +69,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 TestPlant,
                 Organization.External,
                 IpoParticipantType.Person,
+                null,
                 null,
                 null,
                 null,
