@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -29,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         public InvitationsController(IMediator mediator) => _mediator = mediator;
 
-        [Authorize(Roles = Permissions.IPO_READ)]
+        //[Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}")]
         public async Task<ActionResult<InvitationDto>> GetInvitationById(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -97,24 +98,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
+        //[Authorize(Roles = Permissions.IPO_SIGN)]
+        //[Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompleteInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
-            [FromRoute] int invitationId,
+            [FromRoute] int id,
             [FromBody] CompleteInvitationDto dto)
         {
             var result = await _mediator.Send(
-                new CompleteInvitationCommand(invitationId, dto.InvitationRowVersion, dto.ParticipantRowVersion));
+                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
+        //[Authorize(Roles = Permissions.IPO_SIGN)]
+        //[Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/AttendedStatus")]
         public async Task<ActionResult> ChangeAttendedStatusInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -127,7 +128,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             var participantsToChangeAttendedStatus = dto.Participants.Select(p => 
                 new ParticipantToChangeAttendedStatusForCommand(p.ParticipantId, p.Attended, p.RowVersion)).ToList();
             var result = await _mediator.Send(
-                new ChangeAttendedStatusCommand(id, dto.InvitationRowVersion, participantsToChangeAttendedStatus));
+                new ChangeAttendedStatusesCommand(id, dto.InvitationRowVersion, participantsToChangeAttendedStatus));
             return this.FromResult(result);
         }
 

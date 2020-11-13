@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
 {
-    public class ChangeAttendedStatusCommand : IRequest<Result<Unit>>, IInvitationCommandRequest
+    public class ChangeAttendedStatusesCommand : IRequest<Result<Unit>>, IInvitationCommandRequest
     {
-        public ChangeAttendedStatusCommand(
+        public ChangeAttendedStatusesCommand(
             int invitationId,
             string invitationRowVersion,
             IList<ParticipantToChangeAttendedStatusForCommand> participants)

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
 {
-    public class ChangeAttendedStatusCommandHandler : IRequestHandler<ChangeAttendedStatusCommand, Result<Unit>>
+    public class ChangeAttendedStatusesCommandHandler : IRequestHandler<ChangeAttendedStatusesCommand, Result<Unit>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -19,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public ChangeAttendedStatusCommandHandler(
+        public ChangeAttendedStatusesCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -33,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus
             _personApiService = personApiService;
         }
 
-        public async Task<Result<Unit>> Handle(ChangeAttendedStatusCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(ChangeAttendedStatusesCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();

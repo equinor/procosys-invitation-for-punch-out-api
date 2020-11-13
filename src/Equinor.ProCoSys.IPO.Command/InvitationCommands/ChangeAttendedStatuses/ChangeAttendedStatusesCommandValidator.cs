@@ -5,11 +5,11 @@ using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
 {
-    public class ChangeAttendedStatusCommandValidator : AbstractValidator<ChangeAttendedStatusCommand>
+    public class ChangeAttendedStatusesCommandValidator : AbstractValidator<ChangeAttendedStatusesCommand>
     {
-        public ChangeAttendedStatusCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
+        public ChangeAttendedStatusesCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
