@@ -218,7 +218,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             {
                 return false;
             }
-            return participants[0].AzureOid == _currentUserProvider.GetCurrentUserOid();
+            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
         public async Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token) =>
