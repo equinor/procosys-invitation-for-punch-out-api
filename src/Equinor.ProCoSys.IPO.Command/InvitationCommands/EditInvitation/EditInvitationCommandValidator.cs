@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
 
             async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoIsInPlannedStageAsync(invitationId, token);
+                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
 
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, int id, CancellationToken token)
                 => !await invitationValidator.IpoTitleExistsInProjectOnAnotherIpoAsync(projectName, title, id, token);

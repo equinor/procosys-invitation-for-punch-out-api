@@ -28,9 +28,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 where ipo.Id == invitationId
                 select ipo).AnyAsync(token);
 
-        public async Task<bool> IpoIsInPlannedStageAsync(int invitationId, CancellationToken token) => 
+        public async Task<bool> IpoIsInStageAsync(int invitationId, IpoStatus stage, CancellationToken token) => 
             await(from ipo in _context.QuerySet<Invitation>()
-                    where ipo.Id == invitationId && ipo.Status == IpoStatus.Planned
+                    where ipo.Id == invitationId && ipo.Status == stage
                     select ipo).AnyAsync(token);
 
 
@@ -161,7 +161,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        private async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
+        public async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                      select p).AnyAsync(token);

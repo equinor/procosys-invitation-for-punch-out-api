@@ -30,8 +30,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;
         protected readonly Guid _azureOid = new Guid("11111111-2222-2222-2222-333333333334");
-        protected readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123"); //do not change this Oid! Taken from ReadOnlyTestBase
-
 
         private readonly IList<string> _mcPkgScope = new List<string>
         {

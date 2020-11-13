@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
@@ -36,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
 
             async Task<bool> BeAnInvitationInPlannedStage(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoIsInPlannedStageAsync(invitationId, token);
+                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
 
             async Task<bool> BeAContractorOnIpo(int invitationId, CancellationToken token)
                 => await invitationValidator.ContractorExistsAsync(invitationId, token);
