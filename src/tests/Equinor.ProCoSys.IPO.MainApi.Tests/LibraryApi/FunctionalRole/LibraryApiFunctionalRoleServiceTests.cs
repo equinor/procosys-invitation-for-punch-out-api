@@ -22,6 +22,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
 
         private const string _plant = "PCS$TESTPLANT";
         private const string _classification = "NOTIFICATION";
+        private List<string> _functionalRoleCodes =  new List<string> { "A", "B" };
         private static List<KeyValuePair<string, string>> _extraHeaders = new List<KeyValuePair<string, string>>();
 
         [TestInitialize]
@@ -40,7 +41,17 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                 Description = "Description1",
                 Email = "example1@email.com",
                 InformationEmail = "infoexample1@email.com",
-                UsePersonalEmail = true
+                UsePersonalEmail = true,
+                Persons = new List<Person>
+                {
+                    new Person{
+                        AzureOid = new Guid("11111111-1111-2222-2222-333333333333").ToString(),
+                        Email = "ola@test.com",
+                        FirstName = "Ola",
+                        LastName = "Nordmann",
+                        UserName = "ON"
+                    }
+                }
             };
             _proCoSysFunctionalRole2 = new ProCoSysFunctionalRole
             {
@@ -95,6 +106,48 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
             Assert.AreEqual("example1@email.com", functionalRole.Email);
             Assert.AreEqual("infoexample1@email.com", functionalRole.InformationEmail);
             Assert.IsTrue(functionalRole.UsePersonalEmail != null && functionalRole.UsePersonalEmail.Value);
+        }
+
+        [TestMethod]
+        public async Task GetFunctionalRolesByCode_ShouldReturnCorrectNumberOfFunctionalRoles()
+        {
+            // Act
+            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, _functionalRoleCodes);
+
+            // Assert
+            Assert.AreEqual(2, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetFunctionalRolesByCode_ShouldReturnEmptyList_WhenResultIsInvalid()
+        {
+            _foreignApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), _extraHeaders))
+                .Returns(Task.FromResult(new List<ProCoSysFunctionalRole>()));
+
+            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string>{ "not a code"});
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetFunctionalRolesByCode_ShouldReturnCorrectProperties()
+        {
+            // Act
+            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, _functionalRoleCodes);
+
+            // Assert
+            var functionalRole = result.First();
+            Assert.AreEqual("A", functionalRole.Code);
+            Assert.AreEqual("Description1", functionalRole.Description);
+            Assert.AreEqual("example1@email.com", functionalRole.Email);
+            Assert.AreEqual("infoexample1@email.com", functionalRole.InformationEmail);
+            Assert.IsTrue(functionalRole.UsePersonalEmail != null && functionalRole.UsePersonalEmail.Value);
+            var person = functionalRole.Persons.First();
+            Assert.AreEqual("Ola", person.FirstName);
+            Assert.AreEqual("Nordmann", person.LastName);
+            Assert.AreEqual("ola@test.com", person.Email);
+            Assert.AreEqual(new Guid("11111111-1111-2222-2222-333333333333").ToString(), person.AzureOid);
         }
     }
 }

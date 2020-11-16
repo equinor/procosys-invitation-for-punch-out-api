@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         private readonly List<Attachment> _attachments = new List<Attachment>();
 
-        private Invitation()
+        protected Invitation()
             : base(null)
         {
         }
@@ -27,6 +27,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Invitation(string plant, string projectName, string title, string description, DisciplineType type)
             : base(plant)
         {
+            if (string.IsNullOrEmpty(projectName))
+            {
+                throw new ArgumentNullException(nameof(projectName));
+            }
+
+            if (string.IsNullOrEmpty(title))
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+
             ProjectName = projectName;
             Title = title;
             Description = description;

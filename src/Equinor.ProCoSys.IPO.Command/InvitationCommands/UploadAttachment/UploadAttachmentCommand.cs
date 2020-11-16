@@ -6,7 +6,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
 {
-    public class UploadAttachmentCommand : IDisposable, IRequest<Result<int>>
+    public class UploadAttachmentCommand : IDisposable, IRequest<Result<int>>, IInvitationCommandRequest
     {
         private bool _disposedValue;
 

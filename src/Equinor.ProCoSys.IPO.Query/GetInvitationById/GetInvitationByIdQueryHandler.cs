@@ -29,11 +29,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 .Include(i => i.CommPkgs)
                 .Include(i => i.McPkgs)
                 .Include(i => i.Participants)
-                .SingleOrDefaultAsync(x => x.Id == request.Id, token);
+                .SingleOrDefaultAsync(x => x.Id == request.InvitationId, token);
 
             if (invitation == null)
             {
-                return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Invitation), request.Id));
+                return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
             var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
