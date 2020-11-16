@@ -3,7 +3,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
-    public class GetAttachmentByIdQuery : IRequest<Result<Uri>>, IInvitationQueryRequest
+    public class GetAttachmentByIdQuery : IRequest<Result<AttachmentDto>>, IInvitationQueryRequest
     {
         public GetAttachmentByIdQuery(int invitationId, int attachmentId)
         {
