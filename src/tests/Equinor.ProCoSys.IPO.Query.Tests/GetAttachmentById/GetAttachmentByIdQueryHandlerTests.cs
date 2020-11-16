@@ -15,6 +15,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
     [TestClass]
     public class GetAttachmentsQueryHandlerTests : ReadOnlyTestsBase
     {
+        private Mock<IOptionsMonitor<BlobStorageOptions>> blobStorageOptionsMonitorMock;
+
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -27,6 +29,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();
             }
+
+            var blobStorageOptions = new BlobStorageOptions();
+            blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>();
+            blobStorageOptionsMonitorMock
+                .Setup(x => x.CurrentValue)
+                .Returns(blobStorageOptions);
         }
 
         [TestMethod]
@@ -34,8 +42,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IBlobStorage>();
-            var blobStorageOptions = new BlobStorageOptions();
-            var blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>(blobStorageOptions);
             var query = new GetAttachmentByIdQuery(1, 2);
 
             var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
@@ -51,8 +57,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IBlobStorage>();
-            var blobStorageOptions = new BlobStorageOptions();
-            var blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>(blobStorageOptions);
             var query = new GetAttachmentByIdQuery(1, 3);
 
             var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
