@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachments
@@ -17,9 +18,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
     {
         private readonly IReadOnlyContext _context;
         private readonly IBlobStorage _blobStorage;
-        private readonly BlobStorageOptions _blobStorageOptions;
+        private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
 
-        public GetAttachmentsQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, BlobStorageOptions blobStorageOptions)
+        public GetAttachmentsQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
         {
             _context = context;
             _blobStorage = blobStorage;
@@ -50,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
                     => new AttachmentDto(
                         attachment.Id,
                         attachment.FileName,
-                        attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions),
+                        attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
                         attachment.UploadedAtUtc,
                         uploadedByDtos[attachment.UploadedById],
                         attachment.RowVersion.ConvertToString())).ToList();

@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
@@ -35,9 +36,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IBlobStorage>();
             var blobStorageOptions = new BlobStorageOptions();
+            var blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>(blobStorageOptions);
             var query = new GetAttachmentsQuery(1);
 
-            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, blobStorageOptions);
+            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
 
             var result = await dut.Handle(query, default);
 
@@ -51,9 +53,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IBlobStorage>();
             var blobStorageOptions = new BlobStorageOptions();
+            var blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>(blobStorageOptions);
             var query = new GetAttachmentsQuery(1);
 
-            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, blobStorageOptions);
+            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
 
             var result = await dut.Handle(query, default);
 
@@ -70,9 +73,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IBlobStorage>();
             var blobStorageOptions = new BlobStorageOptions();
+            var blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>(blobStorageOptions);
             var query = new GetAttachmentByIdQuery(1, 3);
 
-            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptions);
+            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
 
             var result = await dut.Handle(query, default);
 
