@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
@@ -11,6 +12,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,6 +36,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private EditInvitationCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _rowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const int _participantId = 20;
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _newTitle = "Test title 2";
@@ -50,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _commPkgNo = "Comm1";
-        private readonly List<ParticipantsForCommand>_participants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
@@ -72,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null),
+                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
@@ -211,8 +215,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d"));
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2"));
-            _invitation.AddParticipant(new Participant(_plant, _participants[0].Organization, IpoParticipantType.FunctionalRole, _participants[0].FunctionalRole.Code, null,null, null,null,null,0));
-            _invitation.AddParticipant(new Participant(_plant, _participants[1].Organization, IpoParticipantType.Person, null, _participants[1].Person.FirstName, _participants[1].Person.LastName, null, _participants[1].Person.Email, _participants[1].Person.AzureOid, 1));
+            var participant = new Participant(
+                _plant,
+                _participants[0].Organization,
+                IpoParticipantType.FunctionalRole,
+                _participants[0].FunctionalRole.Code,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0);
+            participant.SetProtectedIdForTesting(_participantId);
+            _invitation.AddParticipant(participant);
+            _invitation.AddParticipant(new Participant(
+                _plant,
+                _participants[1].Organization,
+                IpoParticipantType.Person,
+                null,
+                _participants[1].Person.FirstName,
+                _participants[1].Person.LastName,
+                null,
+                _participants[1].Person.Email,
+                _participants[1].Person.AzureOid,
+                1));
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -305,6 +331,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_rowVersion, result.Data);
             Assert.AreEqual(_rowVersion, _invitation.RowVersion.ConvertToString());
+            Assert.IsTrue(_invitation.Participants.Any(p => p.RowVersion.ConvertToString() == _participantRowVersion));
         }
     }
 }

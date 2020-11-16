@@ -1,27 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedStatuses
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants
 {
     [TestClass]
-    public class ChangeAttendedStatusesCommandValidatorTests
+    public class UpdateAttendedStatusAndNotesOnParticipantsCommandValidatorTests
     {
-        private ChangeAttendedStatusesCommandValidator _dut;
+        private UpdateAttendedStatusAndNotesOnParticipantsCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private ChangeAttendedStatusesCommand _command;
-        private const string _projectName = "Project name";
-        private const string _title = "Test title";
-        private const string _description = "body";
-        private const string _location = "location A";
+        private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
+        private const string _note = "note A";
         private const int _id = 1;
         private const int _participantId1 = 10;
         private const int _participantId2 = 20;
@@ -29,15 +26,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
 
-        private readonly List<ParticipantToChangeAttendedStatusForCommand> _participants = new List<ParticipantToChangeAttendedStatusForCommand>
+        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participants = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
         {
-            new ParticipantToChangeAttendedStatusForCommand(
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
                 _participantId1,
                 true,
+                _note,
                 _participantRowVersion1),
-            new ParticipantToChangeAttendedStatusForCommand(
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
                 _participantId2,
                 true,
+                _note,
                 _participantRowVersion2)
         };
 
@@ -55,12 +54,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
-            _command = new ChangeAttendedStatusesCommand(
+            _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _id,
                 _invitationRowVersion,
                 _participants);
 
-            _dut = new ChangeAttendedStatusesCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new UpdateAttendedStatusAndNotesOnParticipantsCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]
@@ -153,7 +152,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person signing is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!"));
+                .StartsWith("User is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!"));
         }
     }
 }

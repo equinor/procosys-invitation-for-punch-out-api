@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -12,10 +12,10 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedStatuses
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants
 {
     [TestClass]
-    public class ChangeAttendedStatusesCommandHandlerTests
+    public class UpdateAttendedStatusAndNotesOnParticipantsCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -23,12 +23,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
-        private ChangeAttendedStatusesCommand _command;
-        private ChangeAttendedStatusesCommandHandler _dut;
+        private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
+        private UpdateAttendedStatusAndNotesOnParticipantsCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
+        private const string _note = "Test note";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _invitationRowVersion = "AAAAAAAAABA=";
@@ -41,15 +42,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
         private const int _constructionCompanyParticipantId = 30;
         private Invitation _invitation;
 
-        private readonly List<ParticipantToChangeAttendedStatusForCommand> _participants = new List<ParticipantToChangeAttendedStatusForCommand>
+        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participants = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
         {
-            new ParticipantToChangeAttendedStatusForCommand(
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
                 _contractorParticipantId,
                 true,
+                _note,
                 _participantRowVersion1),
-            new ParticipantToChangeAttendedStatusForCommand(
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
                 _constructionCompanyParticipantId,
                 false,
+                _note,
                 _participantRowVersion2)
         };
 
@@ -124,12 +127,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
             _invitation.Status = IpoStatus.Completed;
 
             //command
-            _command = new ChangeAttendedStatusesCommand(
+            _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _invitation.Id,
                 _invitationRowVersion,
                 _participants);
 
-            _dut = new ChangeAttendedStatusesCommandHandler(
+            _dut = new UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
@@ -142,23 +145,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.ChangeAttendedSt
         {
             //Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             Assert.AreEqual(false, _invitation.Participants.First().Attended);
+            Assert.IsNull(_invitation.Participants.First().Note);
 
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(true, _invitation.Participants.First().Attended);
+            Assert.AreEqual(_note, _invitation.Participants.First().Note);
         }
 
         [TestMethod]
-        public async Task HandlingCompleteIpoCommand_ShouldSetAndReturnRowVersion()
+        public async Task HandlingCompleteIpoCommand_ShouldSetVersions()
         {
             // Act
-            var result = await _dut.Handle(_command, default);
+            await _dut.Handle(_command, default);
 
             // Assert
             // In real life EF Core will create a new RowVersion when save.
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(_participantRowVersion1, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+            Assert.IsTrue(_invitation.Participants.ToList().Any(p => p.RowVersion.ConvertToString() == _participantRowVersion2));
         }
     }
 }

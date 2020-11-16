@@ -3,12 +3,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
@@ -30,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         public InvitationsController(IMediator mediator) => _mediator = mediator;
 
-        //[Authorize(Roles = Permissions.IPO_READ)]
+        [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}")]
         public async Task<ActionResult<InvitationDto>> GetInvitationById(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -98,8 +97,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        //[Authorize(Roles = Permissions.IPO_SIGN)]
-        //[Authorize(Roles = Permissions.IPO_WRITE)]
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompleteInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -109,26 +108,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompleteInvitationDto dto)
         {
+            var participantsToChange = dto.Participants.Select(p =>
+                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
-                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion));
+                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToChange));
             return this.FromResult(result);
         }
 
-        //[Authorize(Roles = Permissions.IPO_SIGN)]
-        //[Authorize(Roles = Permissions.IPO_WRITE)]
-        [HttpPut("{id}/AttendedStatus")]
-        public async Task<ActionResult> ChangeAttendedStatusInvitation(
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/AttendedStatusAndNotes")]
+        public async Task<ActionResult> ChangeAttendedStatusOnParticipants(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
             [FromRoute] int id,
-            [FromBody] AttendedStatusDto dto)
+            [FromBody] AttendedStatusAndNotesDto dto)
         {
-            var participantsToChangeAttendedStatus = dto.Participants.Select(p => 
-                new ParticipantToChangeAttendedStatusForCommand(p.ParticipantId, p.Attended, p.RowVersion)).ToList();
+            var participants = dto.Participants.Select(p =>
+                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
-                new ChangeAttendedStatusesCommand(id, dto.InvitationRowVersion, participantsToChangeAttendedStatus));
+                new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, dto.InvitationRowVersion, participants));
             return this.FromResult(result);
         }
 

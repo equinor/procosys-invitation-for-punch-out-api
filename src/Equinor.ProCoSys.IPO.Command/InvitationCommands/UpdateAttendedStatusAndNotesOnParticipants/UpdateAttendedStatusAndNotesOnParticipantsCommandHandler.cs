@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatus;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants
 {
-    public class ChangeAttendedStatusesCommandHandler : IRequestHandler<ChangeAttendedStatusesCommand, Result<Unit>>
+    public class UpdateAttendedStatusAndNotesOnParticipantsCommandHandler : IRequestHandler<UpdateAttendedStatusAndNotesOnParticipantsCommand, Result<Unit>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -20,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public ChangeAttendedStatusesCommandHandler(
+        public UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -34,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
             _personApiService = personApiService;
         }
 
-        public async Task<Result<Unit>> Handle(ChangeAttendedStatusesCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(UpdateAttendedStatusAndNotesOnParticipantsCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
@@ -65,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
         private async Task ChangeAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             string functionalRoleCode,
-            IEnumerable<ParticipantToChangeAttendedStatusForCommand> participants)
+            IEnumerable<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
         {
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,
@@ -84,13 +83,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
 
         private void ChangeParticipantStatuses(
             Invitation invitation,
-            IEnumerable<ParticipantToChangeAttendedStatusForCommand> participants)
+            IEnumerable<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
         {
             var ipoParticipants = invitation.Participants;
             foreach (var participant in participants)
             {
                 var ipoParticipant = ipoParticipants.Single(p => p.Id == participant.Id);
                 ipoParticipant.Attended = participant.Attended;
+                ipoParticipant.Note = participant.Note;
                 ipoParticipant.SetRowVersion(participant.RowVersion);
             }
         }

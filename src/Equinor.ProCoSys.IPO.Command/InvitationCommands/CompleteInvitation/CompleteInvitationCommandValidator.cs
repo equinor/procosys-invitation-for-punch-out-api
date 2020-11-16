@@ -33,6 +33,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
                 .WithMessage(command =>
                     "Person signing is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!");
 
+            RuleForEach(command => command.Participants)
+                .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))
+                .WithMessage((command, participant) =>
+                    $"Participant with ID does not exist on invitation! Participant={participant}")
+                .Must((command, participant) => HaveAValidRowVersion(participant.RowVersion))
+                .WithMessage((command, participant) =>
+                    $"Participant doesn't have valid rowVersion! Participant={participant}");
+
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
 
@@ -44,6 +52,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
 
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken token)
                 => await invitationValidator.ValidContractorParticipantExistsAsync(invitationId, token);
+
+
+            async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken token)
+                => await invitationValidator.ParticipantExists(participantId, invitationId, token);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

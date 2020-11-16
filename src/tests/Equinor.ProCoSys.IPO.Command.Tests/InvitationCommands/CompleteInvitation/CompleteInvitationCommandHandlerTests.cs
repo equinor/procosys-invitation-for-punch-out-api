@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -37,6 +38,26 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
         private const string _functionalRoleCode = "FR1";
         private Invitation _invitation;
+        private const string _note = "note A";
+        private const int _participantId1 = 10;
+        private const int _participantId2 = 20;
+        private const string _participantRowVersion1 = "AAAAAAAAABB=";
+        private const string _participantRowVersion2 = "AAAAAAAAABM=";
+
+        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participantsToChange = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
+        {
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+                _participantId1,
+                true,
+                _note,
+                _participantRowVersion1),
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+                _participantId2,
+                true,
+                _note,
+                _participantRowVersion2)
+        };
+
 
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
@@ -90,7 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
 
             //create invitation
             _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
-            _invitation.AddParticipant(new Participant(
+            var participant1 = new Participant(
                 _plant,
                 _participants[0].Organization,
                 IpoParticipantType.FunctionalRole,
@@ -100,8 +121,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
                 null,
                 null,
                 null,
-                0));
-            _invitation.AddParticipant(new Participant(
+                0);
+            participant1.SetProtectedIdForTesting(_participantId1);
+            _invitation.AddParticipant(participant1);
+            var participant2 = new Participant(
                 _plant,
                 _participants[1].Organization,
                 IpoParticipantType.Person,
@@ -111,7 +134,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
                 null,
                 _participants[1].Person.Email,
                 _participants[1].Person.AzureOid,
-                1));
+                1);
+            participant2.SetProtectedIdForTesting(_participantId2);
+            _invitation.AddParticipant(participant2);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -122,7 +147,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             _command = new CompleteInvitationCommand(
                 _invitation.Id,
                 _invitationRowVersion,
-                _participantRowVersion);
+                _participantRowVersion,
+                _participantsToChange);
 
             _dut = new CompleteInvitationCommandHandler(
                 _plantProviderMock.Object,

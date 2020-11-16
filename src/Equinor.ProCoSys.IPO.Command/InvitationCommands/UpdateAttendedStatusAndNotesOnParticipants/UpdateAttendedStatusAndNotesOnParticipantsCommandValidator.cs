@@ -5,11 +5,11 @@ using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants
 {
-    public class ChangeAttendedStatusesCommandValidator : AbstractValidator<ChangeAttendedStatusesCommand>
+    public class UpdateAttendedStatusAndNotesOnParticipantsCommandValidator : AbstractValidator<UpdateAttendedStatusAndNotesOnParticipantsCommand>
     {
-        public ChangeAttendedStatusesCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
+        public UpdateAttendedStatusAndNotesOnParticipantsCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, token) => BeAnInvitationInCompletedStage(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Invitation is not in completed stage, and thus cannot change attended statuses!")
+                    "Invitation is not in completed stage, and thus cannot change attended statuses or notes!")
                 .Must((command) => HaveAValidRowVersion(command.InvitationRowVersion))
                 .WithMessage(command =>
                     $"Invitation row version is not valid! InvitationRowVersion={command.InvitationRowVersion}")
@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.ChangeAttendedStatuses
                     "The IPO does not have a contractor assigned to the IPO!")
                 .MustAsync((command, token) => BeTheAssignedContractorIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!");
+                    "User is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!");
 
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))

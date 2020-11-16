@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,10 +55,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             {
                 CompleteIpoAsPersonAsync(invitation, participants.SingleOrDefault(), request.ParticipantRowVersion);
             }
+            UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation, IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
+        {
+            foreach (var participant in participants)
+            {
+                var ipoParticipant = invitation.Participants.Where(p => p.Id == participant.Id).Single();
+                ipoParticipant.Note = participant.Note;
+                ipoParticipant.Attended = participant.Attended;
+                ipoParticipant.SetRowVersion(participant.RowVersion);
+            }
         }
 
         private async Task CompleteIpoAsPersonInFunctionalRoleAsync(

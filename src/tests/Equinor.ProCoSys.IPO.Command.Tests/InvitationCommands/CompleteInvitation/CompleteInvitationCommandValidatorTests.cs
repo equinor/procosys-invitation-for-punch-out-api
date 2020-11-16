@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
@@ -19,6 +21,24 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         private const int _id = 1;
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const string _note = "note A";
+        private const int _participantId1 = 10;
+        private const int _participantId2 = 20;
+        private const string _participantRowVersion1 = "AAAAAAAAABB=";
+        private const string _participantRowVersion2 = "AAAAAAAAABM=";
+        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participants = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
+        {
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+                _participantId1,
+                true,
+                _note,
+                _participantRowVersion1),
+            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+                _participantId2,
+                true,
+                _note,
+                _participantRowVersion2)
+        };
 
         [TestInitialize]
         public void Setup_OkState()
@@ -27,14 +47,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(true);
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion2)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ValidContractorParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
             _command = new CompleteInvitationCommand(
                 _id,
                 _invitationRowVersion,
-                _participantRowVersion);
+                _participantRowVersion,
+                _participants);
 
             _dut = new CompleteInvitationCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
@@ -81,18 +106,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation row version is not valid!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
-        {
-            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(false);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant row version is not valid!"));
         }
 
         [TestMethod]
