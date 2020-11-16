@@ -9,7 +9,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachments
@@ -18,9 +17,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
     {
         private readonly IReadOnlyContext _context;
         private readonly IBlobStorage _blobStorage;
-        private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
+        private readonly BlobStorageOptions _blobStorageOptions;
 
-        public GetAttachmentsQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
+        public GetAttachmentsQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, BlobStorageOptions blobStorageOptions)
         {
             _context = context;
             _blobStorage = blobStorage;
@@ -41,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
                 return new NotFoundResult<List<AttachmentDto>>($"Invitation with ID {request.InvitationId} not found");
             }
 
-            var uploadedByIds = invitation.Attachments.Select(a => a.ModifiedById ?? a.CreatedById).ToList();
+            var uploadedByIds = invitation.Attachments.Select(a => a.UploadedById).ToList();
             var uploadedBys = await _context.QuerySet<Person>().Where(x => uploadedByIds.Contains(x.Id)).ToListAsync();
             var uploadedByDtos = uploadedBys.Select(x => new PersonDto(x.Id, x.FirstName, x.LastName, x.Oid, null, x.RowVersion.ConvertToString())).ToDictionary(x => x.Id);
 
@@ -51,9 +50,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
                     => new AttachmentDto(
                         attachment.Id,
                         attachment.FileName,
-                        attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
-                        attachment.ModifiedAtUtc ?? attachment.CreatedAtUtc,
-                        uploadedByDtos[attachment.ModifiedById ?? attachment.CreatedById],
+                        attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions),
+                        attachment.UploadedAtUtc,
+                        uploadedByDtos[attachment.UploadedById],
                         attachment.RowVersion.ConvertToString())).ToList();
 
             return new SuccessResult<List<AttachmentDto>>(attachments);

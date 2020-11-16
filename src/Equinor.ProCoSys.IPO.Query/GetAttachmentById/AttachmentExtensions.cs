@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -10,9 +9,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
     {
         public static Uri GetAttachmentDownloadUri(this Attachment attachment, IBlobStorage blobStorage, BlobStorageOptions blobStorageOptions)
         {
-            var now = TimeService.UtcNow;
-            var fullBlobPath = Path.Combine(blobStorageOptions.BlobContainer, attachment.BlobPath).Replace("\\", "/");
+            var fullBlobPath = string.Join('/', blobStorageOptions.BlobContainer, attachment.BlobPath);
 
+            var now = TimeService.UtcNow;
             var uri = blobStorage.GetDownloadSasUri(
                 fullBlobPath,
                 new DateTimeOffset(now.AddMinutes(blobStorageOptions.BlobClockSkewMinutes * -1)),

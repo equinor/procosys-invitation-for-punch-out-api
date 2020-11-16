@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
@@ -16,9 +15,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
     {
         private readonly IReadOnlyContext _context;
         private readonly IBlobStorage _blobStorage;
-        private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
+        private readonly BlobStorageOptions _blobStorageOptions;
 
-        public GetAttachmentByIdQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
+        public GetAttachmentByIdQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, BlobStorageOptions blobStorageOptions)
         {
             _context = context;
             _blobStorage = blobStorage;
@@ -38,15 +37,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                 return new NotFoundResult<AttachmentDto>($"Invitation with ID {request.InvitationId} or Attachment with ID {request.AttachmentId} not found");
             }
 
-            var uploadedBy = await _context.QuerySet<Person>().FirstOrDefaultAsync(x => x.Id == (attachment.ModifiedById ?? attachment.CreatedById));
+            var uploadedBy = await _context.QuerySet<Person>().FirstOrDefaultAsync(x => x.Id == attachment.UploadedById);
 
-            var uri = attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue);
             return new SuccessResult<AttachmentDto>(
                 new AttachmentDto(
                     attachment.Id,
                     attachment.FileName,
-                    attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
-                    attachment.ModifiedAtUtc ?? attachment.CreatedAtUtc,
+                    attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions),
+                    attachment.UploadedAtUtc,
                     new PersonDto(uploadedBy.Id, uploadedBy.FirstName, uploadedBy.LastName, uploadedBy.Oid, null, uploadedBy.RowVersion.ConvertToString()),
                     attachment.RowVersion.ConvertToString()));
         }
