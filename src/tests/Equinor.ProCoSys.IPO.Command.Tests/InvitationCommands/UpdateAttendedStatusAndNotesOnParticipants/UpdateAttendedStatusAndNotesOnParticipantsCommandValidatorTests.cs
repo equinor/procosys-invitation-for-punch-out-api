@@ -22,7 +22,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private const int _id = 1;
         private const int _participantId1 = 10;
         private const int _participantId2 = 20;
-        private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
 
@@ -45,7 +44,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
-            _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(true);
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion2)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
@@ -56,7 +54,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _id,
-                _invitationRowVersion,
                 _participants);
 
             _dut = new UpdateAttendedStatusAndNotesOnParticipantsCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
@@ -107,15 +104,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
+        public void Validate_ShouldFail_WhenRowVersionIsInvalid()
         {
-            _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(false);
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(false);
             
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation row version is not valid!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant doesn't have valid rowVersion"));
         }
 
         [TestMethod]

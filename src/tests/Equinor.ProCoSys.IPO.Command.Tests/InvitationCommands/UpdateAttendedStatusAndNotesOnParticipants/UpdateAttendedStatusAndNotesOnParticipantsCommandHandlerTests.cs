@@ -32,7 +32,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private const string _note = "Test note";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
         private int _saveChangesCount;
@@ -129,7 +128,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             //command
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _invitation.Id,
-                _invitationRowVersion,
                 _participants);
 
             _dut = new UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
@@ -162,7 +160,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             // Assert
             // In real life EF Core will create a new RowVersion when save.
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
-            Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.IsTrue(_invitation.Participants.ToList().Any(p => p.RowVersion.ConvertToString() == _participantRowVersion2));
         }
     }

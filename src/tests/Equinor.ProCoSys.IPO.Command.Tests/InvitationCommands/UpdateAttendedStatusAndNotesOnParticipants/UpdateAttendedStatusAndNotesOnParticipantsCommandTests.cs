@@ -9,21 +9,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
     [TestClass]
     public class UpdateAttendedStatusAndNotesOnParticipantsCommandTests
     {
-        private const string InvitationRowVersion = "AAAAAAAAABA=";
         private const string ParticipantRowVersion = "AAAAAAAAABB=";
         [TestMethod]
         public void Constructor_SetsProperties()
         {
             var dut = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 1,
-                InvitationRowVersion,
                 new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
                 {
                     new UpdateAttendedStatusAndNotesOnParticipantsForCommand(2, true, "note", ParticipantRowVersion)
                 });
 
             Assert.AreEqual(1, dut.InvitationId);
-            Assert.AreEqual(InvitationRowVersion, dut.InvitationRowVersion);
             Assert.AreEqual(1, dut.Participants.Count);
             Assert.AreEqual(ParticipantRowVersion, dut.Participants.First().RowVersion);
             Assert.AreEqual(2, dut.Participants.First().Id);

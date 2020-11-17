@@ -56,7 +56,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                 ChangeParticipantStatuses(invitation, request.Participants);
             }
 
-            invitation.SetRowVersion(request.InvitationRowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }

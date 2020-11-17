@@ -20,9 +20,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                 .MustAsync((command, token) => BeAnInvitationInCompletedStage(command.InvitationId, token))
                 .WithMessage(command =>
                     "Invitation is not in completed stage, and thus cannot change attended statuses or notes!")
-                .Must((command) => HaveAValidRowVersion(command.InvitationRowVersion))
-                .WithMessage(command =>
-                    $"Invitation row version is not valid! InvitationRowVersion={command.InvitationRowVersion}")
                 .MustAsync((command, token) => BeAContractorOnIpo(command.InvitationId, token))
                 .WithMessage(command =>
                     "The IPO does not have a contractor assigned to the IPO!")
@@ -33,10 +30,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))
                 .WithMessage((command, participant) =>
-                    $"Participant with ID does not exist on invitation! Participant={participant}")
+                    $"Participant with ID does not exist on invitation! ParticipantId={participant.Id}")
                 .Must((command, participant) => HaveAValidRowVersion(participant.RowVersion))
                 .WithMessage((command, participant) =>
-                    $"Participant doesn't have valid rowVersion! Participant={participant}");
+                    $"Participant doesn't have valid rowVersion! ParticipantRowVersion={participant.RowVersion}");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoExistsAsync(invitationId, token);

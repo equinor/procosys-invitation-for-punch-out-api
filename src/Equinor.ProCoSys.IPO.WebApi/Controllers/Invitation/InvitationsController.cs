@@ -125,12 +125,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
             [FromRoute] int id,
-            [FromBody] AttendedStatusAndNotesDto dto)
+            [FromBody] ParticipantToChangeDto[] dto)
         {
-            var participants = dto.Participants.Select(p =>
+            var participants = dto.Select(p =>
                 new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
-                new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, dto.InvitationRowVersion, participants));
+                new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, participants));
             return this.FromResult(result);
         }
 
