@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
-    public partial class AddColumnsToParticipant : Migration
+    public partial class AddColumnsToParticipants : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
-                name: "SignedAt",
+                name: "SignedAtUtc",
                 table: "Participants",
                 nullable: true);
 
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                 table: "Participants");
 
             migrationBuilder.DropColumn(
-                name: "SignedAt",
+                name: "SignedAtUtc",
                 table: "Participants");
 
             migrationBuilder.DropColumn(

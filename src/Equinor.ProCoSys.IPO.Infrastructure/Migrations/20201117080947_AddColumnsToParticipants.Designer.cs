@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    [Migration("20201112114513_AddColumnsToParticipant")]
-    partial class AddColumnsToParticipant
+    [Migration("20201117080947_AddColumnsToParticipants")]
+    partial class AddColumnsToParticipants
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -288,7 +288,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<DateTime?>("SignedAt")
+                    b.Property<DateTime?>("SignedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SignedBy")

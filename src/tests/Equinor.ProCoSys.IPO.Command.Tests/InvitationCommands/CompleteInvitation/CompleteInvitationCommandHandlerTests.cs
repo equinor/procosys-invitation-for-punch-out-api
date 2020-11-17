@@ -164,13 +164,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
             var participant = _invitation.Participants.FirstOrDefault();
             Assert.IsNotNull(participant);
-            Assert.IsNull(participant.SignedAt);
+            Assert.IsNull(participant.SignedAtUtc);
             Assert.IsNull(participant.SignedBy);
 
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            Assert.IsNotNull(participant.SignedAt);
+            Assert.IsNotNull(participant.SignedAtUtc);
             Assert.AreEqual("ON", participant.SignedBy);
         }
 

@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int SortKey { get; set; }
         public bool Attended { get; set; }
         public string Note { get; set; }
-        public DateTime? SignedAt { get; set; }
+        public DateTime? SignedAtUtc { get; set; }
         public string SignedBy { get; set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }

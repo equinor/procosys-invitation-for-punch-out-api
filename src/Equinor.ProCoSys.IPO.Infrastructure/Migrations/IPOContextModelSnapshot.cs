@@ -286,7 +286,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<DateTime?>("SignedAt")
+                    b.Property<DateTime?>("SignedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("SignedBy")

@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             {
                 invitation.Status = IpoStatus.Completed;
                 participant.SignedBy = person.UserName;
-                participant.SignedAt = new DateTime();
+                participant.SignedAtUtc = DateTime.UtcNow;
                 participant.SetRowVersion(participantRowVersion);
             }
             else
@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
         {
             invitation.Status = IpoStatus.Completed;
             participant.SignedBy = participant.UserName;
-            participant.SignedAt = new DateTime();
+            participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
         }
     }
