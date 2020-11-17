@@ -1,6 +1,6 @@
 ﻿namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
-    public class ParticipantToChangeDto
+    public class ParticipantToUpdateAttendedStatusAndNotesDto
     {
         public int Id { get; set; }
         public bool Attended { get; set; }

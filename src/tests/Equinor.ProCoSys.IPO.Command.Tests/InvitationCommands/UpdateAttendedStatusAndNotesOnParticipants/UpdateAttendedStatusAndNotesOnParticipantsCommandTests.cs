@@ -15,9 +15,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         {
             var dut = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 1,
-                new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
+                new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
                 {
-                    new UpdateAttendedStatusAndNotesOnParticipantsForCommand(2, true, "note", ParticipantRowVersion)
+                    new UpdateAttendedStatusAndNoteOnParticipantForCommand(2, true, "note", ParticipantRowVersion)
                 });
 
             Assert.AreEqual(1, dut.InvitationId);

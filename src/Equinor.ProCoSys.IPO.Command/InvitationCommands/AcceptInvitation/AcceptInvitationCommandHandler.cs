@@ -9,9 +9,9 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
 {
-    public class CompleteInvitationCommandHandler : IRequestHandler<CompleteInvitationCommand, Result<string>>
+    public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCommand, Result<string>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public CompleteInvitationCommandHandler(
+        public AcceptInvitationCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -33,47 +33,46 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             _personApiService = personApiService;
         }
 
-        public async Task<Result<string>> Handle(CompleteInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(AcceptInvitationCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
             var participant = invitation.Participants.SingleOrDefault(p => 
-                p.SortKey == 0 && 
-                p.Organization == Organization.Contractor && 
+                p.SortKey == 1 && 
+                p.Organization == Organization.ConstructionCompany && 
                 p.AzureOid == currentUserAzureOid);
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {
                 var functionalRole = invitation.Participants
-                    .SingleOrDefault(p => p.SortKey == 0 &&
+                    .SingleOrDefault(p => p.SortKey == 1 &&
                                           p.FunctionalRoleCode != null &&
                                           p.Type == IpoParticipantType.FunctionalRole);
 
-                await CompleteIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
+                await AcceptIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
             }
             else
             {
-                CompleteIpoAsPersonAsync(invitation, participant, request.ParticipantRowVersion);
+                AcceptIpoAsPersonAsync(invitation, participant, request.ParticipantRowVersion);
             }
-            UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
+            UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation, IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants)
+        private void UpdateNotesOnParticipants(Invitation invitation, IList<UpdateNoteOnParticipantForCommand> participants)
         {
             foreach (var participant in participants)
             {
                 var ipoParticipant = invitation.Participants.Single(p => p.Id == participant.Id);
                 ipoParticipant.Note = participant.Note;
-                ipoParticipant.Attended = participant.Attended;
                 ipoParticipant.SetRowVersion(participant.RowVersion);
             }
         }
 
-        private async Task CompleteIpoAsPersonInFunctionalRoleAsync(
+        private async Task AcceptIpoAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             Participant participant,
             string participantRowVersion)
@@ -85,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
 
             if (person != null)
             {
-                invitation.Status = IpoStatus.Completed;
+                invitation.Status = IpoStatus.Accepted;
                 participant.SignedBy = person.UserName;
                 participant.SignedAtUtc = DateTime.UtcNow;
                 participant.SetRowVersion(participantRowVersion);
@@ -96,12 +95,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             }
         }
 
-        private void CompleteIpoAsPersonAsync(
+        private void AcceptIpoAsPersonAsync(
             Invitation invitation,
             Participant participant,
             string participantRowVersion)
         {
-            invitation.Status = IpoStatus.Completed;
+            invitation.Status = IpoStatus.Accepted;
             participant.SignedBy = participant.UserName;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);

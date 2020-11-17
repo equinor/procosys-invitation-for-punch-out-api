@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -109,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromBody] CompleteInvitationDto dto)
         {
             var participantsToChange = dto.Participants.Select(p =>
-                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
+                new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
                 new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToChange));
             return this.FromResult(result);
@@ -119,18 +120,36 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/AttendedStatusAndNotes")]
-        public async Task<ActionResult> ChangeAttendedStatusOnParticipants(
+        public async Task<ActionResult> ChangeAttendedStatusAndNotesOnParticipants(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
             [FromRoute] int id,
-            [FromBody] ParticipantToChangeDto[] dto)
+            [FromBody] ParticipantToUpdateAttendedStatusAndNotesDto[] dto)
         {
             var participants = dto.Select(p =>
-                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
+                new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, participants));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Accept")]
+        public async Task<ActionResult> AcceptInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AcceptInvitationDto dto)
+        {
+            var participants = dto.Participants.Select(p =>
+                new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
+            var result = await _mediator.Send(
+                new AcceptInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
             return this.FromResult(result);
         }
 

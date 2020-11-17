@@ -3,9 +3,9 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class UpdateAttendedStatusAndNotesOnParticipantsForCommand : IRequest<Result<Unit>>
+    public class UpdateAttendedStatusAndNoteOnParticipantForCommand : IRequest<Result<Unit>>
     {
-        public UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+        public UpdateAttendedStatusAndNoteOnParticipantForCommand(
             int id,
             bool attended,
             string note,
