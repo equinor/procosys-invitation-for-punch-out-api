@@ -199,7 +199,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Type, invitationDto.Type);
             Assert.AreEqual(functionalRoleParticipant.FunctionalRoleCode, invitationDto.Participants.First().FunctionalRole.Code);
-            Assert.AreEqual(personParticipant.AzureOid.ToString(), invitationDto.Participants.Last().Person.AzureOid);
+            Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.Last().Person.Person.AzureOid);
             Assert.AreEqual(commPkg.CommPkgNo, invitationDto.CommPkgScope.First().CommPkgNo);
             Assert.AreEqual(mcPkg.McPkgNo, invitationDto.McPkgScope.First().McPkgNo);
         }
