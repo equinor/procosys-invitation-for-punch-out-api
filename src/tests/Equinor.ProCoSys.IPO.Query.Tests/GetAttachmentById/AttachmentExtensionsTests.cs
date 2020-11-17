@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -13,7 +12,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
     [TestClass]
     public class AttachmentExtensionsTests
     {
-
         [TestMethod]
         public void GetAttachmentDownloadUri_ReturnCorrectUri()
         {

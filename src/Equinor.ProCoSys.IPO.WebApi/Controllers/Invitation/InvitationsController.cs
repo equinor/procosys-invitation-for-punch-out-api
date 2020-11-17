@@ -117,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        //[Authorize(Roles = Permissions.IPO_READ)]
+        [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments/{attachmentId}")]
         public async Task<ActionResult<int>> GetAttachment(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]

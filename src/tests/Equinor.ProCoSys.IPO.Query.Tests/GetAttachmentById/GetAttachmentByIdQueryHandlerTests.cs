@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
     [TestClass]
     public class GetAttachmentsQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IOptionsMonitor<BlobStorageOptions>> blobStorageOptionsMonitorMock;
+        private Mock<IOptionsMonitor<BlobStorageOptions>> _blobStorageOptionsMonitorMock;
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -31,8 +31,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
             }
 
             var blobStorageOptions = new BlobStorageOptions();
-            blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>();
-            blobStorageOptionsMonitorMock
+            _blobStorageOptionsMonitorMock = new Mock<IOptionsMonitor<BlobStorageOptions>>();
+            _blobStorageOptionsMonitorMock
                 .Setup(x => x.CurrentValue)
                 .Returns(blobStorageOptions);
         }
@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
             var blobStorageMock = new Mock<IBlobStorage>();
             var query = new GetAttachmentByIdQuery(1, 2);
 
-            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
+            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
 
             var result = await dut.Handle(query, default);
 
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
             var blobStorageMock = new Mock<IBlobStorage>();
             var query = new GetAttachmentByIdQuery(1, 3);
 
-            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, blobStorageOptionsMonitorMock.Object);
+            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
 
             var result = await dut.Handle(query, default);
 
