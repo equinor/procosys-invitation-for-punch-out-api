@@ -58,7 +58,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
                 _participantRowVersion2)
         };
 
-
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
@@ -91,7 +90,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
-
 
             //mock person response from main API
             var personDetails = new ProCoSysPerson
@@ -159,7 +157,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         }
 
         [TestMethod]
-        public async Task CompleteIpoIpoCommand_ShouldCompleteInvitation()
+        public async Task CompleteIpoCommand_ShouldCompleteInvitation()
         {
             Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
             var participant = _invitation.Participants.FirstOrDefault();

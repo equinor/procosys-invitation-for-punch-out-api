@@ -116,18 +116,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
-        {
-            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(false);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant doesn't have valid rowVersion"));
-        }
-
-        [TestMethod]
         public void Validate_ShouldFail_WhenInvitationDoesNotHaveContractorParticipant()
         {
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(false));
@@ -148,8 +136,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("User is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("User is not the contractor assigned to complete this IPO"));
         }
     }
 }

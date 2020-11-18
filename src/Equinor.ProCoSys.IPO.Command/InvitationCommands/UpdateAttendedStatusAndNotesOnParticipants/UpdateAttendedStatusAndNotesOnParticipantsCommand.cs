@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             Participants = participants;
         }
 
-        public int InvitationId { get; set; }
-        public IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> Participants { get; set; }
+        public int InvitationId { get; }
+        public IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> Participants { get; }
     }
 }

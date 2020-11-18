@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
         {
             foreach (var participant in participants)
             {
-                var ipoParticipant = invitation.Participants.Where(p => p.Id == participant.Id).Single();
+                var ipoParticipant = invitation.Participants.Single(p => p.Id == participant.Id);
                 ipoParticipant.Note = participant.Note;
                 ipoParticipant.Attended = participant.Attended;
                 ipoParticipant.SetRowVersion(participant.RowVersion);

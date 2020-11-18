@@ -108,10 +108,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompleteInvitationDto dto)
         {
-            var participantsToChange = dto.Participants.Select(p =>
+            var participantsToUpdate = dto.Participants.Select(p =>
                 new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
-                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToChange));
+                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
             return this.FromResult(result);
         }
 

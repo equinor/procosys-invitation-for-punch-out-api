@@ -19,9 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             Participants = participants != null ? participants.ToList() : new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>();
         }
 
-        public int InvitationId { get; set; }
-        public string InvitationRowVersion { get; set; }
-        public string ParticipantRowVersion { get; set; }
-        public IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> Participants { get; set; }
+        public int InvitationId { get; }
+        public string InvitationRowVersion { get; }
+        public string ParticipantRowVersion { get; }
+        public IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> Participants { get; }
     }
 }

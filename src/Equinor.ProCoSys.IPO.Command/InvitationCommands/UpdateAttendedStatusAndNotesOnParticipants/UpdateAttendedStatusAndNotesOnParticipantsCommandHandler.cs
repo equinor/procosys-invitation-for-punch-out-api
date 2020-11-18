@@ -45,22 +45,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             if (!participants.Any() || participants[0].FunctionalRoleCode != null)
             {
                 var functionalRole = invitation.Participants
-                    .SingleOrDefault(p => p.SortKey == 0 &&
+                    .Single(p => p.SortKey == 0 &&
                                           p.FunctionalRoleCode != null &&
                                           p.Type == IpoParticipantType.FunctionalRole);
 
-                await ChangeAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode, request.Participants);
+                await UpdateAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode, request.Participants);
             }
             else
             {
-                ChangeParticipantStatuses(invitation, request.Participants);
+                UpdateParticipantStatusesAndNotes(invitation, request.Participants);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private async Task ChangeAsPersonInFunctionalRoleAsync(
+        private async Task UpdateAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             string functionalRoleCode,
             IEnumerable<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
 
             if (person != null)
             {
-                ChangeParticipantStatuses(invitation, participants);
+                UpdateParticipantStatusesAndNotes(invitation, participants);
             }
             else
             {
@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             }
         }
 
-        private void ChangeParticipantStatuses(
+        private void UpdateParticipantStatusesAndNotes(
             Invitation invitation,
             IEnumerable<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
         {
