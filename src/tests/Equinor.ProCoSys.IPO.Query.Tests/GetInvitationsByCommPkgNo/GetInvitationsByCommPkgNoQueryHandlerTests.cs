@@ -65,11 +65,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     Description,
                     "OK");
 
-                var McPkg = new McPkg(
+                var McPkg1 = new McPkg(
                     TestPlant,
                     _projectName,
                     _commPkgNo,
-                    "McPkgNo",
+                    "McPkgNo1",
+                    Description);
+
+                var McPkg2 = new McPkg(
+                    TestPlant,
+                    _projectName,
+                    _commPkgNo,
+                    "McPkgNo2",
                     Description);
 
                 _dpInvitation = new Invitation(TestPlant, _projectName, "DP Title", "Description1", DisciplineType.DP)
@@ -79,7 +86,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 _dpInvitation.AddParticipant(FunctionalRoleParticipant);
                 _dpInvitation.AddParticipant(PersonParticipant);
-                _dpInvitation.AddMcPkg(McPkg);
+                _dpInvitation.AddMcPkg(McPkg1);
+                _dpInvitation.AddMcPkg(McPkg2);
 
                 _mdpInvitation = new Invitation(TestPlant, _projectName, "MDP Title", "Description2", DisciplineType.MDP)
                 {

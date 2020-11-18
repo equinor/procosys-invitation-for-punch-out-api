@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_READ)]
+        [Authorize(Roles = Permissions.COMMPKG_READ)]
         [HttpGet("/ByCommPkgNo/{commPkgNo}")]
         public async Task<ActionResult<InvitationForMainDto>> GetInvitationsByCommPkgNo(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]

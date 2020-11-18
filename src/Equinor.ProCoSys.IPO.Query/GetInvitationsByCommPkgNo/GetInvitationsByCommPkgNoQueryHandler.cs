@@ -37,7 +37,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                                 || i.CommPkgs.Any(commPkg => commPkg.CommPkgNo == request.CommPkgNo)))
                  select invitation).ToListAsync(token);
 
-
             var invitationForMainDtos = new List<InvitationForMainDto>();
 
             foreach (var invitation in invitations)
