@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
                     .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}.");
 
             async Task<bool> BeAnExistingInvitationAsync(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
             async Task<bool> BeAnExistingAttachmentAsync(int invitationId, int attachmentId, CancellationToken token)
                 => await invitationValidator.AttachmentExistsAsync(invitationId, attachmentId, token);
             bool HaveAValidRowVersion(string rowVersion)

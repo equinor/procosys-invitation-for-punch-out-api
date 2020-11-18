@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -12,10 +10,10 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
 {
     [TestClass]
-    public class CompleteInvitationCommandHandlerTests
+    public class SignInvitationCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -23,57 +21,20 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
-        private CompleteInvitationCommand _command;
-        private CompleteInvitationCommandHandler _dut;
+        private SignInvitationCommand _command;
+        private SignInvitationCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
         private int _saveChangesCount;
-        private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
         private const string _functionalRoleCode = "FR1";
         private Invitation _invitation;
-        private const string _note = "note A";
-        private const int _participantId1 = 10;
-        private const int _participantId2 = 20;
-        private const string _participantRowVersion1 = "AAAAAAAAABB=";
-        private const string _participantRowVersion2 = "AAAAAAAAABM=";
-
-        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participantsToChange = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
-        {
-            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
-                _participantId1,
-                true,
-                _note,
-                _participantRowVersion1),
-            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
-                _participantId2,
-                true,
-                _note,
-                _participantRowVersion2)
-        };
-
-
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
-                null,
-                1)
-        };
+        private const int _participantId = 10;
 
         [TestInitialize]
         public void Setup()
@@ -97,10 +58,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             var personDetails = new ProCoSysPerson
             {
                 AzureOid = _azureOidForCurrentUser.ToString(),
-                FirstName = "Ola",
+                FirstName = "Kari",
                 LastName = "Nordman",
-                Email = "ola@test.com",
-                UserName = "ON"
+                Email = "kari@test.com",
+                UserName = "KN"
             };
 
             _personApiServiceMock = new Mock<IPersonApiService>();
@@ -111,46 +72,31 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
 
             //create invitation
             _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
-            var participant1 = new Participant(
+            var participant = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Operation,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
                 null,
                 null,
-                0);
-            participant1.SetProtectedIdForTesting(_participantId1);
-            _invitation.AddParticipant(participant1);
-            var participant2 = new Participant(
-                _plant,
-                _participants[1].Organization,
-                IpoParticipantType.Person,
-                null,
-                _participants[1].Person.FirstName,
-                _participants[1].Person.LastName,
-                null,
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
-                1);
-            participant2.SetProtectedIdForTesting(_participantId2);
-            _invitation.AddParticipant(participant2);
-
+                3);
+            participant.SetProtectedIdForTesting(_participantId);
+            _invitation.AddParticipant(participant);
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
             //command
-            _command = new CompleteInvitationCommand(
+            _command = new SignInvitationCommand(
                 _invitation.Id,
-                _invitationRowVersion,
-                _participantRowVersion,
-                _participantsToChange);
+                _participantId,
+                _participantRowVersion);
 
-            _dut = new CompleteInvitationCommandHandler(
+            _dut = new SignInvitationCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
@@ -159,24 +105,22 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         }
 
         [TestMethod]
-        public async Task CompleteIpoIpoCommand_ShouldCompleteInvitation()
+        public async Task SignIpoCommand_ShouldSignInvitation()
         {
-            Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
-            var participant = _invitation.Participants.FirstOrDefault();
+            var participant = _invitation.Participants.Single(p => p.Id == _participantId);
             Assert.IsNotNull(participant);
             Assert.IsNull(participant.SignedAtUtc);
             Assert.IsNull(participant.SignedBy);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             Assert.IsNotNull(participant.SignedAtUtc);
-            Assert.AreEqual("ON", participant.SignedBy);
+            Assert.AreEqual("KN", participant.SignedBy);
             Assert.AreEqual(1, _saveChangesCount);
         }
 
         [TestMethod]
-        public async Task HandlingCompleteIpoCommand_ShouldSetAndReturnRowVersion()
+        public async Task HandlingSignIpoCommand_ShouldSetAndReturnRowVersion()
         {
             // Act
             var result = await _dut.Handle(_command, default);
@@ -184,9 +128,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             // Assert
             // In real life EF Core will create a new RowVersion when save.
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
-            Assert.AreEqual(_invitationRowVersion, result.Data);
-            Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(_participantRowVersion, _invitation.Participants.First().RowVersion.ConvertToString());
+            Assert.AreEqual(_participantRowVersion, result.Data);
+            Assert.AreEqual(_participantRowVersion, _invitation.Participants.Single(p => p.Id == _participantId).RowVersion.ConvertToString());
         }
     }
 }

@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -111,10 +112,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             var participantsToChange = dto.Participants.Select(p =>
                 new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
-                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToChange));
+                new CompleteInvitationCommand(id, dto.InvitationRowVersion, dto.ContractorRowVersion, participantsToChange));
             return this.FromResult(result);
         }
 
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [HttpPut("{id}/Sign")]
+        public async Task<ActionResult<string>> SignInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] SignInvitationDto dto)
+        {
+            var result = await _mediator.Send(
+                new SignInvitationCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
+            return this.FromResult(result);
+        }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]

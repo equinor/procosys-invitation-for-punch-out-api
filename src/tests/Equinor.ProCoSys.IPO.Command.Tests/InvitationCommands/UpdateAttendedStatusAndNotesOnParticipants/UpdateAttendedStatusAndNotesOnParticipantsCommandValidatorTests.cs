@@ -50,8 +50,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ValidContractorParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId2, _id, default)).Returns(Task.FromResult(true));
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _id,
                 _participants);
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantIdIsNonExisting()
         {
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

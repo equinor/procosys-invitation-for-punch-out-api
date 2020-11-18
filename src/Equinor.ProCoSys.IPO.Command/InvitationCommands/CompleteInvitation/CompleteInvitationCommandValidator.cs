@@ -53,9 +53,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken token)
                 => await invitationValidator.ValidContractorParticipantExistsAsync(invitationId, token);
 
-
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken token)
-                => await invitationValidator.ParticipantExists(participantId, invitationId, token);
+                => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, token);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

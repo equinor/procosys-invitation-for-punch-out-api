@@ -33,7 +33,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                     where ipo.Id == invitationId && ipo.Status == stage
                     select ipo).AnyAsync(token);
 
-
         public bool IsValidScope(
             IList<string> mcPkgScope,
             IList<string> commPkgScope) 
@@ -148,11 +147,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation?.Attachments.SingleOrDefault(a => a.FileName.ToUpperInvariant() == fileName.ToUpperInvariant()) != null;
         }
 
-        public async Task<bool> ExistsAsync(int invitationId, CancellationToken token) =>
-            await (from i in _context.QuerySet<Invitation>()
-                   where i.Id == invitationId
-                   select i).AnyAsync(token);
-
         private async Task<Invitation> GetInvitationWithAttachments(int invitationId, CancellationToken cancellationToken)
         {
             var invitation = await (from i in _context.QuerySet<Invitation>().Include(i => i.Attachments)
@@ -161,31 +155,31 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        public async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
+        public async Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                      select p).AnyAsync(token);
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token)
         {
-            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, invitationId, token))
+            if (participant.Person?.Id != null && !await ParticipantExistsAsync(participant.Person.Id, invitationId, token))
             {
                 return false;
             }
-            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, invitationId, token))
+            if (participant.ExternalEmail?.Id != null && !await ParticipantExistsAsync(participant.ExternalEmail.Id, invitationId, token))
             {
                 return false;
             }
             if (participant.FunctionalRole != null)
             {
-                if (!await ParticipantExists(participant.FunctionalRole.Id, invitationId, token))
+                if (!await ParticipantExistsAsync(participant.FunctionalRole.Id, invitationId, token))
                 {
                     return false;
                 }
 
                 foreach (var person in participant.FunctionalRole.Persons)
                 {
-                    if (person.Id != null && !await ParticipantExists(person.Id, invitationId, token))
+                    if (person.Id != null && !await ParticipantExistsAsync(person.Id, invitationId, token))
                     {
                         return false;
                     }
@@ -207,14 +201,14 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.Organization == Organization.Contractor
                 select participant).ToListAsync(token);
 
-            if (participants[0].FunctionalRoleCode != null)
+            if (participants.First().FunctionalRoleCode != null)
             {
                 return participants
                     .SingleOrDefault(p => p.SortKey == 0 &&
                                           p.Type == IpoParticipantType.FunctionalRole) != null;
             }
 
-            if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
+            if (participants.Count != 1 || participants.First().Type != IpoParticipantType.Person)
             {
                 return false;
             }
@@ -227,5 +221,32 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.SortKey == 0 &&
                       participant.Organization == Organization.Contractor
                 select participant).AnyAsync(token);
+
+        public async Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken token) =>
+            await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.Id == participantId &&
+                      (participant.Organization == Organization.TechnicalIntegrity ||
+                       participant.Organization == Organization.Operation ||
+                       participant.Organization == Organization.Commissioning)
+                select participant).AnyAsync(token);
+
+        public async Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken token)
+        {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId &&
+                      p.Id == participantId &&
+                      (p.Organization == Organization.TechnicalIntegrity ||
+                       p.Organization == Organization.Operation ||
+                       p.Organization == Organization.Commissioning)
+                select p).SingleAsync(token);
+
+            if (participant.Type == IpoParticipantType.FunctionalRole)
+            {
+                return true;
+            }
+
+            return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
     }
 }
