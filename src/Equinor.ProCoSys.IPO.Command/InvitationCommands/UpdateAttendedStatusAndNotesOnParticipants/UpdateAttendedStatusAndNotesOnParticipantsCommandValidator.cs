@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                     "The IPO does not have a contractor assigned to the IPO!")
                 .MustAsync((command, token) => BeTheAssignedContractorIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
-                    "User is not the contractor assigned to complete this IPO!");
+                    "User is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!");
 
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))

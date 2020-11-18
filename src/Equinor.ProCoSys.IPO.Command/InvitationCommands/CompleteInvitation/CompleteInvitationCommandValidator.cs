@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
                     "The IPO does not have a contractor assigned to complete the IPO!")
                 .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Person signing is not the contractor assigned to complete this IPO!");
+                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!");
 
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))

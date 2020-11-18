@@ -129,7 +129,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Person signing is not the contractor assigned to complete this IPO"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage
+                .StartsWith(
+                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!"));
         }
     }
 }
