@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -125,6 +126,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         {
             var result = await _mediator.Send(
                 new SignInvitationCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Accept")]
+        public async Task<ActionResult> AcceptPunchOut(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AcceptPunchOutDto dto)
+        {
+            var participants = dto.Participants.Select(p =>
+                new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
+            var result = await _mediator.Send(
+                new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
             return this.FromResult(result);
         }
 

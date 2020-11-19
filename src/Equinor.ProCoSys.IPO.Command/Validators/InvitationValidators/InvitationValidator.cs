@@ -214,11 +214,40 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participants.Single().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
+        public async Task<bool> ValidConstructionCompanyParticipantExistsAsync(int invitationId, CancellationToken token)
+        {
+            var participants = await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 1 &&
+                      participant.Organization == Organization.ConstructionCompany
+                select participant).ToListAsync(token);
+
+            if (participants[0].FunctionalRoleCode != null)
+            {
+                return participants
+                           .SingleOrDefault(p => p.SortKey == 1 &&
+                                                 p.Type == IpoParticipantType.FunctionalRole) != null;
+            }
+
+            if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
+            {
+                return false;
+            }
+            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
         public async Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token) =>
             await (from participant in _context.QuerySet<Participant>()
                 where EF.Property<int>(participant, "InvitationId") == invitationId &&
                       participant.SortKey == 0 &&
                       participant.Organization == Organization.Contractor
+                select participant).AnyAsync(token);
+
+        public async Task<bool> ConstructionCompanyExistsAsync(int invitationId, CancellationToken token) =>
+            await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 1 &&
+                      participant.Organization == Organization.ConstructionCompany
                 select participant).AnyAsync(token);
 
         public async Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken token) =>
