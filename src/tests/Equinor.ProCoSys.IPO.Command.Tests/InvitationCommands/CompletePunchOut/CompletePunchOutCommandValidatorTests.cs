@@ -1,30 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
 {
     [TestClass]
-    public class UpdateAttendedStatusAndNotesOnParticipantsCommandValidatorTests
+    public class CompletePunchOutCommandValidatorTests
     {
-        private UpdateAttendedStatusAndNotesOnParticipantsCommandValidator _dut;
+        private CompletePunchOutCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
-        private const string _note = "note A";
+        private CompletePunchOutCommand _command;
         private const int _id = 1;
+        private const string _invitationRowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const string _note = "note A";
         private const int _participantId1 = 10;
         private const int _participantId2 = 20;
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
-
         private readonly List<UpdateAttendedStatusAndNoteOnParticipantForCommand> _participants = new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
         {
             new UpdateAttendedStatusAndNoteOnParticipantForCommand(
@@ -44,19 +45,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(true);
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion2)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ValidContractorParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId2, _id, default)).Returns(Task.FromResult(true));
-            _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
+            _command = new CompletePunchOutCommand(
                 _id,
+                _invitationRowVersion,
+                _participantRowVersion,
                 _participants);
 
-            _dut = new UpdateAttendedStatusAndNotesOnParticipantsCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new CompletePunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]
@@ -80,39 +85,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantIdIsNonExisting()
+        public void Validate_ShouldFail_WhenInvitationIsNotInPlannedStage()
         {
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant with ID does not exist on invitation"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is not in planned stage, and thus cannot be completed"));
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsNotInCompletedStage()
+        public void Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
         {
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(false));
-
+            _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(false);
+            
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is not in completed stage, and thus cannot change attended statuses"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
-        {
-            _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(false);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant doesn't have valid rowVersion"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation row version is not valid!"));
         }
 
         [TestMethod]
@@ -124,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("The IPO does not have a contractor assigned to the IPO!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("The IPO does not have a contractor assigned to complete the IPO!"));
         }
 
         [TestMethod]
@@ -137,7 +130,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("User is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!"));
+                .StartsWith(
+                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!"));
         }
     }
 }

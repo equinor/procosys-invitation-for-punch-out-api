@@ -9,9 +9,9 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 {
-    public class CompleteInvitationCommandHandler : IRequestHandler<CompleteInvitationCommand, Result<string>>
+    public class CompletePunchOutCommandHandler : IRequestHandler<CompletePunchOutCommand, Result<string>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public CompleteInvitationCommandHandler(
+        public CompletePunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             _personApiService = personApiService;
         }
 
-        public async Task<Result<string>> Handle(CompleteInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(CompletePunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
@@ -62,7 +62,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation, IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants)
+        private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation,
+            IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants)
         {
             foreach (var participant in participants)
             {

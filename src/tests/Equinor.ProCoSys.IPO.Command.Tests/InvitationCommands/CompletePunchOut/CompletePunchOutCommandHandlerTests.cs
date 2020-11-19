@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -12,10 +12,10 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
 {
     [TestClass]
-    public class CompleteInvitationCommandHandlerTests
+    public class CompletePunchOutCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -23,8 +23,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
-        private CompleteInvitationCommand _command;
-        private CompleteInvitationCommandHandler _dut;
+        private CompletePunchOutCommand _command;
+        private CompletePunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -58,7 +58,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
                 _participantRowVersion2)
         };
 
-
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
@@ -91,7 +90,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
-
 
             //mock person response from main API
             var personDetails = new ProCoSysPerson
@@ -144,13 +142,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
                 .Returns(Task.FromResult(_invitation));
 
             //command
-            _command = new CompleteInvitationCommand(
+            _command = new CompletePunchOutCommand(
                 _invitation.Id,
                 _invitationRowVersion,
                 _participantRowVersion,
                 _participantsToChange);
 
-            _dut = new CompleteInvitationCommandHandler(
+            _dut = new CompletePunchOutCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
@@ -159,7 +157,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
         }
 
         [TestMethod]
-        public async Task CompleteIpoIpoCommand_ShouldCompleteInvitation()
+        public async Task CompleteIpoCommand_ShouldCompleteInvitation()
         {
             Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
             var participant = _invitation.Participants.FirstOrDefault();
@@ -172,7 +170,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.AreEqual("ON", participant.SignedBy);
-            Assert.AreEqual(1, _saveChangesCount);
         }
 
         [TestMethod]
@@ -186,7 +183,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompleteInvitati
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(_participantRowVersion, _invitation.Participants.First().RowVersion.ConvertToString());
+            Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
         }
     }
 }

@@ -41,14 +41,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private const int _constructionCompanyParticipantId = 30;
         private Invitation _invitation;
 
-        private readonly List<UpdateAttendedStatusAndNotesOnParticipantsForCommand> _participants = new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>
+        private readonly List<UpdateAttendedStatusAndNoteOnParticipantForCommand> _participants = new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
         {
-            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+            new UpdateAttendedStatusAndNoteOnParticipantForCommand(
                 _contractorParticipantId,
                 true,
                 _note,
                 _participantRowVersion1),
-            new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+            new UpdateAttendedStatusAndNoteOnParticipantForCommand(
                 _constructionCompanyParticipantId,
                 false,
                 _note,

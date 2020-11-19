@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
 {
     [TestClass]
-    public class UpdateAttendedStatusAndNotesOnParticipantsForCommandTests
+    public class UpdateAttendedStatusAndNoteOnParticipantForCommandTests
     {
         private const string _note = "Test note";
         private const string _participantRowVersion = "AAAAAAAAABB=";
@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+            var dut = new UpdateAttendedStatusAndNoteOnParticipantForCommand(
                 1,
                 true,
                 _note,
