@@ -33,9 +33,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&numberOfRows={numberOfRows}" +
                       $"&api-version={_apiVersion}";
 
-            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
-
-            return persons;
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsByUserGroupAsync(
@@ -49,9 +47,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
                       $"&api-version={_apiVersion}";
 
-            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
-
-            return persons;
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
@@ -64,9 +60,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&azureOids={oid}";
             }
 
-            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
-
-            return persons;
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<ProCoSysPerson> GetPersonByOidsInUserGroupAsync(string plant, string azureOid, string userGroup)
@@ -77,9 +71,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
                       $"&api-version={_apiVersion}";
 
-            var person = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
-
-            return person;
+            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
         }
 
         public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(
@@ -93,9 +85,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&functionalRoleCode={WebUtility.UrlEncode(functionalRoleCode)}" +
                       $"&api-version={_apiVersion}";
 
-            var person = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
-
-            return person;
+            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
         }
 
     }

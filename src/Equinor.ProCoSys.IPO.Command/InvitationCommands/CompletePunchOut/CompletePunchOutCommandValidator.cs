@@ -5,11 +5,11 @@ using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 {
-    public class CompleteInvitationCommandValidator : AbstractValidator<CompleteInvitationCommand>
+    public class CompletePunchOutCommandValidator : AbstractValidator<CompletePunchOutCommand>
     {
-        public CompleteInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
+        public CompletePunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
                     "The IPO does not have a contractor assigned to complete the IPO!")
                 .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid functional role on the IPO!");
+                    "Person signing is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!");
 
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))

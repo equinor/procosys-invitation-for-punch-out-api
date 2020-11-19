@@ -3,11 +3,11 @@ using System.Linq;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 {
-    public class CompleteInvitationCommand : IRequest<Result<string>>, IInvitationCommandRequest
+    public class CompletePunchOutCommand : IRequest<Result<string>>, IInvitationCommandRequest
     {
-        public CompleteInvitationCommand(
+        public CompletePunchOutCommand(
             int invitationId,
             string invitationRowVersion,
             string participantRowVersion,
@@ -19,9 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
             Participants = participants != null ? participants.ToList() : new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>();
         }
 
-        public int InvitationId { get; set; }
-        public string InvitationRowVersion { get; set; }
-        public string ParticipantRowVersion { get; set; }
-        public IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> Participants { get; set; }
+        public int InvitationId { get; }
+        public string InvitationRowVersion { get; }
+        public string ParticipantRowVersion { get; }
+        public IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> Participants { get; }
     }
 }

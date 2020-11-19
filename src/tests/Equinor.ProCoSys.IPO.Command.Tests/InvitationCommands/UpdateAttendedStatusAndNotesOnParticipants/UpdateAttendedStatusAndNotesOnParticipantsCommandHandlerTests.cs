@@ -141,7 +141,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         [TestMethod]
         public async Task ChangeAttendedStatusesCommand_ShouldChangeStatuses()
         {
-            //Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             Assert.AreEqual(false, _invitation.Participants.First().Attended);
             Assert.IsNull(_invitation.Participants.First().Note);
 
