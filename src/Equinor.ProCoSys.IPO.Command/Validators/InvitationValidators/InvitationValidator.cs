@@ -111,15 +111,15 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 return false;
             }
 
-            return participants[0].Organization == Organization.Contractor &&
-                   participants[0].ExternalEmail == null &&
+            return participants.First().Organization == Organization.Contractor &&
+                   participants.First().ExternalEmail == null &&
                    participants[1].Organization == Organization.ConstructionCompany &&
                    participants[1].ExternalEmail == null;
         }
 
         public bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
         {
-            if (participants.Count < 2 || participants[0].SortKey != 0 || participants[1].SortKey != 1)
+            if (participants.Count < 2 || participants.First().SortKey != 0 || participants[1].SortKey != 1)
             {
                 return false;
             }
@@ -201,18 +201,17 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.Organization == Organization.Contractor
                 select participant).ToListAsync(token);
 
-            if (participants.First().FunctionalRoleCode != null)
+            if (participants.Any(p => p.FunctionalRoleCode != null))
             {
                 return participants
-                    .SingleOrDefault(p => p.SortKey == 0 &&
-                                          p.Type == IpoParticipantType.FunctionalRole) != null;
+                    .SingleOrDefault(p => p.Type == IpoParticipantType.FunctionalRole) != null;
             }
 
-            if (participants.Count != 1 || participants.First().Type != IpoParticipantType.Person)
+            if (participants.SingleOrDefault() == null || participants.Single().Type != IpoParticipantType.Person)
             {
                 return false;
             }
-            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
+            return participants.Single().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
         public async Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token) =>
@@ -236,6 +235,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var participant = await (from p in _context.QuerySet<Participant>()
                 where EF.Property<int>(p, "InvitationId") == invitationId &&
                       p.Id == participantId &&
+                      p.SortKey > 1 &&
                       (p.Organization == Organization.TechnicalIntegrity ||
                        p.Organization == Organization.Operation ||
                        p.Organization == Organization.Commissioning)

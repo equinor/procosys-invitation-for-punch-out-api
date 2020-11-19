@@ -42,12 +42,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                 p.Organization == Organization.Contractor &&
                 p.AzureOid == currentUserAzureOid).ToList();
 
-            if (!participants.Any() || participants[0].FunctionalRoleCode != null)
+            if (!participants.Any() || participants.Any(p => p.FunctionalRoleCode != null))
             {
                 var functionalRole = invitation.Participants
                     .Single(p => p.SortKey == 0 &&
-                                          p.FunctionalRoleCode != null &&
-                                          p.Type == IpoParticipantType.FunctionalRole);
+                                 p.FunctionalRoleCode != null &&
+                                 p.Type == IpoParticipantType.FunctionalRole);
 
                 await UpdateAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode, request.Participants);
             }
