@@ -3,20 +3,20 @@
     public class ProCoSysPersonDto
     {
         public ProCoSysPersonDto(
-            string oid,
+            string azureOid,
             string userName,
             string firstName,
             string lastName,
             string email)
         {
-            Oid = oid;
+            AzureOid = azureOid;
             UserName = userName;
             FirstName = firstName;
             LastName = lastName;
             Email = email;
         }
 
-        public string Oid { get; }
+        public string AzureOid { get; }
         public string UserName { get; }
         public string FirstName { get; }
         public string LastName { get; }
