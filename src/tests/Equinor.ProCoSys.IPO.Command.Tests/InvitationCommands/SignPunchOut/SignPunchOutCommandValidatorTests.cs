@@ -1,21 +1,21 @@
 ﻿using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 {
     [TestClass]
-    public class SignInvitationCommandValidatorTests
+    public class SignPunchOutCommandValidatorTests
     {
-        private SignInvitationCommandValidator _dut;
+        private SignPunchOutCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private SignInvitationCommand _command;
+        private SignPunchOutCommand _command;
         private const int _invitationId = 1;
         private const string _participantRowVersion = "AAAAAAAAABA=";
         private const int _participantId = 10;
@@ -30,12 +30,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
             _invitationValidatorMock.Setup(inv => inv.ValidSigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
-            _command = new SignInvitationCommand(
+            _command = new SignPunchOutCommand(
                 _invitationId,
                 _participantId,
                 _participantRowVersion);
 
-            _dut = new SignInvitationCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new SignPunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]

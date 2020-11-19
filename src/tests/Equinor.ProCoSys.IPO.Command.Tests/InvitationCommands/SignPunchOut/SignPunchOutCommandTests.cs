@@ -1,10 +1,10 @@
-﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
+﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 {
     [TestClass]
-    public class SignInvitationCommandTests
+    public class SignPunchOutCommandTests
     {
         private const string _participantRowVersion = "AAAAAAAAABB=";
         private const int _participantId = 20;
@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new SignInvitationCommand(
+            var dut = new SignPunchOutCommand(
                 1,
                 _participantId,
                 _participantRowVersion);

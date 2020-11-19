@@ -8,9 +8,9 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 {
-    public class SignInvitationCommandHandler : IRequestHandler<SignInvitationCommand, Result<string>>
+    public class SignPunchOutCommandHandler : IRequestHandler<SignPunchOutCommand, Result<string>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public SignInvitationCommandHandler(
+        public SignPunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation
             _personApiService = personApiService;
         }
 
-        public async Task<Result<string>> Handle(SignInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(SignPunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var participant = invitation.Participants.Single(p => p.Id == request.ParticipantId);

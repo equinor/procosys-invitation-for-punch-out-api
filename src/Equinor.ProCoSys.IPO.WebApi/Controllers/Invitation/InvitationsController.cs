@@ -8,7 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -125,7 +125,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromBody] SignInvitationDto dto)
         {
             var result = await _mediator.Send(
-                new SignInvitationCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
+                new SignPunchOutCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 

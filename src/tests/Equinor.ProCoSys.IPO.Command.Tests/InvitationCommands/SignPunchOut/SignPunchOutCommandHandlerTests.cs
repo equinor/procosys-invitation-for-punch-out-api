@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -10,10 +10,10 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 {
     [TestClass]
-    public class SignInvitationCommandHandlerTests
+    public class SignPunchOutCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -21,8 +21,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
-        private SignInvitationCommand _command;
-        private SignInvitationCommandHandler _dut;
+        private SignPunchOutCommand _command;
+        private SignPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -91,12 +91,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignInvitation
                 .Returns(Task.FromResult(_invitation));
 
             //command
-            _command = new SignInvitationCommand(
+            _command = new SignPunchOutCommand(
                 _invitation.Id,
                 _participantId,
                 _participantRowVersion);
 
-            _dut = new SignInvitationCommandHandler(
+            _dut = new SignPunchOutCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
