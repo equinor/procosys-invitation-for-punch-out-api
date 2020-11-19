@@ -43,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     "FR1",
                     null,
                     null,
+                    null,
                     "FR1@email.com",
                     null,
                     0);
@@ -54,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     null,
                     "FirstName",
                     "LastName",
+                    "UN",
                     "P1@email.com",
                     PersonAzureOid,
                     1);
