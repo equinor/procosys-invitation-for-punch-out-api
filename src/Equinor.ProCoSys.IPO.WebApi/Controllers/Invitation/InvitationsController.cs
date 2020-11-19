@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id)
         {
             var result = await _mediator.Send(new GetInvitationByIdQuery(id));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.COMMPKG_READ)]
+        [HttpGet("/ByCommPkgNo/{commPkgNo}")]
+        public async Task<ActionResult<InvitationForMainDto>> GetInvitationsByCommPkgNo(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] string commPkgNo,
+            [FromQuery] string projectName)
+        {
+            var result = await _mediator.Send(new GetInvitationsByCommPkgNoQuery(commPkgNo, projectName));
             return this.FromResult(result);
         }
 
