@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new CompleteInvitationCommand(
+            var dut = new CompletePunchOutCommand(
                 1,
                 _invitationRowVersion,
                 _contractorRowVersion,
