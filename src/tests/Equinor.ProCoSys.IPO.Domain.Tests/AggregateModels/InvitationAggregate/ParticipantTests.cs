@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const IpoParticipantType Type = IpoParticipantType.Person;
         private const string FirstName = "Kari";
         private const string LastName = "Traa";
+        private const string UserName = "KT";
         private const string Email = "kari@test.com";
         private Guid AzureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
@@ -25,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 FirstName,
                 LastName,
+                UserName,
                 Email,
                 AzureOid,
                 0);
@@ -32,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.AreEqual(AzureOid, dut.AzureOid);
             Assert.AreEqual(FirstName, dut.FirstName);
             Assert.AreEqual(LastName, dut.LastName);
+            Assert.AreEqual(UserName, dut.UserName);
             Assert.AreEqual(Email, dut.Email);
             Assert.AreEqual(Org, dut.Organization);
             Assert.AreEqual(Type, dut.Type);

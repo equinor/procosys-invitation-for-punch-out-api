@@ -259,6 +259,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             fr.Code,
                             null,
                             null,
+                            null,
                             fr.Email,
                             null,
                             participant.SortKey));
@@ -298,6 +299,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     fr.Code,
                                     frPerson.FirstName,
                                     frPerson.LastName,
+                                    frPerson.UserName,
                                     frPerson.Email,
                                     new Guid(frPerson.AzureOid),
                                     participant.SortKey));
@@ -388,6 +390,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 null,
                                 person.FirstName,
                                 person.LastName,
+                                person.UserName,
                                 person.Email,
                                 new Guid(person.AzureOid),
                                 participant.SortKey));
@@ -439,6 +442,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         personFromMain.FirstName,
                         personFromMain.LastName,
+                        personFromMain.UserName,
                         personFromMain.Email,
                         new Guid(personFromMain.AzureOid),
                         sortKey));
@@ -485,6 +489,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         participant.Person.FirstName,
                         participant.Person.LastName,
+                        null,
                         participant.Person.Email,
                         null,
                         participant.SortKey));
@@ -525,6 +530,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         _plantProvider.Plant,
                         participant.Organization,
                         IpoParticipantType.Person,
+                        null,
                         null,
                         null,
                         null,

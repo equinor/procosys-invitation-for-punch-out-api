@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string functionalRoleCode, 
             string firstName, 
             string lastName, 
+            string userName,
             string email,
             Guid? azureOid,
             int sortKey)
@@ -33,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             FunctionalRoleCode = functionalRoleCode;
             FirstName = firstName;
             LastName = lastName;
+            UserName = userName;
             Email = email;
             AzureOid = azureOid;
             SortKey = sortKey;
@@ -43,9 +45,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string FunctionalRoleCode { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string UserName { get; set; }
         public string Email { get; set; }
         public Guid? AzureOid { get; set; }
         public int SortKey { get; set; }
+        public bool Attended { get; set; }
+        public string Note { get; set; }
+        public DateTime? SignedAtUtc { get; set; }
+        public string SignedBy { get; set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }

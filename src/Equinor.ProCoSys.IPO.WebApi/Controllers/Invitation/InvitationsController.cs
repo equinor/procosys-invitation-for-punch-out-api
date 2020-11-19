@@ -6,6 +6,8 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
@@ -110,6 +112,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Complete")]
+        public async Task<ActionResult<string>> CompletePunchOut(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] CompletePunchOutDto dto)
+        {
+            var participantsToUpdate = dto.Participants.Select(p =>
+                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
+            var result = await _mediator.Send(
+                new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
+            return this.FromResult(result);
+        }
+
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/AttendedStatusAndNotes")]
+        public async Task<ActionResult> ChangeAttendedStatusOnParticipants(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] ParticipantToChangeDto[] dto)
+        {
+            var participants = dto.Select(p =>
+                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
+            var result = await _mediator.Send(
+                new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, participants));
+            return this.FromResult(result);
+        }
+
         [Authorize(Roles = Permissions.IPO_ATTACHFILE)]
         [HttpPost("{id}/Attachments")]
         public async Task<ActionResult<int>> UploadAttachment(
@@ -134,7 +173,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments/{attachmentId}")]
-        public async Task<ActionResult<int>> GetAttachment(
+        public async Task<ActionResult<AttachmentDto>> GetAttachment(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]

@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 //input validators
                 .Must((command) => command.UpdatedParticipants != null)
                 .WithMessage(command =>
-                    $"Participants cannot be null!")
+                    "Participants cannot be null!")
                 .Must((command) =>
                     command.ProjectName != null &&
                     command.ProjectName.Length > 2 &&
@@ -56,16 +56,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command) => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
                 .WithMessage(command =>
-                    $"Not a valid scope! Choose either mc scope or comm pkg scope")
+                    "Not a valid scope! Choose either mc scope or comm pkg scope")
                 .Must((command) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.UpdatedParticipants))
                 .WithMessage(command =>
-                    $"Contractor and Construction Company must be invited!")
+                    "Contractor and Construction Company must be invited!")
                 .Must((command) => RequiredParticipantsHaveLowestSortKeys(command.UpdatedParticipants))
                 .WithMessage(command =>
-                    $"SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
+                    "SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
                 .Must((command) => ParticipantListMustBeValid(command.UpdatedParticipants))
                 .WithMessage(command =>
-                    $"Each participant must contain an email or oid!");
+                    "Each participant must contain an email or oid!");
 
             RuleForEach(command => command.UpdatedParticipants)
                 .MustAsync((command, participant, _, token) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, token))
@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
 
             async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoIsInPlannedStage(invitationId, token);
+                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
 
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, int id, CancellationToken token)
                 => !await invitationValidator.IpoTitleExistsInProjectOnAnotherIpoAsync(projectName, title, id, token);

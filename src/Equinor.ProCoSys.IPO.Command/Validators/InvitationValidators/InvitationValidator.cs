@@ -14,17 +14,23 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
     public class InvitationValidator : IInvitationValidator
     {
         private readonly IReadOnlyContext _context;
+        private readonly ICurrentUserProvider _currentUserProvider;
 
-        public InvitationValidator(IReadOnlyContext context) => _context = context;
+        public InvitationValidator(IReadOnlyContext context,
+            ICurrentUserProvider currentUserProvider)
+        {
+            _context = context;
+            _currentUserProvider = currentUserProvider;
+        }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken token) =>
             await (from ipo in _context.QuerySet<Invitation>()
                 where ipo.Id == invitationId
                 select ipo).AnyAsync(token);
 
-        public async Task<bool> IpoIsInPlannedStage(int invitationId, CancellationToken token) => 
+        public async Task<bool> IpoIsInStageAsync(int invitationId, IpoStatus stage, CancellationToken token) => 
             await(from ipo in _context.QuerySet<Invitation>()
-                    where ipo.Id == invitationId && ipo.Status == IpoStatus.Planned
+                    where ipo.Id == invitationId && ipo.Status == stage
                     select ipo).AnyAsync(token);
 
 
@@ -155,7 +161,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        private async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
+        public async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                      select p).AnyAsync(token);
@@ -192,5 +198,34 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             => await (from invitation in _context.QuerySet<Invitation>() 
                 where invitation.Id == id && invitation.ProjectName == projectName
                 select invitation).AnyAsync(token);
+
+        public async Task<bool> ValidContractorParticipantExistsAsync(int invitationId, CancellationToken token)
+        {
+            var participants = await(from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 0 &&
+                      participant.Organization == Organization.Contractor
+                select participant).ToListAsync(token);
+
+            if (participants[0].FunctionalRoleCode != null)
+            {
+                return participants
+                    .SingleOrDefault(p => p.SortKey == 0 &&
+                                          p.Type == IpoParticipantType.FunctionalRole) != null;
+            }
+
+            if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
+            {
+                return false;
+            }
+            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
+        public async Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token) =>
+            await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 0 &&
+                      participant.Organization == Organization.Contractor
+                select participant).AnyAsync(token);
     }
 }

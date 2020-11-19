@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _rowVersionValidatorMock.Setup(r => r.IsValid(_rowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInPlannedStage(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[0], _id, default)).Returns(Task.FromResult(true));
