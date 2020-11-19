@@ -9,9 +9,9 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 {
-    public class AcceptInvitationCommandHandler : IRequestHandler<AcceptInvitationCommand, Result<string>>
+    public class AcceptPunchOutCommandHandler : IRequestHandler<AcceptPunchOutCommand, Result<string>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
 
-        public AcceptInvitationCommandHandler(
+        public AcceptPunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
             _personApiService = personApiService;
         }
 
-        public async Task<Result<string>> Handle(AcceptInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(AcceptPunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();

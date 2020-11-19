@@ -1,16 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 {
-    public class AcceptInvitationCommandValidator : AbstractValidator<AcceptInvitationCommand>
+    public class AcceptPunchOutCommandValidator : AbstractValidator<AcceptPunchOutCommand>
     {
-        public AcceptInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
+        public AcceptPunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 

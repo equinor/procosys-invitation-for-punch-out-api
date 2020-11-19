@@ -3,11 +3,11 @@ using System.Linq;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 {
-    public class AcceptInvitationCommand : IRequest<Result<string>>, IInvitationCommandRequest
+    public class AcceptPunchOutCommand : IRequest<Result<string>>, IInvitationCommandRequest
     {
-        public AcceptInvitationCommand(
+        public AcceptPunchOutCommand(
             int invitationId,
             string invitationRowVersion,
             string participantRowVersion,

@@ -1,7 +1,7 @@
-﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation;
+﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
     public class UpdateNoteOnParticipantForCommandTests

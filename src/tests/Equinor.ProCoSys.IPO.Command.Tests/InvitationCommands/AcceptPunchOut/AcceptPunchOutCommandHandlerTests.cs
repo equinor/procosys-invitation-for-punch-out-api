@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -12,10 +12,10 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class AcceptInvitationCommandHandlerTests
+    public class AcceptPunchOutCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -23,8 +23,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
-        private AcceptInvitationCommand _command;
-        private AcceptInvitationCommandHandler _dut;
+        private AcceptPunchOutCommand _command;
+        private AcceptPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -141,13 +141,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
                 .Returns(Task.FromResult(_invitation));
 
             //command
-            _command = new AcceptInvitationCommand(
+            _command = new AcceptPunchOutCommand(
                 _invitation.Id,
                 _invitationRowVersion,
                 _participantRowVersion,
                 _participantsToChange);
 
-            _dut = new AcceptInvitationCommandHandler(
+            _dut = new AcceptPunchOutCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,

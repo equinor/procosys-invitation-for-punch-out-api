@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class AcceptInvitationCommandTests
+    public class AcceptPunchOutCommandTests
     {
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _constructionCompanyRowVersion = "AAAAAAAAABB=";
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new AcceptInvitationCommand(
+            var dut = new AcceptPunchOutCommand(
                 1,
                 _invitationRowVersion,
                 _constructionCompanyRowVersion,

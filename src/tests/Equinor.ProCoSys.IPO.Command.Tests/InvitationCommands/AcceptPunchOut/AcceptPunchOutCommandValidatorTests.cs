@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class AcceptInvitationCommandValidatorTests
+    public class AcceptPunchOutCommandValidatorTests
     {
-        private AcceptInvitationCommandValidator _dut;
+        private AcceptPunchOutCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private AcceptInvitationCommand _command;
+        private AcceptPunchOutCommand _command;
         private const int _id = 1;
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
@@ -53,13 +52,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptInvitation
             _invitationValidatorMock.Setup(inv => inv.ConstructionCompanyExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
-            _command = new AcceptInvitationCommand(
+            _command = new AcceptPunchOutCommand(
                 _id,
                 _invitationRowVersion,
                 _participantRowVersion,
                 _participants);
 
-            _dut = new AcceptInvitationCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new AcceptPunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]

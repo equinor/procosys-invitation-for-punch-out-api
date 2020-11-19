@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 {
     public class UpdateNoteOnParticipantForCommand : IRequest<Result<Unit>>
     {

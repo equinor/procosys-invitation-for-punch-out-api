@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
-    public class AcceptInvitationDto
+    public class AcceptPunchOutDto
     {
         public string InvitationRowVersion { get; set; }
         public string ParticipantRowVersion { get; set; }
