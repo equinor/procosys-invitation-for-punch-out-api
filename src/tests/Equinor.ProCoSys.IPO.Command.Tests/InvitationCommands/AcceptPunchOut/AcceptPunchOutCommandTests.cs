@@ -1,31 +1,28 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class CompletePunchOutCommandTests
+    public class AcceptPunchOutCommandTests
     {
         private const string _invitationRowVersion = "AAAAAAAAABA=";
-        private const string _contractorRowVersion = "AAAAAAAAABB=";
+        private const string _constructionCompanyRowVersion = "AAAAAAAAABB=";
         private const int _contractorParticipantId = 20;
         private const int _constructionCompanyParticipantId = 30;
         private const string _note = "Test note";
         private const string _participantRowVersion1 = "AAAAAAAAAYB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
 
-        private readonly List<UpdateAttendedStatusAndNoteOnParticipantForCommand> _participants = new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
+        private readonly List<UpdateNoteOnParticipantForCommand> _participants = new List<UpdateNoteOnParticipantForCommand>
         {
-            new UpdateAttendedStatusAndNoteOnParticipantForCommand(
+            new UpdateNoteOnParticipantForCommand(
                 _contractorParticipantId,
-                true,
                 _note,
                 _participantRowVersion1),
-            new UpdateAttendedStatusAndNoteOnParticipantForCommand(
+            new UpdateNoteOnParticipantForCommand(
                 _constructionCompanyParticipantId,
-                false,
                 _note,
                 _participantRowVersion2)
         };
@@ -33,15 +30,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new CompletePunchOutCommand(
+            var dut = new AcceptPunchOutCommand(
                 1,
                 _invitationRowVersion,
-                _contractorRowVersion,
+                _constructionCompanyRowVersion,
                 _participants);
 
             Assert.AreEqual(1, dut.InvitationId);
             Assert.AreEqual(_invitationRowVersion, dut.InvitationRowVersion);
-            Assert.AreEqual(_contractorRowVersion, dut.ParticipantRowVersion);
+            Assert.AreEqual(_constructionCompanyRowVersion, dut.ParticipantRowVersion);
             Assert.AreEqual(2, dut.Participants.Count);
         }
     }

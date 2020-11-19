@@ -11,17 +11,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             int invitationId,
             string invitationRowVersion,
             string participantRowVersion,
-            IEnumerable<UpdateAttendedStatusAndNotesOnParticipantsForCommand> participants)
+            IEnumerable<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants)
         {
             InvitationId = invitationId;
             InvitationRowVersion = invitationRowVersion;
             ParticipantRowVersion = participantRowVersion;
-            Participants = participants != null ? participants.ToList() : new List<UpdateAttendedStatusAndNotesOnParticipantsForCommand>();
+            Participants = participants != null ? participants.ToList() : new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>();
         }
 
         public int InvitationId { get; }
         public string InvitationRowVersion { get; }
         public string ParticipantRowVersion { get; }
-        public IList<UpdateAttendedStatusAndNotesOnParticipantsForCommand> Participants { get; }
+        public IList<UpdateAttendedStatusAndNoteOnParticipantForCommand> Participants { get; }
     }
 }

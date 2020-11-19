@@ -20,10 +20,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _title2 = "Test title 2";
         private const string _title3 = "Test title 3";
         private const string _title4 = "Test title 4";
-        private int _invitationIdWithFullParticipantList;
-        private int _invitationIdWithFrAsContractor;
+        private int _invitationIdWithFrAsParticipants;
         private int _invitationIdWithoutParticipants;
-        private int _invitationIdWithPersonAsContractor;
+        private int _invitationIdWithCurrentUserOidAsParticipants;
+        private int _invitationIdWithNotCurrentUserOidAsParticipants;
         private int _participantId1;
         private int _participantId2;
         private int _participantId3;
@@ -66,13 +66,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, _projectName, _title1, _description, _typeDp);
+                var invitationWithCurrentUserAsParticipants = new Invitation(TestPlant, _projectName, _title1, _description, _typeDp);
                 foreach (var attachment in _attachments)
                 {
-                    invitation.AddAttachment(attachment);
+                    invitationWithCurrentUserAsParticipants.AddAttachment(attachment);
                 }
-                context.Invitations.Add(invitation);
-                _invitationIdWithFullParticipantList = invitation.Id;
+                context.Invitations.Add(invitationWithCurrentUserAsParticipants);
+                _invitationIdWithCurrentUserOidAsParticipants = invitationWithCurrentUserAsParticipants.Id;
                 var participant1 = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "Last",
                     "UN2",
                     "first2@last.com",
-                    null,
+                    _currentUserOid,
                     1);
                 var participant3 = new Participant(
                     TestPlant,
@@ -105,14 +105,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "UN3",
                     null,
                     2);
-                invitation.AddParticipant(participant1);
-                invitation.AddParticipant(participant2);
-                invitation.AddParticipant(participant3);
-                
-                var invitation2 = new Invitation(TestPlant, _projectName, _title2, _description, _typeDp);
-                context.Invitations.Add(invitation2);
-                _invitationIdWithFrAsContractor = invitation2.Id;
-                var participant = new Participant(
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant1);
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
+
+                var invitationWithFrAsParticipants = new Invitation(TestPlant, _projectName, _title2, _description, _typeDp);
+                context.Invitations.Add(invitationWithFrAsParticipants);
+                _invitationIdWithFrAsParticipants = invitationWithFrAsParticipants.Id;
+                var frContractor = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.FunctionalRole,
@@ -123,16 +123,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "fr@test.com",
                     null,
                     0);
-                invitation2.AddParticipant(participant);
+                var frConstructionCompany = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.FunctionalRole,
+                    "FR code 2",
+                    null,
+                    null,
+                    null,
+                    "fr2@test.com",
+                    null,
+                    1);
+                invitationWithFrAsParticipants.AddParticipant(frContractor);
+                invitationWithFrAsParticipants.AddParticipant(frConstructionCompany);
 
-                var invitation3 = new Invitation(TestPlant, _projectName2, _title3, _description, _typeDp);
-                context.Invitations.Add(invitation3);
-                _invitationIdWithoutParticipants = invitation3.Id;
+                var invitationWithoutParticipants = new Invitation(TestPlant, _projectName2, _title3, _description, _typeDp);
+                context.Invitations.Add(invitationWithoutParticipants);
+                _invitationIdWithoutParticipants = invitationWithoutParticipants.Id;
 
-                var invitation4 = new Invitation(TestPlant, _projectName2, _title4, _description, _typeDp);
-                context.Invitations.Add(invitation4);
-                _invitationIdWithPersonAsContractor = invitation4.Id;
-                var person = new Participant(
+                var invitationWithNotCurrentUserAsParticipants = new Invitation(TestPlant, _projectName2, _title4, _description, _typeDp);
+                context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
+                _invitationIdWithNotCurrentUserOidAsParticipants = invitationWithNotCurrentUserAsParticipants.Id;
+                var contractorParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.Person,
@@ -143,7 +155,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "first1@last.com",
                     _azureOid,
                     0);
-                invitation4.AddParticipant(person);
+                var constructionParticipant = new Participant(TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    null,
+                    "First2",
+                    "Last",
+                    "UN2",
+                    "first2@last.com",
+                    _azureOid,
+                    1);
+                invitationWithNotCurrentUserAsParticipants.AddParticipant(contractorParticipant);
+                invitationWithNotCurrentUserAsParticipants.AddParticipant(constructionParticipant);
 
                 context.SaveChangesAsync().Wait();
                 _participantId1 = participant1.Id;
@@ -151,7 +174,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 _participantId3 = participant3.Id;
             }
         }
-
 
         [TestMethod]
         public async Task TitleExistsOnProjectAsync_SameTitleSameProject_ReturnsTrue()
@@ -596,7 +618,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithFrAsContractor, default);
+                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -620,7 +642,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithFullParticipantList, default);
+                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -639,7 +661,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         3);
-                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -658,7 +680,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, _participantId1),
                         null,
                         3);
-                var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -677,7 +699,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new FunctionalRoleForCommand("FR1", null, _participantId1),
                         0);
-                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -700,7 +722,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             },
                             _participantId3),
                         0);
-                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -719,7 +741,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         3);
-                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -738,7 +760,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 500),
                         null,
                         3);
-                var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -757,7 +779,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new FunctionalRoleForCommand("FR1", null, 400),
                         0);
-                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -780,7 +802,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             }
                         ),
                         0);
-                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithFullParticipantList, default);
+                var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -792,7 +814,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoExistsAsync(_invitationIdWithFullParticipantList, default);
+                var result = await dut.IpoExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -810,13 +832,73 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public async Task ValidConstructionCompanyParticipantExistsAsync_FunctionalRoleAsConstructionCompany_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidConstructionCompanyParticipantExistsAsync_PersonAsConstructionCompany_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidConstructionCompanyParticipantExistsAsync_ConstructionCompanyPersonIsntCurrentUser_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyExists_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyDoesntExists_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithoutParticipants, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
         public async Task ValidContractorParticipantExistsAsync_FunctionalRoleAsContractor_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithFrAsContractor, default);
+                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -828,7 +910,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithFullParticipantList, default);
+                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -840,7 +922,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithPersonAsContractor, default);
+                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -852,7 +934,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ContractorExistsAsync(_invitationIdWithFullParticipantList, default);
+                var result = await dut.ContractorExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }

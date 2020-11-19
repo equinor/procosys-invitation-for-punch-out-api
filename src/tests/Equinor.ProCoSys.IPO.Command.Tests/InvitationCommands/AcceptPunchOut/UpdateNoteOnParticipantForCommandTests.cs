@@ -1,10 +1,10 @@
-﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class UpdateAttendedStatusAndNotesOnParticipantsForCommandTests
+    public class UpdateNoteOnParticipantForCommandTests
     {
         private const string _note = "Test note";
         private const string _participantRowVersion = "AAAAAAAAABB=";
@@ -12,14 +12,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+            var dut = new UpdateNoteOnParticipantForCommand(
                 1,
-                true,
                 _note,
                 _participantRowVersion);
 
             Assert.AreEqual(1, dut.Id);
-            Assert.AreEqual(true, dut.Attended);
             Assert.AreEqual(_note, dut.Note);
             Assert.AreEqual(_participantRowVersion, dut.RowVersion);
         }

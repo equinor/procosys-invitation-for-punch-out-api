@@ -33,7 +33,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                     where ipo.Id == invitationId && ipo.Status == stage
                     select ipo).AnyAsync(token);
 
-
         public bool IsValidScope(
             IList<string> mcPkgScope,
             IList<string> commPkgScope) 
@@ -148,11 +147,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation?.Attachments.SingleOrDefault(a => a.FileName.ToUpperInvariant() == fileName.ToUpperInvariant()) != null;
         }
 
-        public async Task<bool> ExistsAsync(int invitationId, CancellationToken token) =>
-            await (from i in _context.QuerySet<Invitation>()
-                   where i.Id == invitationId
-                   select i).AnyAsync(token);
-
         private async Task<Invitation> GetInvitationWithAttachments(int invitationId, CancellationToken cancellationToken)
         {
             var invitation = await (from i in _context.QuerySet<Invitation>().Include(i => i.Attachments)
@@ -221,11 +215,40 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
+        public async Task<bool> ValidConstructionCompanyParticipantExistsAsync(int invitationId, CancellationToken token)
+        {
+            var participants = await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 1 &&
+                      participant.Organization == Organization.ConstructionCompany
+                select participant).ToListAsync(token);
+
+            if (participants[0].FunctionalRoleCode != null)
+            {
+                return participants
+                           .SingleOrDefault(p => p.SortKey == 1 &&
+                                                 p.Type == IpoParticipantType.FunctionalRole) != null;
+            }
+
+            if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
+            {
+                return false;
+            }
+            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
         public async Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token) =>
             await (from participant in _context.QuerySet<Participant>()
                 where EF.Property<int>(participant, "InvitationId") == invitationId &&
                       participant.SortKey == 0 &&
                       participant.Organization == Organization.Contractor
+                select participant).AnyAsync(token);
+
+        public async Task<bool> ConstructionCompanyExistsAsync(int invitationId, CancellationToken token) =>
+            await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.SortKey == 1 &&
+                      participant.Organization == Organization.ConstructionCompany
                 select participant).AnyAsync(token);
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -114,6 +115,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Accept")]
+        public async Task<ActionResult> AcceptPunchOut(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AcceptPunchOutDto dto)
+        {
+            var participants = dto.Participants.Select(p =>
+                new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
+            var result = await _mediator.Send(
+                new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompletePunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -124,12 +143,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromBody] CompletePunchOutDto dto)
         {
             var participantsToUpdate = dto.Participants.Select(p =>
-                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
+                new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
                 new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
             return this.FromResult(result);
         }
-
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
@@ -143,7 +161,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromBody] ParticipantToChangeDto[] dto)
         {
             var participants = dto.Select(p =>
-                new UpdateAttendedStatusAndNotesOnParticipantsForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
+                new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new UpdateAttendedStatusAndNotesOnParticipantsCommand(id, participants));
             return this.FromResult(result);

@@ -1,23 +1,20 @@
 ﻿using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 {
-    public class UpdateAttendedStatusAndNotesOnParticipantsForCommand : IRequest<Result<Unit>>
+    public class UpdateNoteOnParticipantForCommand : IRequest<Result<Unit>>
     {
-        public UpdateAttendedStatusAndNotesOnParticipantsForCommand(
+        public UpdateNoteOnParticipantForCommand(
             int id,
-            bool attended,
             string note,
             string rowVersion)
         {
             Id = id;
-            Attended = attended;
             Note = note;
             RowVersion = rowVersion;
         }
         public int Id { get; set; }
-        public bool Attended { get; set; }
         public string Note { get; set; }
         public string RowVersion { get; set; }
     }
