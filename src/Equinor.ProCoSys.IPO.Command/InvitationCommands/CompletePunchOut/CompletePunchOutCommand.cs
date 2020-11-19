@@ -3,11 +3,11 @@ using System.Linq;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 {
-    public class CompleteInvitationCommand : IRequest<Result<string>>, IInvitationCommandRequest
+    public class CompletePunchOutCommand : IRequest<Result<string>>, IInvitationCommandRequest
     {
-        public CompleteInvitationCommand(
+        public CompletePunchOutCommand(
             int invitationId,
             string invitationRowVersion,
             string participantRowVersion,

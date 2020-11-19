@@ -5,11 +5,11 @@ using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompleteInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 {
-    public class CompleteInvitationCommandValidator : AbstractValidator<CompleteInvitationCommand>
+    public class CompletePunchOutCommandValidator : AbstractValidator<CompletePunchOutCommand>
     {
-        public CompleteInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
+        public CompletePunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
