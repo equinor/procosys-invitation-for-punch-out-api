@@ -24,8 +24,4 @@
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>

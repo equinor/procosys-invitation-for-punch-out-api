@@ -25,11 +25,30 @@ variables:
 name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 
 stages:
-# Common stage. Docker build, tag and push
-- stage: common
-  displayName: 'common'
+# Run tests Stage
+- stage: runtests
+  displayName: 'Run tests'
   variables:
-    envName: 'common'
+    envName: 'runtests'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
+
+  jobs:
+  # Run Test
+  - template: /templates/pipelines/runtest.yml@templates
+    parameters:
+      deploymentName: 'runtests'
+      dependsOn: ''
+      envGroup: '${{ variables.envGroupName }}'
+      testPath: '${{ variables.testPath }}'
+
+# Build stage. Docker build, tag and push
+- stage: build
+  displayName: 'Build'
+  dependsOn: 'runtests'
+  variables:
+    envName: 'build'
+    envRg: '${{ variables.envRgName }}'
     containerRegistry: '${{ variables.containerRegistryName }}'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnectionName }}'
@@ -74,8 +93,8 @@ stages:
 
 # Dev deploy stage
 - stage: dev
-  displayName: 'Dev'
-  dependsOn: 'common'
+  displayName: 'Deploy to Dev'
+  dependsOn: 'build'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   variables:
     env: 'dev'
@@ -122,7 +141,7 @@ stages:
 
 # Test deploy stage
 - stage: test
-  displayName: 'Test'
+  displayName: 'Deploy to Test'
   dependsOn: 'dev'
   condition: succeeded()
   variables:
@@ -170,7 +189,7 @@ stages:
 
 # Prod deploy stage
 - stage: prod
-  displayName: 'Prod'
+  displayName: 'Deploy to Prod'
   dependsOn: 'test'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   variables:

@@ -27,14 +27,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             FileName = fileName;
         }
 
+        public string BlobPath => string.Join('/', Plant.Substring(4), BlobStorageId.ToString(), FileName);
         public Guid BlobStorageId { get; }
         public string FileName { get; protected set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
+        public DateTime UploadedAtUtc => ModifiedAtUtc ?? CreatedAtUtc;
+        public int UploadedById => ModifiedById ?? CreatedById;
 
-        public string BlobPath => Path.Combine(Plant.Substring(4), BlobStorageId.ToString(), FileName);
 
         public void SetCreated(Person createdBy)
         {

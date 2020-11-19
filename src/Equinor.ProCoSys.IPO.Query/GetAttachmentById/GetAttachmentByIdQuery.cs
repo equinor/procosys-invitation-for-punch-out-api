@@ -1,10 +1,9 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
-    public class GetAttachmentByIdQuery : IRequest<Result<Uri>>
+    public class GetAttachmentByIdQuery : IRequest<Result<AttachmentDto>>, IInvitationQueryRequest
     {
         public GetAttachmentByIdQuery(int invitationId, int attachmentId)
         {

@@ -15,6 +15,18 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public McPkg(string plant, string projectName, string commPkgNo, string mcPkgNo, string description)
             : base(plant)
         {
+            if (string.IsNullOrEmpty(projectName))
+            {
+                throw new ArgumentNullException(nameof(projectName));
+            }
+            if (string.IsNullOrEmpty(commPkgNo))
+            {
+                throw new ArgumentNullException(nameof(commPkgNo));
+            }
+            if (string.IsNullOrEmpty(mcPkgNo))
+            {
+                throw new ArgumentNullException(nameof(mcPkgNo));
+            }
             ProjectName = projectName;
             CommPkgNo = commPkgNo;
             Description = description;

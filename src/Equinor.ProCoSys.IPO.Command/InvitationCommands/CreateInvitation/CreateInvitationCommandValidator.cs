@@ -11,12 +11,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         public CreateInvitationCommandValidator(IInvitationValidator invitationValidator)
         {
-            CascadeMode = CascadeMode.StopOnFirstFailure;
+            CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
+                //input validators
                 .Must((command) => command.Participants != null)
                 .WithMessage(command =>
-                    $"Participants cannot be null!")
+                    "Participants cannot be null!")
                 .Must((command) =>
                     command.ProjectName != null && 
                     command.ProjectName.Length > 2 &&
@@ -38,26 +39,27 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => command.Location == null || command.Location.Length < 1024)
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
+                //business validators
                 .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, token))
                 .WithMessage(command =>
                     $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command) => MustHaveValidScope(command.McPkgScope, command.CommPkgScope))
                 .WithMessage(command =>
-                    $"Not a valid scope! Choose either mc scope or comm pkg scope")
+                    "Not a valid scope! Choose either mc scope or comm pkg scope")
                 .Must((command) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage(command =>
-                    $"Contractor and Construction Company must be invited!")
+                    "Contractor and Construction Company must be invited!")
                 .Must((command) => RequiredParticipantsHaveLowestSortKeys(command.Participants))
                 .WithMessage(command =>
-                    $"SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
+                    "SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
                 .Must((command) => ParticipantListMustBeValid(command.Participants))
                 .WithMessage(command =>
-                    $"Each participant must contain an email or oid!");
+                    "Each participant must contain an email or oid!");
 
             async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
                 => !await invitationValidator.IpoTitleExistsInProjectAsync(projectName, title, token);
 
-            bool MustHaveValidScope(IList<McPkgScopeForCommand> mcPkgScope, IList<CommPkgScopeForCommand> commPkgScope)
+            bool MustHaveValidScope(IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)

@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             string description,
             string location,
             DisciplineType type,
+            IpoStatus status,
             string rowVersion)
         {
             ProjectName = projectName;
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             Description = description;
             Location = location;
             Type = type;
+            Status = status;
             RowVersion = rowVersion;
         }
 
@@ -27,9 +29,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public string Description { get; }
         public string Location { get; }
         public DisciplineType Type { get; }
+        public IpoStatus Status { get; }
         public string RowVersion { get; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime StartTimeUtc { get; set; }
+        public DateTime EndTimeUtc { get; set; }
         public IEnumerable<ParticipantDto> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
         public IEnumerable<CommPkgScopeDto> CommPkgScope { get; set; }

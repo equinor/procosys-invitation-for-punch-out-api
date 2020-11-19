@@ -159,6 +159,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(1024)")
@@ -234,6 +237,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Attended")
+                        .HasColumnType("bit");
+
                     b.Property<Guid?>("AzureOid")
                         .HasColumnType("uniqueidentifier");
 
@@ -258,6 +264,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Organization")
                         .HasColumnType("int");
 
@@ -271,17 +286,28 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
+                    b.Property<DateTime?>("SignedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SignedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("SortKey")
                         .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("InvitationId");
+
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Participants");
                 });
@@ -383,6 +409,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasForeignKey("InvitationId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ModifiedById")
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 #pragma warning restore 612, 618
         }

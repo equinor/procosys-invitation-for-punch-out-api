@@ -33,9 +33,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&numberOfRows={numberOfRows}" +
                       $"&api-version={_apiVersion}";
 
-            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
-
-            return persons;
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsByUserGroupAsync(
@@ -49,9 +47,46 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
                       $"&api-version={_apiVersion}";
 
-            var persons = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
-
-            return persons;
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
+
+        public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
+        {
+            var url = $"{_baseAddress}Person/PersonsByOids" +
+                      $"?plantId={plant}" +
+                      $"&api-version={_apiVersion}";
+            foreach (var oid in azureOids)
+            {
+                url += $"&azureOids={oid}";
+            }
+
+            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+        }
+
+        public async Task<ProCoSysPerson> GetPersonByOidsInUserGroupAsync(string plant, string azureOid, string userGroup)
+        {
+            var url = $"{_baseAddress}Person/PersonByOidInUserGroup" +
+                      $"?plantId={plant}" +
+                      $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
+                      $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
+                      $"&api-version={_apiVersion}";
+
+            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+        }
+
+        public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(
+            string plant,
+            string azureOid,
+            string functionalRoleCode)
+        {
+            var url = $"{_baseAddress}Person/PersonByOidInFunctionalRole" +
+                      $"?plantId={plant}" +
+                      $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
+                      $"&functionalRoleCode={WebUtility.UrlEncode(functionalRoleCode)}" +
+                      $"&api-version={_apiVersion}";
+
+            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+        }
+
     }
 }

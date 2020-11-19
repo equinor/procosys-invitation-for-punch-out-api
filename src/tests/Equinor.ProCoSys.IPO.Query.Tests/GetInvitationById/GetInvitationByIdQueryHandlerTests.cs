@@ -6,7 +6,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Test.Common;
-using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -21,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
     public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBase
     {
         private Invitation _invitation;
-        private int _invitationId = 246;
+        private int _invitationId;
         
         private Mock<IFusionMeetingClient> _meetingClientMock;
 
@@ -42,6 +41,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "FR1",
                     null,
                     null,
+                    null,
                     "FR1@email.com",
                     null,
                     0);
@@ -53,6 +53,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     null,
                     "FirstName",
                     "LastName",
+                    "UN",
                     "P1@email.com",
                     PersonAzureOid,
                     1);
@@ -131,9 +132,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 Title = string.Empty
                             })));
 
-                _invitation.SetProtectedIdForTesting(_invitationId);
                 context.Invitations.Add(_invitation);
                 context.SaveChangesAsync().Wait();
+                _invitationId = _invitation.Id;
             }
         }
 
@@ -200,7 +201,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Type, invitationDto.Type);
             Assert.AreEqual(functionalRoleParticipant.FunctionalRoleCode, invitationDto.Participants.First().FunctionalRole.Code);
-            Assert.AreEqual(personParticipant.AzureOid.ToString(), invitationDto.Participants.Last().Person.AzureOid);
+            Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.Last().Person.Person.AzureOid);
             Assert.AreEqual(commPkg.CommPkgNo, invitationDto.CommPkgScope.First().CommPkgNo);
             Assert.AreEqual(mcPkg.McPkgNo, invitationDto.McPkgScope.First().McPkgNo);
         }

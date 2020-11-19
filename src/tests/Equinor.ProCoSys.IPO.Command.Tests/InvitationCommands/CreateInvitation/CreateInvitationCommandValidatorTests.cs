@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -21,17 +22,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _location = "location A";
         private readonly DisciplineType _type = DisciplineType.DP;
 
-        private readonly IList<CommPkgScopeForCommand> _commPkgScope = new List<CommPkgScopeForCommand>
-        {
-            new CommPkgScopeForCommand("COMM-02", "D2", "PA")
-        };
+        private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand("FR1", "fr@test.com", false, null),
+                new FunctionalRoleForCommand("FR1", null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
@@ -45,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         public void Setup_OkState()
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
@@ -287,7 +285,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenScopeIsInvalid()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<McPkgScopeForCommand>(), _commPkgScope)).Returns(false);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(false);
 
             var result = _dut.Validate(_command);
 

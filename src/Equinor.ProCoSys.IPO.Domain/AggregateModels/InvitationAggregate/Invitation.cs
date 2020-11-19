@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         private readonly List<Attachment> _attachments = new List<Attachment>();
 
-        private Invitation()
+        protected Invitation()
             : base(null)
         {
         }
@@ -27,10 +27,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Invitation(string plant, string projectName, string title, string description, DisciplineType type)
             : base(plant)
         {
+            if (string.IsNullOrEmpty(projectName))
+            {
+                throw new ArgumentNullException(nameof(projectName));
+            }
+
+            if (string.IsNullOrEmpty(title))
+            {
+                throw new ArgumentNullException(nameof(title));
+            }
+
             ProjectName = projectName;
             Title = title;
             Description = description;
             Type = type;
+            Status = IpoStatus.Planned;
         }
         public string ProjectName { get; set; }
         public string Title { get; set; }
@@ -41,6 +52,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
 
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
+
+        public IpoStatus Status { get; set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
@@ -92,6 +105,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _commPkgs.Add(commPkg);
         }
 
+        public void RemoveCommPkg(CommPkg commPkg)
+        {
+            if (commPkg == null)
+            {
+                throw new ArgumentNullException(nameof(commPkg));
+            }
+
+            if (commPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {commPkg.Plant} from item in {Plant}");
+            }
+
+            _commPkgs.Remove(commPkg);
+        }
+
         public void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
@@ -107,6 +135,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _mcPkgs.Add(mcPkg);
         }
 
+        public void RemoveMcPkg(McPkg mcPkg)
+        {
+            if (mcPkg == null)
+            {
+                throw new ArgumentNullException(nameof(mcPkg));
+            }
+
+            if (mcPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {mcPkg.Plant} from item in {Plant}");
+            }
+
+            _mcPkgs.Remove(mcPkg);
+        }
+
         public void AddParticipant(Participant participant)
         {
             if (participant == null)
@@ -120,6 +163,45 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Add(participant);
+        }
+
+        public void RemoveParticipant(Participant participant)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (participant.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {participant.Plant} from item in {Plant}");
+            }
+
+            _participants.Remove(participant);
+        }
+
+        public void UpdateParticipant(
+            int participantId,
+            Organization organization,
+            IpoParticipantType type,
+            string functionalRoleCode,
+            string firstName,
+            string lastName,
+            string email,
+            Guid? azureOid,
+            int sortKey,
+            string participantRowVersion)
+        {
+            var participant = Participants.Single(p => p.Id == participantId);
+            participant.Organization = organization;
+            participant.Type = type;
+            participant.FunctionalRoleCode = functionalRoleCode;
+            participant.FirstName = firstName;
+            participant.LastName = lastName;
+            participant.Email = email;
+            participant.AzureOid = azureOid;
+            participant.SortKey = sortKey;
+            participant.SetRowVersion(participantRowVersion);
         }
 
         public void SetCreated(Person createdBy)
