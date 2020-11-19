@@ -24,6 +24,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> ValidContractorParticipantExistsAsync(int invitationId, CancellationToken token);
         Task<bool> ValidConstructionCompanyParticipantExistsAsync(int invitationId, CancellationToken token);
         Task<bool> ContractorExistsAsync(int invitationId, CancellationToken token);
-        Task<bool> ValidConstructionCompanyExistsAsync(int invitationId, CancellationToken token);
+        Task<bool> ConstructionCompanyExistsAsync(int invitationId, CancellationToken token);
     }
 }

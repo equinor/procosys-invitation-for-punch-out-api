@@ -868,25 +868,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task ValidConstructionCompanyExistsAsync_ConstructionCompanyExists_ReturnsTrue()
+        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidConstructionCompanyExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidConstructionCompanyExistsAsync_ConstructionCompanyDoesntExists_ReturnsFalse()
+        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyDoesntExists_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidConstructionCompanyExistsAsync(_invitationIdWithoutParticipants, default);
+                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
         }

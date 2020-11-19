@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Completed, token);
 
             async Task<bool> BeAConstructionCompanyOnIpo(int invitationId, CancellationToken token)
-                => await invitationValidator.ValidConstructionCompanyExistsAsync(invitationId, token);
+                => await invitationValidator.ConstructionCompanyExistsAsync(invitationId, token);
 
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken token)
                 => await invitationValidator.ValidConstructionCompanyParticipantExistsAsync(invitationId, token);

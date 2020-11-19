@@ -244,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.Organization == Organization.Contractor
                 select participant).AnyAsync(token);
 
-        public async Task<bool> ValidConstructionCompanyExistsAsync(int invitationId, CancellationToken token) =>
+        public async Task<bool> ConstructionCompanyExistsAsync(int invitationId, CancellationToken token) =>
             await (from participant in _context.QuerySet<Participant>()
                 where EF.Property<int>(participant, "InvitationId") == invitationId &&
                       participant.SortKey == 1 &&
