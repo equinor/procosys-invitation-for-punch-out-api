@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                     "The IPO does not have a construction company assigned to accept the IPO!")
                 .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Person signing is not the construction company assigned to accept this IPO, or there is not a valid functional role on the IPO!");
+                    "Person signing is not the construction company assigned to accept this IPO, or there is not a valid construction company on the IPO!");
 
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))

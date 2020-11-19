@@ -66,13 +66,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, _projectName, _title1, _description, _typeDp);
+                var invitationWithCurrentUserAsParticipants = new Invitation(TestPlant, _projectName, _title1, _description, _typeDp);
                 foreach (var attachment in _attachments)
                 {
-                    invitation.AddAttachment(attachment);
+                    invitationWithCurrentUserAsParticipants.AddAttachment(attachment);
                 }
-                context.Invitations.Add(invitation);
-                _invitationIdWithCurrentUserOidAsParticipants = invitation.Id;
+                context.Invitations.Add(invitationWithCurrentUserAsParticipants);
+                _invitationIdWithCurrentUserOidAsParticipants = invitationWithCurrentUserAsParticipants.Id;
                 var participant1 = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -105,13 +105,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "UN3",
                     null,
                     2);
-                invitation.AddParticipant(participant1);
-                invitation.AddParticipant(participant2);
-                invitation.AddParticipant(participant3);
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant1);
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
+                invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
 
-                var invitation2 = new Invitation(TestPlant, _projectName, _title2, _description, _typeDp);
-                context.Invitations.Add(invitation2);
-                _invitationIdWithFrAsParticipants = invitation2.Id;
+                var invitationWithFrAsParticipants = new Invitation(TestPlant, _projectName, _title2, _description, _typeDp);
+                context.Invitations.Add(invitationWithFrAsParticipants);
+                _invitationIdWithFrAsParticipants = invitationWithFrAsParticipants.Id;
                 var frContractor = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -134,16 +134,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "fr2@test.com",
                     null,
                     1);
-                invitation2.AddParticipant(frContractor);
-                invitation2.AddParticipant(frConstructionCompany);
+                invitationWithFrAsParticipants.AddParticipant(frContractor);
+                invitationWithFrAsParticipants.AddParticipant(frConstructionCompany);
 
-                var invitation3 = new Invitation(TestPlant, _projectName2, _title3, _description, _typeDp);
-                context.Invitations.Add(invitation3);
-                _invitationIdWithoutParticipants = invitation3.Id;
+                var invitationWithoutParticipants = new Invitation(TestPlant, _projectName2, _title3, _description, _typeDp);
+                context.Invitations.Add(invitationWithoutParticipants);
+                _invitationIdWithoutParticipants = invitationWithoutParticipants.Id;
 
-                var invitation4 = new Invitation(TestPlant, _projectName2, _title4, _description, _typeDp);
-                context.Invitations.Add(invitation4);
-                _invitationIdWithNotCurrentUserOidAsParticipants = invitation4.Id;
+                var invitationWithNotCurrentUserAsParticipants = new Invitation(TestPlant, _projectName2, _title4, _description, _typeDp);
+                context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
+                _invitationIdWithNotCurrentUserOidAsParticipants = invitationWithNotCurrentUserAsParticipants.Id;
                 var contractorParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -165,8 +165,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "first2@last.com",
                     _azureOid,
                     1);
-                invitation4.AddParticipant(contractorParticipant);
-                invitation4.AddParticipant(constructionParticipant);
+                invitationWithNotCurrentUserAsParticipants.AddParticipant(contractorParticipant);
+                invitationWithNotCurrentUserAsParticipants.AddParticipant(constructionParticipant);
 
                 context.SaveChangesAsync().Wait();
                 _participantId1 = participant1.Id;

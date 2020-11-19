@@ -19,7 +19,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);
         Task<bool> AttachmentExistsAsync(int invitationId, int attachmentId, CancellationToken cancellationToken);
         Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
-        Task<bool> ExistsAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoExistsAsync(int invitationId, CancellationToken token);
         Task<bool> IpoIsInStageAsync(int invitationId, IpoStatus stage, CancellationToken token);
         Task<bool> ValidContractorParticipantExistsAsync(int invitationId, CancellationToken token);

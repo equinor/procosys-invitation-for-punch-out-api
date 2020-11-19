@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         {
             _validatorMock = new Mock<IInvitationValidator>();
             _validatorMock
-                .Setup(x => x.ExistsAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(x => x.IpoExistsAsync(1, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(true));
             _validatorMock.Setup(x => x.AttachmentWithFileNameExistsAsync(1, "existingfile.txt", It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(true));

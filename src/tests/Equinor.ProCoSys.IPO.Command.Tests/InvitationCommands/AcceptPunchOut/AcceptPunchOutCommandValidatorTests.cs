@@ -127,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person signing is not the construction company assigned to accept this IPO, or there is not a valid functional role on the IPO!"));
+                .StartsWith("Person signing is not the construction company assigned to accept this IPO, or there is not a valid construction company on the IPO!"));
         }
     }
 }

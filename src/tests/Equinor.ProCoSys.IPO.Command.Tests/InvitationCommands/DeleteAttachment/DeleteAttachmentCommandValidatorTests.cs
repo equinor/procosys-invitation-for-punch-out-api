@@ -20,10 +20,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _invitationValidatorMock
-                .Setup(x => x.ExistsAsync(0, It.IsAny<CancellationToken>()))
+                .Setup(x => x.IpoExistsAsync(0, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(false));
             _invitationValidatorMock
-                .Setup(x => x.ExistsAsync(1, It.IsAny<CancellationToken>()))
+                .Setup(x => x.IpoExistsAsync(1, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(x => x.AttachmentExistsAsync(1, 0, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(false));

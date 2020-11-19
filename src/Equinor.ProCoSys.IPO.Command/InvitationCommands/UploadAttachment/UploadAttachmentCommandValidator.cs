@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
             }
 
             async Task<bool> BeAnExistingInvitationAsync(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> NotHaveAttachmentWithFileNameAsync(int invitationId, string fileName, CancellationToken token)
                 => !await invitationValidator.AttachmentWithFileNameExistsAsync(invitationId, fileName, token);
