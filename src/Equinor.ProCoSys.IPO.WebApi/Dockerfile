@@ -9,6 +9,11 @@ COPY Equinor.ProCoSys.IPO.MainApi/*.csproj ./Equinor.ProCoSys.IPO.MainApi/
 COPY Equinor.ProCoSys.IPO.BlobStorage/*.csproj ./Equinor.ProCoSys.IPO.BlobStorage/
 COPY Equinor.ProCoSys.IPO.Query/*.csproj ./Equinor.ProCoSys.IPO.Query/
 COPY Equinor.ProCoSys.IPO.WebApi/*.csproj ./Equinor.ProCoSys.IPO.WebApi/
+COPY tests/Equinor.ProCoSys.IPO.WebApi.Tests/*.csproj ./tests/Equinor.ProCoSys.IPO.WebApi.Tests/
+COPY tests/Equinor.ProCoSys.IPO.Test.Common/*.csproj ./tests/Equinor.ProCoSys.IPO.Test.Common/
+COPY tests/Equinor.ProCoSys.BusReceiverTests/*.csproj ./tests/Equinor.ProCoSys.BusReceiverTests/
+COPY Equinor.ProCoSys.BusReceiver/*.csproj ./Equinor.ProCoSys.BusReceiver/
+
 COPY nuget.config .
 
 # Copy full solution

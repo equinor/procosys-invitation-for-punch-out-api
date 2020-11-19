@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public string ProjectName { get; private set; }
         public string CommPkgNo { get; private set; }
-        public string Description { get; private set; }
+        public string Description { get; set; }
         public string Status { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
