@@ -278,8 +278,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.FunctionalRole.Persons?.Select(person =>
                                 new PersonForCommand(
                                     person.AzureOid,
-                                    p.Person.FirstName,
-                                    p.Person.LastName,
+                                    person.FirstName,
+                                    person.LastName,
                                     person.Email,
                                     person.Required,
                                     person.Id,
