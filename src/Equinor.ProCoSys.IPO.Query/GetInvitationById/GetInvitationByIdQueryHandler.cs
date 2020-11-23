@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -36,18 +37,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
+            var createdBy = await _context.QuerySet<Person>().SingleOrDefaultAsync(p => p.Id == invitation.CreatedById, token);
+
+            if (createdBy == null)
+            {
+                throw new Exception($"Could not get person that created the IPO with id {invitation.CreatedById}");
+            }
+
+            var createdByName = createdBy.FirstName + ' ' + createdBy.LastName;
+
             var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
             if (meeting == null)
             {
                 throw new Exception($"Could not get meeting with id {invitation.MeetingId} from Fusion");
             }
 
-            var invitationDto = ConvertToInvitationDto(invitation, meeting);
+            var invitationDto = ConvertToInvitationDto(invitation, createdByName, meeting);
 
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private static InvitationDto ConvertToInvitationDto(Invitation invitation, GeneralMeeting meeting)
+        private static InvitationDto ConvertToInvitationDto(Invitation invitation, string createdBy, GeneralMeeting meeting)
         {
             var invitationResult = new InvitationDto(
                 invitation.ProjectName,
@@ -56,6 +66,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 meeting.Location,
                 invitation.Type,
                 invitation.Status,
+                createdBy,
                 invitation.RowVersion.ConvertToString())
             {
                 StartTimeUtc = meeting.StartDate.DatetimeUtc,
