@@ -369,7 +369,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithParticipants(participants)
                     .EnableOutlookIntegration(OutlookMode.All)
                     .WithClassification(MeetingClassification.Restricted)
-                    .WithInviteBodyHtml(request.Description);
+                    .WithDescription(request.Description);
+                    //.WithInviteBodyHtml(request.Description);
             });
             return meeting.Id;
         }
