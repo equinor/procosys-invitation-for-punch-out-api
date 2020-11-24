@@ -1,4 +1,5 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+﻿using System;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
@@ -7,12 +8,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public ParticipantDto(
             Organization organization,
             int sortKey,
+            string signedBy,
+            DateTime? signedAtUtc,
+            string note,
+            bool attended,
             ExternalEmailDto externalEmail,
             InvitedPersonDto person,
             FunctionalRoleDto functionalRole)
         {
             Organization = organization;
             SortKey = sortKey;
+            SignedBy = signedBy;
+            SignedAtUtc = signedAtUtc;
+            Note = note;
+            Attended = attended;
             ExternalEmail = externalEmail;
             Person = person;
             FunctionalRole = functionalRole;
@@ -20,6 +29,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         public Organization Organization { get; }
         public int SortKey { get; }
+        public string SignedBy { get; }
+        public DateTime? SignedAtUtc { get; }
+        public string Note { get; }
+        public bool Attended { get; }
         public ExternalEmailDto ExternalEmail { get; }
         public InvitedPersonDto Person { get; }
         public FunctionalRoleDto FunctionalRole { get; }
