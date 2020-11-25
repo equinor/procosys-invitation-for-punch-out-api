@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Query.GetFunctionalRoles;
 using Equinor.ProCoSys.IPO.Query.GetPersons;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
+using Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

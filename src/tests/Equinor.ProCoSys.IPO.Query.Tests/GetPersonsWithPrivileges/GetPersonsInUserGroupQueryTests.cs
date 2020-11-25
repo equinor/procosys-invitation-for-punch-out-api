@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
+using Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
+namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 {
     [TestClass]
     public class GetPersonsInUserGroupQueryTests

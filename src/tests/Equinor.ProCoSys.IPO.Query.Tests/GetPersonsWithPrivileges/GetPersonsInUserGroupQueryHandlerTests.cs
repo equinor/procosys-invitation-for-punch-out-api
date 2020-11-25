@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetPersons;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
+using Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
+namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 {
     [TestClass]
     public class GetPersonsInUserGroupQueryHandlerTests : ReadOnlyTestsBase

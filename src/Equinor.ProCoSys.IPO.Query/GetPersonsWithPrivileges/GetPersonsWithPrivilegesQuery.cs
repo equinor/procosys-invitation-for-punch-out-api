@@ -3,7 +3,7 @@ using Equinor.ProCoSys.IPO.Query.GetPersons;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
+namespace Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges
 {
     public class GetPersonsWithPrivilegesQuery : IRequest<Result<List<ProCoSysPersonDto>>>
     {

@@ -104,7 +104,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnCorrectNumberOfPersons()
+        public async Task GetPersonsWithPrivileges_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
             var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
@@ -114,7 +114,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetPersonsWithPrivileges_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
@@ -126,7 +126,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnCorrectProperties()
+        public async Task GetPersonsWithPrivileges_ShouldReturnCorrectProperties()
         {
             // Act
             var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnCorrectNumberOfPersons()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectNumberOfPersons()
         {
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
@@ -191,7 +191,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
@@ -203,7 +203,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnCorrectProperties()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectProperties()
         {
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
