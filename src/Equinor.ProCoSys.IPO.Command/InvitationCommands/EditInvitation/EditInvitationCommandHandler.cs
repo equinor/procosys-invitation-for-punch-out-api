@@ -18,8 +18,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
     public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<string>>
     {
-        private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
-        private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private const string _objectName = "IPO";
+        private readonly IList<string> _requiredSignerPrivileges = new List<string> { "CREATE", "SIGN" };
+        private readonly IList<string> _additionalSignerPrivileges = new List<string> { "SIGN" };
 
         private readonly IInvitationRepository _invitationRepository;
         private readonly IFusionMeetingClient _meetingClient;
@@ -335,25 +336,72 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             if (personParticipantsWithOids.Any(p => p.SortKey == 0))
             {
                 var participant = personParticipantsWithOids.Single(p => p.SortKey == 0);
-                participants = await AddContractorOrConstructionCompany(
+                participants = await AddSigner(
                     invitation,
                     participants,
                     existingParticipants,
                     participant.Person,
                     participant.SortKey,
-                    ContractorUserGroup);
+                    participant.Organization,
+                    _requiredSignerPrivileges);
             }
             if (personParticipantsWithOids.Any(p => p.SortKey == 1))
             {
                 var participant = personParticipantsWithOids.Single(p => p.SortKey == 1);
-                participants = await AddContractorOrConstructionCompany(
+                participants = await AddSigner(
                     invitation,
                     participants,
                     existingParticipants,
                     participant.Person,
                     participant.SortKey,
-                    ConstructionUserGroup);
+                    participant.Organization,
+                    _requiredSignerPrivileges);
             }
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.Commissioning))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Commissioning);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.Operation))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Operation);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
             var persons = oids.Count > 0
                 ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
@@ -404,18 +452,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return participants;
         }
 
-        private async Task<List<BuilderParticipant>> AddContractorOrConstructionCompany(
+        private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
             IList<Participant> existingParticipants,
             PersonForCommand person,
             int sortKey,
-            string userGroup)
+            Organization organization,
+            IList<string> privileges)
         {
-            var organization = userGroup == ConstructionUserGroup
-                ? Organization.ConstructionCompany
-                : Organization.Contractor;
-            var personFromMain = await _personApiService.GetPersonByOidsInUserGroupAsync(_plantProvider.Plant, person.AzureOid.ToString(), userGroup);
+            var personFromMain = await _personApiService.GetPersonByOidWithPrivilegesAsync(_plantProvider.Plant, person.AzureOid.ToString(), _objectName, privileges);
             if (personFromMain != null)
             {
                 var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == person.Id);

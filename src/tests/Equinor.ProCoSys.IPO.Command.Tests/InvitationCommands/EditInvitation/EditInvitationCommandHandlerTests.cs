@@ -173,12 +173,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
-                    _azureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
+                    _azureOid.ToString(), "IPO", new List<string> { "CREATE", "SIGN" }))
                 .Returns(Task.FromResult(personDetails));
             _personApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
-                    _newAzureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
+                    _newAzureOid.ToString(), "IPO", new List<string> { "CREATE", "SIGN" }))
                 .Returns(Task.FromResult(newPersonDetails));
 
             //mock functional role response from main API

@@ -17,8 +17,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
     public class ParticipantsController : ControllerBase
     {
         private const string _classification = "IPO";
-        private const string _plannerPrivilegeGroup = "IPO_PLAN";
-        private const string _signerPrivilegeGroup = "IPO_SIGN";
+        private const string _objectName = "IPO";
+        private readonly List<string> _requiredSignerPrivileges = new List<string> { "SIGN", "CREATE" };
+        private readonly List<string> _additionalSignerPrivileges = new List<string> { "SIGN" };
 
         private readonly IMediator _mediator;
 
@@ -57,36 +58,36 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         }
 
         /// <summary>
-        /// Gets persons from Main API with the privilege group IPO_PLAN
+        /// Gets persons from Main API with the privilege IPO SIGN and CREATE
         /// </summary>
         /// <param name="plant"></param>
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
-        /// <returns>All persons in ProCoSys in privilege group IPO Planner</returns>
+        /// <returns>All persons in ProCoSys with privilege IPO SIGN and CREATE</returns>
         [Authorize(Roles = Permissions.USER_READ)]
-        [HttpGet("/Persons/ByUserGroup/Planner")]
-        public async Task<ActionResult<List<ProCoSysPersonDto>>> GetPlannerPersons(
+        [HttpGet("/Persons/ByPrivileges/RequiredSigners")]
+        public async Task<ActionResult<List<ProCoSysPersonDto>>> GetRequiredSignerPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
             string searchString)
         {
-            var result = await _mediator.Send(new GetPersonsInUserGroupQuery(searchString, _plannerPrivilegeGroup));
+            var result = await _mediator.Send(new GetPersonsWithPrivilegesQuery(searchString, _objectName, _requiredSignerPrivileges));
             return this.FromResult(result);
         }
 
         /// <summary>
-        /// Gets persons from Main API with the privilege group IPO_SIGN
+        /// Gets persons from Main API with the privilege IPO SIGN
         /// </summary>
         /// <param name="plant"></param>
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
-        /// <returns>All persons in ProCoSys in privilege group IPO Signer</returns>
+        /// <returns>All persons in ProCoSys with privilege IPO SIGN</returns>
         [Authorize(Roles = Permissions.USER_READ)]
-        [HttpGet("/Persons/ByUserGroup/Signer")]
-        public async Task<ActionResult<List<ProCoSysPersonDto>>> GetSignerPersons(
+        [HttpGet("/Persons/ByPrivileges/AdditionalSigners")]
+        public async Task<ActionResult<List<ProCoSysPersonDto>>> GetAdditionalSignerPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
             string searchString)
         {
-            var result = await _mediator.Send(new GetPersonsInUserGroupQuery(searchString, _signerPrivilegeGroup));
+            var result = await _mediator.Send(new GetPersonsWithPrivilegesQuery(searchString, _objectName, _additionalSignerPrivileges));
             return this.FromResult(result);
         }
     }

@@ -1,4 +1,6 @@
-﻿using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
@@ -9,10 +11,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new GetPersonsInUserGroupQuery("A", "MC_LEAD");
+            var dut = new GetPersonsWithPrivilegesQuery("A", "IPO", new List<string> {"READ"});
 
             Assert.AreEqual("A", dut.SearchString);
-            Assert.AreEqual("MC_LEAD", dut.UserGroup);
+            Assert.AreEqual("IPO", dut.ObjectName);
+            Assert.AreEqual(1, dut.Privileges.Count);
+            Assert.AreEqual("READ", dut.Privileges.First());
         }
     }
 }

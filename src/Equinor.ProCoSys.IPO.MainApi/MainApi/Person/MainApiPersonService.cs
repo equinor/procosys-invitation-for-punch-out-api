@@ -36,16 +36,21 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
-        public async Task<IList<ProCoSysPerson>> GetPersonsByUserGroupAsync(
+        public async Task<IList<ProCoSysPerson>> GetPersonsWithPrivilegesAsync(
             string plant,
             string searchString,
-            string userGroup)
+            string objectName,
+            IList<string> privileges)
         {
-            var url = $"{_baseAddress}Person/PersonSearch/ByUserGroup" +
+            var url = $"{_baseAddress}Person/PersonSearch/ByPrivileges" +
                       $"?plantId={plant}" +
                       $"&searchString={WebUtility.UrlEncode(searchString)}" +
-                      $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
+                      $"&objectName={WebUtility.UrlEncode(objectName)}" +
                       $"&api-version={_apiVersion}";
+            foreach (var privilege in privileges)
+            {
+                url += $"&privileges={privilege}";
+            }
 
             return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
@@ -63,13 +68,21 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
-        public async Task<ProCoSysPerson> GetPersonByOidsInUserGroupAsync(string plant, string azureOid, string userGroup)
+        public async Task<ProCoSysPerson> GetPersonByOidWithPrivilegesAsync(
+            string plant,
+            string azureOid,
+            string objectName,
+            IList<string> privileges)
         {
-            var url = $"{_baseAddress}Person/PersonByOidInUserGroup" +
+            var url = $"{_baseAddress}Person/PersonByOidWithPrivileges" +
                       $"?plantId={plant}" +
                       $"&azureOid={WebUtility.UrlEncode(azureOid)}" +
-                      $"&userGroup={WebUtility.UrlEncode(userGroup)}" +
+                      $"&objectName={WebUtility.UrlEncode(objectName)}" +
                       $"&api-version={_apiVersion}";
+            foreach (var privilege in privileges)
+            {
+                url += $"&privileges={privilege}";
+            }
 
             return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
         }

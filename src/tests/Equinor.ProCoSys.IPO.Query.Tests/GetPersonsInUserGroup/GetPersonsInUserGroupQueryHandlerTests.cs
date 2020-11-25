@@ -19,10 +19,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         private Mock<IPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiContractorPersons;
         private IList<ProCoSysPerson> _mainApiConstructionPersons;
-        private GetPersonsInUserGroupQuery _query;
+        private GetPersonsWithPrivilegesQuery _query;
 
-        private readonly string _contractorUserGroup = "MC_CONTRACTOR_MLA";
-        private readonly string _constructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private readonly string _objectName = "IPO";
+        private List<string> _privileges = new List<string> { "SIGN", "CREATE" };
         private readonly string _searchString = "A";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
                     }
                 };
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
             }
         }
 
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
@@ -109,12 +109,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _contractorUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult(_mainApiContractorPersons));
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Count);
@@ -132,11 +132,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _contractorUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);
@@ -152,12 +152,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _constructionUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult(_mainApiConstructionPersons));
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _constructionUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Count);
@@ -173,13 +173,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         [TestMethod]
         public async Task HandleGetConstructionPersons_ShouldReturnEmptyList_WhenSearchReturnsNull()
         {
-            _query = new GetPersonsInUserGroupQuery(_searchString, _constructionUserGroup);
+            _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _constructionUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);
