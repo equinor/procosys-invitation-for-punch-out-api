@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Fusion.Integration.Meeting" Version="1.0.0-preview.4" />
-    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
   </ItemGroup>
 
