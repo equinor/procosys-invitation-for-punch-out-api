@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("The IPO does not have a participant assigned to sign the IPO with this ID!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant is not assigned to sign this IPO"));
         }
 
         [TestMethod]

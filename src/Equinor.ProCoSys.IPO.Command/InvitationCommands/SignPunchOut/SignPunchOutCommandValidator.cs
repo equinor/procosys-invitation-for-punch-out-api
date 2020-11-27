@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
                 .MustAsync((command, token) => BeASigningParticipantOnIpo(command.InvitationId, command.ParticipantId, token))
                 .WithMessage(command =>
-                    $"The IPO does not have a participant assigned to sign the IPO with this ID! ParticipantId={command.ParticipantId}")
+                    $"Participant is not assigned to sign this IPO! ParticipantId={command.ParticipantId}")
                 .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId,command.ParticipantId, token))
                 .WithMessage(command =>
                     "Person signing is not assigned to sign IPO, or there is not a valid functional role on the IPO!");

@@ -9,7 +9,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         private const string _participantRowVersion = "AAAAAAAAABB=";
         private const int _participantId = 20;
 
-
         [TestMethod]
         public void Constructor_SetsProperties()
         {
