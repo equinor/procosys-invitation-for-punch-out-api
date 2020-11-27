@@ -121,9 +121,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
                 var person1 = result.Data.ElementAt(0);
                 var person2 = result.Data.ElementAt(1);
                 var person3 = result.Data.ElementAt(2);
-                AssertPersonData(_mainApiContractorPersons.Single(c => c.AzureOid == person1.Oid), person1);
-                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person2.Oid), person2);
-                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person3.Oid), person3);
+                AssertPersonData(_mainApiContractorPersons.Single(c => c.AzureOid == person1.AzureOid), person1);
+                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person2.AzureOid), person2);
+                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person3.AzureOid), person3);
             }
         }
 
@@ -164,9 +164,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
                 var person1 = result.Data.ElementAt(0);
                 var person2 = result.Data.ElementAt(1);
                 var person3 = result.Data.ElementAt(2);
-                AssertPersonData(_mainApiConstructionPersons.Single(c => c.AzureOid == person1.Oid), person1);
-                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person2.Oid), person2);
-                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person3.Oid), person3);
+                AssertPersonData(_mainApiConstructionPersons.Single(c => c.AzureOid == person1.AzureOid), person1);
+                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person2.AzureOid), person2);
+                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person3.AzureOid), person3);
             }
         }
 
@@ -191,7 +191,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
 
         private void AssertPersonData(ProCoSysPerson PCSPerson, ProCoSysPersonDto personDto)
         {
-            Assert.AreEqual(PCSPerson.AzureOid, personDto.Oid);
+            Assert.AreEqual(PCSPerson.AzureOid, personDto.AzureOid);
             Assert.AreEqual(PCSPerson.FirstName, personDto.FirstName);
             Assert.AreEqual(PCSPerson.LastName, personDto.LastName);
             Assert.AreEqual(PCSPerson.UserName, personDto.UserName);
