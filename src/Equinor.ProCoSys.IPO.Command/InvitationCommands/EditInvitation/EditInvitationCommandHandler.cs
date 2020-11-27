@@ -77,7 +77,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
                     builder.UpdateInviteBodyHtml(GenerateMeetingDescription(invitation));
-                    builder.UpdateDescription(request.Description);
                 });
             }
             catch
