@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Options;
 using ServiceResult;
 using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
@@ -38,7 +40,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IMcPkgApiService mcPkgApiService,
             ICommPkgApiService commPkgApiService,
             IPersonApiService personApiService,
-            IFunctionalRoleApiService functionalRoleApiService)
+            IFunctionalRoleApiService functionalRoleApiService,
+            IOptionsMonitor<MeetingOptions> meetingOptions)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -48,6 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _commPkgApiService = commPkgApiService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
+            _meetingOptions = meetingOptions;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -72,7 +76,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.InviteBodyHtml = request.Description;
+                    builder.UpdateInviteBodyHtml(GenerateMeetingDescription(invitation));
+                    builder.UpdateDescription(request.Description);
                 });
             }
             catch
@@ -542,6 +547,29 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     new ParticipantIdentifier(participant.ExternalEmail.Email)));
             }
             return participants;
+        }
+
+        private string GenerateMeetingDescription(Invitation invitation)
+        {
+            var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl + _plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper();
+            var meetingDescription = "<h4>You have been invited to attend a punch round. The punch round will cover the following scope:</h4>";
+
+            foreach (var mcPkg in invitation.McPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}/'>{mcPkg.McPkgNo}</a></br>";
+            }
+            foreach (var commPkg in invitation.CommPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></br>";
+            }
+
+            meetingDescription += $"<p>{invitation.Description}</p>";
+
+            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch out in ProCoSys.</a>";
+
+            return meetingDescription;
         }
     }
 }
