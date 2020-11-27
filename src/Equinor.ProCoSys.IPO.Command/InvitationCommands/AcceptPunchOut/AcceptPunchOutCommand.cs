@@ -19,9 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             Participants = participants != null ? participants.ToList() : new List<UpdateNoteOnParticipantForCommand>();
         }
 
-        public int InvitationId { get; set; }
-        public string InvitationRowVersion { get; set; }
-        public string ParticipantRowVersion { get; set; }
-        public IList<UpdateNoteOnParticipantForCommand> Participants { get; set; }
+        public int InvitationId { get; }
+        public string InvitationRowVersion { get; }
+        public string ParticipantRowVersion { get; }
+        public IList<UpdateNoteOnParticipantForCommand> Participants { get; }
     }
 }

@@ -14,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             Id = id;
             RowVersion = rowVersion;
         }
-        public string Email { get; set; }
-        public int? Id { get; set; }
-        public string RowVersion { get; set; }
+        public string Email { get; }
+        public int? Id { get; }
+        public string RowVersion { get; }
     }
 }

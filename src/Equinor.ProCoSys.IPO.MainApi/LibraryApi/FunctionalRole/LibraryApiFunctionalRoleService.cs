@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
@@ -38,12 +39,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
             string plant,
             List<string> functionalRoleCodes)
         {
-            var url = $"{_baseAddress}FunctionalRolesByCodes";
+            var url = $"{_baseAddress}FunctionalRolesByCodes"
+                + $"?classification={WebUtility.UrlEncode("IPO")}";
 
-            foreach (var code in functionalRoleCodes)
-            {
-                url += $"&functionalRoleCodes={code}";
-            }
+            url = functionalRoleCodes.Aggregate(url, (current, code) => current + $"&functionalRoleCodes={code}");
 
             var extraHeaders =
                 new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("x-plant", plant) };

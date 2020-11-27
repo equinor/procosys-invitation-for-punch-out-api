@@ -14,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             Note = note;
             RowVersion = rowVersion;
         }
-        public int Id { get; set; }
-        public string Note { get; set; }
-        public string RowVersion { get; set; }
+        public int Id { get; }
+        public string Note { get; }
+        public string RowVersion { get; }
     }
 }

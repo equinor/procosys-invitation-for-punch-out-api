@@ -158,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         fr.Email,
                         null,
                         participant.SortKey));
-                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true)
+                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true && fr.Email != null)
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
@@ -227,7 +227,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
-                foreach (var participant in personParticipantsWithOids)
+                foreach (var participant in personParticipantsWithOids.Where(p => p.SortKey > 1))
                 {
                     var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
                     if (person != null)
