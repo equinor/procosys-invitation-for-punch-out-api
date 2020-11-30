@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&api-version={_apiVersion}";
             foreach (var privilege in privileges)
             {
-                url += $"&privileges={privilege}";
+                url += $"&privilegeTypes={privilege}";
             }
 
             return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
