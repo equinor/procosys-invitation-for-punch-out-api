@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -110,6 +111,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.UpdatedMcPkgScope,
                     dto.UpdatedCommPkgScope,
                     dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [HttpPut("{id}/Sign")]
+        public async Task<ActionResult<string>> SignInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] SignInvitationDto dto)
+        {
+            var result = await _mediator.Send(
+                new SignPunchOutCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 
@@ -262,8 +278,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.FunctionalRole.Persons?.Select(person =>
                                 new PersonForCommand(
                                     person.AzureOid,
-                                    p.Person.FirstName,
-                                    p.Person.LastName,
+                                    person.FirstName,
+                                    person.LastName,
                                     person.Email,
                                     person.Required,
                                     person.Id,

@@ -50,8 +50,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ValidContractorParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ContractorExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId2, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId2, _id, default)).Returns(Task.FromResult(true));
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
                 _id,
                 _participants);
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantIdIsNonExisting()
         {
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExists(_participantId1, _id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
@@ -104,10 +104,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenRowVersionIsInvalid()
+        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(false);
-            
+
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
@@ -136,7 +136,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("User is not the contractor assigned to complete this IPO"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage
+                .StartsWith("User is not the contractor assigned to complete this IPO, or there is not a valid contractor on the IPO!"));
         }
     }
 }

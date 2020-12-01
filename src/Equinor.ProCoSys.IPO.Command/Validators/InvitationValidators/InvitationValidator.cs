@@ -111,15 +111,15 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 return false;
             }
 
-            return participants[0].Organization == Organization.Contractor &&
-                   participants[0].ExternalEmail == null &&
+            return participants.First().Organization == Organization.Contractor &&
+                   participants.First().ExternalEmail == null &&
                    participants[1].Organization == Organization.ConstructionCompany &&
                    participants[1].ExternalEmail == null;
         }
 
         public bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
         {
-            if (participants.Count < 2 || participants[0].SortKey != 0 || participants[1].SortKey != 1)
+            if (participants.Count < 2 || participants.First().SortKey != 0 || participants[1].SortKey != 1)
             {
                 return false;
             }
@@ -155,31 +155,31 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        public async Task<bool> ParticipantExists(int? id, int invitationId, CancellationToken token) 
+        public async Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken token) 
             => await(from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                      select p).AnyAsync(token);
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token)
         {
-            if (participant.Person?.Id != null && !await ParticipantExists(participant.Person.Id, invitationId, token))
+            if (participant.Person?.Id != null && !await ParticipantExistsAsync(participant.Person.Id, invitationId, token))
             {
                 return false;
             }
-            if (participant.ExternalEmail?.Id != null && !await ParticipantExists(participant.ExternalEmail.Id, invitationId, token))
+            if (participant.ExternalEmail?.Id != null && !await ParticipantExistsAsync(participant.ExternalEmail.Id, invitationId, token))
             {
                 return false;
             }
             if (participant.FunctionalRole != null)
             {
-                if (!await ParticipantExists(participant.FunctionalRole.Id, invitationId, token))
+                if (!await ParticipantExistsAsync(participant.FunctionalRole.Id, invitationId, token))
                 {
                     return false;
                 }
 
                 foreach (var person in participant.FunctionalRole.Persons)
                 {
-                    if (person.Id != null && !await ParticipantExists(person.Id, invitationId, token))
+                    if (person.Id != null && !await ParticipantExistsAsync(person.Id, invitationId, token))
                     {
                         return false;
                     }
@@ -201,18 +201,17 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.Organization == Organization.Contractor
                 select participant).ToListAsync(token);
 
-            if (participants[0].FunctionalRoleCode != null)
+            if (participants.Any(p => p.FunctionalRoleCode != null))
             {
                 return participants
-                    .SingleOrDefault(p => p.SortKey == 0 &&
-                                          p.Type == IpoParticipantType.FunctionalRole) != null;
+                    .SingleOrDefault(p => p.Type == IpoParticipantType.FunctionalRole) != null;
             }
 
-            if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
+            if (participants.SingleOrDefault() == null || participants.Single().Type != IpoParticipantType.Person)
             {
                 return false;
             }
-            return participants.First().AzureOid == _currentUserProvider.GetCurrentUserOid();
+            return participants.Single().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
         public async Task<bool> ValidConstructionCompanyParticipantExistsAsync(int invitationId, CancellationToken token)
@@ -250,5 +249,33 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       participant.SortKey == 1 &&
                       participant.Organization == Organization.ConstructionCompany
                 select participant).AnyAsync(token);
+
+        public async Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken token) =>
+            await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.Id == participantId &&
+                      (participant.Organization == Organization.TechnicalIntegrity ||
+                       participant.Organization == Organization.Operation ||
+                       participant.Organization == Organization.Commissioning)
+                select participant).AnyAsync(token);
+
+        public async Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken token)
+        {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId &&
+                      p.Id == participantId &&
+                      p.SortKey > 1 &&
+                      (p.Organization == Organization.TechnicalIntegrity ||
+                       p.Organization == Organization.Operation ||
+                       p.Organization == Organization.Commissioning)
+                select p).SingleAsync(token);
+
+            if (participant.Type == IpoParticipantType.FunctionalRole)
+            {
+                return true;
+            }
+
+            return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
     }
 }
