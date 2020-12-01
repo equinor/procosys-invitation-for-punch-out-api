@@ -400,7 +400,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .EnableOutlookIntegration(OutlookMode.All)
-                    .WithClassification(MeetingClassification.Restricted)
+                    .WithClassification(MeetingClassification.Open)
                     .WithInviteBodyHtml(GenerateMeetingDescription(invitation));
             });
             return meeting.Id;
