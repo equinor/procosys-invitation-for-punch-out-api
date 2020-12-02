@@ -37,8 +37,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICommPkgApiService commPkgApiService,
-            IMcPkgApiService mcPkgApiService, 
-            IPersonApiService personApiService, 
+            IMcPkgApiService mcPkgApiService,
+            IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions)
         {
@@ -55,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
+            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
             var participants = new List<BuilderParticipant>();
             var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Description, request.Type);
             _invitationRepository.Add(invitation);
@@ -74,39 +75,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             try
             {
-                var meetingId = await CreateOutlookMeeting(request, participants, invitation);
-                invitation.MeetingId = meetingId;
+                invitation.MeetingId = await CreateOutlookMeeting(request, participants, invitation);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _unitOfWork.Commit();
+                return new SuccessResult<int>(invitation.Id);
             }
             catch
             {
-                UndoSaveChanges(invitation);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.RollbackAsync(cancellationToken);
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
             }
-            return new SuccessResult<int>(invitation.Id);
-        }
-
-        private void UndoSaveChanges(Invitation invitation)
-        {
-            foreach (var participant in invitation.Participants.ToList())
-            {
-                invitation.RemoveParticipant(participant);
-                _invitationRepository.RemoveParticipant(participant);   
-            }
-
-            foreach (var mcPkg in invitation.McPkgs.ToList())
-            {
-                invitation.RemoveMcPkg(mcPkg);
-                _invitationRepository.RemoveMcPkg(mcPkg);
-            }
-
-            foreach (var commPkg in invitation.CommPkgs.ToList())
-            {
-                invitation.RemoveCommPkg(commPkg);
-                _invitationRepository.RemoveCommPkg(commPkg);
-            }
-            _invitationRepository.Remove(invitation);
         }
 
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
