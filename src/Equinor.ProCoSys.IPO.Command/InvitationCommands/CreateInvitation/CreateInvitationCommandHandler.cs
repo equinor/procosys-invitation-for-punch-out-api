@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch
+            catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
