@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     [TestClass]
     public class InvitationsControllerTestsBase : TestBase
     {
-        protected int InitialInvitationId = TestFactory.KnownTestData.InvitationIds.First();
+        protected int InitialInvitationId = TestFactory.Instance.KnownTestData.InvitationIds.First();
         protected int AttachmentId;
         //protected int CommpkgId;
         protected string FunctionalRoleCode = "FRC";
@@ -73,15 +73,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Title = string.Empty
             };
 
-            AttachmentId = TestFactory.KnownTestData.AttachmentIds.First();
-            CommpkgId = TestFactory.KnownTestData.CommPkgIds.First();
+            AttachmentId = TestFactory.Instance.KnownTestData.AttachmentIds.First();
+            //CommpkgId = TestFactory.Instance.KnownTestData.CommPkgIds.First();
 
             var _mcPkgNo1 = "MC1";
             var _mcPkgNo2 = "MC2";
 
             McPkgScope = new List<string> {_mcPkgNo1, _mcPkgNo2};
 
-            TestFactory
+            TestFactory.Instance
                 .FusionMeetingClientMock
                 .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
                 .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
@@ -136,34 +136,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 }
             };
 
-            var PersonInFunctionalRole = _personsInFunctionalRole.First();
+            var personInFunctionalRole = _personsInFunctionalRole.First();
 
-            TestFactory
+            TestFactory.Instance
                 .McPkgApiServiceMock
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
                     McPkgScope))
                 .Returns(Task.FromResult(mcPkgDetails));
 
-            TestFactory
+            TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
                     new List<string> {FunctionalRoleCode}))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
 
-            TestFactory
+            TestFactory.Instance
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidsInUserGroupAsync(TestFactory.PlantWithAccess, It.IsAny<string>(),
                     "MC_LEAD_DISCIPLINE"))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = AzureOid,
-                    Email = PersonInFunctionalRole.Email,
-                    FirstName = PersonInFunctionalRole.FirstName,
-                    LastName = PersonInFunctionalRole.LastName,
-                    UserName = PersonInFunctionalRole.UserName
+                    Email = personInFunctionalRole.Email,
+                    FirstName = personInFunctionalRole.FirstName,
+                    LastName = personInFunctionalRole.LastName,
+                    UserName = personInFunctionalRole.UserName
                 }));
 
-            TestFactory
+            TestFactory.Instance
                 .FusionMeetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
                 .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
