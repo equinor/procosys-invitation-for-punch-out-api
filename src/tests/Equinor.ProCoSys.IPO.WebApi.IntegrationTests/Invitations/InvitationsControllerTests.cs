@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -54,6 +58,132 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Assert
             Assert.IsTrue(id > 0);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldEditInvitation()
+        {
+            // Arrange
+            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                "InvitationToBeUpdatedTitle",
+                "InvitationToBeUpdatedDescription",
+                "InvitationToBeUpdatedLocation",
+                DisciplineType.DP,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                Participants,
+                McPkgScope,
+                null);
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                ViewerClient(TestFactory.PlantWithAccess),
+                id);
+            invitation.Status = IpoStatus.Planned;
+            
+            var CurrentRowVersion = invitation.RowVersion;
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+            var participant1 = Participants.First();
+            var participant2 = Participants.Last();
+            var updatedParticipants = new List<ParticipantDto>
+            {
+                new ParticipantDto
+                {
+                    Organization = participant1.Organization,
+                    ExternalEmail = null,
+                    Person = null,
+                    SortKey = participant1.SortKey,
+                    FunctionalRole = new FunctionalRoleDto
+                    {
+                        Code = participant1.FunctionalRole.Code,
+                        Id = participant1.FunctionalRole.Id,
+                        Persons = new List<PersonDto>(),
+                        RowVersion = participant1.FunctionalRole.RowVersion
+                    }
+                },
+                new ParticipantDto
+                {
+                    Organization = participant2.Organization,
+                    ExternalEmail = null,
+                    Person = new PersonDto
+                    {
+                        AzureOid = participant2.Person.AzureOid,
+                        Email = participant2.Person.Email,
+                        FirstName = participant2.Person.FirstName,
+                        LastName = participant2.Person.LastName,
+                        Id = participant2.Person.Id,
+                        Required = participant2.Person.Required,
+                        RowVersion = participant2.Person.RowVersion
+                    },
+                    SortKey = participant2.SortKey,
+                    FunctionalRole = null
+                }
+            };
+
+            var editInvitationDto = new EditInvitationDto
+            {
+                Title = UpdatedTitle,
+                Description = UpdatedDescription,
+                StartTime = invitation.StartTimeUtc,
+                EndTime = invitation.EndTimeUtc,
+                Location = invitation.Location,
+                ProjectName = invitation.ProjectName,
+                RowVersion = invitation.RowVersion,
+                UpdatedParticipants = updatedParticipants,
+                UpdatedCommPkgScope = null,
+                UpdatedMcPkgScope = McPkgScope
+            };
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.EditInvitationAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                id,
+                editInvitationDto);
+
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                ViewerClient(TestFactory.PlantWithAccess),
+                id);
+
+            // Assert
+            AssertRowVersionChange(CurrentRowVersion, newRowVersion);
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+        }
+         
+        [TestMethod]
+        public async Task UploadAttachment_AsPlanner_ShouldUploadAttachment()
+        {
+            // Arrange
+            var invitationIdForAttachment = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                "InvitationForAttachmentTitle",
+                "InvitationForAttachmentDescription",
+                "InvitationForAttachmentLocation",
+                DisciplineType.DP,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                Participants,
+                McPkgScope,
+                null);
+
+            var invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                invitationIdForAttachment);
+            var attachmentCount = invitationAttachments.Result.Count;
+
+            // Act
+            await InvitationsControllerTestsHelper.UploadAttachmentAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                invitationIdForAttachment,
+                FileToBeUploaded);
+
+            // Assert
+            invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                invitationIdForAttachment);
+
+            Assert.AreEqual(attachmentCount + 1, invitationAttachments.Result.Count);
         }
 
         [TestMethod]
