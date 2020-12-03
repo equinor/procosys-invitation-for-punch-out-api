@@ -163,12 +163,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 dto.RowVersion
             };
 
-            //figure out how to get remaining parameters in response url
+            //todo figure out how to get remaining parameters in response url
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{_route}/{id}", content);
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
-
 
             if (expectedStatusCode != HttpStatusCode.OK)
             {

@@ -128,11 +128,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 try { disposable.Dispose(); } catch { /* Ignore */ }
             }
 
-            base.Dispose();
             lock (s_padlock)
             {
                 s_instance = null;
             }
+
+            base.Dispose();
         }
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)

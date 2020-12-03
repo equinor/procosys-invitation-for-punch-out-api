@@ -7,7 +7,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
     public abstract class TestBase
     {
         private readonly RowVersionValidator _rowVersionValidator = new RowVersionValidator();
-
         
         [AssemblyCleanup]
         public static void AssemblyCleanup() => TestFactory.Instance.Dispose();
