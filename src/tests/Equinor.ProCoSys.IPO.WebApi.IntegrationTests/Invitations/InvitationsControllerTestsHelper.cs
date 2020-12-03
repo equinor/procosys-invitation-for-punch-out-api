@@ -75,6 +75,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<List<AttachmentDto>>(content);
         }
 
+        public static async Task<AttachmentDto> GetAttachmentAsync(
+            HttpClient client,
+            int id,
+            int attachmentId,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var response = await client.GetAsync($"{_route}/{id}/Attachments/{attachmentId}");
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<AttachmentDto>(content);
+        }
+
         public static async Task<int> CreateInvitationAsync(
             HttpClient client,
             string title,

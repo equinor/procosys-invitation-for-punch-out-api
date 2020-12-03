@@ -227,19 +227,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == AttachmentId));
         }
 
-        //[TestMethod]
-        //public async Task CreateInvitation_AsPlanner_ShouldCreateInvitation()
-        //{
-            // Act
-            //var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-            //    PlannerClient(TestFactory.PlantWithAccess),
-            //    Guid.NewGuid().ToString(),
-            //    Guid.NewGuid().ToString(),
-            //    Guid.NewGuid().ToString(),
-            //    DisciplineType.DP);
+        [TestMethod]
+        public async Task GetAttachment_AsViewer_ShouldGetAttachment()
+        {
+           // Act
+           var invitationAttachments = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
+               PlannerClient(TestFactory.PlantWithAccess),
+               InitialInvitationId);
 
-            //// Assert
-            //Assert.IsTrue(id > 0);
-        //}
+           Assert.AreNotEqual(invitationAttachments.Count, 0);
+
+            var attachmentDto = await InvitationsControllerTestsHelper.GetAttachmentAsync(
+                ViewerClient(TestFactory.PlantWithAccess),
+                InitialInvitationId,
+                invitationAttachments.First().Id);
+
+            // Assert
+            Assert.AreEqual(invitationAttachments.First().Id, attachmentDto.Id);
+        }
     }
 }
