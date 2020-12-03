@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -14,6 +19,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     public class InvitationsControllerTestsBase : TestBase
     {
         protected int InitialInvitationId = TestFactory.KnownTestData.InvitationIds.First();
+        protected int AttachmentId;
+        //protected int CommpkgId;
+        protected string FunctionalRoleCode = "FRC";
+        protected string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
+        protected List<string> McPkgScope;
+        //protected List<string> CommPkgScope;
+        protected List<ParticipantsForCommand> Participants;
+        protected ProCoSysMcPkg _mcPkgDetails1;
+        protected ProCoSysMcPkg _mcPkgDetails2;
+        protected IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
+        private List<Person> _personsInFunctionalRole;
+
+        protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
 
         [TestInitialize]
         public void TestInitialize()
@@ -55,12 +73,100 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Title = string.Empty
             };
 
+            AttachmentId = TestFactory.KnownTestData.AttachmentIds.First();
+            CommpkgId = TestFactory.KnownTestData.CommPkgIds.First();
+
+            var _mcPkgNo1 = "MC1";
+            var _mcPkgNo2 = "MC2";
+
+            McPkgScope = new List<string> {_mcPkgNo1, _mcPkgNo2};
+
             TestFactory
                 .FusionMeetingClientMock
-                    .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
-                    .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
+                .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
 
-            // Todo Setup necessary mocks for other external resources here
+            Participants = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new FunctionalRoleForCommand(FunctionalRoleCode, null),
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true),
+                    null,
+                    1)
+            };
+
+            _mcPkgDetails1 = new ProCoSysMcPkg
+            {
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1
+            };
+            _mcPkgDetails2 = new ProCoSysMcPkg
+            {
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2
+            };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
+
+            _personsInFunctionalRole = new List<Person>
+            {
+                new Person
+                {
+                    AzureOid = AzureOid,
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    Email = "Test@email.com",
+                    UserName = "UserName"
+                }
+            };
+            _pcsFunctionalRoles = new List<ProCoSysFunctionalRole>
+            {
+                new ProCoSysFunctionalRole
+                {
+                    Code = FunctionalRoleCode,
+                    Description = "Description",
+                    Email = "frEmail@test.com",
+                    InformationEmail = null,
+                    Persons = _personsInFunctionalRole,
+                    UsePersonalEmail = true
+                }
+            };
+
+            var PersonInFunctionalRole = _personsInFunctionalRole.First();
+
+            TestFactory
+                .McPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
+                    McPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            TestFactory
+                .FunctionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
+                    new List<string> {FunctionalRoleCode}))
+                .Returns(Task.FromResult(_pcsFunctionalRoles));
+
+            TestFactory
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidsInUserGroupAsync(TestFactory.PlantWithAccess, It.IsAny<string>(),
+                    "MC_LEAD_DISCIPLINE"))
+                .Returns(Task.FromResult(new ProCoSysPerson
+                {
+                    AzureOid = AzureOid,
+                    Email = PersonInFunctionalRole.Email,
+                    FirstName = PersonInFunctionalRole.FirstName,
+                    LastName = PersonInFunctionalRole.LastName,
+                    UserName = PersonInFunctionalRole.UserName
+                }));
+
+            TestFactory
+                .FusionMeetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
         }
     }
 }

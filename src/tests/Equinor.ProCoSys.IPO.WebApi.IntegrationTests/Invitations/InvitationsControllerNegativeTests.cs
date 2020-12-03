@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -57,6 +56,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
+                DateTime.Now, 
+                DateTime.Today, 
+                null,
+                null,
+                null,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -67,6 +71,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
+                DateTime.Now, 
+                DateTime.Today, 
+                null,
+                null,
+                null,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -78,6 +87,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
+                DateTime.Now,
+                DateTime.Today,
+                null,
+                null,
+                null,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -88,6 +102,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
+                DateTime.Now,
+                DateTime.Today,
+                null,
+                null,
+                null,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -98,6 +117,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
+                DateTime.Now,
+                DateTime.Today,
+                null,
+                null,
+                null,
                 HttpStatusCode.Forbidden);
 
         #endregion

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -46,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
         public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+        public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
 
         public static string AnonymousUser => "NN";
         public static string SignerUser => "Sigurd Signer";
@@ -128,6 +131,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
                 services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
                 services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
+                services.AddScoped(serviceProvider => BlobStorageMock.Object);
             });
 
             builder.ConfigureServices(services =>
