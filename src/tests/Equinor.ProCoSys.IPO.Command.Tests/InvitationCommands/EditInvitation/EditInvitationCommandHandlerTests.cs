@@ -14,6 +14,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -30,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
@@ -244,6 +246,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
+            _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
+
             //command
             _command = new EditInvitationCommand(
                 _invitation.Id,
@@ -267,7 +271,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _mcPkgApiServiceMock.Object,
                 _commPkgApiServiceMock.Object,
                 _personApiServiceMock.Object,
-                _functionalRoleApiServiceMock.Object);
+                _functionalRoleApiServiceMock.Object,
+                _meetingOptionsMock.Object);
         }
 
         [TestMethod]

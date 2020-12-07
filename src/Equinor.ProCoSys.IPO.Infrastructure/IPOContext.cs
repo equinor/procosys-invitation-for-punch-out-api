@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure
 {
@@ -80,6 +81,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
                 throw new ConcurrencyException("Data store operation failed. Data may have been modified or deleted since entities were loaded.", concurrencyException);
             }
         }
+            
+        public async Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken = default) 
+            => await base.Database.BeginTransactionAsync(cancellationToken);
+
+        public void Commit() => base.Database.CommitTransaction();
 
         private async Task DispatchEventsAsync(CancellationToken cancellationToken = default)
         {
