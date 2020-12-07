@@ -14,7 +14,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Act
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId);
 
             // Assert
@@ -27,7 +28,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Act
             var invitations = await InvitationsControllerTestsHelper.GetInvitationsByCommPkgNoAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 KnownTestData.CommPkgNo,
                 TestFactory.ProjectWithAccess);
 
@@ -43,7 +45,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Act
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 "Title",
                 "Description",
                 "Location",
@@ -64,7 +67,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 "InvitationToBeUpdatedTitle",
                 "InvitationToBeUpdatedDescription",
                 "InvitationToBeUpdatedLocation",
@@ -76,7 +80,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null);
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 id);
 
             invitation.Status = IpoStatus.Planned;
@@ -101,12 +106,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.EditInvitationAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 id,
                 editInvitationDto);
 
             var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 id);
 
             // Assert
@@ -120,7 +127,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var invitationIdForAttachment = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 "InvitationForAttachmentTitle",
                 "InvitationForAttachmentDescription",
                 "InvitationForAttachmentLocation",
@@ -132,19 +140,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null);
 
             var invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 invitationIdForAttachment);
             var attachmentCount = invitationAttachments.Result.Count;
 
             // Act
             await InvitationsControllerTestsHelper.UploadAttachmentAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 invitationIdForAttachment,
                 FileToBeUploaded);
 
             // Assert
             invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 invitationIdForAttachment);
 
             Assert.AreEqual(attachmentCount + 1, invitationAttachments.Result.Count);
@@ -155,14 +166,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var invitationAttachments = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId);
 
             Assert.AreNotEqual(invitationAttachments.Count, 0);
 
             // Act
             var attachmentDto = await InvitationsControllerTestsHelper.GetAttachmentAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId,
                 invitationAttachments.First().Id);
 
@@ -175,7 +188,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Act
             var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId);
 
             // Assert
@@ -192,26 +206,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             await InvitationsControllerTestsHelper.UploadAttachmentAsync(
-                PlannerClient(TestFactory.PlantWithAccess),
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId,
                 File2ToBeUploaded);
 
-            var plannerClient = PlannerClient(TestFactory.PlantWithAccess);
             var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                plannerClient,
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId);
             var attachment = attachmentDtos.Single(t => t.FileName == File2ToBeUploaded.FileName);
 
             // Act
             await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
-                plannerClient,
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId,
                 attachment.Id,
                 attachment.RowVersion);
 
             // Assert
             attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                plannerClient,
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId);
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }

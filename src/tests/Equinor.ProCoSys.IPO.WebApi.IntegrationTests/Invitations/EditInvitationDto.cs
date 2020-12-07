@@ -12,11 +12,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public DateTime EndTime { get; set; }
         public string ProjectName { get; set; }
         public DisciplineType Type { get; set; }
-        // Existing participants not included in UpdatedParticipants will be deleted.
         public IEnumerable<ParticipantDtoEdit> UpdatedParticipants { get; set; }
-        // Existing mc pkgs not included in UpdatedMcPkgScope will be deleted.
         public IEnumerable<string> UpdatedMcPkgScope { get; set; }
-        // Existing comm pkgs not included in UpdatedCommPkgScope will be deleted.
         public IEnumerable<string> UpdatedCommPkgScope { get; set; }
         public string RowVersion { get; set; }
     }

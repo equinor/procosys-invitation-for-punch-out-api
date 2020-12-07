@@ -12,14 +12,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task GetInvitation_AsAnonymous_ShouldReturnUnauthorized()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
-                AnonymousClient(TestFactory.UnknownPlant),
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
                 9999,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
         public async Task GetInvitation_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
-                AuthenticatedHackerClient(TestFactory.UnknownPlant),
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
                 9999,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -27,21 +29,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task GetInvitation_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
-                AuthenticatedHackerClient(TestFactory.PlantWithAccess),
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
                 InitialInvitationId, 
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task GetInvitation_AsPlanner_ShouldReturnNotFound_WhenUnknownId()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
-                PlannerClient(TestFactory.PlantWithAccess), 
+                UserType.Planner,
+                TestFactory.PlantWithAccess, 
                 9999, 
                 HttpStatusCode.NotFound);
 
         [TestMethod]
         public async Task GetInvitation_AsViewer_ShouldReturnNotFound_WhenUnknownId()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess), 
+                UserType.Viewer,
+                TestFactory.PlantWithAccess, 
                 9999, 
                 HttpStatusCode.NotFound);
         #endregion
@@ -51,7 +56,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsAnonymous_ShouldReturnUnauthorized()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                AnonymousClient(TestFactory.UnknownPlant),
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
@@ -66,7 +72,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                AuthenticatedHackerClient(TestFactory.UnknownPlant),
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
@@ -82,7 +89,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                AuthenticatedHackerClient(TestFactory.PlantWithAccess),
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
@@ -97,7 +105,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                SignerClient(TestFactory.PlantWithoutAccess),
+                UserType.Signer,
+                TestFactory.PlantWithoutAccess,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
@@ -112,7 +121,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsViewer_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                ViewerClient(TestFactory.PlantWithoutAccess),
+                UserType.Viewer,
+                TestFactory.PlantWithoutAccess,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
