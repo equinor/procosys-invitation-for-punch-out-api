@@ -73,8 +73,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 DisciplineType.DP,
                 DateTime.Now, 
                 DateTime.Today, 
-                null,
-                null,
+                _participants,
+                _mcPkgScope,
                 null,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -87,40 +87,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
-                DateTime.Now,
-                DateTime.Today,
-                null,
-                null,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task CreateInvitation_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                SignerClient(TestFactory.PlantWithAccess),
+                SignerClient(TestFactory.PlantWithoutAccess),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
-                DateTime.Now,
-                DateTime.Today,
-                null,
-                null,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task CreateInvitation_AsViewer_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
+                ViewerClient(TestFactory.PlantWithoutAccess),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
-                DateTime.Now,
-                DateTime.Today,
-                null,
-                null,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null,
                 HttpStatusCode.Forbidden);
 

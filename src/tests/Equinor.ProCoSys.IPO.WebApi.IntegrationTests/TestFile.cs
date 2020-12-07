@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
-using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
     public class TestFile
     {
         private readonly byte[] _bytes;
-        private readonly string _fileName;
+        public string FileName { get; private set; }
 
         public TestFile(string content, string fileName)
         {
@@ -21,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 throw new ArgumentNullException(nameof(fileName));
             }
 
-            _fileName = fileName;
+            FileName = fileName;
             _bytes = Encoding.UTF8.GetBytes(content);
         }
 
@@ -30,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var bytes = new ByteArrayContent(_bytes);
             var multipartContent = new MultipartFormDataContent();
             var parameterName = "file";
-            multipartContent.Add(bytes, parameterName, _fileName);
+            multipartContent.Add(bytes, parameterName, FileName);
             return multipartContent;
         }
     }

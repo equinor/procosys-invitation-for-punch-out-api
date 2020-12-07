@@ -4,24 +4,22 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
-using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public static class InvitationsControllerTestsHelper
     {
-        private const string _route = "Invitations";
+        private const string Route = "Invitations";
         
-        public static async Task<InvitationDetailsDto> GetInvitationAsync(
+        public static async Task<InvitationDto> GetInvitationAsync(
             HttpClient client,
             int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{_route}/{id}");
+            var response = await client.GetAsync($"{Route}/{id}");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -31,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<InvitationDetailsDto>(content);
+            return JsonConvert.DeserializeObject<InvitationDto>(content);
         }
 
         public static async Task<List<InvitationForMainDto>> GetInvitationsByCommPkgNoAsync(
@@ -62,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{_route}/{id}/Attachments");
+            var response = await client.GetAsync($"{Route}/{id}/Attachments");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -82,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{_route}/{id}/Attachments/{attachmentId}");
+            var response = await client.GetAsync($"{Route}/{id}/Attachments/{attachmentId}");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -125,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(_route, content);
+            var response = await client.PostAsync(Route, content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -160,12 +158,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 dto.RowVersion
             };
 
-            //figure out how to get remaining parameters in response url
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"{_route}/{id}", content);
+            var response = await client.PutAsync($"{Route}/{id}", content);
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
-
 
             if (expectedStatusCode != HttpStatusCode.OK)
             {
@@ -183,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             string expectedMessageOnBadRequest = null)
         {
             var httpContent = file.CreateHttpContent();
-            var response = await client.PostAsync($"{_route}/{id}/Attachments", httpContent);
+            var response = await client.PostAsync($"{Route}/{id}/Attachments", httpContent);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
@@ -201,7 +197,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 rowVersion
             };
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"{_route}/{id}/Attachments/{attachmentId}")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Route}/{id}/Attachments/{attachmentId}")
             {
                 Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
             };

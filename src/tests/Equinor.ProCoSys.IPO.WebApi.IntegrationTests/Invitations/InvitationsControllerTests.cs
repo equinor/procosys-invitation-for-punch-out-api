@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -15,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Act
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                ViewerClient(TestFactory.PlantWithAccess), 
+                ViewerClient(TestFactory.PlantWithAccess),
                 InitialInvitationId);
 
             // Assert
@@ -49,10 +48,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "Description",
                 "Location",
                 DisciplineType.DP,
-                DateTime.Now,
-                DateTime.Now.AddHours(1),
-                Participants,
-                McPkgScope,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null
             );
 
@@ -70,56 +69,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "InvitationToBeUpdatedDescription",
                 "InvitationToBeUpdatedLocation",
                 DisciplineType.DP,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                Participants,
-                McPkgScope,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null);
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 ViewerClient(TestFactory.PlantWithAccess),
                 id);
+
             invitation.Status = IpoStatus.Planned;
-            
-            var CurrentRowVersion = invitation.RowVersion;
+
+            var currentRowVersion = invitation.RowVersion;
             const string UpdatedTitle = "UpdatedInvitationTitle";
             const string UpdatedDescription = "UpdatedInvitationDescription";
-            var participant1 = Participants.First();
-            var participant2 = Participants.Last();
-            var updatedParticipants = new List<ParticipantDto>
-            {
-                new ParticipantDto
-                {
-                    Organization = participant1.Organization,
-                    ExternalEmail = null,
-                    Person = null,
-                    SortKey = participant1.SortKey,
-                    FunctionalRole = new FunctionalRoleDto
-                    {
-                        Code = participant1.FunctionalRole.Code,
-                        Id = participant1.FunctionalRole.Id,
-                        Persons = new List<PersonDto>(),
-                        RowVersion = participant1.FunctionalRole.RowVersion
-                    }
-                },
-                new ParticipantDto
-                {
-                    Organization = participant2.Organization,
-                    ExternalEmail = null,
-                    Person = new PersonDto
-                    {
-                        AzureOid = participant2.Person.AzureOid,
-                        Email = participant2.Person.Email,
-                        FirstName = participant2.Person.FirstName,
-                        LastName = participant2.Person.LastName,
-                        Id = participant2.Person.Id,
-                        Required = participant2.Person.Required,
-                        RowVersion = participant2.Person.RowVersion
-                    },
-                    SortKey = participant2.SortKey,
-                    FunctionalRole = null
-                }
-            };
 
             var editInvitationDto = new EditInvitationDto
             {
@@ -130,9 +94,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Location = invitation.Location,
                 ProjectName = invitation.ProjectName,
                 RowVersion = invitation.RowVersion,
-                UpdatedParticipants = updatedParticipants,
+                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
                 UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = McPkgScope
+                UpdatedMcPkgScope = _mcPkgScope
             };
 
             // Act
@@ -146,11 +110,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 id);
 
             // Assert
-            AssertRowVersionChange(CurrentRowVersion, newRowVersion);
+            AssertRowVersionChange(currentRowVersion, newRowVersion);
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
         }
-         
+
         [TestMethod]
         public async Task UploadAttachment_AsPlanner_ShouldUploadAttachment()
         {
@@ -161,10 +125,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "InvitationForAttachmentDescription",
                 "InvitationForAttachmentLocation",
                 DisciplineType.DP,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                Participants,
-                McPkgScope,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
                 null);
 
             var invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
@@ -187,6 +151,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task GetAttachment_AsViewer_ShouldGetAttachment()
+        {
+            // Arrange
+            var invitationAttachments = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                InitialInvitationId);
+
+            Assert.AreNotEqual(invitationAttachments.Count, 0);
+
+            // Act
+            var attachmentDto = await InvitationsControllerTestsHelper.GetAttachmentAsync(
+                ViewerClient(TestFactory.PlantWithAccess),
+                InitialInvitationId,
+                invitationAttachments.First().Id);
+
+            // Assert
+            Assert.AreEqual(invitationAttachments.First().Id, attachmentDto.Id);
+        }
+
+        [TestMethod]
         public async Task GetAttachments_AsPlanner_ShouldGetAttachments()
         {
             // Act
@@ -198,7 +182,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(attachmentDtos);
             Assert.IsTrue(attachmentDtos.Count > 0);
 
-            var invitationAttachment = attachmentDtos.Single(a => a.Id == AttachmentId);
+            var invitationAttachment = attachmentDtos.Single(a => a.Id == _attachmentId);
             Assert.IsNotNull(invitationAttachment.FileName);
             Assert.IsNotNull(invitationAttachment.RowVersion);
         }
@@ -207,43 +191,45 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task DeleteAttachment_AsPlanner_ShouldDeleteAttachment()
         {
             // Arrange
+            await InvitationsControllerTestsHelper.UploadAttachmentAsync(
+                PlannerClient(TestFactory.PlantWithAccess),
+                InitialInvitationId,
+                File2ToBeUploaded);
+
             var plannerClient = PlannerClient(TestFactory.PlantWithAccess);
             var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 plannerClient,
                 InitialInvitationId);
-            var attachment = attachmentDtos.Single(t => t.Id == AttachmentId);
+            var attachment = attachmentDtos.Single(t => t.FileName == File2ToBeUploaded.FileName);
 
             // Act
             await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
                 plannerClient,
                 InitialInvitationId,
-                AttachmentId,
+                attachment.Id,
                 attachment.RowVersion);
 
             // Assert
             attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 plannerClient,
                 InitialInvitationId);
-            Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == AttachmentId));
+            Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }
 
-        [TestMethod]
-        public async Task GetAttachment_AsViewer_ShouldGetAttachment()
+        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
-           // Act
-           var invitationAttachments = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-               PlannerClient(TestFactory.PlantWithAccess),
-               InitialInvitationId);
+            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
+            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
+                new ParticipantDtoEdit
+                {
+                    ExternalEmail = p.ExternalEmail,
+                    FunctionalRole = p.FunctionalRole,
+                    Organization = p.Organization,
+                    Person = p.Person?.Person,
+                    SortKey = p.SortKey
+                }));
 
-           Assert.AreNotEqual(invitationAttachments.Count, 0);
-
-            var attachmentDto = await InvitationsControllerTestsHelper.GetAttachmentAsync(
-                ViewerClient(TestFactory.PlantWithAccess),
-                InitialInvitationId,
-                invitationAttachments.First().Id);
-
-            // Assert
-            Assert.AreEqual(invitationAttachments.First().Id, attachmentDto.Id);
+            return editVersionParticipantDtos;
         }
     }
 }

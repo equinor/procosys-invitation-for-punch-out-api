@@ -18,38 +18,58 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     [TestClass]
     public class InvitationsControllerTestsBase : TestBase
     {
-        protected int InitialInvitationId = TestFactory.KnownTestData.InvitationIds.First();
-        protected int AttachmentId;
-        //protected int CommpkgId;
-        protected string FunctionalRoleCode = "FRC";
-        protected string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
-        protected List<string> McPkgScope;
-        //protected List<string> CommPkgScope;
-        protected List<ParticipantsForCommand> Participants;
-        protected ProCoSysMcPkg _mcPkgDetails1;
-        protected ProCoSysMcPkg _mcPkgDetails2;
-        protected IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
+        private const string FunctionalRoleCode = "FRC";
+        private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
+        protected readonly int InitialInvitationId = TestFactory.KnownTestData.InvitationIds.First();
+        protected int _attachmentId;
+        protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
+        protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
+        
+        protected List<string> _mcPkgScope;
+        protected List<ParticipantsForCommand> _participants;
+        private ProCoSysMcPkg _mcPkgDetails1;
+        private ProCoSysMcPkg _mcPkgDetails2;
+        private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<Person> _personsInFunctionalRole;
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
+        protected readonly TestFile File2ToBeUploaded = new TestFile("test file 2 content", "file2.txt");
 
         [TestInitialize]
         public void TestInitialize()
         {
+            _participants = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new FunctionalRoleForCommand(FunctionalRoleCode, null),
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true),
+                    null,
+                    1)
+            };
+
             var knownGeneralMeeting = new ApiGeneralMeeting
             {
                 Classification = string.Empty,
                 Contract = null,
                 Convention = string.Empty,
                 DateCreatedUtc = DateTime.MinValue,
-                DateEnd = new ApiDateTimeTimeZoneModel(),
-                DateStart = new ApiDateTimeTimeZoneModel(),
+                DateEnd = new ApiDateTimeTimeZoneModel 
+                    { DateTimeUtc = _invitationEndTime },
+                DateStart = new ApiDateTimeTimeZoneModel
+                    { DateTimeUtc = _invitationStartTime },
                 ExternalId = null,
                 Id = KnownTestData.MeetingId,
                 InviteBodyHtml = string.Empty,
                 IsDisabled = false,
                 IsOnlineMeeting = false,
-                Location = string.Empty,
+                Location = "TestLocation",
                 Organizer = new ApiPersonDetailsV1(),
                 OutlookMode = string.Empty,
                 Participants = new List<ApiMeetingParticipant>
@@ -73,42 +93,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Title = string.Empty
             };
 
-            AttachmentId = TestFactory.KnownTestData.AttachmentIds.First();
-            CommpkgId = TestFactory.KnownTestData.CommPkgIds.First();
+            _attachmentId = TestFactory.KnownTestData.AttachmentIds.First();
 
-            var _mcPkgNo1 = "MC1";
-            var _mcPkgNo2 = "MC2";
+            const string McPkgNo1 = "MC1";
+            const string McPkgNo2 = "MC2";
 
-            McPkgScope = new List<string> {_mcPkgNo1, _mcPkgNo2};
-
-            TestFactory
-                .FusionMeetingClientMock
-                .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
-                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
-
-            Participants = new List<ParticipantsForCommand>
-            {
-                new ParticipantsForCommand(
-                    Organization.Contractor,
-                    null,
-                    null,
-                    new FunctionalRoleForCommand(FunctionalRoleCode, null),
-                    0),
-                new ParticipantsForCommand(
-                    Organization.ConstructionCompany,
-                    null,
-                    new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true),
-                    null,
-                    1)
-            };
+            _mcPkgScope = new List<string> {McPkgNo1, McPkgNo2};
 
             _mcPkgDetails1 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1
             };
             _mcPkgDetails2 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
@@ -123,6 +121,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     UserName = "UserName"
                 }
             };
+
             _pcsFunctionalRoles = new List<ProCoSysFunctionalRole>
             {
                 new ProCoSysFunctionalRole
@@ -136,12 +135,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 }
             };
 
-            var PersonInFunctionalRole = _personsInFunctionalRole.First();
+            var personInFunctionalRole = _personsInFunctionalRole.First();
+
+            TestFactory
+                .FusionMeetingClientMock
+                .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
+
+            TestFactory
+                .FusionMeetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
 
             TestFactory
                 .McPkgApiServiceMock
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
-                    McPkgScope))
+                    _mcPkgScope))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             TestFactory
@@ -157,16 +166,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = AzureOid,
-                    Email = PersonInFunctionalRole.Email,
-                    FirstName = PersonInFunctionalRole.FirstName,
-                    LastName = PersonInFunctionalRole.LastName,
-                    UserName = PersonInFunctionalRole.UserName
+                    Email = personInFunctionalRole.Email,
+                    FirstName = personInFunctionalRole.FirstName,
+                    LastName = personInFunctionalRole.LastName,
+                    UserName = personInFunctionalRole.UserName
                 }));
-
-            TestFactory
-                .FusionMeetingClientMock
-                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
         }
     }
 }

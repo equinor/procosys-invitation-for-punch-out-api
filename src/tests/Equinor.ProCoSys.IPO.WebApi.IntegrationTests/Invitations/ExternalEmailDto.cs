@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
+﻿namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class ExternalEmailDto
     {
