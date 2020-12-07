@@ -12,14 +12,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     public static class InvitationsControllerTestsHelper
     {
         private const string Route = "Invitations";
-        
+
         public static async Task<InvitationDto> GetInvitationAsync(
-            HttpClient client,
+            UserType userType, string plant,
             int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{Route}/{id}");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/{id}");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -33,7 +33,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<List<InvitationForMainDto>> GetInvitationsByCommPkgNoAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             string commPkgNo,
             string projectName,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -41,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             var parameters = new ParameterCollection { { "projectName", projectName } };
             var url = $"/ByCommPkgNo/{commPkgNo}{parameters}";
-            var response = await client.GetAsync(url);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -55,12 +56,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<List<AttachmentDto>> GetAttachmentsAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{Route}/{id}/Attachments");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/{id}/Attachments");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -74,13 +76,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<AttachmentDto> GetAttachmentAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             int id,
             int attachmentId,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var response = await client.GetAsync($"{Route}/{id}/Attachments/{attachmentId}");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/{id}/Attachments/{attachmentId}");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -94,7 +97,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<int> CreateInvitationAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             string title,
             string description,
             string location,
@@ -123,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(Route, content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync(Route, content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -137,7 +141,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<string> EditInvitationAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             int id,
             EditInvitationDto dto,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -160,7 +165,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await client.PutAsync($"{Route}/{id}", content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}", content);
+
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
             if (expectedStatusCode != HttpStatusCode.OK)
@@ -172,20 +178,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task UploadAttachmentAsync(
-            HttpClient client,
+            UserType userType, 
+            string plant,
             int id,
             TestFile file,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
             var httpContent = file.CreateHttpContent();
-            var response = await client.PostAsync($"{Route}/{id}/Attachments", httpContent);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync($"{Route}/{id}/Attachments", httpContent);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
 
         public static async Task DeleteAttachmentAsync(
-            HttpClient client,
+            UserType userType,
+            string plant,
             int id,
             int attachmentId,
             string rowVersion,
@@ -202,7 +210,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
             };
 
-            var response = await client.SendAsync(request);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
     }
