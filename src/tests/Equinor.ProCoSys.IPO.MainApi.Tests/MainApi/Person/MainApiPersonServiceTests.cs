@@ -22,7 +22,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
 
         private const string _plant = "PCS$TESTPLANT";
         private const string _searchString = "A";
-        private const string _userGroup = "MC_ENGINEER";
+        private const string _objectName = "IPO";
+        private List<string> _privileges = new List<string>{"SIGN", "CREATE"};
 
         private List<string> Oids = new List<string>{ "12345678-1234-123456789123", "12345678-1235-123456789123", "12345678-1236-123456789123" };
 
@@ -103,32 +104,32 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnCorrectNumberOfPersons()
+        public async Task GetPersonsWithPrivileges_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsByUserGroupAsync(_plant, _searchString, _userGroup);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
 
             // Assert
             Assert.AreEqual(3, result.Count);
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetPersonsWithPrivileges_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsByUserGroupAsync(_plant, _searchString, _userGroup);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
 
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public async Task GetPersonsByUserGroup_ShouldReturnCorrectProperties()
+        public async Task GetPersonsWithPrivileges_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsByUserGroupAsync(_plant, _searchString, _userGroup);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
 
             // Assert
             var person = result.First();
@@ -177,38 +178,38 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnCorrectNumberOfPersons()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectNumberOfPersons()
         {
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var result = await _dut.GetPersonByOidsInUserGroupAsync(_plant, Oids[0], _userGroup);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
 
             // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
-            var result = await _dut.GetPersonByOidsInUserGroupAsync(_plant, Oids[0], _userGroup);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
 
             Assert.IsNull(result);
         }
 
         [TestMethod]
-        public async Task GetPersonByOidsInUserGroupAsync_ShouldReturnCorrectProperties()
+        public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectProperties()
         {
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var person = await _dut.GetPersonByOidsInUserGroupAsync(_plant, Oids[0], _userGroup);
+            var person = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
 
             // Assert
             Assert.AreEqual("12345678-1234-123456789123", person.AzureOid);

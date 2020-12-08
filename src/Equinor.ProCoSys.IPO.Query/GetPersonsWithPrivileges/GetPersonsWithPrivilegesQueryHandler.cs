@@ -8,14 +8,14 @@ using Equinor.ProCoSys.IPO.Query.GetPersons;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
+namespace Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges
 {
-    public class GetPersonsInUserGroupQueryHandler : IRequestHandler<GetPersonsInUserGroupQuery, Result<List<ProCoSysPersonDto>>>
+    public class GetPersonsWithPrivilegesQueryHandler : IRequestHandler<GetPersonsWithPrivilegesQuery, Result<List<ProCoSysPersonDto>>>
     {
         private readonly IPersonApiService _personApiService;
         private readonly IPlantProvider _plantProvider;
 
-        public GetPersonsInUserGroupQueryHandler(
+        public GetPersonsWithPrivilegesQueryHandler(
             IPersonApiService personApiService,
             IPlantProvider plantProvider)
         {
@@ -24,14 +24,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup
         }
 
         public async Task<Result<List<ProCoSysPersonDto>>> Handle(
-            GetPersonsInUserGroupQuery request,
+            GetPersonsWithPrivilegesQuery request,
             CancellationToken cancellationToken)
         {
             var mainApiPersons = await _personApiService
-                .GetPersonsByUserGroupAsync(
+                .GetPersonsWithPrivilegesAsync(
                    _plantProvider.Plant,
                    request.SearchString,
-                   request.UserGroup)
+                   request.ObjectName,
+                   request.Privileges)
                 ?? new List<ProCoSysPerson>();
 
             var personDtos = mainApiPersons
