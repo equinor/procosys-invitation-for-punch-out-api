@@ -69,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 InviteBodyHtml = string.Empty,
                 IsDisabled = false,
                 IsOnlineMeeting = false,
-                Location = "TestLocation",
+                Location = "InvitationLocation",
                 Organizer = new ApiPersonDetailsV1(),
                 OutlookMode = string.Empty,
                 Participants = new List<ApiMeetingParticipant>

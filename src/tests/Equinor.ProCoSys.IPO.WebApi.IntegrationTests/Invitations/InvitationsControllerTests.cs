@@ -62,14 +62,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null
             );
 
+            // Assert
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 id);
 
-            // Assert
             Assert.IsTrue(id > 0);
             Assert.IsNotNull(invitation);
+            Assert.AreEqual(Title, invitation.Title);
+            Assert.AreEqual(Description, invitation.Description);
+            Assert.AreEqual(Location, invitation.Location);
         }
 
         [TestMethod]
@@ -121,12 +124,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 id,
                 editInvitationDto);
 
+            // Assert
             var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 id);
 
-            // Assert
             AssertRowVersionChange(currentRowVersion, newRowVersion);
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
@@ -136,37 +139,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task UploadAttachment_AsPlanner_ShouldUploadAttachment()
         {
             // Arrange
-            var invitationIdForAttachment = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForAttachmentTitle",
-                "InvitationForAttachmentDescription",
-                "InvitationForAttachmentLocation",
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null);
-
             var invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                invitationIdForAttachment);
+                InitialInvitationId);
             var attachmentCount = invitationAttachments.Result.Count;
 
             // Act
             await InvitationsControllerTestsHelper.UploadAttachmentAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                invitationIdForAttachment,
+                InitialInvitationId,
                 FileToBeUploaded);
 
             // Assert
             invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                invitationIdForAttachment);
+                InitialInvitationId);
 
             Assert.AreEqual(attachmentCount + 1, invitationAttachments.Result.Count);
         }
