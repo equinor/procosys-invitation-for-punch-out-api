@@ -1,6 +1,7 @@
 ﻿using Equinor.ProCoSys.BusReceiver;
 using Equinor.ProCoSys.BusReceiver.Interfaces;
 using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
@@ -32,7 +33,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -47,6 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<AuthenticatorOptions>(configuration.GetSection("Authenticator"));
+            services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
 
             services.AddDbContext<IPOContext>(options =>
             {

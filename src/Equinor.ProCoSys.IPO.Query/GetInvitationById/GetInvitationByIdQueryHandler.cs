@@ -141,23 +141,47 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 if (participant.Type == IpoParticipantType.FunctionalRole)
                 {
                     var personsInFunctionalRole = participants
-                        .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode 
-                         && p.Type == IpoParticipantType.Person);
+                        .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode
+                                    && p.SortKey == participant.SortKey
+                                    && p.Type == IpoParticipantType.Person);
 
-                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        null, ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
+                    participantDtos.Add(new ParticipantDto(
+                        participant.Organization,
+                        participant.SortKey,
+                        participant.SignedBy,
+                        participant.SignedAtUtc,
+                        participant.Note,
+                        participant.Attended,
+                        null,
+                        null,
+                        ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
-                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey, null,
-                        ConvertToInvitedPersonDto(participant), null));
+                    participantDtos.Add(new ParticipantDto(
+                        participant.Organization,
+                        participant.SortKey,
+                        participant.SignedBy,
+                        participant.SignedAtUtc,
+                        participant.Note,
+                        participant.Attended,
+                        null,
+                        ConvertToInvitedPersonDto(participant), 
+                        null));
                 }
                 else if (participant.Organization == Organization.External)
                 {
-                    participantDtos.Add(new ParticipantDto(participant.Organization, participant.SortKey,
+                    participantDtos.Add(new ParticipantDto(
+                        participant.Organization,
+                        participant.SortKey,
+                        participant.SignedBy,
+                        participant.SignedAtUtc,
+                        participant.Note,
+                        participant.Attended,
                         new ExternalEmailDto(participant.Id, participant.Email,
                             participant.RowVersion.ConvertToString()),
-                        ConvertToInvitedPersonDto(participant), null));
+                        ConvertToInvitedPersonDto(participant),
+                        null));
                 }
             }
 

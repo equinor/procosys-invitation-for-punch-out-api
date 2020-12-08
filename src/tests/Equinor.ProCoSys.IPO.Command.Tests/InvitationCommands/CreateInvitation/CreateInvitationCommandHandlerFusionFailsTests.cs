@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
@@ -12,7 +11,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
-using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,7 +19,7 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 {
     [TestClass]
-    public class CreateInvitationCommandHandlerTests
+    public class CreateInvitationCommandHandlerFusionFailsTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IFusionMeetingClient> _meetingClientMock;
@@ -31,11 +30,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
+        private Mock<IDbContextTransaction> _transactionMock;
 
         private const string _functionalRoleCode = "FR1";
-        private const string _mcPkgNo1 = "MC1";
-        private const string _mcPkgNo2 = "MC2";
-        private const string _commPkgNo = "Comm1";
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private readonly string _plant = "PCS$TEST_PLANT";
@@ -63,18 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _description = "Body";
         private readonly string _location = "Outside";
         private readonly DisciplineType _type = DisciplineType.DP;
-        private readonly List<string> _mcPkgScope = new List<string>
-        {
-            _mcPkgNo1,
-            _mcPkgNo2
-        };
 
-        private ProCoSysMcPkg _mcPkgDetails1;
-        private ProCoSysMcPkg _mcPkgDetails2;
-
-        private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private Invitation _createdInvitation;
-        private int _saveChangesCount;
         private CreateInvitationCommandHandler _dut;
         private CreateInvitationCommand _command;
 
@@ -89,51 +75,20 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Returns(Task.FromResult(
-                new GeneralMeeting(
-                new ApiGeneralMeeting()
-                {
-                    Classification = string.Empty,
-                    Contract = null,
-                    Convention = string.Empty,
-                    DateCreatedUtc = DateTime.MinValue,
-                    DateEnd = new ApiDateTimeTimeZoneModel(),
-                    DateStart = new ApiDateTimeTimeZoneModel(),
-                    ExternalId = null,
-                    Id = _meetingId,
-                    InviteBodyHtml = string.Empty,
-                    IsDisabled = false,
-                    IsOnlineMeeting = false,
-                    Location = string.Empty,
-                    Organizer = new ApiPersonDetailsV1(),
-                    OutlookMode = string.Empty,
-                    Participants = new List<ApiMeetingParticipant>(),
-                    Project = null,
-                    ResponsiblePersons = new List<ApiPersonDetailsV1>(),
-                    Series = null,
-                    Title = string.Empty
-                })));
+                .Throws(new Exception("Something failed"));
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
-                .Setup(x => x.Add(It.IsAny<Invitation>()))
-                .Callback<Invitation>(x => _createdInvitation = x);
+                .Setup(x => x.Add(It.IsAny<Invitation>()));
 
+            _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
+            _unitOfWorkMock.Setup(x => x.BeginTransaction(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(_transactionMock.Object));
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
-            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1};
-            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2};
-            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
-
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
-            _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
-                .Returns(Task.FromResult(mcPkgDetails));
 
             _personDetails = new ProCoSysPerson
             {
@@ -158,6 +113,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Persons = null,
                 UsePersonalEmail = false
             };
+
             IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole>{ _functionalRoleDetails };
 
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
@@ -176,7 +132,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _projectName,
                 _type,
                 _participants,
-                _mcPkgScope,
+                null,
                 null);
 
             _dut = new CreateInvitationCommandHandler(
@@ -192,44 +148,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldAddInvitationToRepository()
+        public async Task HandleCreateInvitationCommand_ShouldRollbackIfFusionApiFails()
         {
             await _dut.Handle(_command, default);
-
-            Assert.IsNotNull(_createdInvitation);
-            Assert.AreEqual(2, _saveChangesCount);
-        }
-
-        [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldAddMcPkgsToInvitation()
-        {
-            await _dut.Handle(_command, default);
-
-            var mcPkgs = _createdInvitation.McPkgs.Select(mc => mc).ToList();
-            Assert.AreEqual(mcPkgs.Count, 2);
-            Assert.AreEqual(mcPkgs[0].McPkgNo, _mcPkgNo1);
-            Assert.AreEqual(mcPkgs[1].McPkgNo, _mcPkgNo2);
-        }
-
-        [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldAddParticipantsToInvitation()
-        {
-            await _dut.Handle(_command, default);
-
-            var participants = _createdInvitation.Participants.Select(p => p).ToList();
-            Assert.AreEqual(participants.Count, 2);
-            Assert.AreEqual(participants[0].FunctionalRoleCode, _functionalRoleCode);
-            Assert.IsNull(participants[1].FunctionalRoleCode);
-            Assert.AreEqual(participants[1].AzureOid, _azureOid);
-      }
-
-        [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldCreateMeetingAndMeetingIdToInvitation()
-        {
-            await _dut.Handle(_command, default);
-
-            _meetingClientMock.Verify(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()), Times.Once);
-            Assert.AreEqual(_meetingId, _createdInvitation.MeetingId);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

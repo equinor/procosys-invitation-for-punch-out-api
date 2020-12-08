@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 p.Organization == Organization.Contractor && 
                 p.AzureOid == currentUserAzureOid).ToList();
 
-            if (!participants.Any() || participants[0].FunctionalRoleCode != null)
+            if (!participants.Any() || participants.Any(p => p.FunctionalRoleCode != null))
             {
                 var functionalRole = invitation.Participants
                     .SingleOrDefault(p => p.SortKey == 0 &&

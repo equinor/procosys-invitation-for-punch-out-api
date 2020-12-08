@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Options;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
@@ -28,6 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -35,9 +37,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICommPkgApiService commPkgApiService,
-            IMcPkgApiService mcPkgApiService, 
-            IPersonApiService personApiService, 
-            IFunctionalRoleApiService functionalRoleApiService)
+            IMcPkgApiService mcPkgApiService,
+            IPersonApiService personApiService,
+            IFunctionalRoleApiService functionalRoleApiService,
+            IOptionsMonitor<MeetingOptions> meetingOptions)
         {
             _plantProvider = plantProvider;
             _meetingClient = meetingClient;
@@ -47,10 +50,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _mcPkgApiService = mcPkgApiService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
+            _meetingOptions = meetingOptions;
         }
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
+            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
             var participants = new List<BuilderParticipant>();
             var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Description, request.Type);
             _invitationRepository.Add(invitation);
@@ -66,18 +71,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
 
             participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             try
             {
-                var meetingId = await CreateOutlookMeeting(request, participants);
-                invitation.MeetingId = meetingId;
+                invitation.MeetingId = await CreateOutlookMeeting(request, participants, invitation);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                _unitOfWork.Commit();
+                return new SuccessResult<int>(invitation.Id);
             }
-            catch
+            catch (Exception e)
             {
+                await transaction.RollbackAsync(cancellationToken);
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
             }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<int>(invitation.Id);
         }
 
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
@@ -129,7 +136,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         fr.Email,
                         null,
                         participant.SortKey));
-                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true)
+                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true && fr.Email != null)
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
@@ -198,7 +205,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
-                foreach (var participant in personParticipantsWithOids)
+                foreach (var participant in personParticipantsWithOids.Where(p => p.SortKey > 1))
                 {
                     var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
                     if (person != null)
@@ -358,7 +365,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
         }
 
-        private async Task<Guid> CreateOutlookMeeting(CreateInvitationCommand request, IReadOnlyCollection<BuilderParticipant> participants)
+        private async Task<Guid> CreateOutlookMeeting(
+            CreateInvitationCommand request,
+            IReadOnlyCollection<BuilderParticipant> participants,
+            Invitation invitation)
         {
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
@@ -368,10 +378,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .EnableOutlookIntegration(OutlookMode.All)
-                    .WithClassification(MeetingClassification.Restricted)
-                    .WithInviteBodyHtml(request.Description);
+                    .WithClassification(MeetingClassification.Open)
+                    .WithInviteBodyHtml(GenerateMeetingDescription(invitation));
             });
             return meeting.Id;
+        }
+
+        private string GenerateMeetingDescription(Invitation invitation)
+        {
+            var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl + _plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper();
+            var meetingDescription = "<h4>You have been invited to attend a punch round. The punch round will cover the following scope:</h4>";
+
+            foreach (var mcPkg in invitation.McPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}/'>{mcPkg.McPkgNo}</a></br>";
+            }
+            foreach (var commPkg in invitation.CommPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></br>";
+            }
+
+            meetingDescription += $"<p>{invitation.Description}</p>";
+
+            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch out in ProCoSys.</a>";
+
+            return meetingDescription;
         }
     }
 }
