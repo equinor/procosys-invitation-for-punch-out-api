@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -26,16 +27,17 @@ using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
-    public class TestFactory : WebApplicationFactory<Startup>
+    public sealed class TestFactory : WebApplicationFactory<Startup>
     {
         private readonly string _signerOid = "00000000-0000-0000-0000-000000000001";
         private readonly string _plannerOid = "00000000-0000-0000-0000-000000000002";
         private readonly string _viewerOid = "00000000-0000-0000-0000-000000000003";
         private readonly string _hackerOid = "00000000-0000-0000-0000-000000000666";
+
         private readonly string _integrationTestEnvironment = "IntegrationTests";
         private readonly string _connectionString;
         private readonly string _configPath;
-        private readonly Dictionary<string, ITestUser> _testUsers = new Dictionary<string, ITestUser>();
+        private readonly Dictionary<UserType, ITestUser> _testUsers = new Dictionary<UserType, ITestUser>();
         private readonly List<Action> _teardownList = new List<Action>();
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
@@ -46,12 +48,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
         public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+        public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
 
-        public static string AnonymousUser => "NN";
-        public static string SignerUser => "Sigurd Signer";
-        public static string PlannerUser => "Pernilla Planner";
-        public static string ViewerUser => "Vidar Viewer";
-        public static string HackerUser => "Harry Hacker";
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
         public static string UnknownPlant => "UNKNOWN_PLANT";
@@ -61,7 +59,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         public KnownTestData KnownTestData { get; }
 
-        public TestFactory()
+        #region singleton implementation
+        private static TestFactory s_instance;
+        private static readonly object s_padlock = new object();
+
+        public static TestFactory Instance
+        {
+            get
+            {
+                if (s_instance == null)
+                {
+                    lock (s_padlock)
+                    {
+                        if (s_instance == null)
+                        {
+                            s_instance = new TestFactory();
+                        }
+                    }
+                }
+
+                return s_instance;
+            }
+        }
+
+        private TestFactory()
         {
             KnownTestData = new KnownTestData();
 
@@ -71,10 +92,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             SetupTestUsers();
         }
+        #endregion
 
-        public HttpClient GetClientForPlant(string user, string plant)
+        public HttpClient GetHttpClient(UserType userType, string plant)
         {
-            var testUser = _testUsers[user];
+            var testUser = _testUsers[userType];
             
             // Need to change what the mock returns each time since the factory share the same registered mocks
             SetupPlantMock(testUser.ProCoSysPlants);
@@ -106,6 +128,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 try { disposable.Dispose(); } catch { /* Ignore */ }
             }
 
+            lock (s_padlock)
+            {
+                s_instance = null;
+            }
+
             base.Dispose();
         }
 
@@ -128,6 +155,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
                 services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
                 services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
+                services.AddScoped(serviceProvider => BlobStorageMock.Object);
             });
 
             builder.ConfigureServices(services =>
@@ -201,7 +229,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private string GetTestDbConnectionString(string projectDir)
         {
-            var dbName = "IntegrationTestsDB";
+            var dbName = "IntegrationTestsIPODb";
             var dbPath = Path.Combine(projectDir, $"{dbName}.mdf");
             
             // Set Initial Catalog to be able to delete database!
@@ -266,13 +294,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         // Authenticated client without any permissions
         private void AddHackerUser(List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(HackerUser,
+            => _testUsers.Add(UserType.Hacker,
                 new TestUser
                 {
                     Profile =
                         new TestProfile
                         {
-                            FullName = HackerUser, 
+                            FullName = "Harry Hacker", 
                             Oid = _hackerOid
                         },
                     ProCoSysPlants = new List<ProCoSysPlant>
@@ -288,13 +316,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void AddViewerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(ViewerUser,
+            => _testUsers.Add(UserType.Viewer,
                 new TestUser
                 {
                     Profile =
                         new TestProfile
                         {
-                            FullName = ViewerUser,
+                            FullName = "Vidar Viewer",
                             Oid = _viewerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -314,13 +342,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void AddSignerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(SignerUser,
+            => _testUsers.Add(UserType.Signer,
                 new TestUser
                 {
                     Profile =
                         new TestProfile
                         {
-                            FullName = SignerUser,
+                            FullName = "Sigurd Signer",
                             Oid = _signerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -343,13 +371,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void AddPlannerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(PlannerUser,
+            => _testUsers.Add(UserType.Planner,
                 new TestUser
                 {
                     Profile =
                         new TestProfile
                         {
-                            FullName = PlannerUser,
+                            FullName = "Pernilla Planner",
                             Oid = _plannerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -371,7 +399,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ProCoSysProjects = commonProCoSysProjects
                 });
 
-        private void AddAnonymousUser() => _testUsers.Add(AnonymousUser, new TestUser());
+        private void AddAnonymousUser() => _testUsers.Add(UserType.Anonymous, new TestUser());
 
         private void AuthenticateUser(ITestUser user)
             => user.HttpClient.DefaultRequestHeaders.Add("Authorization", CreateBearerToken(user.Profile));
