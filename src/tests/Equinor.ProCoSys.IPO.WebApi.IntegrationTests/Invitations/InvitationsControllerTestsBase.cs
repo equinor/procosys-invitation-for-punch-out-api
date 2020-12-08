@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private List<Person> _personsInFunctionalRole;
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
-        protected readonly TestFile File2ToBeUploaded = new TestFile("test file 2 content", "file2.txt");
+        protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
 
         [TestInitialize]
         public void TestInitialize()

@@ -43,13 +43,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CreateInvitation_AsPlanner_ShouldCreateInvitation()
         {
+            const string Title = "InvitationTitle";
+            const string Description = "InvitationDescription";
+            const string Location = "InvitationLocation";
+
             // Act
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                "Title",
-                "Description",
-                "Location",
+                Title,
+                Description,
+                Location,
                 DisciplineType.DP,
                 _invitationStartTime,
                 _invitationEndTime,
@@ -58,8 +62,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null
             );
 
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
             // Assert
             Assert.IsTrue(id > 0);
+            Assert.IsNotNull(invitation);
         }
 
         [TestMethod]
@@ -140,7 +150,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null);
 
             var invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Planner,
+                UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 invitationIdForAttachment);
             var attachmentCount = invitationAttachments.Result.Count;
@@ -154,7 +164,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Assert
             invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Planner,
+                UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 invitationIdForAttachment);
 
@@ -166,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var invitationAttachments = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Planner,
+                UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialInvitationId);
 
@@ -184,7 +194,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task GetAttachments_AsPlanner_ShouldGetAttachments()
+        public async Task GetAttachments_AsViewer_ShouldGetAttachments()
         {
             // Act
             var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
@@ -209,13 +219,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 InitialInvitationId,
-                File2ToBeUploaded);
+                FileToBeUploaded2);
 
             var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Planner,
+                UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialInvitationId);
-            var attachment = attachmentDtos.Single(t => t.FileName == File2ToBeUploaded.FileName);
+            var attachment = attachmentDtos.Single(t => t.FileName == FileToBeUploaded2.FileName);
 
             // Act
             await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
@@ -227,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Assert
             attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Planner,
+                UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialInvitationId);
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
