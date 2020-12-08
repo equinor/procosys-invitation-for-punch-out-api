@@ -389,6 +389,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
+                        Permissions.IPO_SIGN,
                         Permissions.IPO_WRITE,
                         Permissions.IPO_CREATE,
                         Permissions.IPO_DELETE,
