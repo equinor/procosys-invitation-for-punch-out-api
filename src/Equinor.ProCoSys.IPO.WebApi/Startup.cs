@@ -158,12 +158,14 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
-
-            services.AddPcsServiceBusIntegration(options => options
-                .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
-                .WithSubscription(PcsTopic.Project, "ipo_project")
-                .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
-                .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
+            if (Configuration.GetValue<bool>("EnableServiceBus"))
+            {
+                services.AddPcsServiceBusIntegration(options => options
+                    .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
+                    .WithSubscription(PcsTopic.Project, "ipo_project")
+                    .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
+                    .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
