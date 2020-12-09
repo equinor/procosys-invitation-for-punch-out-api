@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 {
     [TestClass]
-    public class GetPersonsInUserGroupQueryTests
+    public class GetPersonsWithPrivilegesQueryTests
     {
         [TestMethod]
         public void Constructor_SetsProperties()

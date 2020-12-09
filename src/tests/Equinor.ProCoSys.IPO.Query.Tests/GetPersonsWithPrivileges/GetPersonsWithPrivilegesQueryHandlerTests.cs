@@ -14,7 +14,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 {
     [TestClass]
-    public class GetPersonsInUserGroupQueryHandlerTests : ReadOnlyTestsBase
+    public class GetPersonsWithPrivilegesQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<IPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiContractorPersons;

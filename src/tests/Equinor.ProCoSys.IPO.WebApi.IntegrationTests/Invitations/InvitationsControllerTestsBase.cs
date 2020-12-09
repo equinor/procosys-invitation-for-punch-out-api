@@ -151,8 +151,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             TestFactory.Instance
                 .PersonApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(TestFactory.PlantWithAccess, It.IsAny<string>(),
-                    "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    It.IsAny<string>(),
+                    "IPO",
+                    new List<string> { "CREATE", "SIGN" }))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = AzureOid,
