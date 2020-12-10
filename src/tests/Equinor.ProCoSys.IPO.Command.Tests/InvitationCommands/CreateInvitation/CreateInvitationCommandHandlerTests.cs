@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _mcPkgNo1 = "MC1";
@@ -143,8 +145,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
-                .Setup(x => x.GetPersonByOidsInUserGroupAsync(_plant,
-                    _azureOid.ToString(), "MC_LEAD_DISCIPLINE"))
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
+                    _azureOid.ToString(), "IPO", new List<string> { "CREATE", "SIGN" }))
                 .Returns(Task.FromResult(_personDetails));
 
             _functionalRoleDetails = new ProCoSysFunctionalRole
@@ -162,6 +164,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(frDetails));
+
+            _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
 
             _command = new CreateInvitationCommand(
                 _title,
@@ -183,7 +187,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _commPkgApiServiceMock.Object,
                 _mcPkgApiServiceMock.Object,
                 _personApiServiceMock.Object,
-                _functionalRoleApiServiceMock.Object);
+                _functionalRoleApiServiceMock.Object,
+                _meetingOptionsMock.Object);
         }
 
         [TestMethod]
@@ -192,7 +197,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             await _dut.Handle(_command, default);
 
             Assert.IsNotNull(_createdInvitation);
-            Assert.AreEqual(1, _saveChangesCount);
+            Assert.AreEqual(2, _saveChangesCount);
         }
 
         [TestMethod]

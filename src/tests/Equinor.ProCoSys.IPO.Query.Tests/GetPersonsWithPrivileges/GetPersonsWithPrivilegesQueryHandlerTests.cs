@@ -4,25 +4,25 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetPersons;
-using Equinor.ProCoSys.IPO.Query.GetPersonsInUserGroup;
+using Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
+namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 {
     [TestClass]
-    public class GetPersonsInUserGroupQueryHandlerTests : ReadOnlyTestsBase
+    public class GetPersonsWithPrivilegesQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<IPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiContractorPersons;
         private IList<ProCoSysPerson> _mainApiConstructionPersons;
-        private GetPersonsInUserGroupQuery _query;
+        private GetPersonsWithPrivilegesQuery _query;
 
-        private readonly string _contractorUserGroup = "MC_CONTRACTOR_MLA";
-        private readonly string _constructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private readonly string _objectName = "IPO";
+        private List<string> _privileges = new List<string> { "SIGN", "CREATE" };
         private readonly string _searchString = "A";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
                     }
                 };
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
             }
         }
 
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
@@ -109,21 +109,21 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _contractorUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult(_mainApiContractorPersons));
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Count);
                 var person1 = result.Data.ElementAt(0);
                 var person2 = result.Data.ElementAt(1);
                 var person3 = result.Data.ElementAt(2);
-                AssertPersonData(_mainApiContractorPersons.Single(c => c.AzureOid == person1.Oid), person1);
-                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person2.Oid), person2);
-                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person3.Oid), person3);
+                AssertPersonData(_mainApiContractorPersons.Single(c => c.AzureOid == person1.AzureOid), person1);
+                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person2.AzureOid), person2);
+                AssertPersonData(_mainApiContractorPersons.Single(t => t.AzureOid == person3.AzureOid), person3);
             }
         }
 
@@ -132,11 +132,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
         {
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _query = new GetPersonsInUserGroupQuery(_searchString, _contractorUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _contractorUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);
@@ -152,34 +152,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _constructionUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult(_mainApiConstructionPersons));
 
-                _query = new GetPersonsInUserGroupQuery(_searchString, _constructionUserGroup);
+                _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Count);
                 var person1 = result.Data.ElementAt(0);
                 var person2 = result.Data.ElementAt(1);
                 var person3 = result.Data.ElementAt(2);
-                AssertPersonData(_mainApiConstructionPersons.Single(c => c.AzureOid == person1.Oid), person1);
-                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person2.Oid), person2);
-                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person3.Oid), person3);
+                AssertPersonData(_mainApiConstructionPersons.Single(c => c.AzureOid == person1.AzureOid), person1);
+                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person2.AzureOid), person2);
+                AssertPersonData(_mainApiConstructionPersons.Single(t => t.AzureOid == person3.AzureOid), person3);
             }
         }
 
         [TestMethod]
         public async Task HandleGetConstructionPersons_ShouldReturnEmptyList_WhenSearchReturnsNull()
         {
-            _query = new GetPersonsInUserGroupQuery(_searchString, _constructionUserGroup);
+            _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
 
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetPersonsInUserGroupQueryHandler(_personApiServiceMock.Object, _plantProvider);
+                var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsByUserGroupAsync(TestPlant, _searchString, _constructionUserGroup))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);
@@ -191,7 +191,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsInUserGroup
 
         private void AssertPersonData(ProCoSysPerson PCSPerson, ProCoSysPersonDto personDto)
         {
-            Assert.AreEqual(PCSPerson.AzureOid, personDto.Oid);
+            Assert.AreEqual(PCSPerson.AzureOid, personDto.AzureOid);
             Assert.AreEqual(PCSPerson.FirstName, personDto.FirstName);
             Assert.AreEqual(PCSPerson.LastName, personDto.LastName);
             Assert.AreEqual(PCSPerson.UserName, personDto.UserName);

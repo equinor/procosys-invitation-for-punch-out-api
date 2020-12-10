@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Options;
 using ServiceResult;
 using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
 
@@ -18,8 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
     public class EditInvitationCommandHandler : IRequestHandler<EditInvitationCommand, Result<string>>
     {
-        private const string ContractorUserGroup = "MC_CONTRACTOR_MLA";
-        private const string ConstructionUserGroup = "MC_LEAD_DISCIPLINE";
+        private const string _objectName = "IPO";
+        private readonly IList<string> _requiredSignerPrivileges = new List<string> { "CREATE", "SIGN" };
+        private readonly IList<string> _additionalSignerPrivileges = new List<string> { "SIGN" };
 
         private readonly IInvitationRepository _invitationRepository;
         private readonly IFusionMeetingClient _meetingClient;
@@ -29,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
@@ -38,7 +41,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IMcPkgApiService mcPkgApiService,
             ICommPkgApiService commPkgApiService,
             IPersonApiService personApiService,
-            IFunctionalRoleApiService functionalRoleApiService)
+            IFunctionalRoleApiService functionalRoleApiService,
+            IOptionsMonitor<MeetingOptions> meetingOptions)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -48,6 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _commPkgApiService = commPkgApiService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
+            _meetingOptions = meetingOptions;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -72,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.InviteBodyHtml = request.Description;
+                    builder.UpdateInviteBodyHtml(GenerateMeetingDescription(invitation));
                 });
             }
             catch
@@ -265,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             participant.SortKey));
                     }
                     
-                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true)
+                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true && fr.Email != null)
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
@@ -335,25 +340,72 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             if (personParticipantsWithOids.Any(p => p.SortKey == 0))
             {
                 var participant = personParticipantsWithOids.Single(p => p.SortKey == 0);
-                participants = await AddContractorOrConstructionCompany(
+                participants = await AddSigner(
                     invitation,
                     participants,
                     existingParticipants,
                     participant.Person,
                     participant.SortKey,
-                    ContractorUserGroup);
+                    participant.Organization,
+                    _requiredSignerPrivileges);
             }
             if (personParticipantsWithOids.Any(p => p.SortKey == 1))
             {
                 var participant = personParticipantsWithOids.Single(p => p.SortKey == 1);
-                participants = await AddContractorOrConstructionCompany(
+                participants = await AddSigner(
                     invitation,
                     participants,
                     existingParticipants,
                     participant.Person,
                     participant.SortKey,
-                    ConstructionUserGroup);
+                    participant.Organization,
+                    _requiredSignerPrivileges);
             }
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.Commissioning))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Commissioning);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
+            if (personParticipantsWithOids.Any(p =>
+                p.SortKey < 5 && p.Organization == Organization.Operation))
+            {
+                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Operation);
+                participants = await AddSigner(
+                    invitation,
+                    participants,
+                    existingParticipants,
+                    participant.Person,
+                    participant.SortKey,
+                    participant.Organization,
+                    _additionalSignerPrivileges);
+                personParticipantsWithOids.Remove(participant);
+            }
+
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
             var persons = oids.Count > 0
                 ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
@@ -404,18 +456,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return participants;
         }
 
-        private async Task<List<BuilderParticipant>> AddContractorOrConstructionCompany(
+        private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
             IList<Participant> existingParticipants,
             PersonForCommand person,
             int sortKey,
-            string userGroup)
+            Organization organization,
+            IList<string> privileges)
         {
-            var organization = userGroup == ConstructionUserGroup
-                ? Organization.ConstructionCompany
-                : Organization.Contractor;
-            var personFromMain = await _personApiService.GetPersonByOidsInUserGroupAsync(_plantProvider.Plant, person.AzureOid.ToString(), userGroup);
+            var personFromMain = await _personApiService.GetPersonByOidWithPrivilegesAsync(_plantProvider.Plant, person.AzureOid.ToString(), _objectName, privileges);
             if (personFromMain != null)
             {
                 var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == person.Id);
@@ -542,6 +592,29 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     new ParticipantIdentifier(participant.ExternalEmail.Email)));
             }
             return participants;
+        }
+
+        private string GenerateMeetingDescription(Invitation invitation)
+        {
+            var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl + _plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper();
+            var meetingDescription = "<h4>You have been invited to attend a punch round. The punch round will cover the following scope:</h4>";
+
+            foreach (var mcPkg in invitation.McPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}/'>{mcPkg.McPkgNo}</a></br>";
+            }
+            foreach (var commPkg in invitation.CommPkgs)
+            {
+                meetingDescription +=
+                    $"<a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></br>";
+            }
+
+            meetingDescription += $"<p>{invitation.Description}</p>";
+
+            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch out in ProCoSys.</a>";
+
+            return meetingDescription;
         }
     }
 }

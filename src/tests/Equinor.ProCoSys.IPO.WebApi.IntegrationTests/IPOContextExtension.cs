@@ -41,6 +41,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var invitation = SeedInvitation(dbContext, plant);
             knownTestData.InvitationIds.Add(invitation.Id);
+
+            var attachment = SeedAttachment(dbContext, invitation);
+            knownTestData.AttachmentIds.Add(attachment.Id);
+
+            var commPkg = SeedCommPkg(dbContext, invitation);
+            knownTestData.CommPkgIds.Add(commPkg.Id);
+
+            var mcPkg = SeedMcPkg(dbContext, invitation);
+            knownTestData.McPkgIds.Add(mcPkg.Id);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
@@ -56,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var invitation = new Invitation(
                 plant,
                 KnownTestData.ProjectName,
-                KnownTestData.Invitation,
+                KnownTestData.InvitationTitle,
                 KnownTestData.InvitationDescription,
                 DisciplineType.DP)
             {
@@ -66,6 +75,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             dbContext.SaveChangesAsync().Wait();
 
             return invitation;
+        }
+
+        private static Attachment SeedAttachment(IPOContext dbContext, Invitation invitation)
+        {
+            var attachment = new Attachment(invitation.Plant, "Fil1.txt");
+            invitation.AddAttachment(attachment);
+            dbContext.SaveChangesAsync().Wait();
+            return attachment;
+        }
+
+        private static CommPkg SeedCommPkg(IPOContext dbContext, Invitation invitation)
+        {
+            var commPkg = new CommPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo, "Description", "OK");
+            invitation.AddCommPkg(commPkg);
+            dbContext.SaveChangesAsync().Wait();
+            return commPkg;
+        }
+
+        private static McPkg SeedMcPkg(IPOContext dbContext, Invitation invitation)
+        {
+            var mcPkg = new McPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo, KnownTestData.McPkgNo, "Description");
+            invitation.AddMcPkg(mcPkg);
+            dbContext.SaveChangesAsync().Wait();
+            return mcPkg;
         }
     }
 }

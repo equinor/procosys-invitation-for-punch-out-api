@@ -19,10 +19,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             ExternalEmail = externalEmail;
             SortKey = sortKey;
         }
-        public Organization Organization { get; set; }
-        public int SortKey { get; set; }
-        public ExternalEmailForCommand ExternalEmail { get; set; }
-        public PersonForCommand Person { get; set; }
-        public FunctionalRoleForCommand FunctionalRole { get; set; }
+        public Organization Organization { get; }
+        public int SortKey { get; }
+        public ExternalEmailForCommand ExternalEmail { get; }
+        public PersonForCommand Person { get; }
+        public FunctionalRoleForCommand FunctionalRole { get; }
     }
 }

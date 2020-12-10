@@ -141,8 +141,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 if (participant.Type == IpoParticipantType.FunctionalRole)
                 {
                     var personsInFunctionalRole = participants
-                        .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode 
-                         && p.Type == IpoParticipantType.Person);
+                        .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode
+                                    && p.SortKey == participant.SortKey
+                                    && p.Type == IpoParticipantType.Person);
 
                     participantDtos.Add(new ParticipantDto(
                         participant.Organization,
