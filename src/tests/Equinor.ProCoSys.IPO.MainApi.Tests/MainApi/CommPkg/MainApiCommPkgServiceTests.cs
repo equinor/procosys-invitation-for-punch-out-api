@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
@@ -70,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnCorrectNumberOfCommPkgs()
         {
             // Act
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, 2, "C");
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "C");
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -83,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(null));
 
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, 1, "A");
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "A");
 
             Assert.AreEqual(0, result.Count);
         }
@@ -92,7 +91,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, 3, "C");
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "C");
 
             // Assert
             var commPkg = result.First();
