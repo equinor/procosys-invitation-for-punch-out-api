@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fusion.Integration.Meeting" Version="1.0.0-preview.8" />
-    <PackageReference Include="MediatR" Version="8.1.0" />
+    <PackageReference Include="Fusion.Integration.Meeting" Version="1.0.0" />
+    <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
   </ItemGroup>
 
