@@ -58,7 +58,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[0], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[1], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.ProjectNameIsNotChangedAsync(_projectName, _id, default)).Returns(Task.FromResult(true));
             _command = new EditInvitationCommand(
                 _id,
                 _title,
@@ -66,7 +65,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -106,7 +104,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 null,
                 null,
@@ -119,72 +116,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenProjectNameIsTooShort()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                "p",
-                _type,
-                _participants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Project name must be between 3 and "));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenProjectNameIsTooLong()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
-                _type,
-                _participants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Project name must be between 3 and "));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenProjectNameIsNull()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                _type,
-                _participants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Project name must be between 3 and "));
-        }
-
-        [TestMethod]
         public void Validate_ShouldFail_WhenDescriptionIsTooLong()
         {
             var result = _dut.Validate(new EditInvitationCommand(
@@ -194,7 +125,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -216,7 +146,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -238,7 +167,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -260,7 +188,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -282,7 +209,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -304,7 +230,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?",
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectName,
                 _type,
                 _participants,
                 null,
@@ -319,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenInvitationWithSameTitleExistsInProject()
         {
-            _invitationValidatorMock.Setup(inv => inv.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.IpoTitleExistsInProjectOnAnotherIpoAsync(_title, _id, default)).Returns(Task.FromResult(true));
 
             var result = _dut.Validate(_command);
 
@@ -386,32 +311,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant with ID does not exist"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenProjectNameIsChanged()
-        {
-            _invitationValidatorMock.Setup(inv => inv.ProjectNameIsNotChangedAsync("new project", _id, default)).Returns(Task.FromResult(false));
-
-            _command = new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                "new project",
-                _type,
-                _participants,
-                null,
-                _commPkgScope,
-                _rowVersion);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Project name cannot be changed"));
         }
     }
 }

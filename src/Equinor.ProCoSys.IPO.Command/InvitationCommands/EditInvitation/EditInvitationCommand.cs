@@ -16,7 +16,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             string location,
             DateTime startTime,
             DateTime endTime,
-            string projectName,
             DisciplineType type,
             IList<ParticipantsForCommand> updatedParticipants,
             IEnumerable<string> updatedMcPkgScope,
@@ -31,7 +30,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             Location = location;
             StartTime = startTime;
             EndTime = endTime;
-            ProjectName = projectName;
             Type = type;
             Title = title;
             RowVersion = rowVersion;
@@ -47,9 +45,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public IList<ParticipantsForCommand> UpdatedParticipants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }
-        
-        // todo Lykke - Elisabeth: This prop should be removed. In projectName is found via InvitationId
-        public string ProjectName { get; }
         public string RowVersion { get; }
     }
 }

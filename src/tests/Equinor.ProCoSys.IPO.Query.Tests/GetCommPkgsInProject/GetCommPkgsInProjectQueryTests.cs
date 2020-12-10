@@ -9,9 +9,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new GetCommPkgsInProjectQuery(2, "CommPkgNo");
+            var dut = new GetCommPkgsInProjectQuery("ProjectName", "CommPkgNo");
 
-            Assert.AreEqual(2, dut.ProjectId);
+            Assert.AreEqual("ProjectName", dut.ProjectName);
             Assert.AreEqual("CommPkgNo", dut.StartsWithCommPkgNo);
         }
     }
