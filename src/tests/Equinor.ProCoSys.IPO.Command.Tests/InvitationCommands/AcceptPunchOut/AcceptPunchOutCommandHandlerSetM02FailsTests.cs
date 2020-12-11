@@ -16,7 +16,7 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
 {
     [TestClass]
-    public class AcceptPunchOutCommandHandlerTests
+    public class AcceptPunchOutCommandHandlerSetM02FailsTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -143,6 +143,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 .Returns(Task.FromResult(_invitation));
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+            _mcPkgApiServiceMock
+                .Setup(x => x.SetM01DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
+                .Throws(new Exception("Something failed"));
 
             //command
             _command = new AcceptPunchOutCommand(
@@ -161,33 +164,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         }
 
         [TestMethod]
-        public async Task AcceptIpoCommand_ShouldAcceptInvitation()
-        {
-            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            var participant = _invitation.Participants.Single(p => p.Organization == Organization.ConstructionCompany);
-            Assert.IsNotNull(participant);
-            Assert.IsNull(participant.SignedAtUtc);
-            Assert.IsNull(participant.SignedBy);
-
-            await _dut.Handle(_command, default);
-
-            Assert.AreEqual(IpoStatus.Accepted, _invitation.Status);
-            Assert.IsNotNull(participant.SignedAtUtc);
-            Assert.AreEqual("OlaN", participant.SignedBy);
-        }
-
-        [TestMethod]
-        public async Task HandlingAcceptIpoCommand_ShouldSetAndReturnRowVersion()
+        public async Task HandlingAcceptIpoCommand_ShouldNotAcceptIfSettingM02DateInMainFails()
         {
             // Act
             var result = await _dut.Handle(_command, default);
 
             // Assert
-            // In real life EF Core will create a new RowVersion when save.
-            // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
-            Assert.AreEqual(_invitationRowVersion, result.Data);
-            Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            Assert.AreEqual(1, result.Errors.Count);
         }
     }
 }
