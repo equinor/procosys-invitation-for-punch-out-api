@@ -20,12 +20,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must((command) => command.UpdatedParticipants != null)
                 .WithMessage(command =>
                     "Participants cannot be null!")
-                .Must((command) =>
-                    command.ProjectName != null &&
-                    command.ProjectName.Length > 2 &&
-                    command.ProjectName.Length < Invitation.ProjectNameMaxLength)
-                .WithMessage(command =>
-                    $"Project name must be between 3 and {Invitation.ProjectNameMaxLength} characters! ProjectName={command.ProjectName}")
                 .Must((command) => command.Description == null || command.Description.Length < 4000)
                 .WithMessage(command =>
                     $"Description cannot be more than 4000 characters! Description={command.Description}")
@@ -42,16 +36,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
                 //business validators
-                .MustAsync((command, token) => ProjectMustNotBeChanged(command.ProjectName, command.InvitationId, token))
-                .WithMessage(command =>
-                    $"Project name cannot be changed! ProjectName={command.ProjectName}")
                 .MustAsync((command, token) => BeAnExistingIpo(command.InvitationId, token))
                 .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, token) => BeAnIpoInPlannedStage(command.InvitationId, token))
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
-                .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, command.InvitationId, token))
+                .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.Title, command.InvitationId, token))
                 .WithMessage(command =>
                     $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command) => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
@@ -81,8 +72,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
 
-            async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, int id, CancellationToken token)
-                => !await invitationValidator.IpoTitleExistsInProjectOnAnotherIpoAsync(projectName, title, id, token);
+            async Task<bool> TitleMustBeUniqueOnProject(string title, int id, CancellationToken token)
+                => !await invitationValidator.IpoTitleExistsInProjectOnAnotherIpoAsync(title, id, token);
 
             bool MustHaveValidScope(
                 IList<string> updatedMcPkgScope, 
@@ -91,9 +82,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken token)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, token);
-
-            async Task<bool> ProjectMustNotBeChanged(string projectName, int id, CancellationToken token)
-                => await invitationValidator.ProjectNameIsNotChangedAsync(projectName, id, token);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);

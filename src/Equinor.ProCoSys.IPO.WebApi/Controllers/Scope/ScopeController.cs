@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// Gets CommPkgs from ProCoSys main API by CommPkgNos
         /// </summary>
         /// <param name="plant"></param>
-        /// <param name="projectId"></param>
+        /// <param name="projectName"></param>
         /// <param name="startsWithCommPkgNo"></param>
         /// <returns>All ProCoSys commpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.COMMPKG_READ)]
@@ -33,10 +33,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
-            [FromQuery] int projectId,
+            [FromQuery] string projectName,
             [FromQuery] string startsWithCommPkgNo)
         {
-            var result = await _mediator.Send(new GetCommPkgsInProjectQuery(projectId, startsWithCommPkgNo));
+            var result = await _mediator.Send(new GetCommPkgsInProjectQuery(projectName, startsWithCommPkgNo));
             return this.FromResult(result);
         }
 

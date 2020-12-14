@@ -43,12 +43,18 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 where invitation.Title == title && invitation.ProjectName == projectName
                 select invitation).AnyAsync(token);
 
-        public async Task<bool> IpoTitleExistsInProjectOnAnotherIpoAsync(string projectName, string title, int id, CancellationToken token)
-            => await (from invitation in _context.QuerySet<Invitation>()
-                where invitation.Title == title && 
-                      invitation.ProjectName == projectName &&
+        public async Task<bool> IpoTitleExistsInProjectOnAnotherIpoAsync(string title, int id, CancellationToken token)
+        {
+            var inv = await (from ipo in _context.QuerySet<Invitation>()
+                where ipo.Id == id
+                select ipo).SingleAsync(token);
+
+            return await (from invitation in _context.QuerySet<Invitation>()
+                where invitation.Title == title &&
+                      invitation.ProjectName == inv.ProjectName &&
                       invitation.Id != id
                 select invitation).AnyAsync(token);
+        }
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
@@ -187,11 +193,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
             return true;
         }
-        
-        public async Task<bool> ProjectNameIsNotChangedAsync(string projectName, int id, CancellationToken token) 
-            => await (from invitation in _context.QuerySet<Invitation>() 
-                where invitation.Id == id && invitation.ProjectName == projectName
-                select invitation).AnyAsync(token);
 
         public async Task<bool> ValidContractorParticipantExistsAsync(int invitationId, CancellationToken token)
         {

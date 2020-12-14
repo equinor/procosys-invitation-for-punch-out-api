@@ -645,7 +645,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithFrAsParticipants, default);
+                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -657,7 +657,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName2, _title1, _invitationIdWithoutParticipants, default);
+                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
         }
@@ -669,7 +669,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_projectName, _title1, _invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
