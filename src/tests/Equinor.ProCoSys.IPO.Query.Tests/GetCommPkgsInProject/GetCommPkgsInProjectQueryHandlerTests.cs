@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
         private IList<ProCoSysCommPkg> _mainApiCommPkgs;
         private GetCommPkgsInProjectQuery _query;
 
-        private readonly int _projectId = 1;
+        private readonly string _projectName = "Pname";
         private readonly string _commPkgStartsWith = "C";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -44,10 +44,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                 };
 
                 _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectId, _commPkgStartsWith))
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith))
                     .Returns(Task.FromResult(_mainApiCommPkgs));
 
-                _query = new GetCommPkgsInProjectQuery(_projectId, _commPkgStartsWith);
+                _query = new GetCommPkgsInProjectQuery(_projectName, _commPkgStartsWith);
             }
         }
 
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             {
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectId, _commPkgStartsWith))
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith))
                     .Returns(Task.FromResult<IList<ProCoSysCommPkg>>(null));
 
                 var result = await dut.Handle(_query, default);

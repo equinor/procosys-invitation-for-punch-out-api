@@ -105,7 +105,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.Location,
                     dto.StartTime,
                     dto.EndTime,
-                    dto.ProjectName,
                     dto.Type,
                     updatedParticipants,
                     dto.UpdatedMcPkgScope,

@@ -63,8 +63,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             invitation.Description = request.Description;
             invitation.Type = request.Type;
 
-            UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, request.ProjectName);
-            UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, request.ProjectName);
+            UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
+            UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
 
             participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
 

@@ -148,7 +148,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
                 DisciplineType.DP,
                 null,
                 null,
@@ -173,7 +172,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
                 DisciplineType.DP,
                 null,
                 null,
@@ -291,10 +289,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            // todo var query = new GetCommPkgsInProjectQuery(_projectWithAccess, null);
+            var query = new GetCommPkgsInProjectQuery(_projectWithAccess, null);
 
             // act
-            var result = true; // await _dut.ValidateAsync(query);
+            var result = await _dut.ValidateAsync(query);
 
             // Assert
             Assert.IsTrue(result);
@@ -304,10 +302,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            // todo var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null);
+            var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null);
             
             // act
-            var result = false; // await _dut.ValidateAsync(query);
+            var result = await _dut.ValidateAsync(query);
 
             // Assert
             Assert.IsFalse(result);

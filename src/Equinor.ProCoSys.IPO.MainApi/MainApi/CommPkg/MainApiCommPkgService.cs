@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProCoSysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, int projectId,
+        public async Task<IList<ProCoSysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, string projectName,
             string startsWithCommPkgNo)
         {
             var commPkgs = new List<ProCoSysCommPkg>();
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             var url = $"{_baseAddress}CommPkg/Search" +
                       $"?plantId={plant}" +
                       $"&startsWithCommPkgNo={WebUtility.UrlEncode(startsWithCommPkgNo)}" +
-                      $"&projectId={projectId}" +
+                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       $"&api-version={_apiVersion}";
 
             var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);

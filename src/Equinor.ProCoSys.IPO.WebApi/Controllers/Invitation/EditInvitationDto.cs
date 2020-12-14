@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public string Location { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public string ProjectName { get; set; }
         public DisciplineType Type { get; set; }
         // Existing participants not included in UpdatedParticipants will be deleted.
         public IEnumerable<ParticipantDto> UpdatedParticipants { get; set; }

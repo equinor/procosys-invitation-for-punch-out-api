@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
         {
             var mainApiCommPkgs = await _commPkgApiService
                 .SearchCommPkgsByCommPkgNoAsync(
-                   _plantProvider.Plant, request.ProjectId,
+                   _plantProvider.Plant, request.ProjectName,
                    request.StartsWithCommPkgNo)
                    ?? new List<ProCoSysCommPkg>();
 
