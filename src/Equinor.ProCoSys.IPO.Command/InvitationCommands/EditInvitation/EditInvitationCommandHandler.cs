@@ -270,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             participant.SortKey));
                     }
                     
-                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == true && fr.Email != null)
+                    if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
