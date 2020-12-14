@@ -180,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.Attended,
                         new ExternalEmailDto(participant.Id, participant.Email,
                             participant.RowVersion.ConvertToString()),
-                        ConvertToInvitedPersonDto(participant),
+                        null,
                         null));
                 }
             }
