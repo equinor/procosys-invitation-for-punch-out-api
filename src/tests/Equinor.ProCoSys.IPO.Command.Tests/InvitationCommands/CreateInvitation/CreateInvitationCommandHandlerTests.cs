@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
+        private Mock<IDbContextTransaction> _transactionMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _mcPkgNo1 = "MC1";
@@ -74,7 +76,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _createdInvitation;
-        private int _saveChangesCount;
         private CreateInvitationCommandHandler _dut;
         private CreateInvitationCommand _command;
 
@@ -119,10 +120,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.Add(It.IsAny<Invitation>()))
                 .Callback<Invitation>(x => _createdInvitation = x);
 
+            _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
+            _unitOfWorkMock.Setup(x => x.BeginTransaction(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(_transactionMock.Object));
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
@@ -197,7 +198,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             await _dut.Handle(_command, default);
 
             Assert.IsNotNull(_createdInvitation);
-            Assert.AreEqual(2, _saveChangesCount);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
         }
 
         [TestMethod]
@@ -230,6 +231,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _meetingClientMock.Verify(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()), Times.Once);
             Assert.AreEqual(_meetingId, _createdInvitation.MeetingId);
+        }
+
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldRollbackIfFusionApiFails()
+        {
+            _meetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Throws(new Exception("Something failed"));
+            await _dut.Handle(_command, default);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
 
         private AcceptPunchOutCommand _command;
         private AcceptPunchOutCommandHandler _dut;
@@ -140,6 +142,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
+            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+
             //command
             _command = new AcceptPunchOutCommand(
                 _invitation.Id,
@@ -152,7 +156,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personApiServiceMock.Object);
+                _personApiServiceMock.Object,
+                _mcPkgApiServiceMock.Object);
         }
 
         [TestMethod]
@@ -183,6 +188,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+        }
+
+        [TestMethod]
+        public async Task HandlingAcceptIpoCommand_ShouldNotAcceptIfSettingM02DateInMainFails()
+        {
+            _mcPkgApiServiceMock
+                .Setup(x => x.SetM02DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
+                .Throws(new Exception("Something failed"));
+
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            Assert.AreEqual(1, result.Errors.Count);
         }
     }
 }

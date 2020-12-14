@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
@@ -18,19 +19,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IMcPkgApiService _mcPkgApiService;
 
         public AcceptPunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IPersonApiService personApiService)
+            IPersonApiService personApiService,
+            IMcPkgApiService mcPkgApiService)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
+            _mcPkgApiService = mcPkgApiService;
         }
 
         public async Task<Result<string>> Handle(AcceptPunchOutCommand request, CancellationToken cancellationToken)
@@ -58,6 +62,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
+            try
+            {
+                await _mcPkgApiService.SetM02DatesAsync(
+                    _plantProvider.Plant,
+                    invitation.Id,
+                    invitation.ProjectName,
+                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
+                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+            }
+            catch (Exception e)
+            {
+                return new UnexpectedResult<string>("Error: Could not set M-02 dates");
+            }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }

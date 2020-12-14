@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
@@ -41,6 +42,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg> { _proCoSysMcPkg1, _proCoSysMcPkg2, _proCoSysMcPkg3 }));
 
+            _foreignApiClient
+                .Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .Returns(Task.CompletedTask);
+
             _dut = new MainApiMcPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
         }
 
@@ -79,5 +84,45 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("Description1", mcPkg.Description);
             Assert.AreEqual("A", mcPkg.DisciplineCode);
         }
+
+        [TestMethod]
+        public async Task GetMcPkgsByMcPkgNosAsync_ShouldReturnCorrectProperties()
+        {
+            // Act
+            var result = await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string>{ "McNo1", "McNo2", "McNo3" });
+
+            // Assert
+            Assert.AreEqual(3, result.Count);
+            var mcPkg = result.First();
+            Assert.AreEqual(111111111, mcPkg.Id);
+            Assert.AreEqual("McNo1", mcPkg.McPkgNo);
+            Assert.AreEqual("Description1", mcPkg.Description);
+            Assert.AreEqual("A", mcPkg.DisciplineCode);
+            mcPkg = result[1];
+            Assert.AreEqual(222222222, mcPkg.Id);
+            Assert.AreEqual("McNo2", mcPkg.McPkgNo);
+            Assert.AreEqual("Description2", mcPkg.Description);
+            Assert.AreEqual("A", mcPkg.DisciplineCode);
+        }
+
+        [TestMethod]
+        public async Task GetMcPkgsByMcPkgNosAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
+        {
+            _foreignApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysMcPkg>()));
+
+            var result = await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string> { "McNo1", "McNo2", "McNo3" });
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public async Task SetM01Dates_ShouldReturnOk_WhenCallSucceeds() 
+            => await _dut.SetM01DatesAsync(_plant, 1, "Project1", new List<string>{"A"}, new List<string>());
+
+        [TestMethod]
+        public async Task SetM02Dates_ShouldReturnOk_WhenCallSucceeds()
+            => await _dut.SetM02DatesAsync(_plant, 1, "Project1", new List<string> { "A" }, new List<string>());
     }
 }
