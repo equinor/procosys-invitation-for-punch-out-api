@@ -11,6 +11,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             string description,
             DisciplineType type,
             IpoStatus status,
+            DateTime? completedAtUtc,
+            DateTime? acceptedAtUtc,
             string rowVersion)
         {
             Id = id;
@@ -18,6 +20,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             Description = description;
             Type = type;
             Status = status;
+            CompletedAtUtc = completedAtUtc;
+            AcceptedAtUtc = acceptedAtUtc;
             RowVersion = rowVersion;
         }
 
@@ -26,6 +30,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
         public string Description { get; }
         public DisciplineType Type { get; }
         public IpoStatus Status { get; }
+        public DateTime? CompletedAtUtc { get; }
+        public DateTime? AcceptedAtUtc { get; }
         public string RowVersion { get; }
         public DateTime MeetingTimeUtc { get; set; }
     }
