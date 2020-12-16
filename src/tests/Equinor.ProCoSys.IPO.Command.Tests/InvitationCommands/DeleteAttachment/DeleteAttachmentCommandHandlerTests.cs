@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -25,7 +26,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         [TestInitialize]
         public void Setup()
         {
-            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation", "Description", DisciplineType.DP);
+            _invitation = new Invitation(
+                PLANT,
+                "TestProject",
+                "TestInvitation", 
+                "Description",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null);
             var attachment = new TestableAttachment(PLANT, "ExistingFile.txt");
             attachment.SetId(2);
             _invitation.AddAttachment(attachment);

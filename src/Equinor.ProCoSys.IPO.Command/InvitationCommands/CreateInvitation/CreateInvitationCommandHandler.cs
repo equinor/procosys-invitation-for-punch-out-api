@@ -58,7 +58,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
             var participants = new List<BuilderParticipant>();
-            var invitation = new Invitation(_plantProvider.Plant, request.ProjectName, request.Title, request.Description, request.Type);
+            var invitation = new Invitation(
+                _plantProvider.Plant,
+                request.ProjectName,
+                request.Title,
+                request.Description,
+                request.Type,
+                request.StartTime,
+                request.EndTime,
+                request.Location);
             _invitationRepository.Add(invitation);
 
             if (request.CommPkgScope.Count > 0)

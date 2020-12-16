@@ -62,6 +62,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             invitation.Title = request.Title;
             invitation.Description = request.Description;
             invitation.Type = request.Type;
+            invitation.StartTimeUtc = request.StartTime;
+            invitation.EndTimeUtc = request.EndTime;
+            invitation.Location = request.Location;
 
             UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
             UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);

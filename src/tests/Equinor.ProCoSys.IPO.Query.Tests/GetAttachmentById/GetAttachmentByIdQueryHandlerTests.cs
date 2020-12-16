@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -21,7 +22,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, "TestProject", "TestInvitation", "TestDescriptioN", DisciplineType.DP);
+                var invitation = new Invitation(TestPlant, "TestProject", "TestInvitation", "TestDescriptioN", DisciplineType.DP, new DateTime(),
+                    new DateTime(),
+                    null);
                 var attachmentA = new Attachment(TestPlant, "fileA.txt");
                 var attachmentB = new Attachment(TestPlant, "fileB.txt");
                 invitation.AddAttachment(attachmentA);

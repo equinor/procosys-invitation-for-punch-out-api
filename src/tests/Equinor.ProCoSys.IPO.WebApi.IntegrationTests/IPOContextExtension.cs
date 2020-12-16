@@ -67,7 +67,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 KnownTestData.ProjectName,
                 KnownTestData.InvitationTitle,
                 KnownTestData.InvitationDescription,
-                DisciplineType.DP)
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null)
             {
                 MeetingId = KnownTestData.MeetingId
             };

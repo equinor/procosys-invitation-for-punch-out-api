@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -56,9 +57,25 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 0);
             _participant.SetProtectedIdForTesting(ParticipantId);
 
-            _invitationWithMcPkg = new Invitation(TestPlant, "ProjectName", "Title", "D", DisciplineType.DP);
+            _invitationWithMcPkg = new Invitation(
+                TestPlant,
+                "ProjectName",
+                "Title",
+                "D",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null);
             _invitationWithMcPkg.SetProtectedIdForTesting(InvitationWithMcPkgId);
-            _invitationWithCommPkg = new Invitation(TestPlant, "ProjectName", "Title 2", "D", DisciplineType.DP);
+            _invitationWithCommPkg = new Invitation(
+                TestPlant,
+                "ProjectName",
+                "Title 2",
+                "D",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null);
 
             _invitationWithMcPkg.AddMcPkg(_mcPkg);
             _invitationWithMcPkg.AddParticipant(_participant);

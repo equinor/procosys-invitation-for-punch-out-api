@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
@@ -27,7 +28,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         [TestInitialize]
         public void Setup()
         {
-            _invitation = new Invitation(PLANT, "TestProject", "TestInvitation","Description", DisciplineType.DP);
+            _invitation = new Invitation(
+                PLANT,
+                "TestProject",
+                "TestInvitation",
+                "Description",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null);
             _invitation.AddAttachment(new Attachment(PLANT, "ExistingFile.txt"));
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

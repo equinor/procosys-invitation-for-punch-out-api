@@ -72,7 +72,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "McPkgNo",
                     Description);
 
-                _invitation = new Invitation(TestPlant, ProjectName, "Title", "Description", DisciplineType.DP)
+                _invitation = new Invitation(
+                    TestPlant,
+                    ProjectName,
+                    "Title", 
+                    "Description",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null)
                 {
                     MeetingId = MeetingId
                 };
@@ -185,7 +193,30 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 var query = new GetInvitationByIdQuery(_invitationId);
                 var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
 
-                await Assert.ThrowsExceptionAsync<Exception>(() => dut.Handle(query, default));
+                var result = await dut.Handle(query, default);
+                Assert.AreEqual(1, result.Errors.Count);
+                Assert.AreEqual($"Could not get meeting with id {_invitation.MeetingId} from Fusion", result.Errors[0]);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnIpo_IfUserIsNotInvitedToMeeting()
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            {
+                _meetingClientMock
+                    .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                    .Throws(new Exception("Something failed"));
+
+                var query = new GetInvitationByIdQuery(_invitationId);
+                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType); 
+                var invitationDto = result.Data;
+                AssertInvitation(invitationDto, _invitation);
             }
         }
 

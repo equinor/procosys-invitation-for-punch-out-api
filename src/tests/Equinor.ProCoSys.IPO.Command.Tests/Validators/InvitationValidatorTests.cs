@@ -68,7 +68,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitationWithCurrentUserAsParticipants = new Invitation(TestPlant, _projectName, _title1, _description, _typeDp);
+                var invitationWithCurrentUserAsParticipants = new Invitation(
+                    TestPlant,
+                    _projectName,
+                    _title1,
+                    _description,
+                    _typeDp,
+                    new DateTime(),
+                    new DateTime(),
+                    null);
                 foreach (var attachment in _attachments)
                 {
                     invitationWithCurrentUserAsParticipants.AddAttachment(attachment);
@@ -111,7 +119,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
 
-                var invitationWithFrAsParticipants = new Invitation(TestPlant, _projectName, _title2, _description, _typeDp);
+                var invitationWithFrAsParticipants = new Invitation(
+                    TestPlant,
+                    _projectName,
+                    _title2,
+                    _description,
+                    _typeDp,
+                    new DateTime(),
+                    new DateTime(),
+                    null);
                 context.Invitations.Add(invitationWithFrAsParticipants);
                 _invitationIdWithFrAsParticipants = invitationWithFrAsParticipants.Id;
                 var frContractor = new Participant(
@@ -151,11 +167,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithFrAsParticipants.AddParticipant(frConstructionCompany);
                 invitationWithFrAsParticipants.AddParticipant(frOperation);
 
-                var invitationWithoutParticipants = new Invitation(TestPlant, _projectName2, _title3, _description, _typeDp);
+                var invitationWithoutParticipants = new Invitation(
+                    TestPlant,
+                    _projectName2,
+                    _title3,
+                    _description,
+                    _typeDp,
+                    new DateTime(),
+                    new DateTime(),
+                    null);
                 context.Invitations.Add(invitationWithoutParticipants);
                 _invitationIdWithoutParticipants = invitationWithoutParticipants.Id;
 
-                var invitationWithNotCurrentUserAsParticipants = new Invitation(TestPlant, _projectName2, _title4, _description, _typeDp);
+                var invitationWithNotCurrentUserAsParticipants = new Invitation(
+                    TestPlant,
+                    _projectName2,
+                    _title4,
+                    _description,
+                    _typeDp,
+                    new DateTime(),
+                    new DateTime(),
+                    null);
                 context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
                 _invitationIdWithNotCurrentUserOidAsParticipants = invitationWithNotCurrentUserAsParticipants.Id;
                 var contractorParticipant = new Participant(
