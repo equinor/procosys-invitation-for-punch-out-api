@@ -130,8 +130,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     MeetingId = meetingId
                 };
 
-                _mdpInvitation.AddParticipant(functionalRoleParticipant);
-                _mdpInvitation.AddParticipant(personParticipant);
+                _mdpInvitation.AddParticipant(functionalRoleParticipant2);
+                _mdpInvitation.AddParticipant(personParticipant2);
                 _mdpInvitation.AddCommPkg(commPkg);
 
                 context.Invitations.Add(_dpInvitation);

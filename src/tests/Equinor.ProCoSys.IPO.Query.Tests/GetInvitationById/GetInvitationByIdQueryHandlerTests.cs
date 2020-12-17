@@ -182,7 +182,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         }
 
         [TestMethod]
-        public async Task Handler_ShouldThrowException_IfMeetingIsNotFound()
+        public async Task Handler_ShouldRetrunIpo_IfMeetingIsNotFound()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             {
@@ -194,8 +194,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
 
                 var result = await dut.Handle(query, default);
-                Assert.AreEqual(1, result.Errors.Count);
-                Assert.AreEqual($"Could not get meeting with id {_invitation.MeetingId} from Fusion", result.Errors[0]);
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+                var invitationDto = result.Data;
+                AssertInvitation(invitationDto, _invitation);
             }
         }
 

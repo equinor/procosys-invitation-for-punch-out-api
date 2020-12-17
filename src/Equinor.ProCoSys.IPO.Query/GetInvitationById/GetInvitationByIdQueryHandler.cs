@@ -51,11 +51,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
                     query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
-
-                if (meeting == null)
-                {
-                    return new NotFoundResult<InvitationDto>($"Could not get meeting with id {invitation.MeetingId} from Fusion");
-                }
             }
             catch (Exception e)
             {
