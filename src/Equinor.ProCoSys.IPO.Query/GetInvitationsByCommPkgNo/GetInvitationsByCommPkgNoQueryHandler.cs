@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
@@ -15,15 +14,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
     public class GetInvitationsByCommPkgNoQueryHandler : IRequestHandler<GetInvitationsByCommPkgNoQuery, Result<List<InvitationForMainDto>>>
     {
         private readonly IReadOnlyContext _context;
-        private readonly IFusionMeetingClient _meetingClient;
 
-        public GetInvitationsByCommPkgNoQueryHandler(
-            IReadOnlyContext context,
-            IFusionMeetingClient meetingClient)
-        {
-            _context = context;
-            _meetingClient = meetingClient;
-        }
+        public GetInvitationsByCommPkgNoQueryHandler(IReadOnlyContext context) 
+            => _context = context;
 
         public async Task<Result<List<InvitationForMainDto>>> Handle(GetInvitationsByCommPkgNoQuery request,
             CancellationToken token)
@@ -42,34 +35,25 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
 
             foreach (var invitation in invitations)
             {
-                var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
-                if (meeting == null)
-                {
-                    throw new Exception($"Could not get meeting with id {invitation.MeetingId} from Fusion");
-                }
-
-                var invitationForMainDto = ConvertToInvitationForMainDto(invitation, meeting);
-
+                var invitationForMainDto = ConvertToInvitationForMainDto(invitation);
                 invitationForMainDtos.Add(invitationForMainDto);
             }
 
             return new SuccessResult<List<InvitationForMainDto>>(invitationForMainDtos);
         }
 
-        private static InvitationForMainDto ConvertToInvitationForMainDto(Invitation invitation, GeneralMeeting meeting)
+        private static InvitationForMainDto ConvertToInvitationForMainDto(Invitation invitation)
         {
             var invitationForMainDto = new InvitationForMainDto(
-                    invitation.Id,
-                    invitation.Title,
-                    invitation.Description,
-                    invitation.Type,
-                    invitation.Status,
-                    GetCompletedDate(invitation),
-                    GetAcceptedDate(invitation),
-                    invitation.RowVersion.ConvertToString())
-            {
-                MeetingTimeUtc = meeting.StartDate.DatetimeUtc
-            };
+                invitation.Id,
+                invitation.Title,
+                invitation.Description,
+                invitation.Type,
+                invitation.Status,
+                GetCompletedDate(invitation),
+                GetAcceptedDate(invitation),
+                invitation.StartTimeUtc,
+                invitation.RowVersion.ConvertToString());
 
             return invitationForMainDto;
         }

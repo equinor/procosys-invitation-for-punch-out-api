@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -18,7 +19,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = new Invitation(TestPlant, _projectName, "Title", "Description", DisciplineType.DP);
+                var invitation = new Invitation(
+                    TestPlant,
+                    _projectName,
+                    "Title",
+                    "Description",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null);
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();
                 _invitationId = invitation.Id;

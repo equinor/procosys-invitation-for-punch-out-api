@@ -110,7 +110,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 .Returns(Task.FromResult(personDetails));
 
             //create invitation
-            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation = new Invitation(
+                    _plant,
+                    _projectName,
+                    _title,
+                    _description,
+                    _type,
+                    new DateTime(),
+                    new DateTime(),
+                    null)
+                { MeetingId = _meetingId };
             var participant1 = new Participant(
                 _plant,
                 _participants[0].Organization,

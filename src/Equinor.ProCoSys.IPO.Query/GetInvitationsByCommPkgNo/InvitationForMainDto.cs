@@ -13,6 +13,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             IpoStatus status,
             DateTime? completedAtUtc,
             DateTime? acceptedAtUtc,
+            DateTime meetingTimeUtc,
             string rowVersion)
         {
             Id = id;
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             Status = status;
             CompletedAtUtc = completedAtUtc;
             AcceptedAtUtc = acceptedAtUtc;
+            MeetingTimeUtc = meetingTimeUtc;
             RowVersion = rowVersion;
         }
 
@@ -32,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
         public IpoStatus Status { get; }
         public DateTime? CompletedAtUtc { get; }
         public DateTime? AcceptedAtUtc { get; }
+        public DateTime MeetingTimeUtc { get; }
         public string RowVersion { get; }
-        public DateTime MeetingTimeUtc { get; set; }
     }
 }

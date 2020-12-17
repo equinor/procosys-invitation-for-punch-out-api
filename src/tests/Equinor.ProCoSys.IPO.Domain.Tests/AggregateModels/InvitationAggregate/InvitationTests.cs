@@ -31,8 +31,24 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestInitialize]
         public void Setup()
         {
-            _dutWithMcPkgScope = new Invitation(TestPlant, ProjectName, Title, Description, DisciplineType.MDP);
-            _dutWithCommPkgScope = new Invitation(TestPlant, ProjectName, Title2, Description, DisciplineType.MDP);
+            _dutWithMcPkgScope = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null);
+            _dutWithCommPkgScope = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title2,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null);
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
@@ -102,13 +118,29 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenTitleNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new Invitation(TestPlant, ProjectName, null, Description, DisciplineType.MDP)
+                new Invitation(
+                    TestPlant,
+                    ProjectName,
+                    null,
+                    Description,
+                    DisciplineType.MDP,
+                    new DateTime(),
+                    new DateTime(),
+                    null)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenProjectNameNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new Invitation(TestPlant, null, Title, Description, DisciplineType.MDP)
+                new Invitation(
+                    TestPlant,
+                    null,
+                    Title,
+                    Description,
+                    DisciplineType.MDP,
+                    new DateTime(),
+                    new DateTime(),
+                    null)
             );
 
         [TestMethod]
