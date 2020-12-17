@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                 (from invitation in _context.QuerySet<Invitation>()
                     .Include(i => i.CommPkgs)
                     .Include(i => i.McPkgs)
+                    .Include(i => i.Participants)
                     .Where(i => i.ProjectName == request.ProjectName 
                                 && (i.McPkgs.Any(mcPkg => mcPkg.CommPkgNo == request.CommPkgNo)
                                 || i.CommPkgs.Any(commPkg => commPkg.CommPkgNo == request.CommPkgNo)))
@@ -63,12 +64,30 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                     invitation.Description,
                     invitation.Type,
                     invitation.Status,
+                    GetCompletedDate(invitation),
+                    GetAcceptedDate(invitation),
                     invitation.RowVersion.ConvertToString())
             {
                 MeetingTimeUtc = meeting.StartDate.DatetimeUtc
             };
 
             return invitationForMainDto;
+        }
+
+        private static DateTime? GetCompletedDate(Invitation invitation)
+        {
+            var contractor = invitation.Participants.Where(p => p.SortKey == 0).ToList();
+            return contractor.Count == 1 ? 
+                contractor.Single().SignedAtUtc :
+                contractor.Single(p => p.Type == IpoParticipantType.FunctionalRole).SignedAtUtc;
+        }
+
+        private static DateTime? GetAcceptedDate(Invitation invitation)
+        {
+            var constructionCompany = invitation.Participants.Where(p => p.SortKey == 1).ToList();
+            return constructionCompany.Count == 1 ? 
+                constructionCompany.Single().SignedAtUtc : 
+                constructionCompany.Single(p => p.Type == IpoParticipantType.FunctionalRole).SignedAtUtc;
         }
     }
 }

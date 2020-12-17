@@ -50,6 +50,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var mcPkg = SeedMcPkg(dbContext, invitation);
             knownTestData.McPkgIds.Add(mcPkg.Id);
+
+            SeedContractor(dbContext, invitation);
+            SeedConstructionCompany(dbContext, invitation);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
@@ -99,6 +102,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             invitation.AddMcPkg(mcPkg);
             dbContext.SaveChangesAsync().Wait();
             return mcPkg;
+        }
+
+        private static void SeedContractor(IPOContext dbContext, Invitation invitation)
+        {
+            var contractor = new Participant(
+                invitation.Plant,
+                Organization.Contractor,
+                IpoParticipantType.FunctionalRole,
+                "FR1",
+                null,
+                null,
+                null,
+                "fr@test.com",
+                null,
+                0);
+            invitation.AddParticipant(contractor);
+            dbContext.SaveChangesAsync().Wait();
+        }
+
+        private static void SeedConstructionCompany(IPOContext dbContext, Invitation invitation)
+        {
+            var constructionCompany = new Participant(
+                invitation.Plant,
+                Organization.ConstructionCompany,
+                IpoParticipantType.Person,
+                null,
+                "First",
+                "Last",
+                "UN",
+                "un@test.com",
+                new Guid("11111111-1111-2222-3333-333333333333"),
+                1);
+            invitation.AddParticipant(constructionCompany);
+            dbContext.SaveChangesAsync().Wait();
         }
     }
 }

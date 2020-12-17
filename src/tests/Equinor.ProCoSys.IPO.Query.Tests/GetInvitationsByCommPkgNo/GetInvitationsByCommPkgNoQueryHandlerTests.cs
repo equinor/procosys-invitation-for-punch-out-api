@@ -60,6 +60,30 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     PersonAzureOid,
                     1);
 
+                var FunctionalRoleParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.FunctionalRole,
+                    "FR2",
+                    null,
+                    null,
+                    null,
+                    "FR2@email.com",
+                    null,
+                    0);
+
+                var PersonParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    null,
+                    "FirstName2",
+                    "LastName",
+                    "UN",
+                    "P2@email.com",
+                    PersonAzureOid,
+                    1);
+
                 var CommPkg = new CommPkg(
                     TestPlant,
                     _projectName,
@@ -86,8 +110,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     MeetingId = MeetingId
                 };
 
-                _dpInvitation.AddParticipant(FunctionalRoleParticipant);
-                _dpInvitation.AddParticipant(PersonParticipant);
+                _dpInvitation.AddParticipant(FunctionalRoleParticipant2);
+                _dpInvitation.AddParticipant(PersonParticipant2);
                 _dpInvitation.AddMcPkg(McPkg1);
                 _dpInvitation.AddMcPkg(McPkg2);
 
