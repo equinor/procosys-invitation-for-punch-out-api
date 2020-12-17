@@ -54,6 +54,30 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     personAzureOid,
                     1);
 
+                var functionalRoleParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.FunctionalRole,
+                    "FR2",
+                    null,
+                    null,
+                    null,
+                    "FR2@email.com",
+                    null,
+                    0);
+
+                var personParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    null,
+                    "FirstName2",
+                    "LastName",
+                    "UN",
+                    "P2@email.com",
+                    personAzureOid,
+                    1);
+
                 var commPkg = new CommPkg(
                     TestPlant,
                     _projectName,
