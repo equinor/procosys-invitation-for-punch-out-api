@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
             if (participant.FunctionalRole != null)
             {
-                if (!await ParticipantExistsAsync(participant.FunctionalRole.Id, invitationId, token))
+                if (participant.FunctionalRole?.Id != null && !await ParticipantExistsAsync(participant.FunctionalRole.Id, invitationId, token))
                 {
                     return false;
                 }
