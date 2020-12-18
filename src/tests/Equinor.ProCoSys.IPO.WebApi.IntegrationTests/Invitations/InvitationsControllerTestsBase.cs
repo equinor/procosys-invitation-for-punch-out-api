@@ -19,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     public class InvitationsControllerTestsBase : TestBase
     {
         private const string FunctionalRoleCode = "FRC";
+        protected const string InvitationLocation = "InvitationLocation";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialInvitationId = TestFactory.Instance.KnownTestData.InvitationIds.First();
         protected int _attachmentId;
@@ -27,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         
         protected List<string> _mcPkgScope;
         protected List<ParticipantsForCommand> _participants;
+        protected List<ParticipantsForCommand> _participantsForSigning;
         private ProCoSysMcPkg _mcPkgDetails1;
         private ProCoSysMcPkg _mcPkgDetails2;
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
@@ -34,24 +36,58 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
         protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
+        protected PersonHelper _sigurdSigner, _connieConstructor, _conradContractor, _pernillaPlanner;
 
         [TestInitialize]
         public void TestInitialize()
         {
+            var personParticipant = new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true);
+            var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
+            var completerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Completer);
+            _conradContractor = new PersonHelper(completerUser.Profile.Oid, "Conrad", "Contractor", "ConradUserName","conrad@contractor.com", 1, "AAAAAAAAALA=");
+            var accepterUser = TestFactory.Instance.GetTestUserForUserType(UserType.Accepter);
+            _connieConstructor = new PersonHelper(accepterUser.Profile.Oid, "Connie", "Constructor", "ConnieUserName", "connie@constructor.com", 2, "AAAAAAAAABA=");
+            var signerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Signer);
+            _sigurdSigner = new PersonHelper(signerUser.Profile.Oid, "Sigurd", "Signer", "SigurdUserName", "sigurd@signer.com", 3, "AAAAAAAAAMA=");
+            var plannerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Planner);
+            _pernillaPlanner = new PersonHelper(plannerUser.Profile.Oid, "Pernilla", "Planner", "PernillaUserName", "pernilla@planner.com", 4, "AAAAAAAAASA=");
+
             _participants = new List<ParticipantsForCommand>
             {
                 new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand(FunctionalRoleCode, null),
+                    functionalRoleParticipant,
                     0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true),
+                    personParticipant,
                     null,
                     1)
+            };
+
+            _participantsForSigning = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    _conradContractor.GetPersonForCommand(true),
+                    null,
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    _connieConstructor.GetPersonForCommand(true),
+                    null,
+                    1),
+                new ParticipantsForCommand(
+                    Organization.TechnicalIntegrity,
+                    null,
+                    _sigurdSigner.GetPersonForCommand(false),
+                    null,
+                    2)
             };
 
             var knownGeneralMeeting = new ApiGeneralMeeting
@@ -69,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 InviteBodyHtml = string.Empty,
                 IsDisabled = false,
                 IsOnlineMeeting = false,
-                Location = "InvitationLocation",
+                Location = InvitationLocation,
                 Organizer = new ApiPersonDetailsV1(),
                 OutlookMode = string.Empty,
                 Participants = new List<ApiMeetingParticipant>
@@ -135,8 +171,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 }
             };
 
-            var personInFunctionalRole = _personsInFunctionalRole.First();
-
             TestFactory.Instance
                 .McPkgApiServiceMock
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
@@ -153,16 +187,52 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    It.IsAny<string>(),
+                    _sigurdSigner.AzureOid,
                     "IPO",
-                    new List<string> { "CREATE", "SIGN" }))
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _connieConstructor.AzureOid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_connieConstructor.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _conradContractor.AzureOid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_conradContractor.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _pernillaPlanner.AzureOid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_pernillaPlanner.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                        TestFactory.PlantWithAccess,
+                        personParticipant.AzureOid.ToString(),
+                        "IPO",
+                        new List<string> {"CREATE", "SIGN"}))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
-                    AzureOid = AzureOid,
-                    Email = personInFunctionalRole.Email,
-                    FirstName = personInFunctionalRole.FirstName,
-                    LastName = personInFunctionalRole.LastName,
-                    UserName = personInFunctionalRole.UserName
+                    AzureOid = personParticipant.AzureOid.ToString(),
+                    Email = personParticipant.Email,
+                    FirstName = personParticipant.FirstName,
+                    LastName = personParticipant.LastName,
+                    UserName = "UserName"
                 }));
 
             TestFactory.Instance

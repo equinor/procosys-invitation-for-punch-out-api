@@ -115,13 +115,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Sign")]
-        public async Task<ActionResult<string>> SignInvitation(
+        public async Task<ActionResult<string>> SignPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
             [FromRoute] int id,
-            [FromBody] SignInvitationDto dto)
+            [FromBody] SignPunchOutDto dto)
         {
             var result = await _mediator.Send(
                 new SignPunchOutCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
