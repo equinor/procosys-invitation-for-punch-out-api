@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<AttachmentDto>(content);
         }
 
-        public static async Task SignPunchOutAsync(
+        public static async Task<string> SignPunchOutAsync(
             UserType userType,
             string plant,
             int id,
@@ -119,20 +119,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             if (expectedStatusCode != HttpStatusCode.OK)
             {
-                return;
+                return null;
             }
 
-            await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public static async Task CompletePunchOutAsync(
+        public static async Task<string> CompletePunchOutAsync(
             UserType userType,
             string plant,
             int id,
             CompletePunchOutDto dto,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
-            string expectedMessageOnBadRequest = null
-            )
+            string expectedMessageOnBadRequest = null)
         {
             var bodyPayload = new
             {
@@ -150,13 +149,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             if (expectedStatusCode != HttpStatusCode.OK)
             {
-                return;
+                return null;
             }
 
-            await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
         }
 
-        public static async Task AcceptPunchOutAsync(
+        public static async Task<string> AcceptPunchOutAsync(
             UserType userType,
             string plant,
             int id,
@@ -180,10 +179,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             if (expectedStatusCode != HttpStatusCode.OK)
             {
-                return;
+                return null;
             }
 
-            await response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
         }
 
         public static async Task ChangeAttendedStatusOnParticipantsAsync(
@@ -192,8 +191,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             int id,
             ParticipantToChangeDto[] dtos,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
-            string expectedMessageOnBadRequest = null
-        )
+            string expectedMessageOnBadRequest = null)
         {
 
             var serializePayload = JsonConvert.SerializeObject(dtos);
@@ -202,13 +200,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PutAsync($"{Route}/{id}/AttendedStatusAndNotes", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
-
-            if (expectedStatusCode != HttpStatusCode.OK)
-            {
-                return;
-            }
-
-            await response.Content.ReadAsStringAsync();
         }
 
         public static async Task<int> CreateInvitationAsync(

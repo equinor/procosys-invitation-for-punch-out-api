@@ -378,10 +378,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
-                        Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE,
-                        Permissions.IPO_ATTACHFILE,
-                        Permissions.IPO_DETACHFILE
+                        Permissions.IPO_SIGN
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -409,9 +406,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE,
-                        Permissions.IPO_ATTACHFILE,
-                        Permissions.IPO_DETACHFILE
+                        Permissions.IPO_WRITE
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -439,9 +434,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE,
-                        Permissions.IPO_ATTACHFILE,
-                        Permissions.IPO_DETACHFILE
+                        Permissions.IPO_WRITE
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -468,7 +461,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
-                        Permissions.IPO_SIGN,
                         Permissions.IPO_WRITE,
                         Permissions.IPO_CREATE,
                         Permissions.IPO_DELETE,

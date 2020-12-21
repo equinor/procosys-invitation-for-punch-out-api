@@ -67,7 +67,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.TechnicalIntegrity).Person;
 
             // Act
-            await InvitationsControllerTestsHelper.SignPunchOutAsync(
+            var newRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
                     UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
@@ -83,6 +83,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participantPerson.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
             Assert.AreEqual("SigurdUserName", signerParticipant.SignedBy);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
@@ -128,7 +129,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 };
 
             // Act
-            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Completer,
                 TestFactory.PlantWithAccess,
                 invitationToCompleteId,
@@ -145,6 +146,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
             Assert.AreEqual(_conradContractor.UserName, completingParticipant.SignedBy);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
@@ -215,7 +217,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     };
 
                 // Act
-                await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                var newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                     UserType.Accepter,
                     TestFactory.PlantWithAccess,
                     invitationToAcceptId,
@@ -232,6 +234,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
                 Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
                 Assert.AreEqual("ConnieUserName", acceptingParticipant.SignedBy);
+                AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
