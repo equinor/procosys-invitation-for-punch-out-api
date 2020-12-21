@@ -165,6 +165,38 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 _mcPkgScope,
                 null,
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CreateInvitation_AsCompleter_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Completer,
+                TestFactory.PlantWithoutAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
+                null,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CreateInvitation_AsAccepter_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithoutAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
+                null,
+                HttpStatusCode.Forbidden);
         #endregion
 
         #region Edit
@@ -264,6 +296,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
+        public async Task SignPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                _sigurdSigner.Id,
+                _sigurdSigner.RowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
         public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.SignPunchOutAsync(
                 UserType.Signer,
@@ -308,6 +350,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task CompletePunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CompletePunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CompletePunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
                 new CompletePunchOutDto(),
@@ -371,6 +431,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task AcceptPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CompletePunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CompletePunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
                 new CompletePunchOutDto(),
