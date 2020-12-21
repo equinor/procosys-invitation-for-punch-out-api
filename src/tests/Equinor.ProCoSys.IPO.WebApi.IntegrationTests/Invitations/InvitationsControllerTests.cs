@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task SignPunchOut_AsPlanner_ShouldSignPunchOut()
+        public async Task SignPunchOut_AsSigner_ShouldSignPunchOut()
         {
             // Arrange
             var invitationToSignId = await InvitationsControllerTestsHelper.CreateInvitationAsync(

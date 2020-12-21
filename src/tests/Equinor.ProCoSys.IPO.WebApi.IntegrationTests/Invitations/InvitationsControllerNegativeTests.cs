@@ -243,9 +243,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task SignPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.SignPunchOutAsync(
-                UserType.Planner,
+                UserType.Signer,
                 TestFactory.UnknownPlant,
                 9999,
                 _sigurdSigner.Id,
@@ -264,9 +264,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task SignPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.SignPunchOutAsync(
-                UserType.Planner,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 38934,
                 _sigurdSigner.Id,
@@ -295,9 +295,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task CompletePunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+        public async Task CompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Planner,
+                UserType.Completer,
                 TestFactory.UnknownPlant,
                 9999,
                 new CompletePunchOutDto(),
@@ -314,7 +314,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task CompletePunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        public async Task CompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
             var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
@@ -324,7 +324,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
             await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Planner,
+                UserType.Completer,
                 TestFactory.PlantWithAccess,
                 38934,
                 new CompletePunchOutDto
@@ -358,9 +358,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task AcceptPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+        public async Task AcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Planner,
+                UserType.Accepter,
                 TestFactory.UnknownPlant,
                 9999,
                 new AcceptPunchOutDto(),
@@ -377,7 +377,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task AcceptPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        public async Task AcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
             var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
@@ -387,7 +387,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.ConstructionCompany).Person;
 
             await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Planner,
+                UserType.Accepter,
                 TestFactory.PlantWithAccess,
                 38934,
                 new AcceptPunchOutDto
