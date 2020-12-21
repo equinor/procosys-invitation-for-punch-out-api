@@ -67,15 +67,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.TechnicalIntegrity).Person;
 
             // Act
-            if (participantPerson.Person.Id != null)
-            {
-                await InvitationsControllerTestsHelper.SignPunchOutAsync(
+            await InvitationsControllerTestsHelper.SignPunchOutAsync(
                     UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
-                    (int)participantPerson.Person.Id,
+                    participantPerson.Person.Id,
                     participantPerson.Person.RowVersion);
-            }
 
             // Assert
             var signedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -114,9 +111,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var completerPerson = invitation.Participants
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
-            if (completerPerson.Person.Id != null)
-            {
-                var completePunchOutDto = new CompletePunchOutDto()
+                var completePunchOutDto = new CompletePunchOutDto
                 {
                     InvitationRowVersion = invitation.RowVersion,
                     ParticipantRowVersion = completerPerson.Person.RowVersion,
@@ -124,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     {
                         new ParticipantToChangeDto
                         {
-                            Id = (int)completerPerson.Person.Id,
+                            Id = completerPerson.Person.Id,
                             Note = "Some note about the punch round or attendee",
                             RowVersion = completerPerson.Person.RowVersion,
                             Attended = true
@@ -138,7 +133,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToCompleteId,
                 completePunchOutDto);
-            }
 
             // Assert
             var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
