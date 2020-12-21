@@ -218,48 +218,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 editInvitationDto,
                 HttpStatusCode.BadRequest);
         }
-
-        private async Task<EditInvitationDto> CreateValidEditInvitationDto()
-        {
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialInvitationId);
-
-            invitation.Status = IpoStatus.Planned;
-
-            var editInvitationDto = new EditInvitationDto
-            {
-                Title = invitation.Title,
-                Description = invitation.Description,
-                StartTime = invitation.StartTimeUtc,
-                EndTime = invitation.EndTimeUtc,
-                Location = invitation.Location,
-                ProjectName = invitation.ProjectName,
-                RowVersion = invitation.RowVersion,
-                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
-                UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = _mcPkgScope
-            };
-
-            return editInvitationDto;
-        }
-
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
-        {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
-            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
-                {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
-                    Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey
-                }));
-
-            return editVersionParticipantDtos;
-        }
         #endregion
 
         #region Sign 
@@ -369,7 +327,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 38934,
-                new CompletePunchOutDto()
+                new CompletePunchOutDto
                 {
                     InvitationRowVersion = validInvitation.RowVersion,
                     ParticipantRowVersion = validParticipantForCompleting.RowVersion,
@@ -432,7 +390,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 38934,
-                new AcceptPunchOutDto()
+                new AcceptPunchOutDto
                 {
                     InvitationRowVersion = validInvitation.RowVersion,
                     ParticipantRowVersion = validParticipantForAccepting.RowVersion,
@@ -695,6 +653,50 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 12456,
                 _attachmentId,
                 HttpStatusCode.NotFound);
+        #endregion
+
+        #region Private methods
+        private async Task<EditInvitationDto> CreateValidEditInvitationDto()
+        {
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            invitation.Status = IpoStatus.Planned;
+
+            var editInvitationDto = new EditInvitationDto
+            {
+                Title = invitation.Title,
+                Description = invitation.Description,
+                StartTime = invitation.StartTimeUtc,
+                EndTime = invitation.EndTimeUtc,
+                Location = invitation.Location,
+                ProjectName = invitation.ProjectName,
+                RowVersion = invitation.RowVersion,
+                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
+                UpdatedCommPkgScope = null,
+                UpdatedMcPkgScope = _mcPkgScope
+            };
+
+            return editInvitationDto;
+        }
+
+        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
+        {
+            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
+            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
+                new ParticipantDtoEdit
+                {
+                    ExternalEmail = p.ExternalEmail,
+                    FunctionalRole = p.FunctionalRole,
+                    Organization = p.Organization,
+                    Person = p.Person?.Person,
+                    SortKey = p.SortKey
+                }));
+
+            return editVersionParticipantDtos;
+        }
         #endregion
     }
 }
