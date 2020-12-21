@@ -173,8 +173,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var completerPerson = invitation.Participants
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
-            if (completerPerson.Person.Id != null)
-            {
                 var completePunchOutDto = new CompletePunchOutDto()
                 {
                     InvitationRowVersion = invitation.RowVersion,
@@ -183,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     {
                         new ParticipantToChangeDto
                         {
-                            Id = (int)completerPerson.Person.Id,
+                            Id = completerPerson.Person.Id,
                             Note = "Some note about the punch out round or attendee",
                             RowVersion = completerPerson.Person.RowVersion,
                             Attended = true
@@ -201,8 +199,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 var accepterPerson = invitation.Participants
                     .Single(p => p.Organization == Organization.ConstructionCompany).Person;
 
-                if (accepterPerson.Person.Id != null)
-                {
                     var acceptPunchOutDto = new AcceptPunchOutDto
                     {
                         InvitationRowVersion = invitation.RowVersion,
@@ -211,7 +207,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         {
                             new ParticipantToUpdateNoteDto
                             {
-                                Id = (int)accepterPerson.Person.Id,
+                                Id = accepterPerson.Person.Id,
                                 Note = "Some note about the punch out round or attendee",
                                 RowVersion = accepterPerson.Person.RowVersion
                             }
@@ -224,7 +220,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     invitationToAcceptId,
                     acceptPunchOutDto);
-                }
 
                 // Assert
                 var acceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -237,7 +232,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
                 Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
                 Assert.AreEqual("ConnieUserName", acceptingParticipant.SignedBy);
-            }
         }
 
         [TestMethod]
@@ -268,8 +262,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var completerPerson = invitation.Participants
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
-            if (completerPerson.Person.Id != null)
-            {
                 var completePunchOutDto = new CompletePunchOutDto
                 {
                     InvitationRowVersion = invitation.RowVersion,
@@ -278,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     {
                         new ParticipantToChangeDto
                         {
-                            Id = (int)completerPerson.Person.Id,
+                            Id = completerPerson.Person.Id,
                             Note = "Some note about the punch round or attendee",
                             RowVersion = completerPerson.Person.RowVersion,
                             Attended = true
@@ -296,7 +288,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     new ParticipantToChangeDto
                     {
-                        Id = (int)completerPerson.Person.Id,
+                        Id = completerPerson.Person.Id,
                         Attended = false,
                         Note = UpdatedNote,
                         RowVersion = completerPerson.Person.RowVersion
@@ -309,7 +301,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToChangeId,
                 participantToChangeDto);
-            }
 
             //Assert
             var invitationWithUpdatedAttendedStatus = await InvitationsControllerTestsHelper.GetInvitationAsync(
