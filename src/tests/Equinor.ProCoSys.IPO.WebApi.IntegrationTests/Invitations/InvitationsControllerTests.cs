@@ -173,7 +173,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var completerPerson = invitation.Participants
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
-                var completePunchOutDto = new CompletePunchOutDto()
+                var completePunchOutDto = new CompletePunchOutDto
                 {
                     InvitationRowVersion = invitation.RowVersion,
                     ParticipantRowVersion = completerPerson.Person.RowVersion,
