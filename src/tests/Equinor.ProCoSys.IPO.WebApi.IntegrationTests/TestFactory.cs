@@ -318,7 +318,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Harry Hacker", 
+                            FirstName = "Harry",
+                            LastName = "Hacker", 
                             Oid = HackerOid
                         },
                     ProCoSysPlants = new List<ProCoSysPlant>
@@ -340,7 +341,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Vidar Viewer",
+                            FirstName = "Vidar",
+                            LastName = " Viewer",
                             Oid = ViewerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -366,7 +368,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Sigurd Signer",
+                            FirstName = "Sigurd",
+                            LastName = "Signer",
+                            UserName = "SigurdUserName",
+                            Email = "sigurd@signer.com",
                             Oid = SignerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -393,7 +398,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Conrad Contractor",
+                            FirstName = "Conrad",
+                            LastName = "Contractor",
+                            UserName = "ConradUserName",
+                            Email = "conrad@contractor.com",
                             Oid = CompleterOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -421,7 +429,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Connie Constructor",
+                            FirstName = "Connie",
+                            LastName = "Constructor",
+                            UserName = "ConnieUserName",
+                            Email = "connie@constructor.com",
                             Oid = AccepterOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -449,7 +460,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Pernilla Planner",
+                            FirstName = "Pernilla",
+                            LastName = "Planner",
+                            UserName = "PernillaUserName",
+                            Email = "pernilla@planner.com",
                             Oid = PlannerOid
                         },
                     ProCoSysPlants = commonProCoSysPlants,

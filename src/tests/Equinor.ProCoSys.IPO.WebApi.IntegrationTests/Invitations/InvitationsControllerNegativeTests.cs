@@ -248,7 +248,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 38934,
                 editInvitationDto,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "Here you have a bad test setup Lykke. U fix?");
         }
         #endregion
 
@@ -259,8 +260,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithoutAccess,
                 9999,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
+                6789,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -269,8 +270,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
+                6789,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -280,8 +281,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Signer,
                 TestFactory.UnknownPlant,
                 9999,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
+                6789,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -291,8 +292,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
+                6789,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -301,8 +302,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
+                6789,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -311,9 +312,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 38934,
-                _sigurdSigner.Id,
-                _sigurdSigner.RowVersion,
-                HttpStatusCode.BadRequest);
+                6789,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
+
+        [TestMethod]
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipant() 
+            => await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId,
+                6789,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "Participant with this ID does not exist!");
         #endregion
 
         #region Complete
@@ -431,7 +444,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     ParticipantRowVersion = validParticipantForCompleting.RowVersion,
                     Participants = new List<ParticipantToChangeDto>()
                 },
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         }
         #endregion
 
@@ -628,7 +642,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                             RowVersion = validParticipantForUpdating.RowVersion
                         }
                     },
-                    HttpStatusCode.BadRequest);
+                    HttpStatusCode.BadRequest,
+                    "xx");
             }
         }
         #endregion

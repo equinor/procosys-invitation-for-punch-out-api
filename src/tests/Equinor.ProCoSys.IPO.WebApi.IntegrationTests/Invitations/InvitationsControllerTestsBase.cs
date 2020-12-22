@@ -15,7 +15,6 @@ using Moq;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
-    [TestClass]
     public class InvitationsControllerTestsBase : TestBase
     {
         private const string FunctionalRoleCode = "FRC";
@@ -36,21 +35,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
         protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
-        protected PersonHelper _sigurdSigner, _connieConstructor, _conradContractor, _pernillaPlanner;
+        protected TestProfile _sigurdSigner, _connieConstructor, _conradContractor, _pernillaPlanner;
 
         [TestInitialize]
         public void TestInitialize()
         {
             var personParticipant = new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true);
             var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
-            var completerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Completer);
-            _conradContractor = new PersonHelper(completerUser.Profile.Oid, "Conrad", "Contractor", "ConradUserName","conrad@contractor.com", 1, "AAAAAAAAALA=");
-            var accepterUser = TestFactory.Instance.GetTestUserForUserType(UserType.Accepter);
-            _connieConstructor = new PersonHelper(accepterUser.Profile.Oid, "Connie", "Constructor", "ConnieUserName", "connie@constructor.com", 2, "AAAAAAAAABA=");
-            var signerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Signer);
-            _sigurdSigner = new PersonHelper(signerUser.Profile.Oid, "Sigurd", "Signer", "SigurdUserName", "sigurd@signer.com", 3, "AAAAAAAAAMA=");
-            var plannerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Planner);
-            _pernillaPlanner = new PersonHelper(plannerUser.Profile.Oid, "Pernilla", "Planner", "PernillaUserName", "pernilla@planner.com", 4, "AAAAAAAAASA=");
+            _conradContractor = TestFactory.Instance.GetTestUserForUserType(UserType.Completer).Profile;
+            _connieConstructor = TestFactory.Instance.GetTestUserForUserType(UserType.Accepter).Profile;
+            _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
+            _pernillaPlanner = TestFactory.Instance.GetTestUserForUserType(UserType.Planner).Profile;
 
             _participants = new List<ParticipantsForCommand>
             {
@@ -187,7 +182,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    _sigurdSigner.AzureOid,
+                    _sigurdSigner.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
@@ -196,7 +191,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    _connieConstructor.AzureOid,
+                    _connieConstructor.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_connieConstructor.AsProCoSysPerson()));
@@ -205,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    _conradContractor.AzureOid,
+                    _conradContractor.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_conradContractor.AsProCoSysPerson()));
@@ -214,7 +209,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    _pernillaPlanner.AzureOid,
+                    _pernillaPlanner.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_pernillaPlanner.AsProCoSysPerson()));
