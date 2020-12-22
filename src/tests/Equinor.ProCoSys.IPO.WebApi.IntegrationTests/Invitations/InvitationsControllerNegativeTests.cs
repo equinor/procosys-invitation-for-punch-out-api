@@ -374,6 +374,44 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
+        public async Task CompletePunchOut_AsAccepter_ShouldReturnBadRequest_WhenInvalidParticipant()
+        {
+            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "TitleForComplete",
+                "DescriptionForComplete",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null);
+
+            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId);
+
+            var inValidParticipantForAccepting = validInvitation
+                .Participants.Single(p => p.Organization == Organization.ConstructionCompany).Person;
+
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                new CompletePunchOutDto
+                {
+                    InvitationRowVersion = validInvitation.RowVersion,
+                    ParticipantRowVersion = inValidParticipantForAccepting.Person.RowVersion,
+                    Participants = new List<ParticipantToChangeDto>()
+                },
+                HttpStatusCode.BadRequest,
+                "Person signing is not the contractor assigned to complete this IPO");
+        }
+
+        [TestMethod]
         public async Task CompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
             var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -429,30 +467,79 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task AcceptPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                new CompletePunchOutDto(),
+                new AcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task AcceptPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                new CompletePunchOutDto(),
+                new AcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task AcceptPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new CompletePunchOutDto(),
+                new AcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsCompleter_ShouldReturnBadRequest_WhenInvalidParticipant()
+        {
+            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "TitleForAccept",
+                "DescriptionForAccept",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null);
+
+            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId);
+
+            var inValidParticipantForAccepting = validInvitation
+                .Participants.Single(p => p.Organization == Organization.Contractor).Person;
+
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                new CompletePunchOutDto
+                {
+                    InvitationRowVersion = validInvitation.RowVersion,
+                    ParticipantRowVersion = inValidParticipantForAccepting.Person.RowVersion,
+                    Participants = new List<ParticipantToChangeDto>()
+                });
+
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                new AcceptPunchOutDto
+                {
+                    InvitationRowVersion = validInvitation.RowVersion,
+                    ParticipantRowVersion = inValidParticipantForAccepting.Person.RowVersion,
+                    Participants = new List<ParticipantToUpdateNoteDto>()
+                },
+                HttpStatusCode.BadRequest,
+                "Person signing is not the construction company assigned to accept this IPO");
+        }
 
         [TestMethod]
         public async Task AcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId()
@@ -461,6 +548,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialInvitationId);
+
             var validParticipantForAccepting = _participantsForSigning
                 .Single(p => p.Organization == Organization.ConstructionCompany).Person;
 
@@ -474,7 +562,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     ParticipantRowVersion = validParticipantForAccepting.RowVersion,
                     Participants = new List<ParticipantToUpdateNoteDto>()
                 },
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         }
         #endregion
 
