@@ -73,19 +73,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
-                    _conradContractor.GetPersonForCommand(true),
+                    _conradContractor.AsPersonForCommand(true),
                     null,
                     0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    _connieConstructor.GetPersonForCommand(true),
+                    _connieConstructor.AsPersonForCommand(true),
                     null,
                     1),
                 new ParticipantsForCommand(
                     Organization.TechnicalIntegrity,
                     null,
-                    _sigurdSigner.GetPersonForCommand(false),
+                    _sigurdSigner.AsPersonForCommand(false),
                     null,
                     2)
             };

@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public int Id { get; set; }
         public string UserName { get; set; }
 
-        public PersonForCommand GetPersonForCommand(bool required) 
+        public PersonForCommand AsPersonForCommand(bool required) 
             => new PersonForCommand(Guid.Parse(AzureOid), FirstName, LastName, Email, required);
 
         public ProCoSysPerson AsProCoSysPerson() =>
