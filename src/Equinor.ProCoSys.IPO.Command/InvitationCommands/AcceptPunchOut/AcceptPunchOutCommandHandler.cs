@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             }
             else
             {
-                AcceptIpoAsPersonAsync(invitation, participant, request.ParticipantRowVersion);
+                invitation.AcceptIpo(participant, participant.UserName, request.ParticipantRowVersion);
             }
             UpdateNotesOnParticipants(invitation, request.Participants);
 
@@ -101,26 +101,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 
             if (person != null)
             {
-                invitation.Status = IpoStatus.Accepted;
-                participant.SignedBy = person.UserName;
-                participant.SignedAtUtc = DateTime.UtcNow;
-                participant.SetRowVersion(participantRowVersion);
+                invitation.AcceptIpo(participant, person.UserName, participantRowVersion);
             }
             else
             {
                 throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
-        }
-
-        private void AcceptIpoAsPersonAsync(
-            Invitation invitation,
-            Participant participant,
-            string participantRowVersion)
-        {
-            invitation.Status = IpoStatus.Accepted;
-            participant.SignedBy = participant.UserName;
-            participant.SignedAtUtc = DateTime.UtcNow;
-            participant.SetRowVersion(participantRowVersion);
         }
     }
 }

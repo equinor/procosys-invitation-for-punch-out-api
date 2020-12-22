@@ -41,12 +41,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
-            var participants = invitation.Participants.Where(p => 
+            var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 0 && 
                 p.Organization == Organization.Contractor && 
-                p.AzureOid == currentUserAzureOid).ToList();
+                p.AzureOid == currentUserAzureOid);
 
-            if (!participants.Any() || participants.Any(p => p.FunctionalRoleCode != null))
+            if (participant == null || participant.FunctionalRoleCode != null)
             {
                 var functionalRole = invitation.Participants
                     .SingleOrDefault(p => p.SortKey == 0 &&
@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             }
             else
             {
-                CompleteIpoAsPersonAsync(invitation, participants.SingleOrDefault(), request.ParticipantRowVersion);
+                invitation.CompleteIpo(participant, participant.UserName, request.ParticipantRowVersion);
             }
             UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
             invitation.SetRowVersion(request.InvitationRowVersion);
@@ -104,26 +104,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 
             if (person != null)
             {
-                invitation.Status = IpoStatus.Completed;
-                participant.SignedBy = person.UserName;
-                participant.SignedAtUtc = DateTime.UtcNow;
-                participant.SetRowVersion(participantRowVersion);
+                invitation.CompleteIpo(participant, person.UserName, participantRowVersion);
             }
             else
             {
                 throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
-        }
-
-        private void CompleteIpoAsPersonAsync(
-            Invitation invitation,
-            Participant participant,
-            string participantRowVersion)
-        {
-            invitation.Status = IpoStatus.Completed;
-            participant.SignedBy = participant.UserName;
-            participant.SignedAtUtc = DateTime.UtcNow;
-            participant.SetRowVersion(participantRowVersion);
         }
     }
 }

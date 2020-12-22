@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
+using Equinor.Procosys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
@@ -43,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Type = type;
             Status = IpoStatus.Planned;
             ObjectGuid = Guid.NewGuid();
-            AddDomainEvent(new InvitationCreatedEvent(plant, ObjectGuid));
+            AddDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
         public Guid ObjectGuid { get; set; }
         public string ProjectName { get; set; }
@@ -74,7 +75,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Add(attachment);
-            AddDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, Id, attachment.FileName));
+            AddDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void RemoveAttachment(Attachment attachment)
@@ -90,7 +91,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Remove(attachment);
-            AddDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, Id, attachment.FileName));
+            AddDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void AddCommPkg(CommPkg commPkg)
@@ -205,6 +206,52 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.AzureOid = azureOid;
             participant.SortKey = sortKey;
             participant.SetRowVersion(participantRowVersion);
+        }
+
+        public void CompleteIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+            Status = IpoStatus.Completed;
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
+        }
+
+        public void AcceptIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+            Status = IpoStatus.Accepted;
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
+        }
+
+        public void SignIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));
+        }
+
+        public void EditIpo(string title, string description, DisciplineType type)
+        {
+            Title = title;
+            Description = description;
+            Type = type;
+            AddDomainEvent(new IpoEditedEvent(Plant, ObjectGuid));
         }
 
         public void SetCreated(Person createdBy)

@@ -7,15 +7,12 @@ namespace Equinor.Procosys.IPO.Domain.Events
     {
         public IpoCreatedEvent(
             string plant,
-            Guid objectGuid,
-            int objectId)
+            Guid objectGuid)
         {
             Plant = plant;
             ObjectGuid = objectGuid;
-            ObjectId = objectId;
         }
         public string Plant { get; }
         public Guid ObjectGuid { get; }
-        public int ObjectId { get; }
     }
 }
