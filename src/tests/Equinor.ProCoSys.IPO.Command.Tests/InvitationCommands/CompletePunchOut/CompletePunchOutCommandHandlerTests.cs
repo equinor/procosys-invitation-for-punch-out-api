@@ -171,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         }
 
         [TestMethod]
-        public async Task CompleteIpoCommand_ShouldCompleteInvitation()
+        public async Task CompletePunchOutCommand_ShouldCompletePunchOut()
         {
             Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
             var participant = _invitation.Participants.FirstOrDefault();

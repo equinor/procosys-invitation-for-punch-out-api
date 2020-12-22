@@ -170,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         }
 
         [TestMethod]
-        public async Task AcceptIpoCommand_ShouldAcceptInvitation()
+        public async Task AcceptPunchOutCommand_ShouldAcceptPunchOut()
         {
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             var participant = _invitation.Participants.Single(p => p.Organization == Organization.ConstructionCompany);
