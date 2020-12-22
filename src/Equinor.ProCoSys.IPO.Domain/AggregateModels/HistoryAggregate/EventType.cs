@@ -15,6 +15,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         [Description("IPO created")]
         IpoCreated,
         [Description("IPO edited")]
-        IpoEdited
+        IpoEdited,
+        [Description("Attachment uploaded")]
+        AttachmentUploaded,
+        [Description("Attachment removed")]
+        AttachmentRemoved
     }
 }

@@ -1,14 +1,18 @@
-﻿using MediatR;
+﻿using System;
+using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events
 {
     public class InvitationCreatedEvent : INotification
     {
-        public InvitationCreatedEvent(int invitationId)
+        public InvitationCreatedEvent(
+            string plant,
+            Guid objectGuid)
         {
-            InvitationId = invitationId;
+            Plant = plant;
+            ObjectGuid = objectGuid;
         }
-
-        public int InvitationId { get; }
+        public string Plant { get; }
+        public Guid ObjectGuid { get; }
     }
 }

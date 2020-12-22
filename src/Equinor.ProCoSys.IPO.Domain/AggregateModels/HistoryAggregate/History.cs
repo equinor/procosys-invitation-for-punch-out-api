@@ -1,5 +1,4 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -18,44 +17,22 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         public History(
             string plant,
             string description,
-            int objectId,
-            ObjectType objectType,
+            Guid objectGuid,
             EventType eventType
         ) : base(plant)
         {
             Description = description;
-            ObjectId = objectId;
-            ObjectType = objectType;
+            ObjectGuid = objectGuid;
+            ObjectType = "IPO";
             EventType = eventType;
-        }
-
-        public History(
-            string plant,
-            string description,
-            int objectId,
-            IpoRecord preservationRecord
-        ) : this(plant, description, objectId, ObjectType.Ipo, EventType.RequirementPreserved)
-        {
-            if (preservationRecord == null)
-            {
-                throw new ArgumentNullException(nameof(preservationRecord));
-            }
-            if (preservationRecord.Plant != plant)
-            {
-                throw new ArgumentException($"Can't relate item in {preservationRecord.Plant} to item in {plant}");
-            }
-
-            IpoRecordId = preservationRecord.Id;
         }
 
         public string Description { get; private set; }
         public int CreatedById { get; private set; }
         public Guid ObjectGuid { get; private set; }
-        public int? IpoRecordId { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public EventType EventType { get; private set; }
-        public ObjectType ObjectType { get; private set; }
-        public Guid? IpoRecordGuid { get; set; }
+        public string ObjectType { get; private set; }
 
         public void SetCreated(Person createdBy)
         {

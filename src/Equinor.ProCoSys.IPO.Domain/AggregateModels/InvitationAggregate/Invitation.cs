@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
+using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
@@ -16,7 +17,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
         private readonly List<Participant> _participants = new List<Participant>();
-
         private readonly List<Attachment> _attachments = new List<Attachment>();
 
         protected Invitation()
@@ -42,7 +42,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Description = description;
             Type = type;
             Status = IpoStatus.Planned;
+            ObjectGuid = Guid.NewGuid();
+            AddDomainEvent(new InvitationCreatedEvent(plant, ObjectGuid));
         }
+        public Guid ObjectGuid { get; set; }
         public string ProjectName { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -50,9 +53,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
-
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
-
         public IpoStatus Status { get; set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
@@ -73,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Add(attachment);
+            AddDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, Id, attachment.FileName));
         }
 
         public void RemoveAttachment(Attachment attachment)
@@ -88,6 +90,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Remove(attachment);
+            AddDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, Id, attachment.FileName));
         }
 
         public void AddCommPkg(CommPkg commPkg)

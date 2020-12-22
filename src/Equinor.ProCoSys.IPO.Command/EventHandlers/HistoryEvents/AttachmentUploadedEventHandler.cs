@@ -3,27 +3,27 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.Procosys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Events;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
 {
-    public class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent>
+    public class AttachmentUploadedEventHandler : INotificationHandler<AttachmentUploadedEvent>
     {
         private readonly IHistoryRepository _historyRepository;
         private readonly IInvitationRepository _invitationRepository;
 
-        public IpoCompletedEventHandler(IHistoryRepository historyRepository, IInvitationRepository invitationRepository)
+        public AttachmentUploadedEventHandler(IHistoryRepository historyRepository, IInvitationRepository invitationRepository)
         {
             _historyRepository = historyRepository;
             _invitationRepository = invitationRepository;
         }
 
-        public Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
+        public Task Handle(AttachmentUploadedEvent notification, CancellationToken cancellationToken)
         {
-            var eventType = EventType.IpoCompleted;
-            var ipo = _invitationRepository.GetByIdAsync(notification.ObjectId).Result;
-            var description = $"{eventType.GetDescription()} - '{ipo.Title}'";
+            var eventType = EventType.AttachmentUploaded;
+            var ipo = _invitationRepository.GetByIdAsync(notification.InvitationId).Result;
+            var description = $"{eventType.GetDescription()} - '{notification.AttachmentTitle}' uploaded to '{ipo.Title}'";
             var history = new History(notification.Plant, description, notification.ObjectGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;

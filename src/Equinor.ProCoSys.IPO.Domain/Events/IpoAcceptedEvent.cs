@@ -3,9 +3,9 @@ using MediatR;
 
 namespace Equinor.Procosys.IPO.Domain.Events
 {
-    public class IpoCompletedEvent : INotification
+    public class IpoAcceptedEvent : INotification
     {
-        public IpoCompletedEvent(
+        public IpoAcceptedEvent(
             string plant,
             Guid objectGuid,
             int objectId)

@@ -38,8 +38,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Email = email;
             AzureOid = azureOid;
             SortKey = sortKey;
+            ObjectGuid = Guid.NewGuid();
         }
 
+        public Guid ObjectGuid { get; set; }
         public Organization Organization { get; set; }
         public IpoParticipantType Type { get; set; }
         public string FunctionalRoleCode { get; set; }
