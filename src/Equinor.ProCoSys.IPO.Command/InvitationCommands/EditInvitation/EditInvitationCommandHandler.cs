@@ -202,7 +202,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var participantsToUpdateIds = externalEmailParticipantsIds
                 .Concat(personsWithOidsIds)
                 .Concat(personParticipantsWithEmailsIds)
-                .Concat(functionalRoleParticipantIds);
+                .Concat(functionalRoleParticipantIds).ToList();
+            participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.Person != null select fr.Person.Id);
+            foreach (var functionalRoleParticipant in functionalRoleParticipants)
+            {
+                participantsToUpdateIds.AddRange(functionalRoleParticipant.FunctionalRole.Persons.Select(person => person.Id));
+            }
 
             var participantsToDelete = existingParticipants.Where(p => !participantsToUpdateIds.Contains(p.Id));
             foreach (var participantToDelete in participantsToDelete)

@@ -41,15 +41,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             if (createdBy == null)
             {
-                throw new Exception($"Could not get person that created the IPO with id {invitation.CreatedById}");
+                return new NotFoundResult<InvitationDto>($"Could not get person that created the IPO with id {invitation.CreatedById}");
             }
 
             var createdByName = createdBy.FirstName + ' ' + createdBy.LastName;
 
-            var meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId, query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
-            if (meeting == null)
+            GeneralMeeting meeting;
+            try
             {
-                throw new Exception($"Could not get meeting with id {invitation.MeetingId} from Fusion");
+                meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
+                    query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
+            }
+            catch (Exception e)
+            {
+                meeting = null; //user has not been invited to IPO with their personal email
             }
 
             var invitationDto = ConvertToInvitationDto(invitation, createdByName, meeting);
@@ -63,14 +68,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.ProjectName,
                 invitation.Title,
                 invitation.Description,
-                meeting.Location,
+                invitation.Location,
                 invitation.Type,
                 invitation.Status,
                 createdBy,
+                invitation.StartTimeUtc,
+                invitation.EndTimeUtc,
                 invitation.RowVersion.ConvertToString())
             {
-                StartTimeUtc = meeting.StartDate.DatetimeUtc,
-                EndTimeUtc = meeting.EndDate.DatetimeUtc,
                 Participants = ConvertToParticipantDto(invitation.Participants),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
@@ -87,7 +92,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 if (participant.Person != null)
                 {
-                    var participantPersonResponse = GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email);
+                    var participantPersonResponse = meeting != null
+                        ? GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
+                        : null;
                     participant.Person.Response = participantPersonResponse;
                 }
 
@@ -95,24 +102,31 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 {
                     foreach (var personInFunctionalRole in participant.FunctionalRole?.Persons)
                     {
-                        var participantType = GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email);
+                        var participantType = meeting != null
+                            ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email)
+                            : null;
                         personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
 
-                        var functionalRolePersonResponse =
-                            GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Person.Email);
+                        var functionalRolePersonResponse = meeting != null
+                            ? GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Person.Email)
+                            : null;
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
                 }
 
                 if (participant.ExternalEmail != null)
                 {
-                   var externalEmailResponse = GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail);
+                    var externalEmailResponse = meeting != null
+                        ? GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail)
+                        : null;
                     participant.ExternalEmail.Response = externalEmailResponse;
                 }
 
                 if (participant.FunctionalRole?.Email != null)
                 {
-                    var functionalRoleResponse = GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email);
+                    var functionalRoleResponse = meeting != null
+                        ? GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email)
+                        : null;
                     participant.FunctionalRole.Response = functionalRoleResponse;
                 }
             }

@@ -71,7 +71,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 .Returns(Task.FromResult(personDetails));
 
             //create invitation
-            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation = new Invitation(
+                _plant,
+                _projectName,
+                _title,
+                _description,
+                _type,
+                new DateTime(),
+                new DateTime(),
+                null) { MeetingId = _meetingId };
             var participant = new Participant(
                 _plant,
                 Organization.Operation,
@@ -105,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public async Task SignIpoCommand_ShouldSignInvitation()
+        public async Task SignPunchOutCommand_ShouldSignPunchOut()
         {
             var participant = _invitation.Participants.Single(p => p.Id == _participantId);
             Assert.IsNotNull(participant);

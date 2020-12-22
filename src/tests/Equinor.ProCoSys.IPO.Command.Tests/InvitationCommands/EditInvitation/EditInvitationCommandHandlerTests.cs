@@ -213,7 +213,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(newPcsFrDetails));
 
             //create invitation
-            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation = new Invitation(
+                    _plant,
+                    _projectName,
+                    _title,
+                    _description,
+                    _type,
+                    new DateTime(),
+                    new DateTime(),
+                    null) 
+                { MeetingId = _meetingId };
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d"));
             _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2"));
             var participant = new Participant(

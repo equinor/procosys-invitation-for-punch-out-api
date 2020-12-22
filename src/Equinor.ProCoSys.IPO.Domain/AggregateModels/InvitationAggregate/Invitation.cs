@@ -25,7 +25,15 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         {
         }
 
-        public Invitation(string plant, string projectName, string title, string description, DisciplineType type)
+        public Invitation(
+            string plant,
+            string projectName,
+            string title,
+            string description,
+            DisciplineType type,
+            DateTime startTimeUtc,
+            DateTime endTimeUtc,
+            string location)
             : base(plant)
         {
             if (string.IsNullOrEmpty(projectName))
@@ -43,6 +51,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Description = description;
             Type = type;
             Status = IpoStatus.Planned;
+            StartTimeUtc = startTimeUtc;
+            EndTimeUtc = endTimeUtc;
+            Location = location;
             ObjectGuid = Guid.NewGuid();
             AddDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
@@ -51,6 +62,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string Title { get; set; }
         public string Description { get; set; }
         public DisciplineType Type { get; set; }
+        public DateTime StartTimeUtc { get; set; }
+        public DateTime EndTimeUtc { get; set; }
+        public string Location { get; set; }
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();

@@ -110,7 +110,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 .Returns(Task.FromResult(personDetails));
 
             //create invitation
-            _invitation = new Invitation(_plant, _projectName, _title, _description, _type) { MeetingId = _meetingId };
+            _invitation = new Invitation(
+                    _plant,
+                    _projectName,
+                    _title,
+                    _description,
+                    _type,
+                    new DateTime(),
+                    new DateTime(),
+                    null)
+                { MeetingId = _meetingId };
             var participant1 = new Participant(
                 _plant,
                 _participants[0].Organization,
@@ -162,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         }
 
         [TestMethod]
-        public async Task CompleteIpoCommand_ShouldCompleteInvitation()
+        public async Task CompletePunchOutCommand_ShouldCompletePunchOut()
         {
             Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
             var participant = _invitation.Participants.FirstOrDefault();
