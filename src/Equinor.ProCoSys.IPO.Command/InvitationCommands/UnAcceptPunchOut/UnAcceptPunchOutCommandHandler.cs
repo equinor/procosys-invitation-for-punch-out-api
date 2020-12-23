@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
 

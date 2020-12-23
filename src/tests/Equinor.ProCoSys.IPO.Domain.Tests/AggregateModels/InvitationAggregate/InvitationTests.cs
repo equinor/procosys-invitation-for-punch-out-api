@@ -348,6 +348,16 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void UnAcceptIpo_ShouldUnAcceptIpo()
+        {
+            _dutWithMcPkgScope.UnAcceptIpo(_functionalRoleParticipant, ParticipantRowVersion);
+            Assert.AreEqual(IpoStatus.Completed, _dutWithMcPkgScope.Status);
+            Assert.IsNull(_dutWithMcPkgScope.Participants.Single(p => p.SortKey == 1).SignedBy);
+            Assert.IsNull(_dutWithMcPkgScope.Participants.Single(p => p.SortKey == 1).SignedAtUtc);
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoUnAcceptedEvent));
+        }
+
+        [TestMethod]
         public void SignIpo_ShouldSignIpo()
         {
             _dutWithMcPkgScope.SignIpo(_personParticipant2, _personParticipant2.UserName, ParticipantRowVersion);

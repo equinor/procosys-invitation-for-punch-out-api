@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                     "The IPO does not have a construction company assigned to accept the IPO!")
                 .MustAsync((command, token) => BeThePersonWhoAccepted(command.ObjectGuid, token))
                 .WithMessage(command =>
-                    "Person trying to un-accept is not he person who accepted the IPO!");
+                    "Person trying to unaccept is not he person who accepted the IPO!");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
