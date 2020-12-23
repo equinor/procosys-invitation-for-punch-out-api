@@ -13,6 +13,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
     {
         private Invitation _dutWithMcPkgScope;
         private Invitation _dutWithCommPkgScope;
+        private Invitation _dutWithCanceledStatus;
         private Participant _personParticipant;
         private Participant _personParticipant2;
         private Participant _functionalRoleParticipant;
@@ -41,8 +42,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 Title,
                 Description,
                 DisciplineType.MDP,
-                new DateTime(),
-                new DateTime(),
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null);
             _dutWithCommPkgScope = new Invitation(
                 TestPlant,
@@ -52,7 +53,23 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null);
+                null)
+            {
+                Status = IpoStatus.Completed
+            };
+
+            _dutWithCanceledStatus = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title2,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null)
+            {
+                Status = IpoStatus.Canceled
+            };
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
@@ -121,6 +138,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithMcPkgScope.AddAttachment(_attachment);
             _dutWithCommPkgScope.AddCommPkg(_commPkg1);
             _dutWithCommPkgScope.AddCommPkg(_commPkg2);
+            _dutWithCommPkgScope.AddParticipant(_personParticipant);
+            _dutWithCommPkgScope.AddParticipant(_functionalRoleParticipant);
         }
 
         [TestMethod]
@@ -322,6 +341,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void CompleteIpo_ShouldNotCompleteIpo_WhenIpoIsNotPlanned()
+            => Assert.ThrowsException<Exception>(() => _dutWithCommPkgScope.CompleteIpo(_personParticipant, _personParticipant.UserName, ParticipantRowVersion));
+
+        [TestMethod]
         public void CompleteIpo_ShouldCompleteIpo()
         {
             Assert.AreEqual(IpoStatus.Planned, _dutWithMcPkgScope.Status);
@@ -335,14 +358,25 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void AcceptIpo_ShouldNotAcceptIpo_WhenIpoIsNotCompleted() 
+            => Assert.ThrowsException<Exception>(() => _dutWithMcPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion));
+
+        [TestMethod]
         public void AcceptIpo_ShouldAcceptIpo()
         {
-            _dutWithMcPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion);
-            Assert.AreEqual(IpoStatus.Accepted, _dutWithMcPkgScope.Status);
-            Assert.AreEqual("TEST", _dutWithMcPkgScope.Participants.Single(p => p.SortKey == 1).SignedBy);
-            Assert.IsNotNull(_dutWithMcPkgScope.Participants.Single(p => p.SortKey == 1).SignedAtUtc);
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoAcceptedEvent));
+            Assert.AreEqual(IpoStatus.Completed, _dutWithCommPkgScope.Status);
+
+            _dutWithCommPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion);
+
+            Assert.AreEqual(IpoStatus.Accepted, _dutWithCommPkgScope.Status);
+            Assert.AreEqual("TEST", _dutWithCommPkgScope.Participants.Single(p => p.SortKey == 1).SignedBy);
+            Assert.IsNotNull(_dutWithCommPkgScope.Participants.Single(p => p.SortKey == 1).SignedAtUtc);
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(IpoAcceptedEvent));
         }
+
+        [TestMethod]
+        public void SignIpo_ShouldNotSignIpo_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(() => _dutWithCanceledStatus.SignIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion));
 
         [TestMethod]
         public void SignIpo_ShouldSignIpo()
@@ -356,15 +390,55 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void EditIpo_ShouldNotEditIpo_WhenIpoIsNotPlanned()
+        {
+            var newStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
+            var newEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
+            Assert.ThrowsException<Exception>(() =>
+                _dutWithCommPkgScope.EditIpo(
+                    "New Title",
+                    "New description",
+                    DisciplineType.DP,
+                    newStartTime,
+                    newEndTime,
+                    "outside"));
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldNotEditIpo_WhenStartDateIsBeforeEndDate()
+        {
+            var newStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
+            var newEndTime = new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc);
+            Assert.ThrowsException<Exception>(() =>
+                _dutWithCommPkgScope.EditIpo(
+                    "New Title",
+                    "New description",
+                    DisciplineType.DP,
+                    newStartTime,
+                    newEndTime,
+                    "outside"));
+        }
+
+        [TestMethod]
         public void EditIpo_ShouldEditIpo()
         {
             Assert.AreEqual(Title, _dutWithMcPkgScope.Title);
             Assert.AreEqual(Description, _dutWithMcPkgScope.Description);
-
-            _dutWithMcPkgScope.EditIpo("New Title", "New description", DisciplineType.DP);
+            var newStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
+            var newEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
+            _dutWithMcPkgScope.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.DP, 
+                newStartTime,
+                newEndTime,
+                "outside");
 
             Assert.AreEqual("New Title", _dutWithMcPkgScope.Title);
             Assert.AreEqual("New description", _dutWithMcPkgScope.Description);
+            Assert.AreEqual("outside", _dutWithMcPkgScope.Location);
+            Assert.AreEqual(newStartTime, _dutWithMcPkgScope.StartTimeUtc);
+            Assert.AreEqual(newEndTime, _dutWithMcPkgScope.EndTimeUtc);
             Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoEditedEvent));
         }
 
