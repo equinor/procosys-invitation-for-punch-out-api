@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         }
 
         [TestMethod]
-        public async Task HandlingAcceptIpoCommand_ShouldSetAndReturnRowVersion()
+        public async Task HandlingUnAcceptIpoCommand_ShouldSetAndReturnRowVersion()
         {
             // Act
             var result = await _dut.Handle(_command, default);
