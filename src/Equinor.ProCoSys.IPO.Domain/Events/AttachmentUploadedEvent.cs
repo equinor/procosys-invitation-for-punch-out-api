@@ -8,14 +8,14 @@ namespace Equinor.ProCoSys.IPO.Domain.Events
         public AttachmentUploadedEvent(
             string plant,
             Guid objectGuid,
-            string attachmentTitle)
+            string fileName)
         {
             Plant = plant;
             ObjectGuid = objectGuid;
-            AttachmentTitle = attachmentTitle;
+            FileName = fileName;
         }
         public string Plant { get; }
         public Guid ObjectGuid { get; }
-        public string AttachmentTitle { get; }
+        public string FileName { get; }
     }
 }

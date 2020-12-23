@@ -1,7 +1,7 @@
 ﻿using System;
 using MediatR;
 
-namespace Equinor.Procosys.IPO.Domain.Events
+namespace Equinor.ProCoSys.IPO.Domain.Events
 {
     public class IpoCompletedEvent : INotification
     {

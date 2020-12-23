@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
         public Task Handle(AttachmentUploadedEvent notification, CancellationToken cancellationToken)
         {
             var eventType = EventType.AttachmentUploaded;
-            var description = $"{eventType.GetDescription()} - '{notification.AttachmentTitle}'";
+            var description = $"{eventType.GetDescription()} - '{notification.FileName}'";
             var history = new History(notification.Plant, description, notification.ObjectGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
-using Equinor.Procosys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Events;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
