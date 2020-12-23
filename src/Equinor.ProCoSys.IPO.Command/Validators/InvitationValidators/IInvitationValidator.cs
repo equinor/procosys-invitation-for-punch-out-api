@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
@@ -26,5 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> ConstructionCompanyExistsAsync(int invitationId, CancellationToken token);
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken token);
         Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken token);
+        Task<bool> SameUserUnAcceptingThatAcceptedAsync(Guid invitationId, CancellationToken token);
     }
 }
