@@ -18,7 +18,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private Participant _functionalRoleParticipant;
         private Participant _externalParticipant;
         private int _personParticipantId;
-        private int _personParticipantId2;
         private int _functionalRoleParticipantId;
         private int _externalParticipantId;
         private McPkg _mcPkg1;
@@ -32,7 +31,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string Title2 = "Title B";
         private const string Description = "Description A";
         private const string ParticipantRowVersion = "AAAAAAAAABA=";
-        private const string FileName = "test.txt";
 
         [TestInitialize]
         public void Setup()
@@ -111,7 +109,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 "kari@test.com",
                 new Guid("11111111-1111-2222-2222-333333333334"),
                 0);
-            _personParticipant2.SetProtectedIdForTesting(_personParticipantId2);
 
             _attachment = new Attachment(TestPlant, "filename.txt");
 
