@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    [Migration("20201222093939_AddHistoryTable")]
+    [Migration("20201223094659_AddHistoryTable")]
     partial class AddHistoryTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,9 +101,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ObjectGuid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Plant")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -190,6 +187,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasMaxLength(4096)
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("EndTimeUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("MeetingId")
                         .HasColumnType("uniqueidentifier");
 
@@ -216,6 +219,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
+
+                    b.Property<DateTime>("StartTimeUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -330,9 +336,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ObjectGuid")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Organization")
                         .HasColumnType("int");

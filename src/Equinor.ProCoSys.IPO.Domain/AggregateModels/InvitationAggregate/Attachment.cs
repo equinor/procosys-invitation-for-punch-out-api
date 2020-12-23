@@ -1,7 +1,6 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
@@ -25,10 +24,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             BlobStorageId = Guid.NewGuid();
             FileName = fileName;
-            ObjectGuid = Guid.NewGuid();
         }
 
-        public Guid ObjectGuid { get; set; }
         public string BlobPath => string.Join('/', Plant.Substring(4), BlobStorageId.ToString(), FileName);
         public Guid BlobStorageId { get; }
         public string FileName { get; protected set; }

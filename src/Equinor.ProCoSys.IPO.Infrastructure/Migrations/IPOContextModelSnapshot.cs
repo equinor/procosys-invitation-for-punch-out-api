@@ -99,9 +99,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ObjectGuid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Plant")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -337,9 +334,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ObjectGuid")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Organization")
                         .HasColumnType("int");
