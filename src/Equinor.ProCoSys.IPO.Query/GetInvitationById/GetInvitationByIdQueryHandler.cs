@@ -239,7 +239,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return true;
             }
 
-            if (participant.SortKey > 4 || participant.Organization == Organization.Supplier || participant.Organization == Organization.External)
+            if (participant.SortKey > 4 || 
+                participant.Organization == Organization.Supplier ||
+                participant.Organization == Organization.External ||
+                participant.Organization == Organization.ConstructionCompany ||
+                participant.Organization == Organization.Contractor)
             {
                 return false;
             }
