@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
@@ -292,6 +291,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var lastAccept = acceptingEvents.SingleOrDefault() != null ? 
                 acceptingEvents.Single() : 
                 acceptingEvents.OrderByDescending(e => e.CreatedAtUtc).FirstOrDefault();
+
+            if (lastAccept == null)
+            {
+                return false;
+            }
 
             var lastAcceptor = await (from p in _context.QuerySet<Person>()
                 where p.Id == lastAccept.CreatedById

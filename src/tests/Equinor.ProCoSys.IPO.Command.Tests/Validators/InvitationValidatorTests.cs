@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -32,6 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;
         protected readonly Guid _azureOid = new Guid("11111111-2222-2222-2222-333333333334");
+        private Guid _invitationGuid;
+        private Guid _inviationWithoutCurrentUserGuid;
 
         private readonly IList<string> _mcPkgScope = new List<string>
         {
@@ -68,6 +71,48 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                //var invitationWithAcceptedStatus = new Invitation(
+                //    TestPlant,
+                //    _projectName,
+                //    "unique title",
+                //    _description,
+                //    _typeDp,
+                //    new DateTime(),
+                //    new DateTime(),
+                //    null) { Status = IpoStatus.Accepted };
+                //context.Invitations.Add(invitationWithAcceptedStatus);
+                //_invitationIdWithAcceptedStatus = invitationWithAcceptedStatus.Id;
+                //var participant1 = new Participant(
+                //    TestPlant,
+                //    Organization.Contractor,
+                //    IpoParticipantType.Person,
+                //    null,
+                //    "First1",
+                //    "Last",
+                //    "UN1",
+                //    "first1@last.com",
+                //    _currentUserOid,
+                //    0);
+                //var participant2 = new Participant(TestPlant,
+                //    Organization.ConstructionCompany,
+                //    IpoParticipantType.Person,
+                //    null,
+                //    "First2",
+                //    "Last",
+                //    "UN2",
+                //    "first2@last.com",
+                //    _currentUserOid,
+                //    1);
+                //invitationWithAcceptedStatus.AddParticipant(participant1);
+                //invitationWithAcceptedStatus.AddParticipant(participant2);
+                //_invitationGuid = invitationWithAcceptedStatus.ObjectGuid;
+                //var acceptedHistoryEvent = new History(
+                //    TestPlant,
+                //    "IPO accepted",
+                //    _invitationGuid,
+                //    EventType.IpoAccepted);
+                //context.History.Add(acceptedHistoryEvent);
+
                 var invitationWithCurrentUserAsParticipants = new Invitation(
                     TestPlant,
                     _projectName,
@@ -76,7 +121,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
-                    null);
+                    null)
+                {
+                    Status = IpoStatus.Accepted
+                };
                 foreach (var attachment in _attachments)
                 {
                     invitationWithCurrentUserAsParticipants.AddAttachment(attachment);
@@ -115,6 +163,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "UN3",
                     _currentUserOid,
                     2);
+                _invitationGuid = invitationWithCurrentUserAsParticipants.ObjectGuid;
+                var acceptedHistoryEvent = new History(
+                    TestPlant,
+                    "IPO accepted",
+                    _invitationGuid,
+                    EventType.IpoAccepted);
+                context.History.Add(acceptedHistoryEvent);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant1);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
@@ -187,9 +242,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
-                    null);
+                    null)
+                {
+                    Status = IpoStatus.Accepted
+                };
                 context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
                 _invitationIdWithNotCurrentUserOidAsParticipants = invitationWithNotCurrentUserAsParticipants.Id;
+                _inviationWithoutCurrentUserGuid = invitationWithNotCurrentUserAsParticipants.ObjectGuid;
                 var contractorParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -1066,6 +1125,79 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await dut.SignerExistsAsync(_invitationIdWithoutParticipants, _operationCurrentPersonId, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInPlannedStage_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithFrAsParticipants, IpoStatus.Planned, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInAcceptedStage_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Accepted, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInPlannedStage_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Planned, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInCompletedStage_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Completed, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SameUserUnAcceptingThatAcceptedAsync_SameUser_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_invitationGuid, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SameUserUnAcceptingThatAcceptedAsync_DifferentUser_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_inviationWithoutCurrentUserGuid, default);
+                //This is not a full test coverage, because we do not have a history event for this accepting. We get false because there are not history events in this validation. Cannot add history event that is created by a user other than current user
                 Assert.IsFalse(result);
             }
         }

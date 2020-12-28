@@ -74,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 createdBy,
                 invitation.StartTimeUtc,
                 invitation.EndTimeUtc,
+                invitation.ObjectGuid,
                 invitation.RowVersion.ConvertToString())
             {
                 Participants = ConvertToParticipantDto(invitation.Participants),
