@@ -17,7 +17,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
         private readonly List<Participant> _participants = new List<Participant>();
         private readonly List<Comment> _comments = new List<Comment>();
-
         private readonly List<Attachment> _attachments = new List<Attachment>();
 
         protected Invitation()
@@ -67,7 +66,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
         public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
-
         public IpoStatus Status { get; set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
@@ -218,7 +216,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SortKey = sortKey;
             participant.SetRowVersion(participantRowVersion);
         }
-
 
         public void AddComment(Comment comment)
         {
