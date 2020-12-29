@@ -26,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private McPkg _mcPkg;
         private CommPkg _commPkg;
         private Participant _participant;
+        private Comment _comment;
         private Invitation _invitationWithMcPkg;
         private Invitation _invitationWithCommPkg;
 
@@ -80,6 +81,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _invitationWithMcPkg.AddMcPkg(_mcPkg);
             _invitationWithMcPkg.AddParticipant(_participant);
             _invitationWithCommPkg.AddCommPkg(_commPkg);
+
+            _comment = new Comment(TestPlant, "comment");
+            _invitationWithCommPkg.AddComment(_comment);
 
             _invitations = new List<Invitation>
             {
@@ -219,6 +223,26 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
 
             _invitationWithCommPkg.RemoveCommPkg(new CommPkg(TestPlant, "Project name", "Comm2", "D", "PA"));
+
+            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void RemoveComment_KnownComment_ShouldRemoveComment()
+        {
+            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
+
+            _invitationWithCommPkg.RemoveComment(_comment);
+
+            Assert.AreEqual(0, _invitationWithCommPkg.Comments.Count);
+        }
+
+        [TestMethod]
+        public void RemoveComment_UnknownComment_ShouldNotRemoveComment()
+        {
+            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
+
+            _invitationWithCommPkg.RemoveComment(new Comment(TestPlant, "comment does not exist"));
 
             Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
         }

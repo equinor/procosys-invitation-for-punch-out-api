@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, token) => BeANonCanceledInvitation(command.InvitationId, token))
                 .WithMessage(command =>
-                    "Invitation is canceled, and thus cannot be signed!");
+                    "Invitation is canceled, and thus cannot be commented on!");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
