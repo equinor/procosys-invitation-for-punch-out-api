@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -23,13 +24,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private int _invitationId;
         
         private Mock<IFusionMeetingClient> _meetingClientMock;
+        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+
+        private string _functionalRoleCode = "FrCode";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-                var personAzureOid = new Guid("44444444-5555-5555-5555-666666666666");
                 const string projectName = "Project1";
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
@@ -38,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.FunctionalRole,
-                    "FR1",
+                    _functionalRoleCode,
                     null,
                     null,
                     null,
@@ -55,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "LastName",
                     "UN",
                     "P1@email.com",
-                    personAzureOid,
+                    _currentUserOid,
                     1);
 
                 var commPkg = new CommPkg(
@@ -89,6 +92,22 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 _invitation.AddParticipant(personParticipant);
                 _invitation.AddCommPkg(commPkg);
                 _invitation.AddMcPkg(mcPkg);
+
+                var functionalRoleDetails = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode,
+                    Description = "FR description",
+                    Email = "fr@email.com",
+                    InformationEmail = null,
+                    Persons = null,
+                    UsePersonalEmail = false
+                };
+                IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+
+                _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode }))
+                    .Returns(Task.FromResult(frDetails));
 
                 _meetingClientMock = new Mock<IFusionMeetingClient>();
                 _meetingClientMock
@@ -153,7 +172,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             {
                 const int UnknownId = 500;
                 var query = new GetInvitationByIdQuery(UnknownId);
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
 
                 var result = await dut.Handle(query, default);
 
@@ -169,7 +193,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationByIdQuery(_invitationId);
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
 
                 var result = await dut.Handle(query, default);
 
@@ -182,7 +211,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         }
 
         [TestMethod]
-        public async Task Handler_ShouldRetrunIpo_IfMeetingIsNotFound()
+        public async Task Handler_ShouldReturnIpo_IfMeetingIsNotFound()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             {
@@ -191,7 +220,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     .Returns(Task.FromResult<GeneralMeeting>(null));
 
                 var query = new GetInvitationByIdQuery(_invitationId);
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
 
                 var result = await dut.Handle(query, default);
                 Assert.IsNotNull(result);
@@ -211,7 +245,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     .Throws(new Exception("Something failed"));
 
                 var query = new GetInvitationByIdQuery(_invitationId);
-                var dut = new GetInvitationByIdQueryHandler(context, _meetingClientMock.Object);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
 
                 var result = await dut.Handle(query, default);
 
@@ -234,7 +273,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Type, invitationDto.Type);
             Assert.AreEqual(functionalRoleParticipant.FunctionalRoleCode, invitationDto.Participants.First().FunctionalRole.Code);
+            Assert.IsFalse(invitationDto.Participants.First().CanSign);
             Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.Last().Person.Person.AzureOid);
+            Assert.IsTrue(invitationDto.Participants.Last().CanSign);
             Assert.AreEqual(commPkg.CommPkgNo, invitationDto.CommPkgScope.First().CommPkgNo);
             Assert.AreEqual(mcPkg.McPkgNo, invitationDto.McPkgScope.First().McPkgNo);
         }
