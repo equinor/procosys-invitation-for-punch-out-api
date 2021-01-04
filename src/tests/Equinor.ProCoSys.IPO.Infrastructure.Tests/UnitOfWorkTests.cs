@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -42,8 +43,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
             TimeService.SetProvider(_timeProvider);
         }
 
-        // TODO: Re-add when there is an entity to use. Replace Mode with something else
-        /*
         [TestMethod]
         public async Task SaveChangesAsync_SetsCreatedProperties_WhenCreated()
         {
@@ -57,16 +56,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
 
-            var newMode = new Mode(Plant, "TestMode", false);
-            dut.Modes.Add(newMode);
+            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP, _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc");
+            dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();
 
-            Assert.AreEqual(_currentTime, newMode.CreatedAtUtc);
-            Assert.AreEqual(user.Id, newMode.CreatedById);
-            Assert.IsNull(newMode.ModifiedAtUtc);
-            Assert.IsNull(newMode.ModifiedById);
-            Assert.IsFalse(newMode.ForSupplier);
+            Assert.AreEqual(_currentTime, newInvitation.CreatedAtUtc);
+            Assert.AreEqual(user.Id, newInvitation.CreatedById);
+            Assert.IsNull(newInvitation.ModifiedAtUtc);
+            Assert.IsNull(newInvitation.ModifiedById);
         }
 
         [TestMethod]
@@ -82,17 +80,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
 
-            var newMode = new Mode(Plant, "TestMode", false);
-            dut.Modes.Add(newMode);
+            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP, _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc");
+            dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();
 
-            newMode.IsVoided = true;
+            newInvitation.Title = "UpdatedTitle";
             await dut.SaveChangesAsync();
 
-            Assert.AreEqual(_currentTime, newMode.ModifiedAtUtc);
-            Assert.AreEqual(user.Id, newMode.ModifiedById);
+            Assert.AreEqual(_currentTime, newInvitation.ModifiedAtUtc);
+            Assert.AreEqual(user.Id, newInvitation.ModifiedById);
         }
-        */
     }
 }

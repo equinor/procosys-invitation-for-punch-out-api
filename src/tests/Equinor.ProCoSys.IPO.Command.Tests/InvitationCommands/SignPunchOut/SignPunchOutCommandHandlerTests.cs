@@ -113,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public async Task SignIpoCommand_ShouldSignInvitation()
+        public async Task SignPunchOutCommand_ShouldSignPunchOut()
         {
             var participant = _invitation.Participants.Single(p => p.Id == _participantId);
             Assert.IsNotNull(participant);

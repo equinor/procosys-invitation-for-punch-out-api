@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             DateTime? signedAtUtc,
             string note,
             bool attended,
+            bool canSign,
             ExternalEmailDto externalEmail,
             InvitedPersonDto person,
             FunctionalRoleDto functionalRole)
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             SignedAtUtc = signedAtUtc;
             Note = note;
             Attended = attended;
+            CanSign = canSign;
             ExternalEmail = externalEmail;
             Person = person;
             FunctionalRole = functionalRole;
@@ -33,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public DateTime? SignedAtUtc { get; }
         public string Note { get; }
         public bool Attended { get; }
+        public bool CanSign { get; }
         public ExternalEmailDto ExternalEmail { get; }
         public InvitedPersonDto Person { get; }
         public FunctionalRoleDto FunctionalRole { get; }
