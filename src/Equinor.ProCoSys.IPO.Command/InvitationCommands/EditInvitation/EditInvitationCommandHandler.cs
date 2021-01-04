@@ -59,12 +59,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var participants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            invitation.Title = request.Title;
-            invitation.Description = request.Description;
-            invitation.Type = request.Type;
-            invitation.StartTimeUtc = request.StartTime;
-            invitation.EndTimeUtc = request.EndTime;
-            invitation.Location = request.Location;
+            invitation.EditIpo(
+                request.Title,
+                request.Description,
+                request.Type,
+                request.StartTime,
+                request.EndTime,
+                request.Location);
 
             UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
             UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);

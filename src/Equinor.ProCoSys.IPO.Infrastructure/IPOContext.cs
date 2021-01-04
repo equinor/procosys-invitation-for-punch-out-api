@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
@@ -45,6 +46,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<McPkg> McPkgs { get; set; }
         public virtual DbSet<CommPkg> CommPkgs { get; set; }
         public virtual DbSet<Participant> Participants { get; set; }
+        public virtual DbSet<History> History { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {

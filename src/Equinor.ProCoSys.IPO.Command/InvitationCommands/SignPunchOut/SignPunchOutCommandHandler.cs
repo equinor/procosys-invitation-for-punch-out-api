@@ -39,11 +39,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 
             if (participant.FunctionalRoleCode != null)
             {
-                await SignIpoAsPersonInFunctionalRoleAsync(participant, request.ParticipantRowVersion);
+                await SignIpoAsPersonInFunctionalRoleAsync(invitation, participant, request.ParticipantRowVersion);
             }
             else
             {
-                SignIpoAsPersonAsync(participant, request.ParticipantRowVersion);
+                invitation.SignIpo(participant, participant.UserName, request.ParticipantRowVersion);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -51,6 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
         }
 
         private async Task SignIpoAsPersonInFunctionalRoleAsync(
+            Invitation invitation,
             Participant participant,
             string participantRowVersion)
         {
@@ -61,23 +62,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 
             if (person != null)
             {
-                participant.SignedBy = person.UserName;
-                participant.SignedAtUtc = DateTime.UtcNow;
-                participant.SetRowVersion(participantRowVersion);
+                invitation.SignIpo(participant, person.UserName, participantRowVersion);
             }
             else
             {
                 throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
-        }
-
-        private void SignIpoAsPersonAsync(
-            Participant participant,
-            string participantRowVersion)
-        {
-            participant.SignedBy = participant.UserName;
-            participant.SignedAtUtc = DateTime.UtcNow;
-            participant.SetRowVersion(participantRowVersion);
         }
     }
 }
