@@ -48,6 +48,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .WithOne()
                 .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Property(x => x.StartTimeUtc)
+                .IsRequired()
+                .HasConversion(IPOContext.DateTimeKindConverter);
+
+            builder.Property(x => x.EndTimeUtc)
+                .IsRequired()
+                .HasConversion(IPOContext.DateTimeKindConverter);
         }
     }
 }
