@@ -500,11 +500,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void Constructor_ShouldAddIpoCreatedAndAttachmentUploadedEvents()
-        {
-            Assert.AreEqual(2, _dutWithMcPkgScope.DomainEvents.Count);
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(AttachmentUploadedEvent));
-        }
+        public void Constructor_ShouldAddIpoCreatedEvent() 
+            => Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
     }
 }
