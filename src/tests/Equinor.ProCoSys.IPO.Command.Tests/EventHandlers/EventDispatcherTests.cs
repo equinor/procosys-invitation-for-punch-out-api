@@ -14,7 +14,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers
     public class EventDispatcherTests
     {
         [TestMethod]
-        public void Constructor_ThrowsException_IFMediatorIsNull_Test() => Assert.ThrowsException<ArgumentNullException>(() => new EventDispatcher(null));
+        public void Constructor_ThrowsException_IFMediatorIsNull_Test() 
+            => Assert.ThrowsException<ArgumentNullException>(() => new EventDispatcher(null));
 
         [TestMethod]
         public async Task DispatchAsync_SendsOutEvents_Test()
@@ -28,9 +29,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers
                 entity.Object.AddDomainEvent(new Mock<INotification>().Object);
                 entities.Add(entity.Object);
             }
-            await dut.DispatchAsync(entities, default);
+            await dut.DispatchAsync(entities);
 
-            mediator.Verify(x => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+            mediator.Verify(x 
+                => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
         }
 
         [TestMethod]
