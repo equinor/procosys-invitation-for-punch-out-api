@@ -39,8 +39,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         }
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();
-        public static NullableDateTimeKindConverter NullableDateTimeKindConverter { get; } = new NullableDateTimeKindConverter();
-
         
         public virtual DbSet<Person> Persons { get; set; }
         public virtual DbSet<Invitation> Invitations { get; set; }
