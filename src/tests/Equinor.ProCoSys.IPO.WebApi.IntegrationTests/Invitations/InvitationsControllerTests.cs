@@ -175,11 +175,99 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var completerPerson = invitation.Participants
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
-                var completePunchOutDto = new CompletePunchOutDto
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
                 {
-                    InvitationRowVersion = invitation.RowVersion,
-                    ParticipantRowVersion = completerPerson.Person.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>
+                    new ParticipantToChangeDto
+                    {
+                        Id = completerPerson.Person.Id,
+                        Note = "Some note about the punch out round or attendee",
+                        RowVersion = completerPerson.Person.RowVersion,
+                        Attended = true
+                    }
+                }
+            };
+
+            // Punch round must be completed before it can be accepted
+            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                completePunchOutDto);
+
+            var accepterPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
+
+            var acceptPunchOutDto = new AcceptPunchOutDto
+            {
+                InvitationRowVersion = newRowVersion,
+                ParticipantRowVersion = accepterPerson.Person.RowVersion,
+                Participants = new List<ParticipantToUpdateNoteDto>
+                {
+                    new ParticipantToUpdateNoteDto
+                    {
+                        Id = accepterPerson.Person.Id,
+                        Note = "Some note about the punch out round or attendee",
+                        RowVersion = accepterPerson.Person.RowVersion
+                    }
+                }
+            };
+
+            // Act
+            newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                acceptPunchOutDto);
+
+            // Assert
+            var acceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId);
+
+            var acceptingParticipant =
+                acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
+            Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
+            Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
+            Assert.AreEqual("ConnieUserName", acceptingParticipant.SignedBy);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+        }
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsAccepter_ShouldUnAcceptPunchOut()
+        {
+            // Arrange
+            var invitationToUnAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForUnAcceptingTitle",
+                "InvitationForUnAcceptingDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId);
+
+            var completerPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor).Person;
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
                     {
                         new ParticipantToChangeDto
                         {
@@ -189,52 +277,74 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                             Attended = true
                         }
                     }
-                };
+            };
 
-                // Punch round must be completed before it can be accepted
-                await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                    UserType.Completer,
-                    TestFactory.PlantWithAccess,
-                    invitationToAcceptId,
-                    completePunchOutDto);
+            // Punch round must be completed before it can be accepted
+            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId,
+                completePunchOutDto);
 
-                var accepterPerson = invitation.Participants
-                    .Single(p => p.Organization == Organization.ConstructionCompany).Person;
+            var accepterPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
 
-                    var acceptPunchOutDto = new AcceptPunchOutDto
+            var acceptPunchOutDto = new AcceptPunchOutDto
+            {
+                InvitationRowVersion = newInvitationRowVersion,
+                ParticipantRowVersion = accepterPerson.Person.RowVersion,
+                Participants = new List<ParticipantToUpdateNoteDto>
                     {
-                        InvitationRowVersion = invitation.RowVersion,
-                        ParticipantRowVersion = accepterPerson.Person.RowVersion,
-                        Participants = new List<ParticipantToUpdateNoteDto>
+                        new ParticipantToUpdateNoteDto
                         {
-                            new ParticipantToUpdateNoteDto
-                            {
-                                Id = accepterPerson.Person.Id,
-                                Note = "Some note about the punch out round or attendee",
-                                RowVersion = accepterPerson.Person.RowVersion
-                            }
+                            Id = accepterPerson.Person.Id,
+                            Note = "Some note about the punch out round or attendee",
+                            RowVersion = accepterPerson.Person.RowVersion
                         }
-                    };
+                    }
+            };
 
-                // Act
-                var newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                    UserType.Accepter,
-                    TestFactory.PlantWithAccess,
-                    invitationToAcceptId,
-                    acceptPunchOutDto);
+            // Punch round must be accepted before it can be unaccepted
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId,
+                acceptPunchOutDto);
 
-                // Assert
-                var acceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                    UserType.Viewer,
-                    TestFactory.PlantWithAccess,
-                    invitationToAcceptId);
+            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId);
 
-                var acceptingParticipant =
-                    acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
-                Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
-                Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
-                Assert.AreEqual("ConnieUserName", acceptingParticipant.SignedBy);
-                AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            accepterPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
+
+            var unAcceptPunchOutDto = new UnAcceptPunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = accepterPerson.Person.RowVersion,
+                ObjectGuid = invitation.ObjectGuid
+            };
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId,
+                unAcceptPunchOutDto);
+
+            // Assert
+            var unAcceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId);
+
+            var unAcceptingParticipant =
+                unAcceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
+            Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
+            Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
+            Assert.IsNull(unAcceptingParticipant.SignedBy);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
