@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .Must((command) => 
+                .Must(command => 
                     command.Code != null && 
                     command.Code.Length > 2 &&
                     command.Code.Length < Participant.FunctionalRoleCodeMaxLength)

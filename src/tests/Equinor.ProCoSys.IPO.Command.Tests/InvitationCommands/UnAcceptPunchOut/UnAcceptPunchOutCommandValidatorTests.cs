@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person trying to unaccept is not he person who accepted the IPO!"));
+                .StartsWith("Person trying to unaccept is not the person who accepted the IPO!"));
         }
     }
 }

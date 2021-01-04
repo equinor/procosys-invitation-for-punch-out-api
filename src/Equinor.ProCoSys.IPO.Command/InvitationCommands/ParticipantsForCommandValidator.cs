@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .Must((command) => command.SortKey >= 0)
+                .Must(command => command.SortKey >= 0)
                 .WithMessage(command =>
                     $"Sort key must be a non negative integer! SortKey={command.SortKey}");
         }

@@ -684,7 +684,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     ObjectGuid = validInvitation.ObjectGuid
                 },
                 HttpStatusCode.BadRequest,
-                "Person trying to unaccept is not he person who accepted the IPO!");
+                "Person trying to unaccept is not the person who accepted the IPO!");
         }
 
         [TestMethod]
