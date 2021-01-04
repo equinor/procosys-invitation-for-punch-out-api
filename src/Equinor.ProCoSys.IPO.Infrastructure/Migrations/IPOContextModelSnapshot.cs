@@ -186,7 +186,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("CreatedById")
                         .HasColumnType("int");
 
-                    b.Property<int?>("InvitationId")
+                    b.Property<int>("InvitationId")
                         .HasColumnType("int");
 
                     b.Property<string>("Plant")
@@ -488,7 +488,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
                         .WithMany("Comments")
-                        .HasForeignKey("InvitationId");
+                        .HasForeignKey("InvitationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", b =>

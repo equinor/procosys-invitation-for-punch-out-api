@@ -8,8 +8,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     public class Participant : PlantEntityBase, ICreationAuditable, IModificationAuditable
     {
         public const int FunctionalRoleCodeMaxLength = 255;
-        public const int FirstNameMaxLength = 255;
-        public const int LastNameMaxLength = 255;
 
         protected Participant()
             : base(null)
