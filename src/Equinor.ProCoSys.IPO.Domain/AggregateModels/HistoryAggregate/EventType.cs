@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         IpoAccepted,
         [Description("IPO signed")]
         IpoSigned,
-        [Description("IPO un-accepted")]
+        [Description("IPO unaccepted")]
         IpoUnaccepted,
         [Description("IPO created")]
         IpoCreated,
