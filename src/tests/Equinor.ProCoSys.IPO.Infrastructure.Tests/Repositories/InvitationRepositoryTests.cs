@@ -26,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private McPkg _mcPkg;
         private CommPkg _commPkg;
         private Participant _participant;
+        private Attachment _attachment;
         private Comment _comment;
         private Invitation _invitationWithMcPkg;
         private Invitation _invitationWithCommPkg;
@@ -78,8 +79,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new DateTime(),
                 null);
 
+            _attachment = new Attachment(TestPlant, "filename.txt");
+
             _invitationWithMcPkg.AddMcPkg(_mcPkg);
             _invitationWithMcPkg.AddParticipant(_participant);
+            _invitationWithMcPkg.AddAttachment(_attachment);
             _invitationWithCommPkg.AddCommPkg(_commPkg);
 
             _comment = new Comment(TestPlant, "comment");
@@ -245,6 +249,26 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _invitationWithCommPkg.RemoveComment(new Comment(TestPlant, "comment does not exist"));
 
             Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void RemoveAttachment_KnownAttachment_ShouldRemoveAttachment()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
+
+            _invitationWithMcPkg.RemoveAttachment(_attachment);
+
+            Assert.AreEqual(0, _invitationWithMcPkg.Attachments.Count);
+        }
+
+        [TestMethod]
+        public void RemoveAttachment_UnknownAttachment_ShouldNotRemoveAttachment()
+        {
+            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
+
+            _invitationWithMcPkg.RemoveAttachment(new Attachment(TestPlant, "unknown.txt"));
+
+            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
         }
     }
 }

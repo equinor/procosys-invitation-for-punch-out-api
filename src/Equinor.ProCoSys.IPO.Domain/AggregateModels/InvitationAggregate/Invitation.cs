@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
+using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
@@ -53,7 +54,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             StartTimeUtc = startTimeUtc;
             EndTimeUtc = endTimeUtc;
             Location = location;
+            ObjectGuid = Guid.NewGuid();
+            AddDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
+        public Guid ObjectGuid { get; set; }
         public string ProjectName { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -86,6 +90,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Add(attachment);
+            AddDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void RemoveAttachment(Attachment attachment)
@@ -101,6 +106,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Remove(attachment);
+            AddDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void AddCommPkg(CommPkg commPkg)
@@ -215,6 +221,89 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.AzureOid = azureOid;
             participant.SortKey = sortKey;
             participant.SetRowVersion(participantRowVersion);
+        }
+
+        public void CompleteIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (Status != IpoStatus.Planned)
+            {
+                throw new Exception($"Compelte on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
+            Status = IpoStatus.Completed;
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
+        }
+
+        public void AcceptIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (Status != IpoStatus.Completed)
+            {
+                throw new Exception($"Accept on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
+            Status = IpoStatus.Accepted;
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
+        }
+
+        public void SignIpo(Participant participant, string signedBy, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (Status == IpoStatus.Canceled)
+            {
+                throw new Exception($"Sign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
+            participant.SignedBy = signedBy;
+            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SetRowVersion(participantRowVersion);
+            AddDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));
+        }
+
+        public void EditIpo(string title, string description, DisciplineType type, DateTime startTime, DateTime endTime, string location)
+        {
+            if (Status != IpoStatus.Planned)
+            {
+                throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
+            if (startTime > endTime)
+            {
+                throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Start time is before end time");
+            }
+
+            if (string.IsNullOrEmpty(title))
+            {
+                throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Title cannot be empty");
+
+            }
+
+            Title = title;
+            Description = description;
+            Type = type;
+            StartTimeUtc = startTime;
+            EndTimeUtc = endTime;
+            Location = location;
+            AddDomainEvent(new IpoEditedEvent(Plant, ObjectGuid));
         }
 
         public void AddComment(Comment comment)
