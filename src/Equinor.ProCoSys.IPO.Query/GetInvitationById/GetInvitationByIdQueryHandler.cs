@@ -5,11 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
+using Person = Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
@@ -17,11 +18,26 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
     {
         private readonly IReadOnlyContext _context;
         private readonly IFusionMeetingClient _meetingClient;
+        private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IPlantProvider _plantProvider;
 
-        public GetInvitationByIdQueryHandler(IReadOnlyContext context, IFusionMeetingClient meetingClient)
+        private bool _signingOperationIncluded;
+        private bool _signingCommissioningIncluded;
+        private bool _signingTechnincalIntegrityIncluded;
+
+        public GetInvitationByIdQueryHandler(
+            IReadOnlyContext context,
+            IFusionMeetingClient meetingClient,
+            ICurrentUserProvider currentUserProvider,
+            IFunctionalRoleApiService functionalRoleApiService,
+            IPlantProvider plantProvider)
         {
             _context = context;
             _meetingClient = meetingClient;
+            _currentUserProvider = currentUserProvider;
+            _functionalRoleApiService = functionalRoleApiService;
+            _plantProvider = plantProvider;
         }
 
         public async Task<Result<InvitationDto>> Handle(GetInvitationByIdQuery request, CancellationToken token)
@@ -62,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private static InvitationDto ConvertToInvitationDto(Invitation invitation, string createdBy, GeneralMeeting meeting)
+        private InvitationDto ConvertToInvitationDto(Invitation invitation, string createdBy, GeneralMeeting meeting)
         {
             var invitationResult = new InvitationDto(
                 invitation.ProjectName,
@@ -147,11 +163,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs) 
             => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo));
 
-        private static IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
+        private IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
         {
             var participantDtos = new List<ParticipantDto>();
-
-            foreach (var participant in participants)
+            var orderedParticipants = participants.OrderBy(p => p.SortKey);
+            foreach (var participant in orderedParticipants)
             {
                 if (participant.Type == IpoParticipantType.FunctionalRole)
                 {
@@ -167,6 +183,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
+                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
                         null,
                         null,
                         ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
@@ -180,6 +197,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
+                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
                         null,
                         ConvertToInvitedPersonDto(participant), 
                         null));
@@ -193,6 +211,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
+                        false,
                         new ExternalEmailDto(participant.Id, participant.Email,
                             participant.RowVersion.ConvertToString()),
                         null,
@@ -213,5 +232,48 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
+
+        private bool IsSigningParticipant(Participant participant)
+        {
+            if (participant.SortKey < 2)
+            {
+                return true;
+            }
+
+            if (participant.SortKey > 4 || 
+                participant.Organization == Organization.Supplier ||
+                participant.Organization == Organization.External ||
+                participant.Organization == Organization.ConstructionCompany ||
+                participant.Organization == Organization.Contractor)
+            {
+                return false;
+            }
+
+            switch (participant.Organization)
+            {
+                case Organization.Commissioning when !_signingCommissioningIncluded:
+                    _signingCommissioningIncluded = true;
+                    return true;
+                case Organization.Operation when !_signingOperationIncluded:
+                    _signingOperationIncluded = true;
+                    return true;
+                case Organization.TechnicalIntegrity when !_signingTechnincalIntegrityIncluded:
+                    _signingTechnincalIntegrityIncluded = true;
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private async Task<bool> CurrentUserCanSignAsPersonInFunctionalRole(Participant participant)
+        {
+            var functionalRoles = await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
+                _plantProvider.Plant,
+                new List<string> {participant.FunctionalRoleCode});
+            var functionalRole = functionalRoles.SingleOrDefault();
+
+            return functionalRole?.Persons != null &&
+                   functionalRole.Persons.Any(person => new Guid(person.AzureOid) == _currentUserProvider.GetCurrentUserOid());
+        }
     }
 }
