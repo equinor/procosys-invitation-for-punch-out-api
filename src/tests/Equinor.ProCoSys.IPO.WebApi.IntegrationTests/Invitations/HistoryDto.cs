@@ -1,15 +1,11 @@
-﻿using System;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
-using Equinor.ProCoSys.IPO.Query;
+﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class HistoryDto
     {
-        public int Id { get; }
-        public string Description { get; }
-        public DateTime CreatedAtUtc { get; }
-        public PersonMinimalDto CreatedBy { get; }
-        public EventType EventType { get; }
+        public int Id { get; set; }
+        public string Description { get; set; }
+        public EventType EventType { get; set; }
     }
 }
