@@ -27,8 +27,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         name: "FK_Comments_Invitations_InvitationId",
                         column: x => x.InvitationId,
                         principalTable: "Invitations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_Persons_CreatedById",
                         column: x => x.CreatedById,

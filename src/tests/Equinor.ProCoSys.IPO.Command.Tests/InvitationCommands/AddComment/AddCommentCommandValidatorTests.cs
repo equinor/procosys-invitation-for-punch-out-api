@@ -60,5 +60,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is canceled, and thus cannot be commented on"));
         }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenCommentIsTooLong()
+        {
+            var longComment = new string('x', Comment.CommentMaxLength + 1);
+            var result = _dut.Validate(new AddCommentCommand(1, longComment));
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Comment cannot be more than {Comment.CommentMaxLength} characters!"));
+        }
     }
 }

@@ -22,6 +22,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.Property(x => x.SortKey)
                 .IsRequired();
+
+            builder.Property(x => x.SignedAtUtc)
+                .HasConversion(IPOContext.DateTimeKindConverter);
         }
     }
 }

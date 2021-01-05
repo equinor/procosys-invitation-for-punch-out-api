@@ -13,6 +13,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
+                //input validators
+                .Must((command) => command.Comment.Length <= Comment.CommentMaxLength)
+                .WithMessage(command =>
+                    $"Comment cannot be more than {Comment.CommentMaxLength} characters! Comment={command.Comment}")
+                //business validators
                 .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
                 .WithMessage(command =>
                     $"IPO with this ID does not exist! Id={command.InvitationId}")

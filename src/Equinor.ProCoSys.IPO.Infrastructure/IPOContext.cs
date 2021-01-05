@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
@@ -39,8 +40,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         }
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();
-        public static NullableDateTimeKindConverter NullableDateTimeKindConverter { get; } = new NullableDateTimeKindConverter();
-
         
         public virtual DbSet<Person> Persons { get; set; }
         public virtual DbSet<Invitation> Invitations { get; set; }
@@ -48,6 +47,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<CommPkg> CommPkgs { get; set; }
         public virtual DbSet<Participant> Participants { get; set; }
         public virtual DbSet<Comment> Comments { get; set; }
+        public virtual DbSet<History> History { get; set; }
+        public virtual DbSet<Attachment> Attachments { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
