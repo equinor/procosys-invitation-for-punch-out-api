@@ -20,7 +20,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int CommPkgId = 71;
         private const int ParticipantId = 1;
         private List<Invitation> _invitations;
-        private Mock<DbSet<Invitation>> _dbSetMock;
+        private Mock<DbSet<Invitation>> _dbInvitationSetMock;
+        private Mock<DbSet<Attachment>> _attachmentSetMock;
+        private Mock<DbSet<Participant>> _participantSetMock;
+        private Mock<DbSet<McPkg>> _mcPkgSetMock;
+        private Mock<DbSet<CommPkg>> _commPkgSetMock;
 
         private InvitationRepository _dut;
         private McPkg _mcPkg;
@@ -33,12 +37,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestInitialize]
         public void Setup()
         {
-            var mcPkgMock = new Mock<McPkg>();
-            mcPkgMock.SetupGet(m => m.Plant).Returns(TestPlant);
-
-            var participantMock = new Mock<Participant>();
-            participantMock.SetupGet(x => x.Plant).Returns(TestPlant);
-
             _mcPkg = new McPkg(TestPlant, "ProjectName", "Comm1", "MC1", "Description");
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
@@ -91,12 +89,60 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 _invitationWithCommPkg
             };
 
-            _dbSetMock = _invitations.AsQueryable().BuildMockDbSet();
+            _dbInvitationSetMock = _invitations.AsQueryable().BuildMockDbSet();
 
             ContextHelper
                 .ContextMock
                 .Setup(x => x.Invitations)
-                .Returns(_dbSetMock.Object);
+                .Returns(_dbInvitationSetMock.Object);
+
+            var attachments = new List<Attachment>
+            {
+                _attachment
+            };
+
+            _attachmentSetMock = attachments.AsQueryable().BuildMockDbSet();
+
+            ContextHelper
+                .ContextMock
+                .Setup(x => x.Attachments)
+                .Returns(_attachmentSetMock.Object);
+
+            var participants = new List<Participant>
+            {
+                _participant
+            };
+
+            _participantSetMock = participants.AsQueryable().BuildMockDbSet();
+
+            ContextHelper
+                .ContextMock
+                .Setup(x => x.Participants)
+                .Returns(_participantSetMock.Object);
+
+            var mcPkgs = new List<McPkg>
+            {
+                _mcPkg
+            };
+
+            _mcPkgSetMock = mcPkgs.AsQueryable().BuildMockDbSet();
+
+            ContextHelper
+                .ContextMock
+                .Setup(x => x.McPkgs)
+                .Returns(_mcPkgSetMock.Object);
+
+            var commPkgs = new List<CommPkg>
+            {
+                _commPkg
+            };
+
+            _commPkgSetMock = commPkgs.AsQueryable().BuildMockDbSet();
+
+            ContextHelper
+                .ContextMock
+                .Setup(x => x.CommPkgs)
+                .Returns(_commPkgSetMock.Object);
 
             _dut = new InvitationRepository(ContextHelper.ContextMock.Object);
         }
@@ -154,45 +200,37 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             _dut.Add(_invitationWithMcPkg);
 
-            _dbSetMock.Verify(x => x.Add(_invitationWithMcPkg), Times.Once);
+            _dbInvitationSetMock.Verify(x => x.Add(_invitationWithMcPkg), Times.Once);
         }
 
         [TestMethod]
         public void RemoveMcPkg_KnownMcPkg_ShouldRemoveMcPkg()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+            _dut.RemoveMcPkg(_mcPkg);
 
-            _invitationWithMcPkg.RemoveMcPkg(_mcPkg);
-
-            Assert.AreEqual(0, _invitationWithMcPkg.McPkgs.Count);
+            _mcPkgSetMock.Verify(s => s.Remove(_mcPkg), Times.Once);
         }
 
         [TestMethod]
         public void RemoveMcPkg_UnknownMcPkg_ShouldNotRemoveMcPkg()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+            _dut.RemoveMcPkg(new McPkg(TestPlant, "Project name", "Comm1", "MC 02", "D"));
 
-            _invitationWithMcPkg.RemoveMcPkg(new McPkg(TestPlant, "Project name", "Comm1", "MC 02", "D"));
-
-            Assert.AreEqual(1, _invitationWithMcPkg.McPkgs.Count);
+            _mcPkgSetMock.Verify(s => s.Remove(_mcPkg), Times.Never);
         }
 
         [TestMethod]
         public void RemoveParticipant_KnownParticipant_ShouldRemoveParticipant()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
+            _dut.RemoveParticipant(_participant);
 
-            _invitationWithMcPkg.RemoveParticipant(_participant);
-
-            Assert.AreEqual(0, _invitationWithMcPkg.Participants.Count);
+            _participantSetMock.Verify(s => s.Remove(_participant), Times.Once);
         }
 
         [TestMethod]
         public void RemoveParticipant_UnknownParticipant_ShouldNotRemoveParticipant()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
-
-            _invitationWithMcPkg.RemoveParticipant(new Participant(
+            _dut.RemoveParticipant(new Participant(
                 TestPlant,
                 Organization.Operation,
                 IpoParticipantType.FunctionalRole,
@@ -204,47 +242,40 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 null,
                 2));
 
-            Assert.AreEqual(1, _invitationWithMcPkg.Participants.Count);
+            _participantSetMock.Verify(s => s.Remove(_participant), Times.Never);
         }
 
         [TestMethod]
         public void RemoveCommPkg_KnownCommPkg_ShouldRemoveCommPkg()
         {
-            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+            _dut.RemoveCommPkg(_commPkg);
 
-            _invitationWithCommPkg.RemoveCommPkg(_commPkg);
-
-            Assert.AreEqual(0, _invitationWithCommPkg.CommPkgs.Count);
+            _commPkgSetMock.Verify(s => s.Remove(_commPkg), Times.Once);
         }
 
         [TestMethod]
         public void RemoveCommPkg_UnknownCommPkg_ShouldNotRemoveCommPkg()
         {
-            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+            _dut.RemoveCommPkg(new CommPkg(TestPlant, "Project name", "Comm2", "D", "PA"));
 
-            _invitationWithCommPkg.RemoveCommPkg(new CommPkg(TestPlant, "Project name", "Comm2", "D", "PA"));
-
-            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+            _commPkgSetMock.Verify(s => s.Remove(_commPkg), Times.Never);
         }
 
         [TestMethod]
         public void RemoveAttachment_KnownAttachment_ShouldRemoveAttachment()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
+            _dut.RemoveAttachment(_attachment);
 
-            _invitationWithMcPkg.RemoveAttachment(_attachment);
-
-            Assert.AreEqual(0, _invitationWithMcPkg.Attachments.Count);
+            _attachmentSetMock.Verify(s => s.Remove(_attachment), Times.Once);
         }
+
 
         [TestMethod]
         public void RemoveAttachment_UnknownAttachment_ShouldNotRemoveAttachment()
         {
-            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
+            _dut.RemoveAttachment(new Attachment(TestPlant, "unknown.txt"));
 
-            _invitationWithMcPkg.RemoveAttachment(new Attachment(TestPlant, "unknown.txt"));
-
-            Assert.AreEqual(1, _invitationWithMcPkg.Attachments.Count);
+            _attachmentSetMock.Verify(s => s.Remove(_attachment), Times.Never);
         }
     }
 }

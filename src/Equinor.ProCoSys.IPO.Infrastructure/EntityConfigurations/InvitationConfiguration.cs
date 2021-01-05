@@ -49,6 +49,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction);
 
+            builder
+                .HasMany(x => x.Attachments)
+                .WithOne()
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+
             builder.Property(x => x.StartTimeUtc)
                 .IsRequired()
                 .HasConversion(IPOContext.DateTimeKindConverter);

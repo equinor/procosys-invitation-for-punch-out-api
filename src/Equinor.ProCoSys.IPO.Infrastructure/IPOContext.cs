@@ -47,6 +47,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<CommPkg> CommPkgs { get; set; }
         public virtual DbSet<Participant> Participants { get; set; }
         public virtual DbSet<History> History { get; set; }
+        public virtual DbSet<Attachment> Attachments { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
