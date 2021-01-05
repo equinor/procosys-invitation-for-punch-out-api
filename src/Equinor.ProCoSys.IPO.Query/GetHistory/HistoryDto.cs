@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
             int id,
             string description,
             DateTime createdAtUtc,
-            PersonMinimalDto createdBy,
+            PersonDto createdBy,
             EventType eventType)
         {
             Id = id;
@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
         public int Id { get; }
         public string Description { get; }
         public DateTime CreatedAtUtc { get; }
-        public PersonMinimalDto CreatedBy { get; }
+        public PersonDto CreatedBy { get; }
         public EventType EventType { get; }
     }
 }

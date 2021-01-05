@@ -822,6 +822,41 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.NotFound);
         #endregion
 
+        #region GetHistory
+        [TestMethod]
+        public async Task GetHistory_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                InitialInvitationId,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task GetHistory_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                InitialInvitationId,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task GetHistory_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task GetHistory_AsPlanner_ShouldReturnNotFound_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
+                HttpStatusCode.NotFound);
+        #endregion
+
         #region Private methods
         private async Task<EditInvitationDto> CreateValidEditInvitationDto()
         {

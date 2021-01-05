@@ -20,16 +20,32 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
 
         public async Task<Result<List<HistoryDto>>> Handle(GetHistoryQuery request, CancellationToken cancellationToken)
         {
+            var invitation = await
+                (from i in _context.QuerySet<Invitation>()
+                    where i.Id == request.InvitationId
+                    select i).SingleOrDefaultAsync(cancellationToken);
+
+            if (invitation == null)
+            {
+                return new NotFoundResult<List<HistoryDto>>($"Invitation with ID {request.InvitationId} not found");
+            }
+
             var invitationHistory = await (from h in _context.QuerySet<History>()
-                    join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
+                    join i in _context.QuerySet<Invitation>() on h.ObjectGuid equals i.ObjectGuid
                     join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
-                    where invitation.ObjectGuid == h.ObjectGuid
-                    where invitation.Id == request.InvitationId
+                    where i.ObjectGuid == h.ObjectGuid
+                    where i.Id == request.InvitationId
                     select new HistoryDto(
                         h.Id,
                         h.Description,
                         h.CreatedAtUtc,
-                        new PersonMinimalDto(createdBy.Id, createdBy.FirstName, createdBy.LastName),
+                        new PersonDto(
+                            createdBy.Id,
+                            createdBy.FirstName,
+                            createdBy.LastName,
+                            createdBy.Oid,
+                            null,
+                            createdBy.RowVersion.ConvertToString()),
                         h.EventType)
                 ).ToListAsync(cancellationToken);
 
