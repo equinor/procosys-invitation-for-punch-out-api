@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
                 new DateTime(),
                 new DateTime(),
                 null);
-            _attachment = new TestableAttachment(PLANT, "ExistingFile.txt");
+            _attachment = new Attachment(PLANT, "ExistingFile.txt");
             _attachment.SetProtectedIdForTesting(2);
             _invitation.AddAttachment(_attachment);
 
@@ -106,15 +106,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
 
             // Assert
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
-        }
-
-        private class TestableAttachment : Attachment
-        {
-            public TestableAttachment(string plant, string fileName)
-                : base(plant, fileName)
-            {
-            }
-            public void SetId(int id) => Id = id;
         }
     }
 }
