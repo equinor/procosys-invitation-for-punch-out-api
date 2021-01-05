@@ -526,7 +526,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         //        UserType.Planner,
         //        TestFactory.PlantWithAccess,
         //        InitialInvitationId,
-        //        new AddCommentDto{Comment = "comment on the IPO"});
+        //        "comment on the IPO");
 
         //    // Assert
         //    invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(

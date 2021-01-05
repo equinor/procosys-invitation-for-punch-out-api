@@ -829,7 +829,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithAccess,
                 9999,
-                new AddCommentDto { Comment = "comment" },
+                "comment",
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -838,7 +838,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                new AddCommentDto { Comment = "comment" },
+                "comment",
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -848,7 +848,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
-                new AddCommentDto { Comment = "comment" },
+                "comment",
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -858,7 +858,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                new AddCommentDto { Comment = "comment" },
+                "comment",
                 HttpStatusCode.Forbidden);
 
 
@@ -868,9 +868,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 123456,
-                new AddCommentDto { Comment = "comment" },
+                "comment",
                 HttpStatusCode.BadRequest,
-                "Invitation doesn't exist!");
+                "IPO with this ID does not exist");
         #endregion
 
         #region Private methods

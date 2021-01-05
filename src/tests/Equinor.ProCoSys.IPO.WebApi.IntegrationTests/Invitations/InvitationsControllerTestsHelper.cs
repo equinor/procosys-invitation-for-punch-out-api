@@ -324,18 +324,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             UserType userType,
             string plant,
             int id,
-            AddCommentDto dto,
+            string comment,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
             var bodyPayload = new
             {
-                dto.Comment
+                comment
             };
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync($"{Route}/{id}", content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync($"{Route}/{id}/Comments", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
