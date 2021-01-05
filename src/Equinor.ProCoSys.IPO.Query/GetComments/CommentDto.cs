@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
         public CommentDto(
             int id,
             string comment,
-            PersonMinimalDto createdBy,
+            PersonDto createdBy,
             DateTime createdAtUtc)
         {
             Id = id;
@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
         }
         public int Id { get; }
         public string Comment { get; }
-        public PersonMinimalDto CreatedBy { get; }
+        public PersonDto CreatedBy { get; }
         public DateTime CreatedAtUtc { get; }
     }
 }

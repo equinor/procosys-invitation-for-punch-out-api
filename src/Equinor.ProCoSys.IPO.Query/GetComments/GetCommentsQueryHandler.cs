@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -32,30 +35,28 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
             {
                 return new NotFoundResult<List<CommentDto>>($"Entity with ID {request.InvitationId} not found");
             }
+            var personIds = invitation.Comments.Select(x => x.CreatedById).Distinct();
+            var persons = await (from p in _context.QuerySet<Person>()
+                where personIds.Contains(p.Id)
+                select p).ToListAsync(token);
 
-            var commentDtos = new List<CommentDto>();
-            foreach (var comment in invitation.Comments)
-            {
-                var createdBy = await
-                    (from person in _context.QuerySet<Person>()
-                            .Where(p => p.Id == comment.CreatedById)
-                     select person).SingleOrDefaultAsync(token);
+            var comments = invitation.Comments
+                .Select(c => new CommentDto(
+                    c.Id,
+                    c.CommentText,
+                    persons.Select(p => new PersonDto(
+                        p.Id,
+                        p.FirstName,
+                        p.LastName,
+                        p.Oid,
+                        null,
+                        p.RowVersion.ConvertToString())).Single(p => p.Id == c.CreatedById),
+                    c.CreatedAtUtc)
+                )
+                .OrderByDescending(c => c.CreatedAtUtc)
+                .ToList();
 
-                if (createdBy == null)
-                {
-                    return new NotFoundResult<List<CommentDto>>($"Person with ID {comment.CreatedById} not found");
-                }
-
-                commentDtos.Add(new CommentDto(
-                    comment.Id,
-                    comment.CommentText,
-                    new PersonMinimalDto(createdBy.Id, createdBy.FirstName, createdBy.LastName),
-                    comment.CreatedAtUtc));
-            }
-
-            var orderedCommentDtos = commentDtos.OrderByDescending(c => c.CreatedAtUtc).ToList();
-
-            return new SuccessResult<List<CommentDto>>(orderedCommentDtos);
+            return new SuccessResult<List<CommentDto>>(comments);
         }
     }
 }

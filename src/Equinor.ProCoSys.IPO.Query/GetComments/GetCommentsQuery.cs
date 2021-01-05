@@ -4,7 +4,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetComments
 {
-    public class GetCommentsQuery : IRequest<Result<List<CommentDto>>>
+    public class GetCommentsQuery : IRequest<Result<List<CommentDto>>>, IInvitationQueryRequest
     {
         public GetCommentsQuery(int invitationId) => InvitationId = invitationId;
 
