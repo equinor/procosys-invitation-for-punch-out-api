@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int CommPkgId = 71;
         private const int ParticipantId = 1;
         private List<Invitation> _invitations;
-        private Mock<DbSet<Invitation>> _dbSetMock;
+        private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
         private Mock<DbSet<Participant>> _participantSetMock;
         private Mock<DbSet<McPkg>> _mcPkgSetMock;
@@ -89,12 +89,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 _invitationWithCommPkg
             };
 
-            _dbSetMock = _invitations.AsQueryable().BuildMockDbSet();
+            _dbInvitationSetMock = _invitations.AsQueryable().BuildMockDbSet();
 
             ContextHelper
                 .ContextMock
                 .Setup(x => x.Invitations)
-                .Returns(_dbSetMock.Object);
+                .Returns(_dbInvitationSetMock.Object);
 
             var attachments = new List<Attachment>
             {
@@ -200,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             _dut.Add(_invitationWithMcPkg);
 
-            _dbSetMock.Verify(x => x.Add(_invitationWithMcPkg), Times.Once);
+            _dbInvitationSetMock.Verify(x => x.Add(_invitationWithMcPkg), Times.Once);
         }
 
         [TestMethod]
