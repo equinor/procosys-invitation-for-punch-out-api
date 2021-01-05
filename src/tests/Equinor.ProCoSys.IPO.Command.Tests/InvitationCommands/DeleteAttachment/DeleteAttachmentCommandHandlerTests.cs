@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         private const string PLANT = "PCS$TESTPLANT";
 
         private Invitation _invitation;
-        private Attachment _attachmentMock;
+        private Attachment _attachment;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IBlobStorage> _blobStorageMock;
@@ -38,9 +38,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
                 new DateTime(),
                 new DateTime(),
                 null);
-            _attachmentMock = new TestableAttachment(PLANT, "ExistingFile.txt");
-            _attachmentMock.SetProtectedIdForTesting(2);
-            _invitation.AddAttachment(_attachmentMock);
+            _attachment = new TestableAttachment(PLANT, "ExistingFile.txt");
+            _attachment.SetProtectedIdForTesting(2);
+            _invitation.AddAttachment(_attachment);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -95,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(0, _invitation.Attachments.Count);
-            _invitationRepositoryMock.Verify(r => r.RemoveAttachment(_attachmentMock), Times.Once);
+            _invitationRepositoryMock.Verify(r => r.RemoveAttachment(_attachment), Times.Once);
         }
 
         [TestMethod]
