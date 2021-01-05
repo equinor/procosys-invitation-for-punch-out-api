@@ -12,11 +12,13 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public const int ProjectNameMaxLength = 512;
         public const int TitleMaxLength = 1024;
+        public const int LocationMaxLength = 1024;
         public const int DescriptionMaxLength = 4096;
 
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
         private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
         private readonly List<Participant> _participants = new List<Participant>();
+        private readonly List<Comment> _comments = new List<Comment>();
         private readonly List<Attachment> _attachments = new List<Attachment>();
 
         protected Invitation()
@@ -67,6 +69,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<McPkg> McPkgs => _mcPkgs.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CommPkgs => _commPkgs.AsReadOnly();
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
+        public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
         public IpoStatus Status { get; set; }
         public Guid MeetingId { get; set; }
@@ -302,6 +305,36 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             EndTimeUtc = endTime;
             Location = location;
             AddDomainEvent(new IpoEditedEvent(Plant, ObjectGuid));
+        }
+
+        public void AddComment(Comment comment)
+        {
+            if (comment == null)
+            {
+                throw new ArgumentNullException(nameof(comment));
+            }
+
+            if (comment.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't relate item in {comment.Plant} to item in {Plant}");
+            }
+
+            _comments.Add(comment);
+        }
+
+        public void RemoveComment(Comment comment)
+        {
+            if (comment == null)
+            {
+                throw new ArgumentNullException(nameof(comment));
+            }
+
+            if (comment.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't remove item in {comment.Plant} from item in {Plant}");
+            }
+
+            _comments.Remove(comment);
         }
 
         public void SetCreated(Person createdBy)

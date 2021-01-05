@@ -50,6 +50,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .OnDelete(DeleteBehavior.NoAction);
 
             builder
+                .HasMany(x => x.Comments)
+                .WithOne()
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder
                 .HasMany(x => x.Attachments)
                 .WithOne()
                 .IsRequired()

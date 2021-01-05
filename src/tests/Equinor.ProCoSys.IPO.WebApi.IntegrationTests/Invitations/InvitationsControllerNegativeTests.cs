@@ -822,6 +822,57 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.NotFound);
         #endregion
 
+        #region AddComment
+        [TestMethod]
+        public async Task AddComment_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithAccess,
+                9999,
+                "comment",
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task AddComment_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task AddComment_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                "comment",
+                HttpStatusCode.Forbidden);
+
+
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist");
+        #endregion
+
         #region Private methods
         private async Task<EditInvitationDto> CreateValidEditInvitationDto()
         {

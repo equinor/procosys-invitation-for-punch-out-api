@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -248,6 +249,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 dto.RowVersion);
 
             var result = await _mediator.Send(command);
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPost("{id}/Comments")]
+        public async Task<ActionResult<int>> AddComment(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AddCommentDto dto)
+        {
+            var result = await _mediator.Send(
+                new AddCommentCommand(id, dto.Comment));
             return this.FromResult(result);
         }
 
