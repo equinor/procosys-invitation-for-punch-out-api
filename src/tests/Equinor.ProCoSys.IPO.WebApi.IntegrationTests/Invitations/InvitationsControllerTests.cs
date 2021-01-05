@@ -510,6 +510,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }
 
+        //TODO: add test when getComments endpoint is ready
+        //[TestMethod]
+        //public async Task AddComment_AsPlanner_ShouldAddComment()
+        //{
+        //    // Arrange
+        //    var invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
+        //        UserType.Viewer,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId);
+        //    var attachmentCount = invitationAttachments.Result.Count;
+
+        //    // Act
+        //    await InvitationsControllerTestsHelper.AddCommentAsync(
+        //        UserType.Planner,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId,
+        //        "comment on the IPO");
+
+        //    // Assert
+        //    invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
+        //        UserType.Viewer,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId);
+
+        //    Assert.AreEqual(commentCount + 1, invitationComments.Result.Count);
+        //}
+
         [TestMethod]
         public async Task GetHistory_AsViewer_ShouldGetHistory()
         {

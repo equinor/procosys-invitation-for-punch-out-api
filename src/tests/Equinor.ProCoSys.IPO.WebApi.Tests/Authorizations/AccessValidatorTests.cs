@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -223,6 +227,143 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             Assert.IsFalse(result);
         }
 
+        #endregion
+        #region CompleteInvitationCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnCompleteInvitationCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new CompletePunchOutCommand(
+                _invitationIdWithAccessToProject,
+                null,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnCompleteInvitationCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new CompletePunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                null,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region AcceptInvitationCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnAcceptInvitationCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new AcceptPunchOutCommand(
+                _invitationIdWithAccessToProject,
+                null,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnAcceptInvitationCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new AcceptPunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                null,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region SignInvitationCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnSignInvitationCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new SignPunchOutCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnSignInvitationCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new SignPunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region AddCommentCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnAddCommentCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new AddCommentCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnAddCommentCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new AddCommentCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
         #endregion
 
         #endregion

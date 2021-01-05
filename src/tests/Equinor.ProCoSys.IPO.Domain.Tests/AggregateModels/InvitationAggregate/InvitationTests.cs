@@ -25,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private McPkg _mcPkg2;
         private CommPkg _commPkg1;
         private CommPkg _commPkg2;
+        private Comment _comment;
         private Attachment _attachment;
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
@@ -78,7 +79,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2");
             _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK");
             _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK");
-
+            _comment = new Comment(TestPlant, "Comment text");
+            _dutWithCommPkgScope.AddComment(_comment);
             _personParticipant = new Participant(
                 TestPlant,
                 Organization.Contractor,
@@ -199,6 +201,30 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.AddAttachment(null));
 
         [TestMethod]
+        public void AddComment_ShouldThrowException_WhenCommentNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.AddComment(null));
+
+        [TestMethod]
+        public void RemoveParticipant_ShouldThrowException_WhenParticipantNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveParticipant(null));
+
+        [TestMethod]
+        public void RemoveAttachment_ShouldThrowException_WhenAttachmentNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveAttachment(null));
+
+        [TestMethod]
+        public void RemoveMcPkg_ShouldThrowException_WhenMcPkgNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveMcPkg(null));
+
+        [TestMethod]
+        public void RemoveCommPkg_ShouldThrowException_WhenCommPkgNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveCommPkg(null));
+
+        [TestMethod]
+        public void RemoveComment_ShouldThrowException_WhenCommentNotGiven()
+            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveComment(null));
+
+        [TestMethod]
         public void AddMcPkg_ShouldAddMcPkgToMcPkgList()
         {
             var mcPkg = new Mock<McPkg>();
@@ -249,14 +275,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.AreEqual(1, _dutWithCommPkgScope.CommPkgs.Count);
             Assert.IsFalse(_dutWithCommPkgScope.CommPkgs.Contains(_commPkg1));
         }
-
-        [TestMethod]
-        public void RemoveMcPkg_ShouldThrowException_WhenMcPkgNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveMcPkg(null));
-
-        [TestMethod]
-        public void RemoveCommPkg_ShouldThrowException_WhenCommPkgNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveCommPkg(null));
 
         [TestMethod]
         public void AddParticipant_ShouldAddParticipantToParticipantList()
@@ -311,12 +329,25 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void RemoveParticipant_ShouldThrowException_WhenParticipantNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveParticipant(null));
+        public void AddAttachment_ShouldAddAttachment()
+        {
+            var attachment = new Attachment(TestPlant, "A.txt");
+            _dutWithMcPkgScope.AddAttachment(attachment);
+
+            Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
+        }
 
         [TestMethod]
-        public void RemoveAttachment_ShouldThrowException_WhenAttachmentNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveAttachment(null));
+        public void AddComment_ShouldAddCommentToCommentList()
+        {
+            var comment = new Mock<Comment>();
+            comment.SetupGet(mc => mc.Plant).Returns(TestPlant);
+
+            _dutWithCommPkgScope.AddComment(comment.Object);
+
+            Assert.AreEqual(2, _dutWithCommPkgScope.Comments.Count);
+            Assert.IsTrue(_dutWithCommPkgScope.Comments.Contains(comment.Object));
+        }
 
         [TestMethod]
         public void RemoveAttachment_ShouldRemoveAttachment()
@@ -335,15 +366,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithMcPkgScope.RemoveAttachment(_attachment);
 
             Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(AttachmentRemovedEvent));
-        }
-
-        [TestMethod]
-        public void AddAttachment_ShouldAddAttachment()
-        {
-            var attachment = new Attachment(TestPlant, "A.txt");
-            _dutWithMcPkgScope.AddAttachment(attachment);
-
-            Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
         }
 
         [TestMethod]
