@@ -45,5 +45,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void RemoveParticipant(Participant participant)
             => _context.Participants.Remove(participant);
+
+        public void RemoveAttachment(Attachment attachment)
+            => _context.Attachments.Remove(attachment);
     }
 }

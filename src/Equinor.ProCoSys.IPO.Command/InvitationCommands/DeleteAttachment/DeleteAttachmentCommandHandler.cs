@@ -42,6 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
             await _blobStorage.DeleteAsync(fullBlobPath, cancellationToken);
 
             invitation.RemoveAttachment(attachment);
+            _invitationRepository.RemoveAttachment(attachment);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
