@@ -206,7 +206,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments/{attachmentId}")]
-        public async Task<ActionResult<Query.GetAttachmentById.AttachmentDto>> GetAttachment(
+        public async Task<ActionResult<AttachmentDto>> GetAttachment(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -220,7 +220,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments")]
-        public async Task<ActionResult<List<Query.GetAttachmentById.AttachmentDto>>> GetAttachments(
+        public async Task<ActionResult<List<AttachmentDto>>> GetAttachments(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
