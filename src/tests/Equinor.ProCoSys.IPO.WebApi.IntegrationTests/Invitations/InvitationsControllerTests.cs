@@ -537,6 +537,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         //    Assert.AreEqual(commentCount + 1, invitationComments.Result.Count);
         //}
 
+        [TestMethod]
+        public async Task GetHistory_AsViewer_ShouldGetHistory()
+        {
+            // Act
+            var historyDtos = await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            // Assert
+            Assert.IsNotNull(historyDtos);
+            Assert.IsTrue(historyDtos.Count > 0);
+
+            var historyEvent = historyDtos.First();
+            Assert.IsNotNull(historyEvent.Description);
+            Assert.IsNotNull(historyEvent.EventType);
+        }
+
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();

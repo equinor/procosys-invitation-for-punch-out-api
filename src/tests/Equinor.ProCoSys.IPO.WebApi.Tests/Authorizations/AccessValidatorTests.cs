@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -508,7 +509,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             Assert.IsFalse(result);
         }
         #endregion
-        
+
+        #region GetHistoryQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetHistoryQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetHistoryQuery(_invitationIdWithAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetHistoryQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetHistoryQuery(_invitationIdWithoutAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
         #endregion
     }
 }
