@@ -45,8 +45,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
                         p.Id,
                         p.FirstName,
                         p.LastName,
+                        p.UserName,
                         p.Oid,
-                        null,
+                        p.Email,
                         p.RowVersion.ConvertToString())).Single(p => p.Id == c.CreatedById),
                     c.CreatedAtUtc,
                     c.RowVersion.ConvertToString())

@@ -15,6 +15,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
@@ -230,6 +231,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id)
         {
             var result = await _mediator.Send(new GetAttachmentsQuery(id));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("{id}/History")]
+        public async Task<ActionResult<HistoryDto>> GetHistory(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id)
+        {
+            var result = await _mediator.Send(new GetHistoryQuery(id));
             return this.FromResult(result);
         }
 

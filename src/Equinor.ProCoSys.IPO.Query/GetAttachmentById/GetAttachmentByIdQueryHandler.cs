@@ -46,7 +46,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                     attachment.FileName,
                     attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
                     attachment.UploadedAtUtc,
-                    new PersonDto(uploadedBy.Id, uploadedBy.FirstName, uploadedBy.LastName, uploadedBy.Oid, null, uploadedBy.RowVersion.ConvertToString()),
+                    new PersonDto(
+                        uploadedBy.Id,
+                        uploadedBy.FirstName,
+                        uploadedBy.LastName,
+                        uploadedBy.UserName,
+                        uploadedBy.Oid,
+                        uploadedBy.Email,
+                        uploadedBy.RowVersion.ConvertToString()),
                     attachment.RowVersion.ConvertToString()));
         }
     }

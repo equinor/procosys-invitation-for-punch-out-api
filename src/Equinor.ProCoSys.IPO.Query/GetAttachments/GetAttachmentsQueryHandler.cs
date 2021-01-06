@@ -45,7 +45,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
             var uploadedBys = await _context.QuerySet<Person>().Where(x => uploadedByIds.Contains(x.Id)).ToListAsync(cancellationToken);
             var uploadedByDtos = uploadedBys
                 .Select(x =>
-                    new PersonDto(x.Id, x.FirstName, x.LastName, x.Oid, null, x.RowVersion.ConvertToString()))
+                    new PersonDto(
+                        x.Id,
+                        x.FirstName,
+                        x.LastName,
+                        x.UserName,
+                        x.Oid,
+                        x.Email,
+                        x.RowVersion.ConvertToString()))
                 .ToDictionary(x => x.Id);
 
             var attachments = invitation

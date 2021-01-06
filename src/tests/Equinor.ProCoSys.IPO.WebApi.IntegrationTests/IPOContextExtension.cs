@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
         {
             var personRepository = new PersonRepository(dbContext);
-            personRepository.Add(new Person(userProvider.GetCurrentUserOid(), "Siri", "Seed"));
+            personRepository.Add(new Person(userProvider.GetCurrentUserOid(), "Siri", "Seed", "ss", "ss@pcs.pcs"));
             dbContext.SaveChangesAsync().Wait();
         }
 

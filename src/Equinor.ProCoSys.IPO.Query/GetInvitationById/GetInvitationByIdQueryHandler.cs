@@ -227,7 +227,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToInvitedPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
 
         private static InvitedPersonDto ConvertToInvitedPersonDto(Participant participant)
-            => new InvitedPersonDto(new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid ?? Guid.Empty, participant.Email, participant.RowVersion.ConvertToString())); 
+            => new InvitedPersonDto(new PersonDto(
+                participant.Id,
+                participant.FirstName,
+                participant.LastName,
+                participant.UserName,
+                participant.AzureOid ?? Guid.Empty,
+                participant.Email,
+                participant.RowVersion.ConvertToString())); 
 
         private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();

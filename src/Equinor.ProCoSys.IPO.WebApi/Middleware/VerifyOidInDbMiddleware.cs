@@ -27,8 +27,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             {
                 var givenName = httpContextUser.Claims.TryGetGivenName();
                 var surName = httpContextUser.Claims.TryGetSurName();
+                var userName = httpContextUser.Claims.TryGetUserName();
+                var email = httpContextUser.Claims.TryGetEmail();
 
-                var command = new CreatePersonCommand(oid.Value, givenName, surName);
+                var command = new CreatePersonCommand(oid.Value, givenName, surName, userName, email);
                 try
                 {
                     await mediator.Send(command);
