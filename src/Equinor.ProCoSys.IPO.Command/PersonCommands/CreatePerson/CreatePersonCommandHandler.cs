@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson
 
             if (person == null)
             {
-                person = new Person(request.Oid, request.FirstName, request.LastName);
+                person = new Person(request.Oid, request.FirstName, request.LastName, request.UserName, request.Email);
                 _personRepository.Add(person);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
