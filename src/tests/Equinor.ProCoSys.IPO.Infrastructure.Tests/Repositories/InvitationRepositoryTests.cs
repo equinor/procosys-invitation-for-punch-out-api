@@ -19,12 +19,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int McPkgId = 51;
         private const int CommPkgId = 71;
         private const int ParticipantId = 1;
+        private string _projectName = "ProjectName";
+        private string _mcPkgNo = "MC1";
+        private string _commPkgNo = "Comm1";
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
         private Mock<DbSet<Participant>> _participantSetMock;
         private Mock<DbSet<McPkg>> _mcPkgSetMock;
         private Mock<DbSet<CommPkg>> _commPkgSetMock;
+        private Mock<DbSet<Comment>> _commentSetMock;
 
         private InvitationRepository _dut;
         private McPkg _mcPkg;
@@ -38,10 +42,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestInitialize]
         public void Setup()
         {
-            _mcPkg = new McPkg(TestPlant, "ProjectName", "Comm1", "MC1", "Description");
+            _mcPkg = new McPkg(TestPlant, _projectName, _commPkgNo, _mcPkgNo, "Description");
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _commPkg = new CommPkg(TestPlant, "ProjectName", "Comm1", "Description", "OK");
+            _commPkg = new CommPkg(TestPlant, _projectName, _commPkgNo, "Description", "OK");
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
             _participant = new Participant(
@@ -148,6 +152,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 .Setup(x => x.CommPkgs)
                 .Returns(_commPkgSetMock.Object);
 
+            var comments = new List<Comment>
+            {
+                _comment
+            };
+
+            _commentSetMock = comments.AsQueryable().BuildMockDbSet();
+
+            ContextHelper
+                .ContextMock
+                .Setup(x => x.Comments)
+                .Returns(_commentSetMock.Object);
+
             _dut = new InvitationRepository(ContextHelper.ContextMock.Object);
         }
 
@@ -216,37 +232,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void RemoveMcPkg_UnknownMcPkg_ShouldNotRemoveMcPkg()
-        {
-            _dut.RemoveMcPkg(new McPkg(TestPlant, "Project name", "Comm1", "MC 02", "D"));
-
-            _mcPkgSetMock.Verify(s => s.Remove(_mcPkg), Times.Never);
-        }
-
-        [TestMethod]
         public void RemoveParticipant_KnownParticipant_ShouldRemoveParticipant()
         {
             _dut.RemoveParticipant(_participant);
 
             _participantSetMock.Verify(s => s.Remove(_participant), Times.Once);
-        }
-
-        [TestMethod]
-        public void RemoveParticipant_UnknownParticipant_ShouldNotRemoveParticipant()
-        {
-            _dut.RemoveParticipant(new Participant(
-                TestPlant,
-                Organization.Operation,
-                IpoParticipantType.FunctionalRole,
-                "FR 2",
-                null,
-                null,
-                null,
-                "fr@test.com",
-                null,
-                2));
-
-            _participantSetMock.Verify(s => s.Remove(_participant), Times.Never);
         }
 
         [TestMethod]
@@ -258,31 +248,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void RemoveCommPkg_UnknownCommPkg_ShouldNotRemoveCommPkg()
-        {
-            _dut.RemoveCommPkg(new CommPkg(TestPlant, "Project name", "Comm2", "D", "PA"));
-
-            _commPkgSetMock.Verify(s => s.Remove(_commPkg), Times.Never);
-        }
-
-        [TestMethod]
         public void RemoveComment_KnownComment_ShouldRemoveComment()
         {
-            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
+            _dut.RemoveComment(_comment);
 
-            _invitationWithCommPkg.RemoveComment(_comment);
-
-            Assert.AreEqual(0, _invitationWithCommPkg.Comments.Count);
-        }
-
-        [TestMethod]
-        public void RemoveComment_UnknownComment_ShouldNotRemoveComment()
-        {
-            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
-
-            _invitationWithCommPkg.RemoveComment(new Comment(TestPlant, "comment does not exist"));
-
-            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
+            _commentSetMock.Verify(s => s.Remove(_comment), Times.Once);
         }
 
         [TestMethod]
@@ -291,35 +261,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.RemoveAttachment(_attachment);
 
             _attachmentSetMock.Verify(s => s.Remove(_attachment), Times.Once);
-        }
-
-
-        [TestMethod]
-        public void RemoveAttachment_UnknownAttachment_ShouldNotRemoveAttachment()
-        {
-            _dut.RemoveAttachment(new Attachment(TestPlant, "unknown.txt"));
-
-            _attachmentSetMock.Verify(s => s.Remove(_attachment), Times.Never);
-        }
-
-        [TestMethod]
-        public void RemoveComment_KnownComment_ShouldRemoveComment()
-        {
-            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
-
-            _invitationWithCommPkg.RemoveComment(_comment);
-
-            Assert.AreEqual(0, _invitationWithCommPkg.Comments.Count);
-        }
-
-        [TestMethod]
-        public void RemoveComment_UnknownComment_ShouldNotRemoveComment()
-        {
-            Assert.AreEqual(1, _invitationWithCommPkg.Comments.Count);
-
-            _invitationWithCommPkg.RemoveComment(new Comment(TestPlant, "comment does not exist"));
-
-            Assert.AreEqual(1, _invitationWithCommPkg.CommPkgs.Count);
         }
     }
 }

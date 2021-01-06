@@ -19,6 +19,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         [Description("Attachment uploaded")]
         AttachmentUploaded,
         [Description("Attachment removed")]
-        AttachmentRemoved
+        AttachmentRemoved,
+        [Description("Comment added")]
+        CommentAdded,
+        [Description("Comment removed")]
+        CommentRemoved
     }
 }
