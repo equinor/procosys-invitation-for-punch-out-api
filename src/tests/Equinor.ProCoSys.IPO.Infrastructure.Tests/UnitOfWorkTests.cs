@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         {
             using var dut = new IPOContext(_dbContextOptions, _plantProviderMock.Object, _eventDispatcherMock.Object, _currentUserProviderMock.Object);
 
-            var user = new Person(_currentUserOid, "Current", "User");
+            var user = new Person(_currentUserOid, "Current", "User", "cu", "cu@pcs.pcs");
             dut.Persons.Add(user);
             dut.SaveChanges();
 
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         {
             using var dut = new IPOContext(_dbContextOptions, _plantProviderMock.Object, _eventDispatcherMock.Object, _currentUserProviderMock.Object);
 
-            var user = new Person(_currentUserOid, "Current", "User");
+            var user = new Person(_currentUserOid, "Current", "User", "cu", "cu@pcs.pcs");
             dut.Persons.Add(user);
             dut.SaveChanges();
 
