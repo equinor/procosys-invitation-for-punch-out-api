@@ -55,6 +55,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<List<InvitationForMainDto>>(content);
         }
 
+        public static async Task<List<Query.GetInvitationsByCommPkgNos.InvitationForMainDto>> GetInvitationsByCommPkgNosAsync(
+            UserType userType,
+            string plant,
+            IList<string> commPkgNos,
+            string projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var parameters = new ParameterCollection { { "projectName", projectName }};
+            foreach (var commPkgNo in commPkgNos)
+            {
+                parameters.Add("commPkgNos", commPkgNo);
+            }
+            var url = $"/ByCommPkgNo{parameters}";
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<Query.GetInvitationsByCommPkgNos.InvitationForMainDto>>(content);
+        }
+
         public static async Task<List<AttachmentDto>> GetAttachmentsAsync(
             UserType userType, 
             string plant,
@@ -213,7 +240,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-
             var serializePayload = JsonConvert.SerializeObject(dtos);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
             var response = await TestFactory.Instance.GetHttpClient(userType, plant)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
@@ -15,6 +16,8 @@ using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNos;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -474,6 +477,62 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             // Arrange
             var query = new GetInvitationByIdQuery(_invitationIdWithoutAccessToProject);
             
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetInvitationsByCommPkgNoQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithoutAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetInvitationsByCommPkgNosQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNosQuery(new List<string> {"commpkg"}, _projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNosQuery(new List<string> { "commpkg" }, _projectWithoutAccess);
+
             // act
             var result = await _dut.ValidateAsync(query);
 

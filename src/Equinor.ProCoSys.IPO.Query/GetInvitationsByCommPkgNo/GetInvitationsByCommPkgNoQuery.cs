@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
 {
-    public class GetInvitationsByCommPkgNoQuery : IRequest<Result<List<InvitationForMainDto>>>
+    public class GetInvitationsByCommPkgNoQuery : IRequest<Result<List<InvitationForMainDto>>>, IProjectRequest
     {
         public GetInvitationsByCommPkgNoQuery(string commPkgNo, string projectName)
         {

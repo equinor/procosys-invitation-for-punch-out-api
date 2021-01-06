@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,6 +40,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsTrue(invitations.Count > 0);
             Assert.AreEqual(KnownTestData.InvitationTitle, invitation.Title);
             Assert.AreEqual(KnownTestData.InvitationDescription, invitation.Description);
+        }
+
+        [TestMethod]
+        public async Task GetInvitationsByCommPkgNos_AsViewer_ShouldGetInvitations()
+        {
+            // Act
+            var invitations = await InvitationsControllerTestsHelper.GetInvitationsByCommPkgNosAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                new List<string>{KnownTestData.CommPkgNo},
+                TestFactory.ProjectWithAccess);
+
+            // Assert
+            var invitation = invitations.First();
+            Assert.IsTrue(invitations.Count > 0);
+            Assert.AreEqual(KnownTestData.InvitationTitle, invitation.Title);
         }
 
         [TestMethod]
