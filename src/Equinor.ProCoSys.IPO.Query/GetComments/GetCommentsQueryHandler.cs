@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -51,7 +48,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
                         p.Oid,
                         null,
                         p.RowVersion.ConvertToString())).Single(p => p.Id == c.CreatedById),
-                    c.CreatedAtUtc)
+                    c.CreatedAtUtc,
+                    c.RowVersion.ConvertToString())
                 )
                 .OrderByDescending(c => c.CreatedAtUtc)
                 .ToList();

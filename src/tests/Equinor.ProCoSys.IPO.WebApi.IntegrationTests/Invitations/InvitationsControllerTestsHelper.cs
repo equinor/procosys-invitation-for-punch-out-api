@@ -320,6 +320,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
 
+        public static async Task<List<CommentDto>> GetCommentsAsync(
+            UserType userType,
+            string plant,
+            int id,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var url = $"{Route}/{id}/Comments";
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<CommentDto>>(content);
+        }
+
         public static async Task<int> AddCommentAsync(
             UserType userType,
             string plant,

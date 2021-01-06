@@ -510,32 +510,49 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }
 
-        //TODO: add test when getComments endpoint is ready
-        //[TestMethod]
-        //public async Task AddComment_AsPlanner_ShouldAddComment()
-        //{
-        //    // Arrange
-        //    var invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
-        //        UserType.Viewer,
-        //        TestFactory.PlantWithAccess,
-        //        InitialInvitationId);
-        //    var attachmentCount = invitationAttachments.Result.Count;
+        [TestMethod]
+        public async Task GetComments_AsViewer_ShouldGetComments()
+        {
+            // Act
+            var commentDtos = await InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
 
-        //    // Act
-        //    await InvitationsControllerTestsHelper.AddCommentAsync(
-        //        UserType.Planner,
-        //        TestFactory.PlantWithAccess,
-        //        InitialInvitationId,
-        //        "comment on the IPO");
+            // Assert
+            Assert.IsNotNull(commentDtos);
+            Assert.IsTrue(commentDtos.Count > 0);
 
-        //    // Assert
-        //    invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
-        //        UserType.Viewer,
-        //        TestFactory.PlantWithAccess,
-        //        InitialInvitationId);
+            var comment = commentDtos.Single(c => c.Id == _commentId);
+            Assert.IsNotNull(comment.Comment);
+            Assert.IsNotNull(comment.RowVersion);
+        }
 
-        //    Assert.AreEqual(commentCount + 1, invitationComments.Result.Count);
-        //}
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldAddComment()
+        {
+            // Arrange
+            var invitationComments = InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+            var commentsCount = invitationComments.Result.Count;
+
+            // Act
+            await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId,
+                "comment on the IPO");
+
+            // Assert
+            invitationComments = InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            Assert.AreEqual(commentsCount + 1, invitationComments.Result.Count);
+        }
 
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
