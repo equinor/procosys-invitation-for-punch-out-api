@@ -329,24 +329,43 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void AddAttachment_ShouldAddAttachment()
+        public void AddComment_ShouldAddCommentToCommentList()
         {
-            var attachment = new Attachment(TestPlant, "A.txt");
-            _dutWithMcPkgScope.AddAttachment(attachment);
+            Assert.AreEqual(1, _dutWithCommPkgScope.Comments.Count);
 
-            Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
+            var comment = new Comment(TestPlant, "New comment");
+            _dutWithCommPkgScope.AddComment(comment);
+
+            Assert.AreEqual(2, _dutWithCommPkgScope.Comments.Count);
+            Assert.IsTrue(_dutWithCommPkgScope.Comments.Contains(comment));
         }
 
         [TestMethod]
-        public void AddComment_ShouldAddCommentToCommentList()
+        public void AddComment_ShouldAddAddCommentEvent()
         {
-            var comment = new Mock<Comment>();
-            comment.SetupGet(mc => mc.Plant).Returns(TestPlant);
+            var comment = new Comment(TestPlant, "New comment");
+            _dutWithCommPkgScope.AddComment(comment);
 
-            _dutWithCommPkgScope.AddComment(comment.Object);
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(CommentAddedEvent));
+        }
 
-            Assert.AreEqual(2, _dutWithCommPkgScope.Comments.Count);
-            Assert.IsTrue(_dutWithCommPkgScope.Comments.Contains(comment.Object));
+        [TestMethod]
+        public void RemoveComment_ShouldRemoveCommentFromCommentList()
+        {
+            Assert.AreEqual(1, _dutWithCommPkgScope.Comments.Count);
+
+            _dutWithCommPkgScope.RemoveComment(_comment);
+
+            Assert.AreEqual(0, _dutWithCommPkgScope.Comments.Count);
+            Assert.IsFalse(_dutWithCommPkgScope.Comments.Contains(_comment));
+        }
+
+        [TestMethod]
+        public void RemoveComment_ShouldAddRemoveCommentEvent()
+        {
+            _dutWithCommPkgScope.RemoveComment(_comment);
+
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(CommentRemovedEvent));
         }
 
         [TestMethod]
@@ -369,10 +388,21 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void AddAttachment_ShouldAddAttachment()
+        {
+            var attachment = new Attachment(TestPlant, "A.txt");
+            _dutWithMcPkgScope.AddAttachment(attachment);
+
+            Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
+        }
+
+        [TestMethod]
         public void AddAttachment_ShouldAddAddAttachmentEvent()
         {
             var attachment = new Attachment(TestPlant, "A.txt");
             _dutWithMcPkgScope.AddAttachment(attachment);
+
+            Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
 
             Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(AttachmentUploadedEvent));
         }
