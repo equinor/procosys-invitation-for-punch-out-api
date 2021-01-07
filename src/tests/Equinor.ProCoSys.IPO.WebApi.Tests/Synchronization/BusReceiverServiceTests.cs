@@ -5,6 +5,7 @@ using Equinor.ProCoSys.BusReceiver;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
+using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,6 +19,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IInvitationRepository> _invitationRepository;
         private Mock<IPlantSetter> _plantSetter;
+        private Mock<ITelemetryClient> _telemetryClient;
+
         private const string plant = "PCS$HEIMDAL";
         private const string project = "HEIMDAL";
         private const string commPkgNo = "123";
@@ -30,7 +33,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository = new Mock<IInvitationRepository>();
             _plantSetter = new Mock<IPlantSetter>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object);
+            _telemetryClient = new Mock<ITelemetryClient>();
+
+            _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object, _telemetryClient.Object);
         }
 
         [TestMethod]
@@ -70,16 +75,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(project, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        [TestMethod]
-        public async Task HandlingIncorrectMessageJsonShouldThrowException()
-        {
-            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"ProjectNadme\" : \"{project}\", \"Description\" : \"{description}\"}}"));
-            await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
-
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(null, description), Times.Once);
-            _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
