@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             if (createdBy == null)
             {
-                return new NotFoundResult<InvitationDto>($"Could not get person that created the IPO with id {invitation.CreatedById}");
+                return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Person), invitation.CreatedById));
             }
 
             var createdByName = createdBy.FirstName + ' ' + createdBy.LastName;
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
                     query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 meeting = null; //user has not been invited to IPO with their personal email
             }

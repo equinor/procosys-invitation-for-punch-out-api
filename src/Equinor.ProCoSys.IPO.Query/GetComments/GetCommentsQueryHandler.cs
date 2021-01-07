@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
 
             if (invitation == null)
             {
-                return new NotFoundResult<List<CommentDto>>($"Entity with ID {request.InvitationId} not found");
+                return new NotFoundResult<List<CommentDto>>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
             var personIds = invitation.Comments.Select(x => x.CreatedById).Distinct();
             var persons = await (from p in _context.QuerySet<Person>()

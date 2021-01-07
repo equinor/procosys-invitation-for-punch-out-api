@@ -31,14 +31,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                 .Include(i => i.Attachments)
                 .SingleOrDefaultAsync(i => i.Id == request.InvitationId, cancellationToken);
 
-            var attachment = invitation?.Attachments.SingleOrDefault(a => a.Id == request.AttachmentId);
+            if (invitation == null)
+            {
+                return new NotFoundResult<AttachmentDto>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
+            }
+
+            var attachment = invitation.Attachments.SingleOrDefault(a => a.Id == request.AttachmentId);
 
             if (attachment == null)
             {
-                return new NotFoundResult<AttachmentDto>($"Invitation with ID {request.InvitationId} or Attachment with ID {request.AttachmentId} not found");
+                return new NotFoundResult<AttachmentDto>(Strings.EntityNotFound(nameof(Attachment), request.AttachmentId));
             }
 
-            var uploadedBy = await _context.QuerySet<Person>().FirstOrDefaultAsync(x => x.Id == attachment.UploadedById);
+            var uploadedBy = await _context.QuerySet<Person>()
+                .FirstOrDefaultAsync(x => x.Id == attachment.UploadedById, cancellationToken);
 
             return new SuccessResult<AttachmentDto>(
                 new AttachmentDto(

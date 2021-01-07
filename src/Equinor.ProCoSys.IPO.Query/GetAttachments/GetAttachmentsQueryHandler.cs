@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 
             if (invitation == null)
             {
-                return new NotFoundResult<List<AttachmentDto>>($"Invitation with ID {request.InvitationId} not found");
+                return new NotFoundResult<List<AttachmentDto>>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
             var uploadedByIds = invitation.Attachments.Select(a => a.UploadedById).ToList();

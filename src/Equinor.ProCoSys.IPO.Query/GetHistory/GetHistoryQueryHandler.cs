@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
 
             if (invitation == null)
             {
-                return new NotFoundResult<List<HistoryDto>>($"Invitation with ID {request.InvitationId} not found");
+                return new NotFoundResult<List<HistoryDto>>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
             var invitationHistory = await (from h in _context.QuerySet<History>()
