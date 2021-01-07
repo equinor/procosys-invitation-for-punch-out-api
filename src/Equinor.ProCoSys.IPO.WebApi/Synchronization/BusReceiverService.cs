@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         new Dictionary<string, string>
                         {
                             {"Event", "project"},
-                            { "ElementNo", string.Empty},
+                            {"ElementNo", string.Empty},
                             {"ProjectSchema", projectEvent.ProjectSchema[4..] },
                             {"ProjectName", projectEvent.ProjectName.Replace('$','_') }
                         });
@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         new Dictionary<string, string>
                         {
                             {"Event", "commpkg"},
-                            { "ElementNo", string.Empty},
+                            {"ElementNo", string.Empty},
                             {"ProjectSchema", commPkgEvent.ProjectSchema[4..] },
                             {"ProjectName", commPkgEvent.ProjectName.Replace('$','_') }
                         });
@@ -64,8 +64,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     _telemetryClient.TrackEvent("IPO Bus Receiver",
                         new Dictionary<string, string>
                         {
-                            {"Event", "project"},
-                            { "ElementNo", string.Empty},
+                            {"Event", "mcpkg"},
+                            {"ElementNo", string.Empty},
                             {"ProjectSchema", mcPkgEvent.ProjectSchema[4..] },
                             {"ProjectName", mcPkgEvent.ProjectName.Replace('$','_') }
                         });
