@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
             }
 
             var uploadedBy = await _context.QuerySet<Person>()
-                .FirstOrDefaultAsync(x => x.Id == attachment.UploadedById, cancellationToken);
+                .SingleAsync(x => x.Id == attachment.UploadedById, cancellationToken);
 
             return new SuccessResult<AttachmentDto>(
                 new AttachmentDto(
