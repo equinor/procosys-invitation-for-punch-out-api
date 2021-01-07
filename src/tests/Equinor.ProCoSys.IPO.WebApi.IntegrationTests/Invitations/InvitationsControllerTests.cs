@@ -510,6 +510,51 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }
 
+        //TODO: add test when getComments endpoint is ready
+        //[TestMethod]
+        //public async Task AddComment_AsPlanner_ShouldAddComment()
+        //{
+        //    // Arrange
+        //    var invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
+        //        UserType.Viewer,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId);
+        //    var attachmentCount = invitationAttachments.Result.Count;
+
+        //    // Act
+        //    await InvitationsControllerTestsHelper.AddCommentAsync(
+        //        UserType.Planner,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId,
+        //        "comment on the IPO");
+
+        //    // Assert
+        //    invitationAttachments = InvitationsControllerTestsHelper.GetCommentsAsync(
+        //        UserType.Viewer,
+        //        TestFactory.PlantWithAccess,
+        //        InitialInvitationId);
+
+        //    Assert.AreEqual(commentCount + 1, invitationComments.Result.Count);
+        //}
+
+        [TestMethod]
+        public async Task GetHistory_AsViewer_ShouldGetHistory()
+        {
+            // Act
+            var historyDtos = await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            // Assert
+            Assert.IsNotNull(historyDtos);
+            Assert.IsTrue(historyDtos.Count > 0);
+
+            var historyEvent = historyDtos.First();
+            Assert.IsNotNull(historyEvent.Description);
+            Assert.IsNotNull(historyEvent.EventType);
+        }
+
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();

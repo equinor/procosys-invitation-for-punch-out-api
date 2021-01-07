@@ -75,6 +75,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<List<AttachmentDto>>(content);
         }
 
+        public static async Task<List<HistoryDto>> GetHistoryAsync(
+            UserType userType,
+            string plant,
+            int id,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/{id}/History");
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<HistoryDto>>(content);
+        }
+
         public static async Task<AttachmentDto> GetAttachmentAsync(
             UserType userType, 
             string plant,
@@ -318,6 +338,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+        }
+
+        public static async Task<int> AddCommentAsync(
+            UserType userType,
+            string plant,
+            int id,
+            string comment,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                comment
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync($"{Route}/{id}/Comments", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return -1;
+            }
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<int>(jsonString);
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -14,6 +15,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
@@ -231,6 +233,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("{id}/History")]
+        public async Task<ActionResult<HistoryDto>> GetHistory(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id)
+        {
+            var result = await _mediator.Send(new GetHistoryQuery(id));
+            return this.FromResult(result);
+        }
+
         [Authorize(Roles = Permissions.IPO_DETACHFILE)]
         [HttpDelete("{id}/Attachments/{attachmentId}")]
         public async Task<ActionResult<int>> DeleteAttachment(
@@ -248,6 +263,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 dto.RowVersion);
 
             var result = await _mediator.Send(command);
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPost("{id}/Comments")]
+        public async Task<ActionResult<int>> AddComment(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AddCommentDto dto)
+        {
+            var result = await _mediator.Send(
+                new AddCommentCommand(id, dto.Comment));
             return this.FromResult(result);
         }
 
