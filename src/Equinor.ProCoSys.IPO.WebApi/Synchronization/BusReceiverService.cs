@@ -39,7 +39,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         new Dictionary<string, string>
                         {
                             {"Event", "project"},
-                            {"ElementNo", string.Empty},
                             {"ProjectSchema", projectEvent.ProjectSchema[4..] },
                             {"ProjectName", projectEvent.ProjectName.Replace('$','_') }
                         });
@@ -52,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         new Dictionary<string, string>
                         {
                             {"Event", "commpkg"},
-                            {"ElementNo", string.Empty},
+                            {"CommPkgNo", commPkgEvent.CommPkgNo},
                             {"ProjectSchema", commPkgEvent.ProjectSchema[4..] },
                             {"ProjectName", commPkgEvent.ProjectName.Replace('$','_') }
                         });
@@ -65,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         new Dictionary<string, string>
                         {
                             {"Event", "mcpkg"},
-                            {"ElementNo", string.Empty},
+                            {"McPkgNo", mcPkgEvent.McPkgNo},
                             {"ProjectSchema", mcPkgEvent.ProjectSchema[4..] },
                             {"ProjectName", mcPkgEvent.ProjectName.Replace('$','_') }
                         });
