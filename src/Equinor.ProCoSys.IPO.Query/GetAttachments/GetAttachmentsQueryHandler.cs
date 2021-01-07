@@ -38,14 +38,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 
             if (invitation == null)
             {
-                return new NotFoundResult<List<AttachmentDto>>($"Invitation with ID {request.InvitationId} not found");
+                return new NotFoundResult<List<AttachmentDto>>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
             var uploadedByIds = invitation.Attachments.Select(a => a.UploadedById).ToList();
             var uploadedBys = await _context.QuerySet<Person>().Where(x => uploadedByIds.Contains(x.Id)).ToListAsync(cancellationToken);
             var uploadedByDtos = uploadedBys
                 .Select(x =>
-                    new PersonDto(x.Id, x.FirstName, x.LastName, x.Oid, null, x.RowVersion.ConvertToString()))
+                    new PersonDto(
+                        x.Id,
+                        x.FirstName,
+                        x.LastName,
+                        x.UserName,
+                        x.Oid,
+                        x.Email,
+                        x.RowVersion.ConvertToString()))
                 .ToDictionary(x => x.Id);
 
             var attachments = invitation

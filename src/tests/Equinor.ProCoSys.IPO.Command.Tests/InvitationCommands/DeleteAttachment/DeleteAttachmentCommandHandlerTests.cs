@@ -4,6 +4,7 @@ using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -17,11 +18,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         private const string PLANT = "PCS$TESTPLANT";
 
         private Invitation _invitation;
+        private Attachment _attachment;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IBlobStorage> _blobStorageMock;
         private IOptionsMonitor<BlobStorageOptions> _monitorMock;
         private DeleteAttachmentCommandHandler _dut;
+        private DeleteAttachmentCommand _command;
 
         [TestInitialize]
         public void Setup()
@@ -35,9 +38,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
                 new DateTime(),
                 new DateTime(),
                 null);
-            var attachment = new TestableAttachment(PLANT, "ExistingFile.txt");
-            attachment.SetId(2);
-            _invitation.AddAttachment(attachment);
+            _attachment = new Attachment(PLANT, "ExistingFile.txt");
+            _attachment.SetProtectedIdForTesting(2);
+            _invitation.AddAttachment(_attachment);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -53,6 +56,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
             };
             _monitorMock = Mock.Of<IOptionsMonitor<BlobStorageOptions>>(x => x.CurrentValue == blobStorageOptions);
 
+            _command = new DeleteAttachmentCommand(1, 2, "AAAAAAAAAAA=");
+
             _dut = new DeleteAttachmentCommandHandler(
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
@@ -61,24 +66,46 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         }
 
         [TestMethod]
-        public async Task DeletingAttachment_RemovesItFromInvitationAndBlobStorage()
+        public async Task DeletingAttachment_RemovesAttachmentFromBlobStorage()
         {
-            var command = new DeleteAttachmentCommand(1, 2, "AAAAAAAAAAA=");
-            var result = await _dut.Handle(command, default);
+            var result = await _dut.Handle(_command, default);
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
-            Assert.AreEqual(0, _invitation.Attachments.Count);
             _blobStorageMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), default), Times.Once);
         }
 
-        private class TestableAttachment : Attachment
+        [TestMethod]
+        public async Task DeletingAttachment_RemovesAttachmentFromInvitation()
         {
-            public TestableAttachment(string plant, string fileName)
-                : base(plant, fileName)
-            {
-            }
+            Assert.AreEqual(1, _invitation.Attachments.Count);
 
-            public void SetId(int id) => Id = id;
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(0, result.Errors.Count);
+            Assert.AreEqual(ResultType.Ok, result.ResultType);
+            Assert.AreEqual(0, _invitation.Attachments.Count);
+        }
+
+        [TestMethod]
+        public async Task DeletingAttachment_RemovesAttachmentFromAttachmentTable()
+        {
+            Assert.AreEqual(1, _invitation.Attachments.Count);
+
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ResultType.Ok, result.ResultType);
+            Assert.AreEqual(0, _invitation.Attachments.Count);
+            _invitationRepositoryMock.Verify(r => r.RemoveAttachment(_attachment), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task DeletingAttachment_ShouldSave()
+        {
+            // Act
+            await _dut.Handle(_command, default);
+
+            // Assert
+            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
         }
     }
 }

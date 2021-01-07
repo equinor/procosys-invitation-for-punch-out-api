@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialInvitationId = TestFactory.Instance.KnownTestData.InvitationIds.First();
         protected int _attachmentId;
+        protected int _commentId;
         protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
         protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
         
@@ -130,6 +131,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
 
             _attachmentId = TestFactory.Instance.KnownTestData.AttachmentIds.First();
+            _commentId = TestFactory.Instance.KnownTestData.CommentIds.First();
 
             const string McPkgNo1 = "MC1";
             const string McPkgNo2 = "MC2";

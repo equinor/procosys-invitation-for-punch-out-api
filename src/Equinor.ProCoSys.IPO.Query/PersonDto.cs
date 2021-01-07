@@ -8,6 +8,7 @@ namespace Equinor.ProCoSys.IPO.Query
             int id,
             string firstName,
             string lastName,
+            string userName,
             Guid azureOid,
             string email,
             string rowVersion)
@@ -15,6 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query
             Id = id;
             FirstName = firstName;
             LastName = lastName;
+            UserName = userName;
             AzureOid = azureOid;
             Email = email;
             RowVersion = rowVersion;
@@ -23,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Query
         public int Id { get; }
         public string FirstName { get; }
         public string LastName { get; }
+        public string UserName { get; }
         public Guid AzureOid { get; }
         public string Email { get; }
         public string RowVersion { get; }

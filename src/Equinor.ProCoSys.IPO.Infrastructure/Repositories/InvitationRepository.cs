@@ -12,7 +12,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                     .Include(x => x.Participants)
                     .Include(x => x.McPkgs)
                     .Include(x => x.CommPkgs)
-                    .Include(i => i.Attachments))
+                    .Include(x => x.Comments)
+                    .Include(x => x.Attachments))
         {
         }
 
@@ -45,5 +46,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void RemoveParticipant(Participant participant)
             => _context.Participants.Remove(participant);
+
+        public void RemoveAttachment(Attachment attachment)
+            => _context.Attachments.Remove(attachment);
+
+        public void RemoveComment(Comment comment)
+            => _context.Comments.Remove(comment);
     }
 }

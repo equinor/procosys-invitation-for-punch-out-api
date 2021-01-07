@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             {
                 if (context.Persons.SingleOrDefault(p => p.Oid == _currentUserOid) == null)
                 {
-                    AddPerson(context, _currentUserOid, "Ole", "Lukkøye");
+                    AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
                 }
             }
 
@@ -57,9 +57,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
         protected abstract void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions);
 
-        protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName)
+        protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email)
         {
-            var person = new Person(oid, firstName, lastName);
+            var person = new Person(oid, firstName, lastName, userName, email);
             context.Persons.Add(person);
             context.SaveChangesAsync().Wait();
             return person;

@@ -510,6 +510,68 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNull(attachmentDtos.SingleOrDefault(m => m.Id == attachment.Id));
         }
 
+        [TestMethod]
+        public async Task GetComments_AsViewer_ShouldGetComments()
+        {
+            // Act
+            var commentDtos = await InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            // Assert
+            Assert.IsNotNull(commentDtos);
+            Assert.IsTrue(commentDtos.Count > 0);
+
+            var comment = commentDtos.Single(c => c.Id == _commentId);
+            Assert.IsNotNull(comment.Comment);
+            Assert.IsNotNull(comment.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldAddComment()
+        {
+            // Arrange
+            var invitationComments = InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+            var commentsCount = invitationComments.Result.Count;
+
+            // Act
+            await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId,
+                "comment on the IPO");
+
+            // Assert
+            invitationComments = InvitationsControllerTestsHelper.GetCommentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            Assert.AreEqual(commentsCount + 1, invitationComments.Result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetHistory_AsViewer_ShouldGetHistory()
+        {
+            // Act
+            var historyDtos = await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId);
+
+            // Assert
+            Assert.IsNotNull(historyDtos);
+            Assert.IsTrue(historyDtos.Count > 0);
+
+            var historyEvent = historyDtos.First();
+            Assert.IsNotNull(historyEvent.Description);
+            Assert.IsNotNull(historyEvent.EventType);
+        }
+
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
