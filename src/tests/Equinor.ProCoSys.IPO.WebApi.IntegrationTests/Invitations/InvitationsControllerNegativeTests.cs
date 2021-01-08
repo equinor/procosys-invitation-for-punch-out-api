@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         #region GetInvitationsByCommPkgNos
         [TestMethod]
         public async Task GetInvitationsByCommPkgNos_AsAnonymous_ShouldReturnUnauthorized()
-            => await InvitationsControllerTestsHelper.GetInvitationsByCommPkgNosAsync(
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 new List<string>{"CommPkgNo1"},
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task GetInvitationsByCommPkgNos_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await InvitationsControllerTestsHelper.GetInvitationsByCommPkgNosAsync(
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 new List<string> { "CommPkgNo1" },
@@ -106,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task GetInvitationsByCommPkgNos_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.GetInvitationsByCommPkgNosAsync(
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 new List<string> { "CommPkgNo1" },

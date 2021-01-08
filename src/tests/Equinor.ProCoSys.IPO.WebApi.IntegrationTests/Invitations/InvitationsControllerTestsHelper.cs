@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -55,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<List<InvitationForMainDto>>(content);
         }
 
-        public static async Task<List<Query.GetInvitationsByCommPkgNos.InvitationForMainDto>> GetInvitationsByCommPkgNosAsync(
+        public static async Task<List<CommPkgsWithMdpIposDto>> GetLatestMdpIpoOnCommPkgsAsync(
             UserType userType,
             string plant,
             IList<string> commPkgNos,
@@ -79,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Query.GetInvitationsByCommPkgNos.InvitationForMainDto>>(content);
+            return JsonConvert.DeserializeObject<List<CommPkgsWithMdpIposDto>>(content);
         }
 
         public static async Task<List<AttachmentDto>> GetAttachmentsAsync(

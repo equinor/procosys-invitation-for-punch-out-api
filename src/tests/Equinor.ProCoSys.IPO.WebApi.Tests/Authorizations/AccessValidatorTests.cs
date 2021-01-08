@@ -17,7 +17,7 @@ using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
-using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNos;
+using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -518,7 +518,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetInvitationsByCommPkgNosQuery(new List<string> {"commpkg"}, _projectWithAccess);
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {"commpkg"}, _projectWithAccess);
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -531,7 +531,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetInvitationsByCommPkgNosQuery(new List<string> { "commpkg" }, _projectWithoutAccess);
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "commpkg" }, _projectWithoutAccess);
 
             // act
             var result = await _dut.ValidateAsync(query);

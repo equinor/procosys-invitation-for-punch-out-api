@@ -3,11 +3,11 @@ using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNos
+namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
 {
-    public class GetInvitationsByCommPkgNosQuery : IRequest<Result<List<InvitationForMainDto>>>, IProjectRequest
+    public class GetLatestMdpIpoStatusOnCommPkgsQuery : IRequest<Result<List<CommPkgsWithMdpIposDto>>>, IProjectRequest
     {
-        public GetInvitationsByCommPkgNosQuery(IList<string> commPkgNos, string projectName)
+        public GetLatestMdpIpoStatusOnCommPkgsQuery(IList<string> commPkgNos, string projectName)
         {
             CommPkgNos = commPkgNos;
             ProjectName = projectName;
