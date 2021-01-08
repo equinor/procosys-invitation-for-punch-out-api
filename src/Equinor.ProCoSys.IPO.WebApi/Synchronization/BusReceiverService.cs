@@ -19,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IPlantSetter _plantSetter;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITelemetryClient _telemetryClient;
+        private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
 
         public BusReceiverService(IInvitationRepository invitationRepository, IPlantSetter plantSetter, IUnitOfWork unitOfWork, ITelemetryClient telemetryClient)
         {
@@ -31,42 +32,47 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         public async Task ProcessMessageAsync(PcsTopic pcsTopic, Message message, CancellationToken token)
         {
             var messageJson = Encoding.UTF8.GetString(message.Body);
+
+            
+
             switch (pcsTopic)
             {
                 case PcsTopic.Project:
                     var projectEvent = JsonSerializer.Deserialize<ProjectTopic>(messageJson);
-                    _telemetryClient.TrackEvent("IPO Bus Receiver",
+                    _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                         new Dictionary<string, string>
                         {
-                            {"Event", "project"},
-                            {"ProjectSchema", projectEvent.ProjectSchema[4..] },
-                            {"ProjectName", projectEvent.ProjectName.Replace('$','_') }
+                            {BusReceiverTelemetryConstants.Event, projectEvent.TopicName},
+                            {BusReceiverTelemetryConstants.ProjectSchema, projectEvent.ProjectSchema[4..] },
+                            {BusReceiverTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$','_') }
                         });
                     _plantSetter.SetPlant(projectEvent.ProjectSchema);
                     _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
                     break;
                 case PcsTopic.CommPkg:
                     var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
-                    _telemetryClient.TrackEvent("IPO Bus Receiver",
+                    
+                    _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                         new Dictionary<string, string>
                         {
-                            {"Event", "commpkg"},
-                            {"CommPkgNo", commPkgEvent.CommPkgNo},
-                            {"ProjectSchema", commPkgEvent.ProjectSchema[4..] },
-                            {"ProjectName", commPkgEvent.ProjectName.Replace('$','_') }
+                            {BusReceiverTelemetryConstants.Event, commPkgEvent.TopicName},
+                            {BusReceiverTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                            {BusReceiverTelemetryConstants.ProjectSchema, commPkgEvent.ProjectSchema[4..] },
+                            {BusReceiverTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$','_') }
                         });
                     _plantSetter.SetPlant(commPkgEvent.ProjectSchema);
                     _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo, commPkgEvent.Description);
                     break;
                 case PcsTopic.McPkg:
                     var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
-                    _telemetryClient.TrackEvent("IPO Bus Receiver",
+                    
+                    _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                         new Dictionary<string, string>
                         {
-                            {"Event", "mcpkg"},
-                            {"McPkgNo", mcPkgEvent.McPkgNo},
-                            {"ProjectSchema", mcPkgEvent.ProjectSchema[4..] },
-                            {"ProjectName", mcPkgEvent.ProjectName.Replace('$','_') }
+                            {BusReceiverTelemetryConstants.Event, mcPkgEvent.TopicName},
+                            {BusReceiverTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
+                            {BusReceiverTelemetryConstants.ProjectSchema, mcPkgEvent.ProjectSchema[4..] },
+                            {BusReceiverTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$','_') }
                         });
                     _plantSetter.SetPlant(mcPkgEvent.ProjectSchema);
                     _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);

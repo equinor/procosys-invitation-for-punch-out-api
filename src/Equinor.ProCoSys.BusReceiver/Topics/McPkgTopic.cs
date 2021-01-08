@@ -6,5 +6,6 @@
         public string ProjectName { get; set; }
         public string McPkgNo { get; set; }
         public string Description { get; set; }
+        public string TopicName { get { return "mcpkg"; } }
     }
 }
