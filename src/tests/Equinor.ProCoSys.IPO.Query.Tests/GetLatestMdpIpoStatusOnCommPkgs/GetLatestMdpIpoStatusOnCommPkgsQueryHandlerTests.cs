@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 _mdpInvitation2.AddCommPkg(commPkg2);
 
                 context.Invitations.Add(_mdpInvitation);
-                //context.SaveChangesAsync().Wait();
+                context.SaveChangesAsync().Wait();
 
                 var timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
                 TimeService.SetProvider(timeProvider);
