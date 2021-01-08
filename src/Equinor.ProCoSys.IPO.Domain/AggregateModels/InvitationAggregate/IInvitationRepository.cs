@@ -9,5 +9,6 @@
         void RemoveMcPkg(McPkg mcPkg);
         void RemoveParticipant(Participant participant);
         void RemoveAttachment(Attachment attachment);
+        void RemoveComment(Comment comment);
     }
 }

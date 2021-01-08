@@ -55,6 +55,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 Oid = Guid.Empty,
                 FullName = string.Empty,
+                UserName = string.Empty,
+                Email = string.Empty,
                 IsAppToken = false
             };
 
@@ -92,6 +94,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     }
 
                     AddNameClaims(claims, tokenDeserialized.FullName);
+                    claims.Add(new Claim(ClaimTypes.Upn, tokenDeserialized.UserName));
+                    claims.Add(new Claim(ClaimTypes.Email, tokenDeserialized.Email));
                     break;
                 case AuthType.Application:
                     throw new Exception($"{authType} authentication not supported yet");

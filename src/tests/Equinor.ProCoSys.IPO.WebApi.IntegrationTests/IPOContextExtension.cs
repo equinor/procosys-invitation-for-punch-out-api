@@ -45,6 +45,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var attachment = SeedAttachment(dbContext, invitation);
             knownTestData.AttachmentIds.Add(attachment.Id);
 
+            var comment = SeedComment(dbContext, invitation);
+            knownTestData.CommentIds.Add(comment.Id);
+
             var commPkg = SeedCommPkg(dbContext, invitation);
             knownTestData.CommPkgIds.Add(commPkg.Id);
 
@@ -89,6 +92,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             invitation.AddAttachment(attachment);
             dbContext.SaveChangesAsync().Wait();
             return attachment;
+        }
+
+        private static Comment SeedComment(IPOContext dbContext, Invitation invitation)
+        {
+            var comment = new Comment(invitation.Plant, "comment text");
+            invitation.AddComment(comment);
+            dbContext.SaveChangesAsync().Wait();
+            return comment;
         }
 
         private static CommPkg SeedCommPkg(IPOContext dbContext, Invitation invitation)

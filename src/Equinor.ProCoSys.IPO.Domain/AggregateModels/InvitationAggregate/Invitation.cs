@@ -320,6 +320,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Add(comment);
+            AddDomainEvent(new CommentAddedEvent(Plant, ObjectGuid));
         }
 
         public void RemoveComment(Comment comment)
@@ -335,6 +336,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Remove(comment);
+            AddDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
         }
 
         public void SetCreated(Person createdBy)

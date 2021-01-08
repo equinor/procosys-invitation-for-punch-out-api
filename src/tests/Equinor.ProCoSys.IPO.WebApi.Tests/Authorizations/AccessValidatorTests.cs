@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
+using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
@@ -231,6 +232,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
 
         #endregion
+
         #region CompleteInvitationCommand
         [TestMethod]
         public async Task ValidateAsync_OnCompleteInvitationCommand_ShouldReturnTrue_WhenAccessToProject()
@@ -463,7 +465,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetInvitationByIdQuery(_invitationIdWithAccessToProject);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -476,7 +478,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetInvitationByIdQuery(_invitationIdWithoutAccessToProject);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -588,6 +590,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetHistoryQuery(_invitationIdWithoutAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetComments
+        [TestMethod]
+        public async Task ValidateAsync_OnGetCommentsQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetCommentsQuery(_invitationIdWithAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetCommentsQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetCommentsQuery(_invitationIdWithoutAccessToProject);
 
             // act
             var result = await _dut.ValidateAsync(query);
