@@ -158,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] AcceptPunchOutDto dto)
         {
-            var participants = dto.Participants.Select(p =>
+            var participants = dto.Participants?.Select(p =>
                 new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
@@ -176,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompletePunchOutDto dto)
         {
-            var participantsToUpdate = dto.Participants.Select(p =>
+            var participantsToUpdate = dto.Participants?.Select(p =>
                 new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
                 new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));

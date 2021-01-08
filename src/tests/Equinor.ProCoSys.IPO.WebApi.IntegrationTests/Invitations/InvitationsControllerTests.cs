@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -56,8 +54,79 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsTrue(commPkgs.Count > 0);
             var commPkg = commPkgs.First();
             Assert.AreEqual(KnownTestData.CommPkgNo, commPkg.CommPkgNo);
-            Assert.AreEqual(false, commPkg.IsAccepted);
+            Assert.IsFalse(commPkg.IsAccepted);
         }
+
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsViewer_ShouldGetCommPkgsAfterAccept()
+        {
+            // Arrange
+            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForAcceptingTitle",
+                "InvitationForAcceptingDescription",
+                InvitationLocation,
+                DisciplineType.MDP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId);
+
+            var completerPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor).Person;
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = null
+            };
+
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                completePunchOutDto);
+
+            var accepterPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
+
+            var acceptPunchOutDto = new AcceptPunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = accepterPerson.Person.RowVersion,
+                Participants = null
+            };
+
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                acceptPunchOutDto);
+
+            // Act
+            var commPkgs = await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                new List<string> { KnownTestData.CommPkgNo },
+                TestFactory.ProjectWithAccess);
+
+            // Assert
+            Assert.IsTrue(commPkgs.Count > 0);
+            var commPkg = commPkgs.First();
+            Assert.AreEqual(KnownTestData.CommPkgNo, commPkg.CommPkgNo);
+            Assert.IsTrue(commPkg.IsAccepted);
+        }
+
+        //TODO: When cancel IPO is ready, make test that checks that IPO is not included in GetLatestMdpIpoOnCommPkgs
 
         [TestMethod]
         public async Task SignPunchOut_AsSigner_ShouldSignPunchOut()
