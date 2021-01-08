@@ -41,6 +41,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         }
 
         [TestMethod]
+        public async Task GetPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
+        {
+            // Act
+            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetPersonsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "searchStringWithNoMatchingPersons");
+
+            // Assert
+            Assert.AreEqual(0, proCoSysPersons.Count);
+        }
+
+        [TestMethod]
         public async Task GetRequiredSignerPersons_AsViewer_ShouldGetRequiredSignerPersons()
         {
             // Act
@@ -58,6 +71,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         }
 
         [TestMethod]
+        public async Task GetRequiredSignerPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
+        {
+            // Act
+            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "searchStringWithNoMatchingPersons");
+
+            // Assert
+            Assert.AreEqual(0, proCoSysPersons.Count);
+        }
+
+        [TestMethod]
         public async Task GetAdditionalSignerPersons_AsViewer_ShouldGetAdditionalSignerPersons()
         {
             // Act
@@ -72,6 +98,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             Assert.AreEqual("SigurdUserName", additionalSignerPerson.UserName);
             Assert.AreEqual("Sigurd", additionalSignerPerson.FirstName);
             Assert.AreEqual("Signer", additionalSignerPerson.LastName);
+        }
+
+        [TestMethod]
+        public async Task GetAdditionalSignerPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
+        {
+            // Act
+            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "searchStringWithNoMatchingPersons");
+
+            // Assert
+            Assert.AreEqual(0, proCoSysPersons.Count);
         }
     }
 }
