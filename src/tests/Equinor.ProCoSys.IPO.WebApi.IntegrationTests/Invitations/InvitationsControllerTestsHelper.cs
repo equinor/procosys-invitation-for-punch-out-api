@@ -69,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 parameters.Add("commPkgNos", commPkgNo);
             }
-            var url = $"/ByCommPkgNo{parameters}";
+            var url = $"/ByCommPkgNos{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);

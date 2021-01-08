@@ -84,9 +84,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
         #endregion
 
-        #region GetInvitationsByCommPkgNos
+        #region GetLatestMdpIpoOnCommPkgs
         [TestMethod]
-        public async Task GetInvitationsByCommPkgNos_AsAnonymous_ShouldReturnUnauthorized()
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsAnonymous_ShouldReturnUnauthorized()
             => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
@@ -95,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
-        public async Task GetInvitationsByCommPkgNos_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task GetInvitationsByCommPkgNos_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,

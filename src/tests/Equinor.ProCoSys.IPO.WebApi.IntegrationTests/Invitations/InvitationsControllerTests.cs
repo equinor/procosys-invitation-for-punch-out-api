@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task GetMdpIpoOnCommPkgs_AsViewer_ShouldGetCommPkgs()
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsViewer_ShouldGetCommPkgs()
         {
             // Act
             var commPkgs = await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
@@ -56,6 +56,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsTrue(commPkgs.Count > 0);
             var commPkg = commPkgs.First();
             Assert.AreEqual(KnownTestData.CommPkgNo, commPkg.CommPkgNo);
+            Assert.AreEqual(false, commPkg.IsAccepted);
         }
 
         [TestMethod]

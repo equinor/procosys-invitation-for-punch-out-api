@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -18,7 +19,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private Invitation _mdpInvitation;
         private Invitation _mdpInvitation1;
         private Invitation _mdpInvitation2;
-        private int _mdpInvitationId;
         private int _mdpInvitationId1;
         private int _mdpInvitationId2;
         private const string _commPkgNo1 = "CommPkgNo";
@@ -105,10 +105,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 _mdpInvitation2.AddCommPkg(commPkg2);
 
                 context.Invitations.Add(_mdpInvitation);
+                //context.SaveChangesAsync().Wait();
+
+                var timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
+                TimeService.SetProvider(timeProvider);
+
                 context.Invitations.Add(_mdpInvitation1);
                 context.Invitations.Add(_mdpInvitation2);
                 context.SaveChangesAsync().Wait();
-                _mdpInvitationId = _mdpInvitation.Id;
                 _mdpInvitationId1 = _mdpInvitation1.Id;
                 _mdpInvitationId2 = _mdpInvitation2.Id;
             }
@@ -143,7 +147,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var commPkgsWithMdpIposDtos = result.Data;
                 Assert.AreEqual(2, commPkgsWithMdpIposDtos.Count);
 
-                //Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId1) != null); TODO: would expect this to be the latest since it was added last, but it is not
+                Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId1) != null);
                 Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId2) != null);
             }
         }
