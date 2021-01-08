@@ -16,8 +16,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             IsAccepted = isAccepted;
         }
         public string CommPkgNo { get; }
-        public DateTime CreatedAtUtc { get; }
         public int LatestMdpInvitationId { get; }
+        public DateTime CreatedAtUtc { get; }
         public bool IsAccepted { get; }
     }
 }
