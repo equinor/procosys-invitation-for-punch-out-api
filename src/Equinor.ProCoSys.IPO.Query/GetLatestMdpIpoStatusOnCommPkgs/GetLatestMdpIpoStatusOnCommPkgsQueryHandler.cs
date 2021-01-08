@@ -29,6 +29,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
                     .DefaultIfEmpty()
                     where i.ProjectName == request.ProjectName &&
                           i.Type == DisciplineType.MDP &&
+                          i.Status != IpoStatus.Canceled &&
                           (request.CommPkgNos.Contains(c.CommPkgNo) ||
                            request.CommPkgNos.Contains(mc.CommPkgNo))
                     select new CommPkgsWithMdpIposDto(
