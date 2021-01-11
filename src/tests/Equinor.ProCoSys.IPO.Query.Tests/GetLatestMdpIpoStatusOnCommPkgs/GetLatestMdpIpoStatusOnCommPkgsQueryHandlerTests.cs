@@ -147,8 +147,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var commPkgsWithMdpIposDtos = result.Data;
                 Assert.AreEqual(2, commPkgsWithMdpIposDtos.Count);
 
-                Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId1) != null);
-                Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId2) != null);
+                Assert.IsNotNull(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId1));
+                Assert.IsNotNull(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId2));
             }
         }
 
@@ -168,7 +168,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var commPkgsWithMdpIposDtos = result.Data;
                 Assert.AreEqual(1, commPkgsWithMdpIposDtos.Count);
 
-                Assert.IsTrue(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId2) != null);
+                Assert.IsNotNull(commPkgsWithMdpIposDtos.SingleOrDefault(i => i.LatestMdpInvitationId == _mdpInvitationId2));
             }
         }
 
