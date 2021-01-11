@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             if (createdBy == null)
             {
-                return new NotFoundResult<InvitationDto>($"Could not get person that created the IPO with id {invitation.CreatedById}");
+                return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Person), invitation.CreatedById));
             }
 
             var createdByName = createdBy.FirstName + ' ' + createdBy.LastName;
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
                     query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 meeting = null; //user has not been invited to IPO with their personal email
             }
@@ -228,7 +228,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToInvitedPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
 
         private static InvitedPersonDto ConvertToInvitedPersonDto(Participant participant)
-            => new InvitedPersonDto(new PersonDto(participant.Id, participant.FirstName, participant.LastName, participant.AzureOid ?? Guid.Empty, participant.Email, participant.RowVersion.ConvertToString())); 
+            => new InvitedPersonDto(new PersonDto(
+                participant.Id,
+                participant.FirstName,
+                participant.LastName,
+                participant.UserName,
+                participant.AzureOid ?? Guid.Empty,
+                participant.Email,
+                participant.RowVersion.ConvertToString())); 
 
         private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();

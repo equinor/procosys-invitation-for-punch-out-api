@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Seeding
 {
     public class Seeder : IHostedService
     {
-        private static readonly Person s_seederUser = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Angus", "MacGyver");
+        private static readonly Person s_seederUser = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Angus", "MacGyver", "am", "am@pcs.pcs");
         private readonly IServiceScopeFactory _serviceProvider;
 
         public Seeder(IServiceScopeFactory serviceProvider) => _serviceProvider = serviceProvider;

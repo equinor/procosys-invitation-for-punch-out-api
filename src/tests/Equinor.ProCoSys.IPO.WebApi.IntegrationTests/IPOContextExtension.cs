@@ -45,6 +45,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var attachment = SeedAttachment(dbContext, invitation);
             knownTestData.AttachmentIds.Add(attachment.Id);
 
+            var comment = SeedComment(dbContext, invitation);
+            knownTestData.CommentIds.Add(comment.Id);
+
             var commPkg = SeedCommPkg(dbContext, invitation);
             knownTestData.CommPkgIds.Add(commPkg.Id);
 
@@ -58,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
         {
             var personRepository = new PersonRepository(dbContext);
-            personRepository.Add(new Person(userProvider.GetCurrentUserOid(), "Siri", "Seed"));
+            personRepository.Add(new Person(userProvider.GetCurrentUserOid(), "Siri", "Seed", "ss", "ss@pcs.pcs"));
             dbContext.SaveChangesAsync().Wait();
         }
 
@@ -70,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 KnownTestData.ProjectName,
                 KnownTestData.InvitationTitle,
                 KnownTestData.InvitationDescription,
-                DisciplineType.DP,
+                DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
                 null)
@@ -89,6 +92,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             invitation.AddAttachment(attachment);
             dbContext.SaveChangesAsync().Wait();
             return attachment;
+        }
+
+        private static Comment SeedComment(IPOContext dbContext, Invitation invitation)
+        {
+            var comment = new Comment(invitation.Plant, "comment text");
+            invitation.AddComment(comment);
+            dbContext.SaveChangesAsync().Wait();
+            return comment;
         }
 
         private static CommPkg SeedCommPkg(IPOContext dbContext, Invitation invitation)

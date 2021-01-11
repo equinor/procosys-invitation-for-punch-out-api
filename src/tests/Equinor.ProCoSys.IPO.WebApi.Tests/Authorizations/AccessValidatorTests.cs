@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
@@ -12,8 +14,12 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
+using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -370,6 +376,38 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
+        #region AddCommentCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnAddCommentCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new AddCommentCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnAddCommentCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new AddCommentCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
         #endregion
 
         #region Queries
@@ -464,7 +502,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetInvitationByIdQuery(_invitationIdWithAccessToProject);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -477,7 +515,63 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetInvitationByIdQuery(_invitationIdWithoutAccessToProject);
-            
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetInvitationsByCommPkgNoQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithoutAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetInvitationsByCommPkgNosQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {"commpkg"}, _projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "commpkg" }, _projectWithoutAccess);
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -513,7 +607,63 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             Assert.IsFalse(result);
         }
         #endregion
-        
+
+        #region GetHistoryQuery
+        [TestMethod]
+        public async Task ValidateAsync_OnGetHistoryQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetHistoryQuery(_invitationIdWithAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetHistoryQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetHistoryQuery(_invitationIdWithoutAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetComments
+        [TestMethod]
+        public async Task ValidateAsync_OnGetCommentsQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetCommentsQuery(_invitationIdWithAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetCommentsQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetCommentsQuery(_invitationIdWithoutAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
         #endregion
     }
 }

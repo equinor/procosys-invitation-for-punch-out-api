@@ -84,6 +84,36 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
         #endregion
 
+        #region GetLatestMdpIpoOnCommPkgs
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                new List<string>{"CommPkgNo1"},
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                new List<string> { "CommPkgNo1" },
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                new List<string> { "CommPkgNo1" },
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Forbidden);
+        #endregion
+
         #region Create
         [TestMethod]
         public async Task CreateInvitation_AsAnonymous_ShouldReturnUnauthorized()
@@ -965,6 +995,92 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 12456,
                 _attachmentId,
+                HttpStatusCode.NotFound);
+        #endregion
+
+        #region AddComment
+        [TestMethod]
+        public async Task AddComment_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithAccess,
+                9999,
+                "comment",
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task AddComment_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task AddComment_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                "comment",
+                HttpStatusCode.Forbidden);
+
+
+        [TestMethod]
+        public async Task AddComment_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.AddCommentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
+                "comment",
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist");
+        #endregion
+
+        #region GetHistory
+        [TestMethod]
+        public async Task GetHistory_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                InitialInvitationId,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task GetHistory_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                InitialInvitationId,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task GetHistory_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                InitialInvitationId,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task GetHistory_AsPlanner_ShouldReturnNotFound_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
                 HttpStatusCode.NotFound);
         #endregion
 

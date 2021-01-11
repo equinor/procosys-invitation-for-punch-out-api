@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -15,13 +16,17 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
+using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
+using InvitationForMainDto = Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo.InvitationForMainDto;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -57,6 +62,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromQuery] string projectName)
         {
             var result = await _mediator.Send(new GetInvitationsByCommPkgNoQuery(commPkgNo, projectName));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.COMMPKG_READ)]
+        [HttpGet("/ByCommPkgNos")]
+        public async Task<ActionResult<CommPkgsWithMdpIposDto>> GetInvitationsByCommPkgNos(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromQuery] IList<string> commPkgNos,
+            [FromQuery] string projectName)
+        {
+            var result = await _mediator.Send(new GetLatestMdpIpoStatusOnCommPkgsQuery(commPkgNos, projectName));
             return this.FromResult(result);
         }
 
@@ -140,7 +159,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] AcceptPunchOutDto dto)
         {
-            var participants = dto.Participants.Select(p =>
+            var participants = dto.Participants?.Select(p =>
                 new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
@@ -174,7 +193,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompletePunchOutDto dto)
         {
-            var participantsToUpdate = dto.Participants.Select(p =>
+            var participantsToUpdate = dto.Participants?.Select(p =>
                 new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
                 new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
@@ -248,6 +267,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("{id}/History")]
+        public async Task<ActionResult<HistoryDto>> GetHistory(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id)
+        {
+            var result = await _mediator.Send(new GetHistoryQuery(id));
+            return this.FromResult(result);
+        }
+
         [Authorize(Roles = Permissions.IPO_DETACHFILE)]
         [HttpDelete("{id}/Attachments/{attachmentId}")]
         public async Task<ActionResult<int>> DeleteAttachment(
@@ -265,6 +297,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 dto.RowVersion);
 
             var result = await _mediator.Send(command);
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPost("{id}/Comments")]
+        public async Task<ActionResult<int>> AddComment(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] AddCommentDto dto)
+        {
+            var result = await _mediator.Send(
+                new AddCommentCommand(id, dto.Comment));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("{id}/Comments")]
+        public async Task<ActionResult<List<CommentDto>>> GetComments(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id)
+        {
+            var result = await _mediator.Send(new GetCommentsQuery(id));
             return this.FromResult(result);
         }
 
