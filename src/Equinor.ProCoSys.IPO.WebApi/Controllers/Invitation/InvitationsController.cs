@@ -19,11 +19,13 @@ using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
+using InvitationForMainDto = Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo.InvitationForMainDto;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -59,6 +61,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromQuery] string projectName)
         {
             var result = await _mediator.Send(new GetInvitationsByCommPkgNoQuery(commPkgNo, projectName));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.COMMPKG_READ)]
+        [HttpGet("/ByCommPkgNos")]
+        public async Task<ActionResult<CommPkgsWithMdpIposDto>> GetInvitationsByCommPkgNos(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromQuery] IList<string> commPkgNos,
+            [FromQuery] string projectName)
+        {
+            var result = await _mediator.Send(new GetLatestMdpIpoStatusOnCommPkgsQuery(commPkgNos, projectName));
             return this.FromResult(result);
         }
 
@@ -142,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] AcceptPunchOutDto dto)
         {
-            var participants = dto.Participants.Select(p =>
+            var participants = dto.Participants?.Select(p =>
                 new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
@@ -160,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompletePunchOutDto dto)
         {
-            var participantsToUpdate = dto.Participants.Select(p =>
+            var participantsToUpdate = dto.Participants?.Select(p =>
                 new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
             var result = await _mediator.Send(
                 new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
