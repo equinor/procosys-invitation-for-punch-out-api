@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Reflection;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 {
@@ -554,5 +558,71 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldAddIpoCreatedEvent() 
             => Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
+
+        [TestMethod]
+        public void Cancel_SetsStatusToCanceled()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            dut.Cancel(creator);
+            Assert.AreEqual(dut.Status, IpoStatus.Canceled);
+        }
+
+        [TestMethod]
+        public void Cancel_CallerIsNotCreator_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+            var caller = new Person(new Guid("99999999-9999-9999-9999-999999999999"), "Another", "Person", "ap", "ap@pcs.pcs");
+
+            // Set caller ID to a different ID than the creator
+            caller
+                .GetType()
+                .GetProperty(nameof(Person.Id))
+                .SetValue(caller, 1, null);
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            Assert.ThrowsException<InvalidOperationException>(() => dut.Cancel(caller));
+        }
+
+        [TestMethod]
+        public void Cancel_CallerIsNull_ThrowsException()
+        {
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            Assert.ThrowsException<ArgumentNullException>(() => dut.Cancel(null));
+        }
     }
 }

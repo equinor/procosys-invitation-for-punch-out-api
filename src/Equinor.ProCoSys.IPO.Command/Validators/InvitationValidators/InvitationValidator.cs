@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
@@ -277,6 +278,23 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
 
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
+        public async Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken token)
+        {
+            var currentUserOid = _currentUserProvider.GetCurrentUserOid();
+
+            var currentUserId = await (from person in _context.QuerySet<Person>()
+                                   where person.Oid == currentUserOid
+                                   select person.Id)
+                                   .SingleAsync(token);
+
+            var createdById = await (from invitation in _context.QuerySet<Invitation>()
+                              where invitation.Id == invitationId
+                              select invitation.CreatedById)
+                              .SingleAsync(token);
+
+            return currentUserId == createdById;
         }
     }
 }

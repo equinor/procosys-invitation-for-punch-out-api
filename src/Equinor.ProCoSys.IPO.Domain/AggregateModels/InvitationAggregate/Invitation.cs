@@ -339,6 +339,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
         }
 
+        public void Cancel(Person caller)
+        {
+            if (caller == null)
+            {
+                throw new ArgumentNullException(nameof(caller));
+            }
+
+            if (caller.Id != CreatedById)
+            {
+                throw new InvalidOperationException("Only the creator can cancel an invitation");
+            }
+
+            Status = IpoStatus.Canceled;
+        }
+
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;
