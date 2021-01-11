@@ -84,6 +84,36 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
         #endregion
 
+        #region GetLatestMdpIpoOnCommPkgs
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                new List<string>{"CommPkgNo1"},
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                new List<string> { "CommPkgNo1" },
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task GetLatestMdpIpoOnCommPkgsAsync_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                new List<string> { "CommPkgNo1" },
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Forbidden);
+        #endregion
+
         #region Create
         [TestMethod]
         public async Task CreateInvitation_AsAnonymous_ShouldReturnUnauthorized()
