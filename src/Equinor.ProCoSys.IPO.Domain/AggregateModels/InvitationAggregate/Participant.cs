@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public bool Attended { get; set; }
         public string Note { get; set; }
         public DateTime? SignedAtUtc { get; set; }
-        public string SignedBy { get; set; }
+        public int? SignedBy { get; set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }

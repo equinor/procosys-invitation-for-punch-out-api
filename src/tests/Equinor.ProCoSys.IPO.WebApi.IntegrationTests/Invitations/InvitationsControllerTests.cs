@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participantPerson.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
-            Assert.AreEqual("SigurdUserName", signerParticipant.SignedBy);
+            Assert.AreEqual(_sigurdSigner.AzureOid, signerParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
@@ -162,7 +162,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 completedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
-            Assert.AreEqual(_conradContractor.UserName, completingParticipant.SignedBy);
+            Assert.AreEqual(_conradContractor.AzureOid, completingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
-            Assert.AreEqual("ConnieUserName", acceptingParticipant.SignedBy);
+            Assert.AreEqual(_connieConstructor.AzureOid, acceptingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
@@ -368,7 +368,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task ChangeAttendedStatusOnParticipants_AsCompleter_ShouldChangeAttendedStatus()
         {
             //Arrange
-            const string UpdatedNote = "Updated note about attendee";
+            const string updatedNote = "Updated note about attendee";
             
             var invitationToChangeId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -420,7 +420,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     {
                         Id = completerPerson.Person.Id,
                         Attended = false,
-                        Note = UpdatedNote,
+                        Note = updatedNote,
                         RowVersion = completerPerson.Person.RowVersion
                     }
                 };
@@ -441,7 +441,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var participant =
                 invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
 
-            Assert.AreEqual(UpdatedNote, participant.Note);
+            Assert.AreEqual(updatedNote, participant.Note);
             Assert.AreEqual(false, participant.Attended);
         }
 

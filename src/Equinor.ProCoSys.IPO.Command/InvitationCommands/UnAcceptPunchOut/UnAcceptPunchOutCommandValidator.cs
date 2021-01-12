@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                 .MustAsync((command, token) => BeAConstructionCompanyOnIpo(command.InvitationId, token))
                 .WithMessage(command =>
                     "The IPO does not have a construction company assigned to accept the IPO!")
-                .MustAsync((command, token) => BeThePersonWhoAccepted(command.ObjectGuid, token))
+                .MustAsync((command, token) => BeThePersonWhoAccepted(command.InvitationId, token))
                 .WithMessage(command =>
                     "Person trying to unaccept is not the person who accepted the IPO!");
 
@@ -43,8 +43,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             async Task<bool> BeAConstructionCompanyOnIpo(int invitationId, CancellationToken token)
                 => await invitationValidator.ConstructionCompanyExistsAsync(invitationId, token);
 
-            async Task<bool> BeThePersonWhoAccepted(Guid objectGuid, CancellationToken token)
-                => await invitationValidator.SameUserUnAcceptingThatAcceptedAsync(objectGuid, token);
+            async Task<bool> BeThePersonWhoAccepted(int invitationId, CancellationToken token)
+                => await invitationValidator.SameUserUnAcceptingThatAcceptedAsync(invitationId, token);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOid, "ola@test.com", true),
                 null,
                 1)
         };

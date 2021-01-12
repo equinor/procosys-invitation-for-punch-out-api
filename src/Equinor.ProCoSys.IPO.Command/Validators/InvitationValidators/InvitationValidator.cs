@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Microsoft.EntityFrameworkCore;
@@ -281,27 +280,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
-        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(Guid invitationGuid, CancellationToken token)
+        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken token)
         {
-            var acceptingEvents = await (from e in _context.QuerySet<History>()
-                where e.ObjectGuid == invitationGuid &&
-                      e.EventType == EventType.IpoAccepted
-                select e).ToListAsync(token);
-
-            var lastAccept = acceptingEvents.SingleOrDefault() != null ? 
-                acceptingEvents.Single() : 
-                acceptingEvents.OrderByDescending(e => e.CreatedAtUtc).FirstOrDefault();
-
-            if (lastAccept == null)
-            {
-                return false;
-            }
-
-            var lastAcceptor = await (from p in _context.QuerySet<Person>()
-                where p.Id == lastAccept.CreatedById
+            var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
+                join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
+                where i.Id == invitationId
                 select p).SingleOrDefaultAsync(token);
 
-            return _currentUserProvider.GetCurrentUserOid() == lastAcceptor.Oid;
+            var persons = await (from p in _context.QuerySet<Person>()
+                select p).ToListAsync(token);
+            return acceptingPerson != null && _currentUserProvider.GetCurrentUserOid() == acceptingPerson.Oid;
         }
 
     }

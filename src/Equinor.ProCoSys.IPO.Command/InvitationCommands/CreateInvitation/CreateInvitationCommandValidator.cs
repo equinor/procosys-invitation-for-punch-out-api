@@ -20,25 +20,25 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     "Participants cannot be null!")
                 .Must(command =>
                     command.ProjectName != null && 
-                    command.ProjectName.Length > 2 &&
+                    command.ProjectName.Length >= Invitation.ProjectNameMinLength &&
                     command.ProjectName.Length < Invitation.ProjectNameMaxLength)
                 .WithMessage(command =>
-                    $"Project name must be between 3 and {Invitation.ProjectNameMaxLength} characters! ProjectName={command.ProjectName}")
-                .Must(command => command.Description == null || command.Description.Length < 4000)
+                    $"Project name must be between {Invitation.ProjectNameMinLength} and {Invitation.ProjectNameMaxLength} characters! ProjectName={command.ProjectName}")
+                .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
-                    $"Description cannot be more than 4000 characters! Description={command.Description}")
+                    $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
+                .Must(command => command.Location == null || command.Location.Length < Invitation.LocationMaxLength)
+                .WithMessage(command =>
+                    $"Location cannot be more than {Invitation.LocationMaxLength} characters! Location={command.Location}")
                 .Must(command => command.StartTime < command.EndTime)
                 .WithMessage(command =>
                     $"Start time must be before end time! Start={command.StartTime} End={command.EndTime}")
                 .Must(command => 
                     command.Title != null &&
-                    command.Title.Length > 2 && 
+                    command.Title.Length >= Invitation.TitleMinLength && 
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
-                    $"Title must be between 3 and 1024 characters! Title={command.Title}")
-                .Must(command => command.Location == null || command.Location.Length < 1024)
-                .WithMessage(command =>
-                    $"Location cannot be more than 1024 characters! Location={command.Location}")
+                    $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
                 //business validators
                 .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, token))
                 .WithMessage(command =>

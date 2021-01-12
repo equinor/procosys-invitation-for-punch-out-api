@@ -313,7 +313,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             // Arrange
             var command = new UnAcceptPunchOutCommand(
                 _invitationIdWithAccessToProject,
-                new Guid(), 
                 null,
                 null);
 
@@ -330,7 +329,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             // Arrange
             var command = new UnAcceptPunchOutCommand(
                 _invitationIdWithoutAccessToProject,
-                new Guid(), 
                 null,
                 null);
 

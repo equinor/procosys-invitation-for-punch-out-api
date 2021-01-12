@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -31,6 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
+        private const string _firstName = "Ola";
+        private const string _lastName = "Nordmann";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _invitationRowVersion = "AAAAAAAAABA=";
@@ -68,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOidForCurrentUser,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
                 null,
                 1)
         };
@@ -95,8 +99,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             var personDetails = new ProCoSysPerson
             {
                 AzureOid = _azureOidForCurrentUser.ToString(),
-                FirstName = "Ola",
-                LastName = "Nordman",
+                FirstName = _firstName,
+                LastName = _lastName,
                 Email = "ola@test.com",
                 UserName = "ON"
             };
@@ -136,22 +140,35 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _participants[1].Organization,
                 IpoParticipantType.Person,
                 null,
-                _participants[1].Person.FirstName,
-                _participants[1].Person.LastName,
+                _firstName,
+                _lastName,
                 "OlaN",
                 _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
+                _azureOidForCurrentUser,
                 1);
             participant2.SetProtectedIdForTesting(_participantId2);
             _invitation.AddParticipant(participant2);
-            _invitation.Status = IpoStatus.Completed;
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
+            var currentUser = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
+            currentUser.SetProtectedIdForTesting(_participantId2);
+
+            _personRepositoryMock = new Mock<IPersonRepository>();
+            _personRepositoryMock
+                .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(currentUser));
+
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+
+            _invitation.CompleteIpo(
+                participant1,
+                participant1.RowVersion.ConvertToString(),
+                new Person(new Guid(), null, null, null, null), 
+                new DateTime());
 
             //command
             _command = new AcceptPunchOutCommand(
@@ -166,7 +183,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _personApiServiceMock.Object,
-                _mcPkgApiServiceMock.Object);
+                _mcPkgApiServiceMock.Object,
+                _personRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -181,8 +199,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Accepted, _invitation.Status);
-            Assert.IsNotNull(participant.SignedAtUtc);
-            Assert.AreEqual("OlaN", participant.SignedBy);
+            Assert.IsNotNull(_invitation.AcceptedAtUtc);
+            Assert.AreEqual(_participantId2, _invitation.AcceptedBy);
         }
 
         [TestMethod]

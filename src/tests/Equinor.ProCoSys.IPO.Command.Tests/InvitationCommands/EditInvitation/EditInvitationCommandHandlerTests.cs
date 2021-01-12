@@ -44,6 +44,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _newTitle = "Test title 2";
         private const string _description = "Test description";
         private const string _newDescription = "Test description 2";
+        private const string _firstName = "Ola";
+        private const string _lastName = "Nordmann";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _invitation;
@@ -66,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOid,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOid, "ola@test.com", true),
                 null,
                 1)
         };
@@ -82,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_newAzureOid,  "Kari", "Nordman", "kari@test.com", true),
+                new PersonForCommand(_newAzureOid, "kari@test.com", true),
                 null,
                 1)
         };
@@ -160,8 +162,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             var personDetails = new ProCoSysPerson
             {
                 AzureOid = _azureOid.ToString(),
-                FirstName = "Ola",
-                LastName = "Nordman",
+                FirstName = _firstName,
+                LastName = _lastName,
                 Email = "ola@test.com",
                 UserName = "ON"
             };
@@ -243,8 +245,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _participants[1].Organization,
                 IpoParticipantType.Person,
                 null,
-                _participants[1].Person.FirstName,
-                _participants[1].Person.LastName,
+                _firstName,
+                _lastName,
                 null,
                 _participants[1].Person.Email,
                 _participants[1].Person.AzureOid,

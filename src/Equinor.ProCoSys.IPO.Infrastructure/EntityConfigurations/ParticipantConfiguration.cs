@@ -1,4 +1,5 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,6 +26,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.Property(x => x.SignedAtUtc)
                 .HasConversion(IPOContext.DateTimeKindConverter);
+
+            builder
+                .HasOne<Person>()
+                .WithMany()
+                .HasForeignKey(x => x.SignedBy)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

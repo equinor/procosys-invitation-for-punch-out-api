@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromBody] UnAcceptPunchOutDto dto)
         {
             var result = await _mediator.Send(
-                new UnAcceptPunchOutCommand(id, dto.ObjectGuid, dto.InvitationRowVersion, dto.ParticipantRowVersion));
+                new UnAcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 
@@ -341,8 +341,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.Person != null
                         ? new PersonForCommand(
                             p.Person.AzureOid,
-                            p.Person.FirstName,
-                            p.Person.LastName,
                             p.Person.Email,
                             p.Person.Required,
                             p.Person.Id,
@@ -354,8 +352,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.FunctionalRole.Persons?.Select(person =>
                                 new PersonForCommand(
                                     person.AzureOid,
-                                    person.FirstName,
-                                    person.LastName,
                                     person.Email,
                                     person.Required,
                                     person.Id,

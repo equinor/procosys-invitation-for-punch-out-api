@@ -1,5 +1,4 @@
-﻿using System;
-using MediatR;
+﻿using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
@@ -8,18 +7,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
     {
         public UnAcceptPunchOutCommand(
             int invitationId,
-            Guid objectGuid,
             string invitationRowVersion,
             string participantRowVersion)
         {
             InvitationId = invitationId;
-            ObjectGuid = objectGuid;
             InvitationRowVersion = invitationRowVersion;
             ParticipantRowVersion = participantRowVersion;
         }
 
         public int InvitationId { get; }
-        public Guid ObjectGuid { get; }
         public string InvitationRowVersion { get; }
         public string ParticipantRowVersion { get; }
     }

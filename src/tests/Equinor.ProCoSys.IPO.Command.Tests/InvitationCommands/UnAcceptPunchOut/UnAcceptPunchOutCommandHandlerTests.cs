@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,6 +30,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
+        private const string _firstName = "Ola";
+        private const string _lastName = "Nordmann";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _invitationRowVersion = "AAAAAAAAABA=";
@@ -37,10 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
         private const string _functionalRoleCode = "FR1";
         private Invitation _invitation;
-        private const int _participantId1 = 10;
-        private const int _participantId2 = 20;
-        private static Guid _objectGuid = new Guid("11111111-1111-2222-3333-333333333335");
-
+        private const int _participantId = 20;
 
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOidForCurrentUser,  "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
                 null,
                 1)
         };
@@ -97,24 +97,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                 null,
                 null,
                 0);
-            participant1.SetProtectedIdForTesting(_participantId1);
             _invitation.AddParticipant(participant1);
             var participant2 = new Participant(
                 _plant,
                 _participants[1].Organization,
                 IpoParticipantType.Person,
                 null,
-                _participants[1].Person.FirstName,
-                _participants[1].Person.LastName,
+                _firstName,
+                _lastName,
                 "OlaN",
                 _participants[1].Person.Email,
                 _participants[1].Person.AzureOid,
                 1);
-            participant2.SignedAtUtc = DateTime.Today;
-            participant2.SignedBy = "OlaN";
-            participant2.SetProtectedIdForTesting(_participantId2);
+            participant2.SetProtectedIdForTesting(_participantId);
             _invitation.AddParticipant(participant2);
-            _invitation.Status = IpoStatus.Accepted;
+            var currentUser = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
+
+            _invitation.CompleteIpo(participant2, participant2.RowVersion.ConvertToString(), currentUser, new DateTime());
+
+            _invitation.AcceptIpo(participant2, participant2.RowVersion.ConvertToString(), currentUser, new DateTime());
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -126,7 +127,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             //command
             _command = new UnAcceptPunchOutCommand(
                 _invitation.Id,
-                _objectGuid,
                 _invitationRowVersion,
                 _participantRowVersion);
 

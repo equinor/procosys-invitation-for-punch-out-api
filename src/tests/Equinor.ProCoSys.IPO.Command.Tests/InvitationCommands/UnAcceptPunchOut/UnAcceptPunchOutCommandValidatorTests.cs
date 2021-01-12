@@ -20,7 +20,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private const int _id = 1;
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
-        private static Guid _objectGuid = new Guid("11111111-1111-2222-3333-333333333334");
 
         [TestInitialize]
         public void Setup_OkState()
@@ -31,11 +30,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Accepted, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_objectGuid, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ConstructionCompanyExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new UnAcceptPunchOutCommand(
                 _id,
-                _objectGuid,
                 _invitationRowVersion,
                 _participantRowVersion);
 
@@ -101,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenPersonTryingToUnAcceptIsNotThePersonWhoAcceptedTheIpo()
         {
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_objectGuid, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

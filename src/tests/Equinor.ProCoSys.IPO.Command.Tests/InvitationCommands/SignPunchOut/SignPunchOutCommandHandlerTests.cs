@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -93,10 +95,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 3);
             participant.SetProtectedIdForTesting(_participantId);
             _invitation.AddParticipant(participant);
+
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
+
+            var currentUser = new Person(_azureOidForCurrentUser, null, null, null, null);
+            currentUser.SetProtectedIdForTesting(_participantId);
+
+            _personRepositoryMock = new Mock<IPersonRepository>();
+            _personRepositoryMock
+                .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(currentUser));
 
             //command
             _command = new SignPunchOutCommand(
@@ -109,7 +120,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personApiServiceMock.Object);
+                _personApiServiceMock.Object,
+                _personRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -123,7 +135,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
             await _dut.Handle(_command, default);
 
             Assert.IsNotNull(participant.SignedAtUtc);
-            Assert.AreEqual("KN", participant.SignedBy);
+            Assert.AreEqual(_participantId, participant.SignedBy);
             Assert.AreEqual(1, _saveChangesCount);
         }
 
