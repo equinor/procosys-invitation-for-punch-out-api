@@ -41,6 +41,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestInitialize]
         public void Setup()
         {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+
             _dutWithMcPkgScope = new Invitation(
                 TestPlant,
                 ProjectName,
@@ -58,10 +60,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null)
-            {
-                Status = IpoStatus.Completed
-            };
+                null);
 
             _dutWithCanceledStatus = new Invitation(
                 TestPlant,
@@ -71,10 +70,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null)
-            {
-                Status = IpoStatus.Canceled
-            };
+                null);
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
@@ -142,10 +138,16 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithMcPkgScope.AddMcPkg(_mcPkg1);
             _dutWithMcPkgScope.AddMcPkg(_mcPkg2);
             _dutWithMcPkgScope.AddAttachment(_attachment);
+            //_dutWithMcPkgScope.CompleteIpo(_personParticipant2, "Me", _personParticipant2.RowVersion.ConvertToString());
             _dutWithCommPkgScope.AddCommPkg(_commPkg1);
             _dutWithCommPkgScope.AddCommPkg(_commPkg2);
             _dutWithCommPkgScope.AddParticipant(_personParticipant);
             _dutWithCommPkgScope.AddParticipant(_functionalRoleParticipant);
+            _dutWithCommPkgScope.CompleteIpo(_personParticipant2, "Me", _personParticipant2.RowVersion.ConvertToString());
+
+            Person cancelPerson = new Person(new Guid("11111111-1111-2222-2222-333333333334"), "Cancel", "Person", "cp", "cp@pcs.pcs");
+            _dutWithCanceledStatus.SetCreated(cancelPerson);
+            _dutWithCanceledStatus.Cancel(cancelPerson);
         }
 
         [TestMethod]
