@@ -619,12 +619,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCancelId);
 
             // Assert
-            var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 invitationToCancelId);
 
-            Assert.AreEqual(IpoStatus.Canceled, completedInvitation.Status);
+            Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
         
