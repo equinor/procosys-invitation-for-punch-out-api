@@ -339,7 +339,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
         }
 
-        public void Cancel(Person caller)
+        public void CancelIpo(Person caller)
         {
             if (caller == null)
             {

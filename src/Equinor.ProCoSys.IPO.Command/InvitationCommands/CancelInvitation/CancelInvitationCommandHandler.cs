@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
-            invitation.Cancel(currentUser);
+            invitation.CancelIpo(currentUser);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<object>(null);
         }

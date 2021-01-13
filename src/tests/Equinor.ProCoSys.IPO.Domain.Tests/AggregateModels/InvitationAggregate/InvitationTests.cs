@@ -146,7 +146,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             Person cancelPerson = new Person(new Guid("11111111-1111-2222-2222-333333333334"), "Cancel", "Person", "cp", "cp@pcs.pcs");
             _dutWithCanceledStatus.SetCreated(cancelPerson);
-            _dutWithCanceledStatus.Cancel(cancelPerson);
+            _dutWithCanceledStatus.CancelIpo(cancelPerson);
         }
 
         [TestMethod]
@@ -561,7 +561,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
 
         [TestMethod]
-        public void Cancel_SetsStatusToCanceled()
+        public void CancelIpo_SetsStatusToCanceled()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -578,12 +578,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(creator);
 
-            dut.Cancel(creator);
+            dut.CancelIpo(creator);
             Assert.AreEqual(dut.Status, IpoStatus.Canceled);
         }
 
         [TestMethod]
-        public void Cancel_IpoIsAlreadyCanceled_ThrowsException()
+        public void CancelIpo_IpoIsAlreadyCanceled_ThrowsException()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -600,12 +600,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(creator);
 
-            dut.Cancel(creator);
-            Assert.ThrowsException<Exception>(() => dut.Cancel(creator));
+            dut.CancelIpo(creator);
+            Assert.ThrowsException<Exception>(() => dut.CancelIpo(creator));
         }
 
         [TestMethod]
-        public void Cancel_CallerIsNotCreator_ThrowsException()
+        public void CancelIpo_CallerIsNotCreator_ThrowsException()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -629,11 +629,11 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(creator);
 
-            Assert.ThrowsException<InvalidOperationException>(() => dut.Cancel(caller));
+            Assert.ThrowsException<InvalidOperationException>(() => dut.CancelIpo(caller));
         }
 
         [TestMethod]
-        public void Cancel_CallerIsNull_ThrowsException()
+        public void CancelIpo_CallerIsNull_ThrowsException()
         {
             var dut = new Invitation(
                 TestPlant,
@@ -645,7 +645,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null);
 
-            Assert.ThrowsException<ArgumentNullException>(() => dut.Cancel(null));
+            Assert.ThrowsException<ArgumentNullException>(() => dut.CancelIpo(null));
         }
     }
 }
