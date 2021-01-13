@@ -14,6 +14,7 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,6 +26,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
+using ProCoSysProject = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission.ProCoSysProject;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -52,6 +54,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
         public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+        public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
 
         public static string PlantWithAccess => KnownTestData.Plant;
@@ -169,6 +172,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
                 services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
                 services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
+                services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
                 services.AddScoped(serviceProvider => BlobStorageMock.Object);
             });
 

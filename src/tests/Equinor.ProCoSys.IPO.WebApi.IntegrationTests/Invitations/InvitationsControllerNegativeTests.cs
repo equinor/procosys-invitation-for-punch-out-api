@@ -278,7 +278,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 38934,
                 editInvitationDto,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         }
         #endregion
 
@@ -952,8 +953,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 Title = invitation.Title,
                 Description = invitation.Description,
-                StartTime = invitation.StartTimeUtc,
-                EndTime = invitation.EndTimeUtc,
+                StartTime = _invitationStartTime,
+                EndTime = _invitationEndTime,
                 Location = invitation.Location,
                 ProjectName = invitation.ProjectName,
                 RowVersion = invitation.RowVersion,
