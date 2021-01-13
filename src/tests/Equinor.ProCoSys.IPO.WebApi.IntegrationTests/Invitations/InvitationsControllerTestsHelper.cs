@@ -243,7 +243,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             var bodyPayload = new
             {
-                dto.ObjectGuid,
                 dto.InvitationRowVersion,
                 dto.ParticipantRowVersion
             };

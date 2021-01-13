@@ -712,7 +712,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     InvitationRowVersion = validInvitation.RowVersion,
                     ParticipantRowVersion = inValidParticipantForUnAccepting.Person.RowVersion,
-                    ObjectGuid = validInvitation.ObjectGuid
                 },
                 HttpStatusCode.BadRequest,
                 "Person trying to unaccept is not the person who accepted the IPO!");
@@ -737,7 +736,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     InvitationRowVersion = validInvitation.RowVersion,
                     ParticipantRowVersion = validParticipantForUnAccepting.RowVersion,
-                    ObjectGuid = validInvitation.ObjectGuid
                 },
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");

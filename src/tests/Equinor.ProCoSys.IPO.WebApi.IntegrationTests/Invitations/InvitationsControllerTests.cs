@@ -340,7 +340,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 InvitationRowVersion = invitation.RowVersion,
                 ParticipantRowVersion = accepterPerson.Person.RowVersion,
-                ObjectGuid = invitation.ObjectGuid
             };
 
             // Act
