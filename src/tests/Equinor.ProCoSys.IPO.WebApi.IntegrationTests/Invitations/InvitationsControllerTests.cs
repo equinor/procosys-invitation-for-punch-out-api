@@ -589,6 +589,63 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(historyEvent.EventType);
         }
 
+        [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
+        {
+            // Arrange
+            var invitationToCompleteId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForCompletingTitle",
+                "InvitationForCompletingDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+
+            var completerPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor).Person;
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
+                    {
+                        new ParticipantToChangeDto
+                        {
+                            Id = completerPerson.Person.Id,
+                            Note = "Some note about the punch round or attendee",
+                            RowVersion = completerPerson.Person.RowVersion,
+                            Attended = true
+                        }
+                    }
+            };
+
+            // Act
+            var result = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+
+            // Assert
+            var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+
+            Assert.AreEqual(IpoStatus.Canceled, completedInvitation.Status);
+        }
+
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
