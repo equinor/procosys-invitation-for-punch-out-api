@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
@@ -34,14 +35,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
         public static string TryGetUserName(this IEnumerable<Claim> claims)
         {
-            var userName = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn);
-            return userName?.Value;
+            var upn = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn);
+            if (MailAddress.TryCreate(upn?.Value, out var email))
+            {
+                return email.User;
+            }
+            return null;
         }
 
         public static string TryGetEmail(this IEnumerable<Claim> claims)
         {
-            var email = claims.SingleOrDefault(c => c.Type == ClaimTypes.Email);
-            return email?.Value;
+            var upn = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn);
+            if (MailAddress.TryCreate(upn?.Value, out var email))
+            {
+                return email.Address;
+            }
+            return null;
         }
     }
 }
