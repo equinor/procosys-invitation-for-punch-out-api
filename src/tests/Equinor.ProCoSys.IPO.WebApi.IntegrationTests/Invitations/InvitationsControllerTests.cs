@@ -698,7 +698,46 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(historyEvent.Description);
             Assert.IsNotNull(historyEvent.EventType);
         }
+        
+        [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
+        {
+            // Arrange
+            var invitationToCancelId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForCancelTitle",
+                "InvitationForCancelDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
 
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            // Assert
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+        }
+        
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();

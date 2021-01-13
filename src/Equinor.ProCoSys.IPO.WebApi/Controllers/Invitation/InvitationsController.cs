@@ -26,6 +26,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation;
 using InvitationForMainDto = Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo.InvitationForMainDto;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
@@ -130,6 +131,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.UpdatedMcPkgScope,
                     dto.UpdatedCommPkgScope,
                     dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPost("{id}/Cancel")]
+        public async Task<ActionResult> CancelInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id)
+        {
+            var result = await _mediator.Send(
+                new CancelInvitationCommand(id));
             return this.FromResult(result);
         }
 
