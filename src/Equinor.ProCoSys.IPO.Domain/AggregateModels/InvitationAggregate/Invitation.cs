@@ -233,7 +233,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             if (Status != IpoStatus.Planned)
             {
-                throw new Exception($"Compelte on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+                throw new Exception($"Complete on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
 
             Status = IpoStatus.Completed;
@@ -351,8 +351,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new InvalidOperationException("Only the creator can cancel an invitation");
             }
 
-            Status = IpoStatus.Canceled;
+            if (Status == IpoStatus.Canceled)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} is already canceled");
+            }
 
+            Status = IpoStatus.Canceled;
             AddDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));
         }
 

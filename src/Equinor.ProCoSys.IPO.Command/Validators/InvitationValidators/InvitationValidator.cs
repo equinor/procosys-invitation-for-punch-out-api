@@ -296,5 +296,15 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             return currentUserId == createdById;
         }
+
+        public async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken token)
+        {
+            var ipoStatus = await (from invitation in _context.QuerySet<Invitation>()
+                                     where invitation.Id == invitationId
+                                     select invitation.Status)
+                              .SingleAsync(token);
+
+            return ipoStatus != IpoStatus.Canceled;
+        }
     }
 }
