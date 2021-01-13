@@ -138,7 +138,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithMcPkgScope.AddMcPkg(_mcPkg1);
             _dutWithMcPkgScope.AddMcPkg(_mcPkg2);
             _dutWithMcPkgScope.AddAttachment(_attachment);
-            //_dutWithMcPkgScope.CompleteIpo(_personParticipant2, "Me", _personParticipant2.RowVersion.ConvertToString());
             _dutWithCommPkgScope.AddCommPkg(_commPkg1);
             _dutWithCommPkgScope.AddCommPkg(_commPkg2);
             _dutWithCommPkgScope.AddParticipant(_personParticipant);
