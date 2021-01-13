@@ -131,7 +131,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-            _invitation.Status = IpoStatus.Completed;
+            _invitation.CompleteIpo(participant2, "Me", participant2.RowVersion.ConvertToString());
 
             //command
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(

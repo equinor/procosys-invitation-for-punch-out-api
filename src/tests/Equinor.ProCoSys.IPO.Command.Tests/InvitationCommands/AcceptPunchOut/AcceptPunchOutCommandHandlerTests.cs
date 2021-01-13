@@ -144,7 +144,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 1);
             participant2.SetProtectedIdForTesting(_participantId2);
             _invitation.AddParticipant(participant2);
-            _invitation.Status = IpoStatus.Completed;
+            _invitation.CompleteIpo(participant1, "Me", participant1.RowVersion.ConvertToString());
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

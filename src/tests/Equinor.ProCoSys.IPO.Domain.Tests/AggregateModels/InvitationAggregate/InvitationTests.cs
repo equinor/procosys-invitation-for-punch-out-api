@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Reflection;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 {
@@ -37,6 +41,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestInitialize]
         public void Setup()
         {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+
             _dutWithMcPkgScope = new Invitation(
                 TestPlant,
                 ProjectName,
@@ -54,10 +60,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null)
-            {
-                Status = IpoStatus.Completed
-            };
+                null);
 
             _dutWithCanceledStatus = new Invitation(
                 TestPlant,
@@ -67,10 +70,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null)
-            {
-                Status = IpoStatus.Canceled
-            };
+                null);
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
@@ -142,6 +142,11 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithCommPkgScope.AddCommPkg(_commPkg2);
             _dutWithCommPkgScope.AddParticipant(_personParticipant);
             _dutWithCommPkgScope.AddParticipant(_functionalRoleParticipant);
+            _dutWithCommPkgScope.CompleteIpo(_personParticipant2, "Me", _personParticipant2.RowVersion.ConvertToString());
+
+            Person cancelPerson = new Person(new Guid("11111111-1111-2222-2222-333333333334"), "Cancel", "Person", "cp", "cp@pcs.pcs");
+            _dutWithCanceledStatus.SetCreated(cancelPerson);
+            _dutWithCanceledStatus.CancelIpo(cancelPerson);
         }
 
         [TestMethod]
@@ -554,5 +559,93 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldAddIpoCreatedEvent() 
             => Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
+
+        [TestMethod]
+        public void CancelIpo_SetsStatusToCanceled()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            dut.CancelIpo(creator);
+            Assert.AreEqual(dut.Status, IpoStatus.Canceled);
+        }
+
+        [TestMethod]
+        public void CancelIpo_IpoIsAlreadyCanceled_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            dut.CancelIpo(creator);
+            Assert.ThrowsException<Exception>(() => dut.CancelIpo(creator));
+        }
+
+        [TestMethod]
+        public void CancelIpo_CallerIsNotCreator_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+            var caller = new Person(new Guid("99999999-9999-9999-9999-999999999999"), "Another", "Person", "ap", "ap@pcs.pcs");
+
+            // Set caller ID to a different ID than the creator
+            caller
+                .GetType()
+                .GetProperty(nameof(Person.Id))
+                .SetValue(caller, 1, null);
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            Assert.ThrowsException<InvalidOperationException>(() => dut.CancelIpo(caller));
+        }
+
+        [TestMethod]
+        public void CancelIpo_CallerIsNull_ThrowsException()
+        {
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            Assert.ThrowsException<ArgumentNullException>(() => dut.CancelIpo(null));
+        }
     }
 }

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 {
@@ -20,10 +23,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _title2 = "Test title 2";
         private const string _title3 = "Test title 3";
         private const string _title4 = "Test title 4";
+        private const string _title5 = "Test title 5";
         private int _invitationIdWithFrAsParticipants;
         private int _invitationIdWithoutParticipants;
         private int _invitationIdWithCurrentUserOidAsParticipants;
         private int _invitationIdWithNotCurrentUserOidAsParticipants;
+        private int _invitationIdWithAnotherCreator;
         private int _participantId1;
         private int _participantId2;
         private int _operationCurrentPersonId;
@@ -226,6 +231,41 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithNotCurrentUserAsParticipants.AddParticipant(operationParticipant);
 
                 context.SaveChangesAsync().Wait();
+
+                // Add invitation with another currentuserprovider
+                {
+                    var tempCurrentUserProviderMock = new Mock<ICurrentUserProvider>();
+                    var tempUserOid = new Guid("99999999-9999-9999-9999-999999999999");
+                    tempCurrentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(tempUserOid);
+                    var tempcurrentUserProvider = tempCurrentUserProviderMock.Object;
+
+                    // ensure current user exists in db
+                    using (var context2 = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, tempcurrentUserProvider))
+                    {
+                        if (context2.Persons.SingleOrDefault(p => p.Oid == tempUserOid) == null)
+                        {
+                            AddPerson(context2, tempUserOid, "Another", "User", "au", "au@pcs.pcs");
+                        }
+                    }
+
+                    using (var context2 = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, tempcurrentUserProvider))
+                    {
+                        var invitationWithAnotherCreator = new Invitation(
+                        TestPlant,
+                        _projectName,
+                        _title5,
+                        _description,
+                        _typeDp,
+                        new DateTime(),
+                        new DateTime(),
+                        null);
+                        context2.Invitations.Add(invitationWithAnotherCreator);
+
+                        context2.SaveChangesAsync().Wait();
+                        _invitationIdWithAnotherCreator = invitationWithAnotherCreator.Id;
+                    }
+                }
+
                 _participantId1 = participant1.Id;
                 _participantId2 = participant2.Id;
                 _operationCurrentPersonId = participant3.Id;
@@ -1066,6 +1106,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await dut.SignerExistsAsync(_invitationIdWithoutParticipants, _operationCurrentPersonId, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsCreatorOfInvitation_CurrentUserIsCreator_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.CurrentUserIsCreatorOfInvitation(_invitationIdWithoutParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsCreatorOfInvitation_CurrentUserIsNotCreator_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.CurrentUserIsCreatorOfInvitation(_invitationIdWithAnotherCreator, default);
                 Assert.IsFalse(result);
             }
         }

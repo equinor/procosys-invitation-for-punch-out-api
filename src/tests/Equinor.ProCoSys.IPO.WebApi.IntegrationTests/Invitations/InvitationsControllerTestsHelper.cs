@@ -415,5 +415,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<int>(jsonString);
         }
+
+        public static async Task<string> CancelPunchOutAsync(
+            UserType userType,
+            string plant,
+            int id,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant)
+                .PostAsync($"{Route}/{id}/Cancel", null);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadAsStringAsync();
+        }
     }
 }

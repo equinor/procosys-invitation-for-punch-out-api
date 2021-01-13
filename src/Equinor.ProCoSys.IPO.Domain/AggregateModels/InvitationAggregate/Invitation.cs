@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Participant> Participants => _participants.AsReadOnly();
         public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
-        public IpoStatus Status { get; set; }
+        public IpoStatus Status { get; private set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
@@ -233,7 +233,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             if (Status != IpoStatus.Planned)
             {
-                throw new Exception($"Compelte on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+                throw new Exception($"Complete on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
 
             Status = IpoStatus.Completed;
@@ -337,6 +337,27 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             _comments.Remove(comment);
             AddDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
+        }
+
+        public void CancelIpo(Person caller)
+        {
+            if (caller == null)
+            {
+                throw new ArgumentNullException(nameof(caller));
+            }
+
+            if (caller.Id != CreatedById)
+            {
+                throw new InvalidOperationException("Only the creator can cancel an invitation");
+            }
+
+            if (Status == IpoStatus.Canceled)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} is already canceled");
+            }
+
+            Status = IpoStatus.Canceled;
+            AddDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));
         }
 
         public void SetCreated(Person createdBy)
