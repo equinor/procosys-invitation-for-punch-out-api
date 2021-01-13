@@ -1123,7 +1123,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task CurrentUserIsCreatorOfInvitation_CurrentUserIsCreator_ReturnsFalse()
+        public async Task CurrentUserIsCreatorOfInvitation_CurrentUserIsNotCreator_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
