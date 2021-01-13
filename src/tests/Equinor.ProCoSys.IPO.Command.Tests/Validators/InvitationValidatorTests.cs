@@ -5,20 +5,16 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
-using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 {
     [TestClass]
     public class InvitationValidatorTests : ReadOnlyTestsBase
     {
-        private Mock<IPersonRepository> _personRepositoryMock;
         private const string _projectName = "Project name";
         private const string _projectName2 = "Project name 2";
         private const string _title1 = "Test title";

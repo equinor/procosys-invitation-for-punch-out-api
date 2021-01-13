@@ -49,7 +49,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
 
-        private readonly List<UpdateNoteOnParticipantForCommand> _participantsToChange = new List<UpdateNoteOnParticipantForCommand>
+        private readonly List<UpdateNoteOnParticipantForCommand> _participantsToChange =
+            new List<UpdateNoteOnParticipantForCommand>
         {
             new UpdateNoteOnParticipantForCommand(
                 _participantId1,
@@ -93,7 +94,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
-
 
             //mock person response from main API
             var personDetails = new ProCoSysPerson
@@ -154,13 +154,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            var currentUser = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
-            currentUser.SetProtectedIdForTesting(_participantId2);
+            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null); 
+            currentPerson.SetProtectedIdForTesting(_participantId2);
 
             _personRepositoryMock = new Mock<IPersonRepository>();
             _personRepositoryMock
                 .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(currentUser));
+                .Returns(Task.FromResult(currentPerson));
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
 

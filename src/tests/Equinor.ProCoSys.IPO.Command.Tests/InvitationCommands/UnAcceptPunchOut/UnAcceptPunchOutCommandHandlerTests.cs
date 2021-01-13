@@ -111,11 +111,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                 1);
             participant2.SetProtectedIdForTesting(_participantId);
             _invitation.AddParticipant(participant2);
-            var currentUser = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
+            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
 
-            _invitation.CompleteIpo(participant2, participant2.RowVersion.ConvertToString(), currentUser, new DateTime());
+            _invitation.CompleteIpo(participant2, participant2.RowVersion.ConvertToString(), currentPerson, new DateTime());
 
-            _invitation.AcceptIpo(participant2, participant2.RowVersion.ConvertToString(), currentUser, new DateTime());
+            _invitation.AcceptIpo(participant2, participant2.RowVersion.ConvertToString(), currentPerson, new DateTime());
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -146,12 +146,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             Assert.IsNotNull(participant);
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.IsNotNull(participant.SignedBy);
+            Assert.IsNotNull(_invitation.AcceptedAtUtc);
+            Assert.IsNotNull(_invitation.AcceptedBy);
 
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             Assert.IsNull(participant.SignedAtUtc);
             Assert.IsNull(participant.SignedBy);
+            Assert.IsNull(_invitation.AcceptedAtUtc);
+            Assert.IsNull(_invitation.AcceptedBy);
         }
 
         [TestMethod]

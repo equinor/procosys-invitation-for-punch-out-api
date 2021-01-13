@@ -14,8 +14,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
     {
         private Invitation _dutWithMcPkgScope;
         private Invitation _dutWithCommPkgScope;
-        private Invitation _dutWithCanceledStatus;
-        private Invitation _dutWithAcceptedStatus;
         private Participant _personParticipant;
         private Participant _personParticipant2;
         private Participant _functionalRoleParticipant;
@@ -34,7 +32,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
         private const string Title = "Title A";
-        private const string Title2 = "Title B";
         private const string Description = "Description A";
         private const string ParticipantRowVersion = "AAAAAAAAABA=";
 
@@ -60,30 +57,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 new DateTime(),
                 null);
-
-            _dutWithCanceledStatus = new Invitation(
-                TestPlant,
-                ProjectName,
-                "ipo canceled title",
-                Description,
-                DisciplineType.MDP,
-                new DateTime(),
-                new DateTime(),
-                null);
-            //TODO set cancelled status
-
-            _dutWithAcceptedStatus = new Invitation(
-                TestPlant,
-                ProjectName,
-                Title2,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(),
-                new DateTime(),
-                null)
-            {
-               // Status = IpoStatus.Accepted
-            };
 
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
@@ -163,7 +136,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _personParticipant.RowVersion.ConvertToString(),
                 _currentPerson,
                 new DateTime());
-            _dutWithAcceptedStatus.AddParticipant(_functionalRoleParticipant);
         }
 
         [TestMethod]

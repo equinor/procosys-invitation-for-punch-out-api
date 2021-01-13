@@ -50,7 +50,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
 
-        private readonly List<UpdateAttendedStatusAndNoteOnParticipantForCommand> _participantsToChange = new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
+        private readonly List<UpdateAttendedStatusAndNoteOnParticipantForCommand> _participantsToChange =
+            new List<UpdateAttendedStatusAndNoteOnParticipantForCommand>
         {
             new UpdateAttendedStatusAndNoteOnParticipantForCommand(
                 _participantId1,
@@ -156,13 +157,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            var currentUser = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
-            currentUser.SetProtectedIdForTesting(_participantId1);
+            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
+            currentPerson.SetProtectedIdForTesting(_participantId1);
 
             _personRepositoryMock = new Mock<IPersonRepository>();
             _personRepositoryMock
                 .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
-                .Returns(Task.FromResult(currentUser));
+                .Returns(Task.FromResult(currentPerson));
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
 
@@ -219,7 +220,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         public async Task HandlingCompleteIpoCommand_ShouldNotCompleteIfSettingM01DateInMainFails()
         {
             _mcPkgApiServiceMock
-                .Setup(x => x.SetM01DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
+                .Setup(x => x.SetM01DatesAsync(
+                    _plant,
+                    _invitation.Id,
+                    _projectName,
+                    new List<string>(),
+                    new List<string>()))
                 .Throws(new Exception("Something failed"));
 
             // Act

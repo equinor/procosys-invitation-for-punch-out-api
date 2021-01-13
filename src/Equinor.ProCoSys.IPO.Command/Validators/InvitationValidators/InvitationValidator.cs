@@ -287,8 +287,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 where i.Id == invitationId
                 select p).SingleOrDefaultAsync(token);
 
-            var persons = await (from p in _context.QuerySet<Person>()
-                select p).ToListAsync(token);
             return acceptingPerson != null && _currentUserProvider.GetCurrentUserOid() == acceptingPerson.Oid;
         }
 
