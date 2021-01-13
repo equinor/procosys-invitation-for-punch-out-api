@@ -588,16 +588,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(historyEvent.Description);
             Assert.IsNotNull(historyEvent.EventType);
         }
-
+        
         [TestMethod]
         public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
         {
             // Arrange
-            var invitationToCompleteId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+            var invitationToCancelId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                "InvitationForCompletingTitle",
-                "InvitationForCompletingDescription",
+                "InvitationForCancelTitle",
+                "InvitationForCancelDescription",
                 InvitationLocation,
                 DisciplineType.DP,
                 _invitationStartTime,
@@ -610,42 +610,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                invitationToCompleteId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerPerson.Person.Id,
-                            Note = "Some note about the punch round or attendee",
-                            RowVersion = completerPerson.Person.RowVersion,
-                            Attended = true
-                        }
-                    }
-            };
+                invitationToCancelId);
 
             // Act
-            var result = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+            var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                invitationToCompleteId);
+                invitationToCancelId);
 
             // Assert
             var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                invitationToCompleteId);
+                invitationToCancelId);
 
             Assert.AreEqual(IpoStatus.Canceled, completedInvitation.Status);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
-
+        
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();

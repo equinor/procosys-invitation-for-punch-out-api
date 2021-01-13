@@ -416,11 +416,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<int>(jsonString);
         }
 
-        public static async Task<bool> CancelPunchOutAsync(
+        public static async Task<string> CancelPunchOutAsync(
             UserType userType,
             string plant,
             int id,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.NoContent,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
             var response = await TestFactory.Instance.GetHttpClient(userType, plant)
@@ -428,7 +428,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
-            return expectedStatusCode == HttpStatusCode.NoContent;
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

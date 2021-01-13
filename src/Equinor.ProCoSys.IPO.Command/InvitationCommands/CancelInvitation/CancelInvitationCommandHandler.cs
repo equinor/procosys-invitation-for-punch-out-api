@@ -8,7 +8,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
 {
-    public class CancelInvitationCommandHandler : IRequestHandler<CancelInvitationCommand, Result<object>>
+    public class CancelInvitationCommandHandler : IRequestHandler<CancelInvitationCommand, Result<string>>
     {
         private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
@@ -30,13 +30,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
             _currentUserProvider = currentUserProvider;
         }
 
-        public async Task<Result<object>> Handle(CancelInvitationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<string>> Handle(CancelInvitationCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
             invitation.CancelIpo(currentUser);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<object>(null);
+            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
     }
 }
