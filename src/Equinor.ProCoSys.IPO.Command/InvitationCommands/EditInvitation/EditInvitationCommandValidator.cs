@@ -42,9 +42,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
-                .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.Title, command.InvitationId, token))
-                .WithMessage(command =>
-                    $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command) => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
                 .WithMessage(command =>
                     "Not a valid scope! Choose either mc scope or comm pkg scope")
@@ -71,9 +68,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
-
-            async Task<bool> TitleMustBeUniqueOnProject(string title, int id, CancellationToken token)
-                => !await invitationValidator.IpoTitleExistsInProjectOnAnotherIpoAsync(title, id, token);
 
             bool MustHaveValidScope(
                 IList<string> updatedMcPkgScope, 
