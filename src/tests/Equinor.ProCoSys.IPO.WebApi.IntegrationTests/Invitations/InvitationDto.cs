@@ -17,7 +17,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public string RowVersion { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
-        public Guid ObjectGuid { get; set; }
         public IEnumerable<ParticipantDtoGet> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
         public IEnumerable<CommPkgScopeDto> CommPkgScope { get; set; }
