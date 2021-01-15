@@ -52,8 +52,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                     .SingleOrDefault(p => p.SortKey == 1 &&
                                           p.FunctionalRoleCode != null &&
                                           p.Type == IpoParticipantType.FunctionalRole);
-
-                await AcceptIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
+                try
+                {
+                    await AcceptIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole,
+                        request.ParticipantRowVersion);
+                }
+                catch (Exception e)
+                {
+                    return new UnexpectedResult<string>(e.Message);
+                }
             }
             else
             {

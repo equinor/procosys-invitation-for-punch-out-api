@@ -39,7 +39,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 
             if (participant.FunctionalRoleCode != null)
             {
-                await SignIpoAsPersonInFunctionalRoleAsync(invitation, participant, request.ParticipantRowVersion);
+                try
+                {
+                    await SignIpoAsPersonInFunctionalRoleAsync(invitation, participant, request.ParticipantRowVersion);
+                }
+                catch (Exception e)
+                {
+                    return new UnexpectedResult<string>(e.Message);
+                }
             }
             else
             {
