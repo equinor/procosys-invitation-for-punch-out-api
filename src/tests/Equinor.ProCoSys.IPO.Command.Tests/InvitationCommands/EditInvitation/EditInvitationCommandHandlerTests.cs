@@ -317,23 +317,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(0, _invitation.McPkgs.Count);
             Assert.AreEqual(1, _invitation.CommPkgs.Count);
             Assert.AreEqual(_commPkgNo, _invitation.CommPkgs.ToList()[0].CommPkgNo);
-        }
-
-        [TestMethod]
-        public async Task HandlingUpdateIpoCommand_ShouldFailIfCommPkgsAreOnDifferentSystems()
-        {
-            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 123 };
-            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 456 };
-            IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails, commPkgDetails2 };
-            _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, _commPkgScope))
-                .Returns(Task.FromResult(pcsCommPkgDetails));
-
-            var result = await _dut.Handle(_command, default);
-
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Comm pkg scope must be within a system", result.Errors.Single());
-        }
+    }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateParticipants()

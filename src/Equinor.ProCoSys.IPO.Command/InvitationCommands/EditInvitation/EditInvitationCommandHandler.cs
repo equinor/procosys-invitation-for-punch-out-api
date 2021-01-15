@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -68,16 +67,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 request.EndTime,
                 request.Location);
 
-            try
-            {
-                await UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
-                await UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
-                participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
-            }
-            catch (Exception e)
-            {
-                return new UnexpectedResult<string>(e.Message);
-            }
+            UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
+            UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
+
+            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
 
             try
             {
@@ -101,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private async Task UpdateMcPkgScope(Invitation invitation, IList<string> mcPkgNos, string projectName)
+        private void UpdateMcPkgScope(Invitation invitation, IList<string> mcPkgNos, string projectName)
         {
             var existingMcPkgScope = invitation.McPkgs;
             var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
@@ -115,12 +108,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
             if (newMcPkgs.Count > 0)
             {
-                await AddMcPkgs(invitation, newMcPkgs, projectName,
+                AddMcPkgs(invitation, newMcPkgs, projectName,
                     existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().CommPkgNo : null);
             }
         }
 
-        private async Task AddMcPkgs(Invitation invitation, IList<string> mcPkgNos, string projectName, string commPkgNo)
+        private async void AddMcPkgs(Invitation invitation, IList<string> mcPkgNos, string projectName, string commPkgNo)
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
@@ -144,7 +137,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
         }
 
-        private async Task UpdateCommPkgScope(Invitation invitation, IList<string> commPkgNos, string projectName)
+        private void UpdateCommPkgScope(Invitation invitation, IList<string> commPkgNos, string projectName)
         {
             var existingCommPkgScope = invitation.CommPkgs;
             var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
@@ -158,11 +151,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
             if (newCommPkgs.Count > 0)
             {
-                await AddCommPkgs(invitation, newCommPkgs, existingCommPkgs, projectName);
+                AddCommPkgs(invitation, newCommPkgs, existingCommPkgs, projectName);
             }
         }
 
-        private async Task AddCommPkgs(Invitation invitation, IList<string> newCommPkgNos, IList<string> existingCommPkgNos, string projectName)
+        private async void AddCommPkgs(Invitation invitation, IList<string> newCommPkgNos, IList<string> existingCommPkgNos, string projectName)
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, newCommPkgNos);

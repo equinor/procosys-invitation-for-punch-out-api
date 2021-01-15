@@ -49,15 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                                  p.FunctionalRoleCode != null &&
                                  p.Type == IpoParticipantType.FunctionalRole);
 
-                try
-                {
-                    await UpdateAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode,
-                        request.Participants);
-                }
-                catch (Exception e)
-                {
-                    return new UnexpectedResult<Unit>(e.Message);
-                }
+                await UpdateAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode, request.Participants);
             }
             else
             {

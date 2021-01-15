@@ -71,37 +71,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (request.CommPkgScope.Count > 0)
             {
-                try
-                {
-                    await AddCommPkgs(invitation, request.CommPkgScope, request.ProjectName);
-                }
-                catch (Exception e)
-                {
-                    return new UnexpectedResult<int>(e.Message);
-                }
+                AddCommPkgs(invitation, request.CommPkgScope, request.ProjectName);
             }
 
             if (request.McPkgScope.Count > 0)
             {
-                try
-                {
-                    await AddMcPkgs(invitation, request.McPkgScope, request.ProjectName);
-                }
-                catch (Exception e)
-                {
-                    return new UnexpectedResult<int>(e.Message);
-                }
+                AddMcPkgs(invitation, request.McPkgScope, request.ProjectName);
             }
 
-            try
-            {
-                participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
-            }
-            catch (Exception e)
-            {
-                return new UnexpectedResult<int>(e.Message);
-            }
-
+            participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             try
@@ -111,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
                 return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
@@ -353,8 +331,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participant.Organization,
                     IpoParticipantType.Person,
                     null,
-                    null, 
-                    null,
+                    participant.Person.FirstName, 
+                    participant.Person.LastName,
                     null,
                     participant.Person.Email,
                     null,
@@ -391,7 +369,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return participants;
         }
 
-        private async Task AddCommPkgs(Invitation invitation, IList<string> commPkgScope, string projectName)
+        private async void AddCommPkgs(Invitation invitation, IList<string> commPkgScope, string projectName)
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
@@ -417,7 +395,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
         }
 
-        private async Task AddMcPkgs(Invitation invitation, IList<string> mcPkgScope, string projectName)
+        private async void AddMcPkgs(Invitation invitation, IList<string> mcPkgScope, string projectName)
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope);

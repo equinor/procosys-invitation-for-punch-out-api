@@ -234,23 +234,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldFailIfMcPkgsAreFromDifferentCommPkgs()
-        {
-            _mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1 };
-            _mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = "NewCommNo", Description = "D2", Id = 2, McPkgNo = _mcPkgNo2 };
-            IList<ProCoSysMcPkg> mcPkgDetailsNew = new List<ProCoSysMcPkg> { _mcPkgDetails1, _mcPkgDetails2 };
-
-            _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
-                .Returns(Task.FromResult(mcPkgDetailsNew));
-
-            var result = await _dut.Handle(_command, default);
-
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.AreEqual("Mc pkg scope must be within a comm pkg", result.Errors.Single());
-        }
-
-        [TestMethod]
         public async Task HandleCreateInvitationCommand_ShouldRollbackIfFusionApiFails()
         {
             _meetingClientMock
