@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -66,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
             }
             else
             {
-                throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
+                throw new IpoValidationException($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
         }
     }

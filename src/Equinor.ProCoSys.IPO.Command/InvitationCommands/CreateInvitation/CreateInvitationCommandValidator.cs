@@ -40,9 +40,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .WithMessage(command =>
                     $"Location cannot be more than 1024 characters! Location={command.Location}")
                 //business validators
-                .MustAsync((command, token) => TitleMustBeUniqueOnProject(command.ProjectName, command.Title, token))
-                .WithMessage(command =>
-                    $"IPO with this title already exists in project! Title={command.Title}")
                 .Must((command) => MustHaveValidScope(command.McPkgScope, command.CommPkgScope))
                 .WithMessage(command =>
                     "Not a valid scope! Choose either mc scope or comm pkg scope")
@@ -55,9 +52,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must((command) => ParticipantListMustBeValid(command.Participants))
                 .WithMessage(command =>
                     "Each participant must contain an email or oid!");
-
-            async Task<bool> TitleMustBeUniqueOnProject(string projectName, string title, CancellationToken token)
-                => !await invitationValidator.IpoTitleExistsInProjectAsync(projectName, title, token);
 
             bool MustHaveValidScope(IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(mcPkgScope, commPkgScope);

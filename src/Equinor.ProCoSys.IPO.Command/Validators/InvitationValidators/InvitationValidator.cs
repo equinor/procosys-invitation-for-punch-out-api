@@ -39,24 +39,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             IList<string> commPkgScope) 
                 => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
 
-        public async Task<bool> IpoTitleExistsInProjectAsync(string projectName, string title, CancellationToken token)
-        => await(from invitation in _context.QuerySet<Invitation>()
-                where invitation.Title == title && invitation.ProjectName == projectName
-                select invitation).AnyAsync(token);
-
-        public async Task<bool> IpoTitleExistsInProjectOnAnotherIpoAsync(string title, int id, CancellationToken token)
-        {
-            var inv = await (from ipo in _context.QuerySet<Invitation>()
-                where ipo.Id == id
-                select ipo).SingleAsync(token);
-
-            return await (from invitation in _context.QuerySet<Invitation>()
-                where invitation.Title == title &&
-                      invitation.ProjectName == inv.ProjectName &&
-                      invitation.Id != id
-                select invitation).AnyAsync(token);
-        }
-
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
