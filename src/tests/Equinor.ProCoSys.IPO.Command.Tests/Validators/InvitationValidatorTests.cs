@@ -275,39 +275,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task TitleExistsOnProjectAsync_SameTitleSameProject_ReturnsTrue()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectAsync(_projectName, _title1, default);
-                Assert.IsTrue(result);
-            }
-        }
-
-        [TestMethod]
-        public async Task TitleExistsOnProjectAsync_SameTitleDifferentProject_ReturnsFalse()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectAsync("newProject", _title1, default);
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
-        public async Task TitleExistsOnProjectAsync_DifferentTitleSameProject_ReturnsFalse()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectAsync(_projectName, "new title", default);
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
         public void IsValidScope_McPkgScopeOnly_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -706,42 +673,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         0);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
-        public async Task IpoTitleExistsInProjectOnAnotherIpoAsync_TitleExistsOnAnotherIpoInProject_ReturnsTrue()
-        {
-            using (var context =
-                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithFrAsParticipants, default);
-                Assert.IsTrue(result);
-            }
-        }
-
-        [TestMethod]
-        public async Task IpoTitleExistsInProjectOnAnotherIpoAsync_TitleExistsOnAnotherIpoInAnotherProject_ReturnsFalse()
-        {
-            using (var context =
-                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithoutParticipants, default);
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
-        public async Task IpoTitleExistsInProjectOnAnotherIpoAsync_TitleExistsOnIpoToBeUpdated_ReturnsFalse()
-        {
-            using (var context =
-                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.IpoTitleExistsInProjectOnAnotherIpoAsync(_title1, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
