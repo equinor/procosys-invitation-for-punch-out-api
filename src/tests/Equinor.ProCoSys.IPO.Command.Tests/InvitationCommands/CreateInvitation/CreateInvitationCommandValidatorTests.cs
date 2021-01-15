@@ -271,18 +271,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationWithSameTitleExistsInProject()
-        {
-            _invitationValidatorMock.Setup(inv => inv.IpoTitleExistsInProjectAsync(_projectName, _title, default)).Returns(Task.FromResult(true));
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this title already exists in project!"));
-        }
-
-        [TestMethod]
         public void Validate_ShouldFail_WhenScopeIsInvalid()
         {
             _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(false);

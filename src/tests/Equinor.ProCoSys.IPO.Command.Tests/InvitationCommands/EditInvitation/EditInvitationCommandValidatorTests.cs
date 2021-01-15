@@ -19,7 +19,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
         private EditInvitationCommand _command;
-        private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "body";
         private const string _location = "location A";
@@ -239,18 +238,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Location cannot be more than 1024 characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationWithSameTitleExistsInProject()
-        {
-            _invitationValidatorMock.Setup(inv => inv.IpoTitleExistsInProjectOnAnotherIpoAsync(_title, _id, default)).Returns(Task.FromResult(true));
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this title already exists in project!"));
         }
 
         [TestMethod]

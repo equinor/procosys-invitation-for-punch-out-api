@@ -656,68 +656,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task UnAcceptPunchOut_AsCompleter_ShouldReturnBadRequest_WhenInvalidParticipant()
-        {
-            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "TitleForUnAccept",
-                "DescriptionForUnAccept",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null);
-
-            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId);
-
-            var inValidParticipantForUnAccepting = validInvitation
-                .Participants.Single(p => p.Organization == Organization.Contractor).Person;
-
-            var participantForAccepting = validInvitation
-                .Participants.Single(p => p.Organization == Organization.ConstructionCompany).Person;
-
-            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Completer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId,
-                new CompletePunchOutDto
-                {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = inValidParticipantForUnAccepting.Person.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>()
-                });
-
-            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Accepter,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId,
-                new AcceptPunchOutDto
-                {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = participantForAccepting.Person.RowVersion,
-                    Participants = new List<ParticipantToUpdateNoteDto>()
-                });
-
-            await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
-                UserType.Completer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId,
-                new UnAcceptPunchOutDto
-                {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = inValidParticipantForUnAccepting.Person.RowVersion,
-                },
-                HttpStatusCode.BadRequest,
-                "Person trying to unaccept is not the person who accepted the IPO!");
-        }
-
-        [TestMethod]
         public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
             var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
