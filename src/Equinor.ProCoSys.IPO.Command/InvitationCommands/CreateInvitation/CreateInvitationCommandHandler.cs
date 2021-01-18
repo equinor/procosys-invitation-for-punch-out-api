@@ -71,12 +71,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (request.CommPkgScope.Count > 0)
             {
-                AddCommPkgs(invitation, request.CommPkgScope, request.ProjectName);
+                await AddCommPkgsAsync(invitation, request.CommPkgScope, request.ProjectName);
             }
 
             if (request.McPkgScope.Count > 0)
             {
-                AddMcPkgs(invitation, request.McPkgScope, request.ProjectName);
+                await AddMcPkgsAsync(invitation, request.McPkgScope, request.ProjectName);
             }
 
             participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
@@ -294,7 +294,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             Organization organization,
             IList<string> privileges)
         {
-            var p = await _personApiService.GetPersonByOidWithPrivilegesAsync(_plantProvider.Plant, person.AzureOid.ToString(), _objectName, privileges);
+            var p = await _personApiService.GetPersonByOidWithPrivilegesAsync(
+                _plantProvider.Plant,
+                person.AzureOid.ToString(),
+                _objectName,
+                privileges);
             if (p != null)
             {
                 invitation.AddParticipant(new Participant(
@@ -313,7 +317,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             else
             {
-                throw new Exception($"Person does not have required privileges to be the {organization} participant");
+                throw new IpoValidationException(
+                    $"Person does not have required privileges to be the {organization} participant");
             }
 
             return participants;
@@ -369,7 +374,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return participants;
         }
 
-        private async void AddCommPkgs(Invitation invitation, IList<string> commPkgScope, string projectName)
+        private async Task AddCommPkgsAsync(Invitation invitation, IList<string> commPkgScope, string projectName)
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
@@ -380,7 +385,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new Exception("Comm pkg scope must be within a system");
+                    throw new IpoValidationException("Comm pkg scope must be within a system");
                 }
             }
 
@@ -395,7 +400,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
         }
 
-        private async void AddMcPkgs(Invitation invitation, IList<string> mcPkgScope, string projectName)
+        private async Task AddMcPkgsAsync(Invitation invitation, IList<string> mcPkgScope, string projectName)
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope);
@@ -405,7 +410,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialCommPkgNo = initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new Exception("Mc pkg scope must be within a comm pkg");
+                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.Exceptions;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -58,6 +59,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             catch (InValidProjectException ipe)
             {
                 var errors = new Dictionary<string, string[]> {{"ProjectName", new[] {ipe.Message}}};
+                await context.WriteBadRequestAsync(errors, _logger);
+            }
+            catch (IpoValidationException ive)
+            {
+                var errors = new Dictionary<string, string[]> { { "IpoException", new[] { ive.Message } } };
                 await context.WriteBadRequestAsync(errors, _logger);
             }
             catch (ConcurrencyException)

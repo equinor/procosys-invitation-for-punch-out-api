@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             var problems = new ValidationProblemDetails(errors)
             {
                 Status = context.Response.StatusCode,
-                Title = "One or more business validation errors occurred"
+                Title = "One or more business validation errors occurred."
             };
             var json = JsonSerializer.Serialize(problems);
             _logger.LogInformation(json);

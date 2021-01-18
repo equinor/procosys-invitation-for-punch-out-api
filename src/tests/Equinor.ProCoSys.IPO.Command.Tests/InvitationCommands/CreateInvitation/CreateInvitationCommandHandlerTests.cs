@@ -222,7 +222,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.AreEqual(participants[0].FunctionalRoleCode, _functionalRoleCode);
             Assert.IsNull(participants[1].FunctionalRoleCode);
             Assert.AreEqual(participants[1].AzureOid, _azureOid);
-      }
+        }
 
         [TestMethod]
         public async Task HandleCreateInvitationCommand_ShouldCreateMeetingAndMeetingIdToInvitation()

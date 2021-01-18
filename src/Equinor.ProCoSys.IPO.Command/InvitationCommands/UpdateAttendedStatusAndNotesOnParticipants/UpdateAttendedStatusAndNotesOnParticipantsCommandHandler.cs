@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             }
             else
             {
-                throw new Exception($"Person was not found in functional role with code '{functionalRoleCode}'");
+                throw new IpoValidationException($"Person was not found in functional role with code '{functionalRoleCode}'");
             }
         }
 

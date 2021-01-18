@@ -120,7 +120,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             }
             else
             {
-                throw new Exception($"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
+                throw new IpoValidationException(
+                    $"Person was not found in functional role with code '{participant.FunctionalRoleCode}'");
             }
         }
     }
