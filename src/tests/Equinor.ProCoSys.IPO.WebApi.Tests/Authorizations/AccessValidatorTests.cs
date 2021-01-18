@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
@@ -360,6 +361,38 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new AddCommentCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region CancelPunchOutCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnCancelPunchOutCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new CancelPunchOutCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnCancelPunchOutCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new CancelPunchOutCommand(
                 _invitationIdWithoutAccessToProject,
                 null);
 

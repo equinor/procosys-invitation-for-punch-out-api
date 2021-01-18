@@ -605,6 +605,30 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void CancelIpo_IpoIsAccepted_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null);
+
+            dut.SetCreated(creator);
+
+            dut.CompleteIpo(_personParticipant, "TEST", ParticipantRowVersion); //TODO: fix after unaccept is merged in
+            dut.AcceptIpo(_personParticipant, "TEST", ParticipantRowVersion);
+
+            Assert.ThrowsException<Exception>(() => dut.CancelIpo(creator));
+        }
+
+        [TestMethod]
         public void CancelIpo_CallerIsNotCreator_ThrowsException()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));

@@ -356,6 +356,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"{nameof(Invitation)} {Id} is already canceled");
             }
 
+            if (Status == IpoStatus.Accepted)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} is accepted");
+            }
+
             Status = IpoStatus.Canceled;
             AddDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));
         }
