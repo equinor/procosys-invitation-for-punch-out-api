@@ -73,12 +73,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 meeting = null; //user has not been invited to IPO with their personal email
             }
 
-            var invitationDto = ConvertToInvitationDto(invitation, createdByName, meeting);
+            var invitationDto = ConvertToInvitationDto(invitation, meeting);
 
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private InvitationDto ConvertToInvitationDto(Invitation invitation, string createdBy, GeneralMeeting meeting)
+        private InvitationDto ConvertToInvitationDto(Invitation invitation,  GeneralMeeting meeting)
         {
             var invitationResult = new InvitationDto(
                 invitation.ProjectName,
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.Location,
                 invitation.Type,
                 invitation.Status,
-                createdBy,
+                ConvertToPersonDto(invitation.CreatedById).Result,
                 invitation.StartTimeUtc,
                 invitation.EndTimeUtc,
                 invitation.RowVersion.ConvertToString())
@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     participantDtos.Add(new ParticipantDto(
                         participant.Organization,
                         participant.SortKey,
-                        participant.SignedBy,
+                        participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
@@ -192,7 +192,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     participantDtos.Add(new ParticipantDto(
                         participant.Organization,
                         participant.SortKey,
-                        participant.SignedBy,
+                        participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
@@ -206,7 +206,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     participantDtos.Add(new ParticipantDto(
                         participant.Organization,
                         participant.SortKey,
-                        participant.SignedBy,
+                        participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
@@ -281,5 +281,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             return functionalRole?.Persons != null &&
                    functionalRole.Persons.Any(person => new Guid(person.AzureOid) == _currentUserProvider.GetCurrentUserOid());
         }
+
+        private Task<PersonDto> ConvertToPersonDto(int? personId) =>
+            _context.QuerySet<Person>()
+                .Where(p => p.Id == personId)
+                .Select(p => new PersonDto(p.Id, p.FirstName, p.LastName, p.UserName, p.Oid, p.Email, p.RowVersion.ConvertToString()))
+                .SingleAsync();
     }
 }

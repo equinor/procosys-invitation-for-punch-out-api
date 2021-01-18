@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     {
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
-        public string SignedBy { get; set; }
+        public PersonDto SignedBy { get; set; }
         public DateTime? SignedAtUtc { get; set; }
         public string Note { get; set; }
         public bool Attended { get; set; }

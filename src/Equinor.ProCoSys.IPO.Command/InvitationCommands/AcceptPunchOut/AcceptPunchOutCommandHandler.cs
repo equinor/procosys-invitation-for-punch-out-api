@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
         private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IPersonRepository _personRepository;
 
         public AcceptPunchOutCommandHandler(
             IPlantProvider plantProvider,
@@ -27,7 +29,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
-            IMcPkgApiService mcPkgApiService)
+            IMcPkgApiService mcPkgApiService,
+            IPersonRepository personRepository)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
@@ -35,16 +38,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _mcPkgApiService = mcPkgApiService;
+            _personRepository = personRepository;
         }
 
         public async Task<Result<string>> Handle(AcceptPunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
+            var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 1 && 
                 p.Organization == Organization.ConstructionCompany && 
-                p.AzureOid == currentUserAzureOid);
+                p.AzureOid == currentUser.Oid);
+            var acceptedAtUtc = DateTime.UtcNow;
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {
@@ -53,11 +58,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                                           p.FunctionalRoleCode != null &&
                                           p.Type == IpoParticipantType.FunctionalRole);
 
-                await AcceptIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
+                await AcceptIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, currentUser, acceptedAtUtc, request.ParticipantRowVersion);
             }
             else
             {
-                invitation.AcceptIpo(participant, participant.UserName, request.ParticipantRowVersion);
+                invitation.AcceptIpo(participant, request.ParticipantRowVersion, currentUser, acceptedAtUtc);
             }
             UpdateNotesOnParticipants(invitation, request.Participants);
 
@@ -92,6 +97,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         private async Task AcceptIpoAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             Participant participant,
+            Person currentUser,
+            DateTime acceptedAtUtc,
             string participantRowVersion)
         {
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
@@ -101,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 
             if (person != null)
             {
-                invitation.AcceptIpo(participant, person.UserName, participantRowVersion);
+                invitation.AcceptIpo(participant, participantRowVersion, currentUser, acceptedAtUtc);
             }
             else
             {

@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             string location,
             DisciplineType type,
             IpoStatus status,
-            string createdBy,
+            PersonDto createdBy,
             DateTime startTimeUtc,
             DateTime endTimeUtc,
             string rowVersion)
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public string Location { get; }
         public DisciplineType Type { get; }
         public IpoStatus Status { get; }
-        public string CreatedBy { get; }
+        public PersonDto CreatedBy { get; }
         public DateTime StartTimeUtc { get; }
         public DateTime EndTimeUtc { get; }
         public string RowVersion { get; }

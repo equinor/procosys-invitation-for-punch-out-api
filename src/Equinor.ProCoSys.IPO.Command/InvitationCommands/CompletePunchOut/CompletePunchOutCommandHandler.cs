@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
         private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IPersonRepository _personRepository;
 
         public CompletePunchOutCommandHandler(
             IPlantProvider plantProvider,
@@ -27,7 +29,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
-            IMcPkgApiService mcPkgApiService)
+            IMcPkgApiService mcPkgApiService,
+            IPersonRepository personRepository)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
@@ -35,16 +38,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _mcPkgApiService = mcPkgApiService;
+            _personRepository = personRepository;
         }
 
         public async Task<Result<string>> Handle(CompletePunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
+            var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+            var completedAtUtc = DateTime.UtcNow;
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 0 && 
                 p.Organization == Organization.Contractor && 
-                p.AzureOid == currentUserAzureOid);
+                p.AzureOid == currentUser.Oid);
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {
@@ -53,11 +58,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                                           p.FunctionalRoleCode != null &&
                                           p.Type == IpoParticipantType.FunctionalRole);
 
-                await CompleteIpoAsPersonInFunctionalRoleAsync(invitation, functionalRole, request.ParticipantRowVersion);
+                await CompleteIpoAsPersonInFunctionalRoleAsync(
+                    invitation,
+                    functionalRole,
+                    currentUser,
+                    completedAtUtc,
+                    request.ParticipantRowVersion);
             }
             else
             {
-                invitation.CompleteIpo(participant, participant.UserName, request.ParticipantRowVersion);
+                invitation.CompleteIpo(participant, request.ParticipantRowVersion, currentUser, completedAtUtc);
             }
             UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
             invitation.SetRowVersion(request.InvitationRowVersion);
@@ -95,6 +105,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         private async Task CompleteIpoAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             Participant participant,
+            Person currentUser,
+            DateTime completedAtUtc,
             string participantRowVersion)
         {
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
@@ -104,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
 
             if (person != null)
             {
-                invitation.CompleteIpo(participant, person.UserName, participantRowVersion);
+                invitation.CompleteIpo(participant, participantRowVersion, currentUser, completedAtUtc);
             }
             else
             {

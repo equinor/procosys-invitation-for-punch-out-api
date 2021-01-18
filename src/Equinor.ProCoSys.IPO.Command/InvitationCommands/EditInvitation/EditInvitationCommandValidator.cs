@@ -17,24 +17,24 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             RuleFor(command => command)
                 //input validators
-                .Must((command) => command.UpdatedParticipants != null)
+                .Must(command => command.UpdatedParticipants != null)
                 .WithMessage(command =>
                     "Participants cannot be null!")
-                .Must((command) => command.Description == null || command.Description.Length < 4000)
+                .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
-                    $"Description cannot be more than 4000 characters! Description={command.Description}")
-                .Must((command) => command.StartTime < command.EndTime)
+                    $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
+                .Must(command => command.Location == null || command.Location.Length < Invitation.LocationMaxLength)
+                .WithMessage(command =>
+                    $"Location cannot be more than {Invitation.LocationMaxLength} characters! Location={command.Location}")
+                .Must(command => command.StartTime < command.EndTime)
                 .WithMessage(command =>
                     $"Start time must be before end time! Start={command.StartTime} End={command.EndTime}")
-                .Must((command) =>
+                .Must(command =>
                     command.Title != null &&
-                    command.Title.Length > 2 &&
+                    command.Title.Length >= Invitation.TitleMinLength &&
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
-                    $"Title must be between 3 and 1024 characters! Title={command.Title}")
-                .Must((command) => command.Location == null || command.Location.Length < 1024)
-                .WithMessage(command =>
-                    $"Location cannot be more than 1024 characters! Location={command.Location}")
+                    $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
                 //business validators
                 .MustAsync((command, token) => BeAnExistingIpo(command.InvitationId, token))
                 .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
@@ -42,16 +42,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
-                .Must((command) => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
+                .Must(command => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
                 .WithMessage(command =>
                     "Not a valid scope! Choose either mc scope or comm pkg scope")
-                .Must((command) => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.UpdatedParticipants))
+                .Must(command => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.UpdatedParticipants))
                 .WithMessage(command =>
                     "Contractor and Construction Company must be invited!")
-                .Must((command) => RequiredParticipantsHaveLowestSortKeys(command.UpdatedParticipants))
+                .Must(command => RequiredParticipantsHaveLowestSortKeys(command.UpdatedParticipants))
                 .WithMessage(command =>
                     "SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
-                .Must((command) => ParticipantListMustBeValid(command.UpdatedParticipants))
+                .Must(command => ParticipantListMustBeValid(command.UpdatedParticipants))
                 .WithMessage(command =>
                     "Each participant must contain an email or oid!");
 

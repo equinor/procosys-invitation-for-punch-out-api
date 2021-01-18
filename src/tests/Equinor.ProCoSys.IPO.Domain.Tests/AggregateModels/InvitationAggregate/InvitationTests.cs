@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Reflection;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 {
@@ -22,6 +21,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private Participant _personParticipant2;
         private Participant _functionalRoleParticipant;
         private Participant _externalParticipant;
+        private Person _currentPerson;
+        private int _currentUserId = 99;
         private int _personParticipantId;
         private int _functionalRoleParticipantId;
         private int _externalParticipantId;
@@ -52,6 +53,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null);
+
             _dutWithCommPkgScope = new Invitation(
                 TestPlant,
                 ProjectName,
@@ -130,6 +132,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 0);
 
             _attachment = new Attachment(TestPlant, "filename.txt");
+            _currentPerson = new Person(new Guid(), null, null, null, null);
+            _currentPerson.SetProtectedIdForTesting(_currentUserId);
 
             _dutWithMcPkgScope.AddParticipant(_personParticipant);
             _dutWithMcPkgScope.AddParticipant(_functionalRoleParticipant);
@@ -142,11 +146,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _dutWithCommPkgScope.AddCommPkg(_commPkg2);
             _dutWithCommPkgScope.AddParticipant(_personParticipant);
             _dutWithCommPkgScope.AddParticipant(_functionalRoleParticipant);
-            _dutWithCommPkgScope.CompleteIpo(_personParticipant2, "Me", _personParticipant2.RowVersion.ConvertToString());
-
-            Person cancelPerson = new Person(new Guid("11111111-1111-2222-2222-333333333334"), "Cancel", "Person", "cp", "cp@pcs.pcs");
-            _dutWithCanceledStatus.SetCreated(cancelPerson);
-            _dutWithCanceledStatus.CancelIpo(cancelPerson);
+            _dutWithCommPkgScope.CompleteIpo(
+                _personParticipant,
+                _personParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
+            _dutWithCanceledStatus.SetCreated(_currentPerson);
+            _dutWithCanceledStatus.CancelIpo(_currentPerson);
         }
 
         [TestMethod]
@@ -417,50 +423,76 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.ThrowsException<Exception>(()
                 => _dutWithCommPkgScope.CompleteIpo(
                     _personParticipant,
-                    _personParticipant.UserName,
-                    ParticipantRowVersion));
+                    ParticipantRowVersion,
+                    _currentPerson,
+                    new DateTime()));
 
         [TestMethod]
         public void CompleteIpo_ShouldCompleteIpo()
         {
             Assert.AreEqual(IpoStatus.Planned, _dutWithMcPkgScope.Status);
 
-            _dutWithMcPkgScope.CompleteIpo(_personParticipant, _personParticipant.UserName, ParticipantRowVersion);
+            _dutWithMcPkgScope.CompleteIpo(
+                _personParticipant,
+                ParticipantRowVersion,
+                _currentPerson,
+                new DateTime());
 
             Assert.AreEqual(IpoStatus.Completed, _dutWithMcPkgScope.Status);
-            Assert.AreEqual(_personParticipant.UserName, _dutWithMcPkgScope.Participants.First().SignedBy);
             Assert.IsNotNull(_dutWithMcPkgScope.Participants.First().SignedAtUtc);
+            Assert.AreEqual(_currentUserId, _dutWithMcPkgScope.Participants.First().SignedBy);
+            Assert.IsNotNull(_dutWithMcPkgScope.CompletedAtUtc);
+            Assert.AreEqual(_currentUserId, _dutWithMcPkgScope.CompletedBy);
         }
 
         [TestMethod]
         public void CompleteIpo_ShouldAddCompleteIpoEvent()
         {
-            _dutWithMcPkgScope.CompleteIpo(_personParticipant, _personParticipant.UserName, ParticipantRowVersion);
+            _dutWithMcPkgScope.CompleteIpo(
+                _personParticipant,
+                ParticipantRowVersion,
+                _currentPerson,
+                new DateTime());
 
             Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoCompletedEvent));
         }
 
         [TestMethod]
-        public void AcceptIpo_ShouldNotAcceptIpo_WhenIpoIsNotCompleted() 
+        public void AcceptIpo_ShouldNotAcceptIpo_WhenIpoIsNotCompleted()
             => Assert.ThrowsException<Exception>(()
-                => _dutWithMcPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion));
+                => _dutWithMcPkgScope.AcceptIpo(
+                    _functionalRoleParticipant,
+                    _functionalRoleParticipant.RowVersion.ConvertToString(),
+                    _currentPerson,
+                    new DateTime()));
 
         [TestMethod]
         public void AcceptIpo_ShouldAcceptIpo()
         {
             Assert.AreEqual(IpoStatus.Completed, _dutWithCommPkgScope.Status);
 
-            _dutWithCommPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion);
+            _dutWithCommPkgScope.AcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
 
             Assert.AreEqual(IpoStatus.Accepted, _dutWithCommPkgScope.Status);
-            Assert.AreEqual("TEST", _dutWithCommPkgScope.Participants.Single(p => p.SortKey == 1).SignedBy);
+            Assert.AreEqual(_currentUserId, _dutWithCommPkgScope.Participants.Single(p => p.SortKey == 1).SignedBy);
             Assert.IsNotNull(_dutWithCommPkgScope.Participants.Single(p => p.SortKey == 1).SignedAtUtc);
+            Assert.AreEqual(_currentUserId, _dutWithCommPkgScope.AcceptedBy);
+            Assert.IsNotNull(_dutWithCommPkgScope.AcceptedAtUtc);
+
         }
 
         [TestMethod]
         public void AcceptIpo_ShouldAddAcceptIpoEvent()
         {
-            _dutWithCommPkgScope.AcceptIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion);
+            _dutWithCommPkgScope.AcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
 
             Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(IpoAcceptedEvent));
         }
@@ -468,14 +500,20 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void SignIpo_ShouldNotSignIpo_WhenIpoIsCanceled()
             => Assert.ThrowsException<Exception>(()
-                => _dutWithCanceledStatus.SignIpo(_functionalRoleParticipant, "TEST", ParticipantRowVersion));
+                => _dutWithCanceledStatus.SignIpo(
+                    _functionalRoleParticipant,
+                    _currentPerson,
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
 
         [TestMethod]
         public void SignIpo_ShouldSignIpo()
         {
-            _dutWithMcPkgScope.SignIpo(_personParticipant2, _personParticipant2.UserName, ParticipantRowVersion);
+            _dutWithMcPkgScope.SignIpo(
+                _personParticipant2,
+                _currentPerson,
+                _personParticipant2.RowVersion.ConvertToString());
 
-            Assert.AreEqual(_personParticipant2.UserName,
+            Assert.AreEqual(_currentUserId,
                 _dutWithMcPkgScope.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid).SignedBy);
             Assert.IsNotNull(_dutWithMcPkgScope.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid).SignedAtUtc);
         }
@@ -483,7 +521,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void SignIpo_ShouldAddSignIpoEvent()
         {
-            _dutWithMcPkgScope.SignIpo(_personParticipant2, _personParticipant2.UserName, ParticipantRowVersion);
+            _dutWithMcPkgScope.SignIpo(
+                _personParticipant2,
+                _currentPerson,
+                _personParticipant2.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoSignedEvent));
         }
@@ -564,7 +605,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void CancelIpo_SetsStatusToCanceled()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
 
             var dut = new Invitation(
                 TestPlant,
@@ -576,9 +616,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null);
 
-            dut.SetCreated(creator);
-
-            dut.CancelIpo(creator);
+            dut.SetCreated(_currentPerson);
+            dut.CancelIpo(_currentPerson);
             Assert.AreEqual(dut.Status, IpoStatus.Canceled);
         }
 
@@ -586,8 +625,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void CancelIpo_IpoIsAlreadyCanceled_ThrowsException()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
-
+  
             var dut = new Invitation(
                 TestPlant,
                 ProjectName,
@@ -598,10 +636,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null);
 
-            dut.SetCreated(creator);
-
-            dut.CancelIpo(creator);
-            Assert.ThrowsException<Exception>(() => dut.CancelIpo(creator));
+            dut.SetCreated(_currentPerson);
+            dut.CancelIpo(_currentPerson);
+            Assert.ThrowsException<Exception>(() => dut.CancelIpo(_currentPerson));
         }
 
         [TestMethod]
@@ -622,8 +659,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(creator);
 
-            dut.CompleteIpo(_personParticipant, "TEST", ParticipantRowVersion); //TODO: fix after unaccept is merged in
-            dut.AcceptIpo(_personParticipant, "TEST", ParticipantRowVersion);
+            dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+            dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
 
             Assert.ThrowsException<Exception>(() => dut.CancelIpo(creator));
         }
@@ -639,7 +676,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             caller
                 .GetType()
                 .GetProperty(nameof(Person.Id))
-                .SetValue(caller, 1, null);
+                ?.SetValue(caller, 1, null);
 
             var dut = new Invitation(
                 TestPlant,

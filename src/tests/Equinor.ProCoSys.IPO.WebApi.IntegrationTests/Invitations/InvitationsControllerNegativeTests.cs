@@ -598,6 +598,79 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
         #endregion
 
+        #region UnAccept
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.UnknownPlant,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Accepter,
+                TestFactory.PlantWithAccess,
+                38934,
+                new UnAcceptPunchOutDto
+                {
+                    InvitationRowVersion = null,
+                    ParticipantRowVersion = null,
+                },
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
+
+        #endregion
+
         #region Cancel
         [TestMethod]
         public async Task CancelPunchOut_AsAnonymous_ShouldReturnUnauthorized()

@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
 
         private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
         private UpdateAttendedStatusAndNotesOnParticipantsCommandHandler _dut;
@@ -34,7 +36,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
-        private int _saveChangesCount;
         private static Guid _azureOidForCurrentUser = new Guid("12345678-1234-1234-1234-123456789123");
         private const string _functionalRoleCode = "FR1";
         private const int _contractorParticipantId = 20;
@@ -64,9 +65,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -131,7 +129,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-            _invitation.CompleteIpo(participant2, "Me", participant2.RowVersion.ConvertToString());
+
+            var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
+            currentPerson.SetProtectedIdForTesting(_contractorParticipantId);
+
+            _personRepositoryMock = new Mock<IPersonRepository>();
+            _personRepositoryMock
+                .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(currentPerson));
+
+            _invitation.CompleteIpo(participant2, participant2.RowVersion.ConvertToString(), currentPerson, new DateTime());
 
             //command
             _command = new UpdateAttendedStatusAndNotesOnParticipantsCommand(
@@ -156,6 +163,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             Assert.AreEqual(true, _invitation.Participants.First().Attended);
             Assert.AreEqual(_note, _invitation.Participants.First().Note);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]

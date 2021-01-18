@@ -50,28 +50,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                 invitation.Description,
                 invitation.Type,
                 invitation.Status,
-                GetCompletedDate(invitation),
-                GetAcceptedDate(invitation),
+                invitation.CompletedAtUtc,
+                invitation.AcceptedAtUtc,
                 invitation.StartTimeUtc,
                 invitation.RowVersion.ConvertToString());
 
             return invitationForMainDto;
-        }
-
-        private static DateTime? GetCompletedDate(Invitation invitation)
-        {
-            var contractor = invitation.Participants.Where(p => p.SortKey == 0).ToList();
-            return contractor.Count == 1 ? 
-                contractor.Single().SignedAtUtc :
-                contractor.Single(p => p.Type == IpoParticipantType.FunctionalRole).SignedAtUtc;
-        }
-
-        private static DateTime? GetAcceptedDate(Invitation invitation)
-        {
-            var constructionCompany = invitation.Participants.Where(p => p.SortKey == 1).ToList();
-            return constructionCompany.Count == 1 ? 
-                constructionCompany.Single().SignedAtUtc : 
-                constructionCompany.Single(p => p.Type == IpoParticipantType.FunctionalRole).SignedAtUtc;
         }
     }
 }

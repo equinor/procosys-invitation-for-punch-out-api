@@ -25,7 +25,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         private const string _commentText = "comment text";
         private const DisciplineType _type = DisciplineType.DP;
         private Invitation _invitation;
-        private int _saveChangesCount;
 
         [TestInitialize]
         public void Setup()
@@ -36,9 +35,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
 
             //create invitation
             _invitation = new Invitation(
@@ -75,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(1, _invitation.Comments.Count);
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(1));
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -10,7 +10,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class Invitation : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable
     {
+        public const int ProjectNameMinLength = 3;
         public const int ProjectNameMaxLength = 512;
+        public const int TitleMinLength = 3;
         public const int TitleMaxLength = 1024;
         public const int LocationMaxLength = 1024;
         public const int DescriptionMaxLength = 4096;
@@ -72,6 +74,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public IReadOnlyCollection<Comment> Comments => _comments.AsReadOnly();
         public IReadOnlyCollection<Attachment> Attachments => _attachments.AsReadOnly();
         public IpoStatus Status { get; private set; }
+        public int? CompletedBy { get; private set; }
+        public DateTime? CompletedAtUtc { get; private set; }
+        public int? AcceptedBy { get; private set; }
+        public DateTime? AcceptedAtUtc { get; private set; }
         public Guid MeetingId { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
@@ -224,7 +230,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
         }
 
-        public void CompleteIpo(Participant participant, string signedBy, string participantRowVersion)
+        public void CompleteIpo(Participant participant, string participantRowVersion, Person completedBy, DateTime completedAtUtc)
         {
             if (participant == null)
             {
@@ -237,13 +243,15 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             Status = IpoStatus.Completed;
-            participant.SignedBy = signedBy;
-            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SignedBy = completedBy.Id;
+            participant.SignedAtUtc = completedAtUtc;
             participant.SetRowVersion(participantRowVersion);
+            CompletedBy = completedBy.Id;
+            CompletedAtUtc = completedAtUtc;
             AddDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
         }
 
-        public void AcceptIpo(Participant participant, string signedBy, string participantRowVersion)
+        public void AcceptIpo(Participant participant, string participantRowVersion, Person acceptedBy, DateTime acceptedAtUtc)
         {
             if (participant == null)
             {
@@ -256,13 +264,36 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             Status = IpoStatus.Accepted;
-            participant.SignedBy = signedBy;
-            participant.SignedAtUtc = DateTime.UtcNow;
+            participant.SignedBy = acceptedBy.Id;
+            participant.SignedAtUtc = acceptedAtUtc;
             participant.SetRowVersion(participantRowVersion);
+            AcceptedBy = acceptedBy.Id;
+            AcceptedAtUtc = acceptedAtUtc;
             AddDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
         }
 
-        public void SignIpo(Participant participant, string signedBy, string participantRowVersion)
+        public void UnAcceptIpo(Participant participant, string participantRowVersion)
+        {
+            if (participant == null)
+            {
+                throw new ArgumentNullException(nameof(participant));
+            }
+
+            if (Status != IpoStatus.Accepted)
+            {
+                throw new Exception($"Unaccept on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
+            Status = IpoStatus.Completed;
+            participant.SignedBy = null;
+            participant.SignedAtUtc = null;
+            participant.SetRowVersion(participantRowVersion);
+            AcceptedAtUtc = null;
+            AcceptedBy = null;
+            AddDomainEvent(new IpoUnAcceptedEvent(Plant, ObjectGuid));
+        }
+
+        public void SignIpo(Participant participant, Person signedBy, string participantRowVersion)
         {
             if (participant == null)
             {
@@ -274,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"Sign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
 
-            participant.SignedBy = signedBy;
+            participant.SignedBy = signedBy.Id;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
             AddDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));

@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -165,7 +166,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Accept")]
-        public async Task<ActionResult> AcceptPunchOut(
+        public async Task<ActionResult<string>> AcceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -177,6 +178,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new UpdateNoteOnParticipantForCommand(p.Id, p.Note, p.RowVersion)).ToList();
             var result = await _mediator.Send(
                 new AcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participants));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [Authorize(Roles = Permissions.IPO_WRITE)]
+        [HttpPut("{id}/Unaccept")]
+        public async Task<ActionResult<string>> UnacceptPunchOut(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] UnAcceptPunchOutDto dto)
+        {
+            var result = await _mediator.Send(
+                new UnAcceptPunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion));
             return this.FromResult(result);
         }
 
@@ -339,8 +356,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.Person != null
                         ? new PersonForCommand(
                             p.Person.AzureOid,
-                            p.Person.FirstName,
-                            p.Person.LastName,
                             p.Person.Email,
                             p.Person.Required,
                             p.Person.Id,
@@ -352,8 +367,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.FunctionalRole.Persons?.Select(person =>
                                 new PersonForCommand(
                                     person.AzureOid,
-                                    person.FirstName,
-                                    person.LastName,
                                     person.Email,
                                     person.Required,
                                     person.Id,
