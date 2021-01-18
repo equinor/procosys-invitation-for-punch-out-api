@@ -431,7 +431,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
-                    .EnableOutlookIntegration(OutlookMode.All)
                     .WithClassification(MeetingClassification.Open)
                     .WithInviteBodyHtml(GenerateMeetingDescription(invitation));
             });

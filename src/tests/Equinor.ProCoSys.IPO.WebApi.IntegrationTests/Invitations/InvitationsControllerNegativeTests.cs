@@ -656,28 +656,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId()
-        {
-            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialInvitationId);
-
-            var validParticipantForUnAccepting = _participantsForSigning
-                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
-
-            await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+        public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
                 UserType.Accepter,
                 TestFactory.PlantWithAccess,
                 38934,
                 new UnAcceptPunchOutDto
                 {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = validParticipantForUnAccepting.RowVersion,
+                    InvitationRowVersion = null,
+                    ParticipantRowVersion = null,
                 },
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
-        }
+
         #endregion
 
         #region ChangeAttendedStatusOnParticipants

@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Reflection;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 {
@@ -653,7 +652,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             caller
                 .GetType()
                 .GetProperty(nameof(Person.Id))
-                .SetValue(caller, 1, null);
+                ?.SetValue(caller, 1, null);
 
             var dut = new Invitation(
                 TestPlant,

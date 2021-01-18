@@ -36,7 +36,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
-        private int _saveChangesCount;
         private static Guid _azureOidForCurrentUser = new Guid("12345678-1234-1234-1234-123456789123");
         private const string _functionalRoleCode = "FR1";
         private const int _contractorParticipantId = 20;
@@ -66,9 +65,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -167,6 +163,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             Assert.AreEqual(true, _invitation.Participants.First().Attended);
             Assert.AreEqual(_note, _invitation.Participants.First().Note);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]

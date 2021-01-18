@@ -32,7 +32,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _participantRowVersion = "AAAAAAAAABA=";
-        private int _saveChangesCount;
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
         private const string _functionalRoleCode = "FR1";
         private Invitation _invitation;
@@ -47,9 +46,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -136,7 +132,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.AreEqual(_participantId, participant.SignedBy);
-            Assert.AreEqual(1, _saveChangesCount);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]

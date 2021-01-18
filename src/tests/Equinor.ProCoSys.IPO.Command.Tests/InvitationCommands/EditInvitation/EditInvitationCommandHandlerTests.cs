@@ -49,7 +49,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _invitation;
-        private int _saveChangesCount;
         private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
         private static Guid _newAzureOid = new Guid("11111111-2222-2222-3333-333333333333");
         private const string _functionalRoleCode = "FR1";
@@ -137,9 +136,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 })));
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock
-                .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
-                .Callback(() => _saveChangesCount++);
 
             //mock comm pkg response from main API
             var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 123};
@@ -304,6 +300,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.AreEqual(_newTitle, _invitation.Title);
             Assert.AreEqual(_newDescription, _invitation.Description);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
