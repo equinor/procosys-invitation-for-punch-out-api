@@ -7,27 +7,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+
             migrationBuilder.Sql("UPDATE PARTICIPANTS SET SIGNEDBY = NULL");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "LastName",
-                table: "Persons",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(64)",
-                oldMaxLength: 64);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "FirstName",
-                table: "Persons",
-                type: "nvarchar(128)",
-                maxLength: 128,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(64)",
-                oldMaxLength: 64);
+            migrationBuilder.Sql("UPDATE PARTICIPANTS SET SIGNEDATUTC = NULL");
+            migrationBuilder.Sql("UPDATE INVITATIONS SET STATUS = 0");
 
             migrationBuilder.AlterColumn<int>(
                 name: "SignedBy",
@@ -150,26 +133,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
             migrationBuilder.DropColumn(
                 name: "CompletedBy",
                 table: "Invitations");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "LastName",
-                table: "Persons",
-                type: "nvarchar(64)",
-                maxLength: 64,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "FirstName",
-                table: "Persons",
-                type: "nvarchar(64)",
-                maxLength: 64,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(128)",
-                oldMaxLength: 128);
 
             migrationBuilder.AlterColumn<string>(
                 name: "SignedBy",
