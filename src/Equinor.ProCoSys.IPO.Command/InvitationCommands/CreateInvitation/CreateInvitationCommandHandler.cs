@@ -19,8 +19,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCommand, Result<int>>
     {
         private const string _objectName = "IPO";
-        private readonly IList<string> _requiredSignerPrivileges = new List<string>{"CREATE", "SIGN"};
-        private readonly IList<string> _additionalSignerPrivileges = new List<string>{"SIGN"};
+        private readonly IList<string> _requiredSignerPrivileges = new List<string> { "CREATE", "SIGN" };
+        private readonly IList<string> _additionalSignerPrivileges = new List<string> { "SIGN" };
 
         private readonly IPlantProvider _plantProvider;
         private readonly IFusionMeetingClient _meetingClient;
@@ -131,9 +131,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             foreach (var participant in functionalRoleParticipants)
             {
-               var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
-               if (fr != null)
-               {
+                var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
+                if (fr != null)
+                {
                     invitation.AddParticipant(new Participant(
                         _plantProvider.Plant,
                         participant.Organization,
@@ -178,11 +178,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             }
                         }
                     }
-               }
+                }
             }
             return participants;
         }
-        
+
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
@@ -331,12 +331,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             foreach (var participant in personsParticipantsWithEmail)
             {
+                //This code will only hit for users that do not have and azure oid (which all users should have).
+                //Therefore, insert null for names - no endpoint in main is created to retrieve info from users based on email
                 invitation.AddParticipant(new Participant(
                     _plantProvider.Plant,
                     participant.Organization,
                     IpoParticipantType.Person,
                     null,
-                    null, 
+                    null,
                     null,
                     null,
                     participant.Person.Email,
@@ -350,8 +352,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         }
 
         private List<BuilderParticipant> AddExternalParticipant(
-            Invitation invitation, 
-            List<BuilderParticipant> participants, 
+            Invitation invitation,
+            List<BuilderParticipant> participants,
             List<ParticipantsForCommand> participantsWithExternalEmail)
         {
             foreach (var participant in participantsWithExternalEmail)
@@ -370,7 +372,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
                     new ParticipantIdentifier(participant.ExternalEmail.Email)));
             }
-            
+
             return participants;
         }
 
@@ -378,7 +380,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
-            
+
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
