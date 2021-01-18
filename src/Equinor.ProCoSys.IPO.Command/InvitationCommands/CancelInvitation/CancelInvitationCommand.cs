@@ -7,6 +7,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
     {
         public CancelInvitationCommand(int invitationId) => InvitationId = invitationId;
 
-        public int InvitationId { get; init; }
+        public int InvitationId { get; }
     }
 }

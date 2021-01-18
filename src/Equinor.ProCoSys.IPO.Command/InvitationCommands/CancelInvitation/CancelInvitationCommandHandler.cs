@@ -10,20 +10,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
 {
     public class CancelInvitationCommandHandler : IRequestHandler<CancelInvitationCommand, Result<string>>
     {
-        private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IPersonRepository _personRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
 
         public CancelInvitationCommandHandler(
-            IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IPersonRepository personRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider)
         {
-            _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _personRepository = personRepository;
             _unitOfWork = unitOfWork;

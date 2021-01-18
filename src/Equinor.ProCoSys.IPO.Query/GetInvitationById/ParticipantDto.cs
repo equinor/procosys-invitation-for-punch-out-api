@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public ParticipantDto(
             Organization organization,
             int sortKey,
-            string signedBy,
+            PersonDto signedBy,
             DateTime? signedAtUtc,
             string note,
             bool attended,
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         public Organization Organization { get; }
         public int SortKey { get; }
-        public string SignedBy { get; }
+        public PersonDto SignedBy { get; }
         public DateTime? SignedAtUtc { get; }
         public string Note { get; }
         public bool Attended { get; }

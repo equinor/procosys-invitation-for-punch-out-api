@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestInitialize]
         public void TestInitialize()
         {
-            var personParticipant = new PersonForCommand(Guid.NewGuid(), "Ola", "Nordman", "ola@test.com", true);
+            var personParticipant = new PersonForCommand(Guid.NewGuid(), "ola@test.com", true);
             var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
             var completerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Completer);
             _conradContractor = new PersonHelper(completerUser.Profile.Oid, "Conrad", "Contractor", "ConradUserName","conrad@contractor.com", 1, "AAAAAAAAALA=");
@@ -232,8 +232,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     AzureOid = personParticipant.AzureOid.ToString(),
                     Email = personParticipant.Email,
-                    FirstName = personParticipant.FirstName,
-                    LastName = personParticipant.LastName,
+                    FirstName = "Ola",
+                    LastName = "Nordmann",
                     UserName = "UserName"
                 }));
 

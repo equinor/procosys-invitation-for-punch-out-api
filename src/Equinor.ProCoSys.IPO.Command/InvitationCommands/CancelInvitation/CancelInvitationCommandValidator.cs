@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
@@ -29,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
                 => await invitationValidator.CurrentUserIsCreatorOfInvitation(invitationId, token);
 
             async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken token)
-                => await invitationValidator.InvitationIsNotCanceled(invitationId, token);
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, token);
         }
     }
 }

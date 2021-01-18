@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Ola", "Nordmann", "ola@test.com", true),
+                new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true),
                 null,
                 1)
         };
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitationWithCurrentUserAsParticipants = new Invitation(
+             var invitationWithCurrentUserAsParticipants = new Invitation(
                     TestPlant,
                     _projectName,
                     _title1,
@@ -82,6 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new DateTime(),
                     new DateTime(),
                     null);
+
                 foreach (var attachment in _attachments)
                 {
                     invitationWithCurrentUserAsParticipants.AddAttachment(attachment);
@@ -120,9 +121,24 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     "UN3",
                     _currentUserOid,
                     2);
+
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant1);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
+
+                var currentPerson = context.Persons.SingleAsync(p => p.Oid == _currentUserOid).Result;
+
+                invitationWithCurrentUserAsParticipants.CompleteIpo(
+                    participant1,
+                    participant1.RowVersion.ConvertToString(),
+                    currentPerson,
+                    new DateTime());
+
+                invitationWithCurrentUserAsParticipants.AcceptIpo(
+                    participant2,
+                    participant2.RowVersion.ConvertToString(),
+                    currentPerson,
+                    new DateTime());
 
                 var invitationWithFrAsParticipants = new Invitation(
                     TestPlant,
@@ -193,6 +209,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new DateTime(),
                     new DateTime(),
                     null);
+
                 context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
                 _invitationIdWithNotCurrentUserOidAsParticipants = invitationWithNotCurrentUserAsParticipants.Id;
                 var contractorParticipant = new Participant(
@@ -391,7 +408,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new PersonForCommand(Guid.Empty, "Ola", "Nordmann", "ola@test.com", true),
+                        new PersonForCommand(Guid.Empty, "ola@test.com", true),
                         null,
                         1)
                 });
@@ -442,7 +459,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         new ExternalEmailForCommand("test@email.com"),
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        new PersonForCommand(null, "zoey@test.com", true),
                         null,
                         3)
                 });
@@ -468,7 +485,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", "zoey@test.com", true),
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true),
                         null,
                         3);
                 var external =
@@ -494,7 +511,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", null, true),
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), null, true),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -513,7 +530,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        new PersonForCommand(null, "zoey@test.com", true),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -553,7 +570,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", null, true),
+                        new PersonForCommand(null, null, true),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -573,7 +590,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "Zoey", "Smith", "test", true),
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "test", true),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -593,7 +610,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(Guid.Empty, "Zoey", "Smith", "test", true),
+                        new PersonForCommand(Guid.Empty, "test", true),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -625,7 +642,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        new PersonForCommand(null, "zoey@test.com", true),
                         null,
                         3);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
@@ -650,7 +667,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new PersonForCommand(null, "Ola", "Nordmann", "ola@test.com", true),
+                        new PersonForCommand(null, "ola@test.com", true),
                         null,
                         0)
                 });
@@ -669,7 +686,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true),
+                        new PersonForCommand(null, "zoey@test.com", true),
                         null,
                         0);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
@@ -707,7 +724,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, _participantId1),
+                        new PersonForCommand(null, "zoey@test.com", true, _participantId1),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -747,8 +764,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", new List<PersonForCommand> {
-                            new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, _participantId1),
-                            new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false, _participantId2)
+                            new PersonForCommand(null, "zoey@test.com", true, _participantId1),
+                            new PersonForCommand(null, "zoey1@test.com", false, _participantId2)
                             },
                             _operationCurrentPersonId),
                         0);
@@ -787,7 +804,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 500),
+                        new PersonForCommand(null, "zoey@test.com", true, 500),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -827,8 +844,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", new List<PersonForCommand> {
-                            new PersonForCommand(null, "Zoey", "Smith", "zoey@test.com", true, 400),
-                            new PersonForCommand(null, "Zoey1", "Smith", "zoey1@test.com", false, 500)
+                            new PersonForCommand(null, "zoey@test.com", true, 400),
+                            new PersonForCommand(null, "zoey1@test.com", false, 500)
                             }
                         ),
                         0);
@@ -1061,6 +1078,79 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await dut.CurrentUserIsCreatorOfInvitation(_invitationIdWithAnotherCreator, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInPlannedStage_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithFrAsParticipants, IpoStatus.Planned, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInAcceptedStage_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Accepted, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInPlannedStage_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Planned, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task IpoIsInStageAsync_IpoIsInCompletedStage_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Completed, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SameUserUnAcceptingThatAcceptedAsync_SameUser_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SameUserUnAcceptingThatAcceptedAsync_DifferentUser_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
+                //This is not a full test coverage, because we do not have a history event for this accepting. We get false because there are not history events in this validation. Cannot add history event that is created by a user other than current user
                 Assert.IsFalse(result);
             }
         }

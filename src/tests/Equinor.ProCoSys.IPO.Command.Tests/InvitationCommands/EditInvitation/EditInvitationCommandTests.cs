@@ -21,12 +21,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(null, "Ola", "Nordman", "ola@test.com", true),
+                new PersonForCommand(null, "ola@test.com", true),
                 null,
                 1)
         };
 
-        private const string ProjectName = "Project name";
         private const string Title = "Test title";
         private const string Description = "Body";
         private const string Location = "Outside";

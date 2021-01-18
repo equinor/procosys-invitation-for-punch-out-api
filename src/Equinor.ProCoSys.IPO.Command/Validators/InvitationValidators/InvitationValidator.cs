@@ -262,6 +262,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
+        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken token)
+        {
+            var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
+                join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
+                where i.Id == invitationId
+                select p).SingleOrDefaultAsync(token);
+
+            return acceptingPerson != null && _currentUserProvider.GetCurrentUserOid() == acceptingPerson.Oid;
+        }
+
         public async Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken token)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
@@ -277,16 +287,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                               .SingleAsync(token);
 
             return currentUserId == createdById;
-        }
-
-        public async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken token)
-        {
-            var ipoStatus = await (from invitation in _context.QuerySet<Invitation>()
-                                     where invitation.Id == invitationId
-                                     select invitation.Status)
-                              .SingleAsync(token);
-
-            return ipoStatus != IpoStatus.Canceled;
         }
     }
 }

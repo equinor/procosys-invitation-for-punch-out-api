@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 .MustAsync((command, token) => BeAnInvitationInPlannedStage(command.InvitationId, token))
                 .WithMessage(command =>
                     "Invitation is not in planned stage, and thus cannot be completed!")
-                .Must((command) => HaveAValidRowVersion(command.InvitationRowVersion))
+                .Must(command => HaveAValidRowVersion(command.InvitationRowVersion))
                 .WithMessage(command =>
                     $"Invitation row version is not valid! InvitationRowVersion={command.InvitationRowVersion}")
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
