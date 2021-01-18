@@ -70,6 +70,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                     null)
                 { MeetingId = _meetingId };
 
+            var participant = new Participant(_plant,
+                Organization.Contractor,
+                IpoParticipantType.FunctionalRole,
+                "FR",
+                null,
+                null,
+                null,
+                null,
+                null,
+                0);
+
+            _invitation.CompleteIpo(participant, "AAAAAAAAABB=", currentPerson, new DateTime());
+
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
@@ -93,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         [TestMethod]
         public async Task CancelPunchOutCommand_ShouldCancelPunchOut()
         {
-            Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
+            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
 
             await _dut.Handle(_command, default);
 

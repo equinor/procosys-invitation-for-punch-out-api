@@ -44,15 +44,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+            var status = invitation.Status;
             invitation.CancelIpo(currentUser);
             //TODO: her kan man klarere datoer uten å kansellere møte - worst case
-            try
+            if (status == IpoStatus.Completed)
             {
-                await ClearM01DatesAsync(invitation);
-            }
-            catch (Exception e)
-            {
-                return new UnexpectedResult<string>(e.Message);
+                try
+                {
+                    await ClearM01DatesAsync(invitation);
+                }
+                catch (Exception e)
+                {
+                    return new UnexpectedResult<string>(e.Message);
+                }
             }
 
             try
