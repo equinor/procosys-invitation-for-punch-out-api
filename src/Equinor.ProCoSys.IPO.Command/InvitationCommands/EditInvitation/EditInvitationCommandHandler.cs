@@ -67,8 +67,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 request.EndTime,
                 request.Location);
 
-            UpdateMcPkgScope(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
-            UpdateCommPkgScope(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
+            await UpdateMcPkgScopeAsync(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
+            await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
 
             participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
 
@@ -94,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private void UpdateMcPkgScope(Invitation invitation, IList<string> mcPkgNos, string projectName)
+        private async Task UpdateMcPkgScopeAsync(Invitation invitation, IList<string> mcPkgNos, string projectName)
         {
             var existingMcPkgScope = invitation.McPkgs;
             var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
@@ -108,12 +108,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
             if (newMcPkgs.Count > 0)
             {
-                AddMcPkgs(invitation, newMcPkgs, projectName,
+                await AddMcPkgsAsync(invitation, newMcPkgs, projectName,
                     existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().CommPkgNo : null);
             }
         }
 
-        private async void AddMcPkgs(Invitation invitation, IList<string> mcPkgNos, string projectName, string commPkgNo)
+        private async Task AddMcPkgsAsync(Invitation invitation, IList<string> mcPkgNos, string projectName, string commPkgNo)
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialCommPkgNo = commPkgNo ?? initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new Exception("Mc pkg scope must be within a comm pkg");
+                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
@@ -137,7 +137,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
         }
 
-        private void UpdateCommPkgScope(Invitation invitation, IList<string> commPkgNos, string projectName)
+        private async Task UpdateCommPkgScopeAsync(Invitation invitation, IList<string> commPkgNos, string projectName)
         {
             var existingCommPkgScope = invitation.CommPkgs;
             var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
@@ -151,11 +151,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
             if (newCommPkgs.Count > 0)
             {
-                AddCommPkgs(invitation, newCommPkgs, existingCommPkgs, projectName);
+                await AddCommPkgsAsync(invitation, newCommPkgs, existingCommPkgs, projectName);
             }
         }
 
-        private async void AddCommPkgs(Invitation invitation, IList<string> newCommPkgNos, IList<string> existingCommPkgNos, string projectName)
+        private async Task AddCommPkgsAsync(Invitation invitation, IList<string> newCommPkgNos, IList<string> existingCommPkgNos, string projectName)
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, newCommPkgNos);
@@ -166,7 +166,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new Exception("Comm pkg scope must be within a system");
+                    throw new IpoValidationException("Comm pkg scope must be within a system");
                 }
             }
 
@@ -334,7 +334,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 }
                 else if (participant.SortKey < 2)
                 { 
-                    throw new Exception($"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on required participant {participant.Organization}");
+                    throw new IpoValidationException($"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on required participant {participant.Organization}");
                 }
             }
             return participants;
@@ -511,7 +511,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             else
             {
-                throw new Exception($"Person does not have required privileges to be the {organization} participant");
+                throw new IpoValidationException($"Person does not have required privileges to be the {organization} participant");
             }
             return participants;
         }
