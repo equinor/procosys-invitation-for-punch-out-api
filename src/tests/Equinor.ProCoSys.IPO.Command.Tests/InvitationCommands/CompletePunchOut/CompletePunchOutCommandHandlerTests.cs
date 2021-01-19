@@ -225,12 +225,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                     new List<string>()))
                 .Throws(new Exception("Something failed"));
 
-            // Act
-            var result = await _dut.Handle(_command, default);
-
-            // Assert
+            await Assert.ThrowsExceptionAsync<Exception>(() =>
+                _dut.Handle(_command, default));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-            Assert.AreEqual(1, result.Errors.Count);
         }
     }
 }

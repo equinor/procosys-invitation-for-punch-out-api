@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
 
             participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
-
+            invitation.SetRowVersion(request.RowVersion);
             try
             {
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
@@ -86,10 +86,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             catch
             {
-                return new UnexpectedResult<string>("Error: Could not update outlook meeting.");
+                throw new Exception("Error: Could not update outlook meeting.");
             }
 
-            invitation.SetRowVersion(request.RowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }

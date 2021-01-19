@@ -711,15 +711,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task CancelPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                9999,
-                new CancelPunchOutDto(),
-                HttpStatusCode.Forbidden);
-
-        [TestMethod]
         public async Task CancelPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,

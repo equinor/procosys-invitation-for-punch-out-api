@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             catch (Exception)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
+                throw new Exception("Error: Could not create outlook meeting.");
             }
         }
 
@@ -178,12 +178,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             }
                         }
                     }
-               }
-               else
-               {
-                   throw new IpoValidationException(
-                       $"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on participant {participant.Organization}.");
-               }
+                }
+                else
+                {
+                    throw new IpoValidationException(
+                        $"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on participant {participant.Organization}.");
+                }
             }
             return participants;
         }
