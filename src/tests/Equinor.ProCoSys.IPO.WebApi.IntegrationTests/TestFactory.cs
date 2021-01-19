@@ -418,7 +418,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE,
+                        Permissions.IPO_WRITE
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
