@@ -439,6 +439,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .WithClassification(MeetingClassification.Open)
+                    .EnableOutlookIntegration(OutlookMode.All) //this line is necessary!
                     .WithInviteBodyHtml(GenerateMeetingDescription(invitation));
             });
             return meeting.Id;
