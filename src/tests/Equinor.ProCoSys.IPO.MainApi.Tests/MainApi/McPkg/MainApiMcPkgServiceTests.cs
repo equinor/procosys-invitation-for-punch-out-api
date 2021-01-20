@@ -115,21 +115,5 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
 
             Assert.AreEqual(0, result.Count);
         }
-
-        [TestMethod]
-        public async Task SetM01Dates_ShouldReturnOk_WhenCallSucceeds() 
-            => await _dut.SetM01DatesAsync(_plant, 1, "Project1", new List<string>{"A"}, new List<string>());
-
-        [TestMethod]
-        public async Task ClearM01Dates_ShouldReturnOk_WhenCallSucceeds()
-            => await _dut.ClearM01DatesAsync(_plant, 1, "Project1", new List<string> { "A" }, new List<string>());
-
-        [TestMethod]
-        public async Task SetM02Dates_ShouldReturnOk_WhenCallSucceeds()
-            => await _dut.SetM02DatesAsync(_plant, 1, "Project1", new List<string> { "A" }, new List<string>());
-
-        [TestMethod]
-        public async Task ClearM02Dates_ShouldReturnOk_WhenCallSucceeds()
-            => await _dut.ClearM02DatesAsync(_plant, 1, "Project1", new List<string> { "A" }, new List<string>());
     }
 }
