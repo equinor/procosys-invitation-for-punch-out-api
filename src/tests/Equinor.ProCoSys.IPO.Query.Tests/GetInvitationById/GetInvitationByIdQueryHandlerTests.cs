@@ -66,7 +66,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     projectName,
                     commPkgNo,
                     description,
-                    "OK");
+                    "OK",
+                    "1|2");
 
                 var mcPkg = new McPkg(
                     TestPlant,

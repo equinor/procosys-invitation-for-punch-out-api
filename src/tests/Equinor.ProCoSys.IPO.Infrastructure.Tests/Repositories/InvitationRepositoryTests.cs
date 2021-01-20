@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _mcPkg = new McPkg(TestPlant, _projectName, _commPkgNo, _mcPkgNo, "Description");
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _commPkg = new CommPkg(TestPlant, _projectName, _commPkgNo, "Description", "OK");
+            _commPkg = new CommPkg(TestPlant, _projectName, _commPkgNo, "Description", "OK", "1|2");
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
             _participant = new Participant(

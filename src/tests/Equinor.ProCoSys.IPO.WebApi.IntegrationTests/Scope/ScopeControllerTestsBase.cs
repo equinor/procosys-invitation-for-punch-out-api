@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OK",
                     Description = "CommPkg1Description",
                     Id = 1,
-                    SystemId = 2
+                    System = "2"
                 },
                 new ProCoSysCommPkg
                 {
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OS",
                     Description = "CommPkg2Description",
                     Id = 2,
-                    SystemId = 2
+                    System = "2"
                 }
             };
 

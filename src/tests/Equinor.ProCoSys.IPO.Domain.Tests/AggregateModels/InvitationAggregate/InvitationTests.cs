@@ -79,8 +79,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _mcPkg1 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc1", "MC D");
             _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2");
-            _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK");
-            _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK");
+            _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK", "1|2");
+            _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK", "1|2");
             _comment = new Comment(TestPlant, "Comment text");
             _dutWithCommPkgScope.AddComment(_comment);
             _personParticipant = new Participant(

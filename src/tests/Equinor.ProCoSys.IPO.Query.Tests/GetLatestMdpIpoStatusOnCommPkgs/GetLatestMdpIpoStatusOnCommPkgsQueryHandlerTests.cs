@@ -36,14 +36,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     _projectName,
                     _commPkgNo1,
                     "Description",
-                    "OK");
+                    "OK",
+                    "1|2");
 
                 var commPkg2 = new CommPkg(
                     TestPlant,
                     _projectName,
                     _commPkgNo2,
                     "Description",
-                    "OK");
+                    "OK",
+                    "1|2");
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
