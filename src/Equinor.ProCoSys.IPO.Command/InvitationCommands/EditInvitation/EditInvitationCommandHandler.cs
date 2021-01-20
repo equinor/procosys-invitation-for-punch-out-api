@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
 
             participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
-
+            invitation.SetRowVersion(request.RowVersion);
             try
             {
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
@@ -86,10 +86,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             catch
             {
-                return new UnexpectedResult<string>("Error: Could not update outlook meeting.");
+                throw new Exception("Error: Could not update outlook meeting.");
             }
 
-            invitation.SetRowVersion(request.RowVersion);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
@@ -123,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialCommPkgNo = commPkgNo ?? initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg");
+                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg.");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
@@ -166,7 +165,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new IpoValidationException("Comm pkg scope must be within a system");
+                    throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
             }
 
@@ -332,9 +331,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         }
                     }
                 }
-                else if (participant.SortKey < 2)
-                { 
-                    throw new IpoValidationException($"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on required participant {participant.Organization}");
+                else
+                {
+                    throw new IpoValidationException(
+                        $"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on participant {participant.Organization}.");
                 }
             }
             return participants;
@@ -511,7 +511,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             else
             {
-                throw new IpoValidationException($"Person does not have required privileges to be the {organization} participant");
+                throw new IpoValidationException($"Person does not have required privileges to be the {organization} participant.");
             }
             return participants;
         }

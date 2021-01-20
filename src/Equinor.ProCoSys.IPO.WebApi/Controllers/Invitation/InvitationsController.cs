@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -26,8 +27,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation;
-using InvitationForMainDto = Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo.InvitationForMainDto;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -135,16 +134,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_WRITE)]
-        [HttpPost("{id}/Cancel")]
+        [HttpPut("{id}/Cancel")]
         public async Task<ActionResult> CancelInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
             string plant,
-            [FromRoute] int id)
+            [FromRoute] int id,
+            [FromBody] CancelPunchOutDto dto)
         {
             var result = await _mediator.Send(
-                new CancelInvitationCommand(id));
+                new CancelPunchOutCommand(id, dto.RowVersion));
             return this.FromResult(result);
         }
 
@@ -166,7 +166,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Accept")]
-        public async Task<ActionResult> AcceptPunchOut(
+        public async Task<ActionResult<string>> AcceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Unaccept")]
-        public async Task<ActionResult> UnacceptPunchOut(
+        public async Task<ActionResult<string>> UnacceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]

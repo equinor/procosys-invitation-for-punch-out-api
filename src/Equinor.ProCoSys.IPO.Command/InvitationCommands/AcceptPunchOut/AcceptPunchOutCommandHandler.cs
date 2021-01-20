@@ -67,6 +67,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
+            await SetM02DatesAsync(invitation);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private async Task SetM02DatesAsync(Invitation invitation)
+        {
             try
             {
                 await _mcPkgApiService.SetM02DatesAsync(
@@ -78,10 +85,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             }
             catch (Exception)
             {
-                return new UnexpectedResult<string>("Error: Could not set M-02 dates");
+                throw new Exception("Error: Could not set M-02 dates");
             }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
         private void UpdateNotesOnParticipants(Invitation invitation, IList<UpdateNoteOnParticipantForCommand> participants)

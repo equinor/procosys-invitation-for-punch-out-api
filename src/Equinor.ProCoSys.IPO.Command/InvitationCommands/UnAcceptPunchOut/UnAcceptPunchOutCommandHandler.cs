@@ -56,6 +56,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             }
 
             invitation.SetRowVersion(request.InvitationRowVersion);
+            await ClearM02DateAsync(invitation);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private async Task ClearM02DateAsync(Invitation invitation)
+        {
             try
             {
                 await _mcPkgApiService.ClearM02DatesAsync(
@@ -67,10 +74,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             }
             catch (Exception)
             {
-                return new UnexpectedResult<string>("Error: Could not clear M-02 dates");
+                throw new Exception("Error: Could not clear M-02 dates");
             }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         CommentAdded,
         [Description("Comment removed")]
         CommentRemoved,
-        [Description("IPO Canceled")]
+        [Description("IPO canceled")]
         IpoCanceled
     }
 }

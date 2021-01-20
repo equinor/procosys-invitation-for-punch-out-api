@@ -671,6 +671,65 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         #endregion
 
+        #region Cancel
+        [TestMethod]
+        public async Task CancelPunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                new CancelPunchOutDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new CancelPunchOutDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Completer,
+                TestFactory.UnknownPlant,
+                9999,
+                new CancelPunchOutDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CancelPunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CompletePunchOutDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                38934,
+                new CancelPunchOutDto(),
+                HttpStatusCode.BadRequest);
+
+        #endregion
+
         #region ChangeAttendedStatusOnParticipants
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsAnonymous_ShouldReturnUnauthorized()

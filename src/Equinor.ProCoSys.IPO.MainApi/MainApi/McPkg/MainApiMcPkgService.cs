@@ -81,6 +81,28 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             await _foreignApiClient.PutAsync(url, content);
         }
 
+        public async Task ClearM01DatesAsync(
+            string plant,
+            int invitationId,
+            string projectName,
+            IList<string> mcPkgNos,
+            IList<string> commPkgNos)
+        {
+            var url = $"{_baseAddress}McPkgs/ClearM01" +
+                      $"?plantId={plant}" +
+                      $"&api-version={_apiVersion}";
+            var bodyPayload = new
+            {
+                ProjectName = projectName,
+                ExternalReference = "IPO-" + invitationId,
+                McPkgNos = mcPkgNos,
+                CommPkgNos = commPkgNos
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
+            await _foreignApiClient.PutAsync(url, content);
+        }
+
         public async Task SetM02DatesAsync(
             string plant,
             int invitationId,

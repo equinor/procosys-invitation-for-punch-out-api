@@ -1,61 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
+using Fusion.Integration.Meeting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 {
     [TestClass]
-    public class UnAcceptPunchOutCommandHandlerTests
+    public class CancelPunchOutCommandHandlerTests
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IFusionMeetingClient> _meetingClientMock;
 
-        private UnAcceptPunchOutCommand _command;
-        private UnAcceptPunchOutCommandHandler _dut;
+        private CancelPunchOutCommand _command;
+        private CancelPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
-        private const string _firstName = "Ola";
-        private const string _lastName = "Nordmann";
         private const DisciplineType _type = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private const string _invitationRowVersion = "AAAAAAAAABA=";
-        private const string _participantRowVersion = "AAAAAAAAABA=";
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
-        private const string _functionalRoleCode = "FR1";
+        private const string _invitationRowVersion = "AAAAAAAAABA=";
         private Invitation _invitation;
-        private const int _participantId = 20;
-
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
-                null,
-                1)
-        };
 
         [TestInitialize]
         public void Setup()
@@ -71,6 +50,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
 
+            var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
+            _personRepositoryMock = new Mock<IPersonRepository>();
+            _personRepositoryMock
+                .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
+                .Returns(Task.FromResult(currentPerson));
+
+            _meetingClientMock = new Mock<IFusionMeetingClient>();
+
             //create invitation
             _invitation = new Invitation(
                     _plant,
@@ -82,36 +69,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                     new DateTime(),
                     null)
                 { MeetingId = _meetingId };
-            var participant1 = new Participant(
-                _plant,
-                _participants[0].Organization,
+
+            var participant = new Participant(_plant,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                "FR",
                 null,
                 null,
                 null,
                 null,
                 null,
                 0);
-            _invitation.AddParticipant(participant1);
-            var participant2 = new Participant(
-                _plant,
-                _participants[1].Organization,
-                IpoParticipantType.Person,
-                null,
-                _firstName,
-                _lastName,
-                "OlaN",
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
-                1);
-            participant2.SetProtectedIdForTesting(_participantId);
-            _invitation.AddParticipant(participant2);
-            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
 
-            _invitation.CompleteIpo(participant2, participant2.RowVersion.ConvertToString(), currentPerson, new DateTime());
-
-            _invitation.AcceptIpo(participant2, participant2.RowVersion.ConvertToString(), currentPerson, new DateTime());
+            _invitation.CompleteIpo(participant, "AAAAAAAAABB=", currentPerson, new DateTime());
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -121,42 +91,31 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
 
             //command
-            _command = new UnAcceptPunchOutCommand(
-                _invitation.Id,
-                _invitationRowVersion,
-                _participantRowVersion);
+            _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
 
-            _dut = new UnAcceptPunchOutCommandHandler(
+            _dut = new CancelPunchOutCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
+                _personRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
+                _meetingClientMock.Object,
                 _mcPkgApiServiceMock.Object);
         }
 
         [TestMethod]
-        public async Task UnAcceptPunchOutCommand_ShouldUnAcceptPunchOut()
+        public async Task CancelPunchOutCommand_ShouldCancelPunchOut()
         {
-            Assert.AreEqual(IpoStatus.Accepted, _invitation.Status);
-            var participant = _invitation.Participants.Single(p => p.Organization == Organization.ConstructionCompany);
-            Assert.IsNotNull(participant);
-            Assert.IsNotNull(participant.SignedAtUtc);
-            Assert.IsNotNull(participant.SignedBy);
-            Assert.IsNotNull(_invitation.AcceptedAtUtc);
-            Assert.IsNotNull(_invitation.AcceptedBy);
+            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            Assert.IsNull(participant.SignedAtUtc);
-            Assert.IsNull(participant.SignedBy);
-            Assert.IsNull(_invitation.AcceptedAtUtc);
-            Assert.IsNull(_invitation.AcceptedBy);
+            Assert.AreEqual(IpoStatus.Canceled, _invitation.Status);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
-        public async Task HandlingUnAcceptIpoCommand_ShouldSetAndReturnRowVersion()
+        public async Task HandlingCancelIpoCommand_ShouldSetAndReturnRowVersion()
         {
             // Act
             var result = await _dut.Handle(_command, default);
@@ -166,14 +125,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[1].RowVersion.ConvertToString());
         }
 
         [TestMethod]
-        public async Task HandlingUnAcceptIpoCommand_ShouldNotUnAcceptIfClearingM02DateInMainFails()
+        public async Task HandlingCancelIpoCommand_ShouldNotCancelIfClearingM01DatesInMainFails()
         {
             _mcPkgApiServiceMock
-                .Setup(x => x.ClearM02DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
+                .Setup(x => x.ClearM01DatesAsync(
+                    _plant,
+                    _invitation.Id,
+                    _projectName,
+                    new List<string>(),
+                    new List<string>()))
+                .Throws(new Exception("Something failed"));
+
+            await Assert.ThrowsExceptionAsync<Exception>(() =>
+                _dut.Handle(_command, default));
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingCancelIpoCommand_ShouldNotCancelIfDeletingFusionMeetingFails()
+        {
+            _meetingClientMock
+                .Setup(x => x.DeleteMeetingAsync(_meetingId))
                 .Throws(new Exception("Something failed"));
 
             await Assert.ThrowsExceptionAsync<Exception>(() =>

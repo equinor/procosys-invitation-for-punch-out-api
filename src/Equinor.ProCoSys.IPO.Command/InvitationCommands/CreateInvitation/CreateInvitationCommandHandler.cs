@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             catch (Exception)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                return new UnexpectedResult<int>("Error: Could not create outlook meeting.");
+                throw new Exception("Error: Could not create outlook meeting.");
             }
         }
 
@@ -178,6 +178,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             }
                         }
                     }
+                }
+                else
+                {
+                    throw new IpoValidationException(
+                        $"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on participant {participant.Organization}.");
                 }
             }
             return participants;
@@ -318,7 +323,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             else
             {
                 throw new IpoValidationException(
-                    $"Person does not have required privileges to be the {organization} participant");
+                    $"Person does not have required privileges to be the {organization} participant.");
             }
 
             return participants;
@@ -387,7 +392,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialSystemId = initialCommPkg.SystemId;
                 if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
                 {
-                    throw new IpoValidationException("Comm pkg scope must be within a system");
+                    throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
             }
 
@@ -412,7 +417,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var initialCommPkgNo = initialMcPkg.CommPkgNo;
                 if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg");
+                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg.");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
@@ -439,7 +444,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .WithClassification(MeetingClassification.Open)
-                    .EnableOutlookIntegration(OutlookMode.All) //this line is necessary!
+                    .EnableOutlookIntegration()
                     .WithInviteBodyHtml(GenerateMeetingDescription(invitation));
             });
             return meeting.Id;

@@ -453,7 +453,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ProCoSysProjects = commonProCoSysProjects
                 });
 
-        // Authenticated user with necessary permissions to CREATE and UPDATE invitations
+        // Authenticated user with necessary permissions to CREATE, UPDATE AND CANCEL invitations
         private void AddPlannerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)

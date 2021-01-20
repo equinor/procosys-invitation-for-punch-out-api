@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
+﻿namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
     public class UnAcceptPunchOutDto
     {

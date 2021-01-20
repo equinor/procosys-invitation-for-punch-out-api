@@ -1,14 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
+using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
 {
-    public class CancelInvitationCommandValidator : AbstractValidator<CancelInvitationCommand>
+    public class CancelPunchOutCommandValidator : AbstractValidator<CancelPunchOutCommand>
     {
-        public CancelInvitationCommandValidator(IInvitationValidator invitationValidator)
+        public CancelPunchOutCommandValidator(
+            IInvitationValidator invitationValidator,
+            IRowVersionValidator rowVersionValidator)
         {
             CascadeMode = CascadeMode.Stop;
 
@@ -19,9 +22,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
                 .MustAsync((command, token) => InvitationIsNotCanceled(command.InvitationId, token))
                 .WithMessage(command =>
                     $"IPO is already canceled! Id={command.InvitationId}")
+                .MustAsync((command, token) => InvitationIsNotAccepted(command.InvitationId, token))
+                .WithMessage(command =>
+                    $"IPO is in accepted stage! Id={command.InvitationId}")
                 .MustAsync((command, token) => CurrentUserIsCreatorOfInvitation(command.InvitationId, token))
                 .WithMessage(command =>
-                    $"Current user is not the creator of the invitation! Id={command.InvitationId}");
+                    $"Current user is not the creator of the invitation! Id={command.InvitationId}")
+                .Must(command => HaveAValidRowVersion(command.RowVersion))
+                .WithMessage(command =>
+                    $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
                 => await invitationValidator.IpoExistsAsync(invitationId, token);
@@ -31,6 +40,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelInvitation
 
             async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken token)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, token);
+
+            async Task<bool> InvitationIsNotAccepted(int invitationId, CancellationToken token)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Accepted, token);
+
+            bool HaveAValidRowVersion(string rowVersion)
+                => rowVersionValidator.IsValid(rowVersion);
         }
     }
 }

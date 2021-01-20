@@ -720,12 +720,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 invitationToCancelId);
-
+            var cancelPunchOutDto = new CancelPunchOutDto
+            {
+                RowVersion = invitation.RowVersion
+            };
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                invitationToCancelId);
+                invitationToCancelId,
+                cancelPunchOutDto);
 
             // Assert
             var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
