@@ -44,27 +44,32 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
             return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
         }
-
-        private bool IsValidPerson(ParticipantsForCommand participant)
+        private bool IsValidPerson(PersonForCommand person)
         {
-            if (participant.Person.Email == null && (participant.Person.AzureOid == Guid.Empty || participant.Person.AzureOid == null))
+            if (person.Email == null && (person.AzureOid == Guid.Empty || person.AzureOid == null))
             {
                 return false;
             }
-            var isValidEmail = new EmailAddressAttribute().IsValid(participant.Person.Email);
-            return participant.ExternalEmail == null && participant.FunctionalRole == null && isValidEmail;
+
+            return person.AzureOid != Guid.Empty && person.AzureOid != null || 
+                   new EmailAddressAttribute().IsValid(person.Email);
         }
 
-        private bool IsValidFunctionalRole(ParticipantsForCommand participant)
+        private bool IsValidPersonParticipant(ParticipantsForCommand participant) 
+            => IsValidPerson(participant.Person) && participant.ExternalEmail == null && participant.FunctionalRole == null;
+
+        private bool IsValidFunctionalRoleParticipant(ParticipantsForCommand participant)
         {
-            foreach (var person in participant.FunctionalRole.Persons)
+            if (string.IsNullOrEmpty(participant.FunctionalRole.Code))
             {
-                if (!(new EmailAddressAttribute().IsValid(person.Email)))
-                {
-                    return false;
-                }
+                return false;
             }
-            
+
+            if (participant.FunctionalRole.Persons.Any(person => !IsValidPerson(person)))
+            {
+                return false;
+            }
+
             return participant.Person == null && participant.ExternalEmail == null;
         }
 
@@ -80,11 +85,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 {
                     return false;
                 }
-                if (p.Person != null && !IsValidPerson(p))
+                if (p.Person != null && !IsValidPersonParticipant(p))
                 {
                     return false;
                 }
-                if (p.FunctionalRole != null && !IsValidFunctionalRole(p))
+                if (p.FunctionalRole != null && !IsValidFunctionalRoleParticipant(p))
                 {
                     return false;
                 }
