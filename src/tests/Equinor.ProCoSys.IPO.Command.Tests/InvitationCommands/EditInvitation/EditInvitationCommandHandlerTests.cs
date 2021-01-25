@@ -138,7 +138,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             //mock comm pkg response from main API
-            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemId = 123};
+            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", System = "123"};
             IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails };
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
             _commPkgApiServiceMock

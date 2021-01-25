@@ -6,6 +6,6 @@
         public string CommPkgNo { get; set; }
         public string Description { get; set; }
         public string CommStatus { get; set; }
-        public long SystemId { get; set; }
+        public string System { get; set; }
     }
 }

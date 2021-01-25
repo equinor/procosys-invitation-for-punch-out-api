@@ -104,7 +104,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private static CommPkg SeedCommPkg(IPOContext dbContext, Invitation invitation)
         {
-            var commPkg = new CommPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo, "Description", "OK");
+            var commPkg = new CommPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo, "Description",
+                "OK", "1|2");
             invitation.AddCommPkg(commPkg);
             dbContext.SaveChangesAsync().Wait();
             return commPkg;
@@ -112,7 +113,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private static McPkg SeedMcPkg(IPOContext dbContext, Invitation invitation)
         {
-            var mcPkg = new McPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo, KnownTestData.McPkgNo, "Description");
+            var mcPkg = new McPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo,
+                KnownTestData.McPkgNo, "Description");
             invitation.AddMcPkg(mcPkg);
             dbContext.SaveChangesAsync().Wait();
             return mcPkg;

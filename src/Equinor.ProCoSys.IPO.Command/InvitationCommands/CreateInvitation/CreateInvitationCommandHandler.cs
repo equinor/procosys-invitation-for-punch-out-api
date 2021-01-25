@@ -389,8 +389,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystemId = initialCommPkg.SystemId;
-                if (commPkgDetailsList.Any(commPkg => commPkg.SystemId != initialSystemId))
+                var initialSystem = initialCommPkg.System;
+                if (commPkgDetailsList.Any(commPkg => commPkg.System != initialSystem))
                 {
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
@@ -403,7 +403,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     projectName,
                     commPkg.CommPkgNo,
                     commPkg.Description,
-                    commPkg.CommStatus));
+                    commPkg.CommStatus,
+                    commPkg.System));
             }
         }
 
