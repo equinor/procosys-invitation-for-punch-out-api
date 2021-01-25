@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                       $"?plantId={plant}" +
                       $"&startsWithCommPkgNo={WebUtility.UrlEncode(startsWithCommPkgNo)}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                      "&includeVoidedCommPkgs=false" +
                       $"&api-version={_apiVersion}";
 
             var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
