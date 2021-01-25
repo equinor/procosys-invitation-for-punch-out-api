@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="plant"></param>
         /// <returns>All ProCoSys functional roles which have classification IPO</returns>
         [Authorize(Roles = Permissions.LIBRARY_FUNCTIONAL_ROLE_READ)]
-        [HttpGet("/FunctionalRoles/ByClassification/IPO")]
+        [HttpGet("FunctionalRoles/ByClassification/IPO")]
         public async Task<ActionResult<List<ProCoSysFunctionalRoleDto>>> GetFunctionalRolesForIpo(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant)
@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
         /// <returns>All ProCoSys persons in specified plant</returns>
         [Authorize(Roles = Permissions.USER_READ)]
-        [HttpGet("/Persons")]
+        [HttpGet("Persons")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
         /// <returns>All persons in ProCoSys with privilege IPO SIGN and CREATE</returns>
         [Authorize(Roles = Permissions.USER_READ)]
-        [HttpGet("/Persons/ByPrivileges/RequiredSigners")]
+        [HttpGet("Persons/ByPrivileges/RequiredSigners")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetRequiredSignerPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
         /// <returns>All persons in ProCoSys with privilege IPO SIGN</returns>
         [Authorize(Roles = Permissions.USER_READ)]
-        [HttpGet("/Persons/ByPrivileges/AdditionalSigners")]
+        [HttpGet("Persons/ByPrivileges/AdditionalSigners")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetAdditionalSignerPersons(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,

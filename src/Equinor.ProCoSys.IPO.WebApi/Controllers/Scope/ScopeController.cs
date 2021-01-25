@@ -13,7 +13,7 @@ using ServiceResult.ApiExtensions;
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
 {
     [ApiController]
-    [Route("CommPkgs")]
+    [Route("Scope")]
     public class ScopeController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// <param name="startsWithCommPkgNo"></param>
         /// <returns>All ProCoSys commpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.COMMPKG_READ)]
-        [HttpGet("/CommPkgs")]
+        [HttpGet("CommPkgs")]
         public async Task<ActionResult<List<ProCoSysCommPkgDto>>> GetCommPkgsInProject(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// <param name="plant"></param>
         /// <returns>All ProCoSys projects (which have any commpkgs) in given plant</returns>
         [Authorize(Roles = Permissions.PROJECT_READ)]
-        [HttpGet("/Projects")]
+        [HttpGet("Projects")]
         public async Task<ActionResult<List<ProCoSysProjectDto>>> GetProjectsInPlant(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// <param name="commPkgNo"></param>
         /// <returns>All ProCoSys mcpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.MCPKG_READ)]
-        [HttpGet("/McPkgs")]
+        [HttpGet("McPkgs")]
         public async Task<ActionResult<List<ProCoSysMcPkgDto>>> GetMcPkgsInProject(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
