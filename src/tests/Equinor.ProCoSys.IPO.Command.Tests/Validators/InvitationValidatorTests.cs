@@ -467,7 +467,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             }
         }
 
-
         [TestMethod]
         public void IsValidParticipantList_RequiredParticipantsListAndThreeExtra_ReturnsTrue()
         {
@@ -521,6 +520,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public void IsValidParticipantList_RequiredParticipantsListAndPersonWithGuidAndEmptyEmail_ReturnsTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var person =
+                    new ParticipantsForCommand(
+                        Organization.Operation,
+                        null,
+                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true),
+                        null,
+                        3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
         public void IsValidParticipantList_RequiredParticipantsListAndPersonWithOnlyEmail_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -540,6 +558,26 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public void IsValidParticipantList_RequiredParticipantsListAndFRWithPersonWithGuidAndEmptyEmail_ReturnsTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var fr = new ParticipantsForCommand(
+                    Organization.Operation,
+                    null,
+                    null,
+                    new FunctionalRoleForCommand(
+                        "FR",
+                        new List<PersonForCommand>{ new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true)}), 
+                    3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr });
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
         public void IsValidParticipantList_ParticipantWithFunctionalRoleAndExternalEmail_ReturnsFalse()
         {
             using (var context =
@@ -552,7 +590,47 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("external@test.com"),
                         null,
                         new FunctionalRoleForCommand("FR1", null),
-                        0);
+                        3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_FunctionalRoleWithNullAsCode_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var participantWithFunctionalRoleAndExternalEmail =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand(null, null),
+                        3);
+                var result = dut.IsValidParticipantList(
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidParticipantList_FunctionalRoleWithEmptyCode_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var participantWithFunctionalRoleAndExternalEmail =
+                    new ParticipantsForCommand(
+                        Organization.Commissioning,
+                        null,
+                        null,
+                        new FunctionalRoleForCommand("", null),
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
@@ -571,26 +649,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         new PersonForCommand(null, null, true),
-                        null,
-                        4);
-                var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
-                Assert.IsFalse(result);
-            }
-        }
-
-        [TestMethod]
-        public void IsValidParticipantList_PersonInvalidEmail_ReturnsFalse()
-        {
-            using (var context =
-                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider);
-                var person =
-                    new ParticipantsForCommand(
-                        Organization.Commissioning,
-                        null,
-                        new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "test", true),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(

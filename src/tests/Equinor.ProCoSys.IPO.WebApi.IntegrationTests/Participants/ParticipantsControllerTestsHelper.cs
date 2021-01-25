@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             string expectedMessageOnBadRequest = null)
         {
             var response = await TestFactory.Instance.GetHttpClient(userType, plant)
-                .GetAsync("/FunctionalRoles/ByClassification/IPO");
+                .GetAsync($"{Route}/FunctionalRoles/ByClassification/IPO");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             string expectedMessageOnBadRequest = null)
         {
             var parameters = new ParameterCollection { { "searchString", searchString } };
-            var url = $"/Persons{parameters}";
+            var url = $"{Route}/Persons{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             string expectedMessageOnBadRequest = null)
         {
             var parameters = new ParameterCollection { { "searchString", searchString } };
-            var url = $"/Persons/ByPrivileges/RequiredSigners{parameters}";
+            var url = $"{Route}/Persons/ByPrivileges/RequiredSigners{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             string expectedMessageOnBadRequest = null)
         {
             var parameters = new ParameterCollection { { "searchString", searchString } };
-            var url = $"/Persons/ByPrivileges/AdditionalSigners{parameters}";
+            var url = $"{Route}/Persons/ByPrivileges/AdditionalSigners{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);

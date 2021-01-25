@@ -7,6 +7,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 {
     public static class ScopeControllerTestsHelper
     {
+        private const string Route = "Scope";
+
         public static async Task<List<ProCoSysCommPkgDto>> GetCommPkgsInProjectAsync(
             UserType userType,
             string plant,
@@ -20,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 { "projectName", projectName },
                 { "startsWithCommPkgNo", startsWithCommPkgNo }
             };
-            var url = $"/CommPkgs{parameters}";
+            var url = $"{Route}/CommPkgs{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
@@ -41,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             string expectedMessageOnBadRequest = null)
         {
             var response = await TestFactory.Instance.GetHttpClient(userType, plant)
-                .GetAsync("/Projects");
+                .GetAsync($"{Route}/Projects");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -67,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 { "projectName", projectName },
                 { "commPkgNo", commPkgNo }
             };
-            var url = $"/McPkgs{parameters}";
+            var url = $"{Route}/McPkgs{parameters}";
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
