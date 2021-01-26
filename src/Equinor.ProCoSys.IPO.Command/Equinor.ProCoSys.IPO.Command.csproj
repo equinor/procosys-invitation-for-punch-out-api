@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validators\PersonValidators\" />
+  </ItemGroup>
+
 </Project>
