@@ -279,7 +279,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             var functionalRole = functionalRoles.SingleOrDefault();
 
             return functionalRole?.Persons != null &&
-                   functionalRole.Persons.Any(person => new Guid(person.AzureOid) == _currentUserProvider.GetCurrentUserOid());
+                   functionalRole.Persons.Any(person => new Guid(person.AzureOid ?? "") == _currentUserProvider.GetCurrentUserOid());
         }
 
         private Task<PersonDto> ConvertToPersonDto(int? personId) =>
