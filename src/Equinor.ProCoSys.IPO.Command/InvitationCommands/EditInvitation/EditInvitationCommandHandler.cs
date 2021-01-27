@@ -74,8 +74,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             invitation.SetRowVersion(request.RowVersion);
             try
             {
-                var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl +
-                              _plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper();
+                var baseUrl =
+                    $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
 
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
                 {

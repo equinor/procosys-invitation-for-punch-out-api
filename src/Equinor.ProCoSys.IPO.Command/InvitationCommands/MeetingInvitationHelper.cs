@@ -12,9 +12,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
             meetingDescription += $"<p>Type: {invitation.Type}</p>";
-            var location = string.IsNullOrEmpty(invitation.Location) ? "-" : invitation.Location;
+            var location = string.IsNullOrWhiteSpace(invitation.Location) ? "-" : invitation.Location;
             meetingDescription += $"<p>Location: {location}</p>";
-            var description = string.IsNullOrEmpty(invitation.Description) ? "-" : invitation.Description;
+            var description = string.IsNullOrWhiteSpace(invitation.Description) ? "-" : invitation.Description;
             meetingDescription += $"<p>Description: {description}</p>";
             meetingDescription += $"<p>Scope: </p>";
 
