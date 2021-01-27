@@ -256,10 +256,59 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 var result = await dut.Handle(query, default);
 
                 Assert.IsNotNull(result);
-                Assert.AreEqual(ResultType.Ok, result.ResultType); 
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
                 var invitationDto = result.Data;
                 AssertInvitation(invitationDto, _invitation);
             }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnIpo_IfPersonsInFunctionalRoleHaveAzureOidNull()
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                    _currentUserProvider);
+                {
+                    var functionalRoleDetails = new ProCoSysFunctionalRole
+                    {
+                        Code = _functionalRoleCode,
+                        Description = "FR description",
+                        Email = "fr@email.com",
+                        InformationEmail = null,
+                        Persons = new List<Person>
+                        {
+                            new Person
+                            {
+                                AzureOid = null,
+                                Email = "test@email.com",
+                                FirstName = "FN",
+                                LastName = "LN",
+                                UserName = "UN"
+                            }
+                        },
+                        UsePersonalEmail = true
+                    };
+                    IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> {functionalRoleDetails};
+
+                    _functionalRoleApiServiceMock
+                        .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
+                            new List<string> {_functionalRoleCode}))
+                        .Returns(Task.FromResult(frDetails));
+
+                    var query = new GetInvitationByIdQuery(_invitationId);
+                    var dut = new GetInvitationByIdQueryHandler(
+                        context,
+                        _meetingClientMock.Object,
+                        _currentUserProvider,
+                        _functionalRoleApiServiceMock.Object,
+                        _plantProvider);
+
+                    var result = await dut.Handle(query, default);
+
+                    Assert.IsNotNull(result);
+                    Assert.AreEqual(ResultType.Ok, result.ResultType);
+                    var invitationDto = result.Data;
+                    AssertInvitation(invitationDto, _invitation);
+                }
         }
 
         private static void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
