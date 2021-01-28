@@ -74,14 +74,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             invitation.SetRowVersion(request.RowVersion);
             try
             {
+                var baseUrl =
+                    $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
+
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
                 {
-                    builder.UpdateTitle(request.Title);
                     builder.UpdateLocation(request.Location);
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.UpdateInviteBodyHtml(GenerateMeetingDescription(invitation));
+                    builder.UpdateInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
                 });
             }
             catch
@@ -608,29 +610,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     new ParticipantIdentifier(participant.ExternalEmail.Email)));
             }
             return participants;
-        }
-
-        private string GenerateMeetingDescription(Invitation invitation)
-        {
-            var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl + _plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper();
-            var meetingDescription = "<h4>You have been invited to attend a punch round. The punch round will cover the following scope:</h4>";
-
-            foreach (var mcPkg in invitation.McPkgs)
-            {
-                meetingDescription +=
-                    $"<a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}/'>{mcPkg.McPkgNo}</a></br>";
-            }
-            foreach (var commPkg in invitation.CommPkgs)
-            {
-                meetingDescription +=
-                    $"<a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></br>";
-            }
-
-            meetingDescription += $"<p>{invitation.Description}</p>";
-
-            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch out in ProCoSys.</a>";
-
-            return meetingDescription;
         }
     }
 }

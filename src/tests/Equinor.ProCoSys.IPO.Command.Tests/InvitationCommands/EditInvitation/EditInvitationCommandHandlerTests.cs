@@ -254,6 +254,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(_invitation));
 
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
+            _meetingOptionsMock.Setup(x => x.CurrentValue)
+                .Returns(new MeetingOptions { PcsBaseUrl = _plant });
 
             //command
             _command = new EditInvitationCommand(
@@ -298,7 +300,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(_newTitle, _invitation.Title);
             Assert.AreEqual(_newDescription, _invitation.Description);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }

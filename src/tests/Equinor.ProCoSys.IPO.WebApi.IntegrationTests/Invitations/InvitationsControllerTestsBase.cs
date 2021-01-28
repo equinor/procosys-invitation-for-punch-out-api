@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -246,6 +247,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .FusionMeetingClientMock
                 .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
                 .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
+
+            TestFactory.Instance
+                .MeetingOptionsMock
+                .Setup(x => x.CurrentValue)
+                .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
     }
 }
