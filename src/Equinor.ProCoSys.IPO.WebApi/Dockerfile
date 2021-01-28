@@ -31,7 +31,7 @@ WORKDIR "/src/Equinor.ProCoSys.IPO.WebApi"
 RUN dotnet publish "Equinor.ProCoSys.IPO.WebApi.csproj" -c Release --no-restore -o /app/publish
 
 # Define the image used for the final result
-FROM mcr.microsoft.com/dotnet/aspnet:5.0.102-ca-patch-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 
 # Install System.Drawing native dependencies (added because of Excel export (ClosedXML library) support).
 RUN apt-get update
