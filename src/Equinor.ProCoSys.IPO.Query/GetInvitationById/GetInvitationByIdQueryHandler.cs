@@ -60,8 +60,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Person), invitation.CreatedById));
             }
 
-            var createdByName = createdBy.FirstName + ' ' + createdBy.LastName;
-
             GeneralMeeting meeting;
             try
             {
@@ -154,7 +152,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             ?.OutlookResponse;
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
-            => meeting.Participants.FirstOrDefault(p => p.Person.Mail == email)?.Type;
+            => meeting.Participants.FirstOrDefault(p => p.Person.Mail.ToUpper() == email.ToUpper())?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
