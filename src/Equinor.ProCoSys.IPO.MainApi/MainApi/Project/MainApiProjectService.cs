@@ -37,7 +37,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
             var url = $"{_baseAddress}Projects" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}" +
-                      "&includeInstallations=false";
+                      "&includeInstallations=false" + // Todo Delete this line and comment below after MainApi 4.46 is released. It's OK to use "unknown" params to an endpoint
+                      "&includeSubProjectsOnly=true";  // Use 4.46 param
 
             var projects = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
 
