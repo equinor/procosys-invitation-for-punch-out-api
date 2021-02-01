@@ -166,7 +166,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 return OutlookResponse.TentativelyAccepted;
             }
-            return persons.Any(p => p.Response == OutlookResponse.Declined) ? OutlookResponse.Declined : OutlookResponse.None;
+            return persons.Any(p => p.Response == OutlookResponse.Declined) || frResponse == OutlookResponse.Declined 
+                ? OutlookResponse.Declined : OutlookResponse.None;
         }
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
