@@ -106,9 +106,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 if (participant.Person != null)
                 {
-                    var participantPersonResponse = meeting != null
-                        ? GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
-                        : null;
+                    var participantPersonResponse = participant.Person.Person.AzureOid == meeting.Organizer.Id
+                                                    ? OutlookResponse.Organizer
+                                                    : meeting != null
+                                                    ? GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
+                                                    : null;
                     participant.Person.Response = participantPersonResponse;
                 }
 
@@ -141,6 +143,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     var functionalRoleResponse = meeting != null
                         ? GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email)
                         : null;
+                    functionalRoleResponse = GetOutlookResponseForFunctionalRole(
+                        participant.FunctionalRole.Persons.ToList(),
+                        functionalRoleResponse);
                     participant.FunctionalRole.Response = functionalRoleResponse;
                 }
             }
@@ -150,6 +155,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => meeting.Participants.FirstOrDefault(p 
             => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
             ?.OutlookResponse;
+
+        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<InvitedPersonDto> persons, OutlookResponse? frResponse)
+        {
+            if (frResponse == OutlookResponse.Accepted || persons.Any(p => p.Response == OutlookResponse.Accepted))
+            {
+                return OutlookResponse.Accepted;
+            }
+            if (frResponse == OutlookResponse.TentativelyAccepted || persons.Any(p => p.Response == OutlookResponse.TentativelyAccepted))
+            {
+                return OutlookResponse.TentativelyAccepted;
+            }
+            return persons.Any(p => p.Response == OutlookResponse.Declined) ? OutlookResponse.Declined : OutlookResponse.None;
+        }
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
             => meeting.Participants.FirstOrDefault(p => p.Person.Mail.ToUpper() == email.ToUpper())?.Type;
