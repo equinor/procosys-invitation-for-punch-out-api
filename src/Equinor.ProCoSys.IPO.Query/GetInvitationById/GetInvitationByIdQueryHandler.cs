@@ -106,11 +106,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 if (participant.Person != null)
                 {
-                    var participantPersonResponse = participant.Person.Person.AzureOid == meeting.Organizer.Id
-                                                    ? OutlookResponse.Organizer
-                                                    : meeting != null
-                                                    ? GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
-                                                    : null;
+                    var participantPersonResponse = meeting != null 
+                            ? participant.Person.Person.AzureOid == meeting.Organizer.Id
+                            ? OutlookResponse.Organizer
+                            : GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
+                            : null;
+                    
                     participant.Person.Response = participantPersonResponse;
                 }
 
