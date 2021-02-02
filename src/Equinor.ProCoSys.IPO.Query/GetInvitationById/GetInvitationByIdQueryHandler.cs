@@ -106,15 +106,28 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 if (participant.Person != null)
                 {
-                    var participantPersonResponse = meeting != null
-                        ? GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email)
-                        : null;
+                    OutlookResponse? participantPersonResponse = null;
+                    if (meeting != null)
+                    {
+                        participantPersonResponse = participant.Person.Person.AzureOid == meeting.Organizer.Id
+                            ? OutlookResponse.Organizer
+                            : GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email);
+                    }
+
                     participant.Person.Response = participantPersonResponse;
                 }
 
-                if (participant.FunctionalRole?.Persons != null)
+                if (participant.ExternalEmail != null)
                 {
-                    foreach (var personInFunctionalRole in participant.FunctionalRole?.Persons)
+                    var externalEmailResponse = meeting != null
+                        ? GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail)
+                        : null;
+                    participant.ExternalEmail.Response = externalEmailResponse;
+                }
+
+                if (participant.FunctionalRole != null)
+                {
+                    foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
                     {
                         var participantType = meeting != null
                             ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email)
@@ -126,21 +139,22 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                             : null;
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
-                }
 
-                if (participant.ExternalEmail != null)
-                {
-                    var externalEmailResponse = meeting != null
-                        ? GetOutlookResponseByEmailAsync(meeting, participant.ExternalEmail?.ExternalEmail)
-                        : null;
-                    participant.ExternalEmail.Response = externalEmailResponse;
-                }
+                    OutlookResponse? functionalRoleResponse = OutlookResponse.None;
+                    if (participant.FunctionalRole.Email != null)
+                    {
+                        functionalRoleResponse = meeting != null
+                            ? GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email)
+                            : null;
+                    }
 
-                if (participant.FunctionalRole?.Email != null)
-                {
-                    var functionalRoleResponse = meeting != null
-                        ? GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email)
-                        : null;
+                    if (participant.FunctionalRole.Persons != null)
+                    {
+                        functionalRoleResponse = GetOutlookResponseForFunctionalRole(
+                            participant.FunctionalRole.Persons.ToList(),
+                            functionalRoleResponse);
+                    }
+                    
                     participant.FunctionalRole.Response = functionalRoleResponse;
                 }
             }
@@ -150,6 +164,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => meeting.Participants.FirstOrDefault(p 
             => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
             ?.OutlookResponse;
+
+        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<InvitedPersonDto> persons, OutlookResponse? frResponse)
+        {
+            if (frResponse == OutlookResponse.Accepted || persons.Any(p => p.Response == OutlookResponse.Accepted))
+            {
+                return OutlookResponse.Accepted;
+            }
+            if (frResponse == OutlookResponse.TentativelyAccepted || persons.Any(p => p.Response == OutlookResponse.TentativelyAccepted))
+            {
+                return OutlookResponse.TentativelyAccepted;
+            }
+            return persons.Any(p => p.Response == OutlookResponse.Declined) || frResponse == OutlookResponse.Declined 
+                ? OutlookResponse.Declined : OutlookResponse.None;
+        }
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
             => meeting.Participants.FirstOrDefault(p => p.Person.Mail.ToUpper() == email.ToUpper())?.Type;

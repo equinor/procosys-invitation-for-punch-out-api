@@ -26,13 +26,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
 
-        private string _functionalRoleCode = "FrCode";
+        private string _functionalRoleCode1 = "FrCode1";
+        private string _functionalRoleCode2 = "FrCode2";
+        private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
+        private string _frEmail1 = "FR1@email.com";
+        private string _personEmail1 = "P1@email.com";
+        private string _frPersonEmail1 = "frp1@email.com";
+        private string _frPersonEmail2 = "frp2@email.com";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var meetingId = new Guid("11111111-2222-2222-2222-333333333333");
                 const string projectName = "Project1";
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
@@ -41,11 +46,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.FunctionalRole,
-                    _functionalRoleCode,
+                    _functionalRoleCode1,
                     null,
                     null,
                     null,
-                    "FR1@email.com",
+                    _frEmail1,
                     null,
                     0);
 
@@ -57,9 +62,45 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "FirstName",
                     "LastName",
                     "UN",
-                    "P1@email.com",
+                    _personEmail1,
                     _currentUserOid,
                     1);
+
+                var functionalRoleParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.FunctionalRole,
+                    _functionalRoleCode2,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    2);
+
+                var frPerson1 = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.Person,
+                    _functionalRoleCode2,
+                    "FirstName2",
+                    "LastName2",
+                    "UN2",
+                    _frPersonEmail1,
+                    new Guid("11111111-2222-2222-2222-333333333332"),
+                    2);
+
+                var frPerson2 = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.Person,
+                    _functionalRoleCode2,
+                    "FirstName3",
+                    "LastName3",
+                    "UN3",
+                    _frPersonEmail2,
+                    new Guid("11111111-2222-2222-2222-333333333331"),
+                    2);
 
                 var commPkg = new CommPkg(
                     TestPlant,
@@ -86,29 +127,64 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     new DateTime(),
                     null)
                 {
-                    MeetingId = meetingId
+                    MeetingId = _meetingId
                 };
 
                 _invitation.AddParticipant(functionalRoleParticipant);
                 _invitation.AddParticipant(personParticipant);
+                _invitation.AddParticipant(functionalRoleParticipant2);
+                _invitation.AddParticipant(frPerson1);
+                _invitation.AddParticipant(frPerson2);
                 _invitation.AddCommPkg(commPkg);
                 _invitation.AddMcPkg(mcPkg);
 
                 var functionalRoleDetails = new ProCoSysFunctionalRole
                 {
-                    Code = _functionalRoleCode,
+                    Code = _functionalRoleCode1,
                     Description = "FR description",
-                    Email = "fr@email.com",
+                    Email = _frEmail1,
                     InformationEmail = null,
                     Persons = null,
                     UsePersonalEmail = false
                 };
+
+                var functionalRoleDetails2 = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode2,
+                    Description = "FR description",
+                    Email = null,
+                    InformationEmail = null,
+                    Persons = new List<Person>
+                    {
+                        new Person
+                        {
+                            AzureOid = "11111111-2222-2222-2222-333333333332",
+                            Email = _frPersonEmail1,
+                            FirstName = null,
+                            LastName = null,
+                            UserName = null
+                        },
+                        new Person
+                        {
+                            AzureOid = "11111111-2222-2222-2222-333333333331",
+                            Email = _frPersonEmail2,
+                            FirstName = null,
+                            LastName = null,
+                            UserName = null
+                        }
+                    },
+                    UsePersonalEmail = true
+                };
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+                IList<ProCoSysFunctionalRole> frDetails2 = new List<ProCoSysFunctionalRole> { functionalRoleDetails2 };
 
                 _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode1 }))
                     .Returns(Task.FromResult(frDetails));
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode2 }))
+                    .Returns(Task.FromResult(frDetails2));
 
                 _meetingClientMock = new Mock<IFusionMeetingClient>();
                 _meetingClientMock
@@ -124,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 DateEnd = new ApiDateTimeTimeZoneModel(),
                                 DateStart = new ApiDateTimeTimeZoneModel(),
                                 ExternalId = null,
-                                Id = meetingId,
+                                Id = _meetingId,
                                 InviteBodyHtml = string.Empty,
                                 IsDisabled = false,
                                 IsOnlineMeeting = false,
@@ -139,9 +215,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                         Person = new ApiPersonDetailsV1()
                                         {
                                             Id = Guid.NewGuid(),
-                                            Mail = "P1@email.com"
+                                            Mail = _personEmail1
                                         },
-                                        OutlookResponse = "Required"
+                                        OutlookResponse = "None"
                                     },
                                     new ApiMeetingParticipant()
                                     {
@@ -149,9 +225,29 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                         Person = new ApiPersonDetailsV1()
                                         {
                                             Id = Guid.NewGuid(),
-                                            Mail = "FR1@email.com"
+                                            Mail = _frEmail1
+                                        },
+                                        OutlookResponse = "Declined"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _frPersonEmail1
                                         },
                                         OutlookResponse = "Accepted"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _frPersonEmail2
+                                        },
+                                        OutlookResponse = "Declined"
                                     }
                                 },
                                 Project = null,
@@ -212,6 +308,126 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         }
 
         [TestMethod]
+        public async Task Handler_ShouldReturnCorrectOutlookResponse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+               var query = new GetInvitationByIdQuery(_invitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+                var participants = result.Data.Participants.ToList();
+                Assert.AreEqual(OutlookResponse.Declined, participants.First().FunctionalRole.Response);
+                Assert.AreEqual(OutlookResponse.None, participants[1].Person.Response);
+                Assert.AreEqual(OutlookResponse.Accepted, participants.Last().FunctionalRole.Response);
+                Assert.AreEqual(OutlookResponse.Accepted, participants.Last().FunctionalRole.Persons.First().Response);
+                Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Persons.Last().Response);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnCorrectOutlookResponse2()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                _meetingClientMock
+                    .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                    .Returns(Task.FromResult(
+                        new GeneralMeeting(
+                            new ApiGeneralMeeting()
+                            {
+                                Classification = string.Empty,
+                                Contract = null,
+                                Convention = string.Empty,
+                                DateCreatedUtc = DateTime.MinValue,
+                                DateEnd = new ApiDateTimeTimeZoneModel(),
+                                DateStart = new ApiDateTimeTimeZoneModel(),
+                                ExternalId = null,
+                                Id = _meetingId,
+                                InviteBodyHtml = string.Empty,
+                                IsDisabled = false,
+                                IsOnlineMeeting = false,
+                                Location = string.Empty,
+                                Organizer = new ApiPersonDetailsV1{Id = _currentUserOid },
+                                OutlookMode = string.Empty,
+                                Participants = new List<ApiMeetingParticipant>()
+                                {
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _personEmail1
+                                        },
+                                        OutlookResponse = "None"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _frEmail1
+                                        },
+                                        OutlookResponse = "Accepted"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _frPersonEmail1
+                                        },
+                                        OutlookResponse = "Declined"
+                                    },
+                                    new ApiMeetingParticipant()
+                                    {
+                                        Id = Guid.NewGuid(),
+                                        Person = new ApiPersonDetailsV1()
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            Mail = _frPersonEmail2
+                                        },
+                                        OutlookResponse = "None"
+                                    }
+                                },
+                                Project = null,
+                                ResponsiblePersons = new List<ApiPersonDetailsV1>(),
+                                Series = null,
+                                Title = string.Empty
+                            })));
+                var query = new GetInvitationByIdQuery(_invitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+                var participants = result.Data.Participants.ToList();
+                Assert.AreEqual(OutlookResponse.Accepted, participants.First().FunctionalRole.Response);
+                Assert.AreEqual(OutlookResponse.Organizer, participants[1].Person.Response);
+                Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Response);
+                Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Persons.First().Response);
+                Assert.AreEqual(OutlookResponse.None, participants.Last().FunctionalRole.Persons.Last().Response);
+            }
+        }
+
+        [TestMethod]
         public async Task Handler_ShouldReturnIpo_IfMeetingIsNotFound()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
@@ -231,8 +447,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 var result = await dut.Handle(query, default);
                 Assert.IsNotNull(result);
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
-                var invitationDto = result.Data;
-                AssertInvitation(invitationDto, _invitation);
+                Assert.AreEqual(OutlookResponse.None, result.Data.Participants.First().FunctionalRole.Response);
             }
         }
 
@@ -270,7 +485,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 {
                     var functionalRoleDetails = new ProCoSysFunctionalRole
                     {
-                        Code = _functionalRoleCode,
+                        Code = _functionalRoleCode1,
                         Description = "FR description",
                         Email = "fr@email.com",
                         InformationEmail = null,
@@ -291,7 +506,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                     _functionalRoleApiServiceMock
                         .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                            new List<string> {_functionalRoleCode}))
+                            new List<string> {_functionalRoleCode1}))
                         .Returns(Task.FromResult(frDetails));
 
                     var query = new GetInvitationByIdQuery(_invitationId);
@@ -314,7 +529,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private static void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
         {
             var functionalRoleParticipant = invitation.Participants.First();
-            var personParticipant = invitation.Participants.Last();
+            var personParticipant = invitation.Participants.ToList()[1];
             var commPkg = invitation.CommPkgs.First();
             var mcPkg = invitation.McPkgs.First();
 
@@ -324,8 +539,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             Assert.AreEqual(invitation.Type, invitationDto.Type);
             Assert.AreEqual(functionalRoleParticipant.FunctionalRoleCode, invitationDto.Participants.First().FunctionalRole.Code);
             Assert.IsFalse(invitationDto.Participants.First().CanSign);
-            Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.Last().Person.Person.AzureOid);
-            Assert.IsTrue(invitationDto.Participants.Last().CanSign);
+            Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.ToList()[1].Person.Person.AzureOid);
+            Assert.IsTrue(invitationDto.Participants.ToList()[1].CanSign);
             Assert.AreEqual(commPkg.CommPkgNo, invitationDto.CommPkgScope.First().CommPkgNo);
             Assert.AreEqual(mcPkg.McPkgNo, invitationDto.McPkgScope.First().McPkgNo);
         }

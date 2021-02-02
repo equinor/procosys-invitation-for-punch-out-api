@@ -5,7 +5,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
     public class MeetingInvitationHelper
     {
         public static string GenerateMeetingTitle(Invitation invitation) 
-            => $"Invitation to Punch Out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
+            => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
 
         public static string GenerateMeetingDescription(Invitation invitation, string baseUrl)
         {
@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                 meetingDescription += GenerateCommPkgTable(invitation, baseUrl);
             }
 
-            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch out in ProCoSys.</a>";
+            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
 
             return meetingDescription;
         }
