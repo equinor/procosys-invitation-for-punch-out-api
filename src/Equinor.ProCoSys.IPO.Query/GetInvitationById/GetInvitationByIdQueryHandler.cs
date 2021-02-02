@@ -14,7 +14,7 @@ using Person = Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Perso
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
-    public class GetInvitationByIdQueryHandler : IRequestHandler<GetInvitationByIdQuery, Result<InvitationDto>>
+    public class GetInvitationsQueryHandler : IRequestHandler<GetInvitationByIdQuery, Result<InvitationDto>>
     {
         private readonly IReadOnlyContext _context;
         private readonly IFusionMeetingClient _meetingClient;
@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private bool _signingCommissioningIncluded;
         private bool _signingTechnincalIntegrityIncluded;
 
-        public GetInvitationByIdQueryHandler(
+        public GetInvitationsQueryHandler(
             IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,

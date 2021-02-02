@@ -1,6 +1,6 @@
 ﻿using Fusion.Integration.Meeting;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
+namespace Equinor.ProCoSys.IPO.Query
 {
     public class InvitedPersonDto
     {
