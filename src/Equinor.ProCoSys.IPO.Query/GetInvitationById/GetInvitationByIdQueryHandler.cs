@@ -84,17 +84,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
 
             var invitationResult = new InvitationDto(
-            invitation.ProjectName,
-            invitation.Title,
-            invitation.Description,
-            invitation.Location,
-            invitation.Type,
-            invitation.Status,
-            ConvertToPersonDto(invitation.CreatedById).Result,
-            invitation.StartTimeUtc,
-            invitation.EndTimeUtc,
-            canEdit,
-            invitation.RowVersion.ConvertToString())
+                invitation.ProjectName,
+                invitation.Title,
+                invitation.Description,
+                invitation.Location,
+                invitation.Type,
+                invitation.Status,
+                ConvertToPersonDto(invitation.CreatedById).Result,
+                invitation.StartTimeUtc,
+                invitation.EndTimeUtc,
+                canEdit,
+                invitation.RowVersion.ConvertToString())
             {
                 Participants = ConvertToParticipantDto(invitation.Participants),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
