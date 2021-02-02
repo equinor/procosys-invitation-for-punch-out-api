@@ -25,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private bool _signingOperationIncluded;
         private bool _signingCommissioningIncluded;
         private bool _signingTechnincalIntegrityIncluded;
+        private bool _canEdit = false;
 
         public GetInvitationByIdQueryHandler(
             IReadOnlyContext context,
@@ -78,17 +79,22 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private InvitationDto ConvertToInvitationDto(Invitation invitation,  GeneralMeeting meeting)
         {
+            var canEdit = meeting != null && 
+                           (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
+                           meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
+
             var invitationResult = new InvitationDto(
-                invitation.ProjectName,
-                invitation.Title,
-                invitation.Description,
-                invitation.Location,
-                invitation.Type,
-                invitation.Status,
-                ConvertToPersonDto(invitation.CreatedById).Result,
-                invitation.StartTimeUtc,
-                invitation.EndTimeUtc,
-                invitation.RowVersion.ConvertToString())
+            invitation.ProjectName,
+            invitation.Title,
+            invitation.Description,
+            invitation.Location,
+            invitation.Type,
+            invitation.Status,
+            ConvertToPersonDto(invitation.CreatedById).Result,
+            invitation.StartTimeUtc,
+            invitation.EndTimeUtc,
+            canEdit,
+            invitation.RowVersion.ConvertToString())
             {
                 Participants = ConvertToParticipantDto(invitation.Participants),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -214,7 +215,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                         Id = Guid.NewGuid(),
                                         Person = new ApiPersonDetailsV1()
                                         {
-                                            Id = Guid.NewGuid(),
+                                            Id = _currentUserOid,
                                             Mail = _personEmail1
                                         },
                                         OutlookResponse = "None"
@@ -304,6 +305,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var invitationDto = result.Data;
                 AssertInvitation(invitationDto, _invitation);
+                Assert.IsTrue(invitationDto.CanEdit);
             }
         }
 
@@ -330,6 +332,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 Assert.AreEqual(OutlookResponse.Accepted, participants.Last().FunctionalRole.Response);
                 Assert.AreEqual(OutlookResponse.Accepted, participants.Last().FunctionalRole.Persons.First().Response);
                 Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Persons.Last().Response);
+                Assert.IsTrue(result.Data.CanEdit);
             }
         }
 
@@ -424,6 +427,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Response);
                 Assert.AreEqual(OutlookResponse.Declined, participants.Last().FunctionalRole.Persons.First().Response);
                 Assert.AreEqual(OutlookResponse.None, participants.Last().FunctionalRole.Persons.Last().Response);
+                Assert.IsTrue(result.Data.CanEdit);
             }
         }
 
@@ -448,6 +452,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 Assert.IsNotNull(result);
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
                 Assert.AreEqual(OutlookResponse.None, result.Data.Participants.First().FunctionalRole.Response);
+                Assert.IsFalse(result.Data.CanEdit);
             }
         }
 
@@ -474,6 +479,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
                 var invitationDto = result.Data;
                 AssertInvitation(invitationDto, _invitation);
+                Assert.IsFalse(invitationDto.CanEdit);
             }
         }
 
