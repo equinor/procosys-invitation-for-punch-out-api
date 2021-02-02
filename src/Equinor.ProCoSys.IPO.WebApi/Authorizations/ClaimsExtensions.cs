@@ -10,6 +10,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
     {
         public const string Oid = "http://schemas.microsoft.com/identity/claims/objectidentifier";
         public const string UniqueName = "unique_name";
+        public const string Name = "name";
 
         public static Guid? TryGetOid(this IEnumerable<Claim> claims)
         {
@@ -30,10 +31,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return claim.Value;
             }
 
-            claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Name);
+            claim = claims.SingleOrDefault(c => c.Type == Name);
             if (claim != null)
             {
-                return claim.Value.Split(' ').Last();
+                return claim.Value.Substring(0, claim.Value.Length - (claim.Value.Length - claim.Value.LastIndexOf(' ')));
             }
 
             return default;
@@ -47,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return claim.Value;
             }
 
-            claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Name);
+            claim = claims.SingleOrDefault(c => c.Type == Name);
             if (claim != null)
             {
                 return claim.Value.Split(' ').Last();
