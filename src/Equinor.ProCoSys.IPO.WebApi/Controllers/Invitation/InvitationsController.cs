@@ -15,11 +15,13 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
+using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
@@ -49,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromQuery] SortingDto sorting,
             [FromQuery] PagingDto paging)
         {
-            var query = CreateGetTagsQuery(filter, sorting, paging);
+            var query = CreateGetInvitationsQuery(filter, sorting, paging);
 
             var result = await _mediator.Send(query);
             return this.FromResult(result);
@@ -393,5 +395,82 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                         : null,
                     p.SortKey)
             ).ToList();
+
+        private static GetInvitationsQuery CreateGetInvitationsQuery(FilterDto filter, SortingDto sorting, PagingDto paging)
+        {
+            var query = new GetInvitationsQuery(
+                filter.ProjectName,
+                new Sorting(sorting.Direction, sorting.Property),
+                new Filter(),
+                new Paging(paging.Page, paging.Size)
+            );
+
+            FillFilterFromDto(filter, query.Filter);
+
+            return query;
+        }
+
+        private static void FillFilterFromDto(FilterDto source, Filter target)
+        {
+            if (source.PunchOutDates != null)
+            {
+                target.PunchOutDates = source.PunchOutDates.ToList();
+            }
+
+            if (source.IpoStatuses != null)
+            {
+                target.IpoStatuses = source.IpoStatuses.ToList();
+            }
+
+            if (source.FunctionalRoleCode != null)
+            {
+                target.FunctionalRoleCode = source.FunctionalRoleCode;
+            }
+
+            if (source.Person != null)
+            {
+                target.Person = source.Person;
+            }
+
+            if (source.CommPkgNoStartsWith != null)
+            {
+                target.CommPkgNoStartsWith = source.CommPkgNoStartsWith;
+            }
+
+            if (source.McPkgNoStartsWith != null)
+            {
+                target.McPkgNoStartsWith = source.McPkgNoStartsWith;
+            }
+
+            if (source.TitleStartsWith != null)
+            {
+                target.TitleStartsWith = source.TitleStartsWith;
+            }
+
+            if (source.IpoIdStartsWith != null)
+            {
+                target.IpoIdStartsWith = source.IpoIdStartsWith;
+            }
+
+            if (source.PunchOutDateFromUtc != null)
+            {
+                target.PunchOutDateFromUtc = source.PunchOutDateFromUtc;
+            }
+
+            if (source.PunchOutDateToUtc != null)
+            {
+                target.PunchOutDateToUtc = source.PunchOutDateToUtc;
+            }
+
+            if (source.LastChangedAtFromUtc != null)
+            {
+                target.LastChangedAtFromUtc = source.LastChangedAtFromUtc;
+            }
+
+            if (source.LastChangedAtToUtc != null)
+            {
+                target.LastChangedAtToUtc = source.LastChangedAtToUtc;
+            }
+        }
     }
 }

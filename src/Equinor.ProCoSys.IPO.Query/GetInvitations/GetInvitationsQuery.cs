@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
     public class GetInvitationsQuery : IRequest<Result<InvitationsResult>>, IProjectRequest
     {
         public const SortingDirection DefaultSortingDirection = SortingDirection.Asc;
-        public const SortingProperty DefaultSortingProperty = SortingProperty.Due;
+        public const SortingProperty DefaultSortingProperty = SortingProperty.CreatedAtUtc;
         public const int DefaultPage = 0;
         public const int DefaultPagingSize = 20;
 
