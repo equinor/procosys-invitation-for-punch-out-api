@@ -89,10 +89,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                throw new Exception("Error: Could not create outlook meeting.");
+                throw new Exception("Error: Could not create outlook meeting.", e);
             }
         }
 
