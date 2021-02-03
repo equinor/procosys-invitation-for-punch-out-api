@@ -9,7 +9,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
-    public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<List<ProCoSysCommPkgDto>>>
+    public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<ProCoSysCommPkgSearchDto>>
     {
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPlantProvider _plantProvider;
@@ -22,23 +22,32 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
             _commPkgApiService = commPkgApiService;
         }
 
-        public async Task<Result<List<ProCoSysCommPkgDto>>> Handle(GetCommPkgsInProjectQuery request,
+        public async Task<Result<ProCoSysCommPkgSearchDto>> Handle(GetCommPkgsInProjectQuery request,
             CancellationToken cancellationToken)
         {
-            var mainApiCommPkgs = await _commPkgApiService
+            var mainApiCommPkgSearchResult = await _commPkgApiService
                 .SearchCommPkgsByCommPkgNoAsync(
-                   _plantProvider.Plant, request.ProjectName,
-                   request.StartsWithCommPkgNo)
-                   ?? new List<ProCoSysCommPkg>();
+                    _plantProvider.Plant,
+                    request.ProjectName,
+                    request.StartsWithCommPkgNo,
+                    request.ItemsPerPage,
+                    request.CurrentPage);
 
-            var commPkgDtos = mainApiCommPkgs
-                .Select(commPkg => new ProCoSysCommPkgDto(
-                    commPkg.Id,
-                    commPkg.CommPkgNo,
-                    commPkg.Description,
-                    commPkg.CommStatus)).ToList();
+            var commPkgDtos = new List<ProCoSysCommPkgDto>();
 
-            return new SuccessResult<List<ProCoSysCommPkgDto>>(commPkgDtos);
+            if (mainApiCommPkgSearchResult.Items != null)
+            {
+                commPkgDtos = mainApiCommPkgSearchResult.Items
+                    .Select(commPkg => new ProCoSysCommPkgDto(
+                        commPkg.Id,
+                        commPkg.CommPkgNo,
+                        commPkg.Description,
+                        commPkg.CommStatus)).ToList();
+            }
+
+            var commPkgSearchDto = new ProCoSysCommPkgSearchDto(mainApiCommPkgSearchResult.MaxAvailable, commPkgDtos);
+
+            return new SuccessResult<ProCoSysCommPkgSearchDto>(commPkgSearchDto);
         }
     }
 }

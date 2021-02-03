@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
     {
         private const string Route = "Scope";
 
-        public static async Task<List<ProCoSysCommPkgDto>> GetCommPkgsInProjectAsync(
+        public static async Task<ProCoSysCommPkgSearchDto> GetCommPkgsInProjectAsync(
             UserType userType,
             string plant,
             string projectName,
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<ProCoSysCommPkgDto>>(content);
+            return JsonConvert.DeserializeObject<ProCoSysCommPkgSearchDto>(content);
         }
 
         public static async Task<List<ProCoSysProjectDto>> GetProjectsInPlantAsync(

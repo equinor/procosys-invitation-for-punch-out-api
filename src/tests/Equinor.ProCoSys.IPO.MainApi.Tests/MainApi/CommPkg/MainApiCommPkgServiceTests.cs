@@ -19,6 +19,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         private MainApiCommPkgService _dut;
 
         private const string _plant = "PCS$TESTPLANT";
+        private const int _defaultPageSize = 10;
+        private const int _defaultCurrentPage = 0;
 
         [TestInitialize]
         public void Setup()
@@ -32,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
 
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
+                MaxAvailable = 3,
                 Items = new List<ProCoSysCommPkg>
                         {
                             new ProCoSysCommPkg
@@ -69,10 +72,16 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnCorrectNumberOfCommPkgs()
         {
             // Act
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "C");
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(
+                _plant,
+                "ProjectName",
+                "C",
+                _defaultPageSize,
+                _defaultCurrentPage);
 
             // Assert
-            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(3, result.Items.Count);
+            Assert.AreEqual(3, result.MaxAvailable);
         }
 
         [TestMethod]
@@ -82,19 +91,90 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(null));
 
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "A");
+            var result =
+                await _dut.SearchCommPkgsByCommPkgNoAsync(
+                    _plant, 
+                    "ProjectName",
+                    "A",
+                    _defaultPageSize,
+                    _defaultCurrentPage);
 
-            Assert.AreEqual(0, result.Count);
+            Assert.AreEqual(0, result.Items.Count);
+            Assert.AreEqual(0, result.MaxAvailable);
+        }
+
+        [TestMethod]
+        public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenSearchingEmptyPage()
+        {
+            var emptyPage = new ProCoSysCommPkgSearchResult
+            {
+                MaxAvailable = 3,
+                Items = new List<ProCoSysCommPkg>()
+            };
+            _foreignApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(emptyPage));
+            // Act
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(
+                _plant,
+                "ProjectName",
+                "C",
+                _defaultPageSize,
+                1);
+
+            // Assert
+            Assert.AreEqual(0, result.Items.Count);
+            Assert.AreEqual(3, result.MaxAvailable);
+        }
+
+        [TestMethod]
+        public async Task SearchCommPkgsByCommPkgNo_ShouldReturnCommPkgs_WhenSpecifyingNumberOfItems()
+        {
+            var searchWithOneItem = new ProCoSysCommPkgSearchResult
+            {
+                MaxAvailable = 3,
+                Items = new List<ProCoSysCommPkg>
+                {
+                    new ProCoSysCommPkg
+                    {
+                        Id = 111111111,
+                        CommPkgNo = "CommNo1",
+                        Description = "Description1",
+                        CommStatus = "OK"
+                    }
+                }
+            };
+            _foreignApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(searchWithOneItem));
+
+            // Act
+            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(
+                _plant,
+                "ProjectName",
+                "C",
+                1,
+                _defaultCurrentPage);
+
+            // Assert
+            Assert.AreEqual(1, result.Items.Count);
+            Assert.AreEqual(3, result.MaxAvailable);
         }
 
         [TestMethod]
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.SearchCommPkgsByCommPkgNoAsync(_plant, "ProjectName", "C");
+            var result =
+                await _dut.SearchCommPkgsByCommPkgNoAsync(
+                    _plant,
+                    "ProjectName",
+                    "C",
+                    _defaultPageSize,
+                    _defaultCurrentPage);
 
             // Assert
-            var commPkg = result.First();
+            var commPkg = result.Items.First();
             Assert.AreEqual(111111111, commPkg.Id);
             Assert.AreEqual("CommNo1", commPkg.CommPkgNo);
             Assert.AreEqual("Description1", commPkg.Description);

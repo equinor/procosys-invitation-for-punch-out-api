@@ -16,14 +16,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
         protected const string McPkgNo1 = "MCPKGNO1";
         protected const string McPkgNo2 = "MCPKGNO2";
 
-        private IList<ProCoSysCommPkg> _commPkgs;
+        private ProCoSysCommPkgSearchResult _commPkgSearchResult;
         private IList<ProCoSysProject> _projects;
         private IList<ProCoSysMcPkg> _mcPkgs;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _commPkgs = new List<ProCoSysCommPkg>
+            var commPkgs = new List<ProCoSysCommPkg>
             {
                 new ProCoSysCommPkg
                 {
@@ -42,6 +42,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     System = "2"
                 }
             };
+
+            _commPkgSearchResult = new ProCoSysCommPkgSearchResult {MaxAvailable = 2, Items = commPkgs};
 
             _projects = new List<ProCoSysProject>
             {
@@ -74,8 +76,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
-                    "CommPkgNo"))
-                .Returns(Task.FromResult(_commPkgs));
+                    "CommPkgNo",
+                    10,
+                    0))
+                .Returns(Task.FromResult(_commPkgSearchResult));
 
             TestFactory.Instance
                 .ProjectApiServiceMock

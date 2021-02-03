@@ -504,7 +504,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetCommPkgsInProjectQuery(_projectWithAccess, null);
+            var query = new GetCommPkgsInProjectQuery(_projectWithAccess, null, 10, 0);
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -517,7 +517,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null);
+            var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null, 10, 0);
             
             // act
             var result = await _dut.ValidateAsync(query);
