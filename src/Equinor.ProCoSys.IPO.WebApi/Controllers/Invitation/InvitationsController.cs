@@ -427,9 +427,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 target.FunctionalRoleCode = source.FunctionalRoleCode;
             }
 
-            if (source.Person != null)
+            if (source.PersonOid != null)
             {
-                target.Person = source.Person;
+                target.PersonOid = source.PersonOid;
             }
 
             if (source.CommPkgNoStartsWith != null)

@@ -6,13 +6,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
 {
     public class InvitationDto
     {
-        public int IpoId { get; set; }
+        public int Id { get; set; }
+        public string ProjectName { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }
         public DisciplineType Type { get; set; }
         public IpoStatus Status { get; set; }
-        public PersonDto CreatedBy { get; set; }
         public DateTime CreatedAtUtc { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
@@ -22,6 +22,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
         public string ConstructionCompanyRep { get; set; }
         public IList<string> McPkgNos { get; set; }
         public IList<string> CommPkgNos { get; set; }
-        public byte[] RowVersion { get; set; }
+        public string RowVersion { get; set; }
     }
 }

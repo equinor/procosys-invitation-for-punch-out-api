@@ -18,6 +18,5 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
         public DateTime? PunchOutDateFromUtc { get; set; }
         public DateTime? PunchOutDateToUtc { get; set; }
         public IList<PunchOutDateFilterType> PunchOutDates { get; set; } = new List<PunchOutDateFilterType>();
-
     }
 }

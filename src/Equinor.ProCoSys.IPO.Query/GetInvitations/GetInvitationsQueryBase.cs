@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             }
 
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
-
+ 
             var queryable = from invitation in context.QuerySet<Invitation>()
                 where invitation.ProjectName == projectName &&
                       (!filter.PunchOutDates.Any() ||
@@ -57,7 +57,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
                 select new InvitationDto
                 {
-                    IpoId = EF.Property<int>(invitation, "Id"),
+                    Id = EF.Property<int>(invitation, "Id"),
+                    ProjectName = invitation.ProjectName,
                     Title = invitation.Title,
                     Description = invitation.Description,
                     Status = invitation.Status,
@@ -71,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                     ConstructionCompanyRep = GetConstructionCompanyRep(invitation.Participants.ToList()),
                     McPkgNos = invitation.McPkgs.Select(mc => mc.McPkgNo).ToList(),
                     CommPkgNos = invitation.CommPkgs.Select(mc => mc.CommPkgNo).ToList(),
-                    RowVersion = invitation.RowVersion
+                    RowVersion = invitation.RowVersion.ConvertToString()
                 };
             return queryable;
         }
@@ -87,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderBy(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderBy(dto => dto.IpoId);
+                            queryable = queryable.OrderBy(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
                             queryable = queryable.OrderBy(dto => dto.Title);
@@ -108,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderBy(dto => dto.ConstructionCompanyRep);
                             break;
                         default:
-                            queryable = queryable.OrderBy(dto => dto.IpoId);
+                            queryable = queryable.OrderBy(dto => dto.Id);
                             break;
                     }
 
@@ -120,7 +121,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderByDescending(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderByDescending(dto => dto.IpoId);
+                            queryable = queryable.OrderByDescending(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
                             queryable = queryable.OrderByDescending(dto => dto.Title);
@@ -141,7 +142,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderByDescending(dto => dto.ConstructionCompanyRep);
                             break;
                         default:
-                            queryable = queryable.OrderByDescending(dto => dto.IpoId);
+                            queryable = queryable.OrderByDescending(dto => dto.Id);
                             break;
                     }
                     break;
