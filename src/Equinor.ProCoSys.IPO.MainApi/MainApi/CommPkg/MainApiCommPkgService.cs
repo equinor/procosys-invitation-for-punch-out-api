@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
@@ -23,26 +22,25 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProCoSysCommPkg>> SearchCommPkgsByCommPkgNoAsync(string plant, string projectName,
-            string startsWithCommPkgNo)
+        public async Task<ProCoSysCommPkgSearchResult> SearchCommPkgsByCommPkgNoAsync(
+            string plant,
+            string projectName,
+            string startsWithCommPkgNo,
+            int? itemsPerPage = 10,
+            int? currentPage = 0)
         {
-            var commPkgs = new List<ProCoSysCommPkg>();
-
             var url = $"{_baseAddress}CommPkg/Search" +
                       $"?plantId={plant}" +
                       $"&startsWithCommPkgNo={WebUtility.UrlEncode(startsWithCommPkgNo)}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       "&includeVoidedCommPkgs=false" +
+                      $"&itemsPerPage={itemsPerPage}" +
+                      $"&currentPage={currentPage}" +
                       $"&api-version={_apiVersion}";
 
             var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
 
-            if (commPkgSearchResult?.Items != null && commPkgSearchResult.Items.Any())
-            {
-                commPkgs.AddRange(commPkgSearchResult.Items);
-            }
-            
-            return commPkgs;
+            return commPkgSearchResult;
         }
 
         public async Task<IList<ProCoSysCommPkg>> GetCommPkgsByCommPkgNosAsync(

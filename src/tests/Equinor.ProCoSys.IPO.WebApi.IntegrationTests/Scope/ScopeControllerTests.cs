@@ -8,6 +8,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
     public class ScopeControllerTests : ScopeControllerTestsBase
     {
         [TestMethod]
+        public async Task GetCommPkgsInProject_AsViewer_ShouldGetCommPkgsInProjectV2()
+        {
+            // Act
+            var commPkgSearchResult = await ScopeControllerTestsHelper.GetCommPkgsInProjectV2Async(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess,
+                "CommPkgNo");
+
+            // Assert
+            var commPkg1 = commPkgSearchResult.CommPkgs.First();
+            var commPkg2 = commPkgSearchResult.CommPkgs.Last();
+            Assert.AreEqual(2, commPkgSearchResult.CommPkgs.Count);
+            Assert.AreEqual(2, commPkgSearchResult.MaxAvailable);
+            Assert.AreEqual(CommPkgNo1, commPkg1.CommPkgNo);
+            Assert.AreEqual(CommPkgNo2, commPkg2.CommPkgNo);
+        }
+
+        [TestMethod]
         public async Task GetCommPkgsInProject_AsViewer_ShouldGetCommPkgsInProject()
         {
             // Act
