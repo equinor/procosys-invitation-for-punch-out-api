@@ -14,6 +14,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     {
         private const string Route = "Invitations";
 
+        public static async Task<InvitationResultsDto> GetInvitationsAsync(
+            UserType userType,
+            string plant,
+            string projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var parameters = new ParameterCollection
+            {
+                {"ProjectName", projectName}
+            };
+            var url = $"{Route}{parameters}";
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<InvitationResultsDto>(jsonString);
+        }
+
+
         public static async Task<InvitationDto> GetInvitationAsync(
             UserType userType, string plant,
             int id,

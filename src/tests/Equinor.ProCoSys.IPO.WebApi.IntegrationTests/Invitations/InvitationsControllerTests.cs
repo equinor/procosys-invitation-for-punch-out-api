@@ -10,6 +10,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     public class InvitationsControllerTests : InvitationsControllerTestsBase
     {
         [TestMethod]
+        public async Task GetInvitations_AsViewer_ShouldGetInvitations()
+        {
+            // Act
+            var invitationResuls = await InvitationsControllerTestsHelper.GetInvitationsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess);
+
+            // Assert
+            Assert.IsTrue(invitationResuls.Invitations.Count > 0);
+            Assert.IsTrue(invitationResuls.MaxAvailable > 0);
+        }
+
+        [TestMethod]
         public async Task GetInvitation_AsViewer_ShouldGetInvitation()
         {
             // Act
