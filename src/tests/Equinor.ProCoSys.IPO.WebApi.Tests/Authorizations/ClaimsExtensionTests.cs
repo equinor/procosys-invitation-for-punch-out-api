@@ -44,7 +44,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 
             var givenName = claims.TryGetGivenName();
 
-            Assert.IsNotNull(givenName);
             Assert.AreEqual("Anne", givenName);
         }
 
@@ -55,7 +54,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 
             var givenName = claims.TryGetGivenName();
 
-            Assert.IsNotNull(givenName);
             Assert.AreEqual("Anne", givenName);
         }
 
@@ -97,6 +95,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             var givenName = claims.TryGetGivenName();
 
             Assert.IsNull(givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnGivenNameFromGivenNameClaim_WhenGivenNameAndNameClaimsExist()
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.GivenName, "Anne1"), new Claim(ClaimsExtensions.Name, "Anne2") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.AreEqual("Anne1", givenName);
         }
 
         [TestMethod]
@@ -157,6 +165,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             var surname = claims.TryGetSurName();
 
             Assert.IsNull(surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnSurNameFromSurNameClaim_WhenSurNameAndNameClaimsExist()
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.Surname, "Knutsdotter1"), new Claim(ClaimsExtensions.Name, "Knutsdotter2") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.AreEqual("Knutsdotter1", surname);
         }
     }
 }
