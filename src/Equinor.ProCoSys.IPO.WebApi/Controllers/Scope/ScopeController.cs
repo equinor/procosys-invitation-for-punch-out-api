@@ -54,16 +54,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// <returns>All ProCoSys commpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.COMMPKG_READ)]
         [HttpGet("CommPkgs")]
-        public async Task<ActionResult<IList<ProCoSysCommPkgDto>>> GetCommPkgsInProject(
+        public async Task<IList<ProCoSysCommPkgDto>> GetCommPkgsInProject(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
             [FromQuery] string projectName,
             [FromQuery] string startsWithCommPkgNo)
         {
-            var result = await _mediator.Send(new GetCommPkgsInProjectOldQuery(projectName, startsWithCommPkgNo));
+            var result = await _mediator.Send(new GetCommPkgsInProjectQuery(projectName, startsWithCommPkgNo, 10, 0));
 
-            return this.FromResult(result);
+            return result.Data.CommPkgs;
         }
 
         /// <summary>
