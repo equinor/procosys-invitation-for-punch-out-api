@@ -40,7 +40,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         public InvitationsController(IMediator mediator) => _mediator = mediator;
 
-
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet]
         public async Task<ActionResult<InvitationsResult>> GetTags(

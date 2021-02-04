@@ -1,6 +1,5 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
-using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 
 namespace Equinor.ProCoSys.IPO.Query.GetHistory
 {

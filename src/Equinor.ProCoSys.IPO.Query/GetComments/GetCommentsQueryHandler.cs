@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
