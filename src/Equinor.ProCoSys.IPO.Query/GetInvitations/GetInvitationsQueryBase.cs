@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                       (filter.PersonOid == null ||
                             invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
                       (filter.FunctionalRoleCode == null ||
-                       invitation.Participants.Any(p => p.FunctionalRoleCode == filter.FunctionalRoleCode)) &&
+                       invitation.Participants.Any(p => p.FunctionalRoleCode.ToUpper() == filter.FunctionalRoleCode.ToUpper())) &&
                       (filter.PunchOutDateFromUtc == null ||
                             invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
                       (filter.PunchOutDateToUtc == null ||
