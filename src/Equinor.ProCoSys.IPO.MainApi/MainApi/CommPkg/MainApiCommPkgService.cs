@@ -40,11 +40,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 
             var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
 
-            if (commPkgSearchResult == null)
-            {
-                return new ProCoSysCommPkgSearchResult {MaxAvailable = 0, Items = new List<ProCoSysCommPkg>()};
-            }
-
             return commPkgSearchResult;
         }
 

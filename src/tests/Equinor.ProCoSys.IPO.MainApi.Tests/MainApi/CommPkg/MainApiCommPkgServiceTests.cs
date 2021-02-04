@@ -85,25 +85,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         }
 
         [TestMethod]
-        public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenResultIsInvalid()
-        {
-            _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(null));
-
-            var result =
-                await _dut.SearchCommPkgsByCommPkgNoAsync(
-                    _plant, 
-                    "ProjectName",
-                    "A",
-                    _defaultPageSize,
-                    _defaultCurrentPage);
-
-            Assert.AreEqual(0, result.Items.Count);
-            Assert.AreEqual(0, result.MaxAvailable);
-        }
-
-        [TestMethod]
         public async Task SearchCommPkgsByCommPkgNo_ShouldReturnEmptyList_WhenSearchingEmptyPage()
         {
             var emptyPage = new ProCoSysCommPkgSearchResult
