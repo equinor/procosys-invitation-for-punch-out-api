@@ -34,7 +34,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             claim = claims.SingleOrDefault(c => c.Type == Name);
             if (claim != null)
             {
-                return claim.Value.Substring(0, claim.Value.Length - (claim.Value.Length - claim.Value.LastIndexOf(' ')));
+                var length = claim.Value.Length;
+                var indexOfLastWhiteSpace = claim.Value.LastIndexOf(' ');
+                if (length > 0 && indexOfLastWhiteSpace > 0)
+                {
+                    return claim.Value.Substring(0, indexOfLastWhiteSpace);
+                }
             }
 
             return default;
