@@ -21,6 +21,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
 
         private readonly string _projectName = "Pname";
         private readonly string _commPkgStartsWith = "C";
+        private readonly int _defaultPageSize = 10;
+        private readonly int _defaultCurrentPage = 0;
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -43,11 +45,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                     }
                 };
 
-                _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith))
-                    .Returns(Task.FromResult(_mainApiCommPkgs));
+                var result = new ProCoSysCommPkgSearchResult {MaxAvailable = 3, Items = _mainApiCommPkgs};
 
-                _query = new GetCommPkgsInProjectQuery(_projectName, _commPkgStartsWith);
+                _commPkgApiServiceMock
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))
+                    .Returns(Task.FromResult(result));
+
+                _query = new GetCommPkgsInProjectQuery(_projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage);
             }
         }
 
@@ -71,10 +75,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(3, result.Data.Count);
-                var item1 = result.Data.ElementAt(0);
-                var item2 = result.Data.ElementAt(1);
-                var item3 = result.Data.ElementAt(2);
+                Assert.AreEqual(3, result.Data.CommPkgs.Count);
+                Assert.AreEqual(3, result.Data.MaxAvailable);
+                var item1 = result.Data.CommPkgs.ElementAt(0);
+                var item2 = result.Data.CommPkgs.ElementAt(1);
+                var item3 = result.Data.CommPkgs.ElementAt(2);
                 AssertCommPkgData(_mainApiCommPkgs.Single(c => c.CommPkgNo == item1.CommPkgNo), item1);
                 AssertCommPkgData(_mainApiCommPkgs.Single(t => t.CommPkgNo == item2.CommPkgNo), item2);
                 AssertCommPkgData(_mainApiCommPkgs.Single(t => t.CommPkgNo == item3.CommPkgNo), item3);
@@ -88,13 +93,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             {
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith))
-                    .Returns(Task.FromResult<IList<ProCoSysCommPkg>>(null));
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))
+                    .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(new ProCoSysCommPkgSearchResult
+                    {
+                        MaxAvailable = 0,
+                        Items = null
+                    }));
 
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
-                Assert.AreEqual(0, result.Data.Count);
+                Assert.AreEqual(0, result.Data.CommPkgs.Count);
             }
         }
 

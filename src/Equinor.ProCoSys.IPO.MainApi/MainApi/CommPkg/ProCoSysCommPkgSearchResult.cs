@@ -4,6 +4,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public class ProCoSysCommPkgSearchResult
     {
-        public List<ProCoSysCommPkg> Items { get; set; }
+        public int MaxAvailable { get; set; }
+        public IList<ProCoSysCommPkg> Items { get; set; }
     }
 }
