@@ -30,8 +30,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         /// <param name="currentPage"></param>
         /// <returns>All ProCoSys commpkgs that match the search parameters</returns>
         [Authorize(Roles = Permissions.COMMPKG_READ)]
-        [HttpGet("CommPkgs")]
-        public async Task<ActionResult<ProCoSysCommPkgSearchDto>> GetCommPkgsInProject(
+        [HttpGet("CommPkgsV2")]
+        public async Task<ActionResult<ProCoSysCommPkgSearchDto>> GetCommPkgsInProjectV2(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -42,6 +42,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         {
             var result = await _mediator.Send(new GetCommPkgsInProjectQuery(projectName, startsWithCommPkgNo, itemsPerPage, currentPage));
             return this.FromResult(result);
+
+        }
+
+        /// <summary>
+        /// Gets CommPkgs from ProCoSys main API by CommPkgNos
+        /// </summary>
+        /// <param name="plant"></param>
+        /// <param name="projectName"></param>
+        /// <param name="startsWithCommPkgNo"></param>
+        /// <returns>All ProCoSys commpkgs that match the search parameters</returns>
+        [Authorize(Roles = Permissions.COMMPKG_READ)]
+        [HttpGet("CommPkgs")]
+        public async Task<ActionResult<IList<ProCoSysCommPkgDto>>> GetCommPkgsInProject(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromQuery] string projectName,
+            [FromQuery] string startsWithCommPkgNo)
+        {
+            var result = await _mediator.Send(new GetCommPkgsInProjectOldQuery(projectName, startsWithCommPkgNo));
+
+            return this.FromResult(result);
+
         }
 
         /// <summary>
