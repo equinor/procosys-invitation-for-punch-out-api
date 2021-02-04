@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -8,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
 {
     public abstract class GetInvitationsQueryBase
     {
-        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
+        protected IQueryable<InvitationDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
         {
             var startOfThisWeekUtc = DateTime.MinValue;
             var startOfNextWeekUtc = DateTime.MinValue;
@@ -22,57 +23,60 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
 
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
 
-            // No .Include() here. EF do not support .Include together with selecting a projection (dto).
-            // If the select-statement select tag so queryable has been of type IQueryable<Tag>, .Include(t => t.Requirements) work fine
             var queryable = from invitation in context.QuerySet<Invitation>()
-                    //.Include(i => i.CommPkgs)
-                    //.Include(i => i.McPkgs)
-                    //.Include(i => i.Participants)
-                            where invitation.ProjectName == projectName// &&
-                                  //(!filter.PunchOutDates.Any() ||
-                                  //     (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < startOfThisWeekUtc) ||
-                                  //     (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
-                                  //      invitation.StartTimeUtc >= startOfThisWeekUtc && invitation.StartTimeUtc < startOfNextWeekUtc) ||
-                                  //     (filter.PunchOutDates.Contains(PunchOutDateFilterType.NextWeek) &&
-                                  //      invitation.StartTimeUtc >= startOfNextWeekUtc && invitation.StartTimeUtc < startOfTwoWeeksUtc)) &&
-                                  //(!filter.IpoStatuses.Any() ||
-                                  //      filter.IpoStatuses.Contains(IpoStatus.Planned) ||
-                                  //      filter.IpoStatuses.Contains(IpoStatus.Completed) ||
-                                  //      filter.IpoStatuses.Contains(IpoStatus.Accepted) ||
-                                  //      filter.IpoStatuses.Contains(IpoStatus.Canceled)) &&
-                                  //(string.IsNullOrEmpty(filter.IpoIdStartsWith) ||
-                                  //      invitation.Id.ToString().StartsWith(ipoIdStartWith)) &&
-                                  ////(string.IsNullOrEmpty(filter.CommPkgNoStartsWith) ||
-                                  ////      invitation.CommPkgs.Any(c => c.CommPkgNo.StartsWith(filter.CommPkgNoStartsWith)) ||
-                                  ////      invitation.McPkgs.Any(mc => mc.CommPkgNo.StartsWith(filter.CommPkgNoStartsWith))) && 
-                                  ////(string.IsNullOrEmpty(filter.McPkgNoStartsWith) ||
-                                  ////       invitation.McPkgs.Any(mc => mc.McPkgNo.StartsWith(filter.McPkgNoStartsWith))) &&
-                                  //(string.IsNullOrEmpty(filter.TitleStartsWith) || 
-                                  //       invitation.Title.StartsWith(filter.TitleStartsWith)) &&
-                                  //(filter.PunchOutDateFromUtc != null ||
-                                  //        invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
-                                  //(filter.PunchOutDateToUtc != null ||
-                                  //        invitation.EndTimeUtc <= filter.PunchOutDateToUtc) &&
-                                  //(filter.LastChangedAtFromUtc != null ||
-                                  //        invitation.ModifiedAtUtc >= filter.LastChangedAtFromUtc) &&
-                                  //(filter.LastChangedAtToUtc != null ||
-                                  //        invitation.ModifiedAtUtc <= filter.LastChangedAtToUtc)
-                            select new InvitationForQueryDto
-                            {
-                                IpoId = EF.Property<int>(invitation, "Id"),
-                                Title = invitation.Title,
-                                Description = invitation.Description,
-                                Status = invitation.Status,
-                                Type = invitation.Type,
-                                CreatedAtUtc = invitation.CreatedAtUtc,
-                                CompletedAtUtc = invitation.CompletedAtUtc,
-                                AcceptedAtUtc = invitation.AcceptedAtUtc,
-                                RowVersion = invitation.RowVersion
-                            };
+                where invitation.ProjectName == projectName &&
+                      (!filter.PunchOutDates.Any() ||
+                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < startOfThisWeekUtc) ||
+                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
+                            invitation.StartTimeUtc >= startOfThisWeekUtc && invitation.StartTimeUtc < startOfNextWeekUtc) ||
+                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.NextWeek) &&
+                            invitation.StartTimeUtc >= startOfNextWeekUtc && invitation.StartTimeUtc < startOfTwoWeeksUtc)) &&
+                      (!filter.IpoStatuses.Any() ||
+                            (filter.IpoStatuses.Contains(IpoStatus.Planned) && invitation.Status == IpoStatus.Planned) ||
+                            (filter.IpoStatuses.Contains(IpoStatus.Completed) && invitation.Status == IpoStatus.Completed) ||
+                            (filter.IpoStatuses.Contains(IpoStatus.Accepted) && invitation.Status == IpoStatus.Accepted) ||
+                            (filter.IpoStatuses.Contains(IpoStatus.Canceled) && invitation.Status == IpoStatus.Canceled)) &&
+                      (string.IsNullOrEmpty(filter.IpoIdStartsWith) ||
+                            invitation.Id.ToString().StartsWith(ipoIdStartWith)) &&
+                      (string.IsNullOrEmpty(filter.CommPkgNoStartsWith) ||
+                            invitation.CommPkgs.Any(c => c.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper())) ||
+                            invitation.McPkgs.Any(mc => mc.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper()))) &&
+                      (string.IsNullOrEmpty(filter.McPkgNoStartsWith) ||
+                            invitation.McPkgs.Any(mc => mc.McPkgNo.ToUpper().StartsWith(filter.McPkgNoStartsWith.ToUpper()))) &&
+                      (string.IsNullOrEmpty(filter.TitleStartsWith) ||
+                            invitation.Title.ToUpper().StartsWith(filter.TitleStartsWith.ToUpper())) &&
+                      (filter.PersonOid == null ||
+                            invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
+                      (filter.PunchOutDateFromUtc == null ||
+                            invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
+                      (filter.PunchOutDateToUtc == null ||
+                            invitation.EndTimeUtc <= filter.PunchOutDateToUtc) &&
+                      (filter.LastChangedAtFromUtc == null ||
+                            (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) >= filter.LastChangedAtFromUtc) &&
+                      (filter.LastChangedAtToUtc == null ||
+                            (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
+                select new InvitationDto
+                {
+                    IpoId = EF.Property<int>(invitation, "Id"),
+                    Title = invitation.Title,
+                    Description = invitation.Description,
+                    Status = invitation.Status,
+                    Type = invitation.Type,
+                    CreatedAtUtc = invitation.CreatedAtUtc,
+                    StartTimeUtc = invitation.StartTimeUtc,
+                    EndTimeUtc = invitation.EndTimeUtc,
+                    CompletedAtUtc = invitation.CompletedAtUtc,
+                    AcceptedAtUtc = invitation.AcceptedAtUtc,
+                    ContractorRep = GetContractorRep(invitation.Participants.ToList()),
+                    ConstructionCompanyRep = GetConstructionCompanyRep(invitation.Participants.ToList()),
+                    McPkgNos = invitation.McPkgs.Select(mc => mc.McPkgNo).ToList(),
+                    CommPkgNos = invitation.CommPkgs.Select(mc => mc.CommPkgNo).ToList(),
+                    RowVersion = invitation.RowVersion
+                };
             return queryable;
         }
 
-        protected IQueryable<InvitationForQueryDto> AddSorting(Sorting sorting, IQueryable<InvitationForQueryDto> queryable)
+        protected IQueryable<InvitationDto> AddSorting(Sorting sorting, IQueryable<InvitationDto> queryable)
         {
             switch (sorting.Direction)
             {
@@ -96,6 +100,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             break;
                         case SortingProperty.AcceptedAtUtc:
                             queryable = queryable.OrderBy(dto => dto.AcceptedAtUtc);
+                            break;
+                        case SortingProperty.ContractorRep:
+                            queryable = queryable.OrderBy(dto => dto.ContractorRep);
+                            break;
+                        case SortingProperty.ConstructionCompanyRep:
+                            queryable = queryable.OrderBy(dto => dto.ConstructionCompanyRep);
                             break;
                         default:
                             queryable = queryable.OrderBy(dto => dto.IpoId);
@@ -124,6 +134,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                         case SortingProperty.AcceptedAtUtc:
                             queryable = queryable.OrderByDescending(dto => dto.AcceptedAtUtc);
                             break;
+                        case SortingProperty.ContractorRep:
+                            queryable = queryable.OrderByDescending(dto => dto.ContractorRep);
+                            break;
+                        case SortingProperty.ConstructionCompanyRep:
+                            queryable = queryable.OrderByDescending(dto => dto.ConstructionCompanyRep);
+                            break;
                         default:
                             queryable = queryable.OrderByDescending(dto => dto.IpoId);
                             break;
@@ -134,7 +150,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             return queryable;
         }
 
-        private string GetIpoIdStartWith(string filterString)
+        private static string GetIpoIdStartWith(string filterString)
         {
             if (filterString == null)
             {
@@ -153,6 +169,31 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
 
                 return null;
             }
+        }
+
+        private static string NameCombiner(Participant participant) 
+            => $"{participant.FirstName} {participant.LastName}";
+
+        private static string GetContractorRep(IList<Participant> participant)
+        {
+            var functionalRoleContractor =
+                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleContractor != null)
+            {
+                return functionalRoleContractor.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 0));
+        }
+
+        private static string GetConstructionCompanyRep(IList<Participant> participant)
+        {
+            var functionalRoleConstructionCompany =
+                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleConstructionCompany != null)
+            {
+                return functionalRoleConstructionCompany.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
     }
 }

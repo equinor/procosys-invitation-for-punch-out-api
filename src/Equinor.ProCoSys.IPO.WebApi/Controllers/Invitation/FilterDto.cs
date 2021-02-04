@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public string ProjectName { get; set; }
         public IEnumerable<IpoStatus> IpoStatuses { get; set; }
         public string FunctionalRoleCode { get; set; }
-        public string Person { get; set; }
+        public Guid? PersonOid { get; set; }
         public string IpoIdStartsWith { get; set; }
         public string CommPkgNoStartsWith { get; set; }
         public string McPkgNoStartsWith { get; set; }

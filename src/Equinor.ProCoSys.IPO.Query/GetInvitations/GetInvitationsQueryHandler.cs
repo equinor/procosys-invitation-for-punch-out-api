@@ -40,12 +40,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                 return new SuccessResult<InvitationsResult>(new InvitationsResult(maxAvailable, null));
             }
 
-
-            return new SuccessResult<InvitationsResult>(null);
+            return new SuccessResult<InvitationsResult>(new InvitationsResult(maxAvailable, orderedDtos));
         }
 
 
-        private IQueryable<InvitationForQueryDto> AddPaging(Paging paging, IQueryable<InvitationForQueryDto> queryable)
+        private IQueryable<InvitationDto> AddPaging(Paging paging, IQueryable<InvitationDto> queryable)
         {
             queryable = queryable
                 .Skip(paging.Page * paging.Size)

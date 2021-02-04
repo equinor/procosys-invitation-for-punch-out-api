@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
-namespace Equinor.ProCoSys.IPO.Query
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class InvitationDto
     {

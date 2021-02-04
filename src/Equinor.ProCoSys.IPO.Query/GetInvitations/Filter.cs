@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
     {
         public IList<IpoStatus> IpoStatuses { get; set; } = new List<IpoStatus>();
         public string FunctionalRoleCode { get; set; }
-        public string Person { get; set; }
+        public Guid? PersonOid { get; set; }
         public string IpoIdStartsWith { get; set; }
         public string CommPkgNoStartsWith { get; set; }
         public string McPkgNoStartsWith { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Query
+﻿namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class CommPkgScopeDto
     {

@@ -1,6 +1,6 @@
 ﻿using Fusion.Integration.Meeting;
 
-namespace Equinor.ProCoSys.IPO.Query
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class ExternalEmailDto
     {

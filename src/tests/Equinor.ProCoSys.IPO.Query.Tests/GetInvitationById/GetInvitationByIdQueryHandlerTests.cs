@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
+using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 {

@@ -15,7 +15,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
@@ -29,6 +28,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
+using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
