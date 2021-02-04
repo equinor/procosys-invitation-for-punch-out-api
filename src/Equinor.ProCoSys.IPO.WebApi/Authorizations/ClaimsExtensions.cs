@@ -38,7 +38,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 var indexOfLastWhiteSpace = claim.Value.LastIndexOf(' ');
                 if (length > 0 && indexOfLastWhiteSpace > 0)
                 {
-                    return claim.Value.Substring(0, indexOfLastWhiteSpace);
+                    var givenName = claim.Value.Substring(0, indexOfLastWhiteSpace);
+                    if (string.IsNullOrWhiteSpace(givenName))
+                    {
+                        return default;
+                    }
+                    return givenName;
                 }
             }
 
@@ -54,9 +59,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             }
 
             claim = claims.SingleOrDefault(c => c.Type == Name);
-            if (claim != null)
+            if (claim != null && !string.IsNullOrWhiteSpace(claim.Value))
             {
-                return claim.Value.Split(' ').Last();
+                var split = claim.Value.Split(' ');
+                if (split.Length > 1)
+                {
+                    return split.Last();
+                }
             }
 
             return default;

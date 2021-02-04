@@ -36,5 +36,127 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             // Assert
             Assert.IsFalse(guid.HasValue);
         }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnGivenName_WhenGivenNameClaimExists()
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.GivenName, "Anne") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNotNull(givenName);
+            Assert.AreEqual("Anne", givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnGivenName_WhenNameClaimExists()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "Anne Knutsdotter") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNotNull(givenName);
+            Assert.AreEqual("Anne", givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnNull_WhenNameClaimIsEmpty()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNull(givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnNull_WhenNameClaimIsWhitespace()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "  ") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNull(givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnNull_WhenNameClaimIsOneName()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "Anne") };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNull(givenName);
+        }
+
+        [TestMethod]
+        public void TryGetGivenName_ShouldReturnNull_WhenGivenNameDoesNotExist()
+        {
+            var claims = new List<Claim> { };
+
+            var givenName = claims.TryGetGivenName();
+
+            Assert.IsNull(givenName);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnSurname_WhenSurNameClaimExists()
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.Surname, "Knutsdotter") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.AreEqual("Knutsdotter", surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnSurname_WhenNameClaimExists()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "Anne Knutsdotter") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.AreEqual("Knutsdotter", surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnNull_WhenNameClaimIsEmpty()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.IsNull(surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnNull_WhenNameClaimIsWhitespace()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "  ") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.IsNull(surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnNull_WhenNameClaimIsOneName()
+        {
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Name, "Anne") };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.IsNull(surname);
+        }
+
+        [TestMethod]
+        public void TryGetSurName_ShouldReturnNull_WhenGivenNameDoesNotExist()
+        {
+            var claims = new List<Claim> { };
+
+            var surname = claims.TryGetSurName();
+
+            Assert.IsNull(surname);
+        }
     }
 }
