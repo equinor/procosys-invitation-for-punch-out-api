@@ -64,7 +64,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
             var result = await _mediator.Send(new GetCommPkgsInProjectOldQuery(projectName, startsWithCommPkgNo));
 
             return this.FromResult(result);
-
         }
 
         /// <summary>
