@@ -47,6 +47,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             invitation.Title.ToUpper().StartsWith(filter.TitleStartsWith.ToUpper())) &&
                       (filter.PersonOid == null ||
                             invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
+                      (filter.FunctionalRoleCode == null ||
+                       invitation.Participants.Any(p => p.FunctionalRoleCode == filter.FunctionalRoleCode)) &&
                       (filter.PunchOutDateFromUtc == null ||
                             invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
                       (filter.PunchOutDateToUtc == null ||
@@ -94,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderBy(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderBy(dto => dto.CreatedAtUtc);
+                            queryable = queryable.OrderBy(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
                             queryable = queryable.OrderBy(dto => dto.CompletedAtUtc);
@@ -127,7 +129,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             queryable = queryable.OrderByDescending(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.CreatedAtUtc);
+                            queryable = queryable.OrderByDescending(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
                             queryable = queryable.OrderByDescending(dto => dto.CompletedAtUtc);

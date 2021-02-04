@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -17,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         private Invitation _invitation1;
         private Invitation _invitation2;
         private Invitation _invitation3;
-        
+
         private string _functionalRoleCode1 = "FrCode1";
         private string _functionalRoleCode2 = "FrCode2";
         private readonly Guid _personGuid = new Guid("11111111-2222-2222-2222-333333333333");
@@ -83,6 +84,30 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                     Organization.ConstructionCompany,
                     IpoParticipantType.Person,
                     null,
+                    "FirstName2",
+                    "LastName2",
+                    "UN",
+                    _personEmail2,
+                    _personGuid,
+                    1);
+
+                var personParticipant3 = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.Person,
+                    null,
+                    "FirstName3",
+                    "LastName3",
+                    "UN",
+                    _personEmail1,
+                    _currentUserOid,
+                    0);
+
+                var personParticipant4 = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    null,
                     "FirstName",
                     "LastName",
                     "UN",
@@ -142,8 +167,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                     _title1,
                     "Description",
                     DisciplineType.DP,
-                    new DateTime(),
-                    new DateTime(),
+                    new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc),
                     null);
 
                 _invitation1.AddParticipant(functionalRoleParticipant1);
@@ -157,8 +182,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                     _title1,
                     "Description",
                     DisciplineType.MDP,
-                    new DateTime(),
-                    new DateTime(),
+                    new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2019, 10, 1, 11, 0, 0, DateTimeKind.Utc),
                     null);
 
                 _invitation2.AddParticipant(functionalRoleParticipant2);
@@ -172,13 +197,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                     _title2,
                     "Description",
                     DisciplineType.DP,
-                    new DateTime(),
-                    new DateTime(),
+                    new DateTime(2019, 11, 1, 10, 0, 0, DateTimeKind.Utc),
+                    new DateTime(2019, 11, 1, 11, 0, 0, DateTimeKind.Utc),
                     null);
 
-                _invitation3.AddParticipant(functionalRoleParticipant2);
-                _invitation3.AddParticipant(personParticipant1);
-                _invitation3.AddParticipant(frPerson2);
+                _invitation3.AddParticipant(personParticipant3);
+                _invitation3.AddParticipant(personParticipant4);
                 _invitation3.AddMcPkg(mcPkg2);
 
                 context.Invitations.Add(_invitation1);
@@ -213,9 +237,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
 
                 var result = await dut.Handle(query, default);
 
-                var invitationResults = result.Data;
-                Assert.AreEqual(1, invitationResults.MaxAvailable);
-                Assert.AreEqual(1, invitationResults.Invitations.Count());
+                AssertCount(result.Data, 1);
             }
         }
 
@@ -250,6 +272,276 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
+        public async Task Handler_ShouldReturnInvitationsByStartTime_WhenSortingAsc()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, new Sorting(SortingDirection.Asc, SortingProperty.PunchOutDateUtc));
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.Last().Id);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnInvitationsByStartTime_WhenSortingDesc()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, new Sorting(SortingDirection.Desc, SortingProperty.PunchOutDateUtc));
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.Last().Id);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnId()
+        {
+            var filter = new Filter {IpoIdStartsWith = "IPO-2"};
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnStatus()
+        {
+            var filter = new Filter { IpoStatuses = new List<IpoStatus> {IpoStatus.Accepted} };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnStatus2()
+        {
+            var filter = new Filter { IpoStatuses = new List<IpoStatus> { IpoStatus.Planned } };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutDate()
+        {
+            var filter = new Filter { PunchOutDateFromUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPersonOid()
+        {
+            var filter = new Filter { PersonOid = _frPersonGuid2 };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnFunctionalRoleCode()
+        {
+            var filter = new Filter { FunctionalRoleCode = _functionalRoleCode2 };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnCommPkgNoStartWith()
+        {
+            var filter = new Filter { CommPkgNoStartsWith = _commPkgNo2 };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnCommPkgNoStartWith2()
+        {
+            var filter = new Filter { CommPkgNoStartsWith = _commPkgNo };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnMcPkgNoStartWith()
+        {
+            var filter = new Filter { McPkgNoStartsWith = _mcPkgNo };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutOverdue()
+        {
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.Overdue } };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutInNextWeek()
+        {
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.NextWeek } };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data,0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnLastChangedAtFrom()
+        {
+            var filter = new Filter { LastChangedAtFromUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnLastChangedAtFrom2()
+        {
+            var filter = new Filter { LastChangedAtFromUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnLastChangedAtTo()
+        {
+            var filter = new Filter { LastChangedAtToUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnLastChangedAtTo2()
+        {
+            var filter = new Filter { LastChangedAtToUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
         public async Task Handler_ShouldReturnCorrectDto()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -279,6 +571,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                 Assert.AreEqual(invitation.CompletedAtUtc, invitationDto.CompletedAtUtc);
                 Assert.AreEqual(invitation.AcceptedAtUtc, invitationDto.AcceptedAtUtc);
             }
+        }
+
+        private void AssertCount(InvitationsResult data, int count)
+        {
+            Assert.AreEqual(count, data.MaxAvailable);
+            Assert.AreEqual(count, data.Invitations.Count());
         }
     }
 }
