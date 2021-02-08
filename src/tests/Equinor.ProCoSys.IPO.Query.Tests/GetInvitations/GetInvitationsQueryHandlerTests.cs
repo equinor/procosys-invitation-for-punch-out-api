@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -162,14 +162,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                     _mcPkgNo,
                     description);
 
+                var startTime1 = _timeProvider.UtcNow;
+
                 _invitation1 = new Invitation(
                     TestPlant,
                     _projectName,
                     _title1,
                     "Description",
                     DisciplineType.DP,
-                    new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc),
+                    startTime1,
+                    startTime1.AddHours(1),
                     null);
 
                 _invitation1.AddParticipant(functionalRoleParticipant1);
@@ -177,14 +179,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                 _invitation1.AddParticipant(frPerson1);
                 _invitation1.AddMcPkg(mcPkg1);
 
+                var startTime2 = _timeProvider.UtcNow.AddWeeks(1);
+
                 _invitation2 = new Invitation(
                     TestPlant,
                     _projectName2,
                     _title1,
                     "Description",
                     DisciplineType.MDP,
-                    new DateTime(2019, 10, 1, 10, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2019, 10, 1, 11, 0, 0, DateTimeKind.Utc),
+                    startTime2,
+                    startTime2.AddHours(1),
                     null);
 
                 _invitation2.AddParticipant(functionalRoleParticipant2);
@@ -192,14 +196,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                 _invitation2.AddParticipant(frPerson2);
                 _invitation2.AddCommPkg(commPkg);
 
+                var startTime3 = _timeProvider.UtcNow.AddWeeks(2);
+
                 _invitation3 = new Invitation(
                     TestPlant,
                     _projectName2,
                     _title2,
                     "Description",
                     DisciplineType.DP,
-                    new DateTime(2019, 11, 1, 10, 0, 0, DateTimeKind.Utc),
-                    new DateTime(2019, 11, 1, 11, 0, 0, DateTimeKind.Utc),
+                    startTime3,
+                    startTime3.AddHours(1),
                     null);
 
                 _invitation3.AddParticipant(personParticipant3);
@@ -351,9 +357,25 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnPunchOutDate()
+        public async Task Handler_ShouldFilterOnPunchOutDate_FromNow()
         {
-            var filter = new Filter { PunchOutDateFromUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+            var filter = new Filter { PunchOutDateFromUtc = _timeProvider.UtcNow };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutDate_FromTwoWeeksInFuture()
+        {
+            var filter = new Filter { PunchOutDateFromUtc = _timeProvider.UtcNow.AddWeeks(2) };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -447,8 +469,25 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnPunchOutOverdue()
+        public async Task Handler_ShouldFilterOnPunchOutOverdue_NoInvitations()
         {
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.Overdue } };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutOverdue_TwoInvitations()
+        {
+            _timeProvider.ElapseWeeks(4);
             var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.Overdue } };
 
             using (var context =
@@ -463,7 +502,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_NoInvitations()
+        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_OneInvitation()
         {
             var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.NextWeek } };
 
@@ -474,15 +513,47 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context);
 
                 var result = await dut.Handle(query, default);
-                AssertCount(result.Data,0);
+                AssertCount(result.Data,1);
             }
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_ShouldReturnInvitation()
+        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_ElapseTime_NoInvitations()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2019, 10, 25, 11, 0, 0, DateTimeKind.Utc)));
+            _timeProvider.ElapseWeeks(-1);
             var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.NextWeek } };
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutInThisWeek_NoInvitation()
+        {
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.ThisWeek } };
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutInThisWeek_ElapseWeek_OneInvitation()
+        {
+            _timeProvider.ElapseWeeks(1);
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.ThisWeek } };
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -495,9 +566,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtFrom_TwoInvitations()
+        public async Task Handler_ShouldFilterOnLastChangedAtFromNow_TwoInvitations()
         {
-            var filter = new Filter { LastChangedAtFromUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+            var filter = new Filter { LastChangedAtFromUtc = _timeProvider.UtcNow };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -511,9 +582,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtFrom_NoInvitations()
+        public async Task Handler_ShouldFilterOnLastChangedAtFromThreeWeeks_NoInvitations()
         {
-            var filter = new Filter { LastChangedAtFromUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+            var filter = new Filter { LastChangedAtFromUtc = _timeProvider.UtcNow.AddWeeks(3) };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -527,9 +598,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtTo_NoInvitations()
+        public async Task Handler_ShouldFilterOnLastChangedAtToLastWeek_NoInvitations()
         {
-            var filter = new Filter { LastChangedAtToUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+            var filter = new Filter { LastChangedAtToUtc = _timeProvider.UtcNow.AddWeeks(-1) };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -543,9 +614,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtTo_TwoInvitations()
+        public async Task Handler_ShouldFilterOnLastChangedAtToThreeWeeks_TwoInvitations()
         {
-            var filter = new Filter { LastChangedAtToUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
+            var filter = new Filter { LastChangedAtToUtc = _timeProvider.UtcNow.AddWeeks(3) };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
