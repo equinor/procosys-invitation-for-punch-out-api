@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -462,7 +463,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnPunchOutInNextWeek()
+        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_NoInvitations()
         {
             var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.NextWeek } };
 
@@ -474,6 +475,22 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data,0);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnPunchOutInNextWeek_ShouldReturnInvitation()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2019, 10, 25, 11, 0, 0, DateTimeKind.Utc)));
+            var filter = new Filter { PunchOutDates = new List<PunchOutDateFilterType> { PunchOutDateFilterType.NextWeek } };
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, null, filter);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
             }
         }
 
