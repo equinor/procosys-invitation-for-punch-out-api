@@ -72,9 +72,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new Exception("Error: Could not clear M-02 dates");
+                throw new Exception("Error: Could not clear M-02 dates", e);
             }
         }
     }

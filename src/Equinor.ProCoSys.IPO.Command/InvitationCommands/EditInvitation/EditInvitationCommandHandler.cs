@@ -86,9 +86,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
                 });
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("Error: Could not update outlook meeting.");
+                throw new Exception("Error: Could not update outlook meeting.", e);
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

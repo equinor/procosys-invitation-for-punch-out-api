@@ -87,9 +87,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new Exception("Error: Could not set M-01 dates");
+                throw new Exception("Error: Could not set M-01 dates", e);
             }
         }
 

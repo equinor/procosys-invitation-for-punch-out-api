@@ -64,9 +64,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             {
                 await _meetingClient.DeleteMeetingAsync(meetingId);
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("Error: Could not cancel outlook meeting.");
+                throw new Exception("Error: Could not cancel outlook meeting.", e);
             }
         }
 
@@ -81,9 +81,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception("Error: Could not set M-01 dates");
+                throw new Exception("Error: Could not set M-01 dates", e);
             }
         }
     }
