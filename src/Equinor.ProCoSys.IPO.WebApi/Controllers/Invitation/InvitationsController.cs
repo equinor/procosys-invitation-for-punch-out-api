@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet]
-        public async Task<ActionResult<InvitationsResult>> GetTags(
+        public async Task<ActionResult<InvitationsResult>> GetInvitations(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,

@@ -318,7 +318,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnStatus()
+        public async Task Handler_ShouldFilterOnStatusAccepted()
         {
             var filter = new Filter { IpoStatuses = new List<IpoStatus> {IpoStatus.Accepted} };
 
@@ -334,7 +334,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnStatus2()
+        public async Task Handler_ShouldFilterOnStatusPlanned()
         {
             var filter = new Filter { IpoStatuses = new List<IpoStatus> { IpoStatus.Planned } };
 
@@ -398,7 +398,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnCommPkgNoStartWith()
+        public async Task Handler_ShouldFilterOnCommPkgNoStartWith_ShouldGetOneInvitationWithMcPkgWithCommPkgParent()
         {
             var filter = new Filter { CommPkgNoStartsWith = _commPkgNo2 };
 
@@ -414,7 +414,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnCommPkgNoStartWith2()
+        public async Task Handler_ShouldFilterOnCommPkgNoStartWith_ShouldGetInvitaionsWithMcPkgAndInvitationWithCommpkg()
         {
             var filter = new Filter { CommPkgNoStartsWith = _commPkgNo };
 
@@ -478,7 +478,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtFrom()
+        public async Task Handler_ShouldFilterOnLastChangedAtFrom_TwoInvitations()
         {
             var filter = new Filter { LastChangedAtFromUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
 
@@ -494,7 +494,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtFrom2()
+        public async Task Handler_ShouldFilterOnLastChangedAtFrom_NoInvitations()
         {
             var filter = new Filter { LastChangedAtFromUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
 
@@ -510,7 +510,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtTo()
+        public async Task Handler_ShouldFilterOnLastChangedAtTo_NoInvitations()
         {
             var filter = new Filter { LastChangedAtToUtc = new DateTime(2019, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
 
@@ -526,7 +526,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
-        public async Task Handler_ShouldFilterOnLastChangedAtTo2()
+        public async Task Handler_ShouldFilterOnLastChangedAtTo_TwoInvitations()
         {
             var filter = new Filter { LastChangedAtToUtc = new DateTime(2020, 10, 20, 10, 0, 0, DateTimeKind.Utc) };
 

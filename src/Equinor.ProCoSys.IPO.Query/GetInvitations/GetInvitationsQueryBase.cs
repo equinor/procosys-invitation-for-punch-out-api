@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitations
 {
@@ -26,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             var queryable = from invitation in context.QuerySet<Invitation>()
                 where invitation.ProjectName == projectName &&
                       (!filter.PunchOutDates.Any() ||
-                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < startOfThisWeekUtc) ||
+                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
                             invitation.StartTimeUtc >= startOfThisWeekUtc && invitation.StartTimeUtc < startOfNextWeekUtc) ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.NextWeek) &&
@@ -48,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                       (filter.PersonOid == null ||
                             invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
                       (filter.FunctionalRoleCode == null ||
-                       invitation.Participants.Any(p => p.FunctionalRoleCode.ToUpper() == filter.FunctionalRoleCode.ToUpper())) &&
+                            invitation.Participants.Any(p => p.FunctionalRoleCode.ToUpper() == filter.FunctionalRoleCode.ToUpper())) &&
                       (filter.PunchOutDateFromUtc == null ||
                             invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
                       (filter.PunchOutDateToUtc == null ||
@@ -59,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
                 select new InvitationDto
                 {
-                    Id = EF.Property<int>(invitation, "Id"),
+                    Id = invitation.Id,
                     ProjectName = invitation.ProjectName,
                     Title = invitation.Title,
                     Description = invitation.Description,
