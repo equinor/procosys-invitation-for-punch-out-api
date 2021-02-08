@@ -78,6 +78,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private InvitationDto ConvertToInvitationDto(Invitation invitation,  GeneralMeeting meeting)
         {
+            var canEdit = meeting != null && 
+                           (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
+                           meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
+
             var invitationResult = new InvitationDto(
                 invitation.ProjectName,
                 invitation.Title,
@@ -88,6 +92,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 ConvertToPersonDto(invitation.CreatedById).Result,
                 invitation.StartTimeUtc,
                 invitation.EndTimeUtc,
+                canEdit,
                 invitation.RowVersion.ConvertToString())
             {
                 Participants = ConvertToParticipantDto(invitation.Participants),
