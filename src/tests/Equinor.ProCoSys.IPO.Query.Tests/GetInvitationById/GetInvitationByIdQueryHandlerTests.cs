@@ -428,6 +428,36 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         }
 
         [TestMethod]
+        public async Task Handler_ShouldReturnNullAsOutlookResponses_IfUserIsNotInvitedToMeeting()
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            {
+                _meetingClientMock
+                    .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
+                    .Throws(new Exception("Something failed"));
+
+                var query = new GetInvitationByIdQuery(_invitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _plantProvider);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+                var participants = result.Data.Participants.ToList();
+                Assert.AreEqual(null, participants.First().FunctionalRole.Response);
+                Assert.AreEqual(null, participants[1].Person.Response);
+                Assert.AreEqual(null, participants.Last().FunctionalRole.Response);
+                Assert.AreEqual(null, participants.Last().FunctionalRole.Persons.First().Response);
+                Assert.AreEqual(null, participants.Last().FunctionalRole.Persons.Last().Response);
+            }
+        }
+
+        [TestMethod]
         public async Task Handler_ShouldReturnIpo_IfMeetingIsNotFound()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
@@ -447,7 +477,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 var result = await dut.Handle(query, default);
                 Assert.IsNotNull(result);
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
-                Assert.AreEqual(OutlookResponse.None, result.Data.Participants.First().FunctionalRole.Response);
             }
         }
 

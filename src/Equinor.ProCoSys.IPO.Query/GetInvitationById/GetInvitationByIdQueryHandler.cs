@@ -140,15 +140,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
 
-                    OutlookResponse? functionalRoleResponse = OutlookResponse.None;
-                    if (participant.FunctionalRole.Email != null)
+                    OutlookResponse? functionalRoleResponse = null;
+                    if (participant.FunctionalRole.Email != null && meeting != null)
                     {
-                        functionalRoleResponse = meeting != null
-                            ? GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email)
-                            : null;
+                        functionalRoleResponse =
+                            GetOutlookResponseByEmailAsync(meeting, participant.FunctionalRole.Email);
                     }
 
-                    if (participant.FunctionalRole.Persons != null)
+                    if (participant.FunctionalRole.Persons != null && meeting != null)
                     {
                         functionalRoleResponse = GetOutlookResponseForFunctionalRole(
                             participant.FunctionalRole.Persons.ToList(),
