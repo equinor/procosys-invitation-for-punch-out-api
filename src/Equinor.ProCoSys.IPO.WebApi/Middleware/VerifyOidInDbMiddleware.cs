@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -34,6 +37,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 try
                 {
                     await mediator.Send(command);
+                }
+                catch (ValidationException)
+                {
+                    throw;
                 }
                 catch (Exception e)
                 {

@@ -34,7 +34,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             claim = claims.SingleOrDefault(c => c.Type == Name);
             if (claim != null)
             {
-                return claim.Value.Substring(0, claim.Value.Length - (claim.Value.Length - claim.Value.LastIndexOf(' ')));
+                var length = claim.Value.Length;
+                var indexOfLastWhiteSpace = claim.Value.LastIndexOf(' ');
+                if (length > 0 && indexOfLastWhiteSpace > 0)
+                {
+                    var givenName = claim.Value.Substring(0, indexOfLastWhiteSpace);
+                    if (string.IsNullOrWhiteSpace(givenName))
+                    {
+                        return default;
+                    }
+                    return givenName;
+                }
             }
 
             return default;
@@ -49,9 +59,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             }
 
             claim = claims.SingleOrDefault(c => c.Type == Name);
-            if (claim != null)
+            if (claim != null && !string.IsNullOrWhiteSpace(claim.Value))
             {
-                return claim.Value.Split(' ').Last();
+                var split = claim.Value.Split(' ');
+                if (split.Length > 1)
+                {
+                    return split.Last();
+                }
             }
 
             return default;
@@ -59,8 +73,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
         public static string TryGetUserName(this IEnumerable<Claim> claims)
         {
-            var upn = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn) ?? claims.SingleOrDefault(c => c.Type == UniqueName);
-            var claimValue = upn?.Value;
+            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
+                        ?? claims.SingleOrDefault(c => c.Type == ClaimTypes.Name)
+                        ?? claims.SingleOrDefault(c => c.Type == UniqueName);
+            var claimValue = claim?.Value;
             // Note: MailAddress.TryCreate(...) throws exception on null or empty string
             if (!string.IsNullOrWhiteSpace(claimValue) && MailAddress.TryCreate(claimValue, out var email))
             {
@@ -71,8 +87,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
         public static string TryGetEmail(this IEnumerable<Claim> claims)
         {
-            var upn = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn) ?? claims.SingleOrDefault(c => c.Type == UniqueName);
-            var claimValue = upn?.Value;
+            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
+                        ?? claims.SingleOrDefault(c => c.Type == ClaimTypes.Name)
+                        ?? claims.SingleOrDefault(c => c.Type == UniqueName);
+            var claimValue = claim?.Value;
             // Note: MailAddress.TryCreate(...) throws exception on null or empty string
             if (!string.IsNullOrWhiteSpace(claimValue) && MailAddress.TryCreate(claimValue, out var email))
             {
