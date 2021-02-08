@@ -25,7 +25,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private bool _signingOperationIncluded;
         private bool _signingCommissioningIncluded;
         private bool _signingTechnincalIntegrityIncluded;
-        private bool _canEdit = false;
 
         public GetInvitationByIdQueryHandler(
             IReadOnlyContext context,
