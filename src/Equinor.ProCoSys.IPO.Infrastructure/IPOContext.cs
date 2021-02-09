@@ -72,11 +72,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await DispatchEventsAsync(cancellationToken);
+            await DispatchPreSaveEventsAsync(cancellationToken);
             await SetAuditDataAsync();
             try
             {
-                return await base.SaveChangesAsync(cancellationToken);
+                var result = await base.SaveChangesAsync(cancellationToken);
+                await DispatchPostSaveEventsAsync(cancellationToken);
+                return result;
             }
             catch (DbUpdateConcurrencyException concurrencyException)
             {
@@ -89,13 +91,22 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public void Commit() => base.Database.CommitTransaction();
 
-        private async Task DispatchEventsAsync(CancellationToken cancellationToken = default)
+        private async Task DispatchPreSaveEventsAsync(CancellationToken cancellationToken = default)
         {
             var entities = ChangeTracker
                 .Entries<EntityBase>()
-                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
+                .Where(x => x.Entity.PreSaveDomainEvents != null && x.Entity.PreSaveDomainEvents.Any())
                 .Select(x => x.Entity);
-            await _eventDispatcher.DispatchAsync(entities, cancellationToken);
+            await _eventDispatcher.DispatchPreSaveAsync(entities, cancellationToken);
+        }
+
+        private async Task DispatchPostSaveEventsAsync(CancellationToken cancellationToken = default)
+        {
+            var entities = ChangeTracker
+                .Entries<EntityBase>()
+                .Where(x => x.Entity.PostSaveDomainEvents != null && x.Entity.PostSaveDomainEvents.Any())
+                .Select(x => x.Entity);
+            await _eventDispatcher.DispatchPostSaveAsync(entities, cancellationToken);
         }
 
         private async Task SetAuditDataAsync()
