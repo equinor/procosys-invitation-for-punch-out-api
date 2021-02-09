@@ -20,7 +20,8 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers
             var allEntities  = ConvertToList(entities);
 
             var events = allEntities
-                .SelectMany(x => x.PreSaveDomainEvents).ToList();
+                .SelectMany(x => x.PreSaveDomainEvents)
+                .ToList();
 
             allEntities.ForEach(e => e.ClearPreSaveDomainEvents());
 
@@ -31,10 +32,11 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers
 
         public async Task DispatchPostSaveAsync(IEnumerable<EntityBase> entities, CancellationToken cancellationToken = default)
         {
-            var allEntities = entities.ToList();
+            var allEntities = ConvertToList(entities);
 
             var events = allEntities
-                .SelectMany(x => x.PostSaveDomainEvents).ToList();
+                .SelectMany(x => x.PostSaveDomainEvents)
+                .ToList();
 
             allEntities.ForEach(e => e.ClearPostSaveDomainEvents());
 
