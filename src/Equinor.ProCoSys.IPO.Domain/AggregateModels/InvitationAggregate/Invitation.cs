@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate

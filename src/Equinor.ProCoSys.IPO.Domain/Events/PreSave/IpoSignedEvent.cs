@@ -1,11 +1,11 @@
 ﻿using System;
 using MediatR;
 
-namespace Equinor.ProCoSys.IPO.Domain.Events
+namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoAcceptedEvent : INotification
+    public class IpoSignedEvent : INotification
     {
-        public IpoAcceptedEvent(
+        public IpoSignedEvent(
             string plant,
             Guid objectGuid)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
