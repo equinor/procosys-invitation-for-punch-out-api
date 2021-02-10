@@ -2,7 +2,7 @@
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
@@ -357,7 +357,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             var comment = new Comment(TestPlant, "New comment");
             _dutWithCommPkgScope.AddComment(comment);
 
-            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(CommentAddedEvent));
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PreSaveDomainEvents.Last(), typeof(CommentAddedEvent));
         }
 
         [TestMethod]
@@ -376,7 +376,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             _dutWithCommPkgScope.RemoveComment(_comment);
 
-            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(CommentRemovedEvent));
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PreSaveDomainEvents.Last(), typeof(CommentRemovedEvent));
         }
 
         [TestMethod]
@@ -395,7 +395,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             _dutWithMcPkgScope.RemoveAttachment(_attachment);
 
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(AttachmentRemovedEvent));
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.Last(), typeof(AttachmentRemovedEvent));
         }
 
         [TestMethod]
@@ -415,7 +415,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             Assert.AreEqual(attachment, _dutWithMcPkgScope.Attachments.Last());
 
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(AttachmentUploadedEvent));
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.Last(), typeof(AttachmentUploadedEvent));
         }
 
         [TestMethod]
@@ -454,7 +454,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _currentPerson,
                 new DateTime());
 
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoCompletedEvent));
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.Last(), typeof(IpoCompletedEvent));
         }
 
         [TestMethod]
@@ -494,7 +494,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _currentPerson,
                 new DateTime());
 
-            Assert.IsInstanceOfType(_dutWithCommPkgScope.DomainEvents.Last(), typeof(IpoAcceptedEvent));
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PreSaveDomainEvents.Last(), typeof(IpoAcceptedEvent));
         }
 
         [TestMethod]
@@ -526,7 +526,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _currentPerson,
                 _personParticipant2.RowVersion.ConvertToString());
 
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoSignedEvent));
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.Last(), typeof(IpoSignedEvent));
         }
 
         [TestMethod]
@@ -594,12 +594,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 newEndTime,
                 "outside");
 
-            Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.Last(), typeof(IpoEditedEvent));
+            Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.Last(), typeof(IpoEditedEvent));
         }
 
         [TestMethod]
         public void Constructor_ShouldAddIpoCreatedEvent() 
-            => Assert.IsInstanceOfType(_dutWithMcPkgScope.DomainEvents.First(), typeof(IpoCreatedEvent));
+            => Assert.IsInstanceOfType(_dutWithMcPkgScope.PreSaveDomainEvents.First(), typeof(IpoCreatedEvent));
 
         [TestMethod]
         public void CancelIpo_SetsStatusToCanceled()

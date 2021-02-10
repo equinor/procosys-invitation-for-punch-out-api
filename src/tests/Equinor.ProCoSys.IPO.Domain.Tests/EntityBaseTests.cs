@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests
         public void ReturningEmptyDomainEventsListTest()
         {
             var dut = new TestableEntityBase();
-            Assert.IsNotNull(dut.DomainEvents);
+            Assert.IsNotNull(dut.PreSaveDomainEvents);
         }
 
         [TestMethod]
@@ -23,9 +23,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests
         {
             var dut = new TestableEntityBase();
             var domainEvent = new Mock<INotification>();
-            dut.AddDomainEvent(domainEvent.Object);
+            dut.AddPreSaveDomainEvent(domainEvent.Object);
 
-            Assert.IsTrue(dut.DomainEvents.Contains(domainEvent.Object));
+            Assert.IsTrue(dut.PreSaveDomainEvents.Contains(domainEvent.Object));
         }
 
         [TestMethod]
@@ -33,10 +33,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests
         {
             var dut = new TestableEntityBase();
             var domainEvent = new Mock<INotification>();
-            dut.AddDomainEvent(domainEvent.Object);
-            dut.RemoveDomainEvent(domainEvent.Object);
+            dut.AddPreSaveDomainEvent(domainEvent.Object);
+            dut.RemovePreSaveDomainEvent(domainEvent.Object);
 
-            Assert.IsFalse(dut.DomainEvents.Contains(domainEvent.Object));
+            Assert.IsFalse(dut.PreSaveDomainEvents.Contains(domainEvent.Object));
         }
 
         [TestMethod]
@@ -44,13 +44,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests
         {
             var dut = new TestableEntityBase();
             var domainEvent1 = new Mock<INotification>();
-            dut.AddDomainEvent(domainEvent1.Object);
+            dut.AddPreSaveDomainEvent(domainEvent1.Object);
             var domainEvent2 = new Mock<INotification>();
-            dut.AddDomainEvent(domainEvent2.Object);
+            dut.AddPreSaveDomainEvent(domainEvent2.Object);
 
-            dut.ClearDomainEvents();
+            dut.ClearPreSaveDomainEvents();
 
-            Assert.AreEqual(0, dut.DomainEvents.Count);
+            Assert.AreEqual(0, dut.PreSaveDomainEvents.Count);
         }
 
         [TestMethod]

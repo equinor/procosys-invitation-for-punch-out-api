@@ -18,36 +18,75 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers
             => Assert.ThrowsException<ArgumentNullException>(() => new EventDispatcher(null));
 
         [TestMethod]
-        public async Task DispatchAsync_SendsOutEvents_Test()
+        public async Task DispatchPreSaveAsync_SendsOutEvents_Test()
         {
             var mediator = new Mock<IMediator>();
             var dut = new EventDispatcher(mediator.Object);
             var entities = new List<TestableEntityBase>();
+
             for (var i = 0; i < 3; i++)
             {
                 var entity = new Mock<TestableEntityBase>();
-                entity.Object.AddDomainEvent(new Mock<INotification>().Object);
+                entity.Object.AddPreSaveDomainEvent(new Mock<INotification>().Object);
+                entity.Object.AddPostSaveDomainEvent(new Mock<INotification>().Object);
                 entities.Add(entity.Object);
             }
-            await dut.DispatchAsync(entities);
+            await dut.DispatchPreSaveAsync(entities);
 
             mediator.Verify(x 
                 => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+
+            entities.ForEach(e => Assert.AreEqual(0, e.PreSaveDomainEvents.Count));
+            entities.ForEach(e => Assert.AreEqual(1, e.PostSaveDomainEvents.Count));
         }
 
         [TestMethod]
-        public async Task DispatchAsync_ThrowsException_IfListIsEmptyAsync_Test()
+        public async Task DispatchPostSaveAsync_SendsOutEvents_Test()
+        {
+            var mediator = new Mock<IMediator>();
+            var dut = new EventDispatcher(mediator.Object);
+            var entities = new List<TestableEntityBase>();
+
+            for (var i = 0; i < 3; i++)
+            {
+                var entity = new Mock<TestableEntityBase>();
+                entity.Object.AddPreSaveDomainEvent(new Mock<INotification>().Object);
+                entity.Object.AddPostSaveDomainEvent(new Mock<INotification>().Object);
+                entities.Add(entity.Object);
+            }
+            await dut.DispatchPostSaveAsync(entities);
+
+            mediator.Verify(x
+                => x.Publish(It.IsAny<INotification>(), It.IsAny<CancellationToken>()), Times.Exactly(3));
+
+            entities.ForEach(e => Assert.AreEqual(1, e.PreSaveDomainEvents.Count));
+            entities.ForEach(e => Assert.AreEqual(0, e.PostSaveDomainEvents.Count));
+        }
+
+        [TestMethod]
+        public async Task DispatchPreSaveAsync_ThrowsException_IfListIsEmptyAsync_Test()
         {
             var mediator = new Mock<IMediator>();
             var dut = new EventDispatcher(mediator.Object);
 
             await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
-                dut.DispatchAsync(null));
+                dut.DispatchPreSaveAsync(null));
         }
 
-        public class TestableEntityBase : EntityBase
+        [TestMethod]
+        public async Task DispatchPostSaveAsync_ThrowsException_IfListIsEmptyAsync_Test()
         {
-            // The base class is abstract, therefor a sub class is needed to test it.
+            var mediator = new Mock<IMediator>();
+            var dut = new EventDispatcher(mediator.Object);
+
+            await Assert.ThrowsExceptionAsync<ArgumentNullException>(() =>
+                dut.DispatchPostSaveAsync(null));
         }
     }
+
+    public class TestableEntityBase : EntityBase
+    {
+        // The base class is abstract, therefor a sub class is needed to test it.
+    }
+
 }
