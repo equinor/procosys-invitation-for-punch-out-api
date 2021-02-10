@@ -165,7 +165,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
             // Assert
             _foreignApiClient.Verify(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(),
                 It.IsAny<List<KeyValuePair<string, string>>>()), Times.Once);
-            Assert.AreEqual(true, url.Equals("http://example.com/FunctionalRolesByCodes?classification=IPO&functionalRoleCodes=C%26D"), 
+            Assert.IsTrue(url.Equals("http://example.com/FunctionalRolesByCodes?classification=IPO&functionalRoleCodes=C%26D"), 
                 "Expected url encoded functional role code");
         }
     }
