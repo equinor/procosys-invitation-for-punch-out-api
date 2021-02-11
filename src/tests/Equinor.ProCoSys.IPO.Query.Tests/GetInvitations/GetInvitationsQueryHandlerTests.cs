@@ -630,6 +630,78 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
         }
 
         [TestMethod]
+        public async Task Handler_ShouldSortOnContractorRep_Asc()
+        {
+            var sorting = new Sorting(SortingDirection.Asc, SortingProperty.ContractorRep);
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, sorting, null);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.Last().Id);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldSortOnContractorRep_Desc()
+        {
+            var sorting = new Sorting(SortingDirection.Desc, SortingProperty.ContractorRep);
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, sorting);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.Last().Id);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldSortOnType_Asc()
+        {
+            var sorting = new Sorting(SortingDirection.Asc, SortingProperty.Type);
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, sorting, null);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.Last().Id);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldSortOnType_Desc()
+        {
+            var sorting = new Sorting(SortingDirection.Desc, SortingProperty.Type);
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName2, sorting);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+                Assert.AreEqual(_invitation2.Id, result.Data.Invitations.First().Id);
+                Assert.AreEqual(_invitation3.Id, result.Data.Invitations.Last().Id);
+                AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
         public async Task Handler_ShouldReturnCorrectDto()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
