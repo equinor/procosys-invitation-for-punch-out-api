@@ -1,9 +1,52 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
+using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class MeetingInvitationHelper
+    public class InvitationHelper
     {
+        public static List<BuilderParticipant> AddPersonToOutlookParticipantList(
+            ProCoSysPerson person,
+            List<BuilderParticipant> participants,
+            bool required = true)
+        {
+            if (required)
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+            else
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+
+            return participants;
+        }
+
+        private static bool IsValidEmail(string email)
+            => new EmailAddressAttribute().IsValid(email);
+
         public static string GenerateMeetingTitle(Invitation invitation) 
             => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
 

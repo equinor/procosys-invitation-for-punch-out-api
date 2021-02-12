@@ -85,7 +85,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.UpdateInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
                 });
             }
             catch (Exception e)
@@ -329,7 +329,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     participant.SortKey));
                             }
 
-                            participants = AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
+                            participants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -459,7 +459,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 participant.SortKey));
                         }
 
-                        participants = AddPersonToOutlookParticipantList(person, participants);
+                        participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -508,7 +508,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         new Guid(personFromMain.AzureOid),
                         sortKey));
                 }
-                participants = AddPersonToOutlookParticipantList(personFromMain, participants);
+                participants = InvitationHelper.AddPersonToOutlookParticipantList(personFromMain, participants);
             }
             else
             {
@@ -603,43 +603,5 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             return participants;
         }
-
-        private List<BuilderParticipant> AddPersonToOutlookParticipantList(
-            ProCoSysPerson person,
-            List<BuilderParticipant> participants,
-            bool required = true)
-        {
-            if (required)
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
-            else
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
-
-            return participants;
-        }
-
-        private bool IsValidEmail(string email)
-            => new EmailAddressAttribute().IsValid(email);
     }
 }
