@@ -78,13 +78,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             return queryable;
         }
 
-        protected IQueryable<InvitationDto> AddSorting(Sorting sorting, IQueryable<InvitationDto> queryable)
+        protected static IEnumerable<InvitationDto> AddSorting(Sorting sorting, IEnumerable<InvitationDto> queryable)
         {
             switch (sorting.Direction)
             {
                 default:
                     switch (sorting.Property)
                     {
+                        case SortingProperty.Type:
+                            queryable = queryable.OrderBy(dto => dto.Type);
+                            break;
                         case SortingProperty.Status:
                             queryable = queryable.OrderBy(dto => dto.Status);
                             break;
@@ -118,6 +121,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                 case SortingDirection.Desc:
                     switch (sorting.Property)
                     {
+                        case SortingProperty.Type:
+                            queryable = queryable.OrderByDescending(dto => dto.Type);
+                            break;
                         case SortingProperty.Status:
                             queryable = queryable.OrderByDescending(dto => dto.Status);
                             break;
@@ -164,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             }
             catch
             {
-                if (filterString.Substring(0, 4).ToUpper() == "IPO-")
+                if (filterString.Length > 3 && filterString.Substring(0, 4).ToUpper() == "IPO-")
                 {
                     return filterString.Substring(4);
                 }

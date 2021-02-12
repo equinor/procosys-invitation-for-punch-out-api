@@ -149,5 +149,24 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
             Assert.AreEqual("ola@test.com", person.Email);
             Assert.AreEqual(new Guid("11111111-1111-2222-2222-333333333333").ToString(), person.AzureOid);
         }
+
+        [TestMethod]
+        public async Task GetFunctionalRolesByCode_ShouldReturnEncodedFunctionalRoleCode_WhenFunctionalRoleCodeIncludesAndSign()
+        {
+            // Arrange
+            var url = string.Empty;
+            _foreignApiClient.Setup(h => h.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), 
+                    It.IsAny<List<KeyValuePair<string, string>>>()))
+                    .Callback<string, List<KeyValuePair<string, string>>>((r, _) => url = r);
+
+            // Act
+            await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string>{"C&D"});
+
+            // Assert
+            _foreignApiClient.Verify(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(),
+                It.IsAny<List<KeyValuePair<string, string>>>()), Times.Once);
+            Assert.IsTrue(url.Equals("http://example.com/FunctionalRolesByCodes?classification=IPO&functionalRoleCodes=C%26D"), 
+                "Expected url encoded functional role code");
+        }
     }
 }

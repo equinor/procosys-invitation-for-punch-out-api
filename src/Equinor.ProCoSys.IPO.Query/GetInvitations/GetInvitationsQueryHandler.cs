@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,10 +31,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             // count before adding sorting/paging
             var maxAvailable = await queryable.CountAsync(token);
 
-            queryable = AddSorting(request.Sorting, queryable);
-            queryable = AddPaging(request.Paging, queryable);
+            var enumerable = AddSorting(request.Sorting, queryable.AsEnumerable());
+            enumerable = AddPaging(request.Paging, enumerable);
 
-            var orderedDtos = await queryable.ToListAsync(token);
+            var orderedDtos = enumerable.ToList();
 
             if (!orderedDtos.Any())
             {
@@ -43,14 +44,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             return new SuccessResult<InvitationsResult>(new InvitationsResult(maxAvailable, orderedDtos));
         }
 
-
-        private IQueryable<InvitationDto> AddPaging(Paging paging, IQueryable<InvitationDto> queryable)
+        private IEnumerable<InvitationDto> AddPaging(Paging paging, IEnumerable<InvitationDto> enumerable)
         {
-            queryable = queryable
+            enumerable = enumerable
                 .Skip(paging.Page * paging.Size)
                 .Take(paging.Size);
-            return queryable;
+            return enumerable;
         }
-
     }
 }
