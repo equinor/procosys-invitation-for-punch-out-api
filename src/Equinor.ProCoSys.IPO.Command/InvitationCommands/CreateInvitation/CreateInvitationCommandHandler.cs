@@ -168,7 +168,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 frPerson.Email,
                                 new Guid(frPerson.AzureOid),
                                 participant.SortKey));
-                            participants = AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
+                            participants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -275,7 +275,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             person.Email,
                             new Guid(person.AzureOid),
                             participant.SortKey));
-                        participants = AddPersonToOutlookParticipantList(person, participants);
+                        participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -309,7 +309,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     p.Email,
                     new Guid(p.AzureOid),
                     sortKey));
-                participants = AddPersonToOutlookParticipantList(p, participants);
+                participants = InvitationHelper.AddPersonToOutlookParticipantList(p, participants);
             }
             else
             {
@@ -434,53 +434,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
 
                 meetingBuilder
-                    .StandaloneMeeting(MeetingInvitationHelper.GenerateMeetingTitle(invitation), request.Location)
+                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
             });
             return meeting.Id;
         }
-
-        private List<BuilderParticipant> AddPersonToOutlookParticipantList(
-            ProCoSysPerson person,
-            List<BuilderParticipant> participants,
-            bool required = true)
-        {
-            if (required)
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
-            else
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
-
-            return participants;
-        }
-
-        private bool IsValidEmail(string email) 
-            => new EmailAddressAttribute().IsValid(email);
     }
 }
