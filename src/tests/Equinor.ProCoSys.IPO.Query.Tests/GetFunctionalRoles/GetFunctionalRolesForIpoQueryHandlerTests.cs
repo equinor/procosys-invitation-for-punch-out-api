@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetFunctionalRoles;
@@ -19,14 +20,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
         private IList<ProCoSysFunctionalRole> _libraryApiFunctionalRoles;
         private GetFunctionalRolesForIpoQuery _query;
 
-        private Person person;
+        private ProCoSysPerson person;
         private const string _classification = "Classification";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                person = new Person() { AzureOid = "123456", FirstName = "F1", LastName = "F2", UserName = "UN1", Email = "E1@email.com" };
+                person = new ProCoSysPerson() { AzureOid = "123456", FirstName = "F1", LastName = "F2", UserName = "UN1", Email = "E1@email.com" };
 
                 _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
                 _libraryApiFunctionalRoles = new List<ProCoSysFunctionalRole>
@@ -37,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
                     },
                     new ProCoSysFunctionalRole
                     {
-                        Code = "C2", Description = "D2", Email = "e2@email.com", InformationEmail = "ie1@email.com", UsePersonalEmail = false, Persons = new List<Person>() { person }
+                        Code = "C2", Description = "D2", Email = "e2@email.com", InformationEmail = "ie1@email.com", UsePersonalEmail = false, Persons = new List<ProCoSysPerson>() { person }
                     }
                 };
 

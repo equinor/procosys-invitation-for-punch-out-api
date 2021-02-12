@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -104,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
             var personsWithOids = ipoParticipants.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
-            var personParticipantsWithEmails = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
+            var personsWithoutOids = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
                 .Select(p => p).ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
 
@@ -115,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids)
                 : participants;
             participants = AddExternalParticipant(invitation, participants, externalEmailParticipants);
-            participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails);
+            participants = AddPersonParticipantsWithoutOids(invitation, participants, personsWithoutOids);
 
             return participants;
         }
@@ -166,16 +168,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 frPerson.Email,
                                 new Guid(frPerson.AzureOid),
                                 participant.SortKey));
-                            if (person.Required)
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
-                            else
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
+                            participants = AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -282,8 +275,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             person.Email,
                             new Guid(person.AzureOid),
                             participant.SortKey));
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+                        participants = AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -317,8 +309,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     p.Email,
                     new Guid(p.AzureOid),
                     sortKey));
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(new Guid(p.AzureOid))));
+                participants = AddPersonToOutlookParticipantList(p, participants);
             }
             else
             {
@@ -329,7 +320,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return participants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipantsWithEmails(
+        private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
             List<ParticipantsForCommand> personsParticipantsWithEmail)
@@ -453,5 +444,43 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             });
             return meeting.Id;
         }
+
+        private List<BuilderParticipant> AddPersonToOutlookParticipantList(
+            ProCoSysPerson person,
+            List<BuilderParticipant> participants,
+            bool required = true)
+        {
+            if (required)
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+            else
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+
+            return participants;
+        }
+
+        private bool IsValidEmail(string email) 
+            => new EmailAddressAttribute().IsValid(email);
     }
 }

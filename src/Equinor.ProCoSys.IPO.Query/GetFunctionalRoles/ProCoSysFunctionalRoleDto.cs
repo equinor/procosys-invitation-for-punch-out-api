@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi;
 
 namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
 {
@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
             string email,
             string informationEmail,
             bool? usePersonalEmail,
-            IEnumerable<Person> persons)
+            IEnumerable<ProCoSysPerson> persons)
         {
             Code = code;
             Description = description;
@@ -26,6 +26,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
         public string Email { get; }
         public string InformationEmail { get; }
         public bool? UsePersonalEmail { get; }
-        public IEnumerable<Person> Persons { get; }
+        public IEnumerable<ProCoSysPerson> Persons { get; }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -237,7 +239,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids, existingParticipants)
                 : participants;
             participants = AddExternalParticipant(invitation, participants, externalEmailParticipants, existingParticipants);
-            participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails, existingParticipants);
+            participants = AddPersonParticipantsWithoutOids(invitation, participants, personParticipantsWithEmails, existingParticipants);
 
             return participants;
         }
@@ -327,16 +329,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     participant.SortKey));
                             }
 
-                            if (person.Required)
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
-                            else
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
+                            participants = AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -465,8 +458,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 new Guid(person.AzureOid),
                                 participant.SortKey));
                         }
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+
+                        participants = AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -515,8 +508,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         new Guid(personFromMain.AzureOid),
                         sortKey));
                 }
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(new Guid(personFromMain.AzureOid))));
+                participants = AddPersonToOutlookParticipantList(personFromMain, participants);
             }
             else
             {
@@ -525,7 +517,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return participants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipantsWithEmails(
+        private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
             IEnumerable<ParticipantsForCommand> personsParticipantsWithEmail,
@@ -611,5 +603,43 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             return participants;
         }
+
+        private List<BuilderParticipant> AddPersonToOutlookParticipantList(
+            ProCoSysPerson person,
+            List<BuilderParticipant> participants,
+            bool required = true)
+        {
+            if (required)
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+            else
+            {
+                if (IsValidEmail(person.Email))
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(person.Email)));
+                }
+                else
+                {
+                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
+                        new ParticipantIdentifier(new Guid(person.AzureOid))));
+                }
+            }
+
+            return participants;
+        }
+
+        private bool IsValidEmail(string email)
+            => new EmailAddressAttribute().IsValid(email);
     }
 }
