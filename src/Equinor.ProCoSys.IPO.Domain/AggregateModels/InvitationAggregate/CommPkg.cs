@@ -56,5 +56,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             CreatedById = createdBy.Id;
         }
+
+        public void MoveTo(string toProject) => ProjectName = toProject;
     }
 }

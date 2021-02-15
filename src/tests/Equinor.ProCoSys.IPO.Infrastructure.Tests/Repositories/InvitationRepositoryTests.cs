@@ -262,5 +262,73 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             _attachmentSetMock.Verify(s => s.Remove(_attachment), Times.Once);
         }
+
+        [TestMethod]
+        public void MoveCommPkg_ShouldChangeProjectRelation()
+        {
+            // Arrange & Assert
+            const string toProjectName = "ProjectName2";
+            const string description = "New description";
+            Assert.AreNotEqual(toProjectName, _commPkg.ProjectName);
+
+            // Act
+            _dut.MoveCommPkg(_projectName, toProjectName, _commPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toProjectName, _commPkg.ProjectName);
+            Assert.AreEqual(description, _commPkg.Description);            
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_AsRename_ShouldUpdateMcPkgNo()
+        {
+            // Arrange & Assert
+            const string toMcPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName, _commPkgNo, _commPkgNo, _mcPkgNo, toMcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_WithoutRename_ShouldUpdateCommPkgNo()
+        {
+            // Arrange & Assert
+            const string toCommPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName, _commPkgNo, toCommPkgNo, _mcPkgNo, _mcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_WithRename_ShouldUpdateCommPkgNoAndMcPkgNo()
+        {
+            // Arrange & Assert
+            const string toMcPkgNo = "McPkgNo2";
+            const string toCommPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName, _commPkgNo, toCommPkgNo, _mcPkgNo, toMcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
+        }
+
     }
 }

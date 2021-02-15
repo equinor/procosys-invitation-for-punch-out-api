@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string ProjectName { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
-        public string McPkgNo { get; }
+        public string McPkgNo { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)
@@ -48,5 +48,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             CreatedById = createdBy.Id;
         }
+
+        public void MoveToCommPkg(string toCommPkgNo) => CommPkgNo = toCommPkgNo;
+
+        public void Rename(string toMcPkgNo) => McPkgNo = toMcPkgNo;
     }
 }
