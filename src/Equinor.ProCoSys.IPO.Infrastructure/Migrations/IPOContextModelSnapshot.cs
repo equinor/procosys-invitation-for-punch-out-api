@@ -245,8 +245,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<Guid>("MeetingId")
                         .HasColumnType("uniqueidentifier");
@@ -283,8 +283,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
