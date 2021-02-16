@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
+using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
@@ -431,6 +432,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             var command = new CancelPunchOutCommand(
                 _invitationIdWithoutAccessToProject,
                 null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region CreateSavedFilterCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new CreateSavedFilterCommand(
+                _projectWithAccess,
+                "title",
+                "criteria",
+                false);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new CreateSavedFilterCommand(
+                _projectWithoutAccess,
+                "title",
+                "criteria",
+                false);
 
             // act
             var result = await _dut.ValidateAsync(command);

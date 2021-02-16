@@ -1,0 +1,23 @@
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
+using FluentValidation;
+
+namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
+{
+    public class CreateSavedFilterCommandValidator : AbstractValidator<CreateSavedFilterCommand>
+    {
+        public CreateSavedFilterCommandValidator(
+            ISavedFilterValidator savedFilterValidator)
+        {
+            CascadeMode = CascadeMode.Stop;
+
+            RuleFor(command => command)
+                .MustAsync((command, token) => NotExistsASavedFilterWithSameTitleForPersonOnProject(command.Title, command.ProjectName, token))
+                .WithMessage(command => $"A saved filter with this title already exists! Title={command.Title}");
+
+            async Task<bool> NotExistsASavedFilterWithSameTitleForPersonOnProject(string title, string projectName, CancellationToken token)
+                => !await savedFilterValidator.ExistsWithSameTitleForPersonInProjectAsync(title, projectName, token);
+        }
+    }
+}
