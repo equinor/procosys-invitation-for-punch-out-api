@@ -15,7 +15,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
 
         private readonly List<SavedFilter> _savedFilters = new List<SavedFilter>();
 
-
         protected Person() : base()
         {
         }

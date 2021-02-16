@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         private const string TestPlant = "PCS$PlantA";
         private const string ProjectName = "Project name";
 
-
         [TestMethod]
         public void Constructor_SetsProperties()
         {
