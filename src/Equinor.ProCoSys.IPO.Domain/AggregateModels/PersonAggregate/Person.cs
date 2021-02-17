@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
@@ -10,6 +12,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         public const int LastNameLengthMax = 128;
         public const int UserNameLengthMax = 128;
         public const int EmailLengthMax = 128;
+
+        private readonly List<SavedFilter> _savedFilters = new List<SavedFilter>();
 
         protected Person() : base()
         {
@@ -24,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             Email = email;
         }
 
+        public IReadOnlyCollection<SavedFilter> SavedFilters => _savedFilters.AsReadOnly();
         public Guid Oid { get; private set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -41,5 +46,18 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             }
             ModifiedById = modifiedBy.Id;
         }
+
+        public void AddSavedFilter(SavedFilter savedFilter)
+        {
+            if (savedFilter == null)
+            {
+                throw new ArgumentNullException(nameof(savedFilter));
+            }
+
+            _savedFilters.Add(savedFilter);
+        }
+
+        public SavedFilter GetDefaultFilter(string projectName) =>
+            _savedFilters.SingleOrDefault(s => s.ProjectName == projectName && s.DefaultFilter);
     }
 }

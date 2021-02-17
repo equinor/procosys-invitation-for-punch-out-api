@@ -30,6 +30,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.Property(x => x.UserName)
                 .HasMaxLength(Person.UserNameLengthMax)
                 .IsRequired();
+
+            builder
+                .HasMany(x => x.SavedFilters)
+                .WithOne()
+                .IsRequired();
         }
     }
 }
