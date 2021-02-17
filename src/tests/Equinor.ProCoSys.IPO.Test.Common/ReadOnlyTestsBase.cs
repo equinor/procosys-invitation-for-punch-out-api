@@ -3,7 +3,6 @@ using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +14,10 @@ namespace Equinor.ProCoSys.IPO.Test.Common
     public abstract class ReadOnlyTestsBase
     {
         protected const string TestPlant = "PCS$PlantA";
+        protected const string ProjectName = "Pname";
+        protected const string FilterName = "Fname";
+        protected const string Criteria = "Fcriteria";
+        protected SavedFilter _savedFilter;
         protected readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         protected DbContextOptions<IPOContext> _dbContextOptions;
         protected Mock<IPlantProvider> _plantProviderMock;
@@ -26,6 +29,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         [TestInitialize]
         public void SetupBase()
         {
+            _savedFilter = new SavedFilter(TestPlant, ProjectName, FilterName, Criteria) { DefaultFilter = true };
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
@@ -61,6 +65,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email)
         {
             var person = new Person(oid, firstName, lastName, userName, email);
+            person.AddSavedFilter(_savedFilter);
             context.Persons.Add(person);
             context.SaveChangesAsync().Wait();
             return person;
