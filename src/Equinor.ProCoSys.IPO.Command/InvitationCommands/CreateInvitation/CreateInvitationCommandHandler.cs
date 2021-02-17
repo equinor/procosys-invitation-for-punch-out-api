@@ -285,30 +285,30 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            PersonForCommand person,
+            PersonForCommand signer,
             int sortKey,
             Organization organization,
             IList<string> privileges)
         {
-            var p = await _personApiService.GetPersonByOidWithPrivilegesAsync(
+            var person = await _personApiService.GetPersonByOidWithPrivilegesAsync(
                 _plantProvider.Plant,
-                person.AzureOid.ToString(),
+                signer.AzureOid.ToString(),
                 _objectName,
                 privileges);
-            if (p != null)
+            if (person != null)
             {
                 invitation.AddParticipant(new Participant(
                     _plantProvider.Plant,
                     organization,
                     IpoParticipantType.Person,
                     null,
-                    p.FirstName,
-                    p.LastName,
-                    p.UserName,
-                    p.Email,
-                    new Guid(p.AzureOid),
+                    person.FirstName,
+                    person.LastName,
+                    person.UserName,
+                    person.Email,
+                    new Guid(person.AzureOid),
                     sortKey));
-                participants = InvitationHelper.AddPersonToOutlookParticipantList(p, participants);
+                participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
             }
             else
             {
