@@ -39,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             }
             CreatedById = createdBy.Id;
         }
+
         public void SetModified(Person modifiedBy)
         {
             ModifiedAtUtc = TimeService.UtcNow;

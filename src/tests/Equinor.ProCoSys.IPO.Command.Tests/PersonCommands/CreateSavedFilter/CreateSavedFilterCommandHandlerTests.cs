@@ -65,9 +65,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
         {
             // Act
             var result = await _dut.Handle(_command, default);
-            var savedFilter = _person.SavedFilters.First();
 
             // Assert
+            var savedFilter = _person.SavedFilters.Single();
             Assert.AreEqual(0, result.Errors.Count);
             Assert.AreEqual(0, result.Data);
             Assert.IsTrue(savedFilter.DefaultFilter);
@@ -84,11 +84,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
 
             // Act
             _command = new CreateSavedFilterCommand(_projectName, "T2", "C2", true);
+
+            // Assert
             var result = await _dut.Handle(_command, default);
             var savedFilter = _person.SavedFilters.First();
             var addedSavedFilter = _person.SavedFilters.Last();
-
-            // Assert
             Assert.AreEqual(0, result.Errors.Count);
             Assert.AreEqual(0, result.Data);
             Assert.IsFalse(savedFilter.DefaultFilter);
