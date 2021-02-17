@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         #region CreateSavedFilter
         [TestMethod]
         public async Task CreateSavedFilter_AsAnonymous_ShouldReturnUnauthorized()
-            => await PersonsControllerTestsHelper.CreateSavedFilter(
+            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 "title",
@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
         [TestMethod]
         public async Task CreateSavedFilter_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await PersonsControllerTestsHelper.CreateSavedFilter(
+            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 "title",
@@ -31,12 +31,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
         [TestMethod]
         public async Task CreateSavedFilter_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await PersonsControllerTestsHelper.CreateSavedFilter(
+            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 "title",
                 "criteria",
                 true,
+                HttpStatusCode.Forbidden);
+        #endregion
+
+        #region DeleteSavedFilter
+        [TestMethod]
+        public async Task DeleteSavedFilter_AsAnonymous_ShouldReturnUnauthorized()
+            => await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                1,
+                "rowVersion",
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task DeleteSavedFilter_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                1,
+                "rowVersion",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task DeleteSavedFilter_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                1,
+                "rowVersion",
                 HttpStatusCode.Forbidden);
         #endregion
     }

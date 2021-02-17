@@ -17,5 +17,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             => DefaultQuery
                 .Include(p => p.SavedFilters)
                 .SingleOrDefaultAsync(p => p.Oid == oid);
+
+        public void RemoveSavedFilter(SavedFilter savedFilter)
+            => _context.SavedFilters.Remove(savedFilter);
     }
 }

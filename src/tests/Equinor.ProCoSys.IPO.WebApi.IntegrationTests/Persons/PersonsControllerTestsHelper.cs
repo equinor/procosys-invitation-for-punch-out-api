@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
     {
         private const string Route = "Persons";
 
-        public static async Task<int> CreateSavedFilter(
+        public static async Task<int> CreateSavedFilterAsync(
             UserType userType,
             string plant,
             string title,
@@ -40,6 +40,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<int>(jsonString);
+        }
+
+        public static async Task DeleteSavedFilterAsync(
+            UserType userType,
+            string plant,
+            int savedFilterId,
+            string rowVersion,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                rowVersion
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Route}/SavedFilters/{savedFilterId}")
+            {
+                Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
+            };
+
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
     }
 }
