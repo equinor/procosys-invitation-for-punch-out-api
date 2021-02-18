@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
@@ -19,6 +20,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             // Assert
             Assert.IsTrue(id > 0);
+            //todo: when get saved filters is complete we can get and assert
+        }
+
+        [TestMethod]
+        public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
+        {
+            // Act
+            // todo: get a filter id to update
+            var rowVersion = await PersonsControllerTestsHelper.UpdateSavedFilter(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "new title",
+                "new criteria",
+                true,
+                "rowVersion");
+
+            // todo: get filter again to verify update
+            // Assert
+            Assert.IsFalse(string.IsNullOrWhiteSpace(rowVersion));
             //todo: when get saved filters is complete we can get and assert
         }
     }
