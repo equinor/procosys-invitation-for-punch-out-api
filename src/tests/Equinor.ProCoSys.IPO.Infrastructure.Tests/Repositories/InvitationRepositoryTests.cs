@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestInitialize]
         public void Setup()
         {
-            _mcPkg = new McPkg(TestPlant, _projectName, _commPkgNo, _mcPkgNo, "Description");
+            _mcPkg = new McPkg(TestPlant, _projectName2, _commPkgNo2, _mcPkgNo, "Description");
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
             _commPkg = new CommPkg(TestPlant, _projectName, _commPkgNo, "Description", "OK", "1|2");
@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             _invitationWithMcPkg = new Invitation(
                 TestPlant,
-                "ProjectName",
+                _projectName2,
                 "Title",
                 "D",
                 DisciplineType.DP,
@@ -75,7 +75,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _invitationWithMcPkg.SetProtectedIdForTesting(InvitationWithMcPkgId);
             _invitationWithCommPkg = new Invitation(
                 TestPlant,
-                "ProjectName",
+                _projectName,
                 "Title 2",
                 "D",
                 DisciplineType.DP,
