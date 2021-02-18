@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPreSaveDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
         public Guid ObjectGuid { get; set; }
-        public string ProjectName { get; set; }
+        public string ProjectName { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DisciplineType Type { get; set; }
@@ -415,5 +415,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             ModifiedById = modifiedBy.Id;
         }
+
+        public void MoveToProject(string toProject) => ProjectName = toProject;
     }
 }

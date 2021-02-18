@@ -34,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public string ProjectName { get; private set; }
+        public int InvitationId { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
         public string McPkgNo { get; private set; }
@@ -52,5 +53,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public void MoveToCommPkg(string toCommPkgNo) => CommPkgNo = toCommPkgNo;
 
         public void Rename(string toMcPkgNo) => McPkgNo = toMcPkgNo;
+
+        public void MoveToProject(string toProject) => ProjectName = toProject;
     }
 }

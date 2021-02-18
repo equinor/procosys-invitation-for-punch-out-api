@@ -19,9 +19,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateProjectOnInvitations(string projectName, string description)
         {
-            //var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName).ToList();
-
-            //mcPkgsToUpdate.ForEach(mp => mp.P = description);
         }
 
         public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
@@ -34,11 +31,27 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description)
         {
             var commPkgsToMove = _context.CommPkgs.Where(cp => cp.ProjectName == fromProject && cp.CommPkgNo == commPkgNo).ToList();
+            var mcPkgsToMove = _context.McPkgs.Where(mc => mc.ProjectName == fromProject && mc.CommPkgNo == commPkgNo).ToList();
+
+            var invitationsToMove =
+                _context.Invitations
+                    .Where(i => i.ProjectName == fromProject &&
+                                (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
+
+            invitationsToMove.ForEach(i =>
+            {
+                i.MoveToProject(toProject);
+            });
 
             commPkgsToMove.ForEach(cp =>
             {
                 cp.Description = description;
-                cp.MoveTo(toProject);
+                cp.MoveToProject(toProject);
+            });
+
+            mcPkgsToMove.ForEach(mc =>
+            {
+                mc.MoveToProject(toProject);
             });
 
         }

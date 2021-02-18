@@ -264,10 +264,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void MoveCommPkg_ShouldChangeProjectRelation()
+        public void MoveCommPkg_ShouldChangeProjectRelationAndUpdateInvitation()
         {
             // Arrange & Assert
-            const string toProjectName = "ProjectName2";
+            const string toProjectName = "ProjectNameUpdated";
             const string description = "New description";
             Assert.AreNotEqual(toProjectName, _commPkg.ProjectName);
 
@@ -276,7 +276,25 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             // Assert
             Assert.AreEqual(toProjectName, _commPkg.ProjectName);
-            Assert.AreEqual(description, _commPkg.Description);            
+            Assert.AreEqual(description, _commPkg.Description);
+            Assert.AreEqual(_projectName2, _mcPkg.ProjectName, "Only data on specific comm pkg should be updated");
+            Assert.AreEqual(toProjectName, _invitationWithCommPkg.ProjectName, "Project ref on invitation not changed when comm pkg was moved to other project");
+        }
+
+        [TestMethod]
+        public void MoveCommPkg_WithMcPkg_ShouldChangeProjectRelations()
+        {
+            // Arrange & Assert
+            const string toProjectName = "ProjectNameUpdated";
+            const string description = "New description";
+
+            // Act
+            _dut.MoveCommPkg(_projectName2, toProjectName, _commPkgNo2, description);
+
+            // Assert
+            Assert.AreEqual(toProjectName, _invitationWithMcPkg.ProjectName, "Project name on invitation should be updated when comm pkg changes project");
+            Assert.AreNotEqual(description, _commPkg.Description, "Only correct comm pkg should update values");
+            Assert.AreEqual(toProjectName, _mcPkg.ProjectName, "Mc pkg project name must update when comm changes project");
         }
 
         [TestMethod]
@@ -288,7 +306,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
 
             // Act
-            _dut.MoveMcPkg(_projectName, _commPkgNo, _commPkgNo, _mcPkgNo, toMcPkgNo, description);
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, _commPkgNo2, _mcPkgNo, toMcPkgNo, description);
 
             // Assert
             Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
@@ -304,7 +322,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
 
             // Act
-            _dut.MoveMcPkg(_projectName, _commPkgNo, toCommPkgNo, _mcPkgNo, _mcPkgNo, description);
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, _mcPkgNo, description);
 
             // Assert
             Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
@@ -322,7 +340,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
 
             // Act
-            _dut.MoveMcPkg(_projectName, _commPkgNo, toCommPkgNo, _mcPkgNo, toMcPkgNo, description);
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, toMcPkgNo, description);
 
             // Assert
             Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
@@ -330,5 +348,34 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreEqual(description, _mcPkg.Description);
         }
 
+        [TestMethod]
+        public void UpdateCommPkg_ShouldUpdateCommPkgWithGiveNo()
+        {
+            // Arrange & Assert
+            var newDescription = "What an amazing description!";
+            Assert.AreNotEqual(newDescription, _commPkg.Description);
+
+            // Act
+            _dut.UpdateCommPkgOnInvitations(_commPkg.ProjectName, _commPkg.CommPkgNo, newDescription);
+
+            // Assert
+            Assert.AreEqual(newDescription, _commPkg.Description);
+
+        }
+
+        [TestMethod]
+        public void UpdateMcPkg_ShouldUpdateMcPkgWithGiveNo()
+        {
+            // Arrange & Assert
+            var newDescription = "What an amazing description!";
+            Assert.AreNotEqual(newDescription, _mcPkg.Description);
+
+            // Act
+            _dut.UpdateMcPkgOnInvitations(_mcPkg.ProjectName, _mcPkg.McPkgNo, newDescription);
+
+            // Assert
+            Assert.AreEqual(newDescription, _mcPkg.Description);
+        }
     }
+}
 }
