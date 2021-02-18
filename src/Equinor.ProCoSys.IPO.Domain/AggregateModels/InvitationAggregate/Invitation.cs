@@ -13,8 +13,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public const int ProjectNameMinLength = 3;
         public const int ProjectNameMaxLength = 512;
         public const int TitleMinLength = 3;
-        public const int TitleMaxLength = 1024;
-        public const int LocationMaxLength = 1024;
+        public const int TitleMaxLength = 250;
+        public const int LocationMaxLength = 250;
         public const int DescriptionMaxLength = 4096;
 
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();

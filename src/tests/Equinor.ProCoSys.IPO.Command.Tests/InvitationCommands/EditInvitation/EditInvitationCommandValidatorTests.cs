@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Title must be between 3 and 1024 characters!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
         }
 
         [TestMethod]
@@ -195,7 +195,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Title must be between 3 and 1024 characters!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
         }
 
         [TestMethod]
@@ -216,7 +216,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Title must be between 3 and 1024 characters!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
         }
 
         [TestMethod]
@@ -237,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Location cannot be more than 1024 characters!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Location cannot be more than {Invitation.LocationMaxLength} characters!"));
         }
 
         [TestMethod]

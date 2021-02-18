@@ -4,27 +4,29 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    partial class IPOContextModelSnapshot : ModelSnapshot
+    [Migration("20210216145139_SavedFilter")]
+    partial class SavedFilter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.3")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "5.0.0");
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -74,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<Guid>("BlobStorageId")
                         .HasColumnType("uniqueidentifier");
@@ -123,7 +125,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("CommPkgNo")
                         .IsRequired()
@@ -177,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("CommentText")
                         .IsRequired()
@@ -217,7 +219,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<DateTime?>("AcceptedAtUtc")
                         .HasColumnType("datetime2");
@@ -245,8 +247,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<Guid>("MeetingId")
                         .HasColumnType("uniqueidentifier");
@@ -283,8 +285,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -307,7 +309,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("CommPkgNo")
                         .IsRequired()
@@ -358,7 +360,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<bool>("Attended")
                         .HasColumnType("bit");
@@ -442,7 +444,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -482,9 +484,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.HasIndex("Oid")
-                        .IsUnique();
-
                     b.ToTable("Persons");
                 });
 
@@ -493,7 +492,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
