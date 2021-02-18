@@ -14,35 +14,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             List<BuilderParticipant> participants,
             bool required = true)
         {
-            if (required)
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Required,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
-            else
-            {
-                if (IsValidEmail(person.Email))
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(person.Email)));
-                }
-                else
-                {
-                    participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                        new ParticipantIdentifier(new Guid(person.AzureOid))));
-                }
-            }
+            var participantType = GetParticipantType(required);
+            var participantIdentifier = CreateParticipantIdentifier(person);
 
+            participants.Add(new BuilderParticipant(participantType, participantIdentifier));
             return participants;
         }
+
+        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person) 
+            => IsValidEmail(person.Email) ? 
+                new ParticipantIdentifier(person.Email) : 
+                new ParticipantIdentifier(new Guid(person.AzureOid));
+
+        private static ParticipantType GetParticipantType(bool required) 
+            => required ? ParticipantType.Required : ParticipantType.Optional;
 
         private static bool IsValidEmail(string email)
             => new EmailAddressAttribute().IsValid(email);

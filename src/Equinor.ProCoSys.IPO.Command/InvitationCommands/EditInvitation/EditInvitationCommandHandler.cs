@@ -100,11 +100,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var existingMcPkgScope = invitation.McPkgs;
             var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
-            foreach (var mcPkgToDelete in excludedMcPkgs)
-            {
-                invitation.RemoveMcPkg(mcPkgToDelete);
-                _invitationRepository.RemoveMcPkg(mcPkgToDelete);
-            }
+            RemoveMcPkgs(invitation, excludedMcPkgs);
 
             var existingMcPkgNos = existingMcPkgScope.Select(mc => mc.McPkgNo);
             var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
@@ -112,6 +108,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             {
                 await AddMcPkgsAsync(invitation, newMcPkgs, projectName,
                     existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().CommPkgNo : null);
+            }
+        }
+
+        private void RemoveMcPkgs(Invitation invitation, IEnumerable<McPkg> excludedMcPkgs)
+        {
+            foreach (var mcPkgToDelete in excludedMcPkgs)
+            {
+                invitation.RemoveMcPkg(mcPkgToDelete);
+                _invitationRepository.RemoveMcPkg(mcPkgToDelete);
             }
         }
 
@@ -143,11 +148,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var existingCommPkgScope = invitation.CommPkgs;
             var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
-            foreach (var commPkgToDelete in excludedCommPkgs)
-            {
-                invitation.RemoveCommPkg(commPkgToDelete);
-                _invitationRepository.RemoveCommPkg(commPkgToDelete);
-            }
+            RemoveCommPkgs(invitation, excludedCommPkgs);
 
             var existingCommPkgs = existingCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
             var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
@@ -159,6 +160,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     existingCommPkgs,
                     projectName,
                     existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().System : null);
+            }
+        }
+
+        private void RemoveCommPkgs(Invitation invitation, IEnumerable<CommPkg> excludedCommPkgs)
+        {
+            foreach (var commPkgToDelete in excludedCommPkgs)
+            {
+                invitation.RemoveCommPkg(commPkgToDelete);
+                _invitationRepository.RemoveCommPkg(commPkgToDelete);
             }
         }
 
