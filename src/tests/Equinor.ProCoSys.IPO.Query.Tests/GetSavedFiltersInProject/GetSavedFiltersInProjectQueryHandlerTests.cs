@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            { 
+            {
                 _query = new GetSavedFiltersInProjectQuery(ProjectName);
             }
         }

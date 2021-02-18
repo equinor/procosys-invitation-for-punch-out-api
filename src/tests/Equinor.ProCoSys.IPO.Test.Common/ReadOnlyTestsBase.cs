@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         [TestInitialize]
         public void SetupBase()
         {
-            _savedFilter = new SavedFilter(TestPlant, ProjectName, FilterName, Criteria) { DefaultFilter = true };
+
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
@@ -53,7 +53,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             {
                 if (context.Persons.SingleOrDefault(p => p.Oid == _currentUserOid) == null)
                 {
-                    AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
+                    var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
+                    AddSavedFilterToPerson(context, person);
                 }
             }
 
@@ -65,8 +66,15 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email)
         {
             var person = new Person(oid, firstName, lastName, userName, email);
-            person.AddSavedFilter(_savedFilter);
             context.Persons.Add(person);
+            context.SaveChangesAsync().Wait();
+            return person;
+        }
+
+        protected Person AddSavedFilterToPerson(IPOContext context, Person person)
+        {
+            _savedFilter = new SavedFilter(TestPlant, ProjectName, FilterName, Criteria);
+            person.AddSavedFilter(_savedFilter);
             context.SaveChangesAsync().Wait();
             return person;
         }
