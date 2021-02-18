@@ -1,6 +1,6 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Equinor.ProCoSys.IPO.ForeignApi;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {

@@ -1,9 +1,37 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
+using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class MeetingInvitationHelper
+    public class InvitationHelper
     {
+        public static List<BuilderParticipant> AddPersonToOutlookParticipantList(
+            ProCoSysPerson person,
+            List<BuilderParticipant> participants,
+            bool required = true)
+        {
+            var participantType = GetParticipantType(required);
+            var participantIdentifier = CreateParticipantIdentifier(person);
+
+            participants.Add(new BuilderParticipant(participantType, participantIdentifier));
+            return participants;
+        }
+
+        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person) 
+            => IsValidEmail(person.Email) ? 
+                new ParticipantIdentifier(person.Email) : 
+                new ParticipantIdentifier(new Guid(person.AzureOid));
+
+        private static ParticipantType GetParticipantType(bool required) 
+            => required ? ParticipantType.Required : ParticipantType.Optional;
+
+        private static bool IsValidEmail(string email)
+            => new EmailAddressAttribute().IsValid(email);
+
         public static string GenerateMeetingTitle(Invitation invitation) 
             => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
 
