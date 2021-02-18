@@ -21,5 +21,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             Assert.IsTrue(id > 0);
             //todo: when get saved filters is complete we can get and assert
         }
+
+        //[TestMethod]
+        //public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
+        //{
+        //    // Act
+        //    var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
+        //        UserType.Viewer,
+        //        TestFactory.PlantWithAccess);
+
+        //    // Assert
+        //    Assert.IsTrue(true);
+        //    //todo: when get saved filters is complete we can get and assert
+        //}
     }
 }
