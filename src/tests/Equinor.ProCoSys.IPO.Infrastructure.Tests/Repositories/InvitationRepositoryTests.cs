@@ -20,8 +20,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int CommPkgId = 71;
         private const int ParticipantId = 1;
         private string _projectName = "ProjectName";
+        private string _projectName2 = "ProjectName2";
         private string _mcPkgNo = "MC1";
         private string _commPkgNo = "Comm1";
+        private string _commPkgNo2 = "Comm2";
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
@@ -377,5 +379,4 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreEqual(newDescription, _mcPkg.Description);
         }
     }
-}
 }
