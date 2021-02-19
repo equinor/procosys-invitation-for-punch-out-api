@@ -46,25 +46,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             return JsonConvert.DeserializeObject<int>(jsonString);
         }
 
-        //public static async Task<List<SavedFilterDto>> GetSavedFiltersInProject(
-        //    UserType userType,
-        //    string plant,
-        //    HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
-        //    string expectedMessageOnBadRequest = null)
-        //{
+        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProject(
+            UserType userType,
+            string plant,
+            string? projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var project = projectName ?? KnownTestData.ProjectName;
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/SavedFilters?projectName={project}");
 
-        //    var content = new StringContent("", Encoding.UTF8, "application/json");
-        //    var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync($"{Route}/SavedFilters?projectName={KnownTestData.ProjectName}", content);
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
-        //    await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new List<SavedFilterDto>();
+            }
 
-        //    if (response.StatusCode != HttpStatusCode.OK)
-        //    {
-        //        return new List<SavedFilterDto>();
-        //    }
-
-        //    var jsonString = await response.Content.ReadAsStringAsync();
-        //    return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
-        //}
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
+        }
     }
 }
