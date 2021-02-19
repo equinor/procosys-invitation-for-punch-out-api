@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,10 +39,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
         {
             // Act
-            var id = await PersonsControllerTestsHelper.CreateSavedFilter(
+            var id1 = await PersonsControllerTestsHelper.CreateSavedFilter(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "test title2",
+                "filter1",
+                "criteria",
+                true);
+
+            await PersonsControllerTestsHelper.CreateSavedFilter(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "filter2",
                 "criteria",
                 true);
 
@@ -50,12 +58,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 TestFactory.PlantWithAccess,
                 null);
 
-            var savedFilter = savedFilters.Find(sf => sf.Id == id);
+            var savedFilter = savedFilters.Single(sf => sf.Id == id1);
 
             // Assert
-            Assert.IsTrue(savedFilters.Count > 0);
+            Assert.IsTrue(savedFilters.Count >= 2);
             Assert.IsNotNull(savedFilter);
-            Assert.AreEqual("test title2", savedFilter.Title);
+            Assert.AreEqual("filter1", savedFilter.Title);
             Assert.AreEqual("criteria", savedFilter.Criteria);
         }
 

@@ -47,9 +47,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
             var dut = new GetSavedFiltersInProjectQueryHandler(context, _currentUserProvider);
 
             var result = await dut.Handle(_query, default);
-            var savedFilter = result.Data.Single();
+            var savedFilter = result.Data.Single(sf => sf.Id == _savedFilter.Id);
 
-            Assert.AreEqual(1, result.Data.Count);
+            Assert.AreEqual(2, result.Data.Count);
             Assert.AreEqual(_savedFilter.Id, savedFilter.Id);
             Assert.AreEqual(_savedFilter.Title, savedFilter.Title);
             Assert.AreEqual(_savedFilter.Criteria, savedFilter.Criteria);
