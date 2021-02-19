@@ -42,9 +42,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                 Email = "example1@email.com",
                 InformationEmail = "infoexample1@email.com",
                 UsePersonalEmail = true,
-                Persons = new List<Person>
+                Persons = new List<ProCoSysPerson>
                 {
-                    new Person{
+                    new ProCoSysPerson{
                         AzureOid = new Guid("11111111-1111-2222-2222-333333333333").ToString(),
                         Email = "ola@test.com",
                         FirstName = "Ola",

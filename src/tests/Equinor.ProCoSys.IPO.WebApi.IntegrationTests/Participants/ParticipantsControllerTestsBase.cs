@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         protected PersonHelper _sigurdSigner, _connieConstructor, _conradContractor, _vidarViewer;
 
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
-        private List<Person> _personsInFunctionalRole;
+        private List<ProCoSysPerson> _personsInFunctionalRole;
         private IList<ProCoSysPerson> _requiredSignerPersons;
         private IList<ProCoSysPerson> _additionalSignerPersons;
         private IList<ProCoSysPerson> _proCoSysPersons;
@@ -40,9 +40,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             _vidarViewer = new PersonHelper(viewerUser.Profile.Oid, "Vidar", "Viewer", "VidarUserName",
                 "vidar@viewer.com", 5, "AAAAAAAAASA=");
 
-            _personsInFunctionalRole = new List<Person>
+            _personsInFunctionalRole = new List<ProCoSysPerson>
             {
-                new Person
+                new ProCoSysPerson
                 {
                     AzureOid = AzureOid,
                     FirstName = "FirstName",

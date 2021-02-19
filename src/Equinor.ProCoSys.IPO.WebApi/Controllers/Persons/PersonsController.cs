@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
+using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
@@ -27,6 +29,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
             [FromBody] CreateSavedFilterDto dto)
         {
             var result = await _mediator.Send(new CreateSavedFilterCommand(dto.ProjectName, dto.Title, dto.Criteria, dto.DefaultFilter));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("SavedFilters")]
+        public async Task<ActionResult<List<SavedFilterDto>>> GetSavedFiltersInProject(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromQuery] string projectName)
+        {
+            var result = await _mediator.Send(new GetSavedFiltersInProjectQuery(projectName));
             return this.FromResult(result);
         }
 

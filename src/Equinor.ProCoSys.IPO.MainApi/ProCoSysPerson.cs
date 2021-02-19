@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
+﻿namespace Equinor.ProCoSys.IPO.ForeignApi
 {
     public class ProCoSysPerson
     {

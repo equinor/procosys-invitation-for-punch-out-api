@@ -1,7 +1,11 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.ExcelAc;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
@@ -40,6 +44,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<int>(jsonString);
+        }
+
+        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProject(
+            UserType userType,
+            string plant,
+            string? projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var project = projectName ?? KnownTestData.ProjectName;
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/SavedFilters?projectName={project}");
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new List<SavedFilterDto>();
+            }
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
         }
 
         public static async Task DeleteSavedFilterAsync(
