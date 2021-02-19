@@ -9,6 +9,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
         public string Email { get; set; }
         public string InformationEmail { get; set; }
         public bool? UsePersonalEmail { get; set; }
-        public IEnumerable<Person> Persons { get; set; }
+        public IEnumerable<ProCoSysPerson> Persons { get; set; }
     }
 }

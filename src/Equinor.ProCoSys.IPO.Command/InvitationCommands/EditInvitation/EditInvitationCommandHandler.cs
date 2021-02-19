@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -83,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.UpdateInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
                 });
             }
             catch (Exception e)
@@ -99,11 +100,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var existingMcPkgScope = invitation.McPkgs;
             var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
-            foreach (var mcPkgToDelete in excludedMcPkgs)
-            {
-                invitation.RemoveMcPkg(mcPkgToDelete);
-                _invitationRepository.RemoveMcPkg(mcPkgToDelete);
-            }
+            RemoveMcPkgs(invitation, excludedMcPkgs);
 
             var existingMcPkgNos = existingMcPkgScope.Select(mc => mc.McPkgNo);
             var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
@@ -111,6 +108,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             {
                 await AddMcPkgsAsync(invitation, newMcPkgs, projectName,
                     existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().CommPkgNo : null);
+            }
+        }
+
+        private void RemoveMcPkgs(Invitation invitation, IEnumerable<McPkg> excludedMcPkgs)
+        {
+            foreach (var mcPkgToDelete in excludedMcPkgs)
+            {
+                invitation.RemoveMcPkg(mcPkgToDelete);
+                _invitationRepository.RemoveMcPkg(mcPkgToDelete);
             }
         }
 
@@ -142,11 +148,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var existingCommPkgScope = invitation.CommPkgs;
             var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
-            foreach (var commPkgToDelete in excludedCommPkgs)
-            {
-                invitation.RemoveCommPkg(commPkgToDelete);
-                _invitationRepository.RemoveCommPkg(commPkgToDelete);
-            }
+            RemoveCommPkgs(invitation, excludedCommPkgs);
 
             var existingCommPkgs = existingCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
             var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
@@ -158,6 +160,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     existingCommPkgs,
                     projectName,
                     existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().System : null);
+            }
+        }
+
+        private void RemoveCommPkgs(Invitation invitation, IEnumerable<CommPkg> excludedCommPkgs)
+        {
+            foreach (var commPkgToDelete in excludedCommPkgs)
+            {
+                invitation.RemoveCommPkg(commPkgToDelete);
+                _invitationRepository.RemoveCommPkg(commPkgToDelete);
             }
         }
 
@@ -237,7 +248,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids, existingParticipants)
                 : participants;
             participants = AddExternalParticipant(invitation, participants, externalEmailParticipants, existingParticipants);
-            participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails, existingParticipants);
+            participants = AddPersonParticipantsWithoutOids(invitation, participants, personParticipantsWithEmails, existingParticipants);
 
             return participants;
         }
@@ -327,16 +338,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     participant.SortKey));
                             }
 
-                            if (person.Required)
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
-                            else
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
+                            participants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -465,8 +467,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 new Guid(person.AzureOid),
                                 participant.SortKey));
                         }
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+
+                        participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -515,8 +517,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         new Guid(personFromMain.AzureOid),
                         sortKey));
                 }
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(new Guid(personFromMain.AzureOid))));
+                participants = InvitationHelper.AddPersonToOutlookParticipantList(personFromMain, participants);
             }
             else
             {
@@ -525,7 +526,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return participants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipantsWithEmails(
+        private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
             IEnumerable<ParticipantsForCommand> personsParticipantsWithEmail,
