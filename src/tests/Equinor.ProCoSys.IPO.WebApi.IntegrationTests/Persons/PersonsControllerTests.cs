@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "criteria",
                 true);
 
-            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
+            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 null);
@@ -39,21 +38,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
         {
             // Act
-            var id1 = await PersonsControllerTestsHelper.CreateSavedFilter(
+            var id1 = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 "filter1",
                 "criteria",
                 true);
 
-            await PersonsControllerTestsHelper.CreateSavedFilter(
+            await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 "filter2",
                 "criteria",
                 true);
 
-            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
+            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 null);
@@ -68,46 +67,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         }
 
         [TestMethod]
-        public async Task GetSavedFiltersInProject_AsViewer_ShouldGetNoFiltersWithUnknownProject()
+        public async Task DeleteSavedFilter_AsViewer_ShouldDeleteFilter()
         {
-            // Act
-            await PersonsControllerTestsHelper.CreateSavedFilter(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "test title3",
+                "test title",
                 "criteria",
                 true);
 
-            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
+            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "12345",
-                HttpStatusCode.BadRequest);
+                TestFactory.ProjectWithAccess);
+
+            var savedFilter = savedFilters.Single(f => f.Id == id);
+
+            // Act
+            await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                savedFilter.Id,
+                savedFilter.RowVersion);
 
             // Assert
-            Assert.IsTrue(savedFilters.Count == 0);
+            savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess);
+            Assert.IsFalse(savedFilters.Exists(f => f.Id == id));
         }
-
-        //todo: when get saved filter is complete
-        //[TestMethod]
-        //public async Task DeleteSavedFilter_AsViewer_ShouldDeleteFilter()
-        //{
-        //    var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
-        //        UserType.Viewer,
-        //        TestFactory.PlantWithAccess,
-        //        "test title",
-        //        "criteria",
-        //        true);
-
-        //    var savedFilter = getSavedFilter
-        //    // Act
-        //    await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
-        //        UserType.Viewer,
-        //        TestFactory.PlantWithAccess,
-        //        id,
-        //        savedFilter.rowVersion);
-
-        //    // Assert
-        //}
     }
 }

@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Newtonsoft.Json;
 
@@ -46,10 +44,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             return JsonConvert.DeserializeObject<int>(jsonString);
         }
 
-        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProject(
+        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProjectAsync(
             UserType userType,
             string plant,
-            string? projectName,
+            string projectName,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
