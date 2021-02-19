@@ -24,6 +24,7 @@ using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
+using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Logging;
@@ -477,42 +478,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
-        #region UpdateSavedFilterCommand
-        [TestMethod]
-        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnTrue_WhenAccessToProject()
-        {
-            // Arrange
-            var command = new CreateSavedFilterCommand(
-                _projectWithAccess,
-                "title",
-                "criteria",
-                false);
-
-            // act
-            var result = await _dut.ValidateAsync(command);
-
-            // Assert
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnFalse_WhenNoAccessToProject()
-        {
-            // Arrange
-            var command = new CreateSavedFilterCommand(
-                _projectWithoutAccess,
-                "title",
-                "criteria",
-                false);
-
-            // act
-            var result = await _dut.ValidateAsync(command);
-
-            // Assert
-            Assert.IsFalse(result);
-        }
-        #endregion
-
         #endregion
 
         #region Queries
@@ -788,6 +753,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetCommentsQuery(_invitationIdWithoutAccessToProject);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region GetSavedFiltersInProject
+        [TestMethod]
+        public async Task ValidateAsync_OnGetSavedFiltersInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetSavedFiltersInProjectQuery(_projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetSavedFiltersInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetSavedFiltersInProjectQuery(_projectWithoutAccess);
 
             // act
             var result = await _dut.ValidateAsync(query);
