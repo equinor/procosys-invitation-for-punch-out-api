@@ -477,6 +477,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
+        #region UpdateSavedFilterCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new CreateSavedFilterCommand(
+                _projectWithAccess,
+                "title",
+                "criteria",
+                false);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new CreateSavedFilterCommand(
+                _projectWithoutAccess,
+                "title",
+                "criteria",
+                false);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
         #endregion
 
         #region Queries

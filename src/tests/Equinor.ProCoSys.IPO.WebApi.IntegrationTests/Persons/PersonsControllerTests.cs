@@ -68,43 +68,44 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         }
 
         [TestMethod]
-        public async Task GetSavedFiltersInProject_AsViewer_ShouldGetNoFiltersWithUnknownProject()
+        public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
         {
             // Act
-            await PersonsControllerTestsHelper.CreateSavedFilter(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilter(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "test title3",
-                "criteria",
+                "filter to update",
+                "criteria to update",
                 true);
 
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "12345",
-                HttpStatusCode.BadRequest);
+                null);
 
-            // Assert
-            Assert.IsTrue(savedFilters.Count == 0);
-        }
+            var savedFilter = savedFilters.Single(sf => sf.Id == id);
 
-        [TestMethod]
-        public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
-        {
-            // Act
-            // todo: get a filter id to update
-            var rowVersion = await PersonsControllerTestsHelper.UpdateSavedFilter(
+            await PersonsControllerTestsHelper.UpdateSavedFilter(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 "new title",
                 "new criteria",
                 true,
-                "rowVersion");
+                savedFilter.RowVersion,
+                savedFilter.Id);
 
-            // todo: get filter again to verify update
+            var updatedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProject(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                null);
+
+            var updatedFilter = updatedFilters.Single(sf => sf.Id == id);
+
             // Assert
-            Assert.IsFalse(string.IsNullOrWhiteSpace(rowVersion));
-            //todo: when get saved filters is complete we can get and assert
+            Assert.IsNotNull(updatedFilter);
+            Assert.AreNotEqual(updatedFilter.RowVersion, savedFilter.RowVersion);
+            Assert.AreEqual("new title", updatedFilter.Title);
+            Assert.AreEqual("new criteria", updatedFilter.Criteria);
         }
     }
 }

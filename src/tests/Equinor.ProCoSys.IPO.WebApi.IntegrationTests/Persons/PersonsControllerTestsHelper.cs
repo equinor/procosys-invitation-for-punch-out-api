@@ -65,6 +65,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
         }
+
         public static async Task<string> UpdateSavedFilter(
             UserType userType,
             string plant,
@@ -72,6 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             string newCriteria,
             bool defaultFilter,
             string rowVersion,
+            int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
@@ -83,11 +85,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 RowVersion = rowVersion
             };
 
-            var savedFilterId = 1;
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilter/{savedFilterId}", content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{id}", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -96,8 +97,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 return "";
             }
 
-            var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<string>(jsonString);
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

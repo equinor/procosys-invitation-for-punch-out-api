@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
         }
 
         [Authorize(Roles = Permissions.IPO_READ)]
-        [HttpPut("/SavedFilters/{id}")]
+        [HttpPut("SavedFilters/{id}")]
         public async Task<ActionResult> UpdateSavedFilter(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
