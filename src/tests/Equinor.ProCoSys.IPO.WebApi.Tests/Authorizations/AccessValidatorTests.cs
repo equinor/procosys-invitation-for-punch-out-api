@@ -24,7 +24,6 @@ using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
-using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Logging;
