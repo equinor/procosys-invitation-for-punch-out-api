@@ -109,6 +109,5 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
             await _dut.Handle(_command, default);
             UnitOfWorkMock.Verify(u => u.SaveChangesAsync(default), Times.Once);
         }
-
     }
 }

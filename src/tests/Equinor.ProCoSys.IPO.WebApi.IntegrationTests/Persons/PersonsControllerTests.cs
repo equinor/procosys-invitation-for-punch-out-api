@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,7 +22,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 null);
-
             
             var savedFilter = savedFilters.Find(sf => sf.Id == id);
 

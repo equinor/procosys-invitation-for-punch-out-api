@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceResult.ApiExtensions;
 
+
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
 {
     [ApiController]

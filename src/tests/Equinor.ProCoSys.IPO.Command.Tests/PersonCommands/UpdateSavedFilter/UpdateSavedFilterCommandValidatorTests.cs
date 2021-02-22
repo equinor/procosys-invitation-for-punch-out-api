@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
@@ -27,15 +23,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
         [TestInitialize]
         public void Setup_OkState()
         {
-        var RowVersion = "AAAAAAAAJ00=";
+            var rowVersion = "AAAAAAAAJ00=";
 
-        _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
-            _rowVersionValidatorMock.Setup(r => r.IsValid(RowVersion)).Returns(true);
+            _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
+            _rowVersionValidatorMock.Setup(r => r.IsValid(rowVersion)).Returns(true);
 
             _savedFilterValidatorMock = new Mock<ISavedFilterValidator>();
             _savedFilterValidatorMock.Setup(r => r.ExistsAsync(_savedFilterId, default)).Returns(Task.FromResult(true));
 
-            _command = new UpdateSavedFilterCommand(_savedFilterId, _title, _criteria, false,  RowVersion);
+            _command = new UpdateSavedFilterCommand(_savedFilterId, _title, _criteria, false,  rowVersion);
 
             _dut = new UpdateSavedFilterCommandValidator(
                 _savedFilterValidatorMock.Object,

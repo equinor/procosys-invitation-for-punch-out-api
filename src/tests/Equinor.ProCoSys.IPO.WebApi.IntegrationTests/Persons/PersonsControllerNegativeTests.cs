@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "new title",
                 "new criteria",
                 false,
-                "rowVersion",
+                "cm93VmVyc2lvbg==",
                 1,
                 HttpStatusCode.Unauthorized);
 
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "new title",
                 "new criteria",
                 false,
-                "rowVersion",
+                "cm93VmVyc2lvbg==",
                 1,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -109,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "new title",
                 "new criteria",
                 false,
-                "rowVersion",
+                "cm93VmVyc2lvbg==",
                 9999,
                 HttpStatusCode.BadRequest);
 
@@ -121,7 +121,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "new title",
                 "new criteria",
                 false,
-                "rowVersion",
+                "cm93VmVyc2lvbg==",
                 1,
                 HttpStatusCode.Forbidden);
         #endregion
