@@ -762,34 +762,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
-        #region GetSavedFiltersInProject
-        [TestMethod]
-        public async Task ValidateAsync_OnGetSavedFiltersInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
-        {
-            // Arrange
-            var query = new GetSavedFiltersInProjectQuery(_projectWithAccess);
-
-            // act
-            var result = await _dut.ValidateAsync(query);
-
-            // Assert
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        public async Task ValidateAsync_OnGetSavedFiltersInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
-        {
-            // Arrange
-            var query = new GetSavedFiltersInProjectQuery(_projectWithoutAccess);
-
-            // act
-            var result = await _dut.ValidateAsync(query);
-
-            // Assert
-            Assert.IsFalse(result);
-        }
-        #endregion
-
         #endregion
     }
 }
