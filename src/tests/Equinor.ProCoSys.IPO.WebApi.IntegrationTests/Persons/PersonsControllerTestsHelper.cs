@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Office2010.ExcelAc;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Newtonsoft.Json;
 
@@ -14,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
     {
         private const string Route = "Persons";
 
-        public static async Task<int> CreateSavedFilter(
+        public static async Task<int> CreateSavedFilterAsync(
             UserType userType,
             string plant,
             string title,
@@ -46,10 +44,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             return JsonConvert.DeserializeObject<int>(jsonString);
         }
 
-        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProject(
+        public static async Task<List<SavedFilterDto>> GetSavedFiltersInProjectAsync(
             UserType userType,
             string plant,
-            string? projectName,
+            string projectName,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
@@ -65,6 +63,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
+        }
+
+        public static async Task DeleteSavedFilterAsync(
+            UserType userType,
+            string plant,
+            int savedFilterId,
+            string rowVersion,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                rowVersion
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Route}/SavedFilters/{savedFilterId}")
+            {
+                Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
+            };
+
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
     }
 }
