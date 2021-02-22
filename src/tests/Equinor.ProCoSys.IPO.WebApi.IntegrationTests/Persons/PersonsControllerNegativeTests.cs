@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 1,
-                "rowVersion",
+                "AAAAAAAAABA=",
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 1,
-                "rowVersion",
+                "AAAAAAAAABA=",
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 1,
-                "rowVersion",
+                "AAAAAAAAABA=",
                 HttpStatusCode.Forbidden);
         #endregion
     }

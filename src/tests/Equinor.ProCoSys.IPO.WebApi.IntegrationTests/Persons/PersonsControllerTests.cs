@@ -37,7 +37,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         [TestMethod]
         public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
         {
-            // Act
             var id1 = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
@@ -52,14 +51,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "criteria",
                 true);
 
+            // Act
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 null);
 
-            var savedFilter = savedFilters.Single(sf => sf.Id == id1);
-
             // Assert
+            var savedFilter = savedFilters.Single(sf => sf.Id == id1);
             Assert.IsTrue(savedFilters.Count >= 2);
             Assert.IsNotNull(savedFilter);
             Assert.AreEqual("filter1", savedFilter.Title);
@@ -72,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "test title",
+                "test title 2",
                 "criteria",
                 true);
 
