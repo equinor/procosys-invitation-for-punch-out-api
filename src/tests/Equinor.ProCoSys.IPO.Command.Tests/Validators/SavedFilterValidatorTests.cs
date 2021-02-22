@@ -96,5 +96,31 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
+
+        [TestMethod]
+        public async Task ExistsAsync_UnknownSavedFilter_ShouldReturnFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                _currentUserProvider))
+            {
+                _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
+                var result = await _dut.ExistsAsync(99, default);
+
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ExistsWithAsync_KnownSavedFilter_ShouldReturnTrue()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                _currentUserProvider))
+            {
+                _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
+                var result = await _dut.ExistsAsync(_savedFilter1.Id, default);
+
+                Assert.IsTrue(result);
+            }
+        }
     }
 }
