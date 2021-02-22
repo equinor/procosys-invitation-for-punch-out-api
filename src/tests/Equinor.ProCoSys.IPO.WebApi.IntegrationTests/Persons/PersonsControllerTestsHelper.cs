@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
+using Equinor.ProCoSys.IPO.WebApi.Controllers.Persons;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
@@ -63,6 +64,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var jsonString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
+        }
+
+        public static async Task<string> UpdateSavedFilter(
+            UserType userType,
+            string plant,
+            string newTitle,
+            string newCriteria,
+            bool defaultFilter,
+            string rowVersion,
+            int id,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new UpdateSavedFilterDto()
+            {
+                Title = newTitle,
+                Criteria = newCriteria,
+                DefaultFilter = defaultFilter,
+                RowVersion = rowVersion
+            };
+
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{id}", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return "";
+            }
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         public static async Task DeleteSavedFilterAsync(

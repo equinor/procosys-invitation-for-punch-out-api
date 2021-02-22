@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -63,6 +63,47 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             Assert.IsNotNull(savedFilter);
             Assert.AreEqual("filter1", savedFilter.Title);
             Assert.AreEqual("criteria", savedFilter.Criteria);
+        }
+
+        [TestMethod]
+        public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
+        {
+            // Act
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "filter to update",
+                "criteria to update",
+                true);
+
+            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                null);
+
+            var savedFilter = savedFilters.Single(sf => sf.Id == id);
+
+            await PersonsControllerTestsHelper.UpdateSavedFilter(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "new title",
+                "new criteria",
+                true,
+                savedFilter.RowVersion,
+                savedFilter.Id);
+
+            var updatedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                null);
+
+            var updatedFilter = updatedFilters.Single(sf => sf.Id == id);
+
+            // Assert
+            Assert.IsNotNull(updatedFilter);
+            Assert.AreNotEqual(updatedFilter.RowVersion, savedFilter.RowVersion);
+            Assert.AreEqual("new title", updatedFilter.Title);
+            Assert.AreEqual("new criteria", updatedFilter.Criteria);
         }
 
         [TestMethod]
