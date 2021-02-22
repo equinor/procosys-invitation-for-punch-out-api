@@ -59,14 +59,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task GetSavedFiltersInProject_AsViewer_ShouldReturnBadRequest_WhenUnknownProject() =>
-            await PersonsControllerTestsHelper.GetSavedFiltersInProject(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                "12345",
-                HttpStatusCode.BadRequest);
-
-        [TestMethod]
         public async Task GetSavedFiltersInProject_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
             => await PersonsControllerTestsHelper.GetSavedFiltersInProject(
                 UserType.Hacker,
