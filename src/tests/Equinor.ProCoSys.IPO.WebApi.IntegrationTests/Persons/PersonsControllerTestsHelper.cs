@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Persons;
 using Newtonsoft.Json;
 
-
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 {
     public static class PersonsControllerTestsHelper
