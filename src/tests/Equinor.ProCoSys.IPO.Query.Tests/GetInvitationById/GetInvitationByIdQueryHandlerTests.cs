@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
@@ -155,9 +155,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     Description = "FR description",
                     Email = null,
                     InformationEmail = null,
-                    Persons = new List<Person>
+                    Persons = new List<ProCoSysPerson>
                     {
-                        new Person
+                        new ProCoSysPerson
                         {
                             AzureOid = "11111111-2222-2222-2222-333333333332",
                             Email = _frPersonEmail1,
@@ -165,7 +165,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                             LastName = null,
                             UserName = null
                         },
-                        new Person
+                        new ProCoSysPerson
                         {
                             AzureOid = "11111111-2222-2222-2222-333333333331",
                             Email = _frPersonEmail2,
@@ -525,9 +525,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                         Description = "FR description",
                         Email = "fr@email.com",
                         InformationEmail = null,
-                        Persons = new List<Person>
+                        Persons = new List<ProCoSysPerson>
                         {
-                            new Person
+                            new ProCoSysPerson
                             {
                                 AzureOid = null,
                                 Email = "test@email.com",

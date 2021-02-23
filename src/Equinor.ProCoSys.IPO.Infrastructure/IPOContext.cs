@@ -49,6 +49,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<History> History { get; set; }
         public virtual DbSet<Attachment> Attachments { get; set; }
+        public virtual DbSet<SavedFilter> SavedFilters { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {

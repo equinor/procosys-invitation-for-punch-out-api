@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         }
 
         private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
-            => meeting.Participants.FirstOrDefault(p => p.Person.Mail.ToUpper() == email.ToUpper())?.Type;
+            => meeting.Participants.FirstOrDefault(p => p.Person.Mail?.ToUpper() == email?.ToUpper())?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));

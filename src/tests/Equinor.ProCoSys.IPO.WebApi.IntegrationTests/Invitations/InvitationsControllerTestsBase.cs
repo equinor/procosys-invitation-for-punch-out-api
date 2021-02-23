@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private ProCoSysMcPkg _mcPkgDetails1;
         private ProCoSysMcPkg _mcPkgDetails2;
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
-        private List<Person> _personsInFunctionalRole;
+        private List<ProCoSysPerson> _personsInFunctionalRole;
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
         protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
@@ -149,9 +149,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
-            _personsInFunctionalRole = new List<Person>
+            _personsInFunctionalRole = new List<ProCoSysPerson>
             {
-                new Person
+                new ProCoSysPerson
                 {
                     AzureOid = AzureOid,
                     FirstName = "FirstName",

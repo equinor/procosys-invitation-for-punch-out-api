@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
+using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
@@ -105,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
-            services.AddScoped<IInvitationValidator, InvitationValidator>();
+            services.AddScoped<ISavedFilterValidator, SavedFilterValidator>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<ICacheManager, CacheManager>();

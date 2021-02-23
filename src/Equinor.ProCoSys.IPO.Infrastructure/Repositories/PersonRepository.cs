@@ -12,5 +12,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public Task<Person> GetByOidAsync(Guid oid)
             => DefaultQuery.SingleOrDefaultAsync(p => p.Oid == oid);
+
+        public Task<Person> GetWithSavedFiltersByOidAsync(Guid oid)
+            => DefaultQuery
+                .Include(p => p.SavedFilters)
+                .SingleOrDefaultAsync(p => p.Oid == oid);
+
+        public void RemoveSavedFilter(SavedFilter savedFilter)
+            => _context.SavedFilters.Remove(savedFilter);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
 {
@@ -10,6 +10,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         public string Email { get; set; }
         public string InformationEmail { get; set; }
         public bool? UsePersonalEmail { get; set; }
-        public IEnumerable<Person> Persons { get; set; }
+        public IEnumerable<ProCoSysPerson> Persons { get; set; }
     }
 }

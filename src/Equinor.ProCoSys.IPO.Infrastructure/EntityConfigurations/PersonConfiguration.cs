@@ -15,6 +15,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.Property(x => x.Oid)
                 .IsRequired();
 
+            builder.HasIndex(x => x.Oid)
+                .IsUnique();
+
             builder.Property(x => x.Email)
                 .HasMaxLength(Person.EmailLengthMax)
                 .IsRequired();
@@ -29,6 +32,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.Property(x => x.UserName)
                 .HasMaxLength(Person.UserNameLengthMax)
+                .IsRequired();
+
+            builder
+                .HasMany(x => x.SavedFilters)
+                .WithOne()
                 .IsRequired();
         }
     }

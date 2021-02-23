@@ -13,8 +13,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public const int ProjectNameMinLength = 3;
         public const int ProjectNameMaxLength = 512;
         public const int TitleMinLength = 3;
-        public const int TitleMaxLength = 1024;
-        public const int LocationMaxLength = 1024;
+        public const int TitleMaxLength = 250;
+        public const int LocationMaxLength = 250;
         public const int DescriptionMaxLength = 4096;
 
         private readonly List<McPkg> _mcPkgs = new List<McPkg>();
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPreSaveDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
         public Guid ObjectGuid { get; set; }
-        public string ProjectName { get; set; }
+        public string ProjectName { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DisciplineType Type { get; set; }
@@ -418,5 +418,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             ModifiedById = modifiedBy.Id;
         }
+
+        public void MoveToProject(string toProject) => ProjectName = toProject;
     }
 }

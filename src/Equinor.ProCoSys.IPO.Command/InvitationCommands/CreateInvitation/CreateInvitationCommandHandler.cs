@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -104,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
             var personsWithOids = ipoParticipants.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
-            var personParticipantsWithEmails = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
+            var personsWithoutOids = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
                 .Select(p => p).ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
 
@@ -115,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids)
                 : participants;
             participants = AddExternalParticipant(invitation, participants, externalEmailParticipants);
-            participants = AddPersonParticipantsWithEmails(invitation, participants, personParticipantsWithEmails);
+            participants = AddPersonParticipantsWithoutOids(invitation, participants, personsWithoutOids);
 
             return participants;
         }
@@ -166,16 +167,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 frPerson.Email,
                                 new Guid(frPerson.AzureOid),
                                 participant.SortKey));
-                            if (person.Required)
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
-                            else
-                            {
-                                participants.Add(new BuilderParticipant(ParticipantType.Optional,
-                                    new ParticipantIdentifier(new Guid(frPerson.AzureOid))));
-                            }
+                            participants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
                         }
                     }
                 }
@@ -282,8 +274,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             person.Email,
                             new Guid(person.AzureOid),
                             participant.SortKey));
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(new Guid(person.AzureOid))));
+                        participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
                     }
                 }
             }
@@ -294,31 +285,30 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            PersonForCommand person,
+            PersonForCommand signer,
             int sortKey,
             Organization organization,
             IList<string> privileges)
         {
-            var p = await _personApiService.GetPersonByOidWithPrivilegesAsync(
+            var person = await _personApiService.GetPersonByOidWithPrivilegesAsync(
                 _plantProvider.Plant,
-                person.AzureOid.ToString(),
+                signer.AzureOid.ToString(),
                 _objectName,
                 privileges);
-            if (p != null)
+            if (person != null)
             {
                 invitation.AddParticipant(new Participant(
                     _plantProvider.Plant,
                     organization,
                     IpoParticipantType.Person,
                     null,
-                    p.FirstName,
-                    p.LastName,
-                    p.UserName,
-                    p.Email,
-                    new Guid(p.AzureOid),
+                    person.FirstName,
+                    person.LastName,
+                    person.UserName,
+                    person.Email,
+                    new Guid(person.AzureOid),
                     sortKey));
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(new Guid(p.AzureOid))));
+                participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
             }
             else
             {
@@ -329,7 +319,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return participants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipantsWithEmails(
+        private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
             List<ParticipantsForCommand> personsParticipantsWithEmail)
@@ -443,13 +433,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
 
                 meetingBuilder
-                    .StandaloneMeeting(MeetingInvitationHelper.GenerateMeetingTitle(invitation), request.Location)
+                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(participants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(MeetingInvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
             });
             return meeting.Id;
         }
