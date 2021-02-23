@@ -4,8 +4,10 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.BusReceiver;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
+using Fusion.Integration.Meeting;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,6 +22,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IInvitationRepository> _invitationRepository;
         private Mock<IPlantSetter> _plantSetter;
         private Mock<ITelemetryClient> _telemetryClient;
+        private Mock<IFusionMeetingClient> _fusionMeetingClient;
+        private Mock<IMcPkgApiService> _mcPkgApiService;
+        private Mock<IReadOnlyContext> _readOnlyContext;
 
         private const string plant = "PCS$HEIMDAL";
         private const string project = "HEIMDAL";
@@ -34,8 +39,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _plantSetter = new Mock<IPlantSetter>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
+            _fusionMeetingClient = new Mock<IFusionMeetingClient>();
+            _mcPkgApiService = new Mock<IMcPkgApiService>();
+            _readOnlyContext = new Mock<IReadOnlyContext>();
 
-            _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object, _telemetryClient.Object);
+            _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object, _telemetryClient.Object, _readOnlyContext.Object, _fusionMeetingClient.Object, _mcPkgApiService.Object);
         }
 
         [TestMethod]
@@ -75,6 +83,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(project, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [TestMethod]
+        public void HandlingIpoTopicWithoutFailure()
+        {
+            Assert.Fail("Not implemented yet");
         }
     }
 }

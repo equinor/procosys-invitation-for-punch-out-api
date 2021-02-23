@@ -9,5 +9,7 @@
         public const string ProjectName = "ProjectName";
         public const string McPkgNo = "McPkgNo";
         public const string CommPkgNo = "CommPkgNo";
+        public const string Ipo = "Ipo";
+        public const string IpoEvent = "IpoEvent";
     }
 }

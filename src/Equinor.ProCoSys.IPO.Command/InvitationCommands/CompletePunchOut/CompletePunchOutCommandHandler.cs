@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
@@ -20,7 +19,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
-        private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPersonRepository _personRepository;
 
         public CompletePunchOutCommandHandler(
@@ -29,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
-            IMcPkgApiService mcPkgApiService,
             IPersonRepository personRepository)
         {
             _plantProvider = plantProvider;
@@ -37,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
-            _mcPkgApiService = mcPkgApiService;
             _personRepository = personRepository;
         }
 
@@ -71,26 +67,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             }
             UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
             invitation.SetRowVersion(request.InvitationRowVersion);
-            await SetM01Dates(invitation);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
-        }
-
-        private async Task SetM01Dates(Invitation invitation)
-        {
-            try
-            {
-                await _mcPkgApiService.SetM01DatesAsync(
-                    _plantProvider.Plant,
-                    invitation.Id,
-                    invitation.ProjectName,
-                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
-                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Error: Could not set M-01 dates", e);
-            }
         }
 
         private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation,

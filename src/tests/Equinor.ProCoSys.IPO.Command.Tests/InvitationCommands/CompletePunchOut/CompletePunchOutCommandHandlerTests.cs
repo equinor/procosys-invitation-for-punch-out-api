@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
@@ -176,7 +177,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _personApiServiceMock.Object,
-                _mcPkgApiServiceMock.Object,
                 _personRepositoryMock.Object);
         }
 
@@ -214,20 +214,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         }
 
         [TestMethod]
-        public async Task HandlingCompleteIpoCommand_ShouldNotCompleteIfSettingM01DateInMainFails()
+        public async Task HandlingCompleteIpoCommand_ShouldAddAIpoCompletedPostSaveEvent()
         {
-            _mcPkgApiServiceMock
-                .Setup(x => x.SetM01DatesAsync(
-                    _plant,
-                    _invitation.Id,
-                    _projectName,
-                    new List<string>(),
-                    new List<string>()))
-                .Throws(new Exception("Something failed"));
+            // Assert
+            Assert.AreEqual(0, _invitation.PostSaveDomainEvents.Count);
 
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            // Act
+            await _dut.Handle(_command, default);
+
+            // Assert
+            Assert.AreEqual(1, _invitation.PostSaveDomainEvents.Count);
+            Assert.AreEqual(typeof(IpoCompletedEvent), _invitation.PostSaveDomainEvents.Last().GetType());
         }
     }
 }

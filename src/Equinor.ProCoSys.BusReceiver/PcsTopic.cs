@@ -4,6 +4,7 @@
     {
         Project,
         CommPkg,
-        McPkg
+        McPkg,
+        Ipo
     }
 }

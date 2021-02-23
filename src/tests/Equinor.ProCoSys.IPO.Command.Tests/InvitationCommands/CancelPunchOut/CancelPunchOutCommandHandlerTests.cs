@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Fusion.Integration.Meeting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -94,13 +96,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
 
             _dut = new CancelPunchOutCommandHandler(
-                _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
                 _personRepositoryMock.Object,
                 _unitOfWorkMock.Object,
-                _currentUserProviderMock.Object,
-                _meetingClientMock.Object,
-                _mcPkgApiServiceMock.Object);
+                _currentUserProviderMock.Object);
         }
 
         [TestMethod]
@@ -128,32 +127,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public async Task HandlingCancelIpoCommand_ShouldNotCancelIfClearingM01DatesInMainFails()
+        public async Task HandlingCancelIpoCommand_ShouldAddAIpoCanceledPostSaveEvent()
         {
-            _mcPkgApiServiceMock
-                .Setup(x => x.ClearM01DatesAsync(
-                    _plant,
-                    _invitation.Id,
-                    _projectName,
-                    new List<string>(),
-                    new List<string>()))
-                .Throws(new Exception("Something failed"));
+            // Assert
+            Assert.AreEqual(1, _invitation.PostSaveDomainEvents.Count);
 
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        }
+            // Act
+            await _dut.Handle(_command, default);
 
-        [TestMethod]
-        public async Task HandlingCancelIpoCommand_ShouldNotCancelIfDeletingFusionMeetingFails()
-        {
-            _meetingClientMock
-                .Setup(x => x.DeleteMeetingAsync(_meetingId))
-                .Throws(new Exception("Something failed"));
-
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            // Assert
+            Assert.AreEqual(2, _invitation.PostSaveDomainEvents.Count);
+            Assert.AreEqual(typeof(IpoCanceledEvent), _invitation.PostSaveDomainEvents.Last().GetType());
         }
     }
 }
