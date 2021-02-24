@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.BusReceiver;
@@ -32,6 +35,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string mcPkgNo = "456";
         private const string description = "789";
 
+        private Invitation _invitation;
+
         [TestInitialize]
         public void Setup()
         {
@@ -43,7 +48,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
 
+            _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now, DateTime.Now.AddHours(1), "El låkasjån" );
             _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object, _telemetryClient.Object, _readOnlyContext.Object, _fusionMeetingClient.Object, _mcPkgApiService.Object);
+
+            var list = new List<Invitation> {_invitation};
+            _readOnlyContext.Setup(r => r.QuerySet<Invitation>()).Returns(list.AsQueryable());
         }
 
         [TestMethod]
@@ -86,9 +95,108 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
-        public void HandlingIpoTopicWithoutFailure()
+        public async Task HandlingIpoTopic_ForCancelIpo_WithoutFailure()
         {
-            Assert.Fail("Not implemented yet");
+            // Arrange
+            var status = 1;
+            var ipoEvent = "Canceled";
+            
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId));
+        }
+
+        [TestMethod]
+        public async Task HandlingIpoTopic_ForUnknownIpoEvent_ShouldProcessWithoutFailureAndWithoutUpdatingTheIpo()
+        {
+            // Arrange
+            var status = 1;
+            var ipoEvent = "Canceled2";
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingIpoTopic_ForCompletedIpoEvent_ShouldProcessWithoutFailure()
+        {
+            // Arrange
+            var status = 1;
+            var ipoEvent = "Completed";
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingIpoTopic_ForAcceptIpoEvent_ShouldProcessWithoutFailure()
+        {
+            // Arrange
+            var status = 1;
+            var ipoEvent = "Accepted";
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingIpoTopic_ForUnAcceptIpoEvent_ShouldProcessWithoutFailure()
+        {
+            // Arrange
+            var status = 1;
+            var ipoEvent = "UnAccepted";
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
         }
     }
 }

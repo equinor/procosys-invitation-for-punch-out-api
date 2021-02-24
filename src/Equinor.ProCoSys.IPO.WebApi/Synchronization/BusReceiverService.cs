@@ -142,6 +142,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             {
                 await SetM01Dates(ipoEvent, invitation);
             }
+            else if (ipoEvent.Event == "Accepted")
+            {
+                await SetM02DatesAsync(ipoEvent, invitation);
+            }
+            else if (ipoEvent.Event == "UnAccepted")
+            {
+                await ClearM02DateAsync(ipoEvent, invitation);
+            }
         }
 
         private async Task SetM01Dates(IpoTopic ipoEvent, Invitation invitation)
@@ -187,6 +195,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             catch (Exception e)
             {
                 throw new Exception($"Error: Could not cancel outlook meeting {invitation.MeetingId}.", e);
+            }
+        }
+
+        private async Task SetM02DatesAsync(IpoTopic ipoEvent, Invitation invitation)
+        {
+            try
+            {
+                await _mcPkgApiService.SetM02DatesAsync(
+                    ipoEvent.ProjectSchema,
+                    invitation.Id,
+                    invitation.ProjectName,
+                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
+                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error: Could not set M-02 dates", e);
+            }
+        }
+
+        private async Task ClearM02DateAsync(IpoTopic ipoEvent, Invitation invitation)
+        {
+            try
+            {
+                await _mcPkgApiService.ClearM02DatesAsync(
+                    ipoEvent.ProjectSchema,
+                    invitation.Id,
+                    invitation.ProjectName,
+                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
+                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error: Could not clear M-02 dates", e);
             }
         }
     }

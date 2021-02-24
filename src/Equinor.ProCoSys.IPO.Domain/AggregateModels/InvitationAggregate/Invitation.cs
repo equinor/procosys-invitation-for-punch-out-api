@@ -271,6 +271,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AcceptedBy = acceptedBy.Id;
             AcceptedAtUtc = acceptedAtUtc;
             AddPreSaveDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoAcceptedEvent(Plant, ObjectGuid));
         }
 
         public void UnAcceptIpo(Participant participant, string participantRowVersion)
@@ -292,6 +293,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AcceptedAtUtc = null;
             AcceptedBy = null;
             AddPreSaveDomainEvent(new IpoUnAcceptedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoUnAcceptedEvent(Plant, ObjectGuid));
         }
 
         public void SignIpo(Participant participant, Person signedBy, string participantRowVersion)

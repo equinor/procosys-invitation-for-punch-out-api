@@ -8,20 +8,22 @@ using Microsoft.Azure.ServiceBus;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 {
-    public class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent>
+    public class IpoUnAcceptedEventHandler : INotificationHandler<IpoUnAcceptedEvent>
     {
         private readonly ITopicClient _topicClient;
 
-        public IpoCompletedEventHandler(ITopicClient topicClient) => _topicClient = topicClient;
+        public IpoUnAcceptedEventHandler(ITopicClient topicClient) => _topicClient = topicClient;
 
-        public async Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
+        public async Task Handle(IpoUnAcceptedEvent notification, CancellationToken cancellationToken)
         {
             var eventMessage = new BusEventMessage
             {
-                ProjectSchema = notification.Plant, Event = "Completed", InvitationGuid = notification.ObjectGuid
+                ProjectSchema = notification.Plant,
+                Event = "UnAccepted",
+                InvitationGuid = notification.ObjectGuid
             };
-            var message = new Message(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage)));
 
+            var message = new Message(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage)));
             // TODO: Remove
             //var topicClient =
             //    new TopicClient(

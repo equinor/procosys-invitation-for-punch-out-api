@@ -168,17 +168,5 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[1].RowVersion.ConvertToString());
         }
-
-        [TestMethod]
-        public async Task HandlingUnAcceptIpoCommand_ShouldNotUnAcceptIfClearingM02DateInMainFails()
-        {
-            _mcPkgApiServiceMock
-                .Setup(x => x.ClearM02DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
-                .Throws(new Exception("Something failed"));
-
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        }
     }
 }
