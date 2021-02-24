@@ -22,12 +22,6 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             };
             var message = new Message(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventMessage)));
 
-            // TODO: Remove
-            //var topicClient =
-            //    new TopicClient(
-            //        "Endpoint=sb://sb-pcs-dev.servicebus.windows.net/;SharedAccessKeyName=ListenSend;SharedAccessKey=MLR0H56O+QCUNbSYygBHgPYF0Ocz199UCfuCoo1x5VE=",
-            //        "ipo");
-
             await _topicClient.SendAsync(message);
         }
     }
