@@ -434,11 +434,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IReadOnlyCollection<BuilderParticipant> participants,
             Invitation invitation)
         {
+            var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
                 var baseUrl =
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
-                var organizer = _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid()).Result;
                 meetingBuilder
                     .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)

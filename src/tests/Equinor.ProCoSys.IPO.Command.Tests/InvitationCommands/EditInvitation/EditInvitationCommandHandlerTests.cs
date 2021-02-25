@@ -34,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
-        private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
 
         private EditInvitationCommand _command;
@@ -110,8 +109,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _plantProviderMock
                 .Setup(x => x.Plant)
                 .Returns(_plant);
-
-            _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
             _personRepositoryMock = new Mock<IPersonRepository>();
 
@@ -289,8 +286,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _personApiServiceMock.Object,
                 _functionalRoleApiServiceMock.Object,
                 _meetingOptionsMock.Object,
-                _personRepositoryMock.Object,
-                _currentUserProviderMock.Object);
+                _personRepositoryMock.Object);
         }
 
         [TestMethod]
