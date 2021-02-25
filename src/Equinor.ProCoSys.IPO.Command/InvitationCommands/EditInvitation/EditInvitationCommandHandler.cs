@@ -35,7 +35,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
         private readonly IPersonRepository _personRepository;
-        private readonly ICurrentUserProvider _currentUserProvider;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
@@ -47,8 +46,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions,
-            IPersonRepository personRepository,
-            ICurrentUserProvider currentUserProvider)
+            IPersonRepository personRepository)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -60,7 +58,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _functionalRoleApiService = functionalRoleApiService;
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
-            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -84,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             {
                 var baseUrl =
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
-                var organizer = _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid()).Result;
+                var organizer = await _personRepository.GetByIdAsync(invitation.CreatedById);
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
                 {
                     builder.UpdateLocation(request.Location);
