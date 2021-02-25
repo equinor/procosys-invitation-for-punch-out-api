@@ -12,6 +12,7 @@ using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
@@ -26,6 +27,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<ILogger<GetInvitationByIdQueryHandler>> _loggerMock;
 
         private string _functionalRoleCode1 = "FrCode1";
         private string _functionalRoleCode2 = "FrCode2";
@@ -187,6 +189,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode2 }))
                     .Returns(Task.FromResult(frDetails2));
 
+                _loggerMock = new Mock<ILogger<GetInvitationByIdQueryHandler>>();
+
                 _meetingClientMock = new Mock<IFusionMeetingClient>();
                 _meetingClientMock
                     .Setup(x => x.GetMeetingAsync(It.IsAny<Guid>(), It.IsAny<Action<ODataQuery>>()))
@@ -275,7 +279,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -296,7 +301,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -320,7 +326,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -415,7 +422,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -446,7 +454,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -476,7 +485,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
                 Assert.IsNotNull(result);
@@ -501,7 +511,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _plantProvider);
+                    _plantProvider,
+                    _loggerMock.Object);
 
                 var result = await dut.Handle(query, default);
 
@@ -551,7 +562,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                         _meetingClientMock.Object,
                         _currentUserProvider,
                         _functionalRoleApiServiceMock.Object,
-                        _plantProvider);
+                        _plantProvider,
+                        _loggerMock.Object);
 
                     var result = await dut.Handle(query, default);
 
