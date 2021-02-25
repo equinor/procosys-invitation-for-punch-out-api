@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -33,6 +34,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
+        private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
@@ -107,6 +110,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _plantProviderMock
                 .Setup(x => x.Plant)
                 .Returns(_plant);
+
+            _currentUserProviderMock = new Mock<ICurrentUserProvider>();
+
+            _personRepositoryMock = new Mock<IPersonRepository>();
 
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
@@ -281,7 +288,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _commPkgApiServiceMock.Object,
                 _personApiServiceMock.Object,
                 _functionalRoleApiServiceMock.Object,
-                _meetingOptionsMock.Object);
+                _meetingOptionsMock.Object,
+                _personRepositoryMock.Object,
+                _currentUserProviderMock.Object);
         }
 
         [TestMethod]
