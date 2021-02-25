@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -33,6 +34,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
+        private readonly IPersonRepository _personRepository;
+        private readonly ICurrentUserProvider _currentUserProvider;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
@@ -43,7 +46,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             ICommPkgApiService commPkgApiService,
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
-            IOptionsMonitor<MeetingOptions> meetingOptions)
+            IOptionsMonitor<MeetingOptions> meetingOptions,
+            IPersonRepository personRepository,
+            ICurrentUserProvider currentUserProvider)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -54,6 +59,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
             _meetingOptions = meetingOptions;
+            _personRepository = personRepository;
+            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -77,14 +84,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             {
                 var baseUrl =
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
-
+                var organizer = _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid()).Result;
                 await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
                 {
                     builder.UpdateLocation(request.Location);
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(participants);
-                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
                 });
             }
             catch (Exception e)

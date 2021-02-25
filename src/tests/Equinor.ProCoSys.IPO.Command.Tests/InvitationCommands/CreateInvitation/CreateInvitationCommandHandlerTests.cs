@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -34,6 +35,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IDbContextTransaction> _transactionMock;
+        private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _mcPkgNo1 = "MC1";
@@ -87,6 +90,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _plantProviderMock
                 .Setup(x => x.Plant)
                 .Returns(_plant);
+
+            _currentUserProviderMock = new Mock<ICurrentUserProvider>();
+
+            _personRepositoryMock = new Mock<IPersonRepository>();
 
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
@@ -190,7 +197,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _mcPkgApiServiceMock.Object,
                 _personApiServiceMock.Object,
                 _functionalRoleApiServiceMock.Object,
-                _meetingOptionsMock.Object);
+                _meetingOptionsMock.Object,
+                _personRepositoryMock.Object,
+                _currentUserProviderMock.Object);
         }
 
         [TestMethod]

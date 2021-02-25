@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Fusion.Integration.Meeting;
 
@@ -35,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static string GenerateMeetingTitle(Invitation invitation) 
             => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
 
-        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl)
+        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
@@ -57,6 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             }
 
             meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
+            meetingDescription += $"</br><p>Best regards, {organizer.FirstName} {organizer.LastName}</p>";
 
             return meetingDescription;
         }
