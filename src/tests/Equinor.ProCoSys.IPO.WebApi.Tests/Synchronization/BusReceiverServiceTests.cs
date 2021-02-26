@@ -8,6 +8,8 @@ using Equinor.ProCoSys.BusReceiver;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Fusion.Integration.Meeting;
@@ -28,6 +30,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
+        private Mock<IApplicationAuthenticator> _applicationAuthenticator;
+        private Mock<IBearerTokenSetter> _bearerTokenSetter;
 
         private const string plant = "PCS$HEIMDAL";
         private const string project = "HEIMDAL";
@@ -47,9 +51,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _fusionMeetingClient = new Mock<IFusionMeetingClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
+            _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
+            _bearerTokenSetter = new Mock<IBearerTokenSetter>();
 
             _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now, DateTime.Now.AddHours(1), "El låkasjån" );
-            _dut = new BusReceiverService(_invitationRepository.Object, _plantSetter.Object, _unitOfWork.Object, _telemetryClient.Object, _readOnlyContext.Object, _fusionMeetingClient.Object, _mcPkgApiService.Object);
+            _dut = new BusReceiverService(_invitationRepository.Object,
+                                          _plantSetter.Object,
+                                          _unitOfWork.Object,
+                                          _telemetryClient.Object,
+                                          _readOnlyContext.Object,
+                                          _fusionMeetingClient.Object,
+                                          _mcPkgApiService.Object,
+                                          _applicationAuthenticator.Object,
+                                          _bearerTokenSetter.Object);
 
             var list = new List<Invitation> {_invitation};
             _readOnlyContext.Setup(r => r.QuerySet<Invitation>()).Returns(list.AsQueryable());

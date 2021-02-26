@@ -180,7 +180,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _personApiServiceMock.Object,
-                _mcPkgApiServiceMock.Object,
                 _personRepositoryMock.Object);
         }
 

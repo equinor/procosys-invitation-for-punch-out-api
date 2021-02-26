@@ -5,7 +5,7 @@
         public string ProjectSchema { get; set; }
         public string InvitationGuid { get; set; }
         public string Event { get; set; }
-        public string TopicName { get { return "ipo"; } }
+        public const string TopicName = "ipo";
         public int Status { get; set; }
 
     }

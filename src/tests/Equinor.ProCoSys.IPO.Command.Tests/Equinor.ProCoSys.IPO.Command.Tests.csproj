@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj" />
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Command\Equinor.ProCoSys.IPO.Command.csproj" />
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj" />

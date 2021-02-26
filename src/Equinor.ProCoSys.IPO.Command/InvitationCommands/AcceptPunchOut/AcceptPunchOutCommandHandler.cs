@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using MediatR;
 using ServiceResult;
@@ -20,7 +19,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
-        private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPersonRepository _personRepository;
 
         public AcceptPunchOutCommandHandler(
@@ -29,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
-            IMcPkgApiService mcPkgApiService,
             IPersonRepository personRepository)
         {
             _plantProvider = plantProvider;
@@ -37,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
-            _mcPkgApiService = mcPkgApiService;
             _personRepository = personRepository;
         }
 

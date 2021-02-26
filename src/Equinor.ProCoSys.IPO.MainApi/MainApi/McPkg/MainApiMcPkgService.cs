@@ -66,6 +66,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             IList<string> mcPkgNos,
             IList<string> commPkgNos)
         {
+
+
             var url = $"{_baseAddress}McPkgs/SetM01" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}";

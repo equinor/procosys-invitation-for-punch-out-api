@@ -12,13 +12,17 @@ using Equinor.ProCoSys.BusReceiver;
 using Equinor.ProCoSys.BusReceiver.Interfaces;
 using Equinor.ProCoSys.BusReceiver.Topics;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Fusion.Integration.Meeting;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
     public class BusReceiverService : IBusReceiverService
     {
+        //private readonly Guid _synchronizationUserOid;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IPlantSetter _plantSetter;
         private readonly IUnitOfWork _unitOfWork;
@@ -26,6 +30,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IReadOnlyContext _context;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IApplicationAuthenticator _authenticator;
+        private readonly IBearerTokenSetter _bearerTokenSetter;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
 
         public BusReceiverService(
@@ -35,7 +41,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
-            IMcPkgApiService mcPkgApiService)
+            IMcPkgApiService mcPkgApiService,
+            IApplicationAuthenticator authenticator,
+            IBearerTokenSetter bearerTokenSetter)
         {
             _invitationRepository = invitationRepository;
             _plantSetter = plantSetter;
@@ -44,6 +52,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _context = context;
             _meetingClient = meetingClient;
             _mcPkgApiService = mcPkgApiService;
+            _authenticator = authenticator;
+            _bearerTokenSetter = bearerTokenSetter;
         }
 
         public async Task ProcessMessageAsync(PcsTopic pcsTopic, Message message, CancellationToken token)
@@ -75,7 +85,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, mcPkgEvent.TopicName},
+                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
                     {BusReceiverTelemetryConstants.ProjectSchema, mcPkgEvent.ProjectSchema[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
@@ -91,7 +101,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, commPkgEvent.TopicName},
+                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
                     {BusReceiverTelemetryConstants.ProjectSchema, commPkgEvent.ProjectSchema[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
@@ -107,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, projectEvent.TopicName},
+                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.ProjectSchema, projectEvent.ProjectSchema[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
                 });
@@ -117,17 +127,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task ProcessIpoEvent(string messageJson)
         {
+
+            var bearerToken = await _authenticator.GetBearerTokenForApplicationAsync();
+            _bearerTokenSetter.SetBearerToken(bearerToken, false);
+
             var ipoEvent = JsonSerializer.Deserialize<IpoTopic>(messageJson);
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, ipoEvent.TopicName},
+                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.ProjectSchema, ipoEvent.ProjectSchema[4..]},
                     {BusReceiverTelemetryConstants.Ipo, ipoEvent.InvitationGuid},
                     {BusReceiverTelemetryConstants.IpoEvent, ipoEvent.Event}
                 });
             _plantSetter.SetPlant(ipoEvent.ProjectSchema);
-            var invitation = _context.QuerySet<Invitation>()
+            var invitation = _context.QuerySet<Invitation>().Include(i => i.McPkgs).Include(i => i.CommPkgs)
                 .SingleOrDefault(i => i.ObjectGuid == Guid.Parse(ipoEvent.InvitationGuid));
             if (invitation == null)
             {

@@ -1,5 +1,8 @@
 ﻿using System;
 using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.BusReceiver.Sender;
+using Equinor.ProCoSys.BusReceiver.Sender.Interfaces;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Equinor.ProCoSys.BusReceiver
@@ -21,6 +24,19 @@ namespace Equinor.ProCoSys.BusReceiver
             services.AddHostedService<PcsBusReceiver>();
 
             return services;
+        }
+
+        public static void AddTopicClients(this IServiceCollection services, string serviceBusConnectionString, string topicNames)
+        {
+            var topics = topicNames.Split(',');
+            var pcsBusSender = new PcsBusSender();
+            foreach (var topicName in topics)
+            {
+                var topicClient = new TopicClient(serviceBusConnectionString, topicName);
+                pcsBusSender.Add(topicName, topicClient);
+            }
+
+            services.AddSingleton<IPcsBusSender>(pcsBusSender);
         }
     }
 }

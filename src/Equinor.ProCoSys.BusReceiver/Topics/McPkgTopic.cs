@@ -9,6 +9,6 @@
         public string McPkgNo { get; set; }
         public string McPkgNoOld { get; set; }
         public string Description { get; set; }
-        public string TopicName { get { return "mcpkg"; } }
+        public const string TopicName = "mcpkg";
     }
 }

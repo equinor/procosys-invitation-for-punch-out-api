@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,8 +7,6 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Fusion.Integration.Meeting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -23,8 +20,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
-        private Mock<IFusionMeetingClient> _meetingClientMock;
 
         private CancelPunchOutCommand _command;
         private CancelPunchOutCommandHandler _dut;
@@ -58,8 +53,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
                 .Returns(Task.FromResult(currentPerson));
 
-            _meetingClientMock = new Mock<IFusionMeetingClient>();
-
             //create invitation
             _invitation = new Invitation(
                     _plant,
@@ -89,8 +82,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);

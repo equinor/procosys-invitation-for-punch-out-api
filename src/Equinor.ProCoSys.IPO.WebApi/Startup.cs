@@ -102,8 +102,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProCoSys IPO API", Version = "v1" });
 
-    //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
-    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.OAuth2,
                     Flows = new OpenApiOAuthFlows
@@ -166,7 +166,12 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
+
+                services.AddTopicClients(
+                    Configuration.GetConnectionString("ServiceBus"),
+                    Configuration["ServiceBus:TopicNames"]);
             }
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

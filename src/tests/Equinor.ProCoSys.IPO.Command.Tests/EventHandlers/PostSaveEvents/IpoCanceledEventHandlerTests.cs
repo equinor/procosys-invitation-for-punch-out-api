@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.BusReceiver.Sender;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
@@ -14,12 +15,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
     {
         private IpoCanceledEventHandler _dut;
         private Mock<ITopicClient> _topicClient;
+        private PcsBusSender _pcsBusSender;
 
         [TestInitialize]
         public void Setup()
         {
             _topicClient = new Mock<ITopicClient>();
-            _dut = new IpoCanceledEventHandler(_topicClient.Object);
+            _pcsBusSender = new PcsBusSender();
+            _pcsBusSender.Add("ipo", _topicClient.Object);
+            _dut = new IpoCanceledEventHandler(_pcsBusSender);
         }
 
         [TestMethod]
