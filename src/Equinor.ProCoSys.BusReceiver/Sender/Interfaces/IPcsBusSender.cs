@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 
-namespace Equinor.ProCoSys.BusReceiver.Sender.Interfaces
+namespace Equinor.ProCoSys.PcsBus.Sender.Interfaces
 {
     public interface IPcsBusSender
     {

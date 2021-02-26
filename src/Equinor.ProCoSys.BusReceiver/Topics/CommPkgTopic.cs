@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.BusReceiver.Topics
+﻿namespace Equinor.ProCoSys.PcsBus.Topics
 {
     public class CommPkgTopic
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BusReceiver.Sender;
+using Equinor.ProCoSys.PcsBus.Sender;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;

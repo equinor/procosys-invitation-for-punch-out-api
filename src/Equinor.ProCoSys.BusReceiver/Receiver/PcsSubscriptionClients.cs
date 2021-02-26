@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
+using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Microsoft.Azure.ServiceBus;
 
-namespace Equinor.ProCoSys.BusReceiver.Receiver
+namespace Equinor.ProCoSys.PcsBus.Receiver
 {
     public class PcsSubscriptionClients : IPcsSubscriptionClients
     {

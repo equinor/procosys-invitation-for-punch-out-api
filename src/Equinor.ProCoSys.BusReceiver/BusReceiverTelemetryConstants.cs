@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.BusReceiver
+﻿namespace Equinor.ProCoSys.PcsBus
 {
     public class BusReceiverTelemetryConstants
     {

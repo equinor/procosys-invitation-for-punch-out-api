@@ -1,8 +1,8 @@
 ﻿using System;
-using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
+using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Equinor.ProCoSys.BusReceiver.Receiver
+namespace Equinor.ProCoSys.PcsBus.Receiver
 {
     public class ScopedBusReceiverServiceFactory : IBusReceiverServiceFactory
     {

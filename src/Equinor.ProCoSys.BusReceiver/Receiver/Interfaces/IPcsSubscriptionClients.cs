@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 
-namespace Equinor.ProCoSys.BusReceiver.Receiver.Interfaces
+namespace Equinor.ProCoSys.PcsBus.Receiver.Interfaces
 {
     public interface IPcsSubscriptionClients
     {

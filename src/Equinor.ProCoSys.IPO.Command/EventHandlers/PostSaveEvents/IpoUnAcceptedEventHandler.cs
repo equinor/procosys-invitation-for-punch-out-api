@@ -2,8 +2,8 @@
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BusReceiver.Sender.Interfaces;
-using Equinor.ProCoSys.BusReceiver.Topics;
+using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
+using Equinor.ProCoSys.PcsBus.Topics;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using MediatR;
 using Microsoft.Azure.ServiceBus;

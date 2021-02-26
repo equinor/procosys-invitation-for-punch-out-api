@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.BusReceiver.Receiver.Interfaces
+﻿namespace Equinor.ProCoSys.PcsBus.Receiver.Interfaces
 {
     public interface IBusReceiverServiceFactory
     {

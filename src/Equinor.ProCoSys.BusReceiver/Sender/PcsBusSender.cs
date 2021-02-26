@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BusReceiver.Sender.Interfaces;
+using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
 using Microsoft.Azure.ServiceBus;
 
-namespace Equinor.ProCoSys.BusReceiver.Sender
+namespace Equinor.ProCoSys.PcsBus.Sender
 {
     public class PcsBusSender : IPcsBusSender
     {

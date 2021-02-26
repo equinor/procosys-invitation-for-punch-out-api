@@ -1,12 +1,12 @@
 ﻿using System;
-using Equinor.ProCoSys.BusReceiver.Receiver;
-using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
-using Equinor.ProCoSys.BusReceiver.Sender;
-using Equinor.ProCoSys.BusReceiver.Sender.Interfaces;
+using Equinor.ProCoSys.PcsBus.Receiver;
+using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
+using Equinor.ProCoSys.PcsBus.Sender;
+using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Equinor.ProCoSys.BusReceiver
+namespace Equinor.ProCoSys.PcsBus
 {
     public static class IServiceCollectionExtensions
     {
