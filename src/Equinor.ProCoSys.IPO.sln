@@ -42,7 +42,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.BlobSt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi.IntegrationTests", "tests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests.csproj", "{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.BusReceiver", "Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.BusReceiver.csproj", "{C0EE2B05-8119-4599-BAF6-223AECD35386}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.PcsBus", "Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.PcsBus.csproj", "{C0EE2B05-8119-4599-BAF6-223AECD35386}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.BusReceiverTests", "tests\Equinor.ProCoSys.BusReceiverTests\Equinor.ProCoSys.BusReceiverTests.csproj", "{49F9D8C9-65BC-4C0C-B57A-BC4710E124F9}"
 EndProject

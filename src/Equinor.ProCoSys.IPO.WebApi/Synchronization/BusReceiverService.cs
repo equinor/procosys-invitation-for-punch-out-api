@@ -9,7 +9,7 @@ using System.Text.Json;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.BusReceiver;
-using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
 using Equinor.ProCoSys.BusReceiver.Topics;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;

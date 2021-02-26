@@ -1,5 +1,6 @@
 ﻿using System;
-using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.BusReceiver.Receiver;
+using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
 using Equinor.ProCoSys.BusReceiver.Sender;
 using Equinor.ProCoSys.BusReceiver.Sender.Interfaces;
 using Microsoft.Azure.ServiceBus;

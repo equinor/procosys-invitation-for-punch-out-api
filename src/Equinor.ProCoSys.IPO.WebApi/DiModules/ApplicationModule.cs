@@ -1,5 +1,6 @@
 ﻿using Equinor.ProCoSys.BusReceiver;
-using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.BusReceiver.Receiver;
+using Equinor.ProCoSys.BusReceiver.Receiver.Interfaces;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
