@@ -7,10 +7,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
     [TestClass]
     public class ScopeControllerNegativeTests : ScopeControllerTestsBase
     {
-        #region GetCommPkgsInProject
+        #region GetCommPkgsInProjectV2
         [TestMethod]
         public async Task GetCommPkgsInProject_AsAnonymous_ShouldReturnUnauthorized()
-            => await ScopeControllerTestsHelper.GetCommPkgsInProjectAsync(
+            => await ScopeControllerTestsHelper.GetCommPkgsInProjectV2Async(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 TestFactory.ProjectWithAccess,
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 
         [TestMethod]
         public async Task GetCommPkgsInProject_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await ScopeControllerTestsHelper.GetCommPkgsInProjectAsync(
+            => await ScopeControllerTestsHelper.GetCommPkgsInProjectV2Async(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 TestFactory.ProjectWithAccess,
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 
         [TestMethod]
         public async Task GetCommPkgsInProject_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await ScopeControllerTestsHelper.GetCommPkgsInProjectAsync(
+            => await ScopeControllerTestsHelper.GetCommPkgsInProjectV2Async(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 TestFactory.ProjectWithAccess,

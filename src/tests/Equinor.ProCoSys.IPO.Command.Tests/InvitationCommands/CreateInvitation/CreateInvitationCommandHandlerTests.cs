@@ -42,7 +42,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _commPkgNo = "Comm1";
+        private const string _commPkgNo2 = "Comm2";
         private const string _system = "1|2";
+        private const string _system2 = "2|2";
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private readonly string _plant = "PCS$TEST_PLANT";
@@ -221,6 +223,65 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.AreEqual(mcPkgs.Count, 2);
             Assert.AreEqual(mcPkgs[0].McPkgNo, _mcPkgNo1);
             Assert.AreEqual(mcPkgs[1].McPkgNo, _mcPkgNo2);
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSystems()
+        {
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system2 };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
+
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null);
+
+            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSystems()
+        {
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _system2 };
+            IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
+            var commPkgScope = new List<string>
+            {
+                _commPkgNo,
+                _commPkgNo2
+            };
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Returns(Task.FromResult(commPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                null,
+                commPkgScope);
+
+            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
         }
 
         [TestMethod]
