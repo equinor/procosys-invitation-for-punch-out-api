@@ -42,6 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _commPkgNo = "Comm1";
+        private const string _system = "1|2";
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private readonly string _plant = "PCS$TEST_PLANT";
@@ -135,8 +136,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
-            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1};
-            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2};
+            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system};
+            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system};
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();

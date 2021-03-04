@@ -24,6 +24,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             Assert.AreEqual(2, commPkgSearchResult.MaxAvailable);
             Assert.AreEqual(CommPkgNo1, commPkg1.CommPkgNo);
             Assert.AreEqual(CommPkgNo2, commPkg2.CommPkgNo);
+            Assert.AreEqual(System, commPkg2.CommPkgNo);
+            Assert.AreEqual(System, commPkg2.CommPkgNo);
         }
 
         [TestMethod]

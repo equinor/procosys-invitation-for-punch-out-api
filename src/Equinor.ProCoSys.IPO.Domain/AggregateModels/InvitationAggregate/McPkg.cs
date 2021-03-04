@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         {
         }
 
-        public McPkg(string plant, string projectName, string commPkgNo, string mcPkgNo, string description)
+        public McPkg(string plant, string projectName, string commPkgNo, string mcPkgNo, string description, string system)
             : base(plant)
         {
             if (string.IsNullOrEmpty(projectName))
@@ -23,12 +23,17 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentNullException(nameof(commPkgNo));
             }
+            if (string.IsNullOrEmpty(system))
+            {
+                throw new ArgumentNullException(nameof(system));
+            }
             if (string.IsNullOrEmpty(mcPkgNo))
             {
                 throw new ArgumentNullException(nameof(mcPkgNo));
             }
             ProjectName = projectName;
             CommPkgNo = commPkgNo;
+            System = system;
             Description = description;
             McPkgNo = mcPkgNo;
         }
@@ -38,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
         public string McPkgNo { get; private set; }
+        public string System { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)

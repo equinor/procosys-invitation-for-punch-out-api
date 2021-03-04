@@ -22,6 +22,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.Property(x => x.CommPkgNo)
                 .IsRequired();
+
+            builder.Property(x => x.System)
+                .IsRequired();
         }
     }
 }

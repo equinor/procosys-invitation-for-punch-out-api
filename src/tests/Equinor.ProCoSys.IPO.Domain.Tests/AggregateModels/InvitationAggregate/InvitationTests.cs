@@ -37,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string Title = "Title A";
         private const string Title2 = "Title B";
         private const string Description = "Description A";
+        private const string System = "12";
         private const string ParticipantRowVersion = "AAAAAAAAABA=";
 
         [TestInitialize]
@@ -77,8 +78,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
 
-            _mcPkg1 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc1", "MC D");
-            _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2");
+            _mcPkg1 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc1", "MC D", System);
+            _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2", System);
             _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK", "1|2");
             _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK", "1|2");
             _comment = new Comment(TestPlant, "Comment text");
