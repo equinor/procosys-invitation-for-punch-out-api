@@ -22,6 +22,7 @@ using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;

@@ -5,11 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {
     public class GetInvitationsQueryHandler : GetInvitationsQueryBase, IRequestHandler<GetInvitationsQuery, Result<InvitationsResult>>
     {
@@ -44,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             return new SuccessResult<InvitationsResult>(new InvitationsResult(maxAvailable, orderedDtos));
         }
 
-        private IEnumerable<InvitationDto> AddPaging(Paging paging, IEnumerable<InvitationDto> enumerable)
+        private IEnumerable<InvitationForQueryDto> AddPaging(Paging paging, IEnumerable<InvitationForQueryDto> enumerable)
         {
             enumerable = enumerable
                 .Skip(paging.Page * paging.Size)

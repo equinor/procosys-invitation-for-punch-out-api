@@ -1,9 +1,10 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using MediatR;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {
     public class GetInvitationsQuery : IRequest<Result<InvitationsResult>>, IProjectRequest
     {
