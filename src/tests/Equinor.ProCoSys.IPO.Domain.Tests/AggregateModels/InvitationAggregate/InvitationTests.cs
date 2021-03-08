@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string Title = "Title A";
         private const string Title2 = "Title B";
         private const string Description = "Description A";
-        private const string System = "12";
+        private const string System = "1|2";
         private const string ParticipantRowVersion = "AAAAAAAAABA=";
 
         [TestInitialize]

@@ -386,9 +386,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystem = initialCommPkg.System.Substring(0, initialCommPkg.System.LastIndexOf('|'));
-                if (commPkgDetailsList.Any(commPkg =>
-                    commPkg.System.Substring(0, commPkg.System.LastIndexOf('|')) != initialSystem))
+                var initialSystem = initialCommPkg.SystemSubString;
+                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
@@ -413,9 +412,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
-                var initialSystem = initialMcPkg.System.Substring(0, initialMcPkg.System.LastIndexOf('|'));
-                if (mcPkgDetailsList.Any(mcPkg =>
-                    mcPkg.System.Substring(0, mcPkg.System.LastIndexOf('|')) != initialSystem))
+                var initialSystem = initialMcPkg.SystemSubString;
+                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Mc pkg scope must be within a system.");
                 }

@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private const string _commPkgNo1 = "CommPkgNo";
         private const string _commPkgNo2 = "CommPkgNo2";
         private const string _projectName = "Project1";
-        private const string _system = "12";
+        private const string _system = "1|2";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

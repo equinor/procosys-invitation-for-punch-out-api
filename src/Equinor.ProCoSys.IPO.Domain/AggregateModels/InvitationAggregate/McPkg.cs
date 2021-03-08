@@ -7,6 +7,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class McPkg : PlantEntityBase, ICreationAuditable
     {
+        public const int McPkgNoMaxLength = 30;
+        public const int SystemMaxLength = 40;
+
         protected McPkg()
             : base(null)
         {
@@ -26,6 +29,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             if (string.IsNullOrEmpty(system))
             {
                 throw new ArgumentNullException(nameof(system));
+            }
+            if (!system.Contains('|') || system.Length < 3)
+            {
+                throw new ArgumentException($"{(nameof(system))} is not valid. Must be at least three characters and include '|'");
             }
             if (string.IsNullOrEmpty(mcPkgNo))
             {
@@ -61,5 +68,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public void Rename(string toMcPkgNo) => McPkgNo = toMcPkgNo;
 
         public void MoveToProject(string toProject) => ProjectName = toProject;
+
+        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
     }
 }

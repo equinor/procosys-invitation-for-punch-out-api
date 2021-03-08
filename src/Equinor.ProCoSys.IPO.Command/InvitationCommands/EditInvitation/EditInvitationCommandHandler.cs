@@ -111,7 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             if (newMcPkgs.Count > 0)
             {
                 await AddMcPkgsAsync(invitation, newMcPkgs, projectName,
-                    existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().System : null);
+                    existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().SystemSubString : null);
             }
         }
 
@@ -131,11 +131,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
-                var initialSystem = system != null
-                    ? system.Substring(0, system.LastIndexOf('|'))
-                    : initialMcPkg.System.Substring(0, initialMcPkg.System.LastIndexOf('|'));
-                if (mcPkgDetailsList.Any(mcPkg =>
-                    mcPkg.System.Substring(0, mcPkg.System.LastIndexOf('|')) != initialSystem))
+                var initialSystem = system ?? initialMcPkg.SystemSubString;
+                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Mc pkg scope must be within a system.");
                 }
@@ -167,7 +164,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     newCommPkgs,
                     existingCommPkgs,
                     projectName,
-                    existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().System : null);
+                    existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().SystemSubString : null); //TODO: somwthing will fail when doing this for existing scope I think
             }
         }
 
@@ -189,12 +186,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystem = system != null
-                    ? system.Substring(0, system.LastIndexOf('|'))
-                    : initialCommPkg.System.Substring(0, initialCommPkg.System.LastIndexOf('|'));
+                var initialSystem = system ?? initialCommPkg.SystemSubString;
 
-                if (commPkgDetailsList.Any(commPkg =>
-                    commPkg.System.Substring(0, commPkg.System.LastIndexOf('|')) != initialSystem))
+                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
