@@ -172,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         public async Task HandlingUnCompleteIpoCommand_ShouldNotUnCompleteIfClearingM01DateInMainFails()
         {
             _mcPkgApiServiceMock
-                .Setup(x => x.ClearM01DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
+                .Setup(x => x.ClearM01DatesAsync(_plant, _projectName, new List<string>(), new List<string>(), null))
                 .Throws(new Exception("Something failed"));
 
             await Assert.ThrowsExceptionAsync<Exception>(() =>

@@ -514,9 +514,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "is not a valid plant");
 
         [TestMethod]
-        public async Task UnCompletePunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownPlant()
+        public async Task UnCompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownPlant()
             => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Accepter,
+                UserType.Completer,
                 TestFactory.UnknownPlant,
                 9999,
                 new UnCompletePunchOutDto(),
@@ -551,9 +551,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task UnCompletePunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+        public async Task UnCompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Accepter,
+                UserType.Completer,
                 TestFactory.PlantWithAccess,
                 38934,
                 new UnCompletePunchOutDto

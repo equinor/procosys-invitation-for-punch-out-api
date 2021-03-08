@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -83,21 +84,23 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 
         public async Task ClearM01DatesAsync(
             string plant,
-            int invitationId,
             string projectName,
             IList<string> mcPkgNos,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            int? invitationId)
         {
             var url = $"{_baseAddress}McPkgs/ClearM01" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}";
-            var bodyPayload = new
+            dynamic bodyPayload = new ExpandoObject();
+            bodyPayload.ProjectName = projectName;
+            bodyPayload.McPkgNos = mcPkgNos;
+            bodyPayload.CommPkgNos = commPkgNos;
+
+            if (invitationId != null)
             {
-                ProjectName = projectName,
-                ExternalReference = "IPO-" + invitationId,
-                McPkgNos = mcPkgNos,
-                CommPkgNos = commPkgNos
-            };
+                bodyPayload.ExternalReference = "IPO-" + invitationId;
+            }
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
             await _foreignApiClient.PutAsync(url, content);

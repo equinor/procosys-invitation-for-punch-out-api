@@ -181,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task UnCompletePunchOut_AsAccepter_ShouldUnCompletePunchOut()
+        public async Task UnCompletePunchOut_AsCompleter_ShouldUnCompletePunchOut()
         {
             // Arrange
             var invitationToUnCompletedId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -237,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Accepter,
+                UserType.Completer,
                 TestFactory.PlantWithAccess,
                 invitationToUnCompletedId,
                 unCompletePunchOutDto);
@@ -251,6 +251,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var unCompletingParticipant =
                 unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
+            Assert.IsNull(unCompletedInvitation.CompletedBy);
+            Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedBy);
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
