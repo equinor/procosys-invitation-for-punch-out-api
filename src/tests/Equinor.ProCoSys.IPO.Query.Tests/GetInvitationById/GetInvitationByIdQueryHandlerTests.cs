@@ -44,6 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 const string projectName = "Project1";
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
+                const string system = "1|2";
 
                 var functionalRoleParticipant = new Participant(
                     TestPlant,
@@ -118,7 +119,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     projectName,
                     commPkgNo,
                     "McPkgNo",
-                    description);
+                    description,
+                    system);
 
                 _invitation = new Invitation(
                     TestPlant,

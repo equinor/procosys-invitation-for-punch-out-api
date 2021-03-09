@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             string projectName,
             string commPkgNo)
         {
-            var url = $"{_baseAddress}McPkgs" +
+            var url = $"{_baseAddress}CommPkg/McPkgs" +
                       $"?plantId={plant}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +

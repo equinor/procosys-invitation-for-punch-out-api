@@ -141,11 +141,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             _mcPkgDetails1 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1, System = KnownTestData.System
             };
             _mcPkgDetails2 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2, System = KnownTestData.System
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
