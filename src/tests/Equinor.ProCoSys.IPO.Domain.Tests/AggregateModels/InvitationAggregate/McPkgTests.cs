@@ -51,5 +51,17 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentNullException>(() =>
                 new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, null)
             );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsTooShort() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, "1|")
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsInvalid() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, "1234")
+            );
     }
 }

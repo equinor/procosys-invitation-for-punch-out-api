@@ -164,7 +164,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     newCommPkgs,
                     existingCommPkgs,
                     projectName,
-                    existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().SystemSubString : null); //TODO: somwthing will fail when doing this for existing scope I think
+                    existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().SystemSubString : null);
             }
         }
 
