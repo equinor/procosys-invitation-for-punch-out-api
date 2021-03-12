@@ -167,11 +167,11 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
 
-                services.AddTopicClients(
-                    Configuration.GetConnectionString("ServiceBus"),
-                    Configuration["ServiceBus:TopicNames"]);
+                
             }
-            
+            services.AddTopicClients(
+                Configuration.GetConnectionString("ServiceBus"),
+                Configuration["ServiceBus:TopicNames"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
