@@ -33,8 +33,11 @@ namespace Equinor.ProCoSys.PcsBus
             var pcsBusSender = new PcsBusSender();
             foreach (var topicName in topics)
             {
-                var topicClient = new TopicClient(serviceBusConnectionString, topicName);
-                pcsBusSender.Add(topicName, topicClient);
+                if (!string.IsNullOrWhiteSpace(topicName))
+                {
+                    var topicClient = new TopicClient(serviceBusConnectionString, topicName);
+                    pcsBusSender.Add(topicName, topicClient);
+                }
             }
 
             services.AddSingleton<IPcsBusSender>(pcsBusSender);
