@@ -20,14 +20,17 @@ using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
+using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServiceResult;
 using ServiceResult.ApiExtensions;
 using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
 
@@ -38,8 +41,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     public class InvitationsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IExcelConverter _excelConverter;
 
-        public InvitationsController(IMediator mediator) => _mediator = mediator;
+        public InvitationsController(
+            IMediator mediator,
+            IExcelConverter excelConverter)
+        {
+            _mediator = mediator;
+            _excelConverter = excelConverter;
+        }
 
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet]
@@ -55,6 +65,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
             var result = await _mediator.Send(query);
             return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("ExportInvitationsToExcel")]
+        public async Task<ActionResult> ExportInvitationsToExcel(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromQuery] FilterDto filter,
+            [FromQuery] SortingDto sorting)
+        {
+            var query = CreateGetInvitationsForExportQuery(filter, sorting);
+
+            var result = await _mediator.Send(query);
+
+            if (result.ResultType != ResultType.Ok)
+            {
+                return this.FromResult(result);
+            }
+
+            var excelMemoryStream = _excelConverter.Convert(result.Data);
+            excelMemoryStream.Position = 0;
+
+            return File(excelMemoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{_excelConverter.GetFileName()}.xlsx");
         }
 
         [Authorize(Roles = Permissions.IPO_READ)]
@@ -471,6 +505,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             {
                 target.LastChangedAtToUtc = source.LastChangedAtToUtc;
             }
+        }
+
+        private static GetInvitationsForExportQuery CreateGetInvitationsForExportQuery(FilterDto filter, SortingDto sorting)
+        {
+            var query = new GetInvitationsForExportQuery(
+                filter.ProjectName,
+                new Sorting(sorting.Direction, sorting.Property),
+                new Filter()
+            );
+
+            FillFilterFromDto(filter, query.Filter);
+
+            return query;
         }
     }
 }

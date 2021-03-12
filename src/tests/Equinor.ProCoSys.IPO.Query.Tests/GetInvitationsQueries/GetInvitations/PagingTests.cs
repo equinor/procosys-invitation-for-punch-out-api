@@ -1,9 +1,8 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 {
     [TestClass]
     public class PagingTests

@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
-using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
+using Equinor.ProCoSys.IPO.Query.GetInvitations;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public abstract class GetInvitationsQueryBase
     {
@@ -23,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             }
 
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
- 
+
             var queryable = from invitation in context.QuerySet<Invitation>()
                 where invitation.ProjectName == projectName &&
                       (!filter.PunchOutDates.Any() ||
@@ -67,6 +66,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                     Status = invitation.Status,
                     Type = invitation.Type,
                     CreatedAtUtc = invitation.CreatedAtUtc,
+                    CreatedById = invitation.CreatedById,
                     StartTimeUtc = invitation.StartTimeUtc,
                     EndTimeUtc = invitation.EndTimeUtc,
                     CompletedAtUtc = invitation.CompletedAtUtc,

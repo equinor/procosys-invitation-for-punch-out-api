@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.Time;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;

@@ -1,6 +1,5 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using MediatR;
 using ServiceResult;
 

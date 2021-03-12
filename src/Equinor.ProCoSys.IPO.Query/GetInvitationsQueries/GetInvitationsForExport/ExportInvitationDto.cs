@@ -18,9 +18,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             DateTime endTimeUtc,
             IList<string> mcPkgs,
             IList<string> commPkgs,
-            IList<Participant> participants,
-            DateTime completedAtUtc,
-            DateTime acceptedAtUtc)
+            string contractorRep,
+            string constructionCompanyRep,
+            DateTime? completedAtUtc,
+            DateTime? acceptedAtUtc,
+            DateTime createdAtUtc,
+            string createdBy)
         {
             Id = id;
             ProjectName = projectName;
@@ -33,9 +36,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             EndTimeUtc = endTimeUtc;
             McPkgs = mcPkgs;
             CommPkgs = commPkgs;
-            Participants = participants;
+            ContractorRep = contractorRep;
+            ConstructionCompanyRep = constructionCompanyRep;
             CompletedAtUtc = completedAtUtc;
             AcceptedAtUtc = acceptedAtUtc;
+            CreatedAtUtc = createdAtUtc;
+            CreatedBy = createdBy;
+
+            Participants = new List<ExportParticipantDto>();
+            History = new List<ExportHistoryDto>();
         }
         public int Id { get; }
         public string ProjectName { get; }
@@ -48,8 +57,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         public DateTime EndTimeUtc { get; }
         public IList<string> McPkgs { get; }
         public IList<string> CommPkgs { get; }
-        public IList<Participant> Participants { get; }
-        public DateTime CompletedAtUtc { get; }
-        public DateTime AcceptedAtUtc { get; }
+        public string ContractorRep { get; }
+        public string ConstructionCompanyRep { get; }
+        public DateTime? CompletedAtUtc { get; }
+        public DateTime? AcceptedAtUtc { get; }
+        public DateTime CreatedAtUtc { get; }
+        public string CreatedBy { get; }
+        public List<ExportParticipantDto> Participants { get; }
+        public List<ExportHistoryDto> History { get; }
     }
 }

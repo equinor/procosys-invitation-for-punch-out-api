@@ -28,6 +28,7 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Caches;
+using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
@@ -107,6 +108,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
             services.AddScoped<ISavedFilterValidator, SavedFilterValidator>();
+
+            services.AddScoped<IExcelConverter, ExcelConverter>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<ICacheManager, CacheManager>();

@@ -23,6 +23,7 @@ using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -613,6 +614,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetInvitationsQuery(_projectWithoutAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region ExportInvitations
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsForExportQuery_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsForExportQuery(_projectWithAccess);
+
+            // act
+            var result = await _dut.ValidateAsync(query);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnGetInvitationsForExportQuery_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var query = new GetInvitationsForExportQuery(_projectWithoutAccess);
 
             // act
             var result = await _dut.ValidateAsync(query);

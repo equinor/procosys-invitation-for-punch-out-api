@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
         public DisciplineType Type { get; set; }
         public IpoStatus Status { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public int CreatedById { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
         public DateTime? CompletedAtUtc { get; set; }

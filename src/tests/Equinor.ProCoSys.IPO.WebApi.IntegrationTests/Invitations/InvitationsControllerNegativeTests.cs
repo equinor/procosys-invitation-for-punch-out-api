@@ -54,6 +54,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.NotFound);
         #endregion
 
+        #region ExportInvitations
+        [TestMethod]
+        public async Task ExportInvitations_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.ExportInvitationsAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task ExportInvitations_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.ExportInvitationsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task ExportInvitations_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.ExportInvitationsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess,
+                HttpStatusCode.Forbidden);
+        #endregion
+
         #region GetInvitations
         [TestMethod]
         public async Task GetInvitations_AsAnonymous_ShouldReturnUnauthorized()
