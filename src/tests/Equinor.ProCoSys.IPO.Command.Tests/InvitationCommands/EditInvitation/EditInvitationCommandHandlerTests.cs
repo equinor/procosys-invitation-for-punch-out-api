@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -33,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
+        private Mock<IPersonRepository> _personRepositoryMock;
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
@@ -56,7 +58,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _newFunctionalRoleCode = "NEWFR1";
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
+        private const string _mcPkgNo3 = "MC3";
         private const string _commPkgNo = "Comm1";
+        private const string _commPkgNo2 = "Comm2";
+        private const string _system = "1|2";
+        private const string _system2 = "2|2";
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
@@ -108,6 +114,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Setup(x => x.Plant)
                 .Returns(_plant);
 
+            _personRepositoryMock = new Mock<IPersonRepository>();
+
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
                 .Setup(x => x.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()))
@@ -139,7 +147,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             //mock comm pkg response from main API
-            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", System = "123"};
+            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", System = _system};
             IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails };
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
             _commPkgApiServiceMock
@@ -147,8 +155,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(pcsCommPkgDetails));
 
             //mock mc pkg response from main API
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1 };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2 };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system};
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system};
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
             _mcPkgApiServiceMock
@@ -222,8 +230,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     new DateTime(),
                     null) 
                 { MeetingId = _meetingId };
-            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d"));
-            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2"));
+            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system));
+            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system));
             var participant = new Participant(
                 _plant,
                 _participants[0].Organization,
@@ -281,7 +289,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _commPkgApiServiceMock.Object,
                 _personApiServiceMock.Object,
                 _functionalRoleApiServiceMock.Object,
-                _meetingOptionsMock.Object);
+                _meetingOptionsMock.Object,
+                _personRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -318,7 +327,78 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(0, _invitation.McPkgs.Count);
             Assert.AreEqual(1, _invitation.CommPkgs.Count);
             Assert.AreEqual(_commPkgNo, _invitation.CommPkgs.ToList()[0].CommPkgNo);
-    }
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSystems()
+        {
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system };
+            var mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, System = _system2 };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2, mcPkgDetails3 };
+            var addedScope = new List<string>
+            {
+                _mcPkgNo3
+            };
+
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var command = new EditInvitationCommand(
+                _invitation.Id,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _updatedParticipants,
+                new List<string>
+                {
+                    _mcPkgNo1,
+                    _mcPkgNo2,
+                    _mcPkgNo3
+                },
+                null,
+                _rowVersion);
+
+            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSystems()
+        {
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _system2 };
+            IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
+            var newScope = new List<string>
+            {
+                _commPkgNo,
+                _commPkgNo2
+            };
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, newScope))
+                .Returns(Task.FromResult(commPkgDetails));
+
+            var command = new EditInvitationCommand(
+                _invitation.Id,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _updatedParticipants,
+                null,
+                newScope,
+                _rowVersion);
+
+            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+        }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateParticipants()

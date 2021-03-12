@@ -18,9 +18,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .IsRequired();
 
             builder.Property(x => x.McPkgNo)
+                .HasMaxLength(McPkg.McPkgNoMaxLength)
                 .IsRequired();
 
             builder.Property(x => x.CommPkgNo)
+                .HasMaxLength(CommPkg.CommPkgNoMaxLength)
+                .IsRequired();
+
+            builder.Property(x => x.System)
+                .HasMaxLength(McPkg.SystemMaxLength)
                 .IsRequired();
         }
     }

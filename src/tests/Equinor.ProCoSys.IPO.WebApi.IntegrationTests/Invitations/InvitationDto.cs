@@ -13,6 +13,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public string Location { get; set; }
         public DisciplineType Type { get; set; }
         public IpoStatus Status { get; set; }
+        public int? CompletedBy { get; set; }
+        public DateTime? CompletedAtUtc { get; set; }
         public PersonDto CreatedBy { get; set; }
         public string RowVersion { get; set; }
         public DateTime StartTimeUtc { get; set; }

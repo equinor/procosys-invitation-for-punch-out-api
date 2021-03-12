@@ -267,6 +267,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
+        public async Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken token)
+        {
+            var completingPerson = await (from i in _context.QuerySet<Invitation>()
+                join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
+                where i.Id == invitationId
+                select p).SingleOrDefaultAsync(token);
+
+            return completingPerson != null && _currentUserProvider.GetCurrentUserOid() == completingPerson.Oid;
+        }
+
         public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken token)
         {
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()

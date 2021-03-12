@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -32,6 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
+        private readonly IPersonRepository _personRepository;
+        private readonly ICurrentUserProvider _currentUserProvider;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -42,7 +45,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IMcPkgApiService mcPkgApiService,
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
-            IOptionsMonitor<MeetingOptions> meetingOptions)
+            IOptionsMonitor<MeetingOptions> meetingOptions,
+            IPersonRepository personRepository,
+            ICurrentUserProvider currentUserProvider)
         {
             _plantProvider = plantProvider;
             _meetingClient = meetingClient;
@@ -53,6 +58,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
             _meetingOptions = meetingOptions;
+            _personRepository = personRepository;
+            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
@@ -379,8 +386,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystem = initialCommPkg.System;
-                if (commPkgDetailsList.Any(commPkg => commPkg.System != initialSystem))
+                var initialSystem = initialCommPkg.SystemSubString;
+                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
@@ -405,10 +412,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
-                var initialCommPkgNo = initialMcPkg.CommPkgNo;
-                if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
+                var initialSystem = initialMcPkg.SystemSubString;
+                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg.");
+                    throw new IpoValidationException("Mc pkg scope must be within a system.");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
@@ -418,7 +425,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     projectName,
                     mcPkg.CommPkgNo,
                     mcPkg.McPkgNo,
-                    mcPkg.Description));
+                    mcPkg.Description,
+                    mcPkg.System));
             }
         }
 
@@ -427,11 +435,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IReadOnlyCollection<BuilderParticipant> participants,
             Invitation invitation)
         {
+            var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
                 var baseUrl =
                     $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
-
                 meetingBuilder
                     .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
@@ -439,7 +448,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .WithParticipants(participants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
             });
             return meeting.Id;
         }

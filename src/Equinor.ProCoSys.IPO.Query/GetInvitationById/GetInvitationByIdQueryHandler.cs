@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Fusion.Integration.Http.Errors;
 using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ServiceResult;
 using Person = Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person;
 
@@ -21,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IPlantProvider _plantProvider;
+        private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
         private bool _signingOperationIncluded;
         private bool _signingCommissioningIncluded;
@@ -31,13 +34,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,
             IFunctionalRoleApiService functionalRoleApiService,
-            IPlantProvider plantProvider)
+            IPlantProvider plantProvider,
+            ILogger<GetInvitationByIdQueryHandler> logger)
         {
             _context = context;
             _meetingClient = meetingClient;
             _currentUserProvider = currentUserProvider;
             _functionalRoleApiService = functionalRoleApiService;
             _plantProvider = plantProvider;
+            _logger = logger;
         }
 
         public async Task<Result<InvitationDto>> Handle(GetInvitationByIdQuery request, CancellationToken token)
@@ -60,15 +65,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Person), invitation.CreatedById));
             }
 
-            GeneralMeeting meeting;
+            GeneralMeeting meeting = null;
             try
             {
                 meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
                     query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
+                LogFusionMeeting(meeting);
             }
-            catch (Exception)
+            catch (NotAuthorizedError e)
             {
-                meeting = null; //user has not been invited to IPO with their personal email
+                _logger.LogWarning("Fusion meeting not authorized. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Fusion meeting error. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
             }
 
             var invitationDto = ConvertToInvitationDto(invitation, meeting);
@@ -183,8 +193,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 ? OutlookResponse.Declined : OutlookResponse.None;
         }
 
-        private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email) 
-            => meeting.Participants.FirstOrDefault(p => p.Person.Mail?.ToUpper() == email?.ToUpper())?.Type;
+        private static ParticipantType? GetParticipantTypeByEmail(GeneralMeeting meeting, string email)
+            => meeting.Participants.FirstOrDefault(p =>
+                string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
             => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status));
@@ -319,5 +330,22 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 .Where(p => p.Id == personId)
                 .Select(p => new PersonDto(p.Id, p.FirstName, p.LastName, p.UserName, p.Oid, p.Email, p.RowVersion.ConvertToString()))
                 .SingleAsync();
+
+        private void LogFusionMeeting(GeneralMeeting meeting) //This is temporary in the start phase of IPO, to make debugging easier.
+        {
+            var meetingDetails = new Dictionary<string, string>
+            {
+                {"Meeting ID", meeting.Id.ToString()},
+                {"Classification", meeting.Classification.ToString()}
+            };
+            var personsString = "Person, Guid, Name, Email, OutlookResponse, Type, IsOrganizer, IsResponsible";
+            foreach (var p in meeting.Participants)
+            {
+                personsString +=
+                    $" /n {p.Person}, {p.Person.Id?.ToString()}, {p.Person?.Name}, {p.Person?.Mail}, {p.OutlookResponse}, {p.Type}, {p.Organizer}, {p.Responsible}";
+            }
+
+            _logger.LogInformation("Fusion meeting ({@MeetingDetails}). ({@Persons})", meetingDetails, personsString);
+        }
     }
 }
