@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.PcsBus.Receiver
     {
         private readonly List<IPcsSubscriptionClient> _subscriptionClients = new List<IPcsSubscriptionClient>();
 
-
         public void Add(IPcsSubscriptionClient pcsSubscriptionClient) => _subscriptionClients.Add(pcsSubscriptionClient);
 
         public async Task CloseAllAsync()

@@ -22,7 +22,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
     public class BusReceiverService : IBusReceiverService
     {
-        //private readonly Guid _synchronizationUserOid;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IPlantSetter _plantSetter;
         private readonly IUnitOfWork _unitOfWork;

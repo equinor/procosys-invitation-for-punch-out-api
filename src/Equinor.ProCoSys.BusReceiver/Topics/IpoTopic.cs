@@ -7,6 +7,5 @@
         public string Event { get; set; }
         public const string TopicName = "ipo";
         public int Status { get; set; }
-
     }
 }
