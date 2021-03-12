@@ -80,6 +80,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessMcPkgEvent(string messageJson)
         {
             var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
+            if (string.IsNullOrWhiteSpace(mcPkgEvent.ProjectSchema) || string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) || string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo))
+            {
+                throw new Exception($"Unable to deserialize JSON to McPkgEvent {messageJson}");
+            }
 
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
@@ -96,6 +100,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
+            if (string.IsNullOrWhiteSpace(commPkgEvent.ProjectSchema)  || string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo))
+            {
+                throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
+            }
 
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
@@ -113,6 +121,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessProjectEvent(string messageJson)
         {
             var projectEvent = JsonSerializer.Deserialize<ProjectTopic>(messageJson);
+            if (string.IsNullOrWhiteSpace(projectEvent.ProjectSchema) || string.IsNullOrWhiteSpace(projectEvent.ProjectName))
+            {
+                throw new Exception($"Unable to deserialize JSON to ProjectEvent {messageJson}");
+            }
+
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
@@ -126,11 +139,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task ProcessIpoEvent(string messageJson)
         {
-
             var bearerToken = await _authenticator.GetBearerTokenForApplicationAsync();
             _bearerTokenSetter.SetBearerToken(bearerToken, false);
 
             var ipoEvent = JsonSerializer.Deserialize<IpoTopic>(messageJson);
+            if (string.IsNullOrWhiteSpace(ipoEvent.InvitationGuid))
+            {
+                throw new Exception($"Unable to deserialize JSON to IpoEvent {messageJson}");
+            }
+
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
@@ -149,7 +166,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             if (ipoEvent.Event == "Canceled")
             {
-                await ClearM01DatesAndCancelMeeting(ipoEvent, invitation);
+                // For a cancel we also clear the external reference.
+                // TODO: We have to remove this confusing logic around sending/not sending invitationId based on what should happen in main...
+                await ClearM01DatesAndKeepExternalReferenceAndCancelMeeting(ipoEvent, invitation);
             }
             else if (ipoEvent.Event == "Completed")
             {
@@ -162,6 +181,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             else if (ipoEvent.Event == "UnAccepted")
             {
                 await ClearM02DateAsync(ipoEvent, invitation);
+            }
+            else if (ipoEvent.Event == "UnCompleted")
+            {
+                // For a completed IPO we leave the external reference.
+                // TODO: We have to remove this confusing logic around sending/not sending invitationId based on what should happen in main...
+                await ClearM01DatesAndBlankExternalReferenceAsync(ipoEvent, invitation);
+            }
+        }
+
+        private async Task ClearM01DatesAndBlankExternalReferenceAsync(IpoTopic ipoEvent, Invitation invitation)
+        {
+            try
+            {
+                await _mcPkgApiService.ClearM01DatesAsync(
+                    ipoEvent.ProjectSchema,
+                    null,
+                    invitation.ProjectName,
+                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
+                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error: Could not clear M-01 dates", e);
             }
         }
 
@@ -182,7 +224,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
         }
 
-        private async Task ClearM01DatesAndCancelMeeting(IpoTopic ipoEvent, Invitation invitation)
+        private async Task ClearM01DatesAndKeepExternalReferenceAndCancelMeeting(IpoTopic ipoEvent, Invitation invitation)
         {
             if (ipoEvent.Status == (int) IpoStatus.Completed)
             {

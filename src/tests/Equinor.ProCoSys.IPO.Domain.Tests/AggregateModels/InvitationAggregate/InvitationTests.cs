@@ -600,16 +600,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void UnAcceptIpo_ShouldAddUnAcceptIpoEvent()
-        {
-            _dutWithAcceptedStatus.UnAcceptIpo(
-                _functionalRoleParticipant,
-                _functionalRoleParticipant.RowVersion.ConvertToString());
-
-            Assert.IsInstanceOfType(_dutWithAcceptedStatus.PreSaveDomainEvents.Last(), typeof(IpoUnAcceptedEvent));
-        }
-
-        [TestMethod]
         public void SignIpo_ShouldNotSignIpo_WhenIpoIsCanceled()
             => Assert.ThrowsException<Exception>(()
                 => _dutWithCanceledStatus.SignIpo(
@@ -731,6 +721,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);
             Assert.AreEqual(dut.Status, IpoStatus.Canceled);
+            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count());
         }
 
         [TestMethod]

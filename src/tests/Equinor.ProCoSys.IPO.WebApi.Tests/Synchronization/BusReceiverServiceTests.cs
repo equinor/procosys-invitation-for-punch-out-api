@@ -85,7 +85,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [TestMethod]
         public async Task HandlingMcPkgTopicWithoutFailure()
         {
-            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"ProjectName\" : \"{project}\", \"McPkgNo\" : \"{mcPkgNo}\", \"Description\" : \"{description}\"}}"));
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"ProjectName\" : \"{project}\", \"CommPkgNo\" :\"{commPkgNo}\", \"McPkgNo\" : \"{mcPkgNo}\", \"Description\" : \"{description}\"}}"));
             await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
 
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -127,6 +127,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId));
+        }
+
+        [TestMethod]
+        public async Task HandlingIpoTopic_ForUnCompletedIpo_ShouldProcessWithoutFailure()
+        {
+            // Arrange
+            var status = 1;
+            var ipoEvent = "UnCompleted";
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{\"ProjectSchema\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+
+            // Assert
+            _plantSetter.Verify(p => p.SetPlant(plant));
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, null, project, new List<string>(), new List<string>()), Times.Once, "Uncompleting an IPO should not sent InvitationId as we want to clear external reference.");
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -211,6 +231,50 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task HandlingCommPkgTopic_ShouldFailIfEmpty()
+        {
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task HandlingMcPkgTopic_ShouldFailIfEmpty()
+        {
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task HandlingIpoTopic_ShouldFailIfEmpty()
+        {
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task HandlingProjectTopic_ShouldFailIfEmpty()
+        {
+
+            var message = new Message(Encoding.UTF8.GetBytes($"{{}}"));
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
         }
     }
 }

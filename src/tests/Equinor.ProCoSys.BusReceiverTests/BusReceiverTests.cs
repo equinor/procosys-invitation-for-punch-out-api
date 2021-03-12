@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.PcsBus;
 using Equinor.ProCoSys.PcsBus.Receiver;
 using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Microsoft.Azure.ServiceBus;

@@ -271,6 +271,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CompletedAtUtc = null;
             CompletedBy = null;
             AddPreSaveDomainEvent(new IpoUnCompletedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoUnCompletedEvent(Plant, ObjectGuid));
         }
 
         public void AcceptIpo(Participant participant, string participantRowVersion, Person acceptedBy, DateTime acceptedAtUtc)

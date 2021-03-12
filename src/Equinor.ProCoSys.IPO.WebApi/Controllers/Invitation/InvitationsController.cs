@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -243,11 +244,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] CompletePunchOutDto dto)
         {
-            var participantsToUpdate = dto.Participants?.Select(p =>
-                new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
-            var result = await _mediator.Send(
-                new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
-            return this.FromResult(result);
+            try
+            {
+                var participantsToUpdate = dto.Participants?.Select(p =>
+                    new UpdateAttendedStatusAndNoteOnParticipantForCommand(p.Id, p.Attended, p.Note, p.RowVersion));
+                var result = await _mediator.Send(
+                    new CompletePunchOutCommand(id, dto.InvitationRowVersion, dto.ParticipantRowVersion, participantsToUpdate));
+                return this.FromResult(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]

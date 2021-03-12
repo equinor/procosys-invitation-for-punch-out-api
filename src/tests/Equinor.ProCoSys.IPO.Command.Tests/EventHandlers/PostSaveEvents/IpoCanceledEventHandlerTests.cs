@@ -39,7 +39,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
 
             // Assert
             _topicClient.Verify(t => t.SendAsync(It.IsAny<Message>()), Times.Once());
-
         }
     }
 }
