@@ -76,10 +76,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             {
                 await _mcPkgApiService.ClearM01DatesAsync(
                     _plantProvider.Plant,
+                    invitation.Id,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
-                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList(),
-                    invitation.Id);
+                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }
             catch (Exception e)
             {
