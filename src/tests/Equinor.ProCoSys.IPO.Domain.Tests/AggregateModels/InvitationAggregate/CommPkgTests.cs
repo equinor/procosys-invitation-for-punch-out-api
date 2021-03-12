@@ -43,7 +43,19 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new CommPkg(TestPlant, ProjectName, null, Description, Status, null)
+                new CommPkg(TestPlant, ProjectName, CommPkgNo, Description, Status, null)
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsTooShort() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new CommPkg(TestPlant, ProjectName, CommPkgNo, Description, Status, "1|")
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsInvalid() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new CommPkg(TestPlant, ProjectName, CommPkgNo, Description, Status, "1234")
             );
     }
 }

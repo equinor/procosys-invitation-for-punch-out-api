@@ -15,6 +15,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
         protected const string ProjectName2 = "PROJECTNAME2";
         protected const string McPkgNo1 = "MCPKGNO1";
         protected const string McPkgNo2 = "MCPKGNO2";
+        protected const string System = "1|2";
 
         private ProCoSysCommPkgSearchResult _commPkgSearchResult;
         private IList<ProCoSysProject> _projects;
@@ -31,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OK",
                     Description = "CommPkg1Description",
                     Id = 1,
-                    System = "2"
+                    System = System
                 },
                 new ProCoSysCommPkg
                 {
@@ -39,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OS",
                     Description = "CommPkg2Description",
                     Id = 2,
-                    System = "2"
+                    System = System
                 }
             };
 
@@ -59,7 +60,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommPkgNo = CommPkgNo1,
                     McPkgNo = McPkgNo1,
                     Description = "McPkg1Description",
-                    DisciplineCode = "A"
+                    DisciplineCode = "A",
+                    System = System
                 },
                 new ProCoSysMcPkg
                 {
@@ -67,7 +69,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommPkgNo = CommPkgNo2,
                     McPkgNo = McPkgNo2,
                     Description = "McPkg2Description",
-                    DisciplineCode = "B"
+                    DisciplineCode = "B",
+                    System = System
                 }
             };
 

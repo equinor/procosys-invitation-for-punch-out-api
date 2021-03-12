@@ -7,6 +7,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class CommPkg : PlantEntityBase, ICreationAuditable
     {
+        public const int CommPkgNoMaxLength = 30;
+        public const int SystemMaxLength = 40;
+
         protected CommPkg()
             : base(null)
         {
@@ -33,6 +36,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentNullException(nameof(system));
             }
+            if (!system.Contains('|') || system.Length < 3)
+            {
+                throw new ArgumentException($"{(nameof(system))} is not valid. Must be at least three characters and include '|'");
+            }
             ProjectName = projectName;
             CommPkgNo = commPkgNo;
             Description = description;
@@ -58,5 +65,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public void MoveToProject(string toProject) => ProjectName = toProject;
+        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
     }
 }

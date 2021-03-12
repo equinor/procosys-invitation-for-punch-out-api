@@ -13,9 +13,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string CommPkgNo = "Comm1";
         private const string McPkgNo = "Mc1";
         private const string Description = "D1";
+        private const string System = "1|2";
 
         [TestInitialize]
-        public void Setup() => _dut = new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description);
+        public void Setup() => _dut = new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, System);
 
         [TestMethod]
         public void Constructor_ShouldSetProperties()
@@ -30,19 +31,37 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenProjectNameNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, null, CommPkgNo, McPkgNo, Description)
+                new McPkg(TestPlant, null, CommPkgNo, McPkgNo, Description, System)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenCommPkgNoNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, ProjectName, null, McPkgNo, Description)
+                new McPkg(TestPlant, ProjectName, null, McPkgNo, Description, System)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenMcPkgNoNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, ProjectName, CommPkgNo, null, Description)
+                new McPkg(TestPlant, ProjectName, CommPkgNo, null, Description, System)
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemNotGiven() =>
+            Assert.ThrowsException<ArgumentNullException>(() =>
+                new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, null)
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsTooShort() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, "1|")
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenSystemIsInvalid() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new McPkg(TestPlant, ProjectName, CommPkgNo, McPkgNo, Description, "1234")
             );
     }
 }

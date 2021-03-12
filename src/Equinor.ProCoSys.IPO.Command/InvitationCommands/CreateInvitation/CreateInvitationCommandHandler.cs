@@ -386,8 +386,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystem = initialCommPkg.System;
-                if (commPkgDetailsList.Any(commPkg => commPkg.System != initialSystem))
+                var initialSystem = initialCommPkg.SystemSubString;
+                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
                 {
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
@@ -412,10 +412,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
-                var initialCommPkgNo = initialMcPkg.CommPkgNo;
-                if (mcPkgDetailsList.Any(mcPkg => mcPkg.CommPkgNo != initialCommPkgNo))
+                var initialSystem = initialMcPkg.SystemSubString;
+                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a comm pkg.");
+                    throw new IpoValidationException("Mc pkg scope must be within a system.");
                 }
             }
             foreach (var mcPkg in mcPkgDetailsList)
@@ -425,7 +425,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     projectName,
                     mcPkg.CommPkgNo,
                     mcPkg.McPkgNo,
-                    mcPkg.Description));
+                    mcPkg.Description,
+                    mcPkg.System));
             }
         }
 

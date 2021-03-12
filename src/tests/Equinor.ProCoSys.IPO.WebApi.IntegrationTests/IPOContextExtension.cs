@@ -114,7 +114,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private static McPkg SeedMcPkg(IPOContext dbContext, Invitation invitation)
         {
             var mcPkg = new McPkg(invitation.Plant, invitation.ProjectName, KnownTestData.CommPkgNo,
-                KnownTestData.McPkgNo, "Description");
+                KnownTestData.McPkgNo, "Description", KnownTestData.System);
             invitation.AddMcPkg(mcPkg);
             dbContext.SaveChangesAsync().Wait();
             return mcPkg;

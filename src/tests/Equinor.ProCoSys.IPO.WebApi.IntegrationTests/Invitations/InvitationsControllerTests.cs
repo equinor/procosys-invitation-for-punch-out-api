@@ -194,6 +194,84 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task UnCompletePunchOut_AsCompleter_ShouldUnCompletePunchOut()
+        {
+            // Arrange
+            var invitationToUnCompletedId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForUnCompletingTitle",
+                "InvitationForUnCompletingDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompletedId);
+
+            var completerPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor).Person;
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
+                    {
+                        new ParticipantToChangeDto
+                        {
+                            Id = completerPerson.Person.Id,
+                            Note = "Some note about the punch out round or attendee",
+                            RowVersion = completerPerson.Person.RowVersion,
+                            Attended = true
+                        }
+                    }
+            };
+
+            // Punch round must be completed before it can be uncompleted
+            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompletedId,
+                completePunchOutDto);
+
+            var unCompletePunchOutDto = new UnCompletePunchOutDto
+            {
+                InvitationRowVersion = newInvitationRowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+            };
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Completer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompletedId,
+                unCompletePunchOutDto);
+
+            // Assert
+            var unCompletedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompletedId);
+
+            var unCompletingParticipant =
+                unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
+            Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
+            Assert.IsNull(unCompletedInvitation.CompletedBy);
+            Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
+            Assert.IsNull(unCompletingParticipant.SignedAtUtc);
+            Assert.IsNull(unCompletingParticipant.SignedBy);
+            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+        }
+
+        [TestMethod]
         public async Task AcceptPunchOut_AsAccepter_ShouldAcceptPunchOut()
         {
             // Arrange

@@ -24,24 +24,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             Assert.AreEqual(2, commPkgSearchResult.MaxAvailable);
             Assert.AreEqual(CommPkgNo1, commPkg1.CommPkgNo);
             Assert.AreEqual(CommPkgNo2, commPkg2.CommPkgNo);
-        }
-
-        [TestMethod]
-        public async Task GetCommPkgsInProject_AsViewer_ShouldGetCommPkgsInProject()
-        {
-            // Act
-            var commPkgs = await ScopeControllerTestsHelper.GetCommPkgsInProjectAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                TestFactory.ProjectWithAccess,
-                "CommPkgNo");
-
-            // Assert
-            var commPkg1 = commPkgs.First();
-            var commPkg2 = commPkgs.Last();
-            Assert.AreEqual(2, commPkgs.Count);
-            Assert.AreEqual(CommPkgNo1, commPkg1.CommPkgNo);
-            Assert.AreEqual(CommPkgNo2, commPkg2.CommPkgNo);
+            Assert.AreEqual(System, commPkg1.System);
+            Assert.AreEqual(System, commPkg2.System);
         }
 
         [TestMethod]

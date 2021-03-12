@@ -25,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken token);
         Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken token);
         Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken token);
+        Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken token);
         Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken token);
     }
 }

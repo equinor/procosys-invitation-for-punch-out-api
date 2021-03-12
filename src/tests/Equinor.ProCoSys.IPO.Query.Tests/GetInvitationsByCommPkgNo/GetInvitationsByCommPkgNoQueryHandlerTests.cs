@@ -21,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
         private int _mdpInvitationId;
         private const string _commPkgNo = "CommPkgNo";
         private const string _projectName = "Project1";
+        private const string _system = "1|2";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -91,14 +92,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _projectName,
                     _commPkgNo,
                     "McPkgNo1",
-                    description);
+                    description,
+                    _system);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
                     _projectName,
                     _commPkgNo,
                     "McPkgNo2",
-                    description);
+                    description,
+                    _system);
 
                 _dpInvitation = new Invitation(
                     TestPlant,
