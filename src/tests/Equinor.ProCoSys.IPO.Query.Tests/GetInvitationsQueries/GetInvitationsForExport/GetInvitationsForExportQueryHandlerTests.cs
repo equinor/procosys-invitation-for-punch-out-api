@@ -6,7 +6,6 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -623,7 +622,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var query = new GetInvitationsForExportQuery(_projectName2, sorting, null);
+                var query = new GetInvitationsForExportQuery(_projectName2, sorting);
                 var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider);
 
                 var result = await dut.Handle(query, default);
@@ -659,7 +658,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var query = new GetInvitationsForExportQuery(_projectName2, sorting, null);
+                var query = new GetInvitationsForExportQuery(_projectName2, sorting);
                 var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider);
 
                 var result = await dut.Handle(query, default);

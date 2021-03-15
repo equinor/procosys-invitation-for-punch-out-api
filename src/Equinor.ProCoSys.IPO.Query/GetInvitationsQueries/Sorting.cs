@@ -1,6 +1,4 @@
-﻿using Equinor.ProCoSys.IPO.Query.GetInvitations;
-
-namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
+﻿namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public class Sorting
     {

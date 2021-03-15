@@ -12,22 +12,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
         public static class FrontSheetRows
         {
             public static int MainHeading = 1;
-            public static int Blank1 = 2;
-            public static int Plant = 3;
-            public static int ProjectName = 4;
-            public static int Blank2 = 5;
-            public static int FilterHeading = 6;
-            public static int Invitation = 8;
-            public static int Title = 9;
-            public static int CommPkg = 10;
-            public static int McPkg = 11;
-            public static int PunchOutDateFrom = 12;
-            public static int PunchOutDateTo = 13;
-            public static int Status = 14;
-            public static int LastChangedFrom = 15;
-            public static int LastChangedTo = 16;
-            public static int Role = 17;
-            public static int Person = 18;
+            public static int Plant = 2;
+            public static int ProjectName = 3;
+            public static int FilterHeading = 4;
+            public static int Invitation = 5;
+            public static int Title = 6;
+            public static int CommPkg = 7;
+            public static int McPkg = 8;
+            public static int PunchOutDateFrom = 9;
+            public static int PunchOutDateTo = 10;
+            public static int Status = 11;
+            public static int LastChangedFrom = 12;
+            public static int LastChangedTo = 13;
+            public static int Role = 14;
+            public static int Person = 15;
         }
 
         public static class InvitationSheetColumns

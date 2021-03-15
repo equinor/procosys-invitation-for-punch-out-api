@@ -21,7 +21,6 @@ using Equinor.ProCoSys.IPO.Query.GetComments;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;

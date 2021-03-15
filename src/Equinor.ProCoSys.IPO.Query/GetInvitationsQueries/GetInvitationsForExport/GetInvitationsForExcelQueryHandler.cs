@@ -47,7 +47,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var invitationsWithIncludes =
                 await GetInvitationsWithIncludesAsync(invitationIds, getHistoryAndParticipants, cancellationToken);
 
-
             var exportInvitationDtos = CreateExportInvitationsDtosAsync(orderedDtos).Result;
 
             if (getHistoryAndParticipants)
@@ -154,7 +153,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             }
 
             return await (from p in _context.QuerySet<Person>()
-                where p.Oid == personOid
+                where p.Oid == personOid.Value
                 select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
         }
 

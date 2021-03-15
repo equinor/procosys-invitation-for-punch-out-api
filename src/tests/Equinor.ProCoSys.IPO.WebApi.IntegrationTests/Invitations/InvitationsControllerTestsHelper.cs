@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
