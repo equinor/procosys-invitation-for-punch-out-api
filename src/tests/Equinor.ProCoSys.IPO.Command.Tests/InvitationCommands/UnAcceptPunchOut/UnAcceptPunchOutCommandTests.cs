@@ -1,5 +1,4 @@
-﻿using System;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
+﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut

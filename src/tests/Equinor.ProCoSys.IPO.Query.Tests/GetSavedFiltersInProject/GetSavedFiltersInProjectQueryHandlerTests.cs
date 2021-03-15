@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject

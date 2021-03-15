@@ -249,6 +249,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CompletedBy = completedBy.Id;
             CompletedAtUtc = completedAtUtc;
             AddPreSaveDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, ObjectGuid));
         }
 
         public void UnCompleteIpo(Participant participant, string participantRowVersion)
@@ -270,6 +271,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CompletedAtUtc = null;
             CompletedBy = null;
             AddPreSaveDomainEvent(new IpoUnCompletedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoUnCompletedEvent(Plant, ObjectGuid));
         }
 
         public void AcceptIpo(Participant participant, string participantRowVersion, Person acceptedBy, DateTime acceptedAtUtc)
@@ -291,6 +293,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AcceptedBy = acceptedBy.Id;
             AcceptedAtUtc = acceptedAtUtc;
             AddPreSaveDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoAcceptedEvent(Plant, ObjectGuid));
         }
 
         public void UnAcceptIpo(Participant participant, string participantRowVersion)
@@ -312,6 +315,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AcceptedAtUtc = null;
             AcceptedBy = null;
             AddPreSaveDomainEvent(new IpoUnAcceptedEvent(Plant, ObjectGuid));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoUnAcceptedEvent(Plant, ObjectGuid));
         }
 
         public void SignIpo(Participant participant, Person signedBy, string participantRowVersion)
@@ -412,6 +416,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new Exception($"{nameof(Invitation)} {Id} is accepted");
             }
+
+            AddPostSaveDomainEvent(new Events.PostSave.IpoCanceledEvent(Plant, ObjectGuid, Status));
 
             Status = IpoStatus.Canceled;
             AddPreSaveDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));

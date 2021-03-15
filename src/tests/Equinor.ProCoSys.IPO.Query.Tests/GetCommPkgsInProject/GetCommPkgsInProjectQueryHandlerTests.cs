@@ -94,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 _commPkgApiServiceMock
                     .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))
-                    .Returns(Task.FromResult<ProCoSysCommPkgSearchResult>(new ProCoSysCommPkgSearchResult
+                    .Returns(Task.FromResult(new ProCoSysCommPkgSearchResult
                     {
                         MaxAvailable = 0,
                         Items = null

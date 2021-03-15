@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.BusReceiver.Topics
+﻿namespace Equinor.ProCoSys.PcsBus.Topics
 {
     public class CommPkgTopic
     {
@@ -7,6 +7,6 @@
         public string ProjectNameOld { get; set; }
         public string CommPkgNo { get; set; }
         public string Description { get; set; }
-        public string TopicName { get { return "commpkg"; } }
+        public const string TopicName = "commpkg";
     }
 }

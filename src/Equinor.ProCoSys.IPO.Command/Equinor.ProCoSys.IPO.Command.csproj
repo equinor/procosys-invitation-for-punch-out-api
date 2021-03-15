@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.PcsBus.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />

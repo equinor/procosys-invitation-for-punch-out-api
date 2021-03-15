@@ -642,7 +642,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var query = new GetInvitationsQuery(_projectName2, sorting, null);
+                var query = new GetInvitationsQuery(_projectName2, sorting);
                 var dut = new GetInvitationsQueryHandler(context);
 
                 var result = await dut.Handle(query, default);
@@ -678,7 +678,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var query = new GetInvitationsQuery(_projectName2, sorting, null);
+                var query = new GetInvitationsQuery(_projectName2, sorting);
                 var dut = new GetInvitationsQueryHandler(context);
 
                 var result = await dut.Handle(query, default);

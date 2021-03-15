@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using ServiceResult;
 
@@ -12,24 +10,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
 {
     public class UnAcceptPunchOutCommandHandler : IRequestHandler<UnAcceptPunchOutCommand, Result<string>>
     {
-        private readonly IPlantProvider _plantProvider;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IMcPkgApiService _mcPkgApiService;
 
-        public UnAcceptPunchOutCommandHandler(
-            IPlantProvider plantProvider,
-            IInvitationRepository invitationRepository,
+        public UnAcceptPunchOutCommandHandler(IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserProvider currentUserProvider, 
-            IMcPkgApiService mcPkgApiService)
+            ICurrentUserProvider currentUserProvider)
         {
-            _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
-            _mcPkgApiService = mcPkgApiService;
         }
 
         public async Task<Result<string>> Handle(UnAcceptPunchOutCommand request, CancellationToken cancellationToken)
@@ -56,26 +47,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             }
 
             invitation.SetRowVersion(request.InvitationRowVersion);
-            await ClearM02DateAsync(invitation);
+            
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private async Task ClearM02DateAsync(Invitation invitation)
-        {
-            try
-            {
-                await _mcPkgApiService.ClearM02DatesAsync(
-                    _plantProvider.Plant,
-                    invitation.Id,
-                    invitation.ProjectName,
-                    invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
-                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Error: Could not clear M-02 dates", e);
-            }
-        }
+        
     }
 }

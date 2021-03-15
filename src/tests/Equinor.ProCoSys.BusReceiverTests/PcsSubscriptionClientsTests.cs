@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BusReceiver;
-using Equinor.ProCoSys.BusReceiver.Interfaces;
+using Equinor.ProCoSys.PcsBus;
+using Equinor.ProCoSys.PcsBus.Receiver;
+using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

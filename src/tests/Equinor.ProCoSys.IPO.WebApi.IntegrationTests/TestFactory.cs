@@ -17,6 +17,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
+using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -59,6 +60,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
+        public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
 
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
@@ -178,6 +180,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
                 services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
                 services.AddScoped(serviceProvider => BlobStorageMock.Object);
+                services.AddScoped(serviceProvider => PcsBusSenderMock.Object);
             });
 
             builder.ConfigureServices(services =>

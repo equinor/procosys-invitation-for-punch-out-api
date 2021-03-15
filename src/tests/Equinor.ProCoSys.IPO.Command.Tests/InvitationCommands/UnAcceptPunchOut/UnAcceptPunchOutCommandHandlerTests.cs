@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,7 +21,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
 
         private UnAcceptPunchOutCommand _command;
         private UnAcceptPunchOutCommandHandler _dut;
@@ -118,20 +116,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
-
             //command
             _command = new UnAcceptPunchOutCommand(
                 _invitation.Id,
                 _invitationRowVersion,
                 _participantRowVersion);
 
-            _dut = new UnAcceptPunchOutCommandHandler(
-                _plantProviderMock.Object,
-                _invitationRepositoryMock.Object,
+            _dut = new UnAcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
-                _currentUserProviderMock.Object,
-                _mcPkgApiServiceMock.Object);
+                _currentUserProviderMock.Object);
         }
 
         [TestMethod]
@@ -167,18 +160,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[1].RowVersion.ConvertToString());
-        }
-
-        [TestMethod]
-        public async Task HandlingUnAcceptIpoCommand_ShouldNotUnAcceptIfClearingM02DateInMainFails()
-        {
-            _mcPkgApiServiceMock
-                .Setup(x => x.ClearM02DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
-                .Throws(new Exception("Something failed"));
-
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

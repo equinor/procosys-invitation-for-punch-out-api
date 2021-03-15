@@ -19,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateProjectOnInvitations(string projectName, string description)
         {
+            //Intentionally left blank for now
         }
 
         public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
