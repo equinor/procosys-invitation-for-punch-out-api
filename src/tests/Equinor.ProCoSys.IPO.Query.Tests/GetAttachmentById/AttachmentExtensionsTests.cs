@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
             {
                 BlobClockSkewMinutes = 5,
                 BlobContainer = @"https://blobcontainer",
-                BlockedFileSuffixes = new string[] { ".txt" },
+                BlockedFileSuffixes = new[] { ".txt" },
                 ConnectionString = "connectionstring",
                 MaxSizeMb = 1
             };

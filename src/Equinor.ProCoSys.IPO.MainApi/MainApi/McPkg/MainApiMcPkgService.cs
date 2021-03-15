@@ -88,14 +88,23 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             IList<string> mcPkgNos,
             IList<string> commPkgNos)
         {
-            string externalRef = null;
             var url = $"{_baseAddress}McPkgs/ClearM01" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}";
 
+            // Elisabeth sin forklaring: External reference er det som blir vist i "Certificate no" - kolonnen på mc pakke hvis vi har satt M01 og / eller M02
+            // datoene fra IPO. ExternalReference er en ny kolonne på mc pakke som ble opprettet mtp IPO, men kalte den noe litt nøytralt for hvis den skal
+            // bli brukt til noe annet senere.
+            // Om vi sender external referanse eller ikke(evnt null), avhenger av om vi ønsker å ha en referanse til
+            // IPOen i "Certificate no" - kolonnen på mc pakke.Hvis vi kansellerer en IPO som har blitt completed, så ønsker Kristen at vi
+            // fjerner datoen på M01, men at referansen til IPOen enda henger igjen.Hvis vi unaccepter / uncompelter, så ønsker vi å fjerne
+            // alle "sporene" av IPOen, derfor klarer vi referansen også i disse tilfellene.
+            // If IPO is completede we will not 
+            // TODO: We have to remove this confusing logic around sending/not sending invitationId based on what should happen in main...
+            string externalRef = null;
             if (invitationId != null)
             {
-                externalRef= "IPO-" + invitationId;
+                externalRef = "IPO-" + invitationId;
             }
 
             var bodyPayload = new

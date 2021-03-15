@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Equinor.ProCoSys.BusReceiver
+namespace Equinor.ProCoSys.PcsBus
 {
     public class PcsServiceBusConfig
     {

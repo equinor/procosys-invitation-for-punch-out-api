@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
+﻿namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class UnAcceptPunchOutDto
     {

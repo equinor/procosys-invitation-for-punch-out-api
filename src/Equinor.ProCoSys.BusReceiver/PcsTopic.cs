@@ -1,9 +1,10 @@
-﻿namespace Equinor.ProCoSys.BusReceiver
+﻿namespace Equinor.ProCoSys.PcsBus
 {
     public enum PcsTopic
     {
         Project,
         CommPkg,
-        McPkg
+        McPkg,
+        Ipo
     }
 }

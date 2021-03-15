@@ -547,6 +547,33 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime());
 
             Assert.IsInstanceOfType(_dutWithCommPkgScope.PreSaveDomainEvents.Last(), typeof(IpoAcceptedEvent));
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoAcceptedEvent));
+        }
+
+        [TestMethod]
+        public void UnAcceptIpo_ShouldAddUnAcceptIpoEvent()
+        {
+            _dutWithCommPkgScope.AcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
+
+            _dutWithCommPkgScope.UnAcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PreSaveDomainEvents.Last(), typeof(IpoUnAcceptedEvent));
+            Assert.IsInstanceOfType(_dutWithCommPkgScope.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoUnAcceptedEvent));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void UnAcceptUnAcceptedIpo_ShouldThrowAcception()
+        {
+            _dutWithCommPkgScope.UnAcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString());
         }
 
         [TestMethod]
@@ -570,16 +597,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 .First(p => p.Organization == Organization.ConstructionCompany).SignedAtUtc);
             Assert.IsNull(_dutWithAcceptedStatus.AcceptedBy);
             Assert.IsNull(_dutWithAcceptedStatus.AcceptedAtUtc);
-        }
-
-        [TestMethod]
-        public void UnAcceptIpo_ShouldAddUnAcceptIpoEvent()
-        {
-            _dutWithAcceptedStatus.UnAcceptIpo(
-                _functionalRoleParticipant,
-                _functionalRoleParticipant.RowVersion.ConvertToString());
-
-            Assert.IsInstanceOfType(_dutWithAcceptedStatus.PreSaveDomainEvents.Last(), typeof(IpoUnAcceptedEvent));
         }
 
         [TestMethod]
@@ -704,6 +721,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);
             Assert.AreEqual(dut.Status, IpoStatus.Canceled);
+            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count());
         }
 
         [TestMethod]

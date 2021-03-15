@@ -180,7 +180,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _personApiServiceMock.Object,
-                _mcPkgApiServiceMock.Object,
                 _personRepositoryMock.Object);
         }
 
@@ -213,18 +212,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
-        }
-
-        [TestMethod]
-        public async Task HandlingAcceptIpoCommand_ShouldNotAcceptIfSettingM02DateInMainFails()
-        {
-            _mcPkgApiServiceMock
-                .Setup(x => x.SetM02DatesAsync(_plant, _invitation.Id, _projectName, new List<string>(), new List<string>()))
-                .Throws(new Exception("Something failed"));
-
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

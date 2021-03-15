@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
