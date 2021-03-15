@@ -10,17 +10,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class InvitationHelper
     {
-        public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant)
-        {
-            if (participant.SortKey < 2)
-            {
-                return true;
-            }
-
-            return participant.Organization == Organization.Commissioning ||
-                   participant.Organization == Organization.Operation ||
-                   participant.Organization == Organization.TechnicalIntegrity;
-        }
+        public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant) 
+            => participant.Organization != Organization.External && participant.Organization != Organization.Supplier;
 
         public static List<BuilderParticipant> AddPersonToOutlookParticipantList(
             ProCoSysPerson person,

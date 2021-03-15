@@ -214,7 +214,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
-                foreach (var participant in personParticipantsWithOids.Where(p => p.SortKey > 1))
+                foreach (var participant in personParticipantsWithOids)
                 {
                     var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
                     if (person != null)

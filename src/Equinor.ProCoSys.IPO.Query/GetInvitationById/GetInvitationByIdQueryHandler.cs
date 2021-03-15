@@ -276,33 +276,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
 
-        private bool IsSigningParticipant(Participant participant)
-        {
-            if (participant.SortKey < 2)
-            {
-                return true;
-            }
-
-            if (participant.Organization == Organization.Supplier ||
-                participant.Organization == Organization.External ||
-                participant.Organization == Organization.ConstructionCompany ||
-                participant.Organization == Organization.Contractor)
-            {
-                return false;
-            }
-
-            switch (participant.Organization)
-            {
-                case Organization.Commissioning:
-                    return true;
-                case Organization.Operation:
-                    return true;
-                case Organization.TechnicalIntegrity:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        private bool IsSigningParticipant(Participant participant) 
+            => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;
 
         private async Task<bool> CurrentUserCanSignAsPersonInFunctionalRole(Participant participant)
         {
