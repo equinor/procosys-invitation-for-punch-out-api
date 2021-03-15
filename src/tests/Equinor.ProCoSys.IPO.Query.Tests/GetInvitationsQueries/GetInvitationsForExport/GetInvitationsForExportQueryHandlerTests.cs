@@ -40,6 +40,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         const string _commPkgNo = "CommPkgNo";
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
+        const string _system = "1|2";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -157,14 +158,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     _projectName,
                     _commPkgNo,
                     _mcPkgNo,
-                    description);
+                    description,
+                    _system);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
                     _projectName,
                     _commPkgNo2,
                     _mcPkgNo,
-                    description);
+                    description,
+                    _system);
 
                 var startTime1 = _timeProvider.UtcNow;
 
