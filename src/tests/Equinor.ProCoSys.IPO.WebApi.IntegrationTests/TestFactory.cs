@@ -424,8 +424,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
-                        Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE
+                        Permissions.IPO_SIGN
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -454,8 +453,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
                         Permissions.USER_READ,
                         Permissions.IPO_READ,
-                        Permissions.IPO_SIGN,
-                        Permissions.IPO_WRITE
+                        Permissions.IPO_SIGN
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
@@ -489,7 +487,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DELETE,
                         Permissions.IPO_ATTACHFILE,
                         Permissions.IPO_DETACHFILE,
-                        Permissions.IPO_VOIDUNVOID
+                        Permissions.IPO_VOIDUNVOID,
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });

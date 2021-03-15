@@ -25,10 +25,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
-        private bool _signingOperationIncluded;
-        private bool _signingCommissioningIncluded;
-        private bool _signingTechnincalIntegrityIncluded;
-
         public GetInvitationByIdQueryHandler(
             IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
@@ -287,8 +283,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 return true;
             }
 
-            if (participant.SortKey > 4 || 
-                participant.Organization == Organization.Supplier ||
+            if (participant.Organization == Organization.Supplier ||
                 participant.Organization == Organization.External ||
                 participant.Organization == Organization.ConstructionCompany ||
                 participant.Organization == Organization.Contractor)
@@ -298,14 +293,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             switch (participant.Organization)
             {
-                case Organization.Commissioning when !_signingCommissioningIncluded:
-                    _signingCommissioningIncluded = true;
+                case Organization.Commissioning:
                     return true;
-                case Organization.Operation when !_signingOperationIncluded:
-                    _signingOperationIncluded = true;
+                case Organization.Operation:
                     return true;
-                case Organization.TechnicalIntegrity when !_signingTechnincalIntegrityIncluded:
-                    _signingTechnincalIntegrityIncluded = true;
+                case Organization.TechnicalIntegrity:
                     return true;
                 default:
                     return false;

@@ -184,7 +184,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Accept")]
         public async Task<ActionResult<string>> AcceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -202,7 +201,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Uncomplete")]
         public async Task<ActionResult<string>> UncompletePunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -218,7 +216,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Unaccept")]
         public async Task<ActionResult<string>> UnacceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -234,7 +231,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompletePunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -261,7 +257,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
-        [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/AttendedStatusAndNotes")]
         public async Task<ActionResult> ChangeAttendedStatusOnParticipants(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]

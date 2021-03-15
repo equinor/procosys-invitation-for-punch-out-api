@@ -228,7 +228,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),
                         "IPO",
-                        new List<string> {"CREATE", "SIGN"}))
+                        new List<string> {"SIGN"}))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = personParticipant.AzureOid.ToString(),

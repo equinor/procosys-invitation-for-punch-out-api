@@ -158,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _azureOid.ToString(), "IPO", new List<string> { "CREATE", "SIGN" }))
+                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }))
                 .Returns(Task.FromResult(_personDetails));
 
             _functionalRoleDetails = new ProCoSysFunctionalRole
