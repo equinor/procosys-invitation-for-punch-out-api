@@ -21,8 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     public class CreateInvitationCommandHandler : IRequestHandler<CreateInvitationCommand, Result<int>>
     {
         private const string _objectName = "IPO";
-        private readonly IList<string> _requiredSignerPrivileges = new List<string> { "CREATE", "SIGN" };
-        private readonly IList<string> _additionalSignerPrivileges = new List<string> { "SIGN" };
+        private readonly IList<string> _signerPrivileges = new List<string> { "SIGN" };
 
         private readonly IPlantProvider _plantProvider;
         private readonly IFusionMeetingClient _meetingClient;
@@ -192,72 +191,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<BuilderParticipant> participants,
             List<ParticipantsForCommand> personParticipantsWithOids)
         {
-            if (personParticipantsWithOids.Any(p => p.SortKey == 0))
+            var personsAdded = new List<ParticipantsForCommand>();
+            foreach (var participant in personParticipantsWithOids)
             {
-                var participant = personParticipantsWithOids.Single(p => p.SortKey == 0);
-                participants = await AddSigner(
-                    invitation,
-                    participants,
-                    participant.Person,
-                    participant.SortKey,
-                    Organization.Contractor,
-                    _requiredSignerPrivileges);
-                personParticipantsWithOids.Remove(participant);
-            }
-            if (personParticipantsWithOids.Any(p => p.SortKey == 1))
-            {
-                var participant = personParticipantsWithOids.Single(p => p.SortKey == 1);
-                participants = await AddSigner(
-                    invitation,
-                    participants,
-                    participant.Person,
-                    participant.SortKey,
-                    Organization.ConstructionCompany,
-                    _requiredSignerPrivileges);
-                personParticipantsWithOids.Remove(participant);
+                if (InvitationHelper.ParticipantIsSigningParticipant(participant))
+                {
+                    participants = await AddSigner(
+                        invitation,
+                        participants,
+                        participant.Person,
+                        participant.SortKey,
+                        participant.Organization);
+                    personsAdded.Add(participant);
+                }
             }
 
-            if (personParticipantsWithOids.Any(p =>
-                p.SortKey < 5 && p.Organization == Organization.Commissioning))
-            {
-                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Commissioning);
-                participants = await AddSigner(
-                    invitation,
-                    participants,
-                    participant.Person,
-                    participant.SortKey,
-                    participant.Organization,
-                    _additionalSignerPrivileges);
-                personParticipantsWithOids.Remove(participant);
-            }
-
-            if (personParticipantsWithOids.Any(p =>
-                p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity))
-            {
-                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.TechnicalIntegrity);
-                participants = await AddSigner(
-                    invitation,
-                    participants,
-                    participant.Person,
-                    participant.SortKey,
-                    participant.Organization,
-                    _additionalSignerPrivileges);
-                personParticipantsWithOids.Remove(participant);
-            }
-
-            if (personParticipantsWithOids.Any(p =>
-                p.SortKey < 5 && p.Organization == Organization.Operation))
-            {
-                var participant = personParticipantsWithOids.First(p => p.SortKey < 5 && p.Organization == Organization.Operation);
-                participants = await AddSigner(
-                    invitation,
-                    participants,
-                    participant.Person,
-                    participant.SortKey,
-                    participant.Organization,
-                    _additionalSignerPrivileges);
-                personParticipantsWithOids.Remove(participant);
-            }
+            personParticipantsWithOids.RemoveAll(p => personsAdded.Contains(p));
 
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
             var persons = oids.Count > 0
@@ -265,7 +214,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
-                foreach (var participant in personParticipantsWithOids.Where(p => p.SortKey > 1))
+                foreach (var participant in personParticipantsWithOids)
                 {
                     var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
                     if (person != null)
@@ -294,14 +243,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<BuilderParticipant> participants,
             PersonForCommand signer,
             int sortKey,
-            Organization organization,
-            IList<string> privileges)
+            Organization organization)
         {
             var person = await _personApiService.GetPersonByOidWithPrivilegesAsync(
                 _plantProvider.Plant,
                 signer.AzureOid.ToString(),
                 _objectName,
-                privileges);
+                _signerPrivileges);
             if (person != null)
             {
                 invitation.AddParticipant(new Participant(
@@ -439,8 +387,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
-                var baseUrl =
-                    $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
+                var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
+
                 meetingBuilder
                     .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)

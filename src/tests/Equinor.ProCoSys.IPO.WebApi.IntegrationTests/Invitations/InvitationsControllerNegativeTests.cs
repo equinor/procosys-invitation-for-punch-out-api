@@ -450,15 +450,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task CompletePunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new CompletePunchOutDto(),
-                HttpStatusCode.Forbidden);
-
-        [TestMethod]
         public async Task CompletePunchOut_AsAccepter_ShouldReturnBadRequest_WhenInvalidParticipant()
         {
             var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -569,15 +560,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task UnCompletePunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new UnCompletePunchOutDto(),
-                HttpStatusCode.Forbidden);
-
-        [TestMethod]
         public async Task UnCompletePunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
                 UserType.Completer,
@@ -636,15 +618,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task AcceptPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Planner,
-                TestFactory.PlantWithAccess,
-                9999,
-                new AcceptPunchOutDto(),
-                HttpStatusCode.Forbidden);
-
-        [TestMethod]
-        public async Task AcceptPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
                 new AcceptPunchOutDto(),
@@ -774,15 +747,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task UnAcceptPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new UnAcceptPunchOutDto(),
-                HttpStatusCode.Forbidden);
-
-        [TestMethod]
         public async Task UnAcceptPunchOut_AsAccepter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
                 UserType.Accepter,
@@ -839,17 +803,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task CancelPunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new CompletePunchOutDto(),
+                new CancelPunchOutDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task CancelPunchOut_AsCompleter_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
             => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
-                UserType.Completer,
+                UserType.Planner,
                 TestFactory.PlantWithAccess,
                 38934,
                 new CancelPunchOutDto(),

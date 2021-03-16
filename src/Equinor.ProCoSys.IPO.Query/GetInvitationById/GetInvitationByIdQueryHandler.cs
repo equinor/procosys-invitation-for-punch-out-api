@@ -25,10 +25,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
-        private bool _signingOperationIncluded;
-        private bool _signingCommissioningIncluded;
-        private bool _signingTechnincalIntegrityIncluded;
-
         public GetInvitationByIdQueryHandler(
             IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
@@ -280,37 +276,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
             => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
 
-        private bool IsSigningParticipant(Participant participant)
-        {
-            if (participant.SortKey < 2)
-            {
-                return true;
-            }
-
-            if (participant.SortKey > 4 || 
-                participant.Organization == Organization.Supplier ||
-                participant.Organization == Organization.External ||
-                participant.Organization == Organization.ConstructionCompany ||
-                participant.Organization == Organization.Contractor)
-            {
-                return false;
-            }
-
-            switch (participant.Organization)
-            {
-                case Organization.Commissioning when !_signingCommissioningIncluded:
-                    _signingCommissioningIncluded = true;
-                    return true;
-                case Organization.Operation when !_signingOperationIncluded:
-                    _signingOperationIncluded = true;
-                    return true;
-                case Organization.TechnicalIntegrity when !_signingTechnincalIntegrityIncluded:
-                    _signingTechnincalIntegrityIncluded = true;
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        private bool IsSigningParticipant(Participant participant) 
+            => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;
 
         private async Task<bool> CurrentUserCanSignAsPersonInFunctionalRole(Participant participant)
         {

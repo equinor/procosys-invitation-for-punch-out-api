@@ -112,5 +112,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             // Assert
             Assert.AreEqual(0, proCoSysPersons.Count);
         }
+
+        [TestMethod]
+        public async Task GetSignerPersons_AsViewer_ShouldGetAdditionalSignerPersons()
+        {
+            // Act
+            var signerPersons = await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "AdditionalSignersSearchString");
+
+            // Assert
+            Assert.AreEqual(1, signerPersons.Count);
+            var additionalSignerPerson = signerPersons.First();
+            Assert.AreEqual("SigurdUserName", additionalSignerPerson.UserName);
+            Assert.AreEqual("Sigurd", additionalSignerPerson.FirstName);
+            Assert.AreEqual("Signer", additionalSignerPerson.LastName);
+        }
+
+        [TestMethod]
+        public async Task GetSignerPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
+        {
+            // Act
+            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                "searchStringWithNoMatchingPersons");
+
+            // Assert
+            Assert.AreEqual(0, proCoSysPersons.Count);
+        }
     }
 }

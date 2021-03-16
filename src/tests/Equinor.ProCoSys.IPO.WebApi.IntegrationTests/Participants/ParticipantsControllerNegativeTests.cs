@@ -112,5 +112,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 "p",
                 HttpStatusCode.Forbidden);
         #endregion
+
+        #region GetSignerPersons
+        [TestMethod]
+        public async Task GetSignerPersons_AsAnonymous_ShouldReturnUnauthorized()
+            => await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
+                UserType.Anonymous,
+                TestFactory.UnknownPlant,
+                "p",
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task GetSignerPersons_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                "p",
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task GetSignerPersons_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                "p",
+                HttpStatusCode.Forbidden);
+        #endregion
     }
 }

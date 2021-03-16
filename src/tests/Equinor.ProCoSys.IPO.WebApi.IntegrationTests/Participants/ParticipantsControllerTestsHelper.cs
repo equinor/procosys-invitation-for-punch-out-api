@@ -94,5 +94,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             var content = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<ProCoSysPersonDto>>(content);
         }
+
+        public static async Task<List<ProCoSysPersonDto>> GetSignerPersonsAsync(
+            UserType userType,
+            string plant,
+            string searchString,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var parameters = new ParameterCollection { { "searchString", searchString } };
+            var url = $"{Route}/Persons/ByPrivileges/Signers{parameters}";
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<ProCoSysPersonDto>>(content);
+        }
     }
 }
