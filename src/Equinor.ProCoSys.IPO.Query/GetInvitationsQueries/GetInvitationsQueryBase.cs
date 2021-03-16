@@ -4,11 +4,11 @@ using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public abstract class GetInvitationsQueryBase
     {
-        protected IQueryable<InvitationDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
+        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
         {
             var startOfThisWeekUtc = DateTime.MinValue;
             var startOfNextWeekUtc = DateTime.MinValue;
@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             }
 
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
- 
+
             var queryable = from invitation in context.QuerySet<Invitation>()
                 where invitation.ProjectName == projectName &&
                       (!filter.PunchOutDates.Any() ||
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                             (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) >= filter.LastChangedAtFromUtc) &&
                       (filter.LastChangedAtToUtc == null ||
                             (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
-                select new InvitationDto
+                select new InvitationForQueryDto
                 {
                     Id = invitation.Id,
                     ProjectName = invitation.ProjectName,
@@ -65,6 +65,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
                     Status = invitation.Status,
                     Type = invitation.Type,
                     CreatedAtUtc = invitation.CreatedAtUtc,
+                    CreatedById = invitation.CreatedById,
                     StartTimeUtc = invitation.StartTimeUtc,
                     EndTimeUtc = invitation.EndTimeUtc,
                     CompletedAtUtc = invitation.CompletedAtUtc,
@@ -78,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
             return queryable;
         }
 
-        protected static IEnumerable<InvitationDto> AddSorting(Sorting sorting, IEnumerable<InvitationDto> queryable)
+        protected static IEnumerable<InvitationForQueryDto> AddSorting(Sorting sorting, IEnumerable<InvitationForQueryDto> queryable)
         {
             switch (sorting.Direction)
             {

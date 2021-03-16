@@ -12,7 +12,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var authorizeAttributes = context.ApiDescription.GetAuthorizeAttributes();
-            if (authorizeAttributes.Any(a => a.GetType() == typeof(AuthorizeAttribute)))
+            if (authorizeAttributes.Any(a =>
+                a.GetType() == typeof(AuthorizeAttribute) || a.GetType().IsSubclassOf(typeof(AuthorizeAttribute))))
             {
                 operation.Responses.Add(StatusCodes.Status401Unauthorized.ToString(),
                     new OpenApiResponse

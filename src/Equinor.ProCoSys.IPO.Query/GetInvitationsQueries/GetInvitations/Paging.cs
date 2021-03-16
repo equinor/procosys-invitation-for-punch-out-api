@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {
     public class Paging
     {

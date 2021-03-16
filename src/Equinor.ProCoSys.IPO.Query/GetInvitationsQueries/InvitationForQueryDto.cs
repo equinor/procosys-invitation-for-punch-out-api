@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
-namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
-    public class InvitationDto
+    public class InvitationForQueryDto
     {
         public int Id { get; set; }
         public string ProjectName { get; set; }
@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitations
         public DisciplineType Type { get; set; }
         public IpoStatus Status { get; set; }
         public DateTime CreatedAtUtc { get; set; }
+        public int CreatedById { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
         public DateTime? CompletedAtUtc { get; set; }

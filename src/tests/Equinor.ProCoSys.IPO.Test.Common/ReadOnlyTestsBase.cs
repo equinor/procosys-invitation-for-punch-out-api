@@ -29,7 +29,6 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         [TestInitialize]
         public void SetupBase()
         {
-
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
