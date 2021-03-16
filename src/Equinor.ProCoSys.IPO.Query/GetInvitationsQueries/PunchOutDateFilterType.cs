@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Query.GetInvitations
+﻿namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public enum PunchOutDateFilterType
     {

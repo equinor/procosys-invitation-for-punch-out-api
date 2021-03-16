@@ -24,6 +24,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task ExportInvitations_AsViewer_ShouldExportInvitations()
+        {
+            // Act
+            var file = await InvitationsControllerTestsHelper.ExportInvitationsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess);
+
+            // Assert
+            Assert.AreEqual("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file.ContentType);
+        }
+
+        [TestMethod]
         public async Task GetInvitation_AsViewer_ShouldGetInvitation()
         {
             // Act

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Query.GetInvitations;
+using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {

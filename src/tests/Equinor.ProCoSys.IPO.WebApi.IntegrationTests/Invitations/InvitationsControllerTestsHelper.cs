@@ -3,9 +3,11 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
+using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -39,6 +41,36 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<InvitationResultsDto>(jsonString);
         }
 
+        public static async Task<XLFile> ExportInvitationsAsync(
+            UserType userType,
+            string plant,
+            string projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var parameters = new ParameterCollection
+            {
+                {"ProjectName", projectName}
+            };
+            var url = $"{Route}/ExportInvitationsToExcel{parameters}";
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync(url);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var stream = await response.Content.ReadAsStreamAsync();
+            var result = new XLFile
+            {
+                Workbook = new XLWorkbook(stream),
+                ContentType = response.Content.Headers.ContentType?.MediaType
+            };
+
+            return result;
+        }
 
         public static async Task<InvitationDto> GetInvitationAsync(
             UserType userType, string plant,
