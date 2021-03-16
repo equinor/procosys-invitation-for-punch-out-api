@@ -387,8 +387,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
             {
-                var baseUrl =
-                    $"{_meetingOptions.CurrentValue.PcsBaseUrl.Trim('/')}/{_plantProvider.Plant.Substring(4, _plantProvider.Plant.Length - 4).ToUpper()}";
+                var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
+
                 meetingBuilder
                     .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
