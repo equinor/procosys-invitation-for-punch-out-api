@@ -203,15 +203,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
                     _azureOidForCurrentUser.ToString(), _functionalRoleCode))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
-            
-            var command = new CompletePunchOutCommand(
-                _invitation.Id,
-                _invitationRowVersion,
-                _participantRowVersion,
-                _participantsToChange);
-
+  
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
-                _dut.Handle(command, default));
+                _dut.Handle(_command, default));
+
             Assert.IsTrue(result.Message.StartsWith("Person was not found in functional role with code"));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
