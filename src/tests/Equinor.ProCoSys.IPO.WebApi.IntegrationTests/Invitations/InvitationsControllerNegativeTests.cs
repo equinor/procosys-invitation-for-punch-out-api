@@ -52,6 +52,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess, 
                 9999, 
                 HttpStatusCode.NotFound);
+
+        [TestMethod]
+        public async Task GetInvitation_AsSigner_ShouldReturnNotFound_WhenUnknownId()
+            => await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                HttpStatusCode.NotFound);
         #endregion
 
         #region ExportInvitations
@@ -309,6 +317,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new EditInvitationDto(),
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            var editInvitationDto = await CreateValidEditInvitationDto();
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                    UserType.Planner,
+                    TestFactory.PlantWithAccess,
+                    38934,
+                    editInvitationDto,
+                    HttpStatusCode.BadRequest,
+                    "IPO with this ID does not exist!");
+        }
         #endregion
 
         #region Sign 
@@ -504,6 +525,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new UnCompletePunchOutDto(),
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new UnCompletePunchOutDto(),
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region Accept
@@ -562,6 +592,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new AcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new AcceptPunchOutDto(),
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region UnAccept
@@ -611,6 +650,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new UnAcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
+
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new UnAcceptPunchOutDto(),
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region Cancel
@@ -660,6 +709,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new CancelPunchOutDto(),
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new CancelPunchOutDto(),
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region ChangeAttendedStatusOnParticipants
@@ -700,6 +758,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new ParticipantToChangeDto[1],
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new[] {new ParticipantToChangeDto
+                {
+                    Attended = true, Id = 1, Note = "note", RowVersion = TestFactory.AValidRowVersion
+                }},
+                HttpStatusCode.BadRequest);
+
         #endregion
 
         #region UploadAttachment
@@ -740,6 +811,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 FileToBeUploaded,
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UploadAttachment_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UploadAttachmentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                FileToBeUploaded,
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region DeleteAttachment
@@ -784,6 +864,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "Attachment doesn't exist!");
+
+        [TestMethod]
+        public async Task DeleteAttachment_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                _attachmentId,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest);
         #endregion
 
         #region GetAttachments

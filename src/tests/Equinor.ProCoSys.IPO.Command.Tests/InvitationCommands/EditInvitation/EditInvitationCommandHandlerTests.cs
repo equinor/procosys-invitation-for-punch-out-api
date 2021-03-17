@@ -363,8 +363,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 _rowVersion);
 
-            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Mc pkg scope must be within a system"));
         }
 
         [TestMethod]
@@ -396,8 +397,62 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 newScope,
                 _rowVersion);
 
-            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a system"));
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfSigningParticipantDoesNotHaveCorrectPrivileges()
+        {
+            _personApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
+                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                .Returns(Task.FromResult<ProCoSysPerson>(null));
+
+            var command = new EditInvitationCommand(
+                _invitation.Id,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _updatedParticipants,
+                _mcPkgScope,
+                null,
+                _rowVersion);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Person does not have required privileges to be the"));
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfFunctionalRoleDoesNotExistOrHaveIPOClassification()
+        {
+            IList<ProCoSysFunctionalRole> functionalRoles = new List<ProCoSysFunctionalRole>();
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant, new List<string> { _newFunctionalRoleCode }))
+                .Returns(Task.FromResult(functionalRoles));
+
+            var command = new EditInvitationCommand(
+                _invitation.Id,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _updatedParticipants,
+                _mcPkgScope,
+                null,
+                _rowVersion);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Could not find functional role with functional role code"));
         }
 
         [TestMethod]
