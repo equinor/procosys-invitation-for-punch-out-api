@@ -294,10 +294,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddSignerUser(commonProCoSysPlants, commonProCoSysProjects);
             
-            AddCompleterUser(commonProCoSysPlants, commonProCoSysProjects);
-
-            AddAccepterUser(commonProCoSysPlants, commonProCoSysProjects);
-
             AddPlannerUser(commonProCoSysPlants, commonProCoSysProjects);
 
             AddViewerUser(commonProCoSysPlants, commonProCoSysProjects);
@@ -371,7 +367,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ProCoSysProjects = commonProCoSysProjects
                 });
 
-        // Authenticated user with necessary permissions to SIGN invitations
+        // Authenticated user with necessary permissions to SIGN invitations (including completing and accepting)
         private void AddSignerUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
@@ -385,64 +381,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                             Oid = SignerOid,
                             UserName = "sigurdsigner",
                             Email = "sigurd.signer@pcs.pcs"
-                        },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
-                    {
-                        Permissions.COMMPKG_READ,
-                        Permissions.MCPKG_READ,
-                        Permissions.PROJECT_READ,
-                        Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
-                        Permissions.USER_READ,
-                        Permissions.IPO_READ,
-                        Permissions.IPO_SIGN
-                    },
-                    ProCoSysProjects = commonProCoSysProjects
-                });
-
-        // Authenticated user with necessary permissions to COMPLETE invitations
-        private void AddCompleterUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(UserType.Completer,
-                new TestUser
-                {
-                    Profile =
-                        new TestProfile
-                        {
-                            FullName = "Conrad Contractor",
-                            Oid = CompleterOid,
-                            UserName = "conradcontractor",
-                            Email = "conrad.contractor@pcs.pcs"
-                        },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
-                    {
-                        Permissions.COMMPKG_READ,
-                        Permissions.MCPKG_READ,
-                        Permissions.PROJECT_READ,
-                        Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
-                        Permissions.USER_READ,
-                        Permissions.IPO_READ,
-                        Permissions.IPO_SIGN
-                    },
-                    ProCoSysProjects = commonProCoSysProjects
-                });
-
-        // Authenticated user with necessary permissions to ACCEPT invitations
-        private void AddAccepterUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
-            => _testUsers.Add(UserType.Accepter,
-                new TestUser
-                {
-                    Profile =
-                        new TestProfile
-                        {
-                            FullName = "Connie Constructor",
-                            Oid = AccepterOid,
-                            UserName = "connieconstructor",
-                            Email = "connie.constructor@pcs.pcs"
                         },
                     ProCoSysPlants = commonProCoSysPlants,
                     ProCoSysPermissions = new List<string>

@@ -4,8 +4,6 @@
     {
         Anonymous,
         Signer,
-        Completer,
-        Accepter,
         Planner,
         Viewer,
         Hacker

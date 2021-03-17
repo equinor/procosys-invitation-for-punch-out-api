@@ -63,11 +63,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 "RequiredSignersSearchString");
 
             // Assert
-            Assert.AreEqual(2, signerPersons.Count);
-            var requiredSignerPerson = signerPersons.First();
-            Assert.AreEqual("ConnieUserName", requiredSignerPerson.UserName);
-            Assert.AreEqual("Connie", requiredSignerPerson.FirstName);
-            Assert.AreEqual("Constructor", requiredSignerPerson.LastName);
+            Assert.AreEqual(1, signerPersons.Count);
+            var requiredSignerPerson = signerPersons.Single();
+            Assert.AreEqual("SigurdUserName", requiredSignerPerson.UserName);
+            Assert.AreEqual("Sigurd", requiredSignerPerson.FirstName);
+            Assert.AreEqual("Signer", requiredSignerPerson.LastName);
         }
 
         [TestMethod]

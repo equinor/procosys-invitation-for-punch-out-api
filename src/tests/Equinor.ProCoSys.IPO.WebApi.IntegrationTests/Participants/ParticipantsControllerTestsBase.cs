@@ -16,23 +16,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         private const string Classification = "IPO";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
        
-        protected PersonHelper _sigurdSigner, _connieConstructor, _conradContractor, _vidarViewer;
+        protected PersonHelper _sigurdSigner, _vidarViewer;
 
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
-        private IList<ProCoSysPerson> _requiredSignerPersons;
-        private IList<ProCoSysPerson> _additionalSignerPersons;
+        private IList<ProCoSysPerson> _signerPersons;
         private IList<ProCoSysPerson> _proCoSysPersons;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            var completerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Completer);
-            _conradContractor = new PersonHelper(completerUser.Profile.Oid, "Conrad", "Contractor", "ConradUserName",
-                "conrad@contractor.com", 1, "AAAAAAAAALA=");
-            var accepterUser = TestFactory.Instance.GetTestUserForUserType(UserType.Accepter);
-            _connieConstructor = new PersonHelper(accepterUser.Profile.Oid, "Connie", "Constructor", "ConnieUserName",
-                "connie@constructor.com", 2, "AAAAAAAAABA=");
             var signerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Signer);
             _sigurdSigner = new PersonHelper(signerUser.Profile.Oid, "Sigurd", "Signer", "SigurdUserName",
                 "sigurd@signer.com", 3, "AAAAAAAAAMA=");
@@ -74,13 +67,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 }
             };
 
-            _requiredSignerPersons = new List<ProCoSysPerson>
-            {
-                _connieConstructor.AsProCoSysPerson(),
-                _conradContractor.AsProCoSysPerson()
-            };
-
-            _additionalSignerPersons = new List<ProCoSysPerson>
+            _signerPersons = new List<ProCoSysPerson>
             {
                 _sigurdSigner.AsProCoSysPerson()
             };
@@ -120,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     "RequiredSignersSearchString",
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_requiredSignerPersons));
+                .Returns(Task.FromResult(_signerPersons));
 
             TestFactory.Instance
                 .PersonApiServiceMock
@@ -129,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     "AdditionalSignersSearchString",
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_additionalSignerPersons));
+                .Returns(Task.FromResult(_signerPersons));
 
             TestFactory.Instance
                 .PersonApiServiceMock

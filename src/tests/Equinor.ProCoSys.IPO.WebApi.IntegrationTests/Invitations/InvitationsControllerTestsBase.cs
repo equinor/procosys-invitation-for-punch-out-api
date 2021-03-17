@@ -38,17 +38,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
         protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
-        protected PersonHelper _sigurdSigner, _connieConstructor, _conradContractor, _pernillaPlanner;
+        protected PersonHelper _sigurdSigner, _pernillaPlanner;
 
         [TestInitialize]
         public void TestInitialize()
         {
             var personParticipant = new PersonForCommand(Guid.NewGuid(), "ola@test.com", true);
             var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
-            var completerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Completer);
-            _conradContractor = new PersonHelper(completerUser.Profile.Oid, "Conrad", "Contractor", "ConradUserName","conrad@contractor.com", 1, "AAAAAAAAALA=");
-            var accepterUser = TestFactory.Instance.GetTestUserForUserType(UserType.Accepter);
-            _connieConstructor = new PersonHelper(accepterUser.Profile.Oid, "Connie", "Constructor", "ConnieUserName", "connie@constructor.com", 2, "AAAAAAAAABA=");
             var signerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Signer);
             _sigurdSigner = new PersonHelper(signerUser.Profile.Oid, "Sigurd", "Signer", "SigurdUserName", "sigurd@signer.com", 3, "AAAAAAAAAMA=");
             var plannerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Planner);
@@ -75,13 +71,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
-                    _conradContractor.AsPersonForCommand(true),
+                    _sigurdSigner.AsPersonForCommand(true),
                     null,
                     0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    _connieConstructor.AsPersonForCommand(true),
+                    _sigurdSigner.AsPersonForCommand(true),
                     null,
                     1),
                 new ParticipantsForCommand(
@@ -194,24 +190,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
-
-            TestFactory.Instance
-                .PersonApiServiceMock
-                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
-                    TestFactory.PlantWithAccess,
-                    _connieConstructor.AzureOid,
-                    "IPO",
-                    It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_connieConstructor.AsProCoSysPerson()));
-
-            TestFactory.Instance
-                .PersonApiServiceMock
-                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
-                    TestFactory.PlantWithAccess,
-                    _conradContractor.AzureOid,
-                    "IPO",
-                    It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_conradContractor.AsProCoSysPerson()));
 
             TestFactory.Instance
                 .PersonApiServiceMock
