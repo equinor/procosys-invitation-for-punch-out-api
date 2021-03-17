@@ -34,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                       $"&startsWithCommPkgNo={WebUtility.UrlEncode(startsWithCommPkgNo)}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       "&includeVoidedCommPkgs=false" +
+                      "&includeDecommissioningPkgs=true" +
                       $"&itemsPerPage={itemsPerPage}" +
                       $"&currentPage={currentPage}" +
                       $"&api-version={_apiVersion}";
