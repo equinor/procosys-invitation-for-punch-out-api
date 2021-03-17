@@ -284,7 +284,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
             Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a system"));
-
         }
 
         [TestMethod]

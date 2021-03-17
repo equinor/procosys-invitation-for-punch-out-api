@@ -298,7 +298,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new EditInvitationDto(),
                 HttpStatusCode.Forbidden);
 
-
         [TestMethod]
         public async Task EditInvitation_AsViewer_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.EditInvitationAsync(
@@ -322,12 +321,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             var editInvitationDto = await CreateValidEditInvitationDto();
             await InvitationsControllerTestsHelper.EditInvitationAsync(
-                    UserType.Planner,
-                    TestFactory.PlantWithAccess,
-                    38934,
-                    editInvitationDto,
-                    HttpStatusCode.BadRequest,
-                    "IPO with this ID does not exist!");
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                38934,
+                editInvitationDto,
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         }
         #endregion
 
@@ -404,7 +403,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 new CompletePunchOutDto(),
                 HttpStatusCode.Unauthorized);
-
 
         [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownPlant()
