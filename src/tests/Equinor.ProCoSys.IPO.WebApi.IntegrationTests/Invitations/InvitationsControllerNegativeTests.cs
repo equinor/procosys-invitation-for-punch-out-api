@@ -308,7 +308,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new EditInvitationDto(),
                 HttpStatusCode.Forbidden);
 
-
         [TestMethod]
         public async Task EditInvitation_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
             => await InvitationsControllerTestsHelper.EditInvitationAsync(
@@ -770,7 +769,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     Attended = true, Id = 1, Note = "note", RowVersion = TestFactory.AValidRowVersion
                 }},
                 HttpStatusCode.BadRequest);
-
         #endregion
 
         #region UploadAttachment
