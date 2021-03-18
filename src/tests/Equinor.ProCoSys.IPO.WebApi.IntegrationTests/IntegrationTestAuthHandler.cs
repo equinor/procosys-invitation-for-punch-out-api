@@ -78,6 +78,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             switch (authType)
             {
                 case AuthType.Delegated:
+                    claims.Add(new Claim(ClaimTypes.Upn, profile.Email));
                     claims.Add(new Claim(ClaimTypes.GivenName, profile.FirstName));
                     claims.Add(new Claim(ClaimTypes.Surname, profile.LastName));
                     break;
