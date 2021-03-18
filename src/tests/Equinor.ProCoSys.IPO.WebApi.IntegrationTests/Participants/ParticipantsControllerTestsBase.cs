@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
-using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -16,8 +15,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         private const string Classification = "IPO";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
        
-        protected PersonHelper _sigurdSigner, _vidarViewer;
-
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
         private IList<ProCoSysPerson> _signerPersons;
@@ -26,13 +23,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         [TestInitialize]
         public void TestInitialize()
         {
-            var signerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Signer);
-            _sigurdSigner = new PersonHelper(signerUser.Profile.Oid, "Sigurd", "Signer", "SigurdUserName",
-                "sigurd@signer.com", 3, "AAAAAAAAAMA=");
-            var viewerUser = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer);
-            _vidarViewer = new PersonHelper(viewerUser.Profile.Oid, "Vidar", "Viewer", "VidarUserName",
-                "vidar@viewer.com", 5, "AAAAAAAAASA=");
-
             _personsInFunctionalRole = new List<ProCoSysPerson>
             {
                 new ProCoSysPerson
@@ -69,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
 
             _signerPersons = new List<ProCoSysPerson>
             {
-                _sigurdSigner.AsProCoSysPerson()
+                TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile.AsProCoSysPerson()
             };
 
             _proCoSysPersons = new List<ProCoSysPerson>
@@ -118,14 +108,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_signerPersons));
 
+            var viewer = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer).Profile;
             TestFactory.Instance
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    _vidarViewer.AzureOid,
+                    viewer.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_vidarViewer.AsProCoSysPerson()));
+                .Returns(Task.FromResult(viewer.AsProCoSysPerson()));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock

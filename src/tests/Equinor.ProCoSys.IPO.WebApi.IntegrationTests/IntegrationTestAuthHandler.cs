@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -51,15 +50,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private Task<List<Claim>> GatherTestUserClaimsAsync()
         {
-            var tokenDeserialized = new
-            {
-                Oid = Guid.Empty,
-                FullName = string.Empty,
-                UserName = string.Empty,
-                Email = string.Empty,
-                IsAppToken = false
-            };
-
             var authorizationHeader = Request.Headers["Authorization"];
             var tokens = authorizationHeader.ToString()?.Split(' ');
             if (tokens == null || tokens.Length <= 1)
@@ -67,11 +57,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 throw new Exception("[Authorization] header missing");
             }
 
+            TestProfile profile;
             var tokenPart = tokens[1];
             try
             {
                 var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(tokenPart));
-                tokenDeserialized = JsonConvert.DeserializeAnonymousType(decoded, tokenDeserialized);
+                profile = JsonConvert.DeserializeObject<TestProfile>(decoded);
             }
             catch (Exception ex)
             {
@@ -80,42 +71,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     ex);
             }
 
-            var oid = tokenDeserialized.Oid.ToString();
-            var authType = tokenDeserialized.IsAppToken ? AuthType.Application : AuthType.Delegated;
+            var authType = profile.IsAppToken ? AuthType.Application : AuthType.Delegated;
 
-            var claims = new List<Claim> {new Claim(ClaimsExtensions.Oid, oid)};
+            var claims = new List<Claim> {new Claim(ClaimsExtensions.Oid, profile.Oid)};
 
             switch (authType)
             {
                 case AuthType.Delegated:
-                    if (string.IsNullOrEmpty(tokenDeserialized.FullName))
-                    {
-                        throw new ArgumentException("Missing name property in token");
-                    }
-
-                    AddNameClaims(claims, tokenDeserialized.FullName);
-                    claims.Add(new Claim(ClaimTypes.Upn, tokenDeserialized.Email));
+                    claims.Add(new Claim(ClaimTypes.Upn, profile.Email));
+                    claims.Add(new Claim(ClaimTypes.GivenName, profile.FirstName));
+                    claims.Add(new Claim(ClaimTypes.Surname, profile.LastName));
                     break;
                 case AuthType.Application:
                     throw new Exception($"{authType} authentication not supported yet");
             }
 
             return Task.FromResult(claims);
-        }
-
-        private void AddNameClaims(List<Claim> claims, string fullName)
-        {
-            var tokens = fullName.Split(' ');
-            if (tokens.Length > 1)
-            {
-                claims.Add(new Claim(ClaimTypes.Surname, tokens.Last()));
-                var givenName = string.Join(" ", tokens.Take(tokens.Length - 1));
-                claims.Add(new Claim(ClaimTypes.GivenName, givenName));
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.GivenName, fullName));
-            }
         }
     }
 }
