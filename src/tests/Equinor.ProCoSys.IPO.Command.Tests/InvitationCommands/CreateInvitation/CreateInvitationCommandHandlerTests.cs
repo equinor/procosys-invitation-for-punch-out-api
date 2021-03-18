@@ -248,8 +248,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _mcPkgScope,
                 null);
 
-            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Mc pkg scope must be within a system"));
         }
 
         [TestMethod]
@@ -280,8 +281,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 null,
                 commPkgScope);
 
-            await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a system"));
         }
 
         [TestMethod]
@@ -294,6 +296,33 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.AreEqual(participants[0].FunctionalRoleCode, _functionalRoleCode);
             Assert.IsNull(participants[1].FunctionalRoleCode);
             Assert.AreEqual(participants[1].AzureOid, _azureOid);
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfSigningParticipantDoesNotHaveCorrectPrivileges()
+        {
+            _personApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
+                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                .Returns(Task.FromResult<ProCoSysPerson>(null));
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(_command, default));
+            Assert.IsTrue(result.Message.StartsWith("Person does not have required privileges to be the"));
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfFunctionalRoleDoesNotExistOrHaveIPOClassification()
+        {
+            IList<ProCoSysFunctionalRole> functionalRoles = new List<ProCoSysFunctionalRole>();
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant, new List<string> {_functionalRoleCode}))
+                .Returns(Task.FromResult(functionalRoles));
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(_command, default));
+            Assert.IsTrue(result.Message.StartsWith("Could not find functional role with functional role code"));
         }
 
         [TestMethod]

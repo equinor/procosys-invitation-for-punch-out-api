@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
@@ -120,7 +120,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Assert
             var signedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
@@ -131,7 +131,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task CompletePunchOut_AsCompleter_ShouldCompletePunchOut()
+        public async Task CompletePunchOut_AsSigner_ShouldCompletePunchOut()
         {
             // Arrange
             var invitationToCompleteId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -174,14 +174,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToCompleteId,
                 completePunchOutDto);
 
             // Assert
             var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToCompleteId);
 
@@ -189,12 +189,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 completedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
-            Assert.AreEqual(_conradContractor.AzureOid, completingParticipant.SignedBy.AzureOid.ToString());
+            Assert.AreEqual(_sigurdSigner.AzureOid, completingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
-        public async Task UnCompletePunchOut_AsCompleter_ShouldUnCompletePunchOut()
+        public async Task UnCompletePunchOut_AsSigner_ShouldUnCompletePunchOut()
         {
             // Arrange
             var invitationToUnCompletedId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -212,7 +212,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnCompletedId);
 
@@ -237,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Punch round must be completed before it can be uncompleted
             var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnCompletedId,
                 completePunchOutDto);
@@ -250,14 +250,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnCompletedId,
                 unCompletePunchOutDto);
 
             // Assert
             var unCompletedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnCompletedId);
 
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task AcceptPunchOut_AsAccepter_ShouldAcceptPunchOut()
+        public async Task AcceptPunchOut_AsSigner_ShouldAcceptPunchOut()
         {
             // Arrange
             var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -290,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId);
 
@@ -315,7 +315,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Punch round must be completed before it can be accepted
             var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId,
                 completePunchOutDto);
@@ -340,14 +340,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Accepter,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId,
                 acceptPunchOutDto);
 
             // Assert
             var acceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId);
 
@@ -355,12 +355,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
-            Assert.AreEqual(_connieConstructor.AzureOid, acceptingParticipant.SignedBy.AzureOid.ToString());
+            Assert.AreEqual(_sigurdSigner.AzureOid, acceptingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
         [TestMethod]
-        public async Task UnAcceptPunchOut_AsAccepter_ShouldUnAcceptPunchOut()
+        public async Task UnAcceptPunchOut_AsSigner_ShouldUnAcceptPunchOut()
         {
             // Arrange
             var invitationToUnAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -378,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId);
 
@@ -403,7 +403,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Punch round must be completed before it can be accepted
             var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId,
                 completePunchOutDto);
@@ -428,13 +428,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Punch round must be accepted before it can be unaccepted
             await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Accepter,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId,
                 acceptPunchOutDto);
 
             invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId);
 
@@ -449,7 +449,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
-                UserType.Accepter,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId,
                 unAcceptPunchOutDto);
@@ -469,7 +469,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task ChangeAttendedStatusOnParticipants_AsCompleter_ShouldChangeAttendedStatus()
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldChangeAttendedStatus()
         {
             //Arrange
             const string updatedNote = "Updated note about attendee";
@@ -489,7 +489,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
 
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId);
 
@@ -513,7 +513,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 };
 
                 await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                    UserType.Completer,
+                    UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToChangeId,
                     completePunchOutDto);
@@ -531,14 +531,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             //Act
             await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
-                UserType.Completer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId,
                 participantToChangeDto);
 
             //Assert
             var invitationWithUpdatedAttendedStatus = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
+                UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId);
 

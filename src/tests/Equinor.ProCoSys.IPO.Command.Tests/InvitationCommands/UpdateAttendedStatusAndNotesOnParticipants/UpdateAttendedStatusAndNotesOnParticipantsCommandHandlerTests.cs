@@ -168,6 +168,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
+        public async Task ChangeAttendedStatusesCommand_ShouldThrowErrorIfPersonIsNotInFunctionalRole()
+        {
+            _personApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
+                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
+                .Returns(Task.FromResult<ProCoSysPerson>(null));
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(_command, default));
+
+            Assert.IsTrue(result.Message.StartsWith("Person was not found in functional role with code"));
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task HandlingCompleteIpoCommand_ShouldSetVersions()
         {
             // Act
