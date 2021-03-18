@@ -254,6 +254,32 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfMcScopeIsNotFoundInMain()
+        {
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { _mcPkgDetails1 };
+
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Could not find all mc pkgs in scope"));
+        }
+
+        [TestMethod]
         public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSystems()
         {
             var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system };
@@ -284,6 +310,40 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
             Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a system"));
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsNotFoundInMain()
+        {
+            IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { 
+                    new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system }
+                };
+
+            var commPkgScope = new List<string>
+            {
+                _commPkgNo,
+                _commPkgNo2
+            };
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Returns(Task.FromResult(commPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                null,
+                commPkgScope);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Could not find all comm pkgs in scope"));
         }
 
         [TestMethod]

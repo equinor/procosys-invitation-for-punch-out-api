@@ -331,6 +331,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
 
+            if (commPkgDetailsList.Count != commPkgScope.Count)
+            {
+                throw new IpoValidationException("Could not find all comm pkgs in scope.");
+            }
+
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
@@ -357,6 +362,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope);
+
+            if (mcPkgDetailsList.Count != mcPkgScope.Count)
+            {
+                throw new IpoValidationException("Could not find all mc pkgs in scope.");
+            }
+
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
@@ -366,6 +377,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     throw new IpoValidationException("Mc pkg scope must be within a system.");
                 }
             }
+
             foreach (var mcPkg in mcPkgDetailsList)
             {
                 invitation.AddMcPkg(new McPkg(
