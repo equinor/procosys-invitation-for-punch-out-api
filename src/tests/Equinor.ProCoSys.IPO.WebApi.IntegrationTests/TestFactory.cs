@@ -323,9 +323,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Harry Hacker", 
+                            FirstName = "Harry",
+                            LastName = "Hacker", 
                             Oid = HackerOid,
-                            UserName = "harryhacker",
                             Email = "harry.hacker@pcs.pcs"
                         },
                     ProCoSysPlants = new List<ProCoSysPlant>
@@ -347,9 +347,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Vidar Viewer",
+                            FirstName = "Vidar",
+                            LastName = " Viewer",
                             Oid = ViewerOid,
-                            UserName = "vidarviewer",
                             Email = "vidar.viewer@pcs.pcs"
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -375,9 +375,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Sigurd Signer",
+                            FirstName = "Sigurd",
+                            LastName = "Signer",
+                            UserName = "SigurdUserName",
                             Oid = SignerOid,
-                            UserName = "sigurdsigner",
                             Email = "sigurd.signer@pcs.pcs"
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -404,9 +405,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     Profile =
                         new TestProfile
                         {
-                            FullName = "Pernilla Planner",
+                            FirstName = "Pernilla",
+                            LastName = "Planner",
+                            UserName = "PernillaUserName",
                             Oid = PlannerOid,
-                            UserName = "pernillaplanner",
                             Email = "pernilla.planner@pcs.pcs"
                         },
                     ProCoSysPlants = commonProCoSysPlants,
@@ -431,7 +433,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void AddAnonymousUser() => _testUsers.Add(UserType.Anonymous, new TestUser());
 
         private void AuthenticateUser(ITestUser user)
-            => user.HttpClient.DefaultRequestHeaders.Add("Authorization", CreateBearerToken(user.Profile));
+            => user.HttpClient.DefaultRequestHeaders.Add("Authorization", user.Profile.CreateBearerToken());
 
         private void UpdatePlantInHeader(HttpClient client, string plant)
         {
@@ -444,21 +446,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 client.DefaultRequestHeaders.Add(CurrentPlantMiddleware.PlantHeader, plant);
             }
-        }
-        
-        /// <summary>
-        /// Wraps profile by serializing, encoding and then converting to base 64 string.
-        /// "Bearer" is also added, making it ready to be added as Authorization header
-        /// </summary>
-        /// <param name="profile">The instance of the token to be wrapped</param>
-        /// <returns>Serialized, encoded string ready for authorization header</returns>
-        private string CreateBearerToken(TestProfile profile)
-        {
-            var serialized = JsonConvert.SerializeObject(profile);
-            var tokenBytes = Encoding.UTF8.GetBytes(serialized);
-            var tokenString = Convert.ToBase64String(tokenBytes);
-
-            return $"Bearer {tokenString}";
         }
     }
 }
