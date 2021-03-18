@@ -39,8 +39,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private const string PlannerOid = "00000000-0000-0000-0000-000000000002";
         private const string ViewerOid = "00000000-0000-0000-0000-000000000003";
         private const string HackerOid = "00000000-0000-0000-0000-000000000666";
-        private const string CompleterOid = "00000000-0000-0000-0000-000000000453";
-        private const string AccepterOid = "00000000-0000-0000-0000-000000000234";
 
         private const string IntegrationTestEnvironment = "IntegrationTests";
         private readonly string _connectionString;
