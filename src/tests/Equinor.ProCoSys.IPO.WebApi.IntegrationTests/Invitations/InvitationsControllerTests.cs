@@ -126,7 +126,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participantPerson.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
-            Assert.AreEqual(_sigurdSigner.AzureOid, signerParticipant.SignedBy.AzureOid.ToString());
+            Assert.AreEqual(_sigurdSigner.Oid, signerParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
@@ -189,7 +189,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 completedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
-            Assert.AreEqual(_sigurdSigner.AzureOid, completingParticipant.SignedBy.AzureOid.ToString());
+            Assert.AreEqual(_sigurdSigner.Oid, completingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
@@ -355,7 +355,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
-            Assert.AreEqual(_sigurdSigner.AzureOid, acceptingParticipant.SignedBy.AzureOid.ToString());
+            Assert.AreEqual(_sigurdSigner.Oid, acceptingParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
         }
 
