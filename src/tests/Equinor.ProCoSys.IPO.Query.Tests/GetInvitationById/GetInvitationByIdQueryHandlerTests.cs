@@ -112,14 +112,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     commPkgNo,
                     description,
                     "OK",
-                    "1|2");
-
-                var mcPkg = new McPkg(
-                    TestPlant,
-                    projectName,
-                    commPkgNo,
-                    "McPkgNo",
-                    description,
                     system);
 
                 _invitation = new Invitation(
@@ -127,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     projectName,
                     "Title", 
                     "Description",
-                    DisciplineType.DP,
+                    DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
                     null)
@@ -141,7 +133,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 _invitation.AddParticipant(frPerson1);
                 _invitation.AddParticipant(frPerson2);
                 _invitation.AddCommPkg(commPkg);
-                _invitation.AddMcPkg(mcPkg);
 
                 var functionalRoleDetails = new ProCoSysFunctionalRole
                 {
@@ -581,7 +572,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             var functionalRoleParticipant = invitation.Participants.First();
             var personParticipant = invitation.Participants.ToList()[1];
             var commPkg = invitation.CommPkgs.First();
-            var mcPkg = invitation.McPkgs.First();
 
             Assert.AreEqual(invitation.Title, invitationDto.Title);
             Assert.AreEqual(invitation.Description, invitationDto.Description);
@@ -592,7 +582,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             Assert.AreEqual(personParticipant.AzureOid, invitationDto.Participants.ToList()[1].Person.Person.AzureOid);
             Assert.IsTrue(invitationDto.Participants.ToList()[1].CanSign);
             Assert.AreEqual(commPkg.CommPkgNo, invitationDto.CommPkgScope.First().CommPkgNo);
-            Assert.AreEqual(mcPkg.McPkgNo, invitationDto.McPkgScope.First().McPkgNo);
         }
     }
 }

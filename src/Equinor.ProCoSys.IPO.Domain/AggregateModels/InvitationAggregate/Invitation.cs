@@ -128,6 +128,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentException($"Can't relate item in {commPkg.Plant} to item in {Plant}");
             }
 
+            if (Type == DisciplineType.DP)
+            {
+                throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
+            }
+
             _commPkgs.Add(commPkg);
         }
 
@@ -156,6 +161,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             if (mcPkg.Plant != Plant)
             {
                 throw new ArgumentException($"Can't relate item in {mcPkg.Plant} to item in {Plant}");
+            }
+
+            if (Type == DisciplineType.MDP)
+            {
+                throw new ArgumentException($"Can't add mc pkg to invitation with type MDP");
             }
 
             _mcPkgs.Add(mcPkg);

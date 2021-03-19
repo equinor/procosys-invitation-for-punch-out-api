@@ -48,22 +48,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     "OK",
                     "1|2");
 
-                var mcPkg1 = new McPkg(
-                    TestPlant,
-                    _projectName,
-                    _commPkgNo1,
-                    "McPkgNo1",
-                    "Description",
-                    _system);
-
-                var mcPkg2 = new McPkg(
-                    TestPlant,
-                    _projectName,
-                    _commPkgNo1,
-                    "McPkgNo2",
-                    "Description",
-                    _system);
-
                 _mdpInvitation = new Invitation(
                     TestPlant,
                     _projectName,
@@ -77,8 +61,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     MeetingId = meetingId
                 };
 
-                _mdpInvitation.AddMcPkg(mcPkg1);
-                _mdpInvitation.AddMcPkg(mcPkg2);
+                _mdpInvitation.AddCommPkg(commPkg1);
+                _mdpInvitation.AddCommPkg(commPkg2);
 
                 _mdpInvitation1 = new Invitation(
                     TestPlant,

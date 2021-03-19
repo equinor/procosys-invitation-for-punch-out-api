@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 _projectName,
                 "Title 2",
                 "D",
-                DisciplineType.DP,
+                DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
                 null);

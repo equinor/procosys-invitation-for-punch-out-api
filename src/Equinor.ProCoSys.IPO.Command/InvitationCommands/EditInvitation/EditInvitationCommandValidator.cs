@@ -42,9 +42,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
-                .Must(command => MustHaveValidScope(command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
+                .Must(command => MustHaveValidScope(command.Type, command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
                 .WithMessage(command =>
-                    "Not a valid scope! Choose either mc scope or comm pkg scope")
+                    "Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope")
                 .Must(command => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.UpdatedParticipants))
                 .WithMessage(command =>
                     "Contractor and Construction Company must be invited!")
@@ -70,9 +70,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
 
             bool MustHaveValidScope(
+                DisciplineType type,
                 IList<string> updatedMcPkgScope, 
                 IList<string> updatedCommPkgScope) 
-                => invitationValidator.IsValidScope(updatedMcPkgScope, updatedCommPkgScope);
+                => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken token)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, token);

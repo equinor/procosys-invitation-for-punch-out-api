@@ -49,7 +49,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _newDescription = "Test description 2";
         private const string _firstName = "Ola";
         private const string _lastName = "Nordmann";
-        private const DisciplineType _type = DisciplineType.DP;
+        private const DisciplineType _typeDp = DisciplineType.DP;
+        private const DisciplineType _typeMdp = DisciplineType.MDP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _invitation;
         private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
@@ -225,7 +226,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     _projectName,
                     _title,
                     _description,
-                    _type,
+                    _typeDp,
                     new DateTime(),
                     new DateTime(),
                     null) 
@@ -274,7 +275,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
+                _typeMdp,
                 _updatedParticipants,
                 null,
                 _commPkgScope,
@@ -306,11 +307,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         {
             Assert.AreEqual(_title, _invitation.Title);
             Assert.AreEqual(_description, _invitation.Description);
-            Assert.AreEqual(_type, _invitation.Type);
+            Assert.AreEqual(_typeDp, _invitation.Type);
 
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(_newDescription, _invitation.Description);
+            Assert.AreEqual(_typeMdp, _invitation.Type);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -350,7 +352,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
+                _typeDp,
                 _updatedParticipants,
                 new List<string>
                 {
@@ -389,7 +391,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
+                _typeDp,
                 _updatedParticipants,
                 new List<string>
                 {
@@ -428,7 +430,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
+                _typeDp,
                 _updatedParticipants,
                 null,
                 newScope,
@@ -461,7 +463,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
+                _typeDp,
                 _updatedParticipants,
                 null,
                 newScope,

@@ -51,9 +51,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var commPkg = SeedCommPkg(dbContext, invitation);
             knownTestData.CommPkgIds.Add(commPkg.Id);
 
-            var mcPkg = SeedMcPkg(dbContext, invitation);
-            knownTestData.McPkgIds.Add(mcPkg.Id);
-
             SeedContractor(dbContext, invitation);
             SeedConstructionCompany(dbContext, invitation);
         }

@@ -35,9 +35,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                     select ipo).AnyAsync(token);
 
         public bool IsValidScope(
+            DisciplineType type,
             IList<string> mcPkgScope,
-            IList<string> commPkgScope) 
-                => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
+            IList<string> commPkgScope)
+        {
+            if (type == DisciplineType.DP)
+            {
+                return mcPkgScope.Count > 0 && commPkgScope.Count == 0;
+            }
+            return mcPkgScope.Count == 0 && commPkgScope.Count > 0;
+        }
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 

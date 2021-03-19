@@ -25,20 +25,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
                 from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
                     .DefaultIfEmpty()
-                from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
-                    .DefaultIfEmpty()
+                //from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
+                //    .DefaultIfEmpty()
                     where i.ProjectName == request.ProjectName &&
                           i.Type == DisciplineType.MDP &&
                           i.Status != IpoStatus.Canceled &&
-                          (request.CommPkgNos.Contains(c.CommPkgNo) ||
-                           request.CommPkgNos.Contains(mc.CommPkgNo))
+                          request.CommPkgNos.Contains(c.CommPkgNo)
+                           // || request.CommPkgNos.Contains(mc.CommPkgNo))
                     select new CommPkgsWithMdpIposDto(
-                        c.CommPkgNo ?? mc.CommPkgNo,
+                        c.CommPkgNo, // ?? mc.CommPkgNo,
                         i.Id,
                         i.CreatedAtUtc,
                         i.Status == IpoStatus.Accepted))
                 .Distinct()
                 .ToListAsync(token);
+            //TODO: this commented out part can be commented out if we clean up db setting all IPOs with mc scope to DP
 
             var commPkgsWithLatestMdpIpoStatus = commPkgsWithMdpIpos.OrderBy(x => x.CommPkgNo).GroupBy(x => x.CommPkgNo)
                 .Select(c => c.OrderByDescending(x => x.CreatedAtUtc).First()).ToList();

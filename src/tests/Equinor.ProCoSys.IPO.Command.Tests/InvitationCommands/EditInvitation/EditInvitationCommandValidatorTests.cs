@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_rowVersion)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
@@ -243,13 +243,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenScopeIsInvalid()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(false);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(false);
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either mc scope or comm pkg scope"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope"));
         }
 
         [TestMethod]
