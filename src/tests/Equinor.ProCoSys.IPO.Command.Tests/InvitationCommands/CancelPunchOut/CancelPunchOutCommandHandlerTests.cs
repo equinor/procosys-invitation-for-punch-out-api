@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
+using Fusion.Integration.Meeting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
         private CancelPunchOutCommand _command;
@@ -53,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 .Setup(x => x.GetByOidAsync(It.IsAny<Guid>()))
                 .Returns(Task.FromResult(currentPerson));
 
+            _fusionMeetingClient = new Mock<IFusionMeetingClient>();
             //create invitation
             _invitation = new Invitation(
                     _plant,
@@ -90,6 +93,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 _invitationRepositoryMock.Object,
                 _personRepositoryMock.Object,
                 _unitOfWorkMock.Object,
+                _fusionMeetingClient.Object,
                 _currentUserProviderMock.Object);
         }
 
@@ -101,6 +105,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Canceled, _invitation.Status);
+
+            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Once);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 

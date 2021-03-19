@@ -27,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IInvitationRepository> _invitationRepository;
         private Mock<IPlantSetter> _plantSetter;
         private Mock<ITelemetryClient> _telemetryClient;
-        private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
         private Mock<IApplicationAuthenticator> _applicationAuthenticator;
@@ -48,7 +47,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _plantSetter = new Mock<IPlantSetter>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
-            _fusionMeetingClient = new Mock<IFusionMeetingClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
@@ -60,7 +58,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _unitOfWork.Object,
                                           _telemetryClient.Object,
                                           _readOnlyContext.Object,
-                                          _fusionMeetingClient.Object,
                                           _mcPkgApiService.Object,
                                           _applicationAuthenticator.Object,
                                           _bearerTokenSetter.Object);
@@ -126,7 +123,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId));
         }
 
         [TestMethod]
@@ -167,7 +163,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
         }
 
         [TestMethod]
@@ -188,7 +183,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
         }
 
         [TestMethod]
@@ -209,7 +203,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
-            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
         }
 
         [TestMethod]
@@ -230,7 +223,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
             _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Never);
         }
 
         [TestMethod]
