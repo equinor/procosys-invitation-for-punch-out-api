@@ -231,6 +231,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveMcPkg(null));
 
         [TestMethod]
+        public void AddMcPkg_ShouldThrowException_WhenMDP()
+        {
+            var mcPkg = new Mock<McPkg>();
+            mcPkg.SetupGet(mc => mc.Plant).Returns(TestPlant);
+
+            Assert.ThrowsException<ArgumentException>(() => _dutWithCommPkgScope.AddMcPkg(mcPkg.Object));
+        }
+
+        [TestMethod]
         public void AddMcPkg_ShouldAddMcPkgToMcPkgList()
         {
             var mcPkg = new Mock<McPkg>();
@@ -265,6 +274,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void RemoveCommPkg_ShouldThrowException_WhenCommPkgNotGiven()
             => Assert.ThrowsException<ArgumentNullException>(() => _dutWithMcPkgScope.RemoveCommPkg(null));
+
+        [TestMethod]
+        public void AddCommPkg_ShouldThrowException_WhenDP()
+        {
+            var commPkg = new Mock<CommPkg>();
+            commPkg.SetupGet(mc => mc.Plant).Returns(TestPlant);
+
+            Assert.ThrowsException<ArgumentException>(() => _dutWithMcPkgScope.AddCommPkg(commPkg.Object));
+        }
 
         [TestMethod]
         public void AddCommPkg_ShouldAddCommPkgToCommPkgList()
