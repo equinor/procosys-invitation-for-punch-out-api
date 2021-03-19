@@ -15,7 +15,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
-using Fusion.Integration.Meeting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
@@ -27,7 +26,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
-        private readonly IFusionMeetingClient _meetingClient;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IApplicationAuthenticator _authenticator;
         private readonly IBearerTokenSetter _bearerTokenSetter;
@@ -39,7 +37,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IUnitOfWork unitOfWork,
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
-            IFusionMeetingClient meetingClient,
             IMcPkgApiService mcPkgApiService,
             IApplicationAuthenticator authenticator,
             IBearerTokenSetter bearerTokenSetter)
@@ -49,7 +46,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _unitOfWork = unitOfWork;
             _telemetryClient = telemetryClient;
             _context = context;
-            _meetingClient = meetingClient;
             _mcPkgApiService = mcPkgApiService;
             _authenticator = authenticator;
             _bearerTokenSetter = bearerTokenSetter;
@@ -241,15 +237,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     throw new Exception($"Error: Could not clear M-01 dates for {invitation.ObjectGuid}", e);
                 }
-            }
-
-            try
-            {
-                await _meetingClient.DeleteMeetingAsync(invitation.MeetingId);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Error: Could not cancel outlook meeting {invitation.MeetingId}.", e);
             }
         }
 
