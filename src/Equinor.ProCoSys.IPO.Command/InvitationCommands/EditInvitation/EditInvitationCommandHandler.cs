@@ -239,7 +239,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.Person.Id).ToList();
 
             var externalEmailParticipants = participantsToUpdate.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
-            var externalEmailParticipantsIds = personParticipantsWithEmails.Select(p => p.ExternalEmail.Id).ToList();
+            var externalEmailParticipantsIds = externalEmailParticipants.Select(p => p.ExternalEmail.Id).ToList();
 
             var participantsToUpdateIds = externalEmailParticipantsIds
                 .Concat(personsWithOidsIds)
