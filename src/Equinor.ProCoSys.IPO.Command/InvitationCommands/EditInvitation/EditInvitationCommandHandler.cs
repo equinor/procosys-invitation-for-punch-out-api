@@ -63,6 +63,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var participants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
+            
+            await UpdateMcPkgScopeAsync(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
+            await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
+            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
+
             invitation.EditIpo(
                 request.Title,
                 request.Description,
@@ -71,10 +76,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 request.EndTime,
                 request.Location);
 
-            await UpdateMcPkgScopeAsync(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
-            await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
-
-            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
             invitation.SetRowVersion(request.RowVersion);
             try
             {

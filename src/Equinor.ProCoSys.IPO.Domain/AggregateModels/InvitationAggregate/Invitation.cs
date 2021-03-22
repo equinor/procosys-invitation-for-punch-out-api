@@ -361,7 +361,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             if (string.IsNullOrEmpty(title))
             {
                 throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Title cannot be empty");
+            }
 
+            switch (type)
+            {
+                case DisciplineType.DP when (McPkgs.Count == 0 || CommPkgs.Count > 0 ):
+                    throw new ArgumentException("DP must have only mc pkg scope");
+                case DisciplineType.MDP when (McPkgs.Count > 0 || CommPkgs.Count == 0):
+                    throw new ArgumentException("MDP must have only comm pkg scope");
             }
 
             Title = title;
