@@ -15,7 +15,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public static string InvitationDescription => "Test - Invitation";
         public static Guid MeetingId => new Guid("{818E6882-A5F1-4367-B459-1A2E1EE01D7F}");
 
-        public List<int> InvitationIds = new List<int>();
+        public List<int> MdpInvitationIds = new List<int>();
+        public List<int> DpInvitationIds = new List<int>();
         public List<int> AttachmentIds = new List<int>();
         public List<int> CommentIds = new List<int>();
         public List<int> McPkgIds = new List<int>();

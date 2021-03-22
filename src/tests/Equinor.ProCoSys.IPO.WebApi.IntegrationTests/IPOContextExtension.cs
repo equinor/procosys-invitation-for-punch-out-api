@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var plant = plantProvider.Plant;
 
             var seedMdpInvitation = SeedMdpInvitation(dbContext, plant);
-            knownTestData.InvitationIds.Add(seedMdpInvitation.Id);
+            knownTestData.MdpInvitationIds.Add(seedMdpInvitation.Id);
 
             var commPkg = SeedCommPkg(dbContext, seedMdpInvitation);
             knownTestData.CommPkgIds.Add(commPkg.Id);
@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             SeedConstructionCompany(dbContext, seedMdpInvitation);
 
             var seedDpInvitation = SeedDpInvitation(dbContext, plant);
-            knownTestData.InvitationIds.Add(seedDpInvitation.Id);
+            knownTestData.DpInvitationIds.Add(seedDpInvitation.Id);
 
             var mcPkg = SeedMcPkg(dbContext, seedDpInvitation);
             knownTestData.McPkgIds.Add(mcPkg.Id);
@@ -77,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var seedMdpInvitation = new Invitation(
                 plant,
                 KnownTestData.ProjectName,
-                KnownTestData.InvitationTitle,
+                $"{KnownTestData.InvitationTitle} MDP",
                 KnownTestData.InvitationDescription,
                 DisciplineType.MDP,
                 new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),
@@ -98,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var dpInvitation = new Invitation(
                 plant,
                 KnownTestData.ProjectName,
-                KnownTestData.InvitationTitle,
+                $"{KnownTestData.InvitationTitle} DP",
                 KnownTestData.InvitationDescription,
                 DisciplineType.DP,
                 new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),

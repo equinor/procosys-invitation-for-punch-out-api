@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             // Assert
             var invitation = invitations.First();
             Assert.IsTrue(invitations.Count > 0);
-            Assert.AreEqual(KnownTestData.InvitationTitle, invitation.Title);
+            Assert.AreEqual($"{KnownTestData.InvitationTitle} MDP", invitation.Title);
             Assert.AreEqual(KnownTestData.InvitationDescription, invitation.Description);
         }
 
