@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const DisciplineType _typeDp = DisciplineType.DP;
         private const DisciplineType _typeMdp = DisciplineType.MDP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-        private Invitation _invitation;
+        private Invitation _dpInvitation;
         private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
         private static Guid _newAzureOid = new Guid("11111111-2222-2222-3333-333333333333");
         private const string _functionalRoleCode = "FR1";
@@ -221,7 +221,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(newPcsFrDetails));
 
             //create invitation
-            _invitation = new Invitation(
+            _dpInvitation = new Invitation(
                     _plant,
                     _projectName,
                     _title,
@@ -231,8 +231,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     new DateTime(),
                     null) 
                 { MeetingId = _meetingId };
-            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system));
-            _invitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system));
+            _dpInvitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system));
+            _dpInvitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system));
             var participant = new Participant(
                 _plant,
                 _participants[0].Organization,
@@ -245,8 +245,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 0);
             participant.SetProtectedIdForTesting(_participantId);
-            _invitation.AddParticipant(participant);
-            _invitation.AddParticipant(new Participant(
+            _dpInvitation.AddParticipant(participant);
+            _dpInvitation.AddParticipant(new Participant(
                 _plant,
                 _participants[1].Organization,
                 IpoParticipantType.Person,
@@ -261,7 +261,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
-                .Returns(Task.FromResult(_invitation));
+                .Returns(Task.FromResult(_dpInvitation));
 
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
             _meetingOptionsMock.Setup(x => x.CurrentValue)
@@ -269,7 +269,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             //command
             _command = new EditInvitationCommand(
-                _invitation.Id,
+                _dpInvitation.Id,
                 _newTitle,
                 _newDescription,
                 null,
@@ -305,30 +305,30 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateInvitation()
         {
-            Assert.AreEqual(_title, _invitation.Title);
-            Assert.AreEqual(_description, _invitation.Description);
-            Assert.AreEqual(_typeDp, _invitation.Type);
+            Assert.AreEqual(_title, _dpInvitation.Title);
+            Assert.AreEqual(_description, _dpInvitation.Description);
+            Assert.AreEqual(_typeDp, _dpInvitation.Type);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(_newDescription, _invitation.Description);
-            Assert.AreEqual(_typeMdp, _invitation.Type);
+            Assert.AreEqual(_newDescription, _dpInvitation.Description);
+            Assert.AreEqual(_typeMdp, _dpInvitation.Type);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateScope()
         {
-            Assert.AreEqual(2, _invitation.McPkgs.Count);
-            Assert.AreEqual(_mcPkgNo1, _invitation.McPkgs.ToList()[0].McPkgNo);
-            Assert.AreEqual(_mcPkgNo2, _invitation.McPkgs.ToList()[1].McPkgNo);
-            Assert.AreEqual(0, _invitation.CommPkgs.Count);
+            Assert.AreEqual(2, _dpInvitation.McPkgs.Count);
+            Assert.AreEqual(_mcPkgNo1, _dpInvitation.McPkgs.ToList()[0].McPkgNo);
+            Assert.AreEqual(_mcPkgNo2, _dpInvitation.McPkgs.ToList()[1].McPkgNo);
+            Assert.AreEqual(0, _dpInvitation.CommPkgs.Count);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(0, _invitation.McPkgs.Count);
-            Assert.AreEqual(1, _invitation.CommPkgs.Count);
-            Assert.AreEqual(_commPkgNo, _invitation.CommPkgs.ToList()[0].CommPkgNo);
+            Assert.AreEqual(0, _dpInvitation.McPkgs.Count);
+            Assert.AreEqual(1, _dpInvitation.CommPkgs.Count);
+            Assert.AreEqual(_commPkgNo, _dpInvitation.CommPkgs.ToList()[0].CommPkgNo);
         }
 
         [TestMethod]
@@ -346,13 +346,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(
-                _invitation.Id,
+                _dpInvitation.Id,
                 _newTitle,
                 _newDescription,
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _typeDp,
+                _typeMdp,
                 _updatedParticipants,
                 new List<string>
                 {
@@ -385,7 +385,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(
-                _invitation.Id,
+                _dpInvitation.Id,
                 _newTitle,
                 _newDescription,
                 null,
@@ -424,7 +424,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new EditInvitationCommand(
-                _invitation.Id,
+                _dpInvitation.Id,
                 _newTitle,
                 _newDescription,
                 null,
@@ -457,7 +457,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new EditInvitationCommand(
-                _invitation.Id,
+                _dpInvitation.Id,
                 _newTitle,
                 _newDescription,
                 null,
@@ -504,14 +504,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldUpdateParticipants()
         {
-            Assert.AreEqual(2, _invitation.Participants.Count);
-            Assert.AreEqual(_azureOid, _invitation.Participants.ToList()[1].AzureOid);
-            Assert.AreEqual(_functionalRoleCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
+            Assert.AreEqual(2, _dpInvitation.Participants.Count);
+            Assert.AreEqual(_azureOid, _dpInvitation.Participants.ToList()[1].AzureOid);
+            Assert.AreEqual(_functionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
 
             await _dut.Handle(_command, default);
 
-            Assert.AreEqual(_newAzureOid, _invitation.Participants.ToList()[1].AzureOid);
-            Assert.AreEqual(_newFunctionalRoleCode, _invitation.Participants.ToList()[0].FunctionalRoleCode);
+            Assert.AreEqual(_newAzureOid, _dpInvitation.Participants.ToList()[1].AzureOid);
+            Assert.AreEqual(_newFunctionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
 
         [TestMethod]
@@ -524,8 +524,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             // In real life EF Core will create a new RowVersion when save.
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_rowVersion, result.Data);
-            Assert.AreEqual(_rowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.IsTrue(_invitation.Participants.Any(p => p.RowVersion.ConvertToString() == _participantRowVersion));
+            Assert.AreEqual(_rowVersion, _dpInvitation.RowVersion.ConvertToString());
+            Assert.IsTrue(_dpInvitation.Participants.Any(p => p.RowVersion.ConvertToString() == _participantRowVersion));
         }
     }
 }

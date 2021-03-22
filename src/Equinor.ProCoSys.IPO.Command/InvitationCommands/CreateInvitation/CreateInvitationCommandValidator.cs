@@ -14,8 +14,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             RuleFor(command => command)
                 //input validators
                 .Must(command => command.Participants != null)
-                .WithMessage(command =>
-                    "Participants cannot be null!")
+                .WithMessage("Participants cannot be null!")
                 .Must(command =>
                     command.ProjectName != null && 
                     command.ProjectName.Length >= Invitation.ProjectNameMinLength &&
@@ -43,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.Participants))
                 .WithMessage("Contractor and Construction Company must be invited!")
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.Participants))
-                .WithMessage("SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
+                .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.Participants))
                 .WithMessage("Each participant must contain an email or oid!");
 

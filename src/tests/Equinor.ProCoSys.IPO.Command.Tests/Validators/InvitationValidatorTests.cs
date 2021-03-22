@@ -348,6 +348,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public void IsValidScope_CommPkgAndMcPkgScopeOnMDP_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = dut.IsValidScope(_typeMdp, _mcPkgScope, _commPkgScope);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
         public void IsValidScope_NoScopeTypeDp_ReturnsFalse()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

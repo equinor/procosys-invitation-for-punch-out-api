@@ -51,6 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
             return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
         }
+
         private bool IsValidPerson(PersonForCommand person)
         {
             if (person.Email == null && (person.AzureOid == Guid.Empty || person.AzureOid == null))

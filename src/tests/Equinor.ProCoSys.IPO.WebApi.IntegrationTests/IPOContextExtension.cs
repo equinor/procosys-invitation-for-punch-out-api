@@ -39,20 +39,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var plant = plantProvider.Plant;
 
-            var invitation = SeedInvitation(dbContext, plant);
-            knownTestData.InvitationIds.Add(invitation.Id);
+            var seedMdpInvitation = SeedMdpInvitation(dbContext, plant);
+            knownTestData.InvitationIds.Add(seedMdpInvitation.Id);
 
-            var attachment = SeedAttachment(dbContext, invitation);
-            knownTestData.AttachmentIds.Add(attachment.Id);
-
-            var comment = SeedComment(dbContext, invitation);
-            knownTestData.CommentIds.Add(comment.Id);
-
-            var commPkg = SeedCommPkg(dbContext, invitation);
+            var commPkg = SeedCommPkg(dbContext, seedMdpInvitation);
             knownTestData.CommPkgIds.Add(commPkg.Id);
 
-            SeedContractor(dbContext, invitation);
-            SeedConstructionCompany(dbContext, invitation);
+            var attachment = SeedAttachment(dbContext, seedMdpInvitation);
+            knownTestData.AttachmentIds.Add(attachment.Id);
+
+            var comment = SeedComment(dbContext, seedMdpInvitation);
+            knownTestData.CommentIds.Add(comment.Id);
+            
+            SeedContractor(dbContext, seedMdpInvitation);
+            SeedConstructionCompany(dbContext, seedMdpInvitation);
+
+            var seedDpInvitation = SeedDpInvitation(dbContext, plant);
+            knownTestData.InvitationIds.Add(seedDpInvitation.Id);
+
+            var mcPkg = SeedMcPkg(dbContext, seedDpInvitation);
+            knownTestData.McPkgIds.Add(mcPkg.Id);
+
+            SeedContractor(dbContext, seedDpInvitation);
+            SeedConstructionCompany(dbContext, seedDpInvitation);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
@@ -62,10 +71,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             dbContext.SaveChangesAsync().Wait();
         }
 
-        private static Invitation SeedInvitation(IPOContext dbContext, string plant)
+        private static Invitation SeedMdpInvitation(IPOContext dbContext, string plant)
         {
             var invitationRepository = new InvitationRepository(dbContext);
-            var invitation = new Invitation(
+            var seedMdpInvitation = new Invitation(
                 plant,
                 KnownTestData.ProjectName,
                 KnownTestData.InvitationTitle,
@@ -77,10 +86,31 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 MeetingId = KnownTestData.MeetingId
             };
-            invitationRepository.Add(invitation);
+            invitationRepository.Add(seedMdpInvitation);
             dbContext.SaveChangesAsync().Wait();
 
-            return invitation;
+            return seedMdpInvitation;
+        }
+
+        private static Invitation SeedDpInvitation(IPOContext dbContext, string plant)
+        {
+            var invitationRepository = new InvitationRepository(dbContext);
+            var dpInvitation = new Invitation(
+                plant,
+                KnownTestData.ProjectName,
+                KnownTestData.InvitationTitle,
+                KnownTestData.InvitationDescription,
+                DisciplineType.DP,
+                new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc),
+                null)
+            {
+                MeetingId = KnownTestData.MeetingId
+            };
+            invitationRepository.Add(dpInvitation);
+            dbContext.SaveChangesAsync().Wait();
+
+            return dpInvitation;
         }
 
         private static Attachment SeedAttachment(IPOContext dbContext, Invitation invitation)

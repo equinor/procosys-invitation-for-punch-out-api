@@ -18,8 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             RuleFor(command => command)
                 //input validators
                 .Must(command => command.UpdatedParticipants != null)
-                .WithMessage(command =>
-                    "Participants cannot be null!")
+                .WithMessage("Participants cannot be null!")
                 .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
                     $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
@@ -43,17 +42,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
                 .Must(command => MustHaveValidScope(command.Type, command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
-                .WithMessage(command =>
-                    "Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope")
+                .WithMessage("Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope")
                 .Must(command => TwoFirstParticipantsMustBeSetWithCorrectOrganization(command.UpdatedParticipants))
-                .WithMessage(command =>
-                    "Contractor and Construction Company must be invited!")
+                .WithMessage("Contractor and Construction Company must be invited!")
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.UpdatedParticipants))
-                .WithMessage(command =>
-                    "SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company!")
+                .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.UpdatedParticipants))
-                .WithMessage(command =>
-                    "Each participant must contain an email or oid!");
+                .WithMessage("Each participant must contain an email or oid!");
 
             RuleForEach(command => command.UpdatedParticipants)
                 .MustAsync((command, participant, _, token) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, token))

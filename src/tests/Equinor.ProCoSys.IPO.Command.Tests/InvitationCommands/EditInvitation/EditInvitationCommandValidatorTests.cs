@@ -285,7 +285,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Contractor must be first and Construction Company must be second"));
         }
 
         [TestMethod]
