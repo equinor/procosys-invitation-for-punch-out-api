@@ -28,14 +28,17 @@ namespace Equinor.ProCoSys.PcsBusTests
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public async Task SendAsync_ShouldThrowExceptionIfTopicNotRegisteredTest()
+        public async Task SendAsync_ShouldThrowExceptionIfTopicNotRegistered()
         {
+            // Arrange
+            var message = new Message(Encoding.UTF8.GetBytes($@"{{One small {Guid.NewGuid()}}}"));
+
             // Act
-            await _dut.SendAsync("AnUnknownTopic", new Message(Encoding.UTF8.GetBytes("Whatever")));
+            await _dut.SendAsync("AnUnknownTopic", message);
         }
 
         [TestMethod]
-        public async Task SendAsync_ShouldOnlySendViaCorrectTopicClientTest()
+        public async Task SendAsync_ShouldOnlySendViaCorrectTopicClient()
         {
             // Arrange
             var message = new Message(Encoding.UTF8.GetBytes($@"{{One small {Guid.NewGuid()}}}"));
@@ -49,7 +52,7 @@ namespace Equinor.ProCoSys.PcsBusTests
         }
 
         [TestMethod]
-        public async Task CloseAll_ShouldCloseAllTopicClientsTest()
+        public async Task CloseAll_ShouldCloseAllTopicClients()
         {
             // Act
             await _dut.CloseAllAsync();
