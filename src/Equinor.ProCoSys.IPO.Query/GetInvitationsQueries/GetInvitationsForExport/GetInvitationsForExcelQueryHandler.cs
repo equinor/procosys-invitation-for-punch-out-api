@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         {
             var queryable = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
 
-            queryable = AddSorting(request.Sorting, queryable.AsEnumerable()).AsQueryable();
+            queryable = AddSorting(request.Sorting, queryable);
 
             var orderedDtos = queryable.ToList();
 
@@ -44,10 +44,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var invitationIds = orderedDtos.Select(dto => dto.Id).ToList();
             var getHistoryAndParticipants = invitationIds.Count == 1;
 
-            var invitationsWithIncludes =
-                await GetInvitationsWithIncludesAsync(invitationIds, getHistoryAndParticipants, cancellationToken);
+            var invitationsWithIncludes = await (from invitation in _context.QuerySet<Invitation>()
+                        .Include(i => i.Participants)
+                        .Include(i => i.CommPkgs)
+                        .Include(i => i.McPkgs)
+                    where invitationIds.Contains(invitation.Id)
+                    select invitation)
+                .ToListAsync(cancellationToken);
 
-            var exportInvitationDtos = CreateExportInvitationsDtosAsync(orderedDtos).Result;
+            var exportInvitationDtos = CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes).Result;
 
             if (getHistoryAndParticipants)
             {
@@ -120,6 +125,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     .ToListAsync(cancellationToken);
             }
             return await (from invitation in _context.QuerySet<Invitation>()
+                        .Include(i => i.Participants)
+                        .Include(i => i.CommPkgs)
+                        .Include(i => i.McPkgs)
                     where invitationIds.Contains(invitation.Id)
                     select invitation)
                 .ToListAsync(cancellationToken);
@@ -162,13 +170,41 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 where p.Id == personId
                 select $"{p.FirstName} {p.LastName}").SingleAsync();
 
+        private static string NameCombiner(Participant participant)
+            => $"{participant.FirstName} {participant.LastName}";
+
+        private static string GetContractorRep(IList<Participant> participant)
+        {
+            var functionalRoleContractor =
+                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleContractor != null)
+            {
+                return functionalRoleContractor.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 0));
+        }
+
+        private static string GetConstructionCompanyRep(IList<Participant> participant)
+        {
+            var functionalRoleConstructionCompany =
+                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleConstructionCompany != null)
+            {
+                return functionalRoleConstructionCompany.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 1));
+        }
+
         private async Task<List<ExportInvitationDto>> CreateExportInvitationsDtosAsync(
-            List<InvitationForQueryDto> orderedDtos)
+            List<InvitationForQueryDto> orderedDtos,
+            List<Invitation> invitationsWithIncludes)
         {
             var exportDtos = new List<ExportInvitationDto>();
             foreach (var dto in orderedDtos)
             {
                 var organizer = await GetPersonNameAsync(dto.CreatedById);
+                var invitationWithIncludes = invitationsWithIncludes.Single(t => t.Id == dto.Id);
+                var participants = invitationWithIncludes.Participants.ToList();
                 exportDtos.Add(new ExportInvitationDto(
                     dto.Id,
                     dto.ProjectName,
@@ -179,10 +215,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     dto.Location,
                     dto.StartTimeUtc,
                     dto.EndTimeUtc,
-                    dto.McPkgNos,
-                    dto.CommPkgNos,
-                    dto.ContractorRep,
-                    dto.ConstructionCompanyRep,
+                    invitationWithIncludes.McPkgs.Select(mc => mc.McPkgNo).ToList(),
+                    invitationWithIncludes.CommPkgs.Select(c => c.CommPkgNo).ToList(),
+                    GetContractorRep(participants),
+                    GetConstructionCompanyRep(participants),
                     dto.CompletedAtUtc,
                     dto.AcceptedAtUtc,
                     dto.CreatedAtUtc,

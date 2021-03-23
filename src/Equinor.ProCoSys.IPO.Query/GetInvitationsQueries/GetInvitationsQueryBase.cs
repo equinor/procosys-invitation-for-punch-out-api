@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -70,16 +69,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     EndTimeUtc = invitation.EndTimeUtc,
                     CompletedAtUtc = invitation.CompletedAtUtc,
                     AcceptedAtUtc = invitation.AcceptedAtUtc,
-                    ContractorRep = GetContractorRep(invitation.Participants.ToList()),
-                    ConstructionCompanyRep = GetConstructionCompanyRep(invitation.Participants.ToList()),
-                    McPkgNos = invitation.McPkgs.Select(mc => mc.McPkgNo).ToList(),
-                    CommPkgNos = invitation.CommPkgs.Select(mc => mc.CommPkgNo).ToList(),
                     RowVersion = invitation.RowVersion.ConvertToString()
                 };
             return queryable;
         }
 
-        protected static IEnumerable<InvitationForQueryDto> AddSorting(Sorting sorting, IEnumerable<InvitationForQueryDto> queryable)
+        protected static IQueryable<InvitationForQueryDto> AddSorting(Sorting sorting, IQueryable<InvitationForQueryDto> queryable)
         {
             switch (sorting.Direction)
             {
@@ -106,12 +101,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                             break;
                         case SortingProperty.AcceptedAtUtc:
                             queryable = queryable.OrderBy(dto => dto.AcceptedAtUtc);
-                            break;
-                        case SortingProperty.ContractorRep:
-                            queryable = queryable.OrderBy(dto => dto.ContractorRep);
-                            break;
-                        case SortingProperty.ConstructionCompanyRep:
-                            queryable = queryable.OrderBy(dto => dto.ConstructionCompanyRep);
                             break;
                         default:
                             queryable = queryable.OrderBy(dto => dto.Id);
@@ -143,12 +132,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                         case SortingProperty.AcceptedAtUtc:
                             queryable = queryable.OrderByDescending(dto => dto.AcceptedAtUtc);
                             break;
-                        case SortingProperty.ContractorRep:
-                            queryable = queryable.OrderByDescending(dto => dto.ContractorRep);
-                            break;
-                        case SortingProperty.ConstructionCompanyRep:
-                            queryable = queryable.OrderByDescending(dto => dto.ConstructionCompanyRep);
-                            break;
                         default:
                             queryable = queryable.OrderByDescending(dto => dto.Id);
                             break;
@@ -178,31 +161,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
                 return null;
             }
-        }
-
-        private static string NameCombiner(Participant participant) 
-            => $"{participant.FirstName} {participant.LastName}";
-
-        private static string GetContractorRep(IList<Participant> participant)
-        {
-            var functionalRoleContractor =
-                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleContractor != null)
-            {
-                return functionalRoleContractor.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 0));
-        }
-
-        private static string GetConstructionCompanyRep(IList<Participant> participant)
-        {
-            var functionalRoleConstructionCompany =
-                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleConstructionCompany != null)
-            {
-                return functionalRoleConstructionCompany.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
     }
 }
