@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.BusReceiverTests
+namespace Equinor.ProCoSys.PcsBusTests
 {
     [TestClass]
     public class PcsBusReceiverTests
