@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.PcsBus;
 using Equinor.ProCoSys.PcsBus.Receiver;
 using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.BusReceiverTests
+namespace Equinor.ProCoSys.PcsBusTests
 {
     [TestClass]
     public class PcsSubscriptionClientsTests
