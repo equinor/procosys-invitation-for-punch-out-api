@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.PcsBus.Receiver;
-using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsBus.Sender;
 using Microsoft.Azure.ServiceBus;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 namespace Equinor.ProCoSys.PcsBusTests
