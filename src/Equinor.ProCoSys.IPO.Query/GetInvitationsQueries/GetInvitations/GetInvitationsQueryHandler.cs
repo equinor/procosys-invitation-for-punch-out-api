@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
             var invitationIds = orderedDtos.Select(i => i.Id);
 
-            var invitationWithStuff = await (from i in _context.QuerySet<Invitation>()
+            var invitationWithIncludes = await (from i in _context.QuerySet<Invitation>()
                         .Include(i => i.Participants)
                         .Include(i => i.CommPkgs)
                         .Include(i => i.McPkgs)
@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
                     select i)
                 .ToListAsync(token);
 
-            var result = CreateResult(maxAvailable, orderedDtos, invitationWithStuff);
+            var result = CreateResult(maxAvailable, orderedDtos, invitationWithIncludes);
 
             return new SuccessResult<InvitationsResult>(result);
         }
@@ -60,12 +60,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         private InvitationsResult CreateResult(
             int maxAvailable,
             List<InvitationForQueryDto> orderedDtos,
-            List<Invitation> invitationsWithStuff)
+            List<Invitation> invitationsWithIncludes)
         {
             var invitations = orderedDtos.Select(dto =>
             {
-                var invitationWithStuff = invitationsWithStuff.Single(t => t.Id == dto.Id);
-                var participants = invitationWithStuff.Participants.ToList();
+                var invitationWithIncludes = invitationsWithIncludes.Single(t => t.Id == dto.Id);
+                var participants = invitationWithIncludes.Participants.ToList();
                 return new InvitationDto(dto.Id,
                     dto.ProjectName,
                     dto.Title,
@@ -81,8 +81,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
                     dto.AcceptedAtUtc,
                     GetContractorRep(participants),
                     GetConstructionCompanyRep(participants),
-                    invitationWithStuff.McPkgs.Select(mc => mc.McPkgNo).ToList(),
-                    invitationWithStuff.CommPkgs.Select(c => c.CommPkgNo).ToList(),
+                    invitationWithIncludes.McPkgs.Select(mc => mc.McPkgNo).ToList(),
+                    invitationWithIncludes.CommPkgs.Select(c => c.CommPkgNo).ToList(),
                     dto.RowVersion);
             });
             var result = new InvitationsResult(maxAvailable, invitations);
