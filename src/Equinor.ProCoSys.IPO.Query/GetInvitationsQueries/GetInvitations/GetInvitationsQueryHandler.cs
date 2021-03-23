@@ -42,17 +42,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
                 return new SuccessResult<InvitationsResult>(new InvitationsResult(maxAvailable, null));
             }
 
-            var invitationIds = orderedDtos.Select(i => i.Id);
+            var invitationIds = orderedDtos.Select(i => i.Id).ToList();
 
-            var invitationWithIncludes = await (from i in _context.QuerySet<Invitation>()
-                        .Include(i => i.Participants)
-                        .Include(i => i.CommPkgs)
-                        .Include(i => i.McPkgs)
-                    where invitationIds.Contains(i.Id)
-                    select i)
-                .ToListAsync(token);
+            var invitationsWithIncludes = GetInvitationsWithIncludesAsync(_context, invitationIds, token).Result;
 
-            var result = CreateResult(maxAvailable, orderedDtos, invitationWithIncludes);
+            var result = CreateResult(maxAvailable, orderedDtos, invitationsWithIncludes);
 
             return new SuccessResult<InvitationsResult>(result);
         }
@@ -87,31 +81,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             });
             var result = new InvitationsResult(maxAvailable, invitations);
             return result;
-        }
-
-        private static string NameCombiner(Participant participant)
-            => $"{participant.FirstName} {participant.LastName}";
-
-        private static string GetContractorRep(IList<Participant> participant)
-        {
-            var functionalRoleContractor =
-                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleContractor != null)
-            {
-                return functionalRoleContractor.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 0));
-        }
-
-        private static string GetConstructionCompanyRep(IList<Participant> participant)
-        {
-            var functionalRoleConstructionCompany =
-                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleConstructionCompany != null)
-            {
-                return functionalRoleConstructionCompany.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
 
         private IQueryable<InvitationForQueryDto> AddPaging(Paging paging, IQueryable<InvitationForQueryDto> enumerable)

@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
@@ -162,5 +166,42 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                 return null;
             }
         }
+
+        private static string NameCombiner(Participant participant)
+            => $"{participant.FirstName} {participant.LastName}";
+
+        protected static string GetContractorRep(IList<Participant> participant)
+        {
+            var functionalRoleContractor =
+                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleContractor != null)
+            {
+                return functionalRoleContractor.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 0));
+        }
+
+        protected static string GetConstructionCompanyRep(IList<Participant> participant)
+        {
+            var functionalRoleConstructionCompany =
+                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleConstructionCompany != null)
+            {
+                return functionalRoleConstructionCompany.FunctionalRoleCode;
+            }
+            return NameCombiner(participant.Single(p => p.SortKey == 1));
+        }
+
+        protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
+            IReadOnlyContext context,
+            List<int> invitationIds,
+            CancellationToken token) 
+            => await (from invitation in context.QuerySet<Invitation>()
+                        .Include(i => i.Participants)
+                        .Include(i => i.CommPkgs)
+                        .Include(i => i.McPkgs)
+                    where invitationIds.Contains(invitation.Id)
+                    select invitation)
+                .ToListAsync(token);
     }
 }

@@ -27,13 +27,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             _utcNow = TimeService.UtcNow;
         }
 
-        public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken token)
         {
             var queryable = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
 
             queryable = AddSorting(request.Sorting, queryable);
 
-            var orderedDtos = queryable.ToList();
+            var orderedDtos = await queryable.ToListAsync(token);
 
             var usedFilterDto = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
             if (!orderedDtos.Any())
@@ -44,13 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var invitationIds = orderedDtos.Select(dto => dto.Id).ToList();
             var getHistoryAndParticipants = invitationIds.Count == 1;
 
-            var invitationsWithIncludes = await (from invitation in _context.QuerySet<Invitation>()
-                        .Include(i => i.Participants)
-                        .Include(i => i.CommPkgs)
-                        .Include(i => i.McPkgs)
-                    where invitationIds.Contains(invitation.Id)
-                    select invitation)
-                .ToListAsync(cancellationToken);
+            var invitationsWithIncludes = GetInvitationsWithIncludesAsync(_context, invitationIds, token).Result;
 
             var exportInvitationDtos = CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes).Result;
 
@@ -59,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 await GetHistoryForSingleInvitationAsync(
                     invitationIds.Single(),
                     exportInvitationDtos,
-                    cancellationToken);
+                    token);
 
                 AddParticipantsForSingleInvitation(
                     exportInvitationDtos,
@@ -113,26 +107,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             }
         }
 
-        private async Task<List<Invitation>> GetInvitationsWithIncludesAsync(List<int> invitationIds,
-            bool getHistoryAndParticipants, CancellationToken cancellationToken)
-        {
-            if (getHistoryAndParticipants)
-            {
-                return await (from invitation in _context.QuerySet<Invitation>()
-                            .Include(t => t.Participants)
-                        where invitationIds.Contains(invitation.Id)
-                        select invitation)
-                    .ToListAsync(cancellationToken);
-            }
-            return await (from invitation in _context.QuerySet<Invitation>()
-                        .Include(i => i.Participants)
-                        .Include(i => i.CommPkgs)
-                        .Include(i => i.McPkgs)
-                    where invitationIds.Contains(invitation.Id)
-                    select invitation)
-                .ToListAsync(cancellationToken);
-        }
-
         private async Task<UsedFilterDto> CreateUsedFilterDtoAsync(string projectName, Filter filter)
         {
             var personInvited = await GetPersonNameAsync(filter.PersonOid);
@@ -169,31 +143,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             await (from p in _context.QuerySet<Person>()
                 where p.Id == personId
                 select $"{p.FirstName} {p.LastName}").SingleAsync();
-
-        private static string NameCombiner(Participant participant)
-            => $"{participant.FirstName} {participant.LastName}";
-
-        private static string GetContractorRep(IList<Participant> participant)
-        {
-            var functionalRoleContractor =
-                participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleContractor != null)
-            {
-                return functionalRoleContractor.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 0));
-        }
-
-        private static string GetConstructionCompanyRep(IList<Participant> participant)
-        {
-            var functionalRoleConstructionCompany =
-                participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleConstructionCompany != null)
-            {
-                return functionalRoleConstructionCompany.FunctionalRoleCode;
-            }
-            return NameCombiner(participant.Single(p => p.SortKey == 1));
-        }
 
         private async Task<List<ExportInvitationDto>> CreateExportInvitationsDtosAsync(
             List<InvitationForQueryDto> orderedDtos,
