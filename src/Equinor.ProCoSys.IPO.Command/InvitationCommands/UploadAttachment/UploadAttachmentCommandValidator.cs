@@ -33,9 +33,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
                 .WithMessage($"Maximum file size is {options.CurrentValue.MaxSizeMb}MB!");
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingInvitationAsync(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingInvitationAsync(command.InvitationId, cancellationToken))
                     .WithMessage(command => $"Invitation doesn't exist! Invitation={command.InvitationId}")
-                .MustAsync((command, token) => NotHaveAttachmentWithFileNameAsync(command.InvitationId, command.FileName, token))
+                .MustAsync((command, cancellationToken) => NotHaveAttachmentWithFileNameAsync(command.InvitationId, command.FileName, cancellationToken))
                     .WithMessage(command => $"Invitation already has an attachment with filename {command.FileName}! Please rename file or choose to overwrite.")
                     .When(c => !c.OverWriteIfExists, ApplyConditionTo.CurrentValidator);
 
@@ -54,8 +54,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
             async Task<bool> BeAnExistingInvitationAsync(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> NotHaveAttachmentWithFileNameAsync(int invitationId, string fileName, CancellationToken token)
-                => !await invitationValidator.AttachmentWithFileNameExistsAsync(invitationId, fileName, token);
+            async Task<bool> NotHaveAttachmentWithFileNameAsync(int invitationId, string fileName, CancellationToken cancellationToken)
+                => !await invitationValidator.AttachmentWithFileNameExistsAsync(invitationId, fileName, cancellationToken);
         }
     }
 }

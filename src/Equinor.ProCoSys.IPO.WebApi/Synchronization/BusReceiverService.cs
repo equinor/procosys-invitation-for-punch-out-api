@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _bearerTokenSetter = bearerTokenSetter;
         }
 
-        public async Task ProcessMessageAsync(PcsTopic pcsTopic, Message message, CancellationToken token)
+        public async Task ProcessMessageAsync(PcsTopic pcsTopic, Message message, CancellationToken cancellationToken)
         {
             var messageJson = Encoding.UTF8.GetString(message.Body);
 
@@ -70,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     ProcessMcPkgEvent(messageJson);
                     break;
             }
-            await _unitOfWork.SaveChangesAsync(token);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         private void ProcessMcPkgEvent(string messageJson)

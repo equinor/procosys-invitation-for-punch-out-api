@@ -7,6 +7,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
     {
         Task<bool> ExistsWithSameTitleForPersonInProjectAsync(string title, string projectName, CancellationToken cancellationToken);
         Task<bool> ExistsAnotherWithSameTitleForPersonInProjectAsync(int savedFilterId, string title, CancellationToken cancellationToken);
-        Task<bool> ExistsAsync(int savedFilterId, CancellationToken token);
+        Task<bool> ExistsAsync(int savedFilterId, CancellationToken cancellationToken);
     }
 }

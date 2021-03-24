@@ -16,8 +16,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             string location,
             DateTime startTimeUtc,
             DateTime endTimeUtc,
-            IList<string> mcPkgs,
-            IList<string> commPkgs,
+            IEnumerable<string> mcPkgs,
+            IEnumerable<string> commPkgs,
             string contractorRep,
             string constructionCompanyRep,
             DateTime? completedAtUtc,
@@ -55,8 +55,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         public string Location { get; }
         public DateTime StartTimeUtc { get; }
         public DateTime EndTimeUtc { get; }
-        public IList<string> McPkgs { get; }
-        public IList<string> CommPkgs { get; }
+        public IEnumerable<string> McPkgs { get; }
+        public IEnumerable<string> CommPkgs { get; }
         public string ContractorRep { get; }
         public string ConstructionCompanyRep { get; }
         public DateTime? CompletedAtUtc { get; }

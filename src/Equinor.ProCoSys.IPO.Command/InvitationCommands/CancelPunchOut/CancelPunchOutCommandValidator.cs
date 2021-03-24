@@ -16,33 +16,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => InvitationIsNotCanceled(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => InvitationIsNotCanceled(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO is already canceled! Id={command.InvitationId}")
-                .MustAsync((command, token) => InvitationIsNotAccepted(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => InvitationIsNotAccepted(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO is in accepted stage! Id={command.InvitationId}")
-                .MustAsync((command, token) => CurrentUserIsCreatorOfInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => CurrentUserIsCreatorOfInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"Current user is not the creator of the invitation! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command =>
                     $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}");
 
-            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoExistsAsync(invitationId, token);
+            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken token)
-                => await invitationValidator.CurrentUserIsCreatorOfInvitation(invitationId, token);
+            async Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.CurrentUserIsCreatorOfInvitation(invitationId, cancellationToken);
 
-            async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken token)
-                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, token);
+            async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
 
-            async Task<bool> InvitationIsNotAccepted(int invitationId, CancellationToken token)
-                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Accepted, token);
+            async Task<bool> InvitationIsNotAccepted(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Accepted, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

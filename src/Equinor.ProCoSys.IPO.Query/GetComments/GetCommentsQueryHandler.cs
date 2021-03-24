@@ -20,13 +20,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
 
         public async Task<Result<List<CommentDto>>> Handle(
             GetCommentsQuery request,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             var invitation = await
                 (from inv in _context.QuerySet<Invitation>()
                         .Include(i => i.Comments)
                         .Where(i => i.Id == request.InvitationId)
-                 select inv).SingleOrDefaultAsync(token);
+                 select inv).SingleOrDefaultAsync(cancellationToken);
 
             if (invitation == null)
             {
@@ -35,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
             var personIds = invitation.Comments.Select(x => x.CreatedById).Distinct();
             var persons = await (from p in _context.QuerySet<Person>()
                 where personIds.Contains(p.Id)
-                select p).ToListAsync(token);
+                select p).ToListAsync(cancellationToken);
 
             var comments = invitation.Comments
                 .Select(c => new CommentDto(

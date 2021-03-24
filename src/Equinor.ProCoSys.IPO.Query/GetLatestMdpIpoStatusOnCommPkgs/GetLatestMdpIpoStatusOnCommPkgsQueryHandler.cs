@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             => _context = context;
 
         public async Task<Result<List<CommPkgsWithMdpIposDto>>> Handle(GetLatestMdpIpoStatusOnCommPkgsQuery request,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
                 from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
                         i.CreatedAtUtc,
                         i.Status == IpoStatus.Accepted))
                 .Distinct()
-                .ToListAsync(token);
+                .ToListAsync(cancellationToken);
 
             var commPkgsWithLatestMdpIpoStatus = commPkgsWithMdpIpos.OrderBy(x => x.CommPkgNo).GroupBy(x => x.CommPkgNo)
                 .Select(c => c.OrderByDescending(x => x.CreatedAtUtc).First()).ToList();
