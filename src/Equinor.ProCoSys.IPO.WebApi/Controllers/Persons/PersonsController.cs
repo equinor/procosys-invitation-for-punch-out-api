@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter;
+using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -75,6 +76,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
             [FromBody] DeleteSavedFilterDto dto)
         {
             var result = await _mediator.Send(new DeleteSavedFilterCommand(id, dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_READ)]
+        [HttpGet("OutstandingIpos")]
+        public async Task<ActionResult<OutstandingIposResultDto>> GetOutstandingIpos(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            string plant,
+            [FromQuery] string projectName)
+        {
+            var result = await _mediator.Send(new GetOutstandingIposQuery(projectName));
             return this.FromResult(result);
         }
     }

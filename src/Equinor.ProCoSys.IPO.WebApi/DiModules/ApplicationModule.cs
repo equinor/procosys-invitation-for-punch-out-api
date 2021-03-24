@@ -1,5 +1,4 @@
-﻿using Equinor.ProCoSys.PcsBus;
-using Equinor.ProCoSys.PcsBus.Receiver;
+﻿using Equinor.ProCoSys.PcsBus.Receiver;
 using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
@@ -18,6 +17,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -103,8 +103,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBlobStorage, AzureBlobService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
-            services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
+            services.AddScoped<ForeignApi.LibraryApi.FunctionalRole.IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
             services.AddScoped<IPersonApiService, MainApiPersonService>();
+            services.AddScoped<ForeignApi.MainApi.FunctionalRole.IFunctionalRoleApiService, MainApiFunctionalRoleService>();
 
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();
