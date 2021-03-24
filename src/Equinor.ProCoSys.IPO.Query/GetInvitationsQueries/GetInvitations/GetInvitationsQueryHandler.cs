@@ -25,17 +25,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             _utcNow = TimeService.UtcNow;
         }
 
-        public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken token)
+        public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)
         {
             var queryable = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
 
             // count before adding sorting/paging
-            var maxAvailable = await queryable.CountAsync(token);
+            var maxAvailable = await queryable.CountAsync(cancellationToken);
 
             queryable = AddSorting(request.Sorting, queryable);
             queryable = AddPaging(request.Paging, queryable);
 
-            var orderedDtos = await queryable.ToListAsync(token);
+            var orderedDtos = await queryable.ToListAsync(cancellationToken);
 
             if (!orderedDtos.Any())
             {
@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
             var invitationIds = orderedDtos.Select(i => i.Id).ToList();
 
-            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, token);
+            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
 
             var result = CreateResult(maxAvailable, orderedDtos, invitationsWithIncludes);
 

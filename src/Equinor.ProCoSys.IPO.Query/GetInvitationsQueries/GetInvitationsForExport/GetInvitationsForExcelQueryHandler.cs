@@ -27,13 +27,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             _utcNow = TimeService.UtcNow;
         }
 
-        public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken token)
+        public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
         {
             var queryable = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
 
             queryable = AddSorting(request.Sorting, queryable);
 
-            var orderedDtos = await queryable.ToListAsync(token);
+            var orderedDtos = await queryable.ToListAsync(cancellationToken);
 
             var usedFilterDto = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
             if (!orderedDtos.Any())
@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var invitationIds = orderedDtos.Select(dto => dto.Id).ToList();
             var getHistoryAndParticipants = invitationIds.Count == 1;
 
-            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, token);
+            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
 
             var exportInvitationDtos = await CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes);
 
@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 await GetHistoryForSingleInvitationAsync(
                     invitationIds.Single(),
                     exportInvitationDtos,
-                    token);
+                    cancellationToken);
 
                 AddParticipantsForSingleInvitation(
                     exportInvitationDtos,

@@ -14,10 +14,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => BeAnInvitationInCompletedStage(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnInvitationInCompletedStage(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is not in completed stage, and thus cannot be accepted!")
                 .Must(command => HaveAValidRowVersion(command.InvitationRowVersion))
@@ -26,35 +26,35 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
-                .MustAsync((command, token) => BeAConstructionCompanyOnIpo(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAConstructionCompanyOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a construction company assigned to accept the IPO!")
-                .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Person signing is not the construction company assigned to accept this IPO, or there is not a valid construction company on the IPO!");
 
             RuleForEach(command => command.Participants)
-                .MustAsync((command, participant, _, token) => BeAnExistingParticipant(participant.Id, command.InvitationId, token))
+                .MustAsync((command, participant, _, cancellationToken) => BeAnExistingParticipant(participant.Id, command.InvitationId, cancellationToken))
                 .WithMessage((command, participant) =>
                     $"Participant with ID does not exist on invitation! Participant={participant}")
                 .Must((command, participant) => HaveAValidRowVersion(participant.RowVersion))
                 .WithMessage((command, participant) =>
                     $"Participant doesn't have valid rowVersion! Participant={participant}");
 
-            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoExistsAsync(invitationId, token);
+            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeAnInvitationInCompletedStage(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Completed, token);
+            async Task<bool> BeAnInvitationInCompletedStage(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Completed, cancellationToken);
 
-            async Task<bool> BeAConstructionCompanyOnIpo(int invitationId, CancellationToken token)
-                => await invitationValidator.ConstructionCompanyExistsAsync(invitationId, token);
+            async Task<bool> BeAConstructionCompanyOnIpo(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.ConstructionCompanyExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken token)
-                => await invitationValidator.ValidConstructionCompanyParticipantExistsAsync(invitationId, token);
+            async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.ValidConstructionCompanyParticipantExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken token)
-                => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, token);
+            async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

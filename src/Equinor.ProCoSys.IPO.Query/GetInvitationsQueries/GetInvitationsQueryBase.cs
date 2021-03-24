@@ -195,13 +195,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
         protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
             IReadOnlyContext context,
             List<int> invitationIds,
-            CancellationToken token) 
+            CancellationToken cancellationToken) 
             => await (from invitation in context.QuerySet<Invitation>()
                         .Include(i => i.Participants)
                         .Include(i => i.CommPkgs)
                         .Include(i => i.McPkgs)
                     where invitationIds.Contains(invitation.Id)
                     select invitation)
-                .ToListAsync(token);
+                .ToListAsync(cancellationToken);
     }
 }

@@ -14,39 +14,39 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => BeAnExistingParticipant(command.ParticipantId, command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingParticipant(command.ParticipantId, command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"Participant with this ID does not exist! Id={command.ParticipantId}")
-                .MustAsync((command, token) => BeANonCanceledInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeANonCanceledInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is canceled, and thus cannot be signed!")
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
-                .MustAsync((command, token) => BeASigningParticipantOnIpo(command.InvitationId, command.ParticipantId, token))
+                .MustAsync((command, cancellationToken) => BeASigningParticipantOnIpo(command.InvitationId, command.ParticipantId, cancellationToken))
                 .WithMessage(command =>
                     $"Participant is not assigned to sign this IPO! ParticipantId={command.ParticipantId}")
-                .MustAsync((command, token) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId,command.ParticipantId, token))
+                .MustAsync((command, cancellationToken) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId,command.ParticipantId, cancellationToken))
                 .WithMessage(command =>
                     "Person signing is not assigned to sign IPO, or there is not a valid functional role on the IPO!");
 
-            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoExistsAsync(invitationId, token);
+            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeANonCanceledInvitation(int invitationId, CancellationToken token)
-                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, token);
+            async Task<bool> BeANonCanceledInvitation(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
 
-            async Task<bool> BeASigningParticipantOnIpo(int invitationId, int participantId, CancellationToken token)
-                => await invitationValidator.SignerExistsAsync(invitationId, participantId, token);
+            async Task<bool> BeASigningParticipantOnIpo(int invitationId, int participantId, CancellationToken cancellationToken)
+                => await invitationValidator.SignerExistsAsync(invitationId, participantId, cancellationToken);
 
-            async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, int participantId, CancellationToken token)
-                => await invitationValidator.ValidSigningParticipantExistsAsync(invitationId, participantId, token);
+            async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, int participantId, CancellationToken cancellationToken)
+                => await invitationValidator.ValidSigningParticipantExistsAsync(invitationId, participantId, cancellationToken);
 
-            async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken token)
-                => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, token);
+            async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
