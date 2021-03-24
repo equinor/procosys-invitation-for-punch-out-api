@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
             var invitationIds = orderedDtos.Select(i => i.Id).ToList();
 
-            var invitationsWithIncludes = GetInvitationsWithIncludesAsync(_context, invitationIds, token).Result;
+            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, token);
 
             var result = CreateResult(maxAvailable, orderedDtos, invitationsWithIncludes);
 

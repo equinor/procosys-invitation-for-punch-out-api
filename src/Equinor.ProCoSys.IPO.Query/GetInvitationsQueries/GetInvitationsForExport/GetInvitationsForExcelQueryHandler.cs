@@ -44,9 +44,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var invitationIds = orderedDtos.Select(dto => dto.Id).ToList();
             var getHistoryAndParticipants = invitationIds.Count == 1;
 
-            var invitationsWithIncludes = GetInvitationsWithIncludesAsync(_context, invitationIds, token).Result;
+            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, token);
 
-            var exportInvitationDtos = CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes).Result;
+            var exportInvitationDtos = await CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes);
 
             if (getHistoryAndParticipants)
             {
