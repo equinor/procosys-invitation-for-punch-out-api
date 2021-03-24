@@ -29,24 +29,24 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
         {
-            var queryable = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
 
-            queryable = AddSorting(request.Sorting, queryable);
+            invitationForQueryDtos = AddSorting(request.Sorting, invitationForQueryDtos);
 
-            var orderedDtos = await queryable.ToListAsync(cancellationToken);
+            var orderedInvitations = await invitationForQueryDtos.ToListAsync(cancellationToken);
 
             var usedFilterDto = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
-            if (!orderedDtos.Any())
+            if (!orderedInvitations.Any())
             {
                 return new SuccessResult<ExportDto>(new ExportDto(null, usedFilterDto));
             }
 
-            var invitationIds = orderedDtos.Select(dto => dto.Id).ToList();
+            var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
             var getHistoryAndParticipants = invitationIds.Count == 1;
 
             var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
 
-            var exportInvitationDtos = await CreateExportInvitationsDtosAsync(orderedDtos, invitationsWithIncludes);
+            var exportInvitationDtos = await CreateExportInvitationsDtosAsync(orderedInvitations, invitationsWithIncludes);
 
             if (getHistoryAndParticipants)
             {
@@ -145,37 +145,37 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 select $"{p.FirstName} {p.LastName}").SingleAsync();
 
         private async Task<List<ExportInvitationDto>> CreateExportInvitationsDtosAsync(
-            List<InvitationForQueryDto> orderedDtos,
+            List<InvitationForQueryDto> orderedInvitations,
             List<Invitation> invitationsWithIncludes)
         {
-            var exportDtos = new List<ExportInvitationDto>();
-            foreach (var dto in orderedDtos)
+            var exportInvitations = new List<ExportInvitationDto>();
+            foreach (var invitation in orderedInvitations)
             {
-                var organizer = await GetPersonNameAsync(dto.CreatedById);
-                var invitationWithIncludes = invitationsWithIncludes.Single(t => t.Id == dto.Id);
+                var organizer = await GetPersonNameAsync(invitation.CreatedById);
+                var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
                 var participants = invitationWithIncludes.Participants.ToList();
-                exportDtos.Add(new ExportInvitationDto(
-                    dto.Id,
-                    dto.ProjectName,
-                    dto.Status,
-                    dto.Title,
-                    dto.Description,
-                    dto.Type.ToString(),
-                    dto.Location,
-                    dto.StartTimeUtc,
-                    dto.EndTimeUtc,
-                    invitationWithIncludes.McPkgs.Select(mc => mc.McPkgNo).ToList(),
-                    invitationWithIncludes.CommPkgs.Select(c => c.CommPkgNo).ToList(),
+                exportInvitations.Add(new ExportInvitationDto(
+                    invitation.Id,
+                    invitation.ProjectName,
+                    invitation.Status,
+                    invitation.Title,
+                    invitation.Description,
+                    invitation.Type.ToString(),
+                    invitation.Location,
+                    invitation.StartTimeUtc,
+                    invitation.EndTimeUtc,
+                    invitationWithIncludes.McPkgs.Select(mc => mc.McPkgNo),
+                    invitationWithIncludes.CommPkgs.Select(c => c.CommPkgNo),
                     GetContractorRep(participants),
                     GetConstructionCompanyRep(participants),
-                    dto.CompletedAtUtc,
-                    dto.AcceptedAtUtc,
-                    dto.CreatedAtUtc,
+                    invitation.CompletedAtUtc,
+                    invitation.AcceptedAtUtc,
+                    invitation.CreatedAtUtc,
                     organizer
                 ));
             }
 
-            return exportDtos.ToList();
+            return exportInvitations.ToList();
         }
     }
 }

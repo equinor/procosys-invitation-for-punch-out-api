@@ -78,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             return queryable;
         }
 
-        protected static IQueryable<InvitationForQueryDto> AddSorting(Sorting sorting, IQueryable<InvitationForQueryDto> queryable)
+        protected static IQueryable<InvitationForQueryDto> AddSorting(Sorting sorting, IQueryable<InvitationForQueryDto> invitationForQueryDtos)
         {
             switch (sorting.Direction)
             {
@@ -86,28 +86,28 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     switch (sorting.Property)
                     {
                         case SortingProperty.Type:
-                            queryable = queryable.OrderBy(dto => dto.Type);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Type);
                             break;
                         case SortingProperty.Status:
-                            queryable = queryable.OrderBy(dto => dto.Status);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderBy(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
-                            queryable = queryable.OrderBy(dto => dto.Title);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderBy(dto => dto.StartTimeUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
-                            queryable = queryable.OrderBy(dto => dto.CompletedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.CompletedAtUtc);
                             break;
                         case SortingProperty.AcceptedAtUtc:
-                            queryable = queryable.OrderBy(dto => dto.AcceptedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.AcceptedAtUtc);
                             break;
                         default:
-                            queryable = queryable.OrderBy(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
                     }
 
@@ -116,34 +116,34 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     switch (sorting.Property)
                     {
                         case SortingProperty.Type:
-                            queryable = queryable.OrderByDescending(dto => dto.Type);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Type);
                             break;
                         case SortingProperty.Status:
-                            queryable = queryable.OrderByDescending(dto => dto.Status);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderByDescending(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
-                            queryable = queryable.OrderByDescending(dto => dto.Title);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.StartTimeUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.CompletedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.CompletedAtUtc);
                             break;
                         case SortingProperty.AcceptedAtUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.AcceptedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.AcceptedAtUtc);
                             break;
                         default:
-                            queryable = queryable.OrderByDescending(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);
                             break;
                     }
                     break;
             }
 
-            return queryable;
+            return invitationForQueryDtos;
         }
 
         private static string GetIpoIdStartWith(string filterString)

@@ -22,8 +22,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             DateTime? acceptedAtUtc,
             string contractorRep,
             string constructionCompanyRep,
-            IList<string> mcPkgNos,
-            IList<string> commPkgNos,
+            IEnumerable<string> mcPkgNos,
+            IEnumerable<string> commPkgNos,
             string rowVersion)
         {
             Id = id;
@@ -61,8 +61,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         public DateTime? AcceptedAtUtc { get; }
         public string ContractorRep { get; }
         public string ConstructionCompanyRep { get; }
-        public IList<string> McPkgNos { get; }
-        public IList<string> CommPkgNos { get; }
+        public IEnumerable<string> McPkgNos { get; }
+        public IEnumerable<string> CommPkgNos { get; }
         public string RowVersion { get; }
     }
 }
