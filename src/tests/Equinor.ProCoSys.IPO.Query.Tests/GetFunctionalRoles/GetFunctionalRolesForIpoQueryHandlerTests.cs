@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
     [TestClass]
     public class GetFunctionalRolesForIpoQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private IList<ProCoSysFunctionalRole> _libraryApiFunctionalRoles;
         private GetFunctionalRolesForIpoQuery _query;
 
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
             {
                 person = new ProCoSysPerson() { AzureOid = "123456", FirstName = "F1", LastName = "F2", UserName = "UN1", Email = "E1@email.com" };
 
-                _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+                _functionalRoleApiServiceMock = new Mock<ILibraryFunctionalRoleApiService>();
                 _libraryApiFunctionalRoles = new List<ProCoSysFunctionalRole>
                 {
                     new ProCoSysFunctionalRole()

@@ -11,11 +11,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
 {
     public class GetFunctionalRolesForIpoQueryHandler : IRequestHandler<GetFunctionalRolesForIpoQuery, Result<List<ProCoSysFunctionalRoleDto>>>
     {
-        private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly ILibraryFunctionalRoleApiService _functionalRoleApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetFunctionalRolesForIpoQueryHandler(
-            IFunctionalRoleApiService functionalRoleApiService,
+            ILibraryFunctionalRoleApiService functionalRoleApiService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;

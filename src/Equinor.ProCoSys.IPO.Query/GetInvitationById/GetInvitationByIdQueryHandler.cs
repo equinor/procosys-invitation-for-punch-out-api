@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly IReadOnlyContext _context;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly ILibraryFunctionalRoleApiService _functionalRoleApiService;
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,
-            IFunctionalRoleApiService functionalRoleApiService,
+            ILibraryFunctionalRoleApiService functionalRoleApiService,
             IPlantProvider plantProvider,
             ILogger<GetInvitationByIdQueryHandler> logger)
         {

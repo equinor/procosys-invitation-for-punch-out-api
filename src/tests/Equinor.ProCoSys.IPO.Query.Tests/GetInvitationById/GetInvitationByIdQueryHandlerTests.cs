@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private int _invitationId;
         
         private Mock<IFusionMeetingClient> _meetingClientMock;
-        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<ILogger<GetInvitationByIdQueryHandler>> _loggerMock;
 
         private string _functionalRoleCode1 = "FrCode1";
@@ -183,7 +183,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
                 IList<ProCoSysFunctionalRole> frDetails2 = new List<ProCoSysFunctionalRole> { functionalRoleDetails2 };
 
-                _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+                _functionalRoleApiServiceMock = new Mock<ILibraryFunctionalRoleApiService>();
                 _functionalRoleApiServiceMock
                     .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode1 }))
                     .Returns(Task.FromResult(frDetails));

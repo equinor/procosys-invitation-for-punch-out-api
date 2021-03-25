@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
-        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
@@ -211,7 +211,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
             IList<ProCoSysFunctionalRole> pcsFrDetails = new List<ProCoSysFunctionalRole> { frDetails };
             IList<ProCoSysFunctionalRole> newPcsFrDetails = new List<ProCoSysFunctionalRole> { newFrDetails };
-            _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+            _functionalRoleApiServiceMock = new Mock<ILibraryFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(pcsFrDetails));

@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IPersonApiService> _personApiServiceMock;
-        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IDbContextTransaction> _transactionMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -172,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             };
             IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole>{ _functionalRoleDetails };
 
-            _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+            _functionalRoleApiServiceMock = new Mock<ILibraryFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(frDetails));
