@@ -12,11 +12,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetPersons
 {
     public class GetPersonsQueryHandler : IRequestHandler<GetPersonsQuery, Result<List<ProCoSysPersonDto>>>
     {
-        private readonly IPersonApiService _personApiService;
+        private readonly IMainPersonApiService _personApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetPersonsQueryHandler(
-            IPersonApiService personApiService,
+            IMainPersonApiService personApiService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;

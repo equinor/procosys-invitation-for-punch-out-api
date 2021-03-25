@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IMainPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
         private SignPunchOutCommand _command;
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 UserName = "KN"
             };
 
-            _personApiServiceMock = new Mock<IPersonApiService>();
+            _personApiServiceMock = new Mock<IMainPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
                     _azureOidForCurrentUser.ToString(), _functionalRoleCode))

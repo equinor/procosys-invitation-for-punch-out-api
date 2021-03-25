@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersons
     [TestClass]
     public class GetPersonsQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IMainPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiPersons;
         private GetPersonsQuery _query;
 
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersons
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _personApiServiceMock = new Mock<IPersonApiService>();
+                _personApiServiceMock = new Mock<IMainPersonApiService>();
                 _mainApiPersons = new List<ProCoSysPerson>
                 {
                     new ProCoSysPerson

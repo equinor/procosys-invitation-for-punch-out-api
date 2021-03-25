@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
     [TestClass]
     public class GetPersonsWithPrivilegesQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IMainPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiContractorPersons;
         private IList<ProCoSysPerson> _mainApiConstructionPersons;
         private GetPersonsWithPrivilegesQuery _query;
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _personApiServiceMock = new Mock<IPersonApiService>();
+                _personApiServiceMock = new Mock<IMainPersonApiService>();
                 _mainApiContractorPersons = new List<ProCoSysPerson>
                 {
                     new ProCoSysPerson
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
                     }
                 };
 
-                _personApiServiceMock = new Mock<IPersonApiService>();
+                _personApiServiceMock = new Mock<IMainPersonApiService>();
                 _mainApiConstructionPersons = new List<ProCoSysPerson>
                 {
                     new ProCoSysPerson

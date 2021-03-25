@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IPersonApiService _personApiService;
+        private readonly IMainPersonApiService _personApiService;
         private readonly IPersonRepository _personRepository;
 
         public SignPunchOutCommandHandler(
@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IPersonApiService personApiService,
+            IMainPersonApiService personApiService,
             IPersonRepository personRepository)
         {
             _plantProvider = plantProvider;

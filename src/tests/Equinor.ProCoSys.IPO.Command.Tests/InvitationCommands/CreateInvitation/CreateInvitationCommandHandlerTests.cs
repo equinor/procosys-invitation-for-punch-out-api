@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IMainCommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMainMcPkgApiService> _mcPkgApiServiceMock;
-        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IMainPersonApiService> _personApiServiceMock;
         private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IDbContextTransaction> _transactionMock;
@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Email = "ola@test.com"
             };
 
-            _personApiServiceMock = new Mock<IPersonApiService>();
+            _personApiServiceMock = new Mock<IMainPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
                     _azureOid.ToString(), "IPO", new List<string> { "SIGN" }))

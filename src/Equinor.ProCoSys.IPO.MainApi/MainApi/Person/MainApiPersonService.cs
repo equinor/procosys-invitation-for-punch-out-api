@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 {
-    public class MainApiPersonService : IPersonApiService
+    public class MainApiPersonService : IMainPersonApiService
     {
         private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;

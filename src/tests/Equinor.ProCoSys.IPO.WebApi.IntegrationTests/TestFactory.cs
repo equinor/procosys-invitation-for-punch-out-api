@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
@@ -55,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
         public readonly Mock<IMainCommPkgApiService> CommPkgApiServiceMock = new Mock<IMainCommPkgApiService>();
         public readonly Mock<IMainMcPkgApiService> McPkgApiServiceMock = new Mock<IMainMcPkgApiService>();
-        public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
+        public readonly Mock<IMainPersonApiService> PersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<ILibraryFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<ILibraryFunctionalRoleApiService>();
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 {
-    public interface IPersonApiService
+    public interface IMainPersonApiService
     {
         Task<IList<ProCoSysPerson>> GetPersonsAsync(string plant, string searchString, long numberOfRows = 1000);
         Task<IList<ProCoSysPerson>> GetPersonsWithPrivilegesAsync(string plant, string searchString, string objectName, IList<string> privileges);

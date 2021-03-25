@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IMainPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
 
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 UserName = "ON"
             };
 
-            _personApiServiceMock = new Mock<IPersonApiService>();
+            _personApiServiceMock = new Mock<IMainPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
                     _azureOidForCurrentUser.ToString(), _functionalRoleCode))

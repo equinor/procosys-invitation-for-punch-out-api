@@ -16,14 +16,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IPersonApiService _personApiService;
+        private readonly IMainPersonApiService _personApiService;
 
         public UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IPersonApiService personApiService)
+            IMainPersonApiService personApiService)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
