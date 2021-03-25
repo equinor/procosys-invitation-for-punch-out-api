@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs;
@@ -15,14 +15,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceResult;
-using IFunctionalRoleApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole.IFunctionalRoleApiService;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
     [TestClass]
     public class GetOutstandingIposQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<IMainFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private GetOutstandingIposQuery _query;
         private Person _person;
 
@@ -40,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 
                 IList<string> pcsFunctionalRoleCodes = new List<string> { _functionalRoleCode };
 
-                _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
+                _functionalRoleApiServiceMock = new Mock<IMainFunctionalRoleApiService>();
                 _functionalRoleApiServiceMock
                     .Setup(x => x.GetFunctionalRoleCodesByPersonOidAsync(TestPlant, _currentUserOid.ToString()))
                     .Returns(Task.FromResult(pcsFunctionalRoleCodes));

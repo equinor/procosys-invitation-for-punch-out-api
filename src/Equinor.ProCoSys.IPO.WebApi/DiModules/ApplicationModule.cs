@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
             services.AddScoped<ILibraryFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
             services.AddScoped<IPersonApiService, MainApiPersonService>();
-            services.AddScoped<ForeignApi.MainApi.FunctionalRole.IFunctionalRoleApiService, MainApiFunctionalRoleService>();
+            services.AddScoped<IMainFunctionalRoleApiService, MainApiFunctionalRoleService>();
 
             services.AddScoped<IInvitationValidator, InvitationValidator>();
             services.AddScoped<IRowVersionValidator, RowVersionValidator>();

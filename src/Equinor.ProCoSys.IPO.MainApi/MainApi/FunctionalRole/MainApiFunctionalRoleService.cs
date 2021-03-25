@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole
 {
-    public class MainApiFunctionalRoleService : IFunctionalRoleApiService
+    public class MainApiFunctionalRoleService : IMainFunctionalRoleApiService
     {
         private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;

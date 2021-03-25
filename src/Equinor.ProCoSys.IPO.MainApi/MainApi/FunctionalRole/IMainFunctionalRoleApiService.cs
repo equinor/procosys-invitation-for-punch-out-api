@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole
 {
-    public interface IFunctionalRoleApiService
+    public interface IMainFunctionalRoleApiService
     {
         Task<IList<string>> GetFunctionalRoleCodesByPersonOidAsync(string plant, string azureOid);
     }

@@ -10,6 +10,7 @@ using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
@@ -59,6 +60,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
+        public readonly Mock<IMainFunctionalRoleApiService> MainFunctionalRoleApiServiceMock = new Mock<IMainFunctionalRoleApiService>();
 
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";

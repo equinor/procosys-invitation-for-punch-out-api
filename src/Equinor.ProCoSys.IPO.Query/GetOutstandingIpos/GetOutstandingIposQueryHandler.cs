@@ -17,13 +17,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs
     {
         private readonly IReadOnlyContext _context;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IMainFunctionalRoleApiService _functionalRoleApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetOutstandingIposQueryHandler(
             IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
-            IFunctionalRoleApiService functionalRoleApiService,
+            IMainFunctionalRoleApiService functionalRoleApiService,
             IPlantProvider plantProvider)
         {
             _context = context;
