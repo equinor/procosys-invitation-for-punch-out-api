@@ -54,73 +54,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         }
 
         [TestMethod]
-        public async Task GetRequiredSignerPersons_AsViewer_ShouldGetRequiredSignerPersons()
-        {
-            // Act
-            var signerPersons = await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                "RequiredSignersSearchString");
-
-            // Assert
-            Assert.AreEqual(1, signerPersons.Count);
-            var requiredSignerPerson = signerPersons.Single();
-            Assert.AreEqual("SigurdUserName", requiredSignerPerson.UserName);
-            Assert.AreEqual("Sigurd", requiredSignerPerson.FirstName);
-            Assert.AreEqual("Signer", requiredSignerPerson.LastName);
-        }
-
-        [TestMethod]
-        public async Task GetRequiredSignerPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
-        {
-            // Act
-            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                "searchStringWithNoMatchingPersons");
-
-            // Assert
-            Assert.AreEqual(0, proCoSysPersons.Count);
-        }
-
-        [TestMethod]
-        public async Task GetAdditionalSignerPersons_AsViewer_ShouldGetAdditionalSignerPersons()
-        {
-            // Act
-            var additionalSignerPersons = await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                "AdditionalSignersSearchString");
-
-            // Assert
-            Assert.AreEqual(1, additionalSignerPersons.Count);
-            var additionalSignerPerson = additionalSignerPersons.First();
-            Assert.AreEqual("SigurdUserName", additionalSignerPerson.UserName);
-            Assert.AreEqual("Sigurd", additionalSignerPerson.FirstName);
-            Assert.AreEqual("Signer", additionalSignerPerson.LastName);
-        }
-
-        [TestMethod]
-        public async Task GetAdditionalSignerPersons_AsViewer_NoMatchingPersons_ShouldReturnEmptyList()
-        {
-            // Act
-            var proCoSysPersons = await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                "searchStringWithNoMatchingPersons");
-
-            // Assert
-            Assert.AreEqual(0, proCoSysPersons.Count);
-        }
-
-        [TestMethod]
         public async Task GetSignerPersons_AsViewer_ShouldGetAdditionalSignerPersons()
         {
             // Act
             var signerPersons = await ParticipantsControllerTestsHelper.GetSignerPersonsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "AdditionalSignersSearchString");
+                "SignersSearchString");
 
             // Assert
             Assert.AreEqual(1, signerPersons.Count);

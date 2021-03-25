@@ -94,16 +94,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonsWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
-                    "RequiredSignersSearchString",
-                    "IPO",
-                    It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_signerPersons));
-
-            TestFactory.Instance
-                .PersonApiServiceMock
-                .Setup(x => x.GetPersonsWithPrivilegesAsync(
-                    TestFactory.PlantWithAccess,
-                    "AdditionalSignersSearchString",
+                    "SignersSearchString",
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_signerPersons));
