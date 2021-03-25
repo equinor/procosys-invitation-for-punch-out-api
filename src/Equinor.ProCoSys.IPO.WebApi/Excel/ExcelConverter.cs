@@ -203,8 +203,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 row.Cell(InvitationSheetColumns.Type).SetValue(invitation.Type).SetDataType(XLDataType.Text);
                 AddDateCell(row, InvitationSheetColumns.StartTimeUtc, invitation.StartTimeUtc, false);
                 AddDateCell(row, InvitationSheetColumns.EndTimeUtc, invitation.EndTimeUtc, false);
-                row.Cell(InvitationSheetColumns.McPkgs).SetValue(invitation.McPkgs).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.CommPkgs).SetValue(invitation.CommPkgs).SetDataType(XLDataType.Text);
+                row.Cell(InvitationSheetColumns.McPkgs)
+                    .SetValue(string.Join(", ", invitation.McPkgs))
+                    .SetDataType(XLDataType.Text);
+                row.Cell(InvitationSheetColumns.CommPkgs)
+                    .SetValue(string.Join(", ", invitation.CommPkgs))
+                    .SetDataType(XLDataType.Text);
                 row.Cell(InvitationSheetColumns.ContractorRep).SetValue(invitation.ContractorRep).SetDataType(XLDataType.Text);
                 row.Cell(InvitationSheetColumns.ConstructionCompanyRep).SetValue(invitation.ConstructionCompanyRep).SetDataType(XLDataType.Text);
                 if (invitation.CompletedAtUtc.HasValue)

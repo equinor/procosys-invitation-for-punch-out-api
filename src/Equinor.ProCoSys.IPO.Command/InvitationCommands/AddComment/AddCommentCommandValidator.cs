@@ -18,18 +18,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment
                 .WithMessage(command =>
                     $"Comment cannot be more than {Comment.CommentMaxLength} characters! Comment={command.Comment}")
                 //business validators
-                .MustAsync((command, token) => BeAnExistingInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => BeANonCanceledInvitation(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeANonCanceledInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is canceled, and thus cannot be commented on!");
 
-            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoExistsAsync(invitationId, token);
+            async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeANonCanceledInvitation(int invitationId, CancellationToken token)
-                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, token);
+            async Task<bool> BeANonCanceledInvitation(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
         }
     }
 }

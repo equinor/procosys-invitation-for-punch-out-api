@@ -21,6 +21,6 @@ namespace Equinor.ProCoSys.PcsBus.Receiver
             base.RegisterMessageHandler(HandleMessage, messageHandlerOptions);
         }
 
-        private Task HandleMessage(Message message, CancellationToken token) => _pcsHandler.Invoke(this, message, token);
+        private Task HandleMessage(Message message, CancellationToken cancellationToken) => _pcsHandler.Invoke(this, message, cancellationToken);
     }
 }

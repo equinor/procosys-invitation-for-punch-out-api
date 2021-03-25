@@ -41,20 +41,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             _logger = logger;
         }
 
-        public async Task<Result<InvitationDto>> Handle(GetInvitationByIdQuery request, CancellationToken token)
+        public async Task<Result<InvitationDto>> Handle(GetInvitationByIdQuery request, CancellationToken cancellationToken)
         {
             var invitation = await _context.QuerySet<Invitation>()
                 .Include(i => i.CommPkgs)
                 .Include(i => i.McPkgs)
                 .Include(i => i.Participants)
-                .SingleOrDefaultAsync(x => x.Id == request.InvitationId, token);
+                .SingleOrDefaultAsync(x => x.Id == request.InvitationId, cancellationToken);
 
             if (invitation == null)
             {
                 return new NotFoundResult<InvitationDto>(Strings.EntityNotFound(nameof(Invitation), request.InvitationId));
             }
 
-            var createdBy = await _context.QuerySet<Person>().SingleOrDefaultAsync(p => p.Id == invitation.CreatedById, token);
+            var createdBy = await _context.QuerySet<Person>().SingleOrDefaultAsync(p => p.Id == invitation.CreatedById, cancellationToken);
 
             if (createdBy == null)
             {

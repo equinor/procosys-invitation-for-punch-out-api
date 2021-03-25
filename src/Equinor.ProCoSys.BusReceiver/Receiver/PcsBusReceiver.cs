@@ -37,13 +37,13 @@ namespace Equinor.ProCoSys.PcsBus.Receiver
             return Task.CompletedTask;
         }
 
-        public async Task ProcessMessagesAsync(IPcsSubscriptionClient subscriptionClient, Message message, CancellationToken token)
+        public async Task ProcessMessagesAsync(IPcsSubscriptionClient subscriptionClient, Message message, CancellationToken cancellationToken)
         {
             try
             {
                 var busReceiverService = _busReceiverServiceFactory.GetServiceInstance();
 
-                await busReceiverService.ProcessMessageAsync(subscriptionClient.PcsTopic, message, token);
+                await busReceiverService.ProcessMessageAsync(subscriptionClient.PcsTopic, message, cancellationToken);
                 
                 await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
             }

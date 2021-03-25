@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
@@ -70,16 +73,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     EndTimeUtc = invitation.EndTimeUtc,
                     CompletedAtUtc = invitation.CompletedAtUtc,
                     AcceptedAtUtc = invitation.AcceptedAtUtc,
-                    ContractorRep = GetContractorRep(invitation.Participants.ToList()),
-                    ConstructionCompanyRep = GetConstructionCompanyRep(invitation.Participants.ToList()),
-                    McPkgNos = invitation.McPkgs.Select(mc => mc.McPkgNo).ToList(),
-                    CommPkgNos = invitation.CommPkgs.Select(mc => mc.CommPkgNo).ToList(),
                     RowVersion = invitation.RowVersion.ConvertToString()
                 };
             return queryable;
         }
 
-        protected static IEnumerable<InvitationForQueryDto> AddSorting(Sorting sorting, IEnumerable<InvitationForQueryDto> queryable)
+        protected static IQueryable<InvitationForQueryDto> AddSorting(Sorting sorting, IQueryable<InvitationForQueryDto> invitationForQueryDtos)
         {
             switch (sorting.Direction)
             {
@@ -87,34 +86,28 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     switch (sorting.Property)
                     {
                         case SortingProperty.Type:
-                            queryable = queryable.OrderBy(dto => dto.Type);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Type);
                             break;
                         case SortingProperty.Status:
-                            queryable = queryable.OrderBy(dto => dto.Status);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderBy(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
-                            queryable = queryable.OrderBy(dto => dto.Title);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderBy(dto => dto.StartTimeUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
-                            queryable = queryable.OrderBy(dto => dto.CompletedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.CompletedAtUtc);
                             break;
                         case SortingProperty.AcceptedAtUtc:
-                            queryable = queryable.OrderBy(dto => dto.AcceptedAtUtc);
-                            break;
-                        case SortingProperty.ContractorRep:
-                            queryable = queryable.OrderBy(dto => dto.ContractorRep);
-                            break;
-                        case SortingProperty.ConstructionCompanyRep:
-                            queryable = queryable.OrderBy(dto => dto.ConstructionCompanyRep);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.AcceptedAtUtc);
                             break;
                         default:
-                            queryable = queryable.OrderBy(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
                     }
 
@@ -123,40 +116,34 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     switch (sorting.Property)
                     {
                         case SortingProperty.Type:
-                            queryable = queryable.OrderByDescending(dto => dto.Type);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Type);
                             break;
                         case SortingProperty.Status:
-                            queryable = queryable.OrderByDescending(dto => dto.Status);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Status);
                             break;
                         case SortingProperty.IpoNo:
-                            queryable = queryable.OrderByDescending(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);
                             break;
                         case SortingProperty.Title:
-                            queryable = queryable.OrderByDescending(dto => dto.Title);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Title);
                             break;
                         case SortingProperty.PunchOutDateUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.StartTimeUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.StartTimeUtc);
                             break;
                         case SortingProperty.CompletedAtUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.CompletedAtUtc);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.CompletedAtUtc);
                             break;
                         case SortingProperty.AcceptedAtUtc:
-                            queryable = queryable.OrderByDescending(dto => dto.AcceptedAtUtc);
-                            break;
-                        case SortingProperty.ContractorRep:
-                            queryable = queryable.OrderByDescending(dto => dto.ContractorRep);
-                            break;
-                        case SortingProperty.ConstructionCompanyRep:
-                            queryable = queryable.OrderByDescending(dto => dto.ConstructionCompanyRep);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.AcceptedAtUtc);
                             break;
                         default:
-                            queryable = queryable.OrderByDescending(dto => dto.Id);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);
                             break;
                     }
                     break;
             }
 
-            return queryable;
+            return invitationForQueryDtos;
         }
 
         private static string GetIpoIdStartWith(string filterString)
@@ -180,10 +167,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             }
         }
 
-        private static string NameCombiner(Participant participant) 
+        private static string NameCombiner(Participant participant)
             => $"{participant.FirstName} {participant.LastName}";
 
-        private static string GetContractorRep(IList<Participant> participant)
+        protected static string GetContractorRep(IList<Participant> participant)
         {
             var functionalRoleContractor =
                 participant.SingleOrDefault(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole);
@@ -194,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             return NameCombiner(participant.Single(p => p.SortKey == 0));
         }
 
-        private static string GetConstructionCompanyRep(IList<Participant> participant)
+        protected static string GetConstructionCompanyRep(IList<Participant> participant)
         {
             var functionalRoleConstructionCompany =
                 participant.SingleOrDefault(p => p.SortKey == 1 && p.Type == IpoParticipantType.FunctionalRole);
@@ -204,5 +191,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             }
             return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
+
+        protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
+            IReadOnlyContext context,
+            List<int> invitationIds,
+            CancellationToken cancellationToken) 
+            => await (from invitation in context.QuerySet<Invitation>()
+                        .Include(i => i.Participants)
+                        .Include(i => i.CommPkgs)
+                        .Include(i => i.McPkgs)
+                    where invitationIds.Contains(invitation.Id)
+                    select invitation)
+                .ToListAsync(cancellationToken);
     }
 }
