@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
-    public class MainApiCommPkgService : ICommPkgApiService
+    public class MainApiCommPkgService : IMainCommPkgApiService
     {
         private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;

@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
-        private Mock<ICommPkgApiService> _commPkgApiServiceMock;
+        private Mock<IMainCommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IPersonRepository> _personRepositoryMock;
@@ -149,7 +149,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             //mock comm pkg response from main API
             var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", System = _system};
             IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails };
-            _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
+            _commPkgApiServiceMock = new Mock<IMainCommPkgApiService>();
             _commPkgApiServiceMock
                 .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, _commPkgScope))
                 .Returns(Task.FromResult(pcsCommPkgDetails));

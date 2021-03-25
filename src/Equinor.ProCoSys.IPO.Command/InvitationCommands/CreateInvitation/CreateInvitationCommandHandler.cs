@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly IMainCommPkgApiService _commPkgApiService;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly ILibraryFunctionalRoleApiService _functionalRoleApiService;
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IFusionMeetingClient meetingClient,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICommPkgApiService commPkgApiService,
+            IMainCommPkgApiService commPkgApiService,
             IMcPkgApiService mcPkgApiService,
             IPersonApiService personApiService,
             ILibraryFunctionalRoleApiService functionalRoleApiService,
