@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
-                .MustAsync((command, cancellationToken) => BeAConstructionCompanyOnIpo(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeAnAccepterOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a construction company assigned to accept the IPO!")
                 .MustAsync((command, cancellationToken) => BeThePersonWhoAccepted(command.InvitationId, cancellationToken))
@@ -39,8 +39,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             async Task<bool> BeAnInvitationInAcceptedStage(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Accepted, cancellationToken);
 
-            async Task<bool> BeAConstructionCompanyOnIpo(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ConstructionCompanyExistsAsync(invitationId, cancellationToken);
+            async Task<bool> BeAnAccepterOnIpo(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoHasAccepterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeThePersonWhoAccepted(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.SameUserUnAcceptingThatAcceptedAsync(invitationId, cancellationToken);
