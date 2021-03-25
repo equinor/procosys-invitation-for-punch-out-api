@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
         private readonly Mock<IPlantApiService> _plantApiServiceMock = new Mock<IPlantApiService>();
-        private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
+        private readonly Mock<IMainPermissionApiService> _permissionApiServiceMock = new Mock<IMainPermissionApiService>();
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();

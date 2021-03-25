@@ -17,9 +17,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
         private readonly IPlantCache _plantCache;
         private readonly IPermissionCache _permissionCache;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IPermissionApiService _permissionApiService;
+        private readonly IMainPermissionApiService _permissionApiService;
 
-        public CacheController(IPlantCache plantCache, IPermissionCache permissionCache, ICurrentUserProvider currentUserProvider, IPermissionApiService permissionApiService)
+        public CacheController(IPlantCache plantCache, IPermissionCache permissionCache, ICurrentUserProvider currentUserProvider, IMainPermissionApiService permissionApiService)
         {
             _plantCache = plantCache;
             _permissionCache = permissionCache;

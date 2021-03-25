@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission
 {
-    public class MainApiPermissionService : IPermissionApiService
+    public class MainApiPermissionService : IMainPermissionApiService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;

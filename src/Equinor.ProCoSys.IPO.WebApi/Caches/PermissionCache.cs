@@ -12,12 +12,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
     public class PermissionCache : IPermissionCache
     {
         private readonly ICacheManager _cacheManager;
-        private readonly IPermissionApiService _permissionApiService;
+        private readonly IMainPermissionApiService _permissionApiService;
         private readonly IOptionsMonitor<CacheOptions> _options;
 
         public PermissionCache(
             ICacheManager cacheManager,
-            IPermissionApiService permissionApiService,
+            IMainPermissionApiService permissionApiService,
             IOptionsMonitor<CacheOptions> options)
         {
             _cacheManager = cacheManager;

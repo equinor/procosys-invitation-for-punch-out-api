@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBearerTokenApiClient, BearerTokenApiClient>();
             services.AddScoped<IPlantApiService, MainApiPlantService>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
-            services.AddScoped<IPermissionApiService, MainApiPermissionService>();
+            services.AddScoped<IMainPermissionApiService, MainApiPermissionService>();
             services.AddScoped<IBlobStorage, AzureBlobService>();
             services.AddScoped<IMainCommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMainMcPkgApiService, MainApiMcPkgService>();

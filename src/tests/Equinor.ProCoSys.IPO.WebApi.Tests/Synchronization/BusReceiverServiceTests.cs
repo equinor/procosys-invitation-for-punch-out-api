@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IInvitationRepository> _invitationRepository;
         private Mock<IPlantSetter> _plantSetter;
         private Mock<ITelemetryClient> _telemetryClient;
-        private Mock<IMcPkgApiService> _mcPkgApiService;
+        private Mock<IMainMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
         private Mock<IApplicationAuthenticator> _applicationAuthenticator;
         private Mock<IBearerTokenSetter> _bearerTokenSetter;
@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _plantSetter = new Mock<IPlantSetter>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
-            _mcPkgApiService = new Mock<IMcPkgApiService>();
+            _mcPkgApiService = new Mock<IMainMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
             _bearerTokenSetter = new Mock<IBearerTokenSetter>();

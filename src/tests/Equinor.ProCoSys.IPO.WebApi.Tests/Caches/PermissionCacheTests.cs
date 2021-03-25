@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
     {
         private PermissionCache _dut;
         private readonly Guid Oid = new Guid("{3BFB54C7-91E2-422E-833F-951AD07FE37F}");
-        private Mock<IPermissionApiService> _permissionApiServiceMock;
+        private Mock<IMainPermissionApiService> _permissionApiServiceMock;
         private readonly string TestPlant = "TestPlant";
         private readonly string Permission1 = "A";
         private readonly string Permission2 = "B";
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
 
-            _permissionApiServiceMock = new Mock<IPermissionApiService>();
+            _permissionApiServiceMock = new Mock<IMainPermissionApiService>();
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsAsync(TestPlant))
                 .Returns(Task.FromResult<IList<ProCoSysProject>>(new List<ProCoSysProject>
             {
