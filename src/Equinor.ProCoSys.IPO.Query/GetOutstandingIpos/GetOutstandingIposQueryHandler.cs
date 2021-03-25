@@ -65,18 +65,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs
                     InvitationId = invitation.Id,
                     Description = invitation.Description
                 }));
+
             return new SuccessResult<OutstandingIposResultDto>(outstandingIposResultDto);
         }
 
-        private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid) => invitation.Participants.Any(p => p.AzureOid == currentUserOid);
+        private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid) 
+            => invitation.Participants.Any(p => p.AzureOid == currentUserOid);
 
-        private static bool UserWasInvitedAsPersonInFunctionalRole(Invitation invitation, IList<string> currentUsersFunctionalRoleCodes)
+        private static bool UserWasInvitedAsPersonInFunctionalRole(Invitation invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
         {
             var functionalRoleParticipantCodesOnInvitation = invitation.Participants.Where(p => p.SortKey == 1 &&
                                                p.FunctionalRoleCode != null &&
                                                p.Type == IpoParticipantType.FunctionalRole).Select(p => p.FunctionalRoleCode).ToList();
 
-            return currentUsersFunctionalRoleCodes.Select(functionalRoleCode => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode)).FirstOrDefault();
+            return currentUsersFunctionalRoleCodes.Select(functionalRoleCode 
+                => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode)).FirstOrDefault();
         }
     }
 }

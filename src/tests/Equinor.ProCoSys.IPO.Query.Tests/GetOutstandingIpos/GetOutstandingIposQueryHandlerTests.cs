@@ -32,11 +32,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             _query = new GetOutstandingIposQuery(ProjectName);
-
             _person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
+
+            var FunctionalRoleParticipant = new Participant(
+                TestPlant,
+                Organization.Contractor,
+                IpoParticipantType.FunctionalRole,
+                _functionalRoleCode,
+                null,
+                null,
+                null,
+                null,
+                null,
+                1);
+
+            var PersonParticipant = new Participant(
+                TestPlant,
+                Organization.Contractor,
+                IpoParticipantType.Person,
+                null,
+                null,
+                null,
+                null,
+                null,
+                _currentUserOid,
+                0);
+
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                
                 IList<string> pcsFunctionalRoleCodes = new List<string> { _functionalRoleCode };
 
                 _functionalRoleApiServiceMock = new Mock<IMainFunctionalRoleApiService>();
@@ -64,30 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new DateTime(),
                     null);
 
-                var FunctionalRoleParticipant = new Participant(
-                    TestPlant,
-                    Organization.Contractor,
-                    IpoParticipantType.FunctionalRole,
-                    _functionalRoleCode,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    1);
                 FunctionalRoleParticipant.SetProtectedIdForTesting(1);
-
-                var PersonParticipant = new Participant(
-                    TestPlant,
-                    Organization.Contractor,
-                    IpoParticipantType.Person,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    _currentUserOid,
-                    0);
                 PersonParticipant.SetProtectedIdForTesting(2);
 
                 _invitationWithPersonParticipant.AddParticipant(PersonParticipant);
@@ -114,51 +114,48 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnOkResult()
         {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
-                var result = await dut.Handle(_query, default);
+            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
+            var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(ResultType.Ok, result.ResultType);
-            }
+            Assert.AreEqual(ResultType.Ok, result.ResultType);
         }
 
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems()
         {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
-                var result = await dut.Handle(_query, default);
+            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
+            var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(2, result.Data.Items.Count());
-                var outstandingInvitationWithPersonParticipant = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitationWithPersonParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitationWithPersonParticipant.Description);
-                var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id, outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description, outstandingInvitationWithFunctionalRoleParticipant.Description);
-            }
+            Assert.AreEqual(2, result.Data.Items.Count());
+
+            var outstandingInvitationWithPersonParticipant = result.Data.Items.ElementAt(0);
+            Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitationWithPersonParticipant.InvitationId);
+            Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitationWithPersonParticipant.Description);
+
+            var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(1);
+            Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id, outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
+            Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description, outstandingInvitationWithFunctionalRoleParticipant.Description);
         }
 
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsNotInAnyFunctionalRoles()
         {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
-                IList<string> EmptyListOfFunctionalRoleCodes = new List<string>();
-                _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRoleCodesByPersonOidAsync(TestPlant, _currentUserOid.ToString()))
-                    .Returns(Task.FromResult(EmptyListOfFunctionalRoleCodes));
+            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var dut = new GetOutstandingIposQueryHandler(context, _currentUserProvider, _functionalRoleApiServiceMock.Object, _plantProvider);
 
-                var result = await dut.Handle(_query, default);
+            IList<string> EmptyListOfFunctionalRoleCodes = new List<string>();
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRoleCodesByPersonOidAsync(TestPlant, _currentUserOid.ToString()))
+                .Returns(Task.FromResult(EmptyListOfFunctionalRoleCodes));
 
-                Assert.AreEqual(1, result.Data.Items.Count());
-                var outstandingInvitation = result.Data.Items.First();
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitation.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitation.Description);
-            }
+            var result = await dut.Handle(_query, default);
+
+            Assert.AreEqual(1, result.Data.Items.Count());
+            var outstandingInvitation = result.Data.Items.First();
+            Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitation.InvitationId);
+            Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitation.Description);
         }
     }
 }
