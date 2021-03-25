@@ -59,60 +59,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 HttpStatusCode.Forbidden);
         #endregion
 
-        #region GetRequiredSignerPersons
-        [TestMethod]
-        public async Task GetRequiredSignerPersons_AsAnonymous_ShouldReturnUnauthorized()
-            => await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
-                UserType.Anonymous,
-                TestFactory.UnknownPlant,
-                "p",
-                HttpStatusCode.Unauthorized);
-
-        [TestMethod]
-        public async Task GetRequiredSignerPersons_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
-                UserType.Hacker,
-                TestFactory.UnknownPlant,
-                "p",
-                HttpStatusCode.BadRequest,
-                "is not a valid plant");
-
-        [TestMethod]
-        public async Task GetRequiredSignerPersons_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await ParticipantsControllerTestsHelper.GetRequiredSignerPersonsAsync(
-                UserType.Hacker,
-                TestFactory.PlantWithAccess,
-                "p",
-                HttpStatusCode.Forbidden);
-        #endregion
-
-        #region GetAdditionalSignerPersons
-        [TestMethod]
-        public async Task GetAdditionalSignerPersons_AsAnonymous_ShouldReturnUnauthorized()
-            => await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
-                UserType.Anonymous,
-                TestFactory.UnknownPlant,
-                "p",
-                HttpStatusCode.Unauthorized);
-
-        [TestMethod]
-        public async Task GetAdditionalSignerPersons_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
-                UserType.Hacker,
-                TestFactory.UnknownPlant,
-                "p",
-                HttpStatusCode.BadRequest,
-                "is not a valid plant");
-
-        [TestMethod]
-        public async Task GetAdditionalSignerPersons_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await ParticipantsControllerTestsHelper.GetAdditionalSignerPersonsAsync(
-                UserType.Hacker,
-                TestFactory.PlantWithAccess,
-                "p",
-                HttpStatusCode.Forbidden);
-        #endregion
-
         #region GetSignerPersons
         [TestMethod]
         public async Task GetSignerPersons_AsAnonymous_ShouldReturnUnauthorized()
