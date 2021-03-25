@@ -369,10 +369,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSystems()
         {
-            var mcPkg = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, System = _system2 };
-            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkg };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system };
+            var mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, System = _system2 };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2, mcPkgDetails3 };
             var addedScope = new List<string>
             {
+                _mcPkgNo1,
+                _mcPkgNo2,
                 _mcPkgNo3
             };
 
@@ -389,12 +393,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _typeDp,
                 _updatedParticipants,
-                new List<string>
-                {
-                    _mcPkgNo1,
-                    _mcPkgNo2,
-                    _mcPkgNo3
-                },
+                addedScope,
                 null,
                 _rowVersion);
 
@@ -421,7 +420,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Can't add mc pkg to invitation with type MDP"));
+            Assert.IsTrue(result.Message.StartsWith("MDP must have comm pkg scope"));
         }
 
         [TestMethod]
@@ -442,7 +441,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Can't add comm pkg to invitation with type DP"));
+            Assert.IsTrue(result.Message.StartsWith("DP must have mc pkg scope"));
         }
 
         [TestMethod]
@@ -463,7 +462,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Can't set type to MDP when IPO has mc pkgs"));
+            Assert.IsTrue(result.Message.StartsWith("MDP must have comm pkg scope"));
         }
 
         [TestMethod]
@@ -484,7 +483,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Can't set type to DP when IPO has comm pkgs"));
+            Assert.IsTrue(result.Message.StartsWith("DP must have mc pkg scope"));
         }
 
         [TestMethod]
@@ -505,7 +504,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("DP must have mc pkg scope"));
+            Assert.IsTrue(result.Message.StartsWith("Invitation must have scope"));
         }
 
         [TestMethod]
@@ -526,7 +525,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("MDP must have comm pkg scope"));
+            Assert.IsTrue(result.Message.StartsWith("Invitation must have scope"));
         }
 
         [TestMethod]
@@ -534,10 +533,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         {
             var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
             var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system };
-            var mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, System = _system2 };
-            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2, mcPkgDetails3 };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             var addedScope = new List<string>
             {
+                _mcPkgNo1,
+                _mcPkgNo2,
                 _mcPkgNo3
             };
 
@@ -554,12 +554,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _typeDp,
                 _updatedParticipants,
-                new List<string>
-                {
-                    _mcPkgNo1,
-                    _mcPkgNo2,
-                    _mcPkgNo3
-                },
+                addedScope,
                 null,
                 _rowVersion);
 

@@ -289,46 +289,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.First(), typeof(IpoCreatedEvent));
         #endregion
 
-        #region McPkg
-        [TestMethod]
-        public void RemoveMcPkg_ShouldThrowException_WhenMcPkgNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutDpIpo.RemoveMcPkg(null));
-
-        [TestMethod]
-        public void RemoveMcPkg_ShouldRemoveMcPkgFromMcPkgList()
-        {
-            // Arrange
-            Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
-
-            // Act
-            _dutDpIpo.RemoveMcPkg(_mcPkg1);
-
-            // Assert
-            Assert.AreEqual(1, _dutDpIpo.McPkgs.Count);
-            Assert.IsFalse(_dutDpIpo.McPkgs.Contains(_mcPkg1));
-        }
-        #endregion
-
-        #region CommPkg
-        [TestMethod]
-        public void RemoveCommPkg_ShouldThrowException_WhenCommPkgNotGiven()
-            => Assert.ThrowsException<ArgumentNullException>(() => _dutDpIpo.RemoveCommPkg(null));
-
-        [TestMethod]
-        public void RemoveCommPkg_ShouldRemoveCommPkgFromCommPkgList()
-        {
-            // Arrange
-            Assert.AreEqual(2, _dutWithCompletedStatus.CommPkgs.Count);
-
-            // Act
-            _dutWithCompletedStatus.RemoveCommPkg(_commPkg1);
-
-            // Assert
-            Assert.AreEqual(1, _dutWithCompletedStatus.CommPkgs.Count);
-            Assert.IsFalse(_dutWithCompletedStatus.CommPkgs.Contains(_commPkg1));
-        }
-        #endregion
-
         #region Participant
         [TestMethod]
         public void AddParticipant_ShouldThrowException_WhenParticipantNotGiven()
@@ -593,7 +553,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 new DateTime(),
                 "outside",
-                new List<McPkg> { newMcPkg },
+                new List<McPkg> { _mcPkg1, _mcPkg2, newMcPkg },
                 null);
 
             Assert.AreEqual(3, _dutDpIpo.McPkgs.Count);
@@ -614,9 +574,83 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 "outside",
                 null,
-                new List<CommPkg> {newCommPkg});
+                new List<CommPkg> {_commPkg1, _commPkg2, newCommPkg});
 
             Assert.AreEqual(3, _dutMdpIpo.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldEditIpo_RemoveMcPkg()
+        {
+            Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
+
+            _dutDpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                new List<McPkg> { _mcPkg1 },
+                null);
+
+            Assert.AreEqual(1, _dutDpIpo.McPkgs.Count);
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldEditIpo_RemoveCommPkg()
+        {
+            Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
+
+            _dutMdpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            Assert.AreEqual(1, _dutMdpIpo.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldEditIpo_ChangeDpToMdp()
+        {
+            Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
+
+            _dutDpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            Assert.AreEqual(1, _dutDpIpo.CommPkgs.Count);
+            Assert.AreEqual(0, _dutDpIpo.McPkgs.Count);
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldEditIpo_ChangeMdpToDp()
+        {
+            Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
+
+            _dutMdpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                new List<McPkg> {_mcPkg1},
+                null);
+
+            Assert.AreEqual(0, _dutMdpIpo.CommPkgs.Count);
+            Assert.AreEqual(1, _dutMdpIpo.McPkgs.Count);
         }
 
         [TestMethod]
@@ -633,7 +667,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 newStartTime,
                 newEndTime,
                 "outside",
-                null,
+                new List<McPkg> { _mcPkg1, _mcPkg2 },
                 null);
 
             Assert.AreEqual("New Title", _dutDpIpo.Title);
@@ -655,7 +689,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 newStartTime,
                 newEndTime,
                 "outside",
-                null,
+                new List<McPkg> { _mcPkg1, _mcPkg2 },
                 null);
 
             Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(IpoEditedEvent));
