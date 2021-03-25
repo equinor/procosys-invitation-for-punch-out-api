@@ -163,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException("MDP must have only comm pkg scope");
             }
-            _mcPkgs.Clear();
+            _mcPkgs.Clear(); //If we are changing from DP to MDP we need to clear mc pkg scope
 
             var commPkgsToRemove = _commPkgs.Where(c => !commPkgs.Contains(c)).ToList();
             var commPkgsPkgsToAdd = commPkgs.Where(c => !_commPkgs.Contains(c)).ToList();
