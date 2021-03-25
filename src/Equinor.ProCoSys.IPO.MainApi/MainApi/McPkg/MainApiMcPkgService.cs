@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
-    public class MainApiMcPkgService : IMcPkgApiService
+    public class MainApiMcPkgService : IMainMcPkgApiService
     {
         private readonly IBearerTokenApiClient _foreignApiClient;
         private readonly Uri _baseAddress;

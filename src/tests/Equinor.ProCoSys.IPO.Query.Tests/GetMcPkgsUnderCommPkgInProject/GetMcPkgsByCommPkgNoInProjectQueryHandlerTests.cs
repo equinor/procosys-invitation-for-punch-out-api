@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
     [TestClass]
     public class GetMcPkgsByCommPkgNoInProjectQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IMainMcPkgApiService> _mcPkgApiServiceMock;
         private IList<ProCoSysMcPkg> _mainApiMcPkgs;
         private GetMcPkgsUnderCommPkgInProjectQuery _query;
 
@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+                _mcPkgApiServiceMock = new Mock<IMainMcPkgApiService>();
                 _mainApiMcPkgs = new List<ProCoSysMcPkg>
                 {
                     new ProCoSysMcPkg

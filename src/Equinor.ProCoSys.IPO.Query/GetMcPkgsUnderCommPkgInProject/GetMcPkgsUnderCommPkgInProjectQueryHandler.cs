@@ -11,11 +11,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
     public class GetMcPkgsUnderCommPkgInProjectQueryHandler : IRequestHandler<GetMcPkgsUnderCommPkgInProjectQuery, Result<List<ProCoSysMcPkgDto>>>
     {
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMainMcPkgApiService _mcPkgApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetMcPkgsUnderCommPkgInProjectQueryHandler(
-            IMcPkgApiService mcPkgApiService,
+            IMainMcPkgApiService mcPkgApiService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;

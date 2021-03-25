@@ -16,14 +16,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMainMcPkgApiService _mcPkgApiService;
 
         public UnCompletePunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IMcPkgApiService mcPkgApiService)
+            IMainMcPkgApiService mcPkgApiService)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;

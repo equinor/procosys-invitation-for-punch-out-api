@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMainMcPkgApiService _mcPkgApiService;
         private readonly IApplicationAuthenticator _authenticator;
         private readonly IBearerTokenSetter _bearerTokenSetter;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IUnitOfWork unitOfWork,
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
-            IMcPkgApiService mcPkgApiService,
+            IMainMcPkgApiService mcPkgApiService,
             IApplicationAuthenticator authenticator,
             IBearerTokenSetter bearerTokenSetter)
         {

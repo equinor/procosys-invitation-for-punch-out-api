@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IMainCommPkgApiService> _commPkgApiServiceMock;
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IMainMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ILibraryFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system};
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
 
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+            _mcPkgApiServiceMock = new Mock<IMainMcPkgApiService>();
             _mcPkgApiServiceMock
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
                 .Returns(Task.FromResult(mcPkgDetails));
