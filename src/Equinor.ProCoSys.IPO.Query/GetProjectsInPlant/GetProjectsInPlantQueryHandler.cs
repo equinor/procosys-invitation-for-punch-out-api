@@ -11,11 +11,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetProjectsInPlant
 {
     public class GetProjectsInPlantQueryHandler : IRequestHandler<GetProjectsInPlantQuery, Result<List<ProCoSysProjectDto>>>
     {
-        private readonly IProjectApiService _projectApiService;
+        private readonly IMainProjectApiService _projectApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetProjectsInPlantQueryHandler(
-            IProjectApiService projectApiService,
+            IMainProjectApiService projectApiService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;

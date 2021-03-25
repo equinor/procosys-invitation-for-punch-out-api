@@ -15,14 +15,14 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IProjectApiService _projectApiService;
+        private readonly IMainProjectApiService _projectApiService;
 
         public CreateSavedFilterCommandHandler(
             IPersonRepository personRepository,
             IUnitOfWork unitOfWork,
             IPlantProvider plantProvider,
             ICurrentUserProvider currentUserProvider,
-            IProjectApiService projectApiService)
+            IMainProjectApiService projectApiService)
         {
             _personRepository = personRepository;
             _unitOfWork = unitOfWork;

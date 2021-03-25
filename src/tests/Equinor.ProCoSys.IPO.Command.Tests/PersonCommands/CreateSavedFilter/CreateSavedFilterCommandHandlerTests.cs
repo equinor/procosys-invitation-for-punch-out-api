@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
     {
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private Mock<IProjectApiService> _projectApiServiceMock;
+        private Mock<IMainProjectApiService> _projectApiServiceMock;
         private Person _person;
         private CreateSavedFilterCommand _command;
         private CreateSavedFilterCommandHandler _dut;
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
                 Description = "Description", Id = 1, IsClosed = false, Name = _projectName
             };
 
-            _projectApiServiceMock = new Mock<IProjectApiService>();
+            _projectApiServiceMock = new Mock<IMainProjectApiService>();
             _projectApiServiceMock
                 .Setup(x => x.TryGetProjectAsync(TestPlant, _projectName))
                 .Returns(Task.FromResult(project));

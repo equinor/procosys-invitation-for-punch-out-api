@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetProjectsInPlant
     [TestClass]
     public class GetProjectsInPlantQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IProjectApiService> _projectApiServiceMock;
+        private Mock<IMainProjectApiService> _projectApiServiceMock;
         private IList<ProCoSysProject> _mainApiProjects;
         private GetProjectsInPlantQuery _query;
 
@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetProjectsInPlant
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _projectApiServiceMock = new Mock<IProjectApiService>();
+                _projectApiServiceMock = new Mock<IMainProjectApiService>();
                 _mainApiProjects = new List<ProCoSysProject>
                 {
                     new ProCoSysProject
