@@ -12,7 +12,6 @@ using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
-using Fusion.Integration.Meeting;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -51,8 +50,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
             _bearerTokenSetter = new Mock<IBearerTokenSetter>();
-
-            _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now, DateTime.Now.AddHours(1), "El låkasjån" );
+            var mcPkg = new McPkg(plant, project, commPkgNo, mcPkgNo, description, "1|2");
+            _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
+                DateTime.Now.AddHours(1), "El låkasjån",new List<McPkg> {mcPkg}, null);
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,
                                           _unitOfWork.Object,

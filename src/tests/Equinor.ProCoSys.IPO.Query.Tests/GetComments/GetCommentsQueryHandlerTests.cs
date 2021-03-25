@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -24,6 +25,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetComments
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> {new McPkg(TestPlant, "TestProject", "commno", "mcno", "d", "1|2")},
                     null);
                 var comment = new Comment(TestPlant, "comment text");
                 invitation.AddComment(comment);

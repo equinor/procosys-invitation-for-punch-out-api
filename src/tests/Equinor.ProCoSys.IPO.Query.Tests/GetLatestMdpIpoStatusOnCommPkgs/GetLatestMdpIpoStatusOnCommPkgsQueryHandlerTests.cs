@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceResult;
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private Invitation _mdpInvitation;
         private Invitation _mdpInvitation1;
         private Invitation _mdpInvitation2;
+        private int _mdpInvitationId;
         private int _mdpInvitationId1;
         private int _mdpInvitationId2;
         private const string _commPkgNo1 = "CommPkgNo";
@@ -38,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     _commPkgNo1,
                     "Description",
                     "OK",
-                    "1|2");
+                    _system);
 
                 var commPkg2 = new CommPkg(
                     TestPlant,
@@ -46,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     _commPkgNo2,
                     "Description",
                     "OK",
-                    "1|2");
+                    _system);
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
@@ -56,13 +58,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    null,
+                    new List<CommPkg> { commPkg1, commPkg2 })
                 {
                     MeetingId = meetingId
                 };
-
-                _mdpInvitation.AddCommPkg(commPkg1);
-                _mdpInvitation.AddCommPkg(commPkg2);
 
                 _mdpInvitation1 = new Invitation(
                     TestPlant,
@@ -72,7 +73,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    null,
+                    new List<CommPkg> {commPkg1})
                 {
                     MeetingId = meetingId
                 };
@@ -85,13 +88,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    null,
+                    new List<CommPkg> {commPkg2})
                 {
                     MeetingId = meetingId
                 };
-
-                _mdpInvitation1.AddCommPkg(commPkg1);
-                _mdpInvitation2.AddCommPkg(commPkg2);
 
                 context.Invitations.Add(_mdpInvitation);
                 context.SaveChangesAsync().Wait();

@@ -224,6 +224,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _newFunctionalRoleCode }))
                 .Returns(Task.FromResult(newPcsFrDetails));
 
+            var mcPkgs = new List<McPkg>
+            {
+                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system),
+                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system)
+            };
             //create invitation
             _dpInvitation = new Invitation(
                     _plant,
@@ -233,11 +238,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    mcPkgs,
                     null) 
                 { MeetingId = _meetingId };
-            _dpInvitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system));
-            _dpInvitation.AddMcPkg(new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system));
 
+            var commPkgs = new List<CommPkg>
+            {
+                new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _system),
+                new CommPkg(_plant, _projectName, _commPkgNo, "d2", "ok", _system)
+            };
             //create invitation
             _mdpInvitation = new Invitation(
                     _plant,
@@ -247,10 +257,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                     _typeMdp,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    new List<McPkg>(),
+                    commPkgs)
                 { MeetingId = _meetingId };
-            _mdpInvitation.AddCommPkg(new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _system));
-            _mdpInvitation.AddCommPkg(new CommPkg(_plant, _projectName, _commPkgNo, "d2","ok", _system));
             _mdpInvitation.SetProtectedIdForTesting(_mdpInvitationId);
 
             var participant = new Participant(
@@ -453,7 +463,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("MDP must have only comm pkg scope"));
+            Assert.IsTrue(result.Message.StartsWith("Can't set type to MDP when IPO has mc pkgs"));
         }
 
         [TestMethod]
@@ -474,7 +484,49 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("DP must have only mc pkg scope"));
+            Assert.IsTrue(result.Message.StartsWith("Can't set type to DP when IPO has comm pkgs"));
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfClearingScopeOnDP()
+        {
+            var command = new EditInvitationCommand(
+                _mdpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeDp,
+                _updatedParticipants,
+                null,
+                null,
+                _rowVersion);
+
+            var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("DP must have mc pkg scope"));
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfClearingScopeOnMDP()
+        {
+            var command = new EditInvitationCommand(
+                _mdpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeMdp,
+                _updatedParticipants,
+                null,
+                null,
+                _rowVersion);
+
+            var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("MDP must have comm pkg scope"));
         }
 
         [TestMethod]

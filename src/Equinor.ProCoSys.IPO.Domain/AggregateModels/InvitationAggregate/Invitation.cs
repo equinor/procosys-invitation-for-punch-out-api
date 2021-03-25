@@ -36,9 +36,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             DisciplineType type,
             DateTime startTimeUtc,
             DateTime endTimeUtc,
-            string location)
+            string location,
+            List<McPkg> mcPkgs,
+            List<CommPkg> commPkgs)
             : base(plant)
         {
+            mcPkgs ??= new List<McPkg>();
+            commPkgs ??= new List<CommPkg>();
+
             if (string.IsNullOrEmpty(projectName))
             {
                 throw new ArgumentNullException(nameof(projectName));
@@ -53,6 +58,32 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Title = title;
             Description = description;
             Type = type;
+
+            if (!mcPkgs.Any() && !commPkgs.Any())
+            {
+                throw new ArgumentException("Invitation must have scope");
+            }
+
+            if (type == DisciplineType.DP && (!mcPkgs.Any() || commPkgs.Any()))
+            {
+                throw new ArgumentException("DP must only have mc pkg scope");
+            }
+
+            if (type == DisciplineType.MDP && (mcPkgs.Any() || !commPkgs.Any()))
+            {
+                throw new ArgumentException("MDP must only have comm pkg scope");
+            }
+
+            if (type == DisciplineType.DP)
+            {
+                AddDpScope(mcPkgs);
+            }
+
+            if (type == DisciplineType.MDP)
+            {
+                AddMdpScope(commPkgs);
+            }
+
             Status = IpoStatus.Planned;
             StartTimeUtc = startTimeUtc;
             EndTimeUtc = endTimeUtc;
@@ -83,6 +114,32 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
+
+        private void AddDpScope(IList<McPkg> mcPkgs)
+        {
+            if (Type != DisciplineType.DP || mcPkgs.Count == 0 || _commPkgs.Any())
+            {
+                throw new ArgumentException("DP must have only mc pkg scope");
+            }
+            
+            foreach (var mcPkg in mcPkgs)
+            {
+                AddMcPkg(mcPkg);
+            }
+        }
+
+        private void AddMdpScope(IList<CommPkg> commPkgs)
+        {
+            if (Type != DisciplineType.MDP || _mcPkgs.Any() || commPkgs.Count == 0)
+            {
+                throw new ArgumentException("MDP must have only comm pkg scope");
+            }
+
+            foreach (var commPkg in commPkgs)
+            {
+                AddCommPkg(commPkg);
+            }
+        }
 
         public void AddAttachment(Attachment attachment)
         {
@@ -116,7 +173,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPreSaveDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
-        public void AddCommPkg(CommPkg commPkg)
+        private void AddCommPkg(CommPkg commPkg)
         {
             if (commPkg == null)
             {
@@ -133,6 +190,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
             }
 
+
             _commPkgs.Add(commPkg);
         }
 
@@ -147,11 +205,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException($"Can't remove item in {commPkg.Plant} from item in {Plant}");
             }
-
             _commPkgs.Remove(commPkg);
         }
 
-        public void AddMcPkg(McPkg mcPkg)
+        private void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
             {
@@ -346,8 +403,18 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPreSaveDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));
         }
 
-        public void EditIpo(string title, string description, DisciplineType type, DateTime startTime, DateTime endTime, string location)
+        public void EditIpo(
+            string title,
+            string description,
+            DisciplineType type,
+            DateTime startTime,
+            DateTime endTime,
+            string location,
+            IList<McPkg> mcPkgsToAdd,
+            IList<CommPkg> commPkgsToAdd)
         {
+            mcPkgsToAdd ??= new List<McPkg>();
+            commPkgsToAdd ??= new List<CommPkg>();
             if (Status != IpoStatus.Planned)
             {
                 throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
@@ -363,17 +430,49 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Title cannot be empty");
             }
 
-            switch (type)
+            if (type == DisciplineType.DP && _commPkgs.Any())
             {
-                case DisciplineType.DP when (McPkgs.Count == 0 || CommPkgs.Count > 0 ):
-                    throw new ArgumentException("DP must have only mc pkg scope");
-                case DisciplineType.MDP when (McPkgs.Count > 0 || CommPkgs.Count == 0):
-                    throw new ArgumentException("MDP must have only comm pkg scope");
+                throw new ArgumentException("Can't set type to DP when IPO has comm pkgs");
+            }
+
+            if (type == DisciplineType.MDP && _mcPkgs.Any())
+            {
+                throw new ArgumentException("Can't set type to MDP when IPO has mc pkgs");
+            }
+
+            if (type == DisciplineType.DP && commPkgsToAdd.Any())
+            {
+                throw new ArgumentException("Can't add comm pkg to invitation with type DP");
+            }
+
+            if (type == DisciplineType.MDP && mcPkgsToAdd.Any())
+            {
+                throw new ArgumentException("Can't add mc pkg to invitation with type MDP");
+            }
+
+            if (type == DisciplineType.DP && !mcPkgsToAdd.Any() && !_mcPkgs.Any())
+            {
+                throw new ArgumentException("DP must have mc pkg scope");
+            }
+
+            if (type == DisciplineType.MDP && !commPkgsToAdd.Any() && !_commPkgs.Any())
+            {
+                throw new ArgumentException("MDP must have comm pkg scope");
             }
 
             Title = title;
             Description = description;
             Type = type;
+
+            if (type == DisciplineType.DP && mcPkgsToAdd.Any())
+            {
+                AddDpScope(mcPkgsToAdd);
+            }
+
+            if (type == DisciplineType.MDP && commPkgsToAdd.Any())
+            {
+                AddMdpScope(commPkgsToAdd);
+            }
             StartTimeUtc = startTime;
             EndTimeUtc = endTime;
             Location = location;

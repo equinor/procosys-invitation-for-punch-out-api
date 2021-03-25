@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
@@ -15,7 +16,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
     [TestClass]
     public class UploadAttachmentCommandHandlerTests
     {
-        private const string PLANT = "PCS$TESTPLANT";
+        private const string _plant = "PCS$TESTPLANT";
+        private const string _projectName = "TestProject";
 
         private Invitation _invitation;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
@@ -29,15 +31,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         public void Setup()
         {
             _invitation = new Invitation(
-                PLANT,
-                "TestProject",
+                _plant,
+                _projectName,
                 "TestInvitation",
                 "Description",
                 DisciplineType.DP,
                 new DateTime(),
                 new DateTime(),
+                null,
+                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
                 null);
-            _invitation.AddAttachment(new Attachment(PLANT, "ExistingFile.txt"));
+            _invitation.AddAttachment(new Attachment(_plant, "ExistingFile.txt"));
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(1))
@@ -46,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock
                 .Setup(x => x.Plant)
-                .Returns(PLANT);
+                .Returns(_plant);
             _blobStorageMock = new Mock<IBlobStorage>();
             var blobStorageOptions = new BlobStorageOptions()
             {

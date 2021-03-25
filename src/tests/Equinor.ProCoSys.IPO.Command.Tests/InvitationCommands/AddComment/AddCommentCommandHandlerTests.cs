@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
@@ -23,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const string _commentText = "comment text";
-        private const DisciplineType _type = DisciplineType.DP;
+        private const DisciplineType _typeDP = DisciplineType.DP;
         private Invitation _invitation;
 
         [TestInitialize]
@@ -42,9 +43,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 _projectName,
                 _title,
                 _description,
-                _type,
+                _typeDP,
                 new DateTime(),
                 new DateTime(),
+                null,
+                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2") },
                 null);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();

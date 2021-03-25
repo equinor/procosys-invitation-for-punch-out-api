@@ -125,7 +125,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    null,
+                    new List<CommPkg> {commPkg})
                 {
                     MeetingId = _meetingId
                 };
@@ -135,7 +137,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 _mdpInvitation.AddParticipant(functionalRoleParticipant2);
                 _mdpInvitation.AddParticipant(frPerson1);
                 _mdpInvitation.AddParticipant(frPerson2);
-                _mdpInvitation.AddCommPkg(commPkg);
+
+                var mcPkg = new McPkg(
+                    TestPlant,
+                    projectName,
+                    commPkgNo,
+                    mcPkgNo,
+                    description,
+                    system);
 
                 _dpInvitation = new Invitation(
                     TestPlant,
@@ -145,18 +154,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> {mcPkg},
                     null)
                 {
                     MeetingId = _meetingId
                 };
 
-                var mcPkg = new McPkg(
-                    TestPlant,
-                    projectName,
-                    commPkgNo,
-                    mcPkgNo,
-                    description,
-                    system);
+          
 
                 var functionalRoleParticipantForDp = new Participant(
                     TestPlant,
@@ -182,7 +187,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _currentUserOid,
                     1);
 
-                _dpInvitation.AddMcPkg(mcPkg);
                 _dpInvitation.AddParticipant(functionalRoleParticipantForDp);
                 _dpInvitation.AddParticipant(personParticipantForDp);
 

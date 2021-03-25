@@ -65,6 +65,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
             var participants = new List<BuilderParticipant>();
+            var mcPkgs = new List<McPkg>();
+            var commPkgs = new List<CommPkg>();
+
+            if (request.CommPkgScope.Count > 0)
+            {
+                commPkgs = await GetCommPkgsToAddAsync(request.CommPkgScope, request.ProjectName);
+            }
+
+            if (request.McPkgScope.Count > 0)
+            {
+                mcPkgs = await GetMcPkgsToAddAsync(request.McPkgScope, request.ProjectName);
+            }
+
             var invitation = new Invitation(
                 _plantProvider.Plant,
                 request.ProjectName,
@@ -73,18 +86,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 request.Type,
                 request.StartTime,
                 request.EndTime,
-                request.Location);
+                request.Location,
+                mcPkgs,
+                commPkgs);
             _invitationRepository.Add(invitation);
-
-            if (request.CommPkgScope.Count > 0)
-            {
-                await AddCommPkgsAsync(invitation, request.CommPkgScope, request.ProjectName);
-            }
-
-            if (request.McPkgScope.Count > 0)
-            {
-                await AddMcPkgsAsync(invitation, request.McPkgScope, request.ProjectName);
-            }
 
             participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -326,7 +331,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return participants;
         }
 
-        private async Task AddCommPkgsAsync(Invitation invitation, IList<string> commPkgScope, string projectName)
+        private async Task<List<CommPkg>> GetCommPkgsToAddAsync(IList<string> commPkgScope, string projectName)
         {
             var commPkgDetailsList =
                 await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
@@ -345,20 +350,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     throw new IpoValidationException("Comm pkg scope must be within a system.");
                 }
             }
-
-            foreach (var commPkg in commPkgDetailsList)
-            {
-                invitation.AddCommPkg(new CommPkg(
-                    _plantProvider.Plant,
-                    projectName,
-                    commPkg.CommPkgNo,
-                    commPkg.Description,
-                    commPkg.CommStatus,
-                    commPkg.System));
-            }
+            return commPkgDetailsList.Select(c => new CommPkg(
+                _plantProvider.Plant,
+                projectName,
+                c.CommPkgNo,
+                c.Description,
+                c.CommStatus,
+                c.System)).ToList();
         }
 
-        private async Task AddMcPkgsAsync(Invitation invitation, IList<string> mcPkgScope, string projectName)
+        private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
         {
             var mcPkgDetailsList =
                 await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope);
@@ -378,16 +379,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
-            foreach (var mcPkg in mcPkgDetailsList)
-            {
-                invitation.AddMcPkg(new McPkg(
+            return mcPkgDetailsList.Select(mc => new McPkg(
                     _plantProvider.Plant,
                     projectName,
-                    mcPkg.CommPkgNo,
-                    mcPkg.McPkgNo,
-                    mcPkg.Description,
-                    mcPkg.System));
-            }
+                    mc.CommPkgNo,
+                    mc.McPkgNo,
+                    mc.Description,
+                    mc.System)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(

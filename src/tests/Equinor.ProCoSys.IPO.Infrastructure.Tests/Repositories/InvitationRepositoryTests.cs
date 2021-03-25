@@ -72,6 +72,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 DisciplineType.DP,
                 new DateTime(),
                 new DateTime(),
+                null,
+                new List<McPkg> {_mcPkg},
                 null);
             _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgId);
             _mdpInvitation = new Invitation(
@@ -82,14 +84,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 DisciplineType.MDP,
                 new DateTime(),
                 new DateTime(),
-                null);
+                null,
+                null,
+                new List<CommPkg> {_commPkg});
 
             _attachment = new Attachment(TestPlant, "filename.txt");
 
-            _dpInviation.AddMcPkg(_mcPkg);
             _dpInviation.AddParticipant(_participant);
             _dpInviation.AddAttachment(_attachment);
-            _mdpInvitation.AddCommPkg(_commPkg);
 
             _comment = new Comment(TestPlant, "comment");
             _mdpInvitation.AddComment(_comment);
