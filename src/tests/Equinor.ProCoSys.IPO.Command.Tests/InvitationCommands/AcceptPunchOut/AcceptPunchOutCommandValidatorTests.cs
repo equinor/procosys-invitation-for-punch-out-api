@@ -48,8 +48,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion2)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ValidConstructionCompanyParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ConstructionCompanyExistsAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ValidAccepterParticipantExistsAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.IpoHasAccepterAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId2, _id, default)).Returns(Task.FromResult(true));
             _command = new AcceptPunchOutCommand(
@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenInvitationDoesNotHaveConstructionCompanyParticipant()
         {
-            _invitationValidatorMock.Setup(inv => inv.ConstructionCompanyExistsAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.IpoHasAccepterAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
@@ -120,7 +120,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenPersonTryingToAcceptIsNotAValidConstructionCompanyParticipant()
         {
-            _invitationValidatorMock.Setup(inv => inv.ValidConstructionCompanyParticipantExistsAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ValidAccepterParticipantExistsAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

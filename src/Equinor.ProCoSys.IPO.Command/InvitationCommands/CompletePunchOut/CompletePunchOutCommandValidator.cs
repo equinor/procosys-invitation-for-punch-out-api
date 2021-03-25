@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
-                .MustAsync((command, cancellationToken) => BeAContractorOnIpo(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeACompleterOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a contractor assigned to complete the IPO!")
                 .MustAsync((command, cancellationToken) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, cancellationToken))
@@ -47,11 +47,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             async Task<bool> BeAnInvitationInPlannedStage(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, cancellationToken);
 
-            async Task<bool> BeAContractorOnIpo(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ContractorExistsAsync(invitationId, cancellationToken);
+            async Task<bool> BeACompleterOnIpo(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ValidContractorParticipantExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.ValidCompleterParticipantExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);

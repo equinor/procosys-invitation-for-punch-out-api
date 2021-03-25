@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
-                .MustAsync((command, cancellationToken) => BeAContractorOnIpo(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeACompleterOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a contractor assigned to uncomplete the IPO!")
                 .MustAsync((command, cancellationToken) => BeThePersonWhoCompleted(command.InvitationId, cancellationToken))
@@ -39,8 +39,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
             async Task<bool> BeAnInvitationInCompletedStage(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Completed, cancellationToken);
 
-            async Task<bool> BeAContractorOnIpo(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ContractorExistsAsync(invitationId, cancellationToken);
+            async Task<bool> BeACompleterOnIpo(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeThePersonWhoCompleted(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.SameUserUnCompletingThatCompletedAsync(invitationId, cancellationToken);
