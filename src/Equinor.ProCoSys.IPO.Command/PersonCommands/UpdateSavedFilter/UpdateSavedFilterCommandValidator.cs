@@ -15,17 +15,17 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
             CascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
-                .MustAsync((command, token) => BeAnExistingSavedFilterAsync(command.SavedFilterId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingSavedFilterAsync(command.SavedFilterId, cancellationToken))
                 .WithMessage(command => $"Saved filter doesn't exist! Saved filter={command.SavedFilterId}")
-                .MustAsync((command, token) => HaveAUniqueTitleForPerson(command.Title, command.SavedFilterId, token))
+                .MustAsync((command, cancellationToken) => HaveAUniqueTitleForPerson(command.Title, command.SavedFilterId, cancellationToken))
                 .WithMessage(command => $"A saved filter with this title already exists! Title={command.Title}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}");
 
-            async Task<bool> BeAnExistingSavedFilterAsync(int savedFilterId, CancellationToken token)
-                => await savedFilterValidator.ExistsAsync(savedFilterId, token);
-            async Task<bool> HaveAUniqueTitleForPerson(string title, int savedFilterId, CancellationToken token)
-                => !await savedFilterValidator.ExistsAnotherWithSameTitleForPersonInProjectAsync(savedFilterId, title, token);
+            async Task<bool> BeAnExistingSavedFilterAsync(int savedFilterId, CancellationToken cancellationToken)
+                => await savedFilterValidator.ExistsAsync(savedFilterId, cancellationToken);
+            async Task<bool> HaveAUniqueTitleForPerson(string title, int savedFilterId, CancellationToken cancellationToken)
+                => !await savedFilterValidator.ExistsAnotherWithSameTitleForPersonInProjectAsync(savedFilterId, title, cancellationToken);
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
         }

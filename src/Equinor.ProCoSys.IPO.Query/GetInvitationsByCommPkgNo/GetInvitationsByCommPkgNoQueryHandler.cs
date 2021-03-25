@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             => _context = context;
 
         public async Task<Result<List<InvitationForMainDto>>> Handle(GetInvitationsByCommPkgNoQuery request,
-            CancellationToken token)
+            CancellationToken cancellationToken)
         {
             var invitations = await
                 (from invitation in _context.QuerySet<Invitation>()
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                     .Where(i => i.ProjectName == request.ProjectName 
                                 && (i.McPkgs.Any(mcPkg => mcPkg.CommPkgNo == request.CommPkgNo)
                                 || i.CommPkgs.Any(commPkg => commPkg.CommPkgNo == request.CommPkgNo)))
-                 select invitation).ToListAsync(token);
+                 select invitation).ToListAsync(cancellationToken);
 
             var invitationForMainDtos = new List<InvitationForMainDto>();
 

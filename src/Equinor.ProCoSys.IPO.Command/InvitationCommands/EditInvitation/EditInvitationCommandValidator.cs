@@ -35,9 +35,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage(command =>
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
                 //business validators
-                .MustAsync((command, token) => BeAnExistingIpo(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnExistingIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, token) => BeAnIpoInPlannedStage(command.InvitationId, token))
+                .MustAsync((command, cancellationToken) => BeAnIpoInPlannedStage(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
@@ -51,18 +51,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .WithMessage("Each participant must contain an email or oid!");
 
             RuleForEach(command => command.UpdatedParticipants)
-                .MustAsync((command, participant, _, token) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, token))
+                .MustAsync((command, participant, _, cancellationToken) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, cancellationToken))
                 .WithMessage((command, participant) =>
                     $"Participant with ID does not exist on invitation! Participant={participant}")
                 .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage((command, participant) =>
                     $"Participant doesn't have valid rowVersion! Participant={participant}");
 
-            async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoExistsAsync(invitationId, token);
+            async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken token)
-                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, token);
+            async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, cancellationToken);
 
             bool MustHaveValidScope(
                 DisciplineType type,
@@ -70,8 +70,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 IList<string> updatedCommPkgScope) 
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
-            async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken token)
-                => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, token);
+            async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);

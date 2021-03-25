@@ -720,7 +720,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 
                 var invitationDto = result.Data.Invitations.First();
                 var invitation = _invitation1;
-                Assert.AreEqual(0, invitationDto.CommPkgNos.Count);
+                Assert.AreEqual(0, invitationDto.CommPkgNos.Count());
                 Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
                 Assert.AreEqual(invitation.Title, invitationDto.Title);
                 Assert.AreEqual(invitation.Description, invitationDto.Description);

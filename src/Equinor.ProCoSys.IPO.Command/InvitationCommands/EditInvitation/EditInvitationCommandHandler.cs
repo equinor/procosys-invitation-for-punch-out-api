@@ -367,7 +367,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            IList<ParticipantsForCommand> personParticipantsWithOids,
+            List<ParticipantsForCommand> personParticipantsWithOids,
             IList<Participant> existingParticipants)
         {
             var personsAdded = new List<ParticipantsForCommand>();
@@ -387,7 +387,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 }
             }
 
-            personsAdded.RemoveAll(p => personsAdded.Contains(p));
+            personParticipantsWithOids.RemoveAll(p => personsAdded.Contains(p));
 
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1)
                 .Select(p => p.Person.AzureOid.ToString())

@@ -992,121 +992,121 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task ValidConstructionCompanyParticipantExistsAsync_FunctionalRoleAsConstructionCompany_ReturnsTrue()
+        public async Task ValidAccepterParticipantExistsAsync_FunctionalRoleAsAccepter_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
+                var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidConstructionCompanyParticipantExistsAsync_PersonAsConstructionCompany_ReturnsTrue()
+        public async Task ValidAccepterParticipantExistsAsync_PersonAsAccepter_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidConstructionCompanyParticipantExistsAsync_ConstructionCompanyPersonIsntCurrentUser_ReturnsFalse()
+        public async Task ValidAccepterParticipantExistsAsync_AccepterPersonIsntCurrentUser_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidConstructionCompanyParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
+                var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
 
         [TestMethod]
-        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyExists_ReturnsTrue()
+        public async Task IpoHasAccepterAsync_AccepterExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.IpoHasAccepterAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ConstructionCompanyExistsAsync_ConstructionCompanyDoesntExists_ReturnsFalse()
+        public async Task IpoHasAccepterAsync_AccepterDoesntExists_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ConstructionCompanyExistsAsync(_invitationIdWithoutParticipants, default);
+                var result = await dut.IpoHasAccepterAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidContractorParticipantExistsAsync_FunctionalRoleAsContractor_ReturnsTrue()
+        public async Task ValidCompleterParticipantExistsAsyncAsync_FunctionalRoleAsCompleter_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
+                var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidContractorParticipantExistsAsync_PersonAsContractor_ReturnsTrue()
+        public async Task ValidCompleterParticipantExistsAsync_PersonAsCompleter_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ValidContractorParticipantExistsAsync_ContractorPersonIsntCurrentUser_ReturnsFalse()
+        public async Task ValidCompleterParticipantExistsAsync_CompleterPersonIsntCurrentUser_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidContractorParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
+                var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }
 
         [TestMethod]
-        public async Task ContractorExistsAsync_ContractorExists_ReturnsTrue()
+        public async Task IpoHasCompleterAsync_CompleterExists_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ContractorExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.IpoHasCompleterAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task ContractorExistsAsync_ContractorDoesntExists_ReturnsFalse()
+        public async Task IpoHasCompleterAsync_CompleterDoesntExists_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ContractorExistsAsync(_invitationIdWithoutParticipants, default);
+                var result = await dut.IpoHasCompleterAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
         }

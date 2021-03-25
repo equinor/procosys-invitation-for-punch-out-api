@@ -743,7 +743,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
         private void AssertInvitation(Invitation invitation, ExportInvitationDto invitationDto)
         {
-            Assert.AreEqual(0, invitationDto.CommPkgs.Count);
+            Assert.AreEqual(0, invitationDto.CommPkgs.Count());
             Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Title, invitationDto.Title);
             Assert.AreEqual(invitation.Description, invitationDto.Description);
