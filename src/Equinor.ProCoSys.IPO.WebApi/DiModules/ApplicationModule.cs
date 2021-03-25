@@ -97,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<Authenticator>());
             services.AddScoped<IApplicationAuthenticator>(x => x.GetRequiredService<Authenticator>());
             services.AddScoped<IBearerTokenApiClient, BearerTokenApiClient>();
-            services.AddScoped<IPlantApiService, MainApiPlantService>();
+            services.AddScoped<IMainPlantApiService, MainApiPlantService>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
             services.AddScoped<IMainPermissionApiService, MainApiPermissionService>();
             services.AddScoped<IBlobStorage, AzureBlobService>();

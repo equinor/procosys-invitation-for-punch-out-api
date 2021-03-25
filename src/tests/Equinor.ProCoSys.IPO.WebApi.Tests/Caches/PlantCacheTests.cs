@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
     public class PlantCacheTests
     {
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
-        private Mock<IPlantApiService> _plantApiServiceMock;
+        private Mock<IMainPlantApiService> _plantApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private readonly string Plant1WithAccess = "P1";
         private readonly string Plant2WithAccess = "P2";
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(c => c.GetCurrentUserOid()).Returns(_currentUserOid);
 
-            _plantApiServiceMock = new Mock<IPlantApiService>();
+            _plantApiServiceMock = new Mock<IMainPlantApiService>();
             _plantApiServiceMock.Setup(p => p.GetAllPlantsAsync()).Returns(Task.FromResult(
                 new List<ProCoSysPlant>
                 {

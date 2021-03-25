@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant
 {
-    public class MainApiPlantService : IPlantApiService
+    public class MainApiPlantService : IMainPlantApiService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;

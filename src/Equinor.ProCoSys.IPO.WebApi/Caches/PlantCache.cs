@@ -13,13 +13,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
     {
         private readonly ICacheManager _cacheManager;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IPlantApiService _plantApiService;
+        private readonly IMainPlantApiService _plantApiService;
         private readonly IOptionsMonitor<CacheOptions> _options;
 
         public PlantCache(
             ICacheManager cacheManager, 
             ICurrentUserProvider currentUserProvider, 
-            IPlantApiService plantApiService, 
+            IMainPlantApiService plantApiService, 
             IOptionsMonitor<CacheOptions> options)
         {
             _cacheManager = cacheManager;
