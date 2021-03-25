@@ -180,6 +180,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
                 services.AddScoped(serviceProvider => BlobStorageMock.Object);
                 services.AddScoped(serviceProvider => PcsBusSenderMock.Object);
+                services.AddScoped(serviceProvider => MainFunctionalRoleApiServiceMock.Object);
             });
 
             builder.ConfigureServices(services =>

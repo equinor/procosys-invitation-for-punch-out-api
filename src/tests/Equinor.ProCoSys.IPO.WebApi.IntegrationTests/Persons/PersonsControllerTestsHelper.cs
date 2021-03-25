@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Persons;
 using Newtonsoft.Json;
@@ -121,6 +122,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+        }
+
+        public static async Task<OutstandingIposResultDto> GetOutstandingIposAsync(
+            UserType userType,
+            string plant,
+            string projectName,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var project = projectName ?? KnownTestData.ProjectName;
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/OutstandingIpos?projectName={project}");
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<OutstandingIposResultDto>(jsonString);
         }
     }
 }

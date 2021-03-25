@@ -1,8 +1,12 @@
-﻿﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿ using System.Collections.Generic;
+ using System.Linq;
+ using System.Threading.Tasks;
+ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+ using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations;
+ using Microsoft.VisualStudio.TestTools.UnitTesting;
+ using DisciplineType = Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.DisciplineType;
 
-namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
+ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 {
     [TestClass]
     public class PersonsControllerTests : PersonsControllerTestsBase
@@ -136,6 +140,67 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 TestFactory.PlantWithAccess,
                 TestFactory.ProjectWithAccess);
             Assert.IsFalse(savedFilters.Exists(f => f.Id == id));
+        }
+
+        [TestMethod]
+        public async Task GetOutstandingIpos_AsSigner_ShouldGetOutstandingIpos()
+        {
+            //Arrange
+            var invitationId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationTitle",
+                "InvitationDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
+                null);
+
+            // Act
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            var completerPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor).Person;
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
+                {
+                    new ParticipantToChangeDto
+                    {
+                        Id = completerPerson.Person.Id,
+                        Note = "Some note about the punch out round or attendee",
+                        RowVersion = completerPerson.Person.RowVersion,
+                        Attended = true
+                    }
+                }
+            };
+
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                completePunchOutDto);
+
+            var outstandingIpos = await PersonsControllerTestsHelper.GetOutstandingIposAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                TestFactory.ProjectWithAccess);
+
+            // Assert
+            var outstandingIpo = outstandingIpos.Items.Single(oi => oi.InvitationId == invitationId);
+            Assert.IsTrue(outstandingIpos.MaxAvailable == 1);
+            Assert.IsNotNull(outstandingIpo);
+            Assert.AreEqual(invitationId, outstandingIpo.InvitationId);
+            Assert.AreEqual(invitation.Description, outstandingIpo.Description);
         }
     }
 }
