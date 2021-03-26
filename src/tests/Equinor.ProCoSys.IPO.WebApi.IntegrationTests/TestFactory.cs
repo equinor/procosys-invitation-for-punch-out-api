@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
@@ -28,7 +27,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using Newtonsoft.Json;
 using ProCoSysProject = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission.ProCoSysProject;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
