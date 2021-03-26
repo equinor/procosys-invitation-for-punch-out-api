@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.PcsBus.Sender;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
-using Equinor.ProCoSys.PcsServiceBus.Sender;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
