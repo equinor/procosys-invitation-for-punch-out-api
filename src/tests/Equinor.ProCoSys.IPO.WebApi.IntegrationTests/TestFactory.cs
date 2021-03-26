@@ -17,7 +17,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
-using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
+using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
