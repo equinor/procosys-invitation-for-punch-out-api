@@ -4,17 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus;
 using System.Text.Json;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.PcsBus;
-using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
-using Equinor.ProCoSys.PcsBus.Topics;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
+using Equinor.ProCoSys.PcsServiceBus;
+using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
+using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
@@ -76,7 +75,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessMcPkgEvent(string messageJson)
         {
             var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(mcPkgEvent.ProjectSchema) || string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) || string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo))
+            if (string.IsNullOrWhiteSpace(mcPkgEvent.Plant) || string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) || string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo))
             {
                 throw new Exception($"Unable to deserialize JSON to McPkgEvent {messageJson}");
             }
@@ -86,17 +85,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
-                    {BusReceiverTelemetryConstants.ProjectSchema, mcPkgEvent.ProjectSchema[4..]},
+                    {BusReceiverTelemetryConstants.ProjectSchema, mcPkgEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
                 });
-            _plantSetter.SetPlant(mcPkgEvent.ProjectSchema);
+            _plantSetter.SetPlant(mcPkgEvent.Plant);
             _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
         }
 
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(commPkgEvent.ProjectSchema)  || string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo))
+            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  || string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo))
             {
                 throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
             }
@@ -106,10 +105,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                    {BusReceiverTelemetryConstants.ProjectSchema, commPkgEvent.ProjectSchema[4..]},
+                    {BusReceiverTelemetryConstants.ProjectSchema, commPkgEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
                 });
-            _plantSetter.SetPlant(commPkgEvent.ProjectSchema);
+            _plantSetter.SetPlant(commPkgEvent.Plant);
             _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
                 commPkgEvent.Description);
         }
@@ -117,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessProjectEvent(string messageJson)
         {
             var projectEvent = JsonSerializer.Deserialize<ProjectTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(projectEvent.ProjectSchema) || string.IsNullOrWhiteSpace(projectEvent.ProjectName))
+            if (string.IsNullOrWhiteSpace(projectEvent.Plant) || string.IsNullOrWhiteSpace(projectEvent.ProjectName))
             {
                 throw new Exception($"Unable to deserialize JSON to ProjectEvent {messageJson}");
             }
@@ -126,10 +125,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 new Dictionary<string, string>
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.ProjectSchema, projectEvent.ProjectSchema[4..]},
+                    {BusReceiverTelemetryConstants.ProjectSchema, projectEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
                 });
-            _plantSetter.SetPlant(projectEvent.ProjectSchema);
+            _plantSetter.SetPlant(projectEvent.Plant);
             _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
         }
 
@@ -148,11 +147,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 new Dictionary<string, string>
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.ProjectSchema, ipoEvent.ProjectSchema[4..]},
+                    {BusReceiverTelemetryConstants.ProjectSchema, ipoEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.Ipo, ipoEvent.InvitationGuid},
                     {BusReceiverTelemetryConstants.IpoEvent, ipoEvent.Event}
                 });
-            _plantSetter.SetPlant(ipoEvent.ProjectSchema);
+            _plantSetter.SetPlant(ipoEvent.Plant);
             var invitation = _context.QuerySet<Invitation>().Include(i => i.McPkgs).Include(i => i.CommPkgs)
                 .SingleOrDefault(i => i.ObjectGuid == Guid.Parse(ipoEvent.InvitationGuid));
             if (invitation == null)
@@ -191,7 +190,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 await _mcPkgApiService.ClearM01DatesAsync(
-                    ipoEvent.ProjectSchema,
+                    ipoEvent.Plant,
                     null,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
@@ -208,7 +207,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 await _mcPkgApiService.SetM01DatesAsync(
-                    ipoEvent.ProjectSchema,
+                    ipoEvent.Plant,
                     invitation.Id,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
@@ -227,7 +226,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 try
                 {
                     await _mcPkgApiService.ClearM01DatesAsync(
-                        ipoEvent.ProjectSchema,
+                        ipoEvent.Plant,
                         invitation.Id,
                         invitation.ProjectName,
                         invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
@@ -245,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 await _mcPkgApiService.SetM02DatesAsync(
-                    ipoEvent.ProjectSchema,
+                    ipoEvent.Plant,
                     invitation.Id,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
@@ -262,7 +261,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 await _mcPkgApiService.ClearM02DatesAsync(
-                    ipoEvent.ProjectSchema,
+                    ipoEvent.Plant,
                     invitation.Id,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),

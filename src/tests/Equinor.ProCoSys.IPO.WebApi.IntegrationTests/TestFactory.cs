@@ -17,7 +17,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
-using Equinor.ProCoSys.PcsBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +29,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json;
 using ProCoSysProject = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission.ProCoSysProject;
+using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
