@@ -124,55 +124,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPreSaveDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
-        private void AddCommPkg(CommPkg commPkg)
-        {
-            if (commPkg == null)
-            {
-                throw new ArgumentNullException(nameof(commPkg));
-            }
-
-            if (commPkg.Plant != Plant)
-            {
-                throw new ArgumentException($"Can't relate item in {commPkg.Plant} to item in {Plant}");
-            }
-
-            if (Type == DisciplineType.DP)
-            {
-                throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
-            }
-
-
-            if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
-            {
-                return;
-            }
-            _commPkgs.Add(commPkg);
-        }
-
-        private void AddMcPkg(McPkg mcPkg)
-        {
-            if (mcPkg == null)
-            {
-                throw new ArgumentNullException(nameof(mcPkg));
-            }
-
-            if (mcPkg.Plant != Plant)
-            {
-                throw new ArgumentException($"Can't relate item in {mcPkg.Plant} to item in {Plant}");
-            }
-
-            if (Type != DisciplineType.DP)
-            {
-                throw new ArgumentException($"Can't add mc pkg to invitation with type {Type}");
-            }
-
-            if (_mcPkgs.Any(m => m.McPkgNo == mcPkg.McPkgNo))
-            {
-                return;
-            }
-            _mcPkgs.Add(mcPkg);
-        }
-
         public void AddParticipant(Participant participant)
         {
             if (participant == null)
@@ -452,6 +403,55 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public void MoveToProject(string toProject) => ProjectName = toProject;
+        
+        private void AddCommPkg(CommPkg commPkg)
+        {
+            if (commPkg == null)
+            {
+                throw new ArgumentNullException(nameof(commPkg));
+            }
+
+            if (commPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't relate item in {commPkg.Plant} to item in {Plant}");
+            }
+
+            if (Type == DisciplineType.DP)
+            {
+                throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
+            }
+
+
+            if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
+            {
+                return;
+            }
+            _commPkgs.Add(commPkg);
+        }
+
+        private void AddMcPkg(McPkg mcPkg)
+        {
+            if (mcPkg == null)
+            {
+                throw new ArgumentNullException(nameof(mcPkg));
+            }
+
+            if (mcPkg.Plant != Plant)
+            {
+                throw new ArgumentException($"Can't relate item in {mcPkg.Plant} to item in {Plant}");
+            }
+
+            if (Type != DisciplineType.DP)
+            {
+                throw new ArgumentException($"Can't add mc pkg to invitation with type {Type}");
+            }
+
+            if (_mcPkgs.Any(m => m.McPkgNo == mcPkg.McPkgNo))
+            {
+                return;
+            }
+            _mcPkgs.Add(mcPkg);
+        }
 
         private void SetDpScope(IList<McPkg> mcPkgs)
         {
