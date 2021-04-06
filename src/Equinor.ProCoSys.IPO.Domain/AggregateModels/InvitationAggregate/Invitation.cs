@@ -57,26 +57,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ProjectName = projectName;
             Title = title;
             Description = description;
-            Type = type;
 
-            if (!mcPkgs.Any() && !commPkgs.Any())
-            {
-                throw new ArgumentException("Invitation must have scope");
-            }
-
-            switch (type)
-            {
-                case DisciplineType.DP when (!mcPkgs.Any() || commPkgs.Any()):
-                    throw new ArgumentException("DP must only have mc pkg scope");
-                case DisciplineType.MDP when (mcPkgs.Any() || !commPkgs.Any()):
-                    throw new ArgumentException("MDP must only have comm pkg scope");
-                case DisciplineType.DP:
-                    AddDpScope(mcPkgs);
-                    break;
-                case DisciplineType.MDP:
-                    AddMdpScope(commPkgs);
-                    break;
-            }
+            SetScope(type, mcPkgs, commPkgs);
 
             Status = IpoStatus.Planned;
             StartTimeUtc = startTimeUtc;
@@ -85,6 +67,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ObjectGuid = Guid.NewGuid();
             AddPreSaveDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
+
         public Guid ObjectGuid { get; set; }
         public string ProjectName { get; private set; }
         public string Title { get; set; }
@@ -108,76 +91,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
-
-        private void AddDpScope(IList<McPkg> mcPkgs)
-        {
-            if (Type != DisciplineType.DP || mcPkgs.Count == 0 || _commPkgs.Any())
-            {
-                throw new ArgumentException("DP must have only mc pkg scope");
-            }
-            
-            foreach (var mcPkg in mcPkgs)
-            {
-                AddMcPkg(mcPkg);
-            }
-        }
-
-        private void UpdateDpScope(IList<McPkg> mcPkgs)
-        {
-            if (Type != DisciplineType.DP || mcPkgs.Count == 0)
-            {
-                throw new ArgumentException("DP must have only mc pkg scope");
-            }
-            _commPkgs.Clear(); //If we are changing from MDP to DP we need to clear comm pkg scope
-
-            var mcPkgsToRemove = _mcPkgs.Where(mc => !mcPkgs.Contains(mc)).ToList();
-            var mcPkgsToAdd = mcPkgs.Where(mc => !_mcPkgs.Contains(mc)).ToList();
-
-            foreach (var mcPkg in mcPkgsToRemove)
-            {
-                RemoveMcPkg(mcPkg);
-            }
-
-            foreach (var mcPkg in mcPkgsToAdd)
-            {
-                AddMcPkg(mcPkg);
-            }
-        }
-
-        private void AddMdpScope(IList<CommPkg> commPkgs)
-        {
-            if (Type != DisciplineType.MDP || _mcPkgs.Any() || commPkgs.Count == 0)
-            {
-                throw new ArgumentException("MDP must have only comm pkg scope");
-            }
-            
-            foreach (var commPkg in commPkgs)
-            {
-                AddCommPkg(commPkg);
-            }
-        }
-
-        private void UpdateMdpScope(IList<CommPkg> commPkgs)
-        {
-            if (Type != DisciplineType.MDP || commPkgs.Count == 0)
-            {
-                throw new ArgumentException("MDP must have only comm pkg scope");
-            }
-            _mcPkgs.Clear(); //If we are changing from DP to MDP we need to clear mc pkg scope
-
-            var commPkgsToRemove = _commPkgs.Where(c => !commPkgs.Contains(c)).ToList();
-            var commPkgsPkgsToAdd = commPkgs.Where(c => !_commPkgs.Contains(c)).ToList();
-
-            foreach (var commPkg in commPkgsToRemove)
-            {
-                RemoveCommPkg(commPkg);
-            }
-
-            foreach (var commPkg in commPkgsPkgsToAdd)
-            {
-                AddCommPkg(commPkg);
-            }
-        }
 
         public void AddAttachment(Attachment attachment)
         {
@@ -229,21 +142,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
 
+            if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
+            {
+                return;
+            }
             _commPkgs.Add(commPkg);
-        }
-
-        private void RemoveCommPkg(CommPkg commPkg)
-        {
-            if (commPkg == null)
-            {
-                throw new ArgumentNullException(nameof(commPkg));
-            }
-
-            if (commPkg.Plant != Plant)
-            {
-                throw new ArgumentException($"Can't remove item in {commPkg.Plant} from item in {Plant}");
-            }
-            _commPkgs.Remove(commPkg);
         }
 
         private void AddMcPkg(McPkg mcPkg)
@@ -258,27 +161,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentException($"Can't relate item in {mcPkg.Plant} to item in {Plant}");
             }
 
-            if (Type == DisciplineType.MDP)
+            if (Type != DisciplineType.DP)
             {
-                throw new ArgumentException($"Can't add mc pkg to invitation with type MDP");
+                throw new ArgumentException($"Can't add mc pkg to invitation with type {Type}");
             }
 
+            if (_mcPkgs.Any(m => m.McPkgNo == mcPkg.McPkgNo))
+            {
+                return;
+            }
             _mcPkgs.Add(mcPkg);
-        }
-
-        private void RemoveMcPkg(McPkg mcPkg)
-        {
-            if (mcPkg == null)
-            {
-                throw new ArgumentNullException(nameof(mcPkg));
-            }
-
-            if (mcPkg.Plant != Plant)
-            {
-                throw new ArgumentException($"Can't remove item in {mcPkg.Plant} from item in {Plant}");
-            }
-
-            _mcPkgs.Remove(mcPkg);
         }
 
         public void AddParticipant(Participant participant)
@@ -468,32 +360,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"Edit on {nameof(Invitation)} {Id} can not be performed. Title cannot be empty");
             }
 
-            if (!mcPkgScope.Any() && !commPkgScope.Any())
-            {
-                throw new ArgumentException("Invitation must have scope");
-            }
-            if (type == DisciplineType.DP && (commPkgScope.Any() || !mcPkgScope.Any()))
-            {
-                throw new ArgumentException("DP must have mc pkg scope");
-            }
-            if (type == DisciplineType.MDP && (mcPkgScope.Any() || !commPkgScope.Any()))
-            {
-                throw new ArgumentException("MDP must have comm pkg scope");
-            }
-
             Title = title;
             Description = description;
-            Type = type;
+            
+            SetScope(type, mcPkgScope, commPkgScope);
 
-            if (type == DisciplineType.DP)
-            {
-                UpdateDpScope(mcPkgScope);
-            }
-
-            if (type == DisciplineType.MDP)
-            {
-                UpdateMdpScope(commPkgScope);
-            }
             StartTimeUtc = startTime;
             EndTimeUtc = endTime;
             Location = location;
@@ -581,5 +452,56 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public void MoveToProject(string toProject) => ProjectName = toProject;
+
+        private void SetDpScope(IList<McPkg> mcPkgs)
+        {
+            foreach (var mcPkg in mcPkgs)
+            {
+                AddMcPkg(mcPkg);
+            }
+
+            RemoveOldMcPkgs(mcPkgs);
+        }
+
+        private void RemoveOldMcPkgs(IList<McPkg> mcPkgs)
+            => _mcPkgs.RemoveAll(x => !mcPkgs.Select(y => y.McPkgNo).Contains(x.McPkgNo));
+
+        private void SetMdpScope(IList<CommPkg> commPkgs)
+        {
+            foreach (var commPkg in commPkgs)
+            {
+                AddCommPkg(commPkg);
+            }
+
+            RemoveOldCommPkgs(commPkgs);
+        }
+
+        private void RemoveOldCommPkgs(IList<CommPkg> commPkgs)
+            => _commPkgs.RemoveAll(x => !commPkgs.Select(y => y.CommPkgNo).Contains(x.CommPkgNo));
+
+        private void ClearDpScope() => _mcPkgs.Clear();
+
+        private void ClearMdpScope() => _commPkgs.Clear();
+
+        private void SetScope(DisciplineType type, IList<McPkg> mcPkgs, IList<CommPkg> commPkgs)
+        {
+            Type = type;
+
+            switch (type)
+            {
+                case DisciplineType.DP when !mcPkgs.Any() || commPkgs.Any():
+                    throw new ArgumentException("DP must have mc pkg scope and mc pkg scope only");
+                case DisciplineType.MDP when mcPkgs.Any() || !commPkgs.Any():
+                    throw new ArgumentException("MDP must have comm pkg scope and comm pkg scope only ");
+                case DisciplineType.DP:
+                    SetDpScope(mcPkgs);
+                    ClearMdpScope();
+                    break;
+                case DisciplineType.MDP:
+                    SetMdpScope(commPkgs);
+                    ClearDpScope();
+                    break;
+            }
+        }
     }
 }
