@@ -491,7 +491,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 case DisciplineType.DP when !mcPkgs.Any() || commPkgs.Any():
                     throw new ArgumentException("DP must have mc pkg scope and mc pkg scope only");
                 case DisciplineType.MDP when mcPkgs.Any() || !commPkgs.Any():
-                    throw new ArgumentException("MDP must have comm pkg scope and comm pkg scope only ");
+                    throw new ArgumentException("MDP must have comm pkg scope and comm pkg scope only");
                 case DisciplineType.DP:
                     SetDpScope(mcPkgs);
                     ClearMdpScope();

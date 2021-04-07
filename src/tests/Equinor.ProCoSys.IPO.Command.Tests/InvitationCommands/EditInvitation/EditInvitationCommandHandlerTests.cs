@@ -504,7 +504,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Invitation must have scope"));
+            Assert.IsTrue(result.Message.StartsWith("DP must have mc pkg scope and mc pkg scope only"));
         }
 
         [TestMethod]
@@ -525,7 +525,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<ArgumentException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Invitation must have scope"));
+            Assert.IsTrue(result.Message.StartsWith("MDP must have comm pkg scope and comm pkg scope only"));
         }
 
         [TestMethod]
