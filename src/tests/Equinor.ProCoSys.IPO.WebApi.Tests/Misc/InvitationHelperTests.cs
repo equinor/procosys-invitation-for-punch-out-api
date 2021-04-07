@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -27,6 +28,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> {new McPkg(TestPlant, _projectName, "commno", "mcno", "d", "1|2")},
                     null);
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();

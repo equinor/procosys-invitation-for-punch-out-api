@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -31,6 +32,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> {new McPkg(TestPlant, "TestProject", "commno", "mcno", "d", "1|2")},
                     null);
                 var attachmentA = new Attachment(TestPlant, "fileA.txt");
                 var attachmentB = new Attachment(TestPlant, "fileB.txt");

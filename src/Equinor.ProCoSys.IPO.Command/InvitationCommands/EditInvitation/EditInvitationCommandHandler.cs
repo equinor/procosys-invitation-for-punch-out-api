@@ -63,18 +63,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var participants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
+            
+            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, invitation.ProjectName);
+            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, invitation.ProjectName);
+            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
+
             invitation.EditIpo(
                 request.Title,
                 request.Description,
                 request.Type,
                 request.StartTime,
                 request.EndTime,
-                request.Location);
+                request.Location,
+                mcPkgScope,
+                commPkgScope);
 
-            await UpdateMcPkgScopeAsync(invitation, request.UpdatedMcPkgScope, invitation.ProjectName);
-            await UpdateCommPkgScopeAsync(invitation, request.UpdatedCommPkgScope, invitation.ProjectName);
-
-            participants = await UpdateParticipants(participants, request.UpdatedParticipants, invitation);
             invitation.SetRowVersion(request.RowVersion);
             try
             {
@@ -100,124 +103,73 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private async Task UpdateMcPkgScopeAsync(Invitation invitation, IList<string> mcPkgNos, string projectName)
+        private async Task<List<McPkg>> GetMcPkgScopeAsync(IList<string> mcPkgNos, string projectName)
         {
-            var existingMcPkgScope = invitation.McPkgs;
-            var excludedMcPkgs = existingMcPkgScope.Where(mc => !mcPkgNos.Contains(mc.McPkgNo)).ToList();
-            RemoveMcPkgs(invitation, excludedMcPkgs);
-
-            var existingMcPkgNos = existingMcPkgScope.Select(mc => mc.McPkgNo);
-            var newMcPkgs = mcPkgNos.Where(mcPkgNo => !existingMcPkgNos.Contains(mcPkgNo)).ToList();
-            if (newMcPkgs.Count > 0)
+            if (mcPkgNos.Count > 0)
             {
-                await AddMcPkgsAsync(invitation, newMcPkgs, projectName,
-                    existingMcPkgScope.Count > 0 ? existingMcPkgScope.First().SystemSubString : null);
-            }
-        }
+                var mcPkgsFromMain =
+                    await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
 
-        private void RemoveMcPkgs(Invitation invitation, IEnumerable<McPkg> excludedMcPkgs)
-        {
-            foreach (var mcPkgToDelete in excludedMcPkgs)
-            {
-                invitation.RemoveMcPkg(mcPkgToDelete);
-                _invitationRepository.RemoveMcPkg(mcPkgToDelete);
-            }
-        }
-
-        private async Task AddMcPkgsAsync(Invitation invitation, IList<string> mcPkgNos, string projectName, string system)
-        {
-            var mcPkgDetailsList =
-                await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
-
-            if (mcPkgDetailsList.Count != mcPkgNos.Count)
-            {
-                throw new IpoValidationException("Could not find all mc pkgs in scope.");
-            }
-
-            var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
-            if (initialMcPkg != null)
-            {
-                var initialSystem = system ?? initialMcPkg.SystemSubString;
-                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
+                if (mcPkgsFromMain.Count != mcPkgNos.Count)
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a system.");
-                }
-                foreach (var mcPkg in mcPkgDetailsList)
-                {
-                    invitation.AddMcPkg(new McPkg(
-                        _plantProvider.Plant,
-                        projectName,
-                        mcPkg.CommPkgNo,
-                        mcPkg.McPkgNo,
-                        mcPkg.Description,
-                        mcPkg.System));
-                }
-            }
-        }
-
-        private async Task UpdateCommPkgScopeAsync(Invitation invitation, IList<string> commPkgNos, string projectName)
-        {
-            var existingCommPkgScope = invitation.CommPkgs;
-            var excludedCommPkgs = existingCommPkgScope.Where(mc => !commPkgNos.Contains(mc.CommPkgNo)).ToList();
-            RemoveCommPkgs(invitation, excludedCommPkgs);
-
-            var existingCommPkgs = existingCommPkgScope.Select(mc => mc.CommPkgNo).ToList();
-            var newCommPkgs = commPkgNos.Where(commPkgNo => !existingCommPkgs.Contains(commPkgNo)).ToList();
-            if (newCommPkgs.Count > 0)
-            {
-                await AddCommPkgsAsync(
-                    invitation,
-                    newCommPkgs,
-                    existingCommPkgs,
-                    projectName,
-                    existingCommPkgScope.Count > 0 ? existingCommPkgScope.First().SystemSubString : null);
-            }
-        }
-
-        private void RemoveCommPkgs(Invitation invitation, IEnumerable<CommPkg> excludedCommPkgs)
-        {
-            foreach (var commPkgToDelete in excludedCommPkgs)
-            {
-                invitation.RemoveCommPkg(commPkgToDelete);
-                _invitationRepository.RemoveCommPkg(commPkgToDelete);
-            }
-        }
-
-        private async Task AddCommPkgsAsync(Invitation invitation, IList<string> newCommPkgNos,
-            IList<string> existingCommPkgNos, string projectName, string system)
-        {
-            var commPkgDetailsList =
-                await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, newCommPkgNos);
-            
-            if (commPkgDetailsList.Count != newCommPkgNos.Count)
-            {
-                throw new IpoValidationException("Could not find all comm pkgs in scope.");
-            }
-
-            var initialCommPkg = commPkgDetailsList.FirstOrDefault();
-            if (initialCommPkg != null)
-            {
-                var initialSystem = system ?? initialCommPkg.SystemSubString;
-
-                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
-                {
-                    throw new IpoValidationException("Comm pkg scope must be within a system.");
+                    throw new IpoValidationException("Could not find all mc pkgs in scope.");
                 }
 
-                foreach (var commPkg in commPkgDetailsList)
+                var initialMcPkg = mcPkgsFromMain.FirstOrDefault();
+                if (initialMcPkg != null)
                 {
-                    if (!existingCommPkgNos.Contains(commPkg.CommPkgNo))
+                    var initialSystem = initialMcPkg.SystemSubString;
+                    if (mcPkgsFromMain.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
                     {
-                        invitation.AddCommPkg(new CommPkg(
-                            _plantProvider.Plant,
-                            projectName,
-                            commPkg.CommPkgNo,
-                            commPkg.Description,
-                            commPkg.CommStatus,
-                            commPkg.System));
+                        throw new IpoValidationException("Mc pkg scope must be within a system.");
                     }
                 }
+
+                return mcPkgsFromMain.Select(mc => new McPkg(
+                    _plantProvider.Plant,
+                    projectName,
+                    mc.CommPkgNo,
+                    mc.McPkgNo,
+                    mc.Description,
+                    mc.System)).ToList();
             }
+
+            return new List<McPkg>();
+        }
+
+        private async Task<List<CommPkg>> GetCommPkgScopeAsync(IList<string> commPkgNos, string projectName)
+        {
+            if (commPkgNos.Count > 0)
+            {
+                var commPkgsFromMain =
+                    await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgNos);
+
+                if (commPkgsFromMain.Count != commPkgNos.Count)
+                {
+                    throw new IpoValidationException("Could not find all comm pkgs in scope.");
+                }
+
+                var initialCommPkg = commPkgsFromMain.FirstOrDefault();
+                if (initialCommPkg != null)
+                {
+                    var initialSystem = initialCommPkg.SystemSubString;
+
+                    if (commPkgsFromMain.Any(commPkg => commPkg.SystemSubString != initialSystem))
+                    {
+                        throw new IpoValidationException("Comm pkg scope must be within a system.");
+                    }
+                }
+
+                return commPkgsFromMain.Select(c => new CommPkg(
+                    _plantProvider.Plant,
+                    projectName,
+                    c.CommPkgNo,
+                    c.Description,
+                    c.CommStatus,
+                    c.System)).ToList();
+            }
+
+            return new List<CommPkg>();
         }
 
         private async Task<List<BuilderParticipant>> UpdateParticipants(

@@ -57,24 +57,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         }
 
-        public void MoveMcPkg(
-            string projectName,
-            string fromCommPkgNo,
-            string toCommPkgNo,
-            string fromMcPkgNo,
-            string toMcPkgNo,
-            string description)
-        {
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
-
-            mcPkgsToUpdate.ForEach(mp =>
-            {
-                mp.MoveToCommPkg(toCommPkgNo);
-                mp.Rename(toMcPkgNo);
-                mp.Description = description;
-            });
-        }
-
         public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description)
         {
             var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName && mp.McPkgNo == mcPkgNo).ToList();
@@ -82,20 +64,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             mcPkgsToUpdate.ForEach(mp => mp.Description=description);
         }
 
-        public void RemoveCommPkg(CommPkg commPkg)
-            => _context.CommPkgs.Remove(commPkg);    
-        
-        public void RemoveMcPkg(McPkg mcPkg)
-            => _context.McPkgs.Remove(mcPkg);
-
         public void RemoveParticipant(Participant participant)
             => _context.Participants.Remove(participant);
 
         public void RemoveAttachment(Attachment attachment)
             => _context.Attachments.Remove(attachment);
-
-        public void RemoveComment(Comment comment)
-            => _context.Comments.Remove(comment);
-
     }
 }

@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private const string _description = "Test description";
         private const string _firstName = "Ola";
         private const string _lastName = "Nordmann";
-        private const DisciplineType _type = DisciplineType.DP;
+        private const DisciplineType _typeDp = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
@@ -75,10 +75,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                     _projectName,
                     _title,
                     _description,
-                    _type,
+                    _typeDp,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
+                   null)
                 { MeetingId = _meetingId };
             var participant1 = new Participant(
                 _plant,

@@ -5,12 +5,7 @@
         void UpdateProjectOnInvitations(string projectName, string description);
         void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description);
         void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description);
-        void RemoveCommPkg(CommPkg commPkg);
-        void RemoveMcPkg(McPkg mcPkg);
         void RemoveParticipant(Participant participant);
         void RemoveAttachment(Attachment attachment);
-        void RemoveComment(Comment comment);
-        void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description);
-        void MoveMcPkg(string projectName, string fromCommPkgNo, string toCommPkgNo, string fromMcPkgNo, string toMcPkgNo, string description);
     }
 }

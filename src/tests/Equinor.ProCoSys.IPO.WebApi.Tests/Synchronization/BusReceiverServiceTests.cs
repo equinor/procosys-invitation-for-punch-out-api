@@ -12,7 +12,6 @@ using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
-using Fusion.Integration.Meeting;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -38,6 +37,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string mcPkgNo = "456";
         private const string description = "789";
 
+        private List<McPkg> _mcPkgs = new List<McPkg>
+        {
+            new McPkg(plant, project, commPkgNo, mcPkgNo, description, "1|2")
+        };
+
         private Invitation _invitation;
 
         [TestInitialize]
@@ -51,8 +55,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
             _bearerTokenSetter = new Mock<IBearerTokenSetter>();
-
-            _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now, DateTime.Now.AddHours(1), "El låkasjån" );
+            _invitation = new Invitation(plant, project, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
+                DateTime.Now.AddHours(1), "El låkasjån", _mcPkgs, null);
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,
                                           _unitOfWork.Object,
@@ -119,10 +123,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
-            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
-            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string> {mcPkgNo}, new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -139,10 +143,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
-            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, null, project, new List<string>(), new List<string>()), Times.Once, "Uncompleting an IPO should not sent InvitationId as we want to clear external reference.");
-            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, It.IsAny<int>(), project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, null, project, new List<string> { mcPkgNo }, new List<string>()), Times.Once, "Uncompleting an IPO should not sent InvitationId as we want to clear external reference.");
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, It.IsAny<int>(), project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, It.IsAny<int>(), project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, It.IsAny<int>(), project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -179,10 +183,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
-            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
-            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -199,10 +203,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
-            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Once);
         }
 
         [TestMethod]
@@ -219,10 +223,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
-            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
-            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Once);
-            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string>(), new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
+            _mcPkgApiService.Verify(m => m.ClearM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Once);
+            _mcPkgApiService.Verify(m => m.SetM02DatesAsync(plant, _invitation.Id, project, new List<string> { mcPkgNo }, new List<string>()), Times.Never);
         }
 
         [TestMethod]

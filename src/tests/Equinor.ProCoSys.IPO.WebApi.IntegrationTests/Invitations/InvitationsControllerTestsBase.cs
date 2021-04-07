@@ -21,7 +21,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private const string FunctionalRoleCode = "FRC";
         protected const string InvitationLocation = "InvitationLocation";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
-        protected readonly int InitialInvitationId = TestFactory.Instance.KnownTestData.InvitationIds.First();
+        protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
+        protected readonly int InitialDpInvitationId = TestFactory.Instance.KnownTestData.DpInvitationIds.First();
         protected int _attachmentId;
         protected int _commentId;
         protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);

@@ -35,15 +35,27 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                     select ipo).AnyAsync(cancellationToken);
 
         public bool IsValidScope(
+            DisciplineType type,
             IList<string> mcPkgScope,
-            IList<string> commPkgScope) 
-                => (mcPkgScope.Count > 0 || commPkgScope.Count > 0) && (mcPkgScope.Count < 1 || commPkgScope.Count < 1);
+            IList<string> commPkgScope)
+        {
+            switch (type)
+            {
+                case DisciplineType.DP:
+                    return mcPkgScope.Any() && !commPkgScope.Any();
+                case DisciplineType.MDP:
+                    return !mcPkgScope.Any() && commPkgScope.Any();
+                default:
+                    return false;
+            }
+        }
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
             var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
             return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
         }
+
         private bool IsValidPerson(PersonForCommand person)
         {
             if (person.Email == null && (person.AzureOid == Guid.Empty || person.AzureOid == null))

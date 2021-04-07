@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -18,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         private const string Plant = "PCS$TESTPLANT";
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         private readonly DateTime _currentTime = new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        private McPkg _mcPkg = new McPkg(Plant, "project", "commno", "mcno", "d", "1|2");
         private DbContextOptions<IPOContext> _dbContextOptions;
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IEventDispatcher> _eventDispatcherMock;
@@ -55,8 +57,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
-
-            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP, _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc");
+            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP,
+                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
             dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();
@@ -80,7 +82,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
 
-            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP, _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc");
+            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP,
+                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
             dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();

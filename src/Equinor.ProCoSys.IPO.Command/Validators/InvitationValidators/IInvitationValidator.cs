@@ -8,9 +8,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 {
     public interface IInvitationValidator
     {
-        bool IsValidScope(IList<string> mcPkgScope, IList<string> commPkgScope);
-        Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken);
-        Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken cancellationToken);
+        bool IsValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope);
+        Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
+        Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken token);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);

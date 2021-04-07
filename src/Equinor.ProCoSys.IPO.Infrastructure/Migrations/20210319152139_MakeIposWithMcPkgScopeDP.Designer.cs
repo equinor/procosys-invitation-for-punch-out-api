@@ -4,14 +4,16 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    partial class IPOContextModelSnapshot : ModelSnapshot
+    [Migration("20210319152139_MakeIposWithMcPkgScopeDP")]
+    partial class MakeIposWithMcPkgScopeDP
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -592,7 +594,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
                         .WithMany("CommPkgs")
                         .HasForeignKey("InvitationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 
@@ -646,7 +648,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
                         .WithMany("McPkgs")
                         .HasForeignKey("InvitationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
 

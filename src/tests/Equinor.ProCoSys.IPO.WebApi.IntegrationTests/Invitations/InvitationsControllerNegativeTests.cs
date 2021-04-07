@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId, 
+                InitialMdpInvitationId, 
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -457,7 +457,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId);
+                InitialMdpInvitationId);
             var validParticipantForCompleting = _participantsForSigning
                 .Single(p => p.Organization == Organization.Contractor).Person;
 
@@ -824,7 +824,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
@@ -834,7 +834,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
@@ -845,7 +845,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
@@ -855,7 +855,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 123456,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
@@ -878,7 +878,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Anonymous, 
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -886,7 +886,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -895,7 +895,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -913,7 +913,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 HttpStatusCode.Unauthorized);
 
@@ -922,7 +922,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -932,7 +932,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetAttachmentAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 _attachmentId,
                 HttpStatusCode.Forbidden);
 
@@ -1012,7 +1012,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetHistoryAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -1020,7 +1020,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetHistoryAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -1029,7 +1029,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetHistoryAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId,
+                InitialMdpInvitationId,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -1047,7 +1047,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                InitialInvitationId);
+                InitialMdpInvitationId);
 
             invitation.Status = IpoStatus.Planned;
 

@@ -36,6 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private int _operationNotCurrentPersonId;
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;
+        private const DisciplineType _typeMdp = DisciplineType.MDP;
         protected readonly Guid _azureOid = new Guid("11111111-2222-2222-2222-333333333334");
 
         private readonly IList<string> _mcPkgScope = new List<string>
@@ -81,6 +82,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2")},
                     null);
 
                 foreach (var attachment in _attachments)
@@ -148,6 +151,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2")},
                     null);
                 context.Invitations.Add(invitationWithFrAsParticipants);
                 _invitationIdWithFrAsParticipants = invitationWithFrAsParticipants.Id;
@@ -196,6 +201,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     null);
                 context.Invitations.Add(invitationWithoutParticipants);
                 _invitationIdWithoutParticipants = invitationWithoutParticipants.Id;
@@ -208,6 +215,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     null);
 
                 context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
@@ -275,6 +284,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         _typeDp,
                         new DateTime(),
                         new DateTime(),
+                        null,
+                        new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                         null);
                         context2.Invitations.Add(invitationWithAnotherCreator);
 
@@ -292,45 +303,89 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public void IsValidScope_McPkgScopeOnly_ReturnsTrue()
+        public void IsValidScope_McPkgScopeOnlyOnDp_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidScope(_mcPkgScope, new List<string>());
+                var result = dut.IsValidScope(_typeDp, _mcPkgScope, new List<string>());
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void IsValidScope_CommPkgScopeOnly_ReturnsTrue()
+        public void IsValidScope_CommPkgScopeOnlyOnMdp_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidScope(new List<string>(), _commPkgScope);
+                var result = dut.IsValidScope(_typeMdp, new List<string>(), _commPkgScope);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public void IsValidScope_CommPkgAndMcPkgScope_ReturnsFalse()
+        public void IsValidScope_McPkgScopeOnlyOnMdp_ReturnsFalse()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidScope(_mcPkgScope, _commPkgScope);
+                var result = dut.IsValidScope(_typeMdp, _mcPkgScope, new List<string>());
                 Assert.IsFalse(result);
             }
         }
 
         [TestMethod]
-        public void IsValidScope_NoScope_ReturnsFalse()
+        public void IsValidScope_CommPkgScopeOnlyOnDp_ReturnsFalse()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidScope(new List<string>(), new List<string>());
+                var result = dut.IsValidScope(_typeDp, new List<string>(), _commPkgScope);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidScope_CommPkgAndMcPkgScopeOnDP_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = dut.IsValidScope(_typeDp, _mcPkgScope, _commPkgScope);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidScope_CommPkgAndMcPkgScopeOnMDP_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = dut.IsValidScope(_typeMdp, _mcPkgScope, _commPkgScope);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidScope_NoScopeTypeDp_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = dut.IsValidScope(_typeDp,new List<string>(), new List<string>());
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public void IsValidScope_NoScopeTypeMdp_ReturnsFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = dut.IsValidScope(_typeMdp, new List<string>(), new List<string>());
                 Assert.IsFalse(result);
             }
         }

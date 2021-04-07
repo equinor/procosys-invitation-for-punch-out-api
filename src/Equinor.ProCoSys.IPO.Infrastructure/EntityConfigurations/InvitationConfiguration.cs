@@ -38,14 +38,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder
                 .HasMany(x => x.McPkgs)
                 .WithOne()
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+                .IsRequired();
 
             builder
                 .HasMany(x => x.CommPkgs)
                 .WithOne()
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+                .IsRequired();
 
             builder
                 .HasMany(x => x.Participants)

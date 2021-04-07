@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
@@ -15,7 +16,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
     [TestClass]
     public class DeleteAttachmentCommandHandlerTests
     {
-        private const string PLANT = "PCS$TESTPLANT";
+        private const string _plant = "PCS$TESTPLANT";
+        private const string _projectName = "TestProject";
 
         private Invitation _invitation;
         private Attachment _attachment;
@@ -30,15 +32,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         public void Setup()
         {
             _invitation = new Invitation(
-                PLANT,
-                "TestProject",
+                _plant,
+                _projectName,
                 "TestInvitation", 
                 "Description",
                 DisciplineType.DP,
                 new DateTime(),
                 new DateTime(),
+                null,
+                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
                 null);
-            _attachment = new Attachment(PLANT, "ExistingFile.txt");
+            _attachment = new Attachment(_plant, "ExistingFile.txt");
             _attachment.SetProtectedIdForTesting(2);
             _invitation.AddAttachment(_attachment);
 

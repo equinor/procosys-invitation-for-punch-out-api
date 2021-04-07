@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
@@ -25,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                var mcScope = new List<McPkg> {new McPkg(TestPlant, "TestProject", "commno", "mcno", "d", "1|2")};
 
                 _invitationWithNoHistory = new Invitation(
                     TestPlant,
@@ -34,6 +36,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null, 
+                    mcScope,
                     null);
 
                 _invitationWithHistory = new Invitation(
@@ -44,6 +48,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    mcScope,
                     null);
 
                 context.Invitations.Add(_invitationWithNoHistory);
