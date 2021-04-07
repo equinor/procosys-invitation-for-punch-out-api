@@ -40,23 +40,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var plant = plantProvider.Plant;
 
-            var seedMdpInvitation = SeedMdpInvitation(dbContext, plant);
-            knownTestData.MdpInvitationIds.Add(seedMdpInvitation.Id);
+            var mdpInvitation = SeedMdpInvitation(dbContext, plant);
+            knownTestData.MdpInvitationIds.Add(mdpInvitation.Id);
 
-            var attachment = SeedAttachment(dbContext, seedMdpInvitation);
+            var attachment = SeedAttachment(dbContext, mdpInvitation);
             knownTestData.AttachmentIds.Add(attachment.Id);
 
-            var comment = SeedComment(dbContext, seedMdpInvitation);
+            var comment = SeedComment(dbContext, mdpInvitation);
             knownTestData.CommentIds.Add(comment.Id);
             
-            SeedContractor(dbContext, seedMdpInvitation);
-            SeedConstructionCompany(dbContext, seedMdpInvitation);
+            SeedContractor(dbContext, mdpInvitation);
+            SeedConstructionCompany(dbContext, mdpInvitation);
 
-            var seedDpInvitation = SeedDpInvitation(dbContext, plant);
-            knownTestData.DpInvitationIds.Add(seedDpInvitation.Id);
+            var dpInvitation = SeedDpInvitation(dbContext, plant);
+            knownTestData.DpInvitationIds.Add(dpInvitation.Id);
 
-            SeedContractor(dbContext, seedDpInvitation);
-            SeedConstructionCompany(dbContext, seedDpInvitation);
+            SeedContractor(dbContext, dpInvitation);
+            SeedConstructionCompany(dbContext, dpInvitation);
         }
 
         private static void SeedCurrentUserAsPerson(IPOContext dbContext, ICurrentUserProvider userProvider)
