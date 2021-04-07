@@ -421,7 +421,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
             }
 
-
             if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
             {
                 return;
