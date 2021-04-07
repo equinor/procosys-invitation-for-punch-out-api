@@ -599,6 +599,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(Title, invitation.Title);
             Assert.AreEqual(Description, invitation.Description);
             Assert.AreEqual(InvitationLocation, invitation.Location);
+            Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
         }
 
         [TestMethod]
@@ -659,6 +660,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             AssertRowVersionChange(currentRowVersion, newRowVersion);
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
         }
 
         [TestMethod]

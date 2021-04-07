@@ -39,11 +39,15 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             IList<string> mcPkgScope,
             IList<string> commPkgScope)
         {
-            if (type == DisciplineType.DP)
+            switch (type)
             {
-                return mcPkgScope.Count > 0 && commPkgScope.Count == 0;
+                case DisciplineType.DP:
+                    return mcPkgScope.Any() && !commPkgScope.Any();
+                case DisciplineType.MDP:
+                    return !mcPkgScope.Any() && commPkgScope.Any();
+                default:
+                    return false;
             }
-            return mcPkgScope.Count == 0 && commPkgScope.Count > 0;
         }
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)

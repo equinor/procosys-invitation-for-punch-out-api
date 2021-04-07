@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null,
-                new List<McPkg>{ _mcPkg1, _mcPkg2},
+                new List<McPkg>{ _mcPkg1, _mcPkg2 },
                 null);
 
             _dutMdpIpo = new Invitation(
@@ -205,6 +205,40 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void Constructor_ShouldAddUniqueMcPkgs()
+        {
+            var dutDpIpo = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title,
+                Description,
+                DisciplineType.DP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                new List<McPkg>{ _mcPkg1, _mcPkg2, _mcPkg1, _mcPkg2 },
+                null);
+            Assert.AreEqual(2, dutDpIpo.McPkgs.Count);
+        }
+
+        [TestMethod]
+        public void Constructor_ShouldAddUniqueCommPkgs()
+        {
+            var dutMdpIpo = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title2,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1, _commPkg2, _commPkg1, _commPkg2 });
+            Assert.AreEqual(2, dutMdpIpo.CommPkgs.Count);
+        }
+
+        [TestMethod]
         public void Constructor_ShouldThrowException_WhenTitleNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
                 new Invitation(
@@ -269,6 +303,22 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             );
 
         [TestMethod]
+        public void Constructor_ShouldThrowException_WhenBothScopeOnMDp() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new Invitation(
+                    TestPlant,
+                    ProjectName,
+                    Title,
+                    Description,
+                    DisciplineType.MDP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> {_mcPkg1},
+                    new List<CommPkg> {_commPkg1})
+            );
+
+        [TestMethod]
         public void Constructor_ShouldThrowException_WhenCommPkgScopeOnDp() =>
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
@@ -281,6 +331,22 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     null,
                     null,
+                    new List<CommPkg> {_commPkg1})
+            );
+
+        [TestMethod]
+        public void Constructor_ShouldThrowException_WhenBothScopeOnDp() =>
+            Assert.ThrowsException<ArgumentException>(() =>
+                new Invitation(
+                    TestPlant,
+                    ProjectName,
+                    Title,
+                    Description,
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> {_mcPkg1},
                     new List<CommPkg> {_commPkg1})
             );
 
@@ -454,7 +520,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
         #region Edit
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenIpoIsNotPlanned()
+        public void EditIpo_ShouldThrowException_WhenIpoIsNotPlanned()
         {
             var newStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
             var newEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
@@ -471,7 +537,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenStartDateIsBeforeEndDate()
+        public void EditIpo_ShouldThrowException_WhenStartDateIsBeforeEndDate()
         {
             var newStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
             var newEndTime = new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc);
@@ -488,7 +554,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenAddingCommPkgToDp() =>
+        public void EditIpo_ShouldThrowException_WhenAddingCommPkgToDp() =>
             Assert.ThrowsException<ArgumentException>(() =>
                 _dutDpIpo.EditIpo(
                     "New Title",
@@ -497,11 +563,11 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     "outside",
-                    null,
+                    _dutDpIpo.McPkgs.ToList(),
                     new List<CommPkg> {_commPkg1}));
 
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenAddingMcPkgToMdp() =>
+        public void EditIpo_ShouldThrowException_WhenAddingMcPkgToMdp() =>
             Assert.ThrowsException<ArgumentException>(() =>
                 _dutMdpIpo.EditIpo(
                     "New Title",
@@ -511,10 +577,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     "outside",
                     new List<McPkg> {_mcPkg1},
-                    null));
+                    _dutMdpIpo.CommPkgs.ToList()));
 
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenSettingDpOnIpoWithCommScope() =>
+        public void EditIpo_ShouldThrowException_WhenSettingDpOnIpoWithCommScope() =>
             Assert.ThrowsException<ArgumentException>(() =>
                 _dutMdpIpo.EditIpo(
                     "New Title",
@@ -524,10 +590,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     "outside",
                     null,
-                    null));
+                    _dutMdpIpo.CommPkgs.ToList()));
 
         [TestMethod]
-        public void EditIpo_ShouldNotEditIpo_WhenSettingMdpOnIpoWithMcScope() =>
+        public void EditIpo_ShouldThrowException_WhenSettingMdpOnIpoWithMcScope() =>
             Assert.ThrowsException<ArgumentException>(() =>
                 _dutDpIpo.EditIpo(
                     "New Title",
@@ -536,13 +602,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     "outside",
-                    null,
+                    _dutDpIpo.McPkgs.ToList(),
                     null));
 
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddMcPkgScope()
         {
-            var newMcPkg = new McPkg(TestPlant, ProjectName, "Comm2", "Mc2", "MC D", System);
+            var newMcPkg = new McPkg(TestPlant, ProjectName, "Comm2", "Mc3", "MC D", System);
 
             Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
 
@@ -560,9 +626,29 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
+        public void EditIpo_ShouldEditIpo_AddUniqueMcPkgs()
+        {
+            var newMcPkg = new McPkg(TestPlant, ProjectName, "Comm2", "Mc3", "MC D", System);
+
+            Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
+
+            _dutDpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                new List<McPkg> { _mcPkg1, _mcPkg2, newMcPkg, _mcPkg1, _mcPkg2 },
+                null);
+
+            Assert.AreEqual(3, _dutDpIpo.McPkgs.Count);
+        }
+
+        [TestMethod]
         public void EditIpo_ShouldEditIpo_AddCommPkgScope()
         {
-            var newCommPkg = new CommPkg(TestPlant, ProjectName, "Comm2", "D", "OK", System);
+            var newCommPkg = new CommPkg(TestPlant, ProjectName, "Comm3", "D", "OK", System);
 
             Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
 
@@ -575,6 +661,26 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 "outside",
                 null,
                 new List<CommPkg> {_commPkg1, _commPkg2, newCommPkg});
+
+            Assert.AreEqual(3, _dutMdpIpo.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public void EditIpo_ShouldEditIpo_AddUniqueCommPkgs()
+        {
+            var newCommPkg = new CommPkg(TestPlant, ProjectName, "Comm3", "D", "OK", System);
+
+            Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
+
+            _dutMdpIpo.EditIpo(
+                "New Title",
+                "New description",
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                "outside",
+                null,
+                new List<CommPkg> {_commPkg1, _commPkg2, newCommPkg, _commPkg1, _commPkg2});
 
             Assert.AreEqual(3, _dutMdpIpo.CommPkgs.Count);
         }
@@ -793,8 +899,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime());
 
             Assert.AreEqual(IpoStatus.Accepted, _dutWithCompletedStatus.Status);
-            Assert.AreEqual(_currentUserId, _dutWithCompletedStatus.Participants.Single(p => p.SortKey == 1).SignedBy);
-            Assert.IsNotNull(_dutWithCompletedStatus.Participants.Single(p => p.SortKey == 1).SignedAtUtc);
+            var participant = _dutWithCompletedStatus.Participants.Single(p => p.SortKey == 1);
+            Assert.AreEqual(_currentUserId, participant.SignedBy);
+            Assert.IsNotNull(participant.SignedAtUtc);
             Assert.AreEqual(_currentUserId, _dutWithCompletedStatus.AcceptedBy);
             Assert.IsNotNull(_dutWithCompletedStatus.AcceptedAtUtc);
 
@@ -858,8 +965,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _functionalRoleParticipant.RowVersion.ConvertToString());
 
             Assert.AreEqual(IpoStatus.Completed, _dutWithAcceptedStatus.Status);
-            Assert.IsNull(_dutWithAcceptedStatus.Participants
-                .First(p => p.Organization == Organization.ConstructionCompany).SignedAtUtc);
+            var constructionCompany = _dutWithAcceptedStatus.Participants.First(p => p.Organization == Organization.ConstructionCompany);
+            Assert.IsNull(constructionCompany.SignedAtUtc);
             Assert.IsNull(_dutWithAcceptedStatus.AcceptedBy);
             Assert.IsNull(_dutWithAcceptedStatus.AcceptedAtUtc);
         }
@@ -882,9 +989,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _currentPerson,
                 _personParticipant2.RowVersion.ConvertToString());
 
-            Assert.AreEqual(_currentUserId,
-                _dutDpIpo.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid).SignedBy);
-            Assert.IsNotNull(_dutDpIpo.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid).SignedAtUtc);
+            var participant = _dutDpIpo.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid);
+            Assert.AreEqual(_currentUserId, participant.SignedBy);
+            Assert.IsNotNull(participant.SignedAtUtc);
         }
 
         [TestMethod]
@@ -920,7 +1027,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);
             Assert.AreEqual(dut.Status, IpoStatus.Canceled);
-            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count());
+            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count);
         }
 
         [TestMethod]
