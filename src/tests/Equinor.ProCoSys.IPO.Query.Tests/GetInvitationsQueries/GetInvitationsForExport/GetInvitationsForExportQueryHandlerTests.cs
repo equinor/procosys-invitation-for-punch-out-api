@@ -178,12 +178,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     DisciplineType.DP,
                     startTime1,
                     startTime1.AddHours(1),
+                    null,
+                    new List<McPkg> {mcPkg1},
                     null);
 
                 _invitation1.AddParticipant(functionalRoleParticipant1);
                 _invitation1.AddParticipant(personParticipant2);
                 _invitation1.AddParticipant(frPerson1);
-                _invitation1.AddMcPkg(mcPkg1);
 
                 var startTime2 = _timeProvider.UtcNow.AddWeeks(1);
 
@@ -195,12 +196,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     DisciplineType.MDP,
                     startTime2,
                     startTime2.AddHours(1),
-                    null);
+                    null,
+                    null,
+                    new List<CommPkg> { commPkg });
 
                 _invitation2.AddParticipant(functionalRoleParticipant2);
                 _invitation2.AddParticipant(personParticipant1);
                 _invitation2.AddParticipant(frPerson2);
-                _invitation2.AddCommPkg(commPkg);
 
                 var startTime3 = _timeProvider.UtcNow.AddWeeks(2);
 
@@ -212,11 +214,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     DisciplineType.DP,
                     startTime3,
                     startTime3.AddHours(1),
+                    null,
+                    new List<McPkg> { mcPkg2 },
                     null);
 
                 _invitation3.AddParticipant(personParticipant3);
                 _invitation3.AddParticipant(personParticipant4);
-                _invitation3.AddMcPkg(mcPkg2);
 
                 context.Invitations.Add(_invitation1);
                 var history1 = new History(TestPlant, "D1", _invitation1.ObjectGuid, EventType.IpoCreated);

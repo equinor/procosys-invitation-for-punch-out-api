@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -110,6 +111,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
+                    null,
+                    new List<McPkg> { mcPkg1, mcPkg2 },
                     null)
                 {
                     MeetingId = meetingId
@@ -117,8 +120,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 _dpInvitation.AddParticipant(functionalRoleParticipant);
                 _dpInvitation.AddParticipant(personParticipant);
-                _dpInvitation.AddMcPkg(mcPkg1);
-                _dpInvitation.AddMcPkg(mcPkg2);
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
@@ -128,14 +129,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     DisciplineType.MDP,
                     new DateTime(),
                     new DateTime(),
-                    null)
+                    null,
+                    null,
+                    new List<CommPkg> { commPkg })
                 {
                     MeetingId = meetingId
                 };
 
                 _mdpInvitation.AddParticipant(functionalRoleParticipant2);
                 _mdpInvitation.AddParticipant(personParticipant2);
-                _mdpInvitation.AddCommPkg(commPkg);
 
                 context.Invitations.Add(_dpInvitation);
                 context.Invitations.Add(_mdpInvitation);

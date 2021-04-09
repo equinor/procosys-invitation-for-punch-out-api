@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         public void Setup_OkState()
         {
             _invitationValidatorMock = new Mock<IInvitationValidator>();
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
@@ -272,13 +272,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenScopeIsInvalid()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(new List<string>(), _commPkgScope)).Returns(false);
+            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(false);
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either mc scope or comm pkg scope"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope"));
         }
 
         [TestMethod]
@@ -314,7 +314,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("SortKey 0 is reserved for Contractor, and SortKey 1 is reserved for Construction Company"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Contractor must be first and Construction Company must be second"));
         }
     }
 }

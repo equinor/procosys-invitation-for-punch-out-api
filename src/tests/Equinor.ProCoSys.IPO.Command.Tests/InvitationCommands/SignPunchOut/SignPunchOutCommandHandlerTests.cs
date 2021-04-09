@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         private const string _projectName = "Project name";
         private const string _title = "Test title";
         private const string _description = "Test description";
-        private const DisciplineType _type = DisciplineType.DP;
+        private const DisciplineType _typeDp = DisciplineType.DP;
         private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private const string _participantRowVersion = "AAAAAAAAABA=";
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
@@ -75,9 +76,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
                 _projectName,
                 _title,
                 _description,
-                _type,
+                _typeDp,
                 new DateTime(),
                 new DateTime(),
+                null,
+                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
                 null) { MeetingId = _meetingId };
             var participant = new Participant(
                 _plant,

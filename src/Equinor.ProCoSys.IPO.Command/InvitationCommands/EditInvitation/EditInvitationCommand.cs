@@ -23,8 +23,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             string rowVersion)
         {
             InvitationId = invitationId;
-            UpdatedMcPkgScope = updatedMcPkgScope != null ? updatedMcPkgScope.ToList() : new List<string>();
-            UpdatedCommPkgScope = updatedCommPkgScope != null ? updatedCommPkgScope.ToList() : new List<string>();
+            UpdatedMcPkgScope = updatedMcPkgScope?.ToList() ?? new List<string>();
+            UpdatedCommPkgScope = updatedCommPkgScope?.ToList() ?? new List<string>();
             UpdatedParticipants = updatedParticipants;
             Description = description;
             Location = location;

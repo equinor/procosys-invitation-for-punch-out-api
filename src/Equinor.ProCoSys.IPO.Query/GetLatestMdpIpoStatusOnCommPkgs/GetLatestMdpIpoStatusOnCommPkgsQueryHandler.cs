@@ -25,15 +25,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
                 from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
                     .DefaultIfEmpty()
-                from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
-                    .DefaultIfEmpty()
                     where i.ProjectName == request.ProjectName &&
                           i.Type == DisciplineType.MDP &&
                           i.Status != IpoStatus.Canceled &&
-                          (request.CommPkgNos.Contains(c.CommPkgNo) ||
-                           request.CommPkgNos.Contains(mc.CommPkgNo))
+                          request.CommPkgNos.Contains(c.CommPkgNo)
                     select new CommPkgsWithMdpIposDto(
-                        c.CommPkgNo ?? mc.CommPkgNo,
+                        c.CommPkgNo,
                         i.Id,
                         i.CreatedAtUtc,
                         i.Status == IpoStatus.Accepted))
