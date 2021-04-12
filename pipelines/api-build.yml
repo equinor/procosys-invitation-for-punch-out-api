@@ -34,6 +34,10 @@ stages:
     testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
 
   jobs:
+  - job: NuGetAuth
+    steps:
+    - task: NuGetAuthenticate@0
+      displayName: 'NuGet Authenticate'
   # Run Test
   - template: /templates/pipelines/runtest.yml@templates
     parameters:
@@ -105,11 +109,6 @@ stages:
     aspNetCoreEnvironment: 'Development'
 
   jobs:
-  - job: NuGetAuth
-    steps:
-    - task: NuGetAuthenticate@0
-      displayName: 'NuGet Authenticate'
-
   # Run Migration Script (Predeploy)
   - template: /templates/pipelines/runsqlmigrate-ipo.yml@templates
     parameters:
