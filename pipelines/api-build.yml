@@ -35,6 +35,8 @@ stages:
 
   jobs:
   - job: NuGetAuth
+    pool: 
+      vmImage: 'windows-2019'
     steps:
     - task: NuGetAuthenticate@0
       displayName: 'NuGet Authenticate'
