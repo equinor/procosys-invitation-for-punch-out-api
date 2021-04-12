@@ -37,8 +37,6 @@ stages:
   - job: NuGetAuth
     pool: 
       vmImage: 'windows-2019'
-    envName: 'nugetAuth'
-    envGroup: '${{ variables.envGroupName }}'
     steps:
     - task: NuGetAuthenticate@0
       displayName: 'NuGet Authenticate'
@@ -46,7 +44,7 @@ stages:
   - template: /templates/pipelines/runtest.yml@templates
     parameters:
       deploymentName: 'runtests'
-      dependsOn: 'nugetAuth'
+      dependsOn: 'NuGetAuth'
       envGroup: '${{ variables.envGroupName }}'
       testPath: '${{ variables.testPath }}'
 
