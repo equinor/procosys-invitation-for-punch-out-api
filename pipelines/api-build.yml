@@ -105,6 +105,11 @@ stages:
     aspNetCoreEnvironment: 'Development'
 
   jobs:
+  - job: NuGetAuth
+    steps:
+    - task: NuGetAuthenticate@0
+      displayName: 'NuGet Authenticate'
+
   # Run Migration Script (Predeploy)
   - template: /templates/pipelines/runsqlmigrate-ipo.yml@templates
     parameters:
