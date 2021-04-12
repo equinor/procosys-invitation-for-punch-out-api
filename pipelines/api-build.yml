@@ -34,20 +34,26 @@ stages:
     testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
 
   jobs:
-  - job: NuGetAuth
+  # Run Test
+  - deployment: 'runtests'
+    dependsOn: ''
     pool: 
       vmImage: 'windows-2019'
-    steps:
-    - task: NuGetAuthenticate@0
-      displayName: 'NuGet Authenticate'
-  # Run Test
-  - template: /templates/pipelines/runtest.yml@templates
-    parameters:
-      deploymentName: 'runtests'
-      dependsOn: 'NuGetAuth'
-      envGroup: '${{ variables.envGroupName }}'
-      testPath: '${{ variables.testPath }}'
-
+    environment: '${{ variables.envGroupName }}'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: NuGetAuthenticate@0
+            displayName: 'NuGet Authenticate'
+          - task: DotNetCoreCLI@2
+            displayName: 'Run tests'
+            inputs:
+              command: 'test'
+              projects: '${{ variables.testPath }}'
+              arguments: '-c Release'
+              testRunTitle: 'run test'
 # Build stage. Docker build, tag and push
 - stage: build
   displayName: 'Build'
