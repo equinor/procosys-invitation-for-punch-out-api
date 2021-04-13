@@ -30,7 +30,7 @@ variables:
 
 name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 
-stages:
+#stages:
 # Run tests Stage
 #- stage: runtests
 #  displayName: 'Run tests'
