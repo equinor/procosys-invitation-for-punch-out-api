@@ -71,7 +71,7 @@ stages:
       envGroup: '${{ variables.envGroupName }}'
       buildCommand: build
       versionNumber: ${{ variables.versionNumber }}
-      arguments: '--build-arg VSS_NUGET_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
+      arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
       dockerfilePath: '${{ variables.dockerfilePath }}'
       buildContext: '$(Build.SourcesDirectory)/src'
       repository: '${{ variables.repositoryName }}'
