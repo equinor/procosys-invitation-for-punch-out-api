@@ -48,6 +48,7 @@ stages:
 #      envGroup: '${{ variables.envGroupName }}'
 #      testPath: '${{ variables.testPath }}'
 
+
 # Build stage. Docker build, tag and push
 - stage: build
   displayName: 'Build'
