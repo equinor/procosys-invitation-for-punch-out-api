@@ -1,7 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         [TestMethod]
         public void GetAttachmentDownloadUri_ReturnCorrectUri()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2020, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2020, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc));
             var attachment = new Attachment("PCS$TESTPLANT", "testfile.txt");
             var blobStorageMock = new Mock<IBlobStorage>();
             blobStorageMock.Setup(x => x.GetDownloadSasUri(It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))

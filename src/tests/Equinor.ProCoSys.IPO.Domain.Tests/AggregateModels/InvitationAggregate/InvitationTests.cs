@@ -4,7 +4,7 @@ using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestInitialize]
         public void Setup()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc));
             _mcPkg1 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc1", "MC D", System);
             _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2", System);
             _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK", "1|2");
@@ -1010,7 +1010,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void CancelIpo_SetsStatusToCanceled()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc));
 
             var dut = new Invitation(
                 TestPlant,
@@ -1033,7 +1033,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void CancelIpo_IpoIsAlreadyCanceled_ThrowsException()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc));
 
             var dut = new Invitation(
                 TestPlant,
@@ -1055,7 +1055,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void CancelIpo_IpoIsAccepted_ThrowsException()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
 
             var dut = new Invitation(
@@ -1081,7 +1081,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void CancelIpo_CallerIsNotCreator_ThrowsException()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
             var caller = new Person(new Guid("99999999-9999-9999-9999-999999999999"), "Another", "Person", "ap", "ap@pcs.pcs");
 

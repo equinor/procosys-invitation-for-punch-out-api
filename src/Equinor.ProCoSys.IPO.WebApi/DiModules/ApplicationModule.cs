@@ -1,18 +1,14 @@
-﻿using Equinor.ProCoSys.PcsBus;
-using Equinor.ProCoSys.PcsBus.Receiver;
-using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
-using Equinor.ProCoSys.IPO.BlobStorage;
+﻿using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -33,6 +29,9 @@ using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
+using Equinor.ProCoSys.PcsBus.Receiver;
+using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
+using HeboTech.TimeService;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -44,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
     {
         public static void AddApplicationModules(this IServiceCollection services, IConfiguration configuration)
         {
-            TimeService.SetProvider(new SystemTimeProvider());
+            TimeService.Set(TimeProviders.SystemTimeUtc);
 
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));

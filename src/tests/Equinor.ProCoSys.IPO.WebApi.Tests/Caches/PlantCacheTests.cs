@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.Infrastructure.Caching;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Caches
         [TestInitialize]
         public void Setup()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
+            TimeService.SetConstant(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
             optionsMock

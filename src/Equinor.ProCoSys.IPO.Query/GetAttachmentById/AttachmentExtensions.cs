@@ -1,7 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
         {
             var fullBlobPath = string.Join('/', blobStorageOptions.BlobContainer, attachment.BlobPath);
 
-            var now = TimeService.UtcNow;
+            var now = TimeService.Now;
             var uri = blobStorage.GetDownloadSasUri(
                 fullBlobPath,
                 new DateTimeOffset(now.AddMinutes(blobStorageOptions.BlobClockSkewMinutes * -1)),

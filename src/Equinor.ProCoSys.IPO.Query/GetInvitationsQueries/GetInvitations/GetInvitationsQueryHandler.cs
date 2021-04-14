@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             IReadOnlyContext context)
         {
             _context = context;
-            _utcNow = TimeService.UtcNow;
+            _utcNow = TimeService.Now;
         }
 
         public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)

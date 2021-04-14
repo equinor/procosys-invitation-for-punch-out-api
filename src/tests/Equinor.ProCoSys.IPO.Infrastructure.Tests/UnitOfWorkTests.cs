@@ -5,7 +5,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +24,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IEventDispatcher> _eventDispatcherMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private ManualTimeProvider _timeProvider;
 
         [TestInitialize]
         public void Setup()
@@ -41,8 +40,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
-            _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
-            TimeService.SetProvider(_timeProvider);
+            TimeService.SetConstant(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
         }
 
         [TestMethod]

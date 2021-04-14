@@ -3,7 +3,7 @@ using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +24,6 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected IPlantProvider _plantProvider;
         protected ICurrentUserProvider _currentUserProvider;
         protected IEventDispatcher _eventDispatcher;
-        protected ManualTimeProvider _timeProvider;
 
         [TestInitialize]
         public void SetupBase()
@@ -40,8 +39,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             var eventDispatcher = new Mock<IEventDispatcher>();
             _eventDispatcher = eventDispatcher.Object;
 
-            _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
-            TimeService.SetProvider(_timeProvider);
+            TimeService.SetConstant(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
 
             _dbContextOptions = new DbContextOptionsBuilder<IPOContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())

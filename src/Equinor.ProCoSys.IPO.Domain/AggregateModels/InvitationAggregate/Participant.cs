@@ -1,7 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)
         {
-            CreatedAtUtc = TimeService.UtcNow;
+            CreatedAtUtc = TimeService.Now;
             if (createdBy == null)
             {
                 throw new ArgumentNullException(nameof(createdBy));
@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
         public void SetModified(Person modifiedBy)
         {
-            ModifiedAtUtc = TimeService.UtcNow;
+            ModifiedAtUtc = TimeService.Now;
             if (modifiedBy == null)
             {
                 throw new ArgumentNullException(nameof(modifiedBy));

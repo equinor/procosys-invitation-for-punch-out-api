@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using HeboTech.TimeService;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -98,8 +98,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 context.Invitations.Add(_mdpInvitation);
                 context.SaveChangesAsync().Wait();
 
-                var timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
-                TimeService.SetProvider(timeProvider);
+                TimeService.SetConstant(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
 
                 context.Invitations.Add(_mdpInvitation1);
                 context.Invitations.Add(_mdpInvitation2);
