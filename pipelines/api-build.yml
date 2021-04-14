@@ -30,30 +30,29 @@ variables:
 
 name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 
-#stages:
-# Run tests Stage
-#- stage: runtests
-#  displayName: 'Run tests'
-#  variables:
-#    envName: 'runtests'
-#    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
-#    testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
-
-
-#  jobs:
-#  # Run Test
-#  - template: /templates/pipelines/runtest.yml@templates
-#    parameters:
-#      deploymentName: 'runtests'
-#      dependsOn: ''
-#      envGroup: '${{ variables.envGroupName }}'
-#      testPath: '${{ variables.testPath }}'
-
 stages:
+# Run tests Stage
+- stage: runtests
+  displayName: 'Run tests'
+  variables:
+    envName: 'runtests'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
+
+
+  jobs:
+  # Run Test
+  - template: /templates/pipelines/runtest.yml@templates
+    parameters:
+      deploymentName: 'runtests'
+      dependsOn: ''
+      envGroup: '${{ variables.envGroupName }}'
+      testPath: '${{ variables.testPath }}'
+
 # Build stage. Docker build, tag and push
 - stage: build
   displayName: 'Build'
-  #dependsOn: 'runtests'
+  dependsOn: 'runtests'
   variables:
     envName: 'build'
     envRg: '${{ variables.envRgName }}'
@@ -78,15 +77,30 @@ stages:
       repository: '${{ variables.repositoryName }}'
       dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
 
-  # Docker Build and Push (Master Only)
+  # Docker Build (Master Only)
   - template: /templates/pipelines/dockerbuild-ipo.yml@templates
     parameters:
-      deploymentName: 'docker_build_and_push_master_only'
+      deploymentName: 'docker_build_master_only'
       dependsOn: ''
       condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       envGroup: '${{ variables.envGroupName }}'
       arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
-      buildCommand: buildAndPush
+      buildCommand: build
+      versionNumber: ${{ variables.versionNumber }}
+      dockerfilePath: '${{ variables.dockerfilePath }}'
+      buildContext: '$(Build.SourcesDirectory)/src'
+      repository: '${{ variables.repositoryName }}'
+      dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
+
+      # Docker Push (Master Only)
+  - template: /templates/pipelines/dockerbuild-ipo.yml@templates
+    parameters:
+      deploymentName: 'docker_push_master_only'
+      dependsOn: 'docker_build_master_only'
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      envGroup: '${{ variables.envGroupName }}'
+      arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
+      buildCommand: push
       versionNumber: ${{ variables.versionNumber }}
       dockerfilePath: '${{ variables.dockerfilePath }}'
       buildContext: '$(Build.SourcesDirectory)/src'
