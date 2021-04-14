@@ -39,6 +39,7 @@ name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 #    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
 #    testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
 
+
 #  jobs:
 #  # Run Test
 #  - template: /templates/pipelines/runtest.yml@templates
