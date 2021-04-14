@@ -13,14 +13,14 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs
 {
-    public class GetOutstandingIposQueryHandler : IRequestHandler<GetOutstandingIposQuery, Result<OutstandingIposResultDto>>
+    public class GetOutstandingIposForCurrentPersonQueryHandler : IRequestHandler<GetOutstandingIposForCurrentPersonQuery, Result<OutstandingIposResultDto>>
     {
         private readonly IReadOnlyContext _context;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IMeApiService _meApiService;
         private readonly IPlantProvider _plantProvider;
 
-        public GetOutstandingIposQueryHandler(
+        public GetOutstandingIposForCurrentPersonQueryHandler(
             IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IMeApiService meApiService,
@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs
             _plantProvider = plantProvider;
         }
 
-        public async Task<Result<OutstandingIposResultDto>> Handle(GetOutstandingIposQuery request,
+        public async Task<Result<OutstandingIposResultDto>> Handle(GetOutstandingIposForCurrentPersonQuery request,
             CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();

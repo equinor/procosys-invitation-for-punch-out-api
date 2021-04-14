@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Me
             string plant,
             [FromQuery] string projectName)
         {
-            var result = await _mediator.Send(new GetOutstandingIposQuery(projectName));
+            var result = await _mediator.Send(new GetOutstandingIposForCurrentPersonQuery(projectName));
             return this.FromResult(result);
         }
     }
