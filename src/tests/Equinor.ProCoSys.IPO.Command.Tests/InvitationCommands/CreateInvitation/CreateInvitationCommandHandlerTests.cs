@@ -17,6 +17,7 @@ using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -202,7 +203,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _functionalRoleApiServiceMock.Object,
                 _meetingOptionsMock.Object,
                 _personRepositoryMock.Object,
-                _currentUserProviderMock.Object);
+                _currentUserProviderMock.Object,
+                new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
         [TestMethod]
