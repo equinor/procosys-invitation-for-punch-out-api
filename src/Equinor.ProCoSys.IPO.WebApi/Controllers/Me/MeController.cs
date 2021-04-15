@@ -22,10 +22,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Me
         public async Task<ActionResult<OutstandingIposResultDto>> GetOutstandingIpos(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
-            string plant,
-            [FromQuery] string projectName)
+            string plant)
         {
-            var result = await _mediator.Send(new GetOutstandingIposForCurrentPersonQuery(projectName));
+            var result = await _mediator.Send(new GetOutstandingIposForCurrentPersonQuery());
             return this.FromResult(result);
         }
     }
