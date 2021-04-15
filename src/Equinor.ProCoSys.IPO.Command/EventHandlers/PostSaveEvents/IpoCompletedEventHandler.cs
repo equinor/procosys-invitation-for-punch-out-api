@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
         {
             var eventMessage = new BusEventMessage
             {
-                ProjectSchema = notification.Plant, Event = "Completed", InvitationGuid = notification.ObjectGuid
+                Plant = notification.Plant, Event = "Completed", InvitationGuid = notification.ObjectGuid
             };
 
             await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
