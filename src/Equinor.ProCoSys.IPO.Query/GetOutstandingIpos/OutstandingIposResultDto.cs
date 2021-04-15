@@ -11,8 +11,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             MaxAvailable = maxAvailable;
             Items = items;
         }
-        public int MaxAvailable { get; }
 
+        public int MaxAvailable { get; }
         public IEnumerable<OutstandingIpoDetailsDto> Items { get; }
     }
 }

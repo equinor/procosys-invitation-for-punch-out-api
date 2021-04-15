@@ -31,12 +31,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
-            _query = new GetOutstandingIposForCurrentPersonQuery(ProjectName);
+            _query = new GetOutstandingIposForCurrentPersonQuery();
 
             _person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-
                 IList<string> pcsFunctionalRoleCodes = new List<string> { _functionalRoleCode };
 
                 _meApiServiceMock = new Mock<IMeApiService>();
@@ -151,10 +150,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider);
-                IList<string> EmptyListOfFunctionalRoleCodes = new List<string>();
+                IList<string> emptyListOfFunctionalRoleCodes = new List<string>();
                 _meApiServiceMock
                     .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
-                    .Returns(Task.FromResult(EmptyListOfFunctionalRoleCodes));
+                    .Returns(Task.FromResult(emptyListOfFunctionalRoleCodes));
 
                 var result = await dut.Handle(_query, default);
 

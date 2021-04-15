@@ -35,7 +35,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         public void TestInitialize()
         {
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
-            var viewer = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer).Profile;
 
             _participants = new List<ParticipantsForCommand>
             {

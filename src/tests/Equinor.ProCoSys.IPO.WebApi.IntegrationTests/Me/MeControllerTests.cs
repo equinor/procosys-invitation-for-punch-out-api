@@ -28,7 +28,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 _mcPkgScope,
                 null);
 
-            // Act
             var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
@@ -59,6 +58,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 invitationId,
                 completePunchOutDto);
 
+            // Act
             var outstandingIpos = await MeControllerTestsHelper.GetOutstandingIposAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
