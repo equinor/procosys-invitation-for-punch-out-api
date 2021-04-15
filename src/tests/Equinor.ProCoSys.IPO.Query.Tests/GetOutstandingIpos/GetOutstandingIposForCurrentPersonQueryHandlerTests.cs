@@ -23,6 +23,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Mock<IMeApiService> _meApiServiceMock;
         private GetOutstandingIposForCurrentPersonQuery _query;
         private Person _person;
+        private Participant _personParticipant;
+        private Participant _functionalRoleParticipant;
 
         private Invitation _invitationWithPersonParticipant;
         private Invitation _invitationWithFunctionalRoleParticipant;
@@ -67,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
-                var FunctionalRoleParticipant = new Participant(
+                _functionalRoleParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.FunctionalRole,
@@ -78,9 +80,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     1);
-                FunctionalRoleParticipant.SetProtectedIdForTesting(1);
+                _functionalRoleParticipant.SetProtectedIdForTesting(1);
 
-                var PersonParticipant = new Participant(
+                _personParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.Person,
@@ -91,20 +93,20 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     _currentUserOid,
                     0);
-                PersonParticipant.SetProtectedIdForTesting(2);
+                _personParticipant.SetProtectedIdForTesting(2);
 
-                _invitationWithPersonParticipant.AddParticipant(PersonParticipant);
-                _invitationWithFunctionalRoleParticipant.AddParticipant(FunctionalRoleParticipant);
+                _invitationWithPersonParticipant.AddParticipant(_personParticipant);
+                _invitationWithFunctionalRoleParticipant.AddParticipant(_functionalRoleParticipant);
 
                 _invitationWithPersonParticipant.CompleteIpo(
-                    PersonParticipant,
-                    PersonParticipant.RowVersion.ConvertToString(),
+                    _personParticipant,
+                    _personParticipant.RowVersion.ConvertToString(),
                     _person,
                     new DateTime());
 
                 _invitationWithFunctionalRoleParticipant.CompleteIpo(
-                    FunctionalRoleParticipant,
-                    FunctionalRoleParticipant.RowVersion.ConvertToString(),
+                    _functionalRoleParticipant,
+                    _functionalRoleParticipant.RowVersion.ConvertToString(),
                     _person,
                     new DateTime());
 
@@ -161,6 +163,36 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var outstandingInvitation = result.Data.Items.First();
                 Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitation.InvitationId);
                 Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitation.Description);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldReturnOkResult_WhenNoCompletedIpoExists()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithPersonParticipant = context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+
+                var invitationWithFunctionalRoleParticipant =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
+
+                invitationWithPersonParticipant.UnCompleteIpo(
+                    _personParticipant,
+                    _personParticipant.RowVersion.ConvertToString());
+
+                invitationWithFunctionalRoleParticipant.UnCompleteIpo(
+                    _functionalRoleParticipant,
+                    _functionalRoleParticipant.RowVersion.ConvertToString());
+
+                context.SaveChangesAsync().Wait();
+
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider);
+
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(0, result.Data.Items.Count());
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
             }
         }
     }
