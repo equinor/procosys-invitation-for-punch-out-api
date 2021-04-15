@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
-using Equinor.ProCoSys.IPO.Query.GetOutstandingIPOs;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
