@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="9.5.3" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="5.1.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
@@ -19,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Equinor.ProCoSys.BusReceiver\Equinor.ProCoSys.PcsBus.csproj" />
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Command\Equinor.ProCoSys.IPO.Command.csproj" />
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj" />

@@ -22,6 +22,12 @@ variables:
  - name: 'versionNumber'
    value: '1.000.0.'
 
+ - name: NUGET.PLUGIN.HANDSHAKE.TIMEOUT.IN.SECONDS
+   value: 40
+  
+ - name: NUGET.PLUGIN.REQUEST.TIMEOUT.IN.SECONDS
+   value: 40   
+
 name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 
 stages:
@@ -32,6 +38,7 @@ stages:
     envName: 'runtests'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
     testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
+
 
   jobs:
   # Run Test
@@ -64,19 +71,36 @@ stages:
       envGroup: '${{ variables.envGroupName }}'
       buildCommand: build
       versionNumber: ${{ variables.versionNumber }}
+      arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
       dockerfilePath: '${{ variables.dockerfilePath }}'
       buildContext: '$(Build.SourcesDirectory)/src'
       repository: '${{ variables.repositoryName }}'
       dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
 
-  # Docker Build and Push (Master Only)
+  # Docker Build (Master Only)
   - template: /templates/pipelines/dockerbuild-ipo.yml@templates
     parameters:
-      deploymentName: 'docker_build_and_push_master_only'
+      deploymentName: 'docker_build_master_only'
       dependsOn: ''
       condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       envGroup: '${{ variables.envGroupName }}'
-      buildCommand: buildAndPush
+      arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
+      buildCommand: build
+      versionNumber: ${{ variables.versionNumber }}
+      dockerfilePath: '${{ variables.dockerfilePath }}'
+      buildContext: '$(Build.SourcesDirectory)/src'
+      repository: '${{ variables.repositoryName }}'
+      dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
+
+      # Docker Push (Master Only)
+  - template: /templates/pipelines/dockerbuild-ipo.yml@templates
+    parameters:
+      deploymentName: 'docker_push_master_only'
+      dependsOn: 'docker_build_master_only'
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      envGroup: '${{ variables.envGroupName }}'
+      arguments: ''
+      buildCommand: push
       versionNumber: ${{ variables.versionNumber }}
       dockerfilePath: '${{ variables.dockerfilePath }}'
       buildContext: '$(Build.SourcesDirectory)/src'

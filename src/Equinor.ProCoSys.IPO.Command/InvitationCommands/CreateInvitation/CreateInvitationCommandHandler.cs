@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
     {
         private const string _objectName = "IPO";
         private readonly IList<string> _signerPrivileges = new List<string> { "SIGN" };
+        private readonly ILogger<CreateInvitationCommandHandler> _logger;
 
         private readonly IPlantProvider _plantProvider;
         private readonly IFusionMeetingClient _meetingClient;
@@ -46,7 +48,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions,
             IPersonRepository personRepository,
-            ICurrentUserProvider currentUserProvider)
+            ICurrentUserProvider currentUserProvider,
+            ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
             _meetingClient = meetingClient;
@@ -59,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
             _currentUserProvider = currentUserProvider;
+            _logger = logger;
         }
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
@@ -393,6 +397,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IReadOnlyCollection<BuilderParticipant> participants,
             Invitation invitation)
         {
+            foreach (var participant in participants)
+            {
+                _logger.LogInformation($"Adding {participant.Person.AzureUniqueId} - {participant.Person.Mail} to invitation");
+            }
+
             var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
 
             var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>

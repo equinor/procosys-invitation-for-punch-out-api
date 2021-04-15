@@ -11,8 +11,6 @@ COPY Equinor.ProCoSys.IPO.Query/*.csproj ./Equinor.ProCoSys.IPO.Query/
 COPY Equinor.ProCoSys.IPO.WebApi/*.csproj ./Equinor.ProCoSys.IPO.WebApi/
 COPY tests/Equinor.ProCoSys.IPO.WebApi.Tests/*.csproj ./tests/Equinor.ProCoSys.IPO.WebApi.Tests/
 COPY tests/Equinor.ProCoSys.IPO.Test.Common/*.csproj ./tests/Equinor.ProCoSys.IPO.Test.Common/
-COPY tests/Equinor.ProCoSys.BusReceiverTests/*.csproj ./tests/Equinor.ProCoSys.BusReceiverTests/
-COPY Equinor.ProCoSys.BusReceiver/*.csproj ./Equinor.ProCoSys.BusReceiver/
 
 COPY nuget.config .
 
@@ -23,6 +21,13 @@ COPY . .
 WORKDIR "/src/Equinor.ProCoSys.IPO.WebApi"
 
 # Build
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+ENV NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED true
+ARG FEED_ACCESSTOKEN
+RUN echo $FEED_ACCESSTOKEN
+ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS="{\"endpointCredentials\": [{\"endpoint\":\"https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json\", \"username\":\"docker\", \"password\":\"${FEED_ACCESSTOKEN}\"}]}"
+RUN echo $VSS_NUGET_EXTERNAL_FEED_ENDPOINTS
+RUN wget -qO- https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | bash
 RUN dotnet build "Equinor.ProCoSys.IPO.WebApi.csproj" -c Release
 
 # Publish the application
