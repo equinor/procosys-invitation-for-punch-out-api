@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -57,6 +58,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
+        public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
 
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
@@ -177,6 +179,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
                 services.AddScoped(serviceProvider => BlobStorageMock.Object);
                 services.AddScoped(serviceProvider => PcsBusSenderMock.Object);
+                services.AddScoped(serviceProvider => EmailServiceMock.Object);
             });
 
             builder.ConfigureServices(services =>

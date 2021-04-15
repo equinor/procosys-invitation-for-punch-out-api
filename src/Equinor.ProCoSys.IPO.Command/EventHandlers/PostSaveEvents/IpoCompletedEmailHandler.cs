@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl;
             var id = notification.Invitation.Id;
             var title = notification.Invitation.Title;
-            var plant = notification.Plant.Split('$')[1];
+            var plant = GetPlantName(notification.Plant);
 
             var subject = $"Completed notification: IPO-{id}";
             var body =
@@ -43,5 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 
             return _emailService.SendEmailAsync(constructionCompanyParticipant.Email, subject, body, cancellationToken);
         }
+
+        private static string GetPlantName(string plant) => plant.Contains('$') ? plant.Split('$')[1] : plant;
     }
 }

@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "TestPlant";
+            var plant = "PCS$TestPlant";
             var commpkgs = new List<CommPkg>()
             {
                 new CommPkg(plant, "project", "commpkgno", "description", "status", "system|subsystem")
