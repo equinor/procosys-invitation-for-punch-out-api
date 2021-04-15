@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
         {
             var eventMessage = new BusEventMessage
             {
-                ProjectSchema = notification.Plant,
+                Plant = notification.Plant,
                 Event = "UnAccepted",
                 InvitationGuid = notification.ObjectGuid
             };
