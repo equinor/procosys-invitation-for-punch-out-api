@@ -99,7 +99,7 @@ stages:
       dependsOn: 'docker_build_master_only'
       condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       envGroup: '${{ variables.envGroupName }}'
-      arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
+      arguments: ''
       buildCommand: push
       versionNumber: ${{ variables.versionNumber }}
       dockerfilePath: '${{ variables.dockerfilePath }}'
