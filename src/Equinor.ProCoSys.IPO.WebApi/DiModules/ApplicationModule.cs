@@ -1,7 +1,4 @@
-﻿using Equinor.ProCoSys.PcsBus;
-using Equinor.ProCoSys.PcsBus.Receiver;
-using Equinor.ProCoSys.PcsBus.Receiver.Interfaces;
-using Equinor.ProCoSys.IPO.BlobStorage;
+﻿using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -33,6 +30,8 @@ using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
+using Equinor.ProCoSys.PcsServiceBus.Receiver;
+using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
