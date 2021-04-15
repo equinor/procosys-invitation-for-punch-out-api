@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -11,6 +12,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus;
+using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -95,6 +97,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
+        public void Testlkj()
+        {
+            var k = "{ \"Plant\" : \"PCS$HEIDRUN\", \"ProjectName\" : \"M.O095C.20.A.0014\", \"CommPkgNo\" : \"7303-C01\", \"McPkgNo\" : \"7303-M001\", \"Description\" : \"Midlertidig kran\"}";
+            var mcPkgTopic = JsonSerializer.Deserialize<McPkgTopic>(k);
+        }
+        
+
+    [TestMethod]
         public async Task HandlingProjectTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project}\", \"Description\" : \"{description}\"}}";
