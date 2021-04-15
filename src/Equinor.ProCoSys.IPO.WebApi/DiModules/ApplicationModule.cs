@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Email;
+using Equinor.ProCoSys.IPO.Email.Settings;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -52,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<AuthenticatorOptions>(configuration.GetSection("Authenticator"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
-            services.Configure<EmailService>(configuration.GetSection("Email"));
+            services.Configure<EmailOptions>(configuration.GetSection("Email"));
 
             services.AddDbContext<IPOContext>(options =>
             {
