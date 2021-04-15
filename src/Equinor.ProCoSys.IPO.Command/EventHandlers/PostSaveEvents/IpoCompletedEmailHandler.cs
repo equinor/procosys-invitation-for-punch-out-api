@@ -33,12 +33,13 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl;
             var id = notification.Invitation.Id;
             var title = notification.Invitation.Title;
+            var plant = notification.Plant.Split('$')[1];
 
             var subject = $"Completed notification: IPO-{id}";
             var body =
-                $"<p>IPO-{id}: {title} has been completed and is ready for your attention.</p>" +
+                $"<p>IPO-{id}: {title} has been completed and is ready for your attention to sign and accept.</p>" +
                 "<p>Click the link to review " +
-                $"<a href=\"{baseUrl}/{notification.Plant}/InvitationForPunchOut/{id}\">IPO-{id}</a>.</p>";
+                $"<a href=\"{baseUrl}{plant}/InvitationForPunchOut/{id}\">IPO-{id}</a>.</p>";
 
             return _emailService.SendEmailAsync(constructionCompanyParticipant.Email, subject, body, cancellationToken);
         }
