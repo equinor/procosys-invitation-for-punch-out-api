@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
-                    {BusReceiverTelemetryConstants.ProjectSchema, mcPkgEvent.Plant[4..]},
+                    {BusReceiverTelemetryConstants.Plant, mcPkgEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(mcPkgEvent.Plant);
@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
                     {BusReceiverTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                    {BusReceiverTelemetryConstants.ProjectSchema, commPkgEvent.Plant[4..]},
+                    {BusReceiverTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(commPkgEvent.Plant);
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 new Dictionary<string, string>
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.ProjectSchema, projectEvent.Plant[4..]},
+                    {BusReceiverTelemetryConstants.Plant, projectEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(projectEvent.Plant);
@@ -145,7 +145,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 new Dictionary<string, string>
                 {
                     {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.ProjectSchema, ipoEvent.Plant[4..]},
+                    {BusReceiverTelemetryConstants.Plant, ipoEvent.Plant[4..]},
                     {BusReceiverTelemetryConstants.Ipo, ipoEvent.InvitationGuid},
                     {BusReceiverTelemetryConstants.IpoEvent, ipoEvent.Event}
                 });
