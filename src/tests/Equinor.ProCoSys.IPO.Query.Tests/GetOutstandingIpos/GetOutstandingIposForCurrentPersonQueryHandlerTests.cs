@@ -171,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitationWithPersonParticipant = 
+                var invitationWithPersonParticipant =
                     context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
 
                 var invitationWithFunctionalRoleParticipant =
@@ -186,7 +186,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     _functionalRoleParticipant.RowVersion.ConvertToString());
 
                 context.SaveChangesAsync().Wait();
+            }
 
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider);
 
