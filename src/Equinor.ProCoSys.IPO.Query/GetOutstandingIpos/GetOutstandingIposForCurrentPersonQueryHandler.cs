@@ -36,6 +36,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
+            //We could have filtered based on project access, however
+            //the scenario that a person should lose access to a single project
+            //in a plant after being added to the invitation is (according to the client)
+            //so unlikely that we do not need to take it into consideration
             var completedInvitations = await (from i in _context.QuerySet<Invitation>()
                     .Include(ss => ss.Participants)
                                               where i.CompletedAtUtc.HasValue
