@@ -9,7 +9,9 @@ using Equinor.ProCoSys.IPO.WebApi.DIModules;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Seeding;
+using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
+using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -166,12 +168,15 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
-
                 
+                services.AddTopicClients(
+                    Configuration.GetConnectionString("ServiceBus"),
+                    Configuration["ServiceBus:TopicNames"]);
             }
-            services.AddTopicClients(
-                Configuration.GetConnectionString("ServiceBus"),
-                Configuration["ServiceBus:TopicNames"]);
+            else
+            {
+                services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
