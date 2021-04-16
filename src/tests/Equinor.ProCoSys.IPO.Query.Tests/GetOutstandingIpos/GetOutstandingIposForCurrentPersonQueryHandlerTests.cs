@@ -171,7 +171,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitationWithPersonParticipant = context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+                var invitationWithPersonParticipant = 
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
 
                 var invitationWithFunctionalRoleParticipant =
                     context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
@@ -193,6 +194,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 Assert.AreEqual(0, result.Data.Items.Count());
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldNotCheckForPersonsFunctionalRoles_WhenNoInvitationsExist()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithPersonParticipant =
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+
+                var invitationWithFunctionalRoleParticipant =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
+
+                context.Remove(invitationWithPersonParticipant);
+                context.Remove(invitationWithFunctionalRoleParticipant);
+
+                context.SaveChangesAsync().Wait();
+
+                var existingCompletedInvitations = context.Invitations.Count(i => i.CompletedAtUtc != null);
+                Assert.AreEqual(0, existingCompletedInvitations);
+
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider);
+
+                await dut.Handle(_query, default);
+
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Never);
             }
         }
     }

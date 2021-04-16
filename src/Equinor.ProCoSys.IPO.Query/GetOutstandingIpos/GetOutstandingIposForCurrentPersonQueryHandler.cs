@@ -36,9 +36,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-            var currentUsersFunctionalRoleCodes =
-                await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
-
             var completedInvitations = await (from i in _context.QuerySet<Invitation>()
                     .Include(ss => ss.Participants)
                                               where i.CompletedAtUtc.HasValue
@@ -47,6 +44,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             var currentUsersOutstandingInvitations = new List<Invitation>();
             foreach (var invitation in completedInvitations)
             {
+                var currentUsersFunctionalRoleCodes =
+                    await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
+
                 if (UserWasInvitedAsPersonParticipant(invitation, currentUserOid))
                 {
                     currentUsersOutstandingInvitations.Add(invitation);
