@@ -117,7 +117,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             // Singleton - Created the first time they are requested
             services.AddSingleton<ICacheManager, CacheManager>();
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
-            services.AddSingleton<IEmailService, EmailService>();
+
+            if (configuration.GetValue<bool>("EnableEmailService"))
+            {
+                services.AddSingleton<IEmailService, EmailService>();
+            }
         }
     }
 }

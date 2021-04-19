@@ -1,5 +1,5 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using System.Collections.Generic;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
@@ -9,14 +9,20 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
         public IpoCompletedEvent(
             string plant,
             Guid objectGuid,
-            Invitation invitation)
+            int id,
+            string title,
+            List<string> emails)
         {
             Plant = plant;
             ObjectGuid = objectGuid;
-            Invitation = invitation;
+            Id = id;
+            Title = title;
+            Emails = emails;
         }
         public string Plant { get; }
         public Guid ObjectGuid { get; }
-        public Invitation Invitation { get; }
+        public int Id { get; }
+        public string Title { get; }
+        public List<string> Emails { get; }
     }
 }

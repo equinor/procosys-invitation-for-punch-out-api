@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,13 +23,18 @@ namespace Equinor.ProCoSys.IPO.Email
                 EnableSsl = _emailOptions.EnableSsl,
                 Credentials = new NetworkCredential(_emailOptions.From, _emailOptions.Password)
             };
-        } 
+        }
 
-        public Task SendEmailAsync(string toEmail, string subject, string body, CancellationToken token = default)
+        public Task SendEmailsAsync(List<string> emails, string subject, string body,
+            CancellationToken token = default)
         {
             var message =
-                new MailMessage(_emailOptions.From, toEmail) {Subject = subject, Body = body, IsBodyHtml = true};
+                new MailMessage(_emailOptions.From, emails[0]) {Subject = subject, Body = body, IsBodyHtml = true};
 
+            foreach (var email in emails.Skip(1))
+            {
+                message.To.Add(email);
+            }
 
             return _client.SendMailAsync(message, token);
         }

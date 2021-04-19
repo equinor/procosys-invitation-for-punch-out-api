@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.Email;
 using MediatR;
@@ -22,28 +20,23 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 
         public Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
         {
-            var constructionCompanyParticipant = notification.Invitation.Participants.SingleOrDefault(p =>
-                p.SortKey == 1 && p.Organization == Organization.ConstructionCompany);
-
-            if (constructionCompanyParticipant?.Email == null)
+            if (notification.Emails.Count == 0)
             {
                 return Task.CompletedTask;
             }
 
             var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl;
-            var id = notification.Invitation.Id;
-            var title = notification.Invitation.Title;
-            var plant = GetPlantName(notification.Plant);
+            var id = notification.Id;
+            var title = notification.Title;
+            var plantId = notification.Plant.Split('$')[1];
 
             var subject = $"Completed notification: IPO-{id}";
             var body =
                 $"<p>IPO-{id}: {title} has been completed and is ready for your attention to sign and accept.</p>" +
                 "<p>Click the link to review " +
-                $"<a href=\"{baseUrl}{plant}/InvitationForPunchOut/{id}\">IPO-{id}</a>.</p>";
+                $"<a href=\"{baseUrl}{plantId}/InvitationForPunchOut/{id}\">IPO-{id}</a>.</p>";
 
-            return _emailService.SendEmailAsync(constructionCompanyParticipant.Email, subject, body, cancellationToken);
+            return _emailService.SendEmailsAsync(notification.Emails, subject, body, cancellationToken);
         }
-
-        private static string GetPlantName(string plant) => plant.Contains('$') ? plant.Split('$')[1] : plant;
     }
 }

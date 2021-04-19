@@ -831,7 +831,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void CompleteIpo_ShouldAddCompleteIpoEvent()
+        public void CompleteIpo_ShouldAddCompleteIpoPreSaveEvent()
         {
             _dutDpIpo.CompleteIpo(
                 _personParticipant,
@@ -840,6 +840,18 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime());
 
             Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(IpoCompletedEvent));
+        }
+
+        [TestMethod]
+        public void CompleteIpo_ShouldAddCompleteIpoPostSaveEvent()
+        {
+            _dutDpIpo.CompleteIpo(
+                _personParticipant,
+                ParticipantRowVersion,
+                _currentPerson,
+                new DateTime());
+
+            Assert.IsInstanceOfType(_dutDpIpo.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoCompletedEvent));
         }
         #endregion
 
@@ -867,13 +879,23 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void UnCompleteIpo_ShouldAddUnCompleteIpoEvent()
+        public void UnCompleteIpo_ShouldAddUnCompleteIpoPreSaveEvent()
         {
             _dutWithCompletedStatus.UnCompleteIpo(
                 _personParticipant,
                 ParticipantRowVersion);
 
             Assert.IsInstanceOfType(_dutWithCompletedStatus.PreSaveDomainEvents.Last(), typeof(IpoUnCompletedEvent));
+        }
+
+        [TestMethod]
+        public void UnCompleteIpo_ShouldAddUnCompleteIpoPostSaveEvent()
+        {
+            _dutWithCompletedStatus.UnCompleteIpo(
+                _personParticipant,
+                ParticipantRowVersion);
+
+            Assert.IsInstanceOfType(_dutWithCompletedStatus.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoUnCompletedEvent));
         }
         #endregion
 
@@ -908,7 +930,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void AcceptIpo_ShouldAddAcceptIpoEvent()
+        public void AcceptIpo_ShouldAddAcceptIpoPreSaveEvent()
         {
             _dutWithCompletedStatus.AcceptIpo(
                 _functionalRoleParticipant,
@@ -917,13 +939,24 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime());
 
             Assert.IsInstanceOfType(_dutWithCompletedStatus.PreSaveDomainEvents.Last(), typeof(IpoAcceptedEvent));
+        }
+
+        [TestMethod]
+        public void AcceptIpo_ShouldAddAcceptIpoPostSaveEvent()
+        {
+            _dutWithCompletedStatus.AcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
+
             Assert.IsInstanceOfType(_dutWithCompletedStatus.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoAcceptedEvent));
         }
         #endregion
 
         #region Unaccept
         [TestMethod]
-        public void UnAcceptIpo_ShouldAddUnAcceptIpoEvent()
+        public void UnAcceptIpo_ShouldAddUnAcceptIpoPreSaveEvent()
         {
             _dutWithCompletedStatus.AcceptIpo(
                 _functionalRoleParticipant,
@@ -936,6 +969,21 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _functionalRoleParticipant.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutWithCompletedStatus.PreSaveDomainEvents.Last(), typeof(IpoUnAcceptedEvent));
+        }
+
+        [TestMethod]
+        public void UnAcceptIpo_ShouldAddUnAcceptIpoPostSaveEvent()
+        {
+            _dutWithCompletedStatus.AcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _currentPerson,
+                new DateTime());
+
+            _dutWithCompletedStatus.UnAcceptIpo(
+                _functionalRoleParticipant,
+                _functionalRoleParticipant.RowVersion.ConvertToString());
+
             Assert.IsInstanceOfType(_dutWithCompletedStatus.PostSaveDomainEvents.Last(), typeof(Events.PostSave.IpoUnAcceptedEvent));
         }
 

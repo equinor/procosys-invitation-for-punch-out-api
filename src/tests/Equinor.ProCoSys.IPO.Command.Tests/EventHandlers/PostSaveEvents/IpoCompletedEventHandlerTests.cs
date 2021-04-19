@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -31,9 +32,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "TestPlant";
-            var invitationMock = new Mock<Invitation>();
-            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, invitationMock.Object);
+            var plant = "PCS$TestPlant";
+            var emails = new List<string>() {"email1@test.com", "email2@test.com"};
+            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, 1234, "Invitation title", emails);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);

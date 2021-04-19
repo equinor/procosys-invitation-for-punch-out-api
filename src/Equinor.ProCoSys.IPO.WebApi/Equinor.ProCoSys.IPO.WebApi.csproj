@@ -39,7 +39,6 @@
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Command\Equinor.ProCoSys.IPO.Command.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
-    <ProjectReference Include="..\Equinor.ProCoSys.IPO.Email\Equinor.ProCoSys.IPO.Email.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Infrastructure\Equinor.ProCoSys.IPO.Infrastructure.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Query\Equinor.ProCoSys.IPO.Query.csproj" />

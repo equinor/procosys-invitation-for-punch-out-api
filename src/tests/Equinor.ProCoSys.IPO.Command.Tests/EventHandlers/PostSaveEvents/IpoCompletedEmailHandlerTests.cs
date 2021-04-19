@@ -43,14 +43,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
                 DateTime.Now, "location", null, commpkgs);
             invitation.AddParticipant(new Participant(plant, Organization.ConstructionCompany,
                 IpoParticipantType.Person, "code", "firstname", "lastname", "username", "email", Guid.NewGuid(), 1));
-            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, invitation);
+            var emails = new List<string>() {"email1@test.com", "email2@test.com"};
+            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, invitation.Id, invitation.Title, emails);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);
 
             // Assert
             _emailServiceMock.Verify(
-                t => t.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                t => t.SendEmailsAsync(It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Once());
         }
     }
