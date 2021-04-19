@@ -4,15 +4,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 {
     public class OutstandingIposResultDto
     {
-        public OutstandingIposResultDto(
-            int maxAvailable,
-            IEnumerable<OutstandingIpoDetailsDto> items)
-        {
-            MaxAvailable = maxAvailable;
-            Items = items;
-        }
+        public OutstandingIposResultDto(IEnumerable<OutstandingIpoDetailsDto> items) => Items = items;
 
-        public int MaxAvailable { get; }
         public IEnumerable<OutstandingIpoDetailsDto> Items { get; }
     }
 }

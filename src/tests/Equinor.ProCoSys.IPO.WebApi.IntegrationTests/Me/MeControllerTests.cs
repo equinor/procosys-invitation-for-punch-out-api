@@ -66,7 +66,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
 
             // Assert
             var outstandingIpo = outstandingIpos.Items.Single(oi => oi.InvitationId == invitationId);
-            Assert.IsTrue(outstandingIpos.MaxAvailable == 1);
             Assert.IsNotNull(outstandingIpo);
             Assert.AreEqual(invitationId, outstandingIpo.InvitationId);
             Assert.AreEqual(invitation.Description, outstandingIpo.Description);

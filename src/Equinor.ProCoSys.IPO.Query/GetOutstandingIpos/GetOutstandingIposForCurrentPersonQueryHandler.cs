@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 }
             }
 
-            var outstandingIposResultDto = new OutstandingIposResultDto(currentUsersOutstandingInvitations.Count,
+            var outstandingIposResultDto = new OutstandingIposResultDto(
                 currentUsersOutstandingInvitations.Select(invitation => new OutstandingIpoDetailsDto
                 {
                     InvitationId = invitation.Id,
