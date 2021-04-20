@@ -1,0 +1,172 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Fusion.Integration.Meeting;
+using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
+{
+    public class MeControllerTestsBase : TestBase
+    {
+        private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
+        private const string FunctionalRoleCode = "FRC";
+        protected const string InvitationLocation = "InvitationLocation";
+        private readonly IList<string> _functionalRoleCodes = new List<string> {FunctionalRoleCode};
+        private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
+        private List<ProCoSysPerson> _personsInFunctionalRole;
+
+        protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
+        protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
+
+        protected List<ParticipantsForCommand> _participants;
+        protected List<string> _mcPkgScope;
+        private ProCoSysMcPkg _mcPkgDetails;
+
+        protected TestProfile _sigurdSigner;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
+
+            _participants = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    _sigurdSigner.AsPersonForCommand(true),
+                    null,
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    _sigurdSigner.AsPersonForCommand(true),
+                    null,
+                    1),
+                new ParticipantsForCommand(
+                    Organization.TechnicalIntegrity,
+                    null,
+                    _sigurdSigner.AsPersonForCommand(false),
+                    null,
+                    2)
+            };
+
+            const string McPkgNo = "MC1";
+            _mcPkgScope = new List<string> {McPkgNo};
+
+            _mcPkgDetails = new ProCoSysMcPkg
+            {
+                CommPkgNo = KnownTestData.CommPkgNo,
+                Description = "D1",
+                Id = 1,
+                McPkgNo = McPkgNo,
+                System = KnownTestData.System
+            };
+
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails};
+
+            _personsInFunctionalRole = new List<ProCoSysPerson>
+            {
+                new ProCoSysPerson
+                {
+                    AzureOid = AzureOid,
+                    FirstName = "FirstName",
+                    LastName = "LastName",
+                    Email = "Test@email.com",
+                    UserName = "UserName"
+                }
+            };
+
+            _pcsFunctionalRoles = new List<ProCoSysFunctionalRole>
+            {
+                new ProCoSysFunctionalRole
+                {
+                    Code = FunctionalRoleCode,
+                    Description = "Description",
+                    Email = "frEmail@test.com",
+                    InformationEmail = null,
+                    Persons = _personsInFunctionalRole,
+                    UsePersonalEmail = true
+                }
+            };
+
+            var knownGeneralMeeting = new ApiGeneralMeeting
+            {
+                Classification = string.Empty,
+                Contract = null,
+                Convention = string.Empty,
+                DateCreatedUtc = DateTime.MinValue,
+                DateEnd = new ApiDateTimeTimeZoneModel {DateTimeUtc = _invitationEndTime},
+                DateStart = new ApiDateTimeTimeZoneModel {DateTimeUtc = _invitationStartTime},
+                ExternalId = null,
+                Id = KnownTestData.MeetingId,
+                InviteBodyHtml = string.Empty,
+                IsDisabled = false,
+                IsOnlineMeeting = false,
+                Location = InvitationLocation,
+                Organizer = new ApiPersonDetailsV1(),
+                OutlookMode = string.Empty,
+                Participants = new List<ApiMeetingParticipant>
+                {
+                    new ApiMeetingParticipant
+                    {
+                        Id = Guid.NewGuid(),
+                        Person = new ApiPersonDetailsV1 {Id = Guid.NewGuid(), Mail = "P1@email.com"},
+                        OutlookResponse = "Required"
+                    },
+                    new ApiMeetingParticipant
+                    {
+                        Id = Guid.NewGuid(),
+                        Person = new ApiPersonDetailsV1 {Id = Guid.NewGuid(), Mail = "FR1@email.com"},
+                        OutlookResponse = "Accepted"
+                    }
+                },
+                Project = null,
+                ResponsiblePersons = new List<ApiPersonDetailsV1>(),
+                Series = null,
+                Title = string.Empty
+            };
+
+            TestFactory.Instance
+                .MeApiServiceMock
+                .Setup(x => x.GetFunctionalRoleCodesAsync(
+                    TestFactory.PlantWithAccess))
+                .Returns(Task.FromResult(_functionalRoleCodes));
+
+            TestFactory.Instance
+                .McPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(
+                    TestFactory.PlantWithAccess,
+                    TestFactory.ProjectWithAccess,
+                    _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            TestFactory.Instance
+                .FunctionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
+                    new List<string> {FunctionalRoleCode}))
+                .Returns(Task.FromResult(_pcsFunctionalRoles));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _sigurdSigner.Oid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .FusionMeetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Returns(Task.FromResult(new GeneralMeeting(knownGeneralMeeting)));
+        }
+    }
+}

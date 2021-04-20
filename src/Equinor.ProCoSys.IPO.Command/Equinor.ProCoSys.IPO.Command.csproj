@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="1.4.0" />
+    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="1.5.5" />
     <PackageReference Include="FluentValidation" Version="9.5.3" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
