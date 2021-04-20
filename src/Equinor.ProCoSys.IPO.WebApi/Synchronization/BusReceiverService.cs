@@ -81,10 +81,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
-                    {BusReceiverTelemetryConstants.Plant, mcPkgEvent.Plant[4..]},
-                    {BusReceiverTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
+                    {PcsServiceBusTelemetryConstants.Plant, mcPkgEvent.Plant[4..]},
+                    {PcsServiceBusTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(mcPkgEvent.Plant);
             _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
@@ -101,10 +101,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                    {BusReceiverTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                    {BusReceiverTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                    {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
+                    {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(commPkgEvent.Plant);
             _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
@@ -122,9 +122,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.Plant, projectEvent.Plant[4..]},
-                    {BusReceiverTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.Plant, projectEvent.Plant[4..]},
+                    {PcsServiceBusTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(projectEvent.Plant);
             _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
@@ -144,10 +144,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {BusReceiverTelemetryConstants.Event, IpoTopic.TopicName},
-                    {BusReceiverTelemetryConstants.Plant, ipoEvent.Plant[4..]},
-                    {BusReceiverTelemetryConstants.Ipo, ipoEvent.InvitationGuid},
-                    {BusReceiverTelemetryConstants.IpoEvent, ipoEvent.Event}
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.Plant, ipoEvent.Plant[4..]},
+                    {PcsServiceBusTelemetryConstants.Ipo, ipoEvent.InvitationGuid},
+                    {PcsServiceBusTelemetryConstants.IpoEvent, ipoEvent.Event}
                 });
             _plantSetter.SetPlant(ipoEvent.Plant);
             var invitation = _context.QuerySet<Invitation>().Include(i => i.McPkgs).Include(i => i.CommPkgs)
