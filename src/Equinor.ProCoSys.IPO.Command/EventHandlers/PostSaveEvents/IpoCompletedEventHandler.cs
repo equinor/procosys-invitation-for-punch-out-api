@@ -25,11 +25,11 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 
         public async Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
         {
-            await SendBusTopic(notification, cancellationToken);
+            await SendBusTopic(notification);
             await SendEmail(notification, cancellationToken);
         }
 
-        private async Task SendBusTopic(IpoCompletedEvent notification, CancellationToken cancellationToken)
+        private async Task SendBusTopic(IpoCompletedEvent notification)
         {
             var eventMessage = new BusEventMessage
             {
