@@ -43,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             var completedInvitations = await (from i in _context.QuerySet<Invitation>()
                     .Include(ss => ss.Participants)
                                               where i.CompletedAtUtc.HasValue
+                                              where !i.AcceptedAtUtc.HasValue
                                               select i).ToListAsync(cancellationToken);
 
             var currentUsersOutstandingInvitations = new List<Invitation>();
