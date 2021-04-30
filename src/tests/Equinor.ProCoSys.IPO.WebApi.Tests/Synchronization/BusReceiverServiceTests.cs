@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitation3 = new Invitation(plant, project1, "El invitasjån3", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån3", _mcPkgsOn3, null);
             _invitation4 = new Invitation(plant, project1, "El invitasjån4", description, DisciplineType.DP, DateTime.Now,
-                DateTime.Now.AddHours(1), "El låkasjån3", _mcPkgsOn4, null);
+                DateTime.Now.AddHours(1), "El låkasjån4", _mcPkgsOn4, null);
 
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,

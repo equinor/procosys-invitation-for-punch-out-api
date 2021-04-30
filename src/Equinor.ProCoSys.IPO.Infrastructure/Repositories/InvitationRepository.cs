@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.EntityFrameworkCore;
@@ -40,9 +41,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                     .Where(i => i.ProjectName == fromProject &&
                                 (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
-            if (invitationsToMove.Any(i => i.CommPkgs.Count()>1) || invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgNo!=commPkgNo)))
+            if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGiveCommPkg(commPkgNo, invitationsToMove))
             { 
-                throw new Exception($"Unable to move to other comm pkg {commPkgNo } to {toProject}. Will result in bad data");
+                throw new Exception($"Unable to move to other comm pkg {commPkgNo } to {toProject}. Will result in bad data as invitation will reference more than one project");
             }
 
             invitationsToMove.ForEach(i =>
@@ -61,6 +62,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 mc.MoveToProject(toProject);
             });
         }
+
+        private static bool NotAllMcPkgsOnInvitationsBelongToGiveCommPkg(string commPkgNo, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgNo!=commPkgNo));
+
+        private static bool InvitationsContainMoreThanOneCommPkg(List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.CommPkgs.Count()>1);
 
         public void MoveMcPkg(
             string projectName,
