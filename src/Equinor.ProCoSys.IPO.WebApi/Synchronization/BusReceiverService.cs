@@ -72,7 +72,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessMcPkgEvent(string messageJson)
         {
             var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(mcPkgEvent.Plant) || string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) || string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo))
+            if (string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
+                string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) ||
+                string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo) ||
+                (string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld) != (string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNoOld))))
             {
                 throw new Exception($"Unable to deserialize JSON to McPkgEvent {messageJson}");
             }
@@ -80,34 +83,70 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.Event, McPkgTopic.TopicName},
                     {PcsServiceBusTelemetryConstants.McPkgNo, mcPkgEvent.McPkgNo},
                     {PcsServiceBusTelemetryConstants.Plant, mcPkgEvent.Plant[4..]},
                     {PcsServiceBusTelemetryConstants.ProjectName, mcPkgEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(mcPkgEvent.Plant);
-            _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
+
+            if (!string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld))
+            {
+                _invitationRepository.MoveMcPkg(
+                    mcPkgEvent.ProjectName,
+                    mcPkgEvent.CommPkgNoOld,
+                    mcPkgEvent.CommPkgNo,
+                    mcPkgEvent.McPkgNoOld,
+                    mcPkgEvent.McPkgNo,
+                    mcPkgEvent.Description);
+            }
+            else
+            {
+                _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
+            }
         }
 
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  || string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo))
+            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
+                string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo) ||
+                string.IsNullOrWhiteSpace(commPkgEvent.ProjectName))
             {
                 throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
             }
 
-            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
-                new Dictionary<string, string>
-                {
-                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
-                    {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                    {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                    {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
-                });
             _plantSetter.SetPlant(commPkgEvent.Plant);
-            _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
-                commPkgEvent.Description);
+            if (!string.IsNullOrWhiteSpace(commPkgEvent.ProjectNameOld))
+            {
+                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                    new Dictionary<string, string>
+                    {
+                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
+                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')},
+                        {PcsServiceBusTelemetryConstants.ProjectNameOld, commPkgEvent.ProjectNameOld.Replace('$', '_')}
+                    });
+                _invitationRepository.MoveCommPkg(
+                    commPkgEvent.ProjectNameOld,
+                    commPkgEvent.ProjectName,
+                    commPkgEvent.CommPkgNo,
+                    commPkgEvent.Description);
+            }
+            else
+            {
+                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                    new Dictionary<string, string>
+                    {
+                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
+                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
+                    });
+                _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
+                    commPkgEvent.Description);
+            }
         }
 
         private void ProcessProjectEvent(string messageJson)

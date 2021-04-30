@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +41,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                     .Where(i => i.ProjectName == fromProject &&
                                 (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
+            if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgNo, invitationsToMove))
+            { 
+                throw new Exception($"Unable to move to other comm pkg {commPkgNo } to {toProject}. Will result in bad data as invitation will reference more than one project");
+            }
+
             invitationsToMove.ForEach(i =>
             {
                 i.MoveToProject(toProject);
@@ -54,7 +61,28 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             {
                 mc.MoveToProject(toProject);
             });
+        }
 
+        private static bool NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(string commPkgNo, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgNo!=commPkgNo));
+
+        private static bool InvitationsContainMoreThanOneCommPkg(List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.CommPkgs.Count()>1);
+
+        public void MoveMcPkg(
+            string projectName,
+            string fromCommPkgNo,
+            string toCommPkgNo,
+            string fromMcPkgNo,
+            string toMcPkgNo,
+            string description)
+        {
+            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
+
+            mcPkgsToUpdate.ForEach(mp =>
+            {
+                mp.MoveToCommPkg(toCommPkgNo);
+                mp.Rename(toMcPkgNo);
+                mp.Description = description;
+            });
         }
 
         public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description)
