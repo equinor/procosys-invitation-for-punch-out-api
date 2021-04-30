@@ -227,5 +227,35 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Never);
             }
         }
+
+
+        [TestMethod]
+        public async Task Handle_ShouldNotReturnIpo_AfterIpoHasBeenAccepted()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithPersonParticipant =
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+
+                invitationWithPersonParticipant.AcceptIpo(_personParticipant,
+                    _personParticipant.RowVersion.ConvertToString(), _person, DateTime.Now);
+
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider);
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(1, result.Data.Items.Count());
+                var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.Single();
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id,
+                    outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description,
+                    outstandingInvitationWithFunctionalRoleParticipant.Description);
+            }
+        }
     }
 }
