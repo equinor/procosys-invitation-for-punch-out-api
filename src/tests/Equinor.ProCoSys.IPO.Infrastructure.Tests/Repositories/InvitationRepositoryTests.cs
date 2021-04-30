@@ -16,15 +16,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     public class InvitationRepositoryTests : RepositoryTestBase
     {
         private const int InvitationWithMcPkgId = 5;
+        private const int InvitationWithMcPkgMoveId = 6;
         private const int McPkgId = 51;
+        private const int McPkgId2 = 52;
+        private const int McPkgId3 = 54;
         private const int CommPkgId = 71;
         private const int ParticipantId = 1;
         private string _projectName = "ProjectName";
         private string _projectName2 = "ProjectName2";
         private string _mcPkgNo = "MC1";
+        private string _mcPkgNo2 = "MC2";
+        private string _mcPkgNo3 = "MC3";
         private string _system = "1|2";
         private string _commPkgNo = "Comm1";
         private string _commPkgNo2 = "Comm2";
+        private string _commPkgNo3 = "Comm3";
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
@@ -34,13 +40,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private Mock<DbSet<Comment>> _commentSetMock;
 
         private InvitationRepository _dut;
-        private McPkg _mcPkg;
+        private McPkg _mcPkg, _mcPkg2, _mcPkg3;
         private CommPkg _commPkg;
         private Participant _participant;
         private Attachment _attachment;
         private Comment _comment;
         private Invitation _dpInviation;
         private Invitation _mdpInvitation;
+        private Invitation _mdpInvitationWithTwoCommpkgs;
+        private CommPkg _commPkg2;
+        private Invitation _dpInviationMove;
 
         [TestInitialize]
         public void Setup()
@@ -50,6 +59,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             _commPkg = new CommPkg(TestPlant, _projectName, _commPkgNo, "Description", "OK", "1|2");
             _commPkg.SetProtectedIdForTesting(CommPkgId);
+
+            _commPkg2 = new CommPkg(TestPlant, _projectName, _commPkgNo2, "Description", "OK", "1|2");
+            _commPkg.SetProtectedIdForTesting(CommPkgId);
+
+            _mcPkg2 = new McPkg(TestPlant, _projectName, _commPkgNo, _mcPkgNo2, "Description", _system);
+            _mcPkg2.SetProtectedIdForTesting(McPkgId2);
+
+            _mcPkg3 = new McPkg(TestPlant, _projectName, _commPkgNo3, _mcPkgNo3, "Description", _system);
+            _mcPkg3.SetProtectedIdForTesting(McPkgId3);
 
             _participant = new Participant(
                 TestPlant,
@@ -76,6 +94,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new List<McPkg> {_mcPkg},
                 null);
             _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgId);
+            _dpInviationMove = new Invitation(
+                TestPlant,
+                _projectName,
+                "Title",
+                "D",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                new List<McPkg> { _mcPkg3 },
+                null);
+            _dpInviationMove.SetProtectedIdForTesting(InvitationWithMcPkgMoveId);
             _mdpInvitation = new Invitation(
                 TestPlant,
                 _projectName,
@@ -87,6 +117,17 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 null,
                 null,
                 new List<CommPkg> {_commPkg});
+            _mdpInvitationWithTwoCommpkgs = new Invitation(
+                TestPlant,
+                _projectName,
+                "Title 3",
+                "D",
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                null,
+                new List<CommPkg> { _commPkg, _commPkg2 });
 
             _attachment = new Attachment(TestPlant, "filename.txt");
 
@@ -99,7 +140,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _invitations = new List<Invitation>
             {
                 _dpInviation,
-                _mdpInvitation
+                _dpInviationMove,
+                _mdpInvitation,
+                _mdpInvitationWithTwoCommpkgs
             };
 
             _dbInvitationSetMock = _invitations.AsQueryable().BuildMockDbSet();
@@ -135,7 +178,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             var mcPkgs = new List<McPkg>
             {
-                _mcPkg
+                _mcPkg,
+                _mcPkg2,
+                _mcPkg3
             };
 
             _mcPkgSetMock = mcPkgs.AsQueryable().BuildMockDbSet();
@@ -177,7 +222,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             var result = await _dut.GetAllAsync();
 
-            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(4, result.Count);
         }
 
         [TestMethod]
@@ -251,15 +296,27 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             const string toProjectName = "ProjectNameUpdated";
             const string description = "New description";
             Assert.AreNotEqual(toProjectName, _commPkg.ProjectName);
+            Assert.AreNotEqual(toProjectName, _mcPkg2.ProjectName);
 
             // Act
-            _dut.MoveCommPkg(_projectName, toProjectName, _commPkgNo, description);
+            _dut.MoveCommPkg(_projectName, toProjectName, _commPkgNo3, description);
 
             // Assert
-            Assert.AreEqual(toProjectName, _commPkg.ProjectName);
-            Assert.AreEqual(description, _commPkg.Description);
+            Assert.AreEqual(toProjectName, _mcPkg3.ProjectName, "McPkg should be affected by comm pkg move");
             Assert.AreEqual(_projectName2, _mcPkg.ProjectName, "Only data on specific comm pkg should be updated");
-            Assert.AreEqual(toProjectName, _mdpInvitation.ProjectName, "Project ref on invitation not changed when comm pkg was moved to other project");
+            Assert.AreEqual(toProjectName, _dpInviationMove.ProjectName, "Project ref on invitation not changed when comm pkg was moved to other project");
+            Assert.AreNotEqual(toProjectName, _dpInviation.ProjectName, "Project ref on invitation not changed when comm pkg was moved to other project");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void MoveCommPkg_ShouldFailWhenMultipleCommPkgsInAffectedInvitations()
+        {
+            // Arrange & Assert
+            const string toProjectName = "ProjectNameUpdated";
+            const string description = "New description";
+            // Act
+            _dut.MoveCommPkg(_projectName, toProjectName, _commPkgNo, description);
         }
 
         [TestMethod]
@@ -276,6 +333,73 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreEqual(toProjectName, _dpInviation.ProjectName, "Project name on invitation should be updated when comm pkg changes project");
             Assert.AreNotEqual(description, _commPkg.Description, "Only correct comm pkg should update values");
             Assert.AreEqual(toProjectName, _mcPkg.ProjectName, "Mc pkg project name must update when comm changes project");
+        }
+
+        [TestMethod]
+        public void MoveCommPkg_WhenInvitationContainMultipleCommPkgs_ShouldFailDueToInvalidProjectReference()
+        {
+            // Arrange & Assert
+            const string toProjectName = "ProjectNameUpdated";
+            const string description = "New description";
+
+            // Act
+            _dut.MoveCommPkg(_projectName2, toProjectName, _commPkgNo2, description);
+
+            // Assert
+            Assert.AreEqual(toProjectName, _dpInviation.ProjectName, "Project name on invitation should be updated when comm pkg changes project");
+            Assert.AreNotEqual(description, _commPkg.Description, "Only correct comm pkg should update values");
+            Assert.AreEqual(toProjectName, _mcPkg.ProjectName, "Mc pkg project name must update when comm changes project");
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_AsRename_ShouldUpdateMcPkgNo()
+        {
+            // Arrange & Assert
+            const string toMcPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, _commPkgNo2, _mcPkgNo, toMcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_WithoutRename_ShouldUpdateCommPkgNo()
+        {
+            // Arrange & Assert
+            const string toCommPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, _mcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
+        }
+
+        [TestMethod]
+        public void MoveMcPkg_WithRename_ShouldUpdateCommPkgNoAndMcPkgNo()
+        {
+            // Arrange & Assert
+            const string toMcPkgNo = "McPkgNo2";
+            const string toCommPkgNo = "McPkgNo2";
+            const string description = "New description";
+            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+
+            // Act
+            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, toMcPkgNo, description);
+
+            // Assert
+            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
+            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreEqual(description, _mcPkg.Description);
         }
 
         [TestMethod]
