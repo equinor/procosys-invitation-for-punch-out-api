@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                throw new Exception("Error: Could not create outlook meeting.", e);
+                throw new Exception($"Error: Could not create outlook meeting for invitation {invitation.Id}.", e);
             }
         }
 
@@ -399,7 +399,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             foreach (var participant in participants)
             {
-                _logger.LogInformation($"Adding {participant.Person.AzureUniqueId} - {participant.Person.Mail} to invitation");
+                _logger.LogInformation($"Adding {participant.Person.AzureUniqueId} - {participant.Person.Mail} to invitation {invitation.Id}");
             }
 
             var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
