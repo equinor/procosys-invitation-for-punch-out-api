@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                throw new Exception($"Error: Could not create outlook meeting for invitation {invitation.Id}.", e);
+                throw new Exception($"Error: User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.", e);
             }
         }
 
