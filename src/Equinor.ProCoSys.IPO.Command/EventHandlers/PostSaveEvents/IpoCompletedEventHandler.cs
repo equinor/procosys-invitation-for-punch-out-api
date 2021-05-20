@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
@@ -25,11 +26,11 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 
         public async Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
         {
-            await SendBusTopic(notification);
-            await SendEmail(notification, cancellationToken);
+            await SendBusTopicAsync(notification);
+            await SendEmailAsync(notification, cancellationToken);
         }
 
-        private async Task SendBusTopic(IpoCompletedEvent notification)
+        private async Task SendBusTopicAsync(IpoCompletedEvent notification)
         {
             var eventMessage = new BusEventMessage
             {
@@ -39,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
 
-        private async Task SendEmail(IpoCompletedEvent notification, CancellationToken cancellationToken)
+        private async Task SendEmailAsync(IpoCompletedEvent notification, CancellationToken cancellationToken)
         {
             if (notification.Emails.Count == 0)
             {
@@ -49,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             var baseUrl = _meetingOptions.CurrentValue.PcsBaseUrl;
             var id = notification.Id;
             var title = notification.Title;
-            var plantId = notification.Plant.Split('$')[1];
+            var plantId = notification.Plant.Split('$').Last();
 
             var subject = $"Completed notification: IPO-{id}";
             var body =

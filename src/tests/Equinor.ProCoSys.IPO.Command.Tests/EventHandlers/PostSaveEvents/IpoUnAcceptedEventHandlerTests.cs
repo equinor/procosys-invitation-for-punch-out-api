@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "PCS$TestPlant";
+            var plant = "TestPlant";
             var ipoUnAcceptedEvent = new IpoUnAcceptedEvent(plant, objectGuid);
 
             // Act

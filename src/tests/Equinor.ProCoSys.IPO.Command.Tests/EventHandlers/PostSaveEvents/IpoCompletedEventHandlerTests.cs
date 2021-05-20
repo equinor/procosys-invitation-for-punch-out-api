@@ -42,8 +42,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "PCS$TestPlant";
-            var emails = new List<string>() {"email1@test.com", "email2@test.com"};
+            var plant = "TestPlant";
+            var emails = new List<string> {"email1@test.com", "email2@test.com"};
             var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, 1234, "Invitation title", emails);
 
             // Act
@@ -58,8 +58,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "PCS$TestPlant";
-            var commpkgs = new List<CommPkg>()
+            var plant = "TestPlant";
+            var commpkgs = new List<CommPkg>
             {
                 new CommPkg(plant, "project", "commpkgno", "description", "status", "system|subsystem")
             };
