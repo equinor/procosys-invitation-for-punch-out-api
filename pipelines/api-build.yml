@@ -162,6 +162,7 @@ stages:
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
+      replicas: 2
 
 # Test deploy stage
 - stage: test
@@ -210,6 +211,7 @@ stages:
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
+      replicas: 2
 
 # Prod deploy stage
 - stage: prod
@@ -258,3 +260,4 @@ stages:
       kvName: '${{ variables.kvName }}'
       kvRgName: '${{ variables.envRgName }}'
       aspNetCoreEnvironment: '${{ variables.aspNetCoreEnvironment }}'
+      replicas: 3
