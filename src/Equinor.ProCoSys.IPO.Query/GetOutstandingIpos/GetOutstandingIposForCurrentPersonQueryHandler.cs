@@ -34,42 +34,49 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         public async Task<Result<OutstandingIposResultDto>> Handle(GetOutstandingIposForCurrentPersonQuery request,
             CancellationToken cancellationToken)
         {
-            var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-
-            //We could have filtered based on project access, however
-            //the scenario that a person should lose access to a single project
-            //in a plant after being added to the invitation is (according to the client)
-            //so unlikely that we do not need to take it into consideration
-            var completedInvitations = await (from i in _context.QuerySet<Invitation>()
-                    .Include(ss => ss.Participants)
-                                              where i.CompletedAtUtc.HasValue
-                                              where !i.AcceptedAtUtc.HasValue
-                                              select i).ToListAsync(cancellationToken);
-
-            var currentUsersOutstandingInvitations = new List<Invitation>();
-            foreach (var invitation in completedInvitations)
+            try
             {
-                var currentUsersFunctionalRoleCodes =
-                    await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
+                var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                if (UserWasInvitedAsPersonParticipant(invitation, currentUserOid))
+                //We could have filtered based on project access, however
+                //the scenario that a person should lose access to a single project
+                //in a plant after being added to the invitation is (according to the client)
+                //so unlikely that we do not need to take it into consideration
+                var completedInvitations = await (from i in _context.QuerySet<Invitation>()
+                        .Include(ss => ss.Participants)
+                    where i.CompletedAtUtc.HasValue
+                    where !i.AcceptedAtUtc.HasValue
+                    select i).ToListAsync(cancellationToken);
+
+                var currentUsersOutstandingInvitations = new List<Invitation>();
+                foreach (var invitation in completedInvitations)
                 {
-                    currentUsersOutstandingInvitations.Add(invitation);
+                    var currentUsersFunctionalRoleCodes =
+                        await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
+
+                    if (UserWasInvitedAsPersonParticipant(invitation, currentUserOid))
+                    {
+                        currentUsersOutstandingInvitations.Add(invitation);
+                    }
+                    else if (UserWasInvitedAsPersonInFunctionalRole(invitation, currentUsersFunctionalRoleCodes))
+                    {
+                        currentUsersOutstandingInvitations.Add(invitation);
+                    }
                 }
-                else if (UserWasInvitedAsPersonInFunctionalRole(invitation, currentUsersFunctionalRoleCodes))
-                {
-                    currentUsersOutstandingInvitations.Add(invitation);
-                }
+
+                var outstandingIposResultDto = new OutstandingIposResultDto(
+                    currentUsersOutstandingInvitations.Select(invitation => new OutstandingIpoDetailsDto
+                    {
+                        InvitationId = invitation.Id, Description = invitation.Description
+                    }));
+
+                return new SuccessResult<OutstandingIposResultDto>(outstandingIposResultDto);
             }
-
-            var outstandingIposResultDto = new OutstandingIposResultDto(
-                currentUsersOutstandingInvitations.Select(invitation => new OutstandingIpoDetailsDto
-                {
-                    InvitationId = invitation.Id,
-                    Description = invitation.Description
-                }));
-
-            return new SuccessResult<OutstandingIposResultDto>(outstandingIposResultDto);
+            catch (Exception)
+            {
+                return new SuccessResult<OutstandingIposResultDto>(new OutstandingIposResultDto(
+                        new List<OutstandingIpoDetailsDto>()));
+            }
         }
 
         private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid)
