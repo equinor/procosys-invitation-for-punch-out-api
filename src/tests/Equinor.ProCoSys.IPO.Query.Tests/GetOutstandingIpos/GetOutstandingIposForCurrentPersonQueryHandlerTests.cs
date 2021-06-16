@@ -21,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
     public class GetOutstandingIposQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<IMeApiService> _meApiServiceMock;
+        private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private GetOutstandingIposForCurrentPersonQuery _query;
         private Person _person;
         private Participant _personParticipant;
@@ -228,7 +229,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             }
         }
 
-
         [TestMethod]
         public async Task Handle_ShouldNotReturnIpo_AfterIpoHasBeenAccepted()
         {
@@ -255,6 +255,24 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description,
                     outstandingInvitationWithFunctionalRoleParticipant.Description);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldReturnEmptyList_WhenUserNotExists()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                _currentUserProviderMock = new Mock<ICurrentUserProvider>();
+                _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProviderMock.Object,
+                    _meApiServiceMock.Object, _plantProvider);
+
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(0, result.Data.Items.Count());
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
             }
         }
     }
