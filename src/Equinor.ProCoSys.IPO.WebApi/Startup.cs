@@ -153,7 +153,9 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     opts.ClientId = Configuration["Meetings:ClientId"];                  // Application client ID
                     opts.ClientSecret = Configuration["Meetings:ClientSecret"];          // Application client secret
                 });
-                options.AddMeetings();
+                options.AddMeetings(s => s.SetHttpClientTimeout(
+                    TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionRequestTimeout")),
+                    TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionTotalTimeout"))));
                 options.DisableClaimsTransformation();                                  // Disable this - Fusion adds relevant claims
             });
 
