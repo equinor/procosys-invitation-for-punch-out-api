@@ -22,6 +22,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             DateTime? acceptedAtUtc,
             string contractorRep,
             string constructionCompanyRep,
+            string commissioningRep,
+            string operationRep,
+            string technicalIntegrityRep,
+            string supplierRep,
+            string externalGuest,
             IEnumerable<string> mcPkgNos,
             IEnumerable<string> commPkgNos,
             string rowVersion)
@@ -41,6 +46,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             AcceptedAtUtc = acceptedAtUtc;
             ContractorRep = contractorRep;
             ConstructionCompanyRep = constructionCompanyRep;
+            CommissioningRep = commissioningRep;
+            OperationRep = operationRep;
+            TechnicalIntegrityRep = technicalIntegrityRep;
+            SupplierRep = supplierRep;
+            ExternalGuest = externalGuest;
             McPkgNos = mcPkgNos;
             CommPkgNos = commPkgNos;
             RowVersion = rowVersion;
@@ -61,6 +71,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         public DateTime? AcceptedAtUtc { get; }
         public string ContractorRep { get; }
         public string ConstructionCompanyRep { get; }
+        public string? CommissioningRep { get; }
+        public string? OperationRep { get; }
+        public string? TechnicalIntegrityRep { get; }
+        public string? SupplierRep { get; }
+        public string? ExternalGuest { get; }
         public IEnumerable<string> McPkgNos { get; }
         public IEnumerable<string> CommPkgNos { get; }
         public string RowVersion { get; }

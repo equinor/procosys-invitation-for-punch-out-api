@@ -192,6 +192,64 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
 
+        protected static string GetCommissioningRep(IList<Participant> participants)
+        {
+            var functionalRoleParticipant =
+                participants.SingleOrDefault(p => p.Organization == Organization.Commissioning && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleParticipant != null)
+            {
+                return functionalRoleParticipant.FunctionalRoleCode;
+            }
+
+            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Commissioning);
+            return personParticipant != null ? NameCombiner(personParticipant) : null;
+        }
+
+        protected static string GetOperationRep(IList<Participant> participants)
+        {
+            var functionalRoleParticipant =
+                participants.SingleOrDefault(p => p.Organization == Organization.Operation && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleParticipant != null)
+            {
+                return functionalRoleParticipant.FunctionalRoleCode;
+            }
+
+            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Operation);
+            return personParticipant != null ? NameCombiner(personParticipant) : null;
+        }
+
+        protected static string GetTechnicalIntegrityRep(IList<Participant> participants)
+        {
+            var functionalRoleParticipant =
+                participants.SingleOrDefault(p => p.Organization == Organization.TechnicalIntegrity && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleParticipant != null)
+            {
+                return functionalRoleParticipant.FunctionalRoleCode;
+            }
+
+            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.TechnicalIntegrity);
+            return personParticipant != null ? NameCombiner(personParticipant) : null;
+        }
+
+        protected static string GetSupplierRep(IList<Participant> participants)
+        {
+            var functionalRoleParticipant =
+                participants.SingleOrDefault(p => p.Organization == Organization.Supplier && p.Type == IpoParticipantType.FunctionalRole);
+            if (functionalRoleParticipant != null)
+            {
+                return functionalRoleParticipant.FunctionalRoleCode;
+            }
+
+            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Supplier);
+            return personParticipant != null ? NameCombiner(personParticipant) : null;
+        }
+
+        protected static string GetExternalGuest(IList<Participant> participants)
+        {
+            var externalGuestParticipant = participants.SingleOrDefault(p => p.Organization == Organization.External);
+            return externalGuestParticipant != null ? externalGuestParticipant.Email : null;
+        }
+
         protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
             IReadOnlyContext context,
             List<int> invitationIds,
