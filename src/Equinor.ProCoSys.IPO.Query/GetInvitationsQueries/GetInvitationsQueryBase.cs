@@ -192,62 +192,136 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
 
-        protected static string GetCommissioningRep(IList<Participant> participants)
+        protected static IEnumerable<string> GetCommissioningReps(IEnumerable<Participant> participants)
         {
-            var functionalRoleParticipant =
-                participants.SingleOrDefault(p => p.Organization == Organization.Commissioning && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleParticipant != null)
+            var functionalRoleParticipants = participants.Where(p =>
+                p.Organization == Organization.Commissioning && p.Type == IpoParticipantType.FunctionalRole).ToList();
+
+            IList<string> participantFunctionalRoleCodes = new List<string>();
+            if (functionalRoleParticipants.Count > 0)
             {
-                return functionalRoleParticipant.FunctionalRoleCode;
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                }
+                return participantFunctionalRoleCodes;
             }
 
-            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Commissioning);
-            return personParticipant != null ? NameCombiner(personParticipant) : null;
+            var personParticipants = participants.Where(p => p.Organization == Organization.Commissioning).ToList();
+            IList<string> personParticipantNames = new List<string>();
+            if (personParticipants.Count > 0)
+            {
+                foreach (var participantName in personParticipants.Select(NameCombiner))
+                {
+                    personParticipantNames.Add(participantName);
+
+                }
+            }
+            return personParticipantNames;
         }
 
-        protected static string GetOperationRep(IList<Participant> participants)
+        protected static IEnumerable<string> GetOperationReps(IList<Participant> participants)
         {
-            var functionalRoleParticipant =
-                participants.SingleOrDefault(p => p.Organization == Organization.Operation && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleParticipant != null)
+            var functionalRoleParticipants =
+                participants.Where(p => p.Organization == Organization.Operation 
+                                        && p.Type == IpoParticipantType.FunctionalRole).ToList();
+
+            IList<string> participantFunctionalRoleCodes = new List<string>();
+            if (functionalRoleParticipants.Count > 0)
             {
-                return functionalRoleParticipant.FunctionalRoleCode;
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                }
+                return participantFunctionalRoleCodes;
             }
 
-            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Operation);
-            return personParticipant != null ? NameCombiner(personParticipant) : null;
+            var personParticipants = participants.Where(p => p.Organization == Organization.Operation).ToList();
+
+            IList<string> personParticipantNames = new List<string>();
+            if (personParticipants.Count > 0)
+            {
+                foreach (var participantName in personParticipants.Select(NameCombiner))
+                {
+                    personParticipantNames.Add(participantName);
+                }
+            }
+            return personParticipantNames;
         }
 
-        protected static string GetTechnicalIntegrityRep(IList<Participant> participants)
+        protected static IEnumerable<string> GetTechnicalIntegrityReps(IList<Participant> participants)
         {
-            var functionalRoleParticipant =
-                participants.SingleOrDefault(p => p.Organization == Organization.TechnicalIntegrity && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleParticipant != null)
+            var functionalRoleParticipants = participants.Where(p =>
+                    p.Organization == Organization.TechnicalIntegrity 
+                    && p.Type == IpoParticipantType.FunctionalRole)
+                .ToList();
+
+            IList<string> participantFunctionalRoleCodes = new List<string>();
+            if (functionalRoleParticipants.Count > 0)
             {
-                return functionalRoleParticipant.FunctionalRoleCode;
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                }
+
+                return participantFunctionalRoleCodes;
             }
 
-            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.TechnicalIntegrity);
-            return personParticipant != null ? NameCombiner(personParticipant) : null;
+            var personParticipants = participants.Where(p => p.Organization == Organization.TechnicalIntegrity).ToList();
+
+            IList<string> personParticipantNames = new List<string>();
+            if (personParticipants.Count > 0)
+            {
+                foreach (var participantName in personParticipants.Select(NameCombiner))
+                {
+                    personParticipantNames.Add(participantName);
+                }
+            }
+            return personParticipantNames;
         }
 
-        protected static string GetSupplierRep(IList<Participant> participants)
+        protected static IEnumerable<string> GetSupplierReps(IList<Participant> participants)
         {
-            var functionalRoleParticipant =
-                participants.SingleOrDefault(p => p.Organization == Organization.Supplier && p.Type == IpoParticipantType.FunctionalRole);
-            if (functionalRoleParticipant != null)
+            var functionalRoleParticipants =
+                participants.Where(p => p.Organization == Organization.Supplier 
+                                        && p.Type == IpoParticipantType.FunctionalRole).ToList();
+
+
+            IList<string> participantFunctionalRoleCodes = new List<string>();
+            if (functionalRoleParticipants.Count > 0)
             {
-                return functionalRoleParticipant.FunctionalRoleCode;
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                }
+
+                return participantFunctionalRoleCodes;
             }
 
-            var personParticipant = participants.SingleOrDefault(p => p.Organization == Organization.Supplier);
-            return personParticipant != null ? NameCombiner(personParticipant) : null;
+            var personParticipants = participants.Where(p => p.Organization == Organization.Supplier).ToList();
+
+            IList<string> personParticipantNames = new List<string>();
+            if (personParticipants.Count > 0)
+            {
+                foreach (var participantName in personParticipants.Select(NameCombiner))
+                {
+                    personParticipantNames.Add(participantName);
+                }
+            }
+            return personParticipantNames;
         }
 
-        protected static string GetExternalGuest(IList<Participant> participants)
+        protected static IEnumerable<string> GetExternalGuests(IList<Participant> participants)
         {
-            var externalGuestParticipant = participants.SingleOrDefault(p => p.Organization == Organization.External);
-            return externalGuestParticipant != null ? externalGuestParticipant.Email : null;
+            var externalGuestParticipants = participants.Where(p => p.Organization == Organization.External).ToList();
+
+            var externalGuestParticipantEmails = new List<string>();
+            foreach (var participant in externalGuestParticipants)
+            {
+                externalGuestParticipantEmails.Add(participant.Email);
+            }
+
+            return externalGuestParticipantEmails;
         }
 
         protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
