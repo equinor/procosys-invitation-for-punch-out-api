@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -192,32 +193,29 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             return NameCombiner(participant.Single(p => p.SortKey == 1));
         }
 
-        protected static IEnumerable<string> GetCommissioningReps(IEnumerable<Participant> participants)
+        protected static IEnumerable<string> GetCommissioningReps(IList<Participant> participants)
         {
             var functionalRoleParticipants = participants.Where(p =>
                 p.Organization == Organization.Commissioning && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            IList<string> participantFunctionalRoleCodes = new List<string>();
+            IList<string> allCommissioningParticipants = new List<string>();
             if (functionalRoleParticipants.Count > 0)
             {
                 foreach (var participant in functionalRoleParticipants)
                 {
-                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                    allCommissioningParticipants.Add(participant.FunctionalRoleCode);
                 }
-                return participantFunctionalRoleCodes;
             }
 
             var personParticipants = participants.Where(p => p.Organization == Organization.Commissioning).ToList();
-            IList<string> personParticipantNames = new List<string>();
             if (personParticipants.Count > 0)
             {
                 foreach (var participantName in personParticipants.Select(NameCombiner))
                 {
-                    personParticipantNames.Add(participantName);
-
+                    allCommissioningParticipants.Add(participantName);
                 }
             }
-            return personParticipantNames;
+            return allCommissioningParticipants;
         }
 
         protected static IEnumerable<string> GetOperationReps(IList<Participant> participants)
@@ -226,27 +224,25 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                 participants.Where(p => p.Organization == Organization.Operation 
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            IList<string> participantFunctionalRoleCodes = new List<string>();
+            IList<string> allOperationParticipants = new List<string>();
             if (functionalRoleParticipants.Count > 0)
             {
                 foreach (var participant in functionalRoleParticipants)
                 {
-                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                    allOperationParticipants.Add(participant.FunctionalRoleCode);
                 }
-                return participantFunctionalRoleCodes;
             }
 
             var personParticipants = participants.Where(p => p.Organization == Organization.Operation).ToList();
 
-            IList<string> personParticipantNames = new List<string>();
             if (personParticipants.Count > 0)
             {
                 foreach (var participantName in personParticipants.Select(NameCombiner))
                 {
-                    personParticipantNames.Add(participantName);
+                    allOperationParticipants.Add(participantName);
                 }
             }
-            return personParticipantNames;
+            return allOperationParticipants;
         }
 
         protected static IEnumerable<string> GetTechnicalIntegrityReps(IList<Participant> participants)
@@ -256,28 +252,24 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                     && p.Type == IpoParticipantType.FunctionalRole)
                 .ToList();
 
-            IList<string> participantFunctionalRoleCodes = new List<string>();
+            IList<string> allTechnicalIntegrityParticipants = new List<string>();
             if (functionalRoleParticipants.Count > 0)
             {
                 foreach (var participant in functionalRoleParticipants)
                 {
-                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                    allTechnicalIntegrityParticipants.Add(participant.FunctionalRoleCode);
                 }
-
-                return participantFunctionalRoleCodes;
             }
 
             var personParticipants = participants.Where(p => p.Organization == Organization.TechnicalIntegrity).ToList();
-
-            IList<string> personParticipantNames = new List<string>();
             if (personParticipants.Count > 0)
             {
                 foreach (var participantName in personParticipants.Select(NameCombiner))
                 {
-                    personParticipantNames.Add(participantName);
+                    allTechnicalIntegrityParticipants.Add(participantName);
                 }
             }
-            return personParticipantNames;
+            return allTechnicalIntegrityParticipants;
         }
 
         protected static IEnumerable<string> GetSupplierReps(IList<Participant> participants)
@@ -286,32 +278,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                 participants.Where(p => p.Organization == Organization.Supplier 
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-
-            IList<string> participantFunctionalRoleCodes = new List<string>();
+            IList<string> allSupplierParticipants = new List<string>();
             if (functionalRoleParticipants.Count > 0)
             {
                 foreach (var participant in functionalRoleParticipants)
                 {
-                    participantFunctionalRoleCodes.Add(participant.FunctionalRoleCode);
+                    allSupplierParticipants.Add(participant.FunctionalRoleCode);
                 }
-
-                return participantFunctionalRoleCodes;
             }
 
             var personParticipants = participants.Where(p => p.Organization == Organization.Supplier).ToList();
-
-            IList<string> personParticipantNames = new List<string>();
             if (personParticipants.Count > 0)
             {
                 foreach (var participantName in personParticipants.Select(NameCombiner))
                 {
-                    personParticipantNames.Add(participantName);
+                    allSupplierParticipants.Add(participantName);
                 }
             }
-            return personParticipantNames;
+            return allSupplierParticipants;
         }
 
-        protected static IEnumerable<string> GetExternalGuests(IList<Participant> participants)
+        protected static IEnumerable<string> GetExternalGuests(IEnumerable<Participant> participants)
         {
             var externalGuestParticipants = participants.Where(p => p.Organization == Organization.External).ToList();
 
@@ -322,6 +309,35 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             }
 
             return externalGuestParticipantEmails;
+        }
+
+        protected static IEnumerable<string> GetAdditionalContractorReps(IList<Participant> participants)
+        {
+            var functionalRoleParticipants = participants
+                .Where(p => p.Organization == Organization.Contractor
+                            && p.SortKey != 0
+                            && p.Type == IpoParticipantType.FunctionalRole).ToList();
+
+            var allAdditionalContractorParticipants = new List<string>();
+            if (functionalRoleParticipants.Count > 0)
+            {
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    allAdditionalContractorParticipants.Add(participant.FunctionalRoleCode);
+                }
+            }
+
+            var personParticipants = participants
+                .Where(p => p.Organization == Organization.Contractor && p.SortKey != 0).ToList();
+
+            if (personParticipants.Count > 0)
+            {
+                foreach (var participantName in personParticipants.Select(NameCombiner))
+                {
+                    allAdditionalContractorParticipants.Add(participantName);
+                }
+            }
+            return allAdditionalContractorParticipants;
         }
 
         protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
