@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
                     GetSupplierReps(participants),
                     GetExternalGuests(participants),
                     GetAdditionalContractorReps(participants),
-                    //GetAdditionalConstructionCompanyReps(participants),
+                    GetAdditionalConstructionCompanyReps(participants),
                     invitationWithIncludes.McPkgs.Select(mc => mc.McPkgNo),
                     invitationWithIncludes.CommPkgs.Select(c => c.CommPkgNo),
                     invitation.RowVersion);

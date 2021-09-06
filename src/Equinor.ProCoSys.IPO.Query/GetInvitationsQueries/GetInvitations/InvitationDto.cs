@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             IEnumerable<string> supplierReps,
             IEnumerable<string> externalGuests,
             IEnumerable<string> additionalContractorReps,
-            //IEnumerable<string> additionalConstructionCompanyReps,
+            IEnumerable<string> additionalConstructionCompanyReps,
             IEnumerable<string> mcPkgNos,
             IEnumerable<string> commPkgNos,
             string rowVersion)
@@ -54,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             SupplierReps = supplierReps;
             ExternalGuests = externalGuests;
             AdditionalContractorReps = additionalContractorReps;
-            //AdditionalConstructionCompanyReps = additionalConstructionCompanyReps;
+            AdditionalConstructionCompanyReps = additionalConstructionCompanyReps;
             McPkgNos = mcPkgNos;
             CommPkgNos = commPkgNos;
             RowVersion = rowVersion;
@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         public IEnumerable<string> SupplierReps { get; }
         public IEnumerable<string> ExternalGuests { get; }
         public IEnumerable<string> AdditionalContractorReps { get; }
-        //public IEnumerable<string> AdditionalConstructionCompanyReps { get; }
+        public IEnumerable<string> AdditionalConstructionCompanyReps { get; }
         public IEnumerable<string> McPkgNos { get; }
         public IEnumerable<string> CommPkgNos { get; }
         public string RowVersion { get; }

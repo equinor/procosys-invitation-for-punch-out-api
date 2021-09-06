@@ -195,106 +195,73 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
         protected static IEnumerable<string> GetCommissioningReps(IList<Participant> participants)
         {
+            var allCommissioningParticipants = new List<string>();
             var functionalRoleParticipants = participants.Where(p =>
                 p.Organization == Organization.Commissioning && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            IList<string> allCommissioningParticipants = new List<string>();
-            if (functionalRoleParticipants.Count > 0)
-            {
-                foreach (var participant in functionalRoleParticipants)
-                {
-                    allCommissioningParticipants.Add(participant.FunctionalRoleCode);
-                }
-            }
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allCommissioningParticipants);
 
-            var personParticipants = participants.Where(p => p.Organization == Organization.Commissioning).ToList();
-            if (personParticipants.Count > 0)
-            {
-                foreach (var participantName in personParticipants.Select(NameCombiner))
-                {
-                    allCommissioningParticipants.Add(participantName);
-                }
-            }
+            var personParticipants = participants.Where(p => 
+                    p.Organization == Organization.Commissioning
+                    && p.Type == IpoParticipantType.Person)
+                .ToList();
+
+            AddPersonParticipants(personParticipants, allCommissioningParticipants);
             return allCommissioningParticipants;
         }
 
         protected static IEnumerable<string> GetOperationReps(IList<Participant> participants)
         {
+            var allOperationParticipants = new List<string>();
             var functionalRoleParticipants =
                 participants.Where(p => p.Organization == Organization.Operation 
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            IList<string> allOperationParticipants = new List<string>();
-            if (functionalRoleParticipants.Count > 0)
-            {
-                foreach (var participant in functionalRoleParticipants)
-                {
-                    allOperationParticipants.Add(participant.FunctionalRoleCode);
-                }
-            }
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allOperationParticipants);
 
-            var personParticipants = participants.Where(p => p.Organization == Organization.Operation).ToList();
+            var personParticipants = participants.Where(
+                p => p.Organization == Organization.Operation
+                && p.Type == IpoParticipantType.Person)
+                .ToList();
 
-            if (personParticipants.Count > 0)
-            {
-                foreach (var participantName in personParticipants.Select(NameCombiner))
-                {
-                    allOperationParticipants.Add(participantName);
-                }
-            }
+            AddPersonParticipants(personParticipants, allOperationParticipants);
             return allOperationParticipants;
         }
 
         protected static IEnumerable<string> GetTechnicalIntegrityReps(IList<Participant> participants)
         {
+            var allTechnicalIntegrityParticipants = new List<string>();
             var functionalRoleParticipants = participants.Where(p =>
-                    p.Organization == Organization.TechnicalIntegrity 
+                    p.Organization == Organization.TechnicalIntegrity
                     && p.Type == IpoParticipantType.FunctionalRole)
                 .ToList();
 
-            IList<string> allTechnicalIntegrityParticipants = new List<string>();
-            if (functionalRoleParticipants.Count > 0)
-            {
-                foreach (var participant in functionalRoleParticipants)
-                {
-                    allTechnicalIntegrityParticipants.Add(participant.FunctionalRoleCode);
-                }
-            }
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allTechnicalIntegrityParticipants);
 
-            var personParticipants = participants.Where(p => p.Organization == Organization.TechnicalIntegrity).ToList();
-            if (personParticipants.Count > 0)
-            {
-                foreach (var participantName in personParticipants.Select(NameCombiner))
-                {
-                    allTechnicalIntegrityParticipants.Add(participantName);
-                }
-            }
+            var personParticipants = participants.Where(
+                    p => p.Organization == Organization.TechnicalIntegrity 
+                    && p.Type == IpoParticipantType.Person)
+                .ToList();
+
+            AddPersonParticipants(personParticipants, allTechnicalIntegrityParticipants);
             return allTechnicalIntegrityParticipants;
         }
 
         protected static IEnumerable<string> GetSupplierReps(IList<Participant> participants)
         {
+            var allSupplierParticipants = new List<string>();
             var functionalRoleParticipants =
                 participants.Where(p => p.Organization == Organization.Supplier 
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            IList<string> allSupplierParticipants = new List<string>();
-            if (functionalRoleParticipants.Count > 0)
-            {
-                foreach (var participant in functionalRoleParticipants)
-                {
-                    allSupplierParticipants.Add(participant.FunctionalRoleCode);
-                }
-            }
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allSupplierParticipants);
 
-            var personParticipants = participants.Where(p => p.Organization == Organization.Supplier).ToList();
-            if (personParticipants.Count > 0)
-            {
-                foreach (var participantName in personParticipants.Select(NameCombiner))
-                {
-                    allSupplierParticipants.Add(participantName);
-                }
-            }
+            var personParticipants = participants.Where(p => 
+                p.Organization == Organization.Supplier 
+                && p.Type == IpoParticipantType.Person)
+                .ToList();
+
+            AddPersonParticipants(personParticipants, allSupplierParticipants);
             return allSupplierParticipants;
         }
 
@@ -313,31 +280,65 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
         protected static IEnumerable<string> GetAdditionalContractorReps(IList<Participant> participants)
         {
+            var allAdditionalContractorParticipants = new List<string>();
+
             var functionalRoleParticipants = participants
                 .Where(p => p.Organization == Organization.Contractor
                             && p.SortKey != 0
                             && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
-            var allAdditionalContractorParticipants = new List<string>();
-            if (functionalRoleParticipants.Count > 0)
-            {
-                foreach (var participant in functionalRoleParticipants)
-                {
-                    allAdditionalContractorParticipants.Add(participant.FunctionalRoleCode);
-                }
-            }
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allAdditionalContractorParticipants);
 
             var personParticipants = participants
-                .Where(p => p.Organization == Organization.Contractor && p.SortKey != 0).ToList();
+                .Where(p => p.Organization == Organization.Contractor 
+                            && p.SortKey != 0
+                            && p.Type == IpoParticipantType.Person).ToList();
 
+            AddPersonParticipants(personParticipants, allAdditionalContractorParticipants);
+            return allAdditionalContractorParticipants;
+        }
+
+        protected static IEnumerable<string> GetAdditionalConstructionCompanyReps(IList<Participant> participants)
+        {
+            var allAdditionalConstructionCompanyParticipants = new List<string>();
+
+            var functionalRoleParticipants = participants
+                .Where(p => p.Organization == Organization.ConstructionCompany
+                            && p.SortKey != 1
+                            && p.Type == IpoParticipantType.FunctionalRole).ToList();
+
+            AddFunctionalRoleParticipants(functionalRoleParticipants, allAdditionalConstructionCompanyParticipants);
+
+            var personParticipants = participants
+                .Where(p => p.Organization == Organization.ConstructionCompany 
+                            && p.SortKey != 1
+                            && p.Type == IpoParticipantType.Person).ToList();
+
+            AddPersonParticipants(personParticipants, allAdditionalConstructionCompanyParticipants);
+            return allAdditionalConstructionCompanyParticipants;
+        }
+
+        private static void AddPersonParticipants(IList<Participant> personParticipants, List<string> totalListOfParticipants)
+        {
             if (personParticipants.Count > 0)
             {
                 foreach (var participantName in personParticipants.Select(NameCombiner))
                 {
-                    allAdditionalContractorParticipants.Add(participantName);
+                    totalListOfParticipants.Add(participantName);
                 }
             }
-            return allAdditionalContractorParticipants;
+        }
+
+        private static void AddFunctionalRoleParticipants(List<Participant> functionalRoleParticipants,
+            List<string> totalListOfParticipants)
+        {
+            if (functionalRoleParticipants.Count > 0)
+            {
+                foreach (var participant in functionalRoleParticipants)
+                {
+                    totalListOfParticipants.Add(participant.FunctionalRoleCode);
+                }
+            }
         }
 
         protected async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
