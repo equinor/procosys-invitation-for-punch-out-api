@@ -23,14 +23,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 
         private string _functionalRoleCode1 = "FrCode1";
         private string _functionalRoleCode2 = "FrCode2";
+        private string _functionalRoleCode3 = "FrCode3";
         private readonly Guid _personGuid = new Guid("11111111-2222-2222-2222-333333333333");
         private readonly Guid _frPersonGuid1 = new Guid("11111111-2222-2222-2222-333333333332"); 
         private readonly Guid _frPersonGuid2 = new Guid("11111111-2222-2222-2222-333333333335"); 
+        private readonly Guid _frPersonGuid3 = new Guid("11111111-2222-2222-2222-333333333336"); 
         private string _frEmail1 = "FR1@email.com";
         private string _personEmail1 = "P1@email.com";
         private string _personEmail2 = "P2@email.com";
+        private string _personEmail3 = "P3@email.com";
+        private string _externalPersonEmail = "P4@email.com";
         private string _frPersonEmail1 = "frp1@email.com";
         private string _frPersonEmail2 = "frp2@email.com";
+        private string _frPersonEmail3 = "frp3@email.com";
         const string _projectName = "Project1";
         const string _projectName2 = "Project2";
         const string _title1 = "Title1";
@@ -46,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
             {
                 const string description = "Description";
 
-                var functionalRoleParticipant1 = new Participant(
+                var contractorFunctionalRoleParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.FunctionalRole,
@@ -58,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     null,
                     0);
 
-                var functionalRoleParticipant2 = new Participant(
+                var constructionCompanyFunctionalRoleParticipant = new Participant(
                     TestPlant,
                     Organization.ConstructionCompany,
                     IpoParticipantType.FunctionalRole,
@@ -70,7 +75,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     null,
                     1);
 
-                var personParticipant1 = new Participant(
+                var commissioningFunctionalRoleParticipant = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.FunctionalRole,
+                    _functionalRoleCode3,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    2);
+
+                var contractorPersonParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.Person,
@@ -82,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _currentUserOid,
                     0);
 
-                var personParticipant2 = new Participant(
+                var constructionCompanyPersonParticipant = new Participant(
                     TestPlant,
                     Organization.ConstructionCompany,
                     IpoParticipantType.Person,
@@ -94,19 +111,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _personGuid,
                     1);
 
-                var personParticipant3 = new Participant(
+                var contractorPersonParticipant1 = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.Person,
                     null,
-                    "FirstName3",
-                    "LastName3",
+                    "FirstName1",
+                    "LastName1",
                     "UN",
                     _personEmail1,
                     _currentUserOid,
                     0);
 
-                var personParticipant4 = new Participant(
+                var constructionCompanyPersonParticipant1 = new Participant(
                     TestPlant,
                     Organization.ConstructionCompany,
                     IpoParticipantType.Person,
@@ -118,7 +135,31 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _personGuid,
                     1);
 
-                var frPerson1 = new Participant(
+                var commissioningPersonParticipant = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.Person,
+                    null,
+                    "FirstName3",
+                    "LastName3",
+                    "UN",
+                    _personEmail3,
+                    _personGuid,
+                    7);
+
+                var externalPersonParticipant = new Participant(
+                    TestPlant,
+                    Organization.External,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _externalPersonEmail,
+                    _personGuid,
+                    8);
+
+                var contractorFunctionalRolePersonParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
                     IpoParticipantType.Person,
@@ -130,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _frPersonGuid1,
                     0);
 
-                var frPerson2 = new Participant(
+                var constructionCompanyFunctionalRolePersonParticipant = new Participant(
                     TestPlant,
                     Organization.ConstructionCompany,
                     IpoParticipantType.Person,
@@ -140,7 +181,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     "UN3",
                     _frPersonEmail2,
                     _frPersonGuid2,
-                    1);
+                    10);
+
+                var constructionCompanyFunctionalRolePersonParticipant1 = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    _functionalRoleCode3,
+                    "FirstName4",
+                    "LastName4",
+                    "UN4",
+                    _frPersonEmail3,
+                    _frPersonGuid3,
+                    11);
 
                 var commPkg = new CommPkg(
                     TestPlant,
@@ -180,9 +233,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     new List<McPkg> { mcPkg1 },
                     null);
 
-                _invitation1.AddParticipant(functionalRoleParticipant1);
-                _invitation1.AddParticipant(personParticipant2);
-                _invitation1.AddParticipant(frPerson1);
+                _invitation1.AddParticipant(contractorFunctionalRoleParticipant);
+                _invitation1.AddParticipant(constructionCompanyPersonParticipant);
+                _invitation1.AddParticipant(contractorFunctionalRolePersonParticipant);
+                _invitation1.AddParticipant(commissioningPersonParticipant);
+                _invitation1.AddParticipant(commissioningFunctionalRoleParticipant);
+                _invitation1.AddParticipant(constructionCompanyFunctionalRolePersonParticipant1);
+                _invitation1.AddParticipant(externalPersonParticipant);
 
                 var startTime2 = _timeProvider.UtcNow.AddWeeks(1);
 
@@ -198,9 +255,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     null,
                     new List<CommPkg> { commPkg });
 
-                _invitation2.AddParticipant(functionalRoleParticipant2);
-                _invitation2.AddParticipant(personParticipant1);
-                _invitation2.AddParticipant(frPerson2);
+                _invitation2.AddParticipant(constructionCompanyFunctionalRoleParticipant);
+                _invitation2.AddParticipant(contractorPersonParticipant);
+                _invitation2.AddParticipant(constructionCompanyFunctionalRolePersonParticipant);
 
                 var startTime3 = _timeProvider.UtcNow.AddWeeks(2);
 
@@ -216,8 +273,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     new List<McPkg> {mcPkg2},
                     null);
 
-                _invitation3.AddParticipant(personParticipant3);
-                _invitation3.AddParticipant(personParticipant4);
+                _invitation3.AddParticipant(contractorPersonParticipant1);
+                _invitation3.AddParticipant(constructionCompanyPersonParticipant1);
 
                 context.Invitations.Add(_invitation1);
                 context.Invitations.Add(_invitation2);
@@ -709,6 +766,29 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         }
 
         [TestMethod]
+        public async Task Handler_ShouldSeparateOutAdditionalConstructionCompanyParticipants()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var query = new GetInvitationsQuery(_projectName);
+                var dut = new GetInvitationsQueryHandler(context);
+
+                var result = await dut.Handle(query, default);
+
+                var invitationDto = result.Data.Invitations.First();
+                var invitation = _invitation1;
+
+                var firstConstructionCompanyRep = invitation.Participants.Single(p =>
+                    p.Organization == Organization.ConstructionCompany && p.SortKey == 1);
+                Assert.IsTrue(invitationDto.ConstructionCompanyRep.StartsWith(firstConstructionCompanyRep.FirstName));
+                Assert.IsFalse(invitationDto.AdditionalConstructionCompanyReps
+                    .Any(p => p.StartsWith(firstConstructionCompanyRep.FirstName)));
+                Assert.AreEqual(invitationDto.AdditionalConstructionCompanyReps.Count(), 
+                    invitation.Participants.Count(p => p.Organization == Organization.ConstructionCompany && p.SortKey != 1));
+            }
+        }
+
+        [TestMethod]
         public async Task Handler_ShouldReturnCorrectDto()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -731,6 +811,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     invitation.Participants.Single(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole)
                         .FunctionalRoleCode, invitationDto.ContractorRep);
                 Assert.IsTrue(invitationDto.ConstructionCompanyRep.StartsWith(invitation.Participants.Single(p => p.SortKey == 1).FirstName));
+                Assert.IsTrue(invitationDto.CommissioningReps.Any(p => p.StartsWith(invitation.Participants.First(part => part.Organization == Organization.Commissioning).FirstName)));
+                Assert.AreEqual(invitationDto.CommissioningReps.Count(), invitation.Participants.Count(p => p.Organization == Organization.Commissioning));
+                Assert.IsTrue(invitationDto.ExternalGuests.Any(p => p.StartsWith(invitation.Participants.First(part => part.Organization == Organization.External).Email)));
+                Assert.AreEqual(invitationDto.ExternalGuests.Count(), invitation.Participants.Count(p => p.Organization == Organization.External));
                 Assert.AreEqual(invitation.McPkgs.Single().McPkgNo, invitationDto.McPkgNos.Single());
                 Assert.AreEqual(invitation.Status, invitationDto.Status);
                 Assert.AreEqual(invitation.EndTimeUtc, invitationDto.EndTimeUtc);
