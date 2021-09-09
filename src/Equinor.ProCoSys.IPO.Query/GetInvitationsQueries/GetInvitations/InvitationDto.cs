@@ -22,6 +22,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             DateTime? acceptedAtUtc,
             string contractorRep,
             string constructionCompanyRep,
+            IEnumerable<string> commissioningReps,
+            IEnumerable<string> operationReps,
+            IEnumerable<string> technicalIntegrityReps,
+            IEnumerable<string> supplierReps,
+            IEnumerable<string> externalGuests,
+            IEnumerable<string> additionalContractorReps,
+            IEnumerable<string> additionalConstructionCompanyReps,
             IEnumerable<string> mcPkgNos,
             IEnumerable<string> commPkgNos,
             string rowVersion)
@@ -41,6 +48,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             AcceptedAtUtc = acceptedAtUtc;
             ContractorRep = contractorRep;
             ConstructionCompanyRep = constructionCompanyRep;
+            CommissioningReps = commissioningReps;
+            OperationReps = operationReps;
+            TechnicalIntegrityReps = technicalIntegrityReps;
+            SupplierReps = supplierReps;
+            ExternalGuests = externalGuests;
+            AdditionalContractorReps = additionalContractorReps;
+            AdditionalConstructionCompanyReps = additionalConstructionCompanyReps;
             McPkgNos = mcPkgNos;
             CommPkgNos = commPkgNos;
             RowVersion = rowVersion;
@@ -61,6 +75,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         public DateTime? AcceptedAtUtc { get; }
         public string ContractorRep { get; }
         public string ConstructionCompanyRep { get; }
+        public IEnumerable<string> CommissioningReps { get; }
+        public IEnumerable<string> OperationReps { get; }
+        public IEnumerable<string> TechnicalIntegrityReps { get; }
+        public IEnumerable<string> SupplierReps { get; }
+        public IEnumerable<string> ExternalGuests { get; }
+        public IEnumerable<string> AdditionalContractorReps { get; }
+        public IEnumerable<string> AdditionalConstructionCompanyReps { get; }
         public IEnumerable<string> McPkgNos { get; }
         public IEnumerable<string> CommPkgNos { get; }
         public string RowVersion { get; }
