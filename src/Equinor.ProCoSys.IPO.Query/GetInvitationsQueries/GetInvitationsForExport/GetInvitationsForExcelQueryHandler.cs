@@ -29,49 +29,60 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var invitationsWithIncludes = await GetOrderedInvitationsWithIncludes(request, cancellationToken);
 
-            invitationForQueryDtos = AddSorting(request.Sorting, invitationForQueryDtos);
-
-            var orderedInvitations = await invitationForQueryDtos.ToListAsync(cancellationToken);
-
-            var usedFilterDto = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
-            if (!orderedInvitations.Any())
+            if (!invitationsWithIncludes.Any())
             {
-                return new SuccessResult<ExportDto>(new ExportDto(null, usedFilterDto));
+                return await CreateSuccessResult(null, request);
             }
 
-            var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
-            var getHistoryAndParticipants = invitationIds.Count == 1;
+            var invitationsToBeExported = await CreateExportInvitationDtosAsync(invitationsWithIncludes);
 
-            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
-
-            var exportInvitationDtos = await CreateExportInvitationsDtosAsync(orderedInvitations, invitationsWithIncludes);
-
-            if (getHistoryAndParticipants)
+            if (invitationsToBeExported.Count == 1)
             {
-                await GetHistoryForSingleInvitationAsync(
-                    invitationIds.Single(),
-                    exportInvitationDtos,
-                    cancellationToken);
-
-                AddParticipantsForSingleInvitation(
-                    exportInvitationDtos,
-                    invitationsWithIncludes);
+                await AddHistoryToSingleInvitationInList(invitationsToBeExported, cancellationToken);
             }
 
-            return new SuccessResult<ExportDto>(new ExportDto(exportInvitationDtos, usedFilterDto));
+            return await CreateSuccessResult(invitationsToBeExported, request);
         }
 
-        private async Task GetHistoryForSingleInvitationAsync(
-            int singleInvitationId,
-            IList<ExportInvitationDto> exportInvitationDtos,
+        private async Task AddHistoryToSingleInvitationInList(IEnumerable<ExportInvitationDto> exportInvitationDtos,
+            CancellationToken cancellationToken)
+        {
+            var singleInvitation = exportInvitationDtos.Single();
+            singleInvitation.History.AddRange(
+                await GetHistoryForSingleInvitationAsync(
+                    singleInvitation.Id,
+                    cancellationToken));
+        }
+
+        private async Task<List<Invitation>> GetOrderedInvitationsWithIncludes(GetInvitationsForExportQuery request,
+            CancellationToken cancellationToken)
+        {
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+
+            var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
+            var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
+
+            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
+            return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
+        }
+
+        private async Task<SuccessResult<ExportDto>> CreateSuccessResult(List<ExportInvitationDto> exportInvitationDtos, GetInvitationsForExportQuery request)
+        {
+            var filter = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
+
+            return new SuccessResult<ExportDto>(new ExportDto(exportInvitationDtos, filter));
+        }
+
+        private async Task<List<ExportHistoryDto>> GetHistoryForSingleInvitationAsync(
+            int invitationId,
             CancellationToken cancellationToken)
         {
             var history = await (from h in _context.QuerySet<History>()
                     join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
                     join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
-                    where invitation.Id == singleInvitationId
+                    where invitation.Id == invitationId
                     select new
                     {
                         History = h,
@@ -79,33 +90,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     })
                 .ToListAsync(cancellationToken);
 
-            var singleExportInvitationDto = exportInvitationDtos.Single();
-
-            foreach (var dto in history.OrderByDescending(x => x.History.CreatedAtUtc))
-            {
-                singleExportInvitationDto.History.Add(new ExportHistoryDto(
-                    dto.History.Id,
-                    dto.History.Description,
-                    dto.History.CreatedAtUtc,
-                    $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}"));
-            }
+            return history.OrderByDescending(x => x.History.CreatedAtUtc).Select(dto
+                => new ExportHistoryDto(dto.History.Id, dto.History.Description, dto.History.CreatedAtUtc,
+                    $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}")).ToList();
         }
 
-        private void AddParticipantsForSingleInvitation(
-            IList<ExportInvitationDto> exportInvitationDtos,
-            IList<Invitation> invitationsWithIncludes)
-        {
-            var singleExportInvitationDto = exportInvitationDtos.Single();
-            var singleInvitation = invitationsWithIncludes.Single();
-            foreach (var dto in singleInvitation.Participants)
-            {
-                singleExportInvitationDto.Participants.Add(new ExportParticipantDto(
-                    dto.Id,
-                    dto.Organization.ToString(),
-                    dto.Type.ToString(),
-                    dto.Type == IpoParticipantType.Person ? $"{dto.FirstName} {dto.LastName}" : dto.FunctionalRoleCode));
-            }
-        }
+        private static IEnumerable<ExportParticipantDto> AddParticipantsForSingleInvitation(
+            Invitation invitationWithIncludes) =>
+            invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
+                participant.Id,
+                participant.Organization.ToString(),
+                participant.Type.ToString(),
+                participant.Type == IpoParticipantType.Person ? $"{participant.FirstName} {participant.LastName}" 
+                    : participant.FunctionalRoleCode));
 
         private async Task<UsedFilterDto> CreateUsedFilterDtoAsync(string projectName, Filter filter)
         {
@@ -144,17 +141,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 where p.Id == personId
                 select $"{p.FirstName} {p.LastName}").SingleAsync();
 
-        private async Task<List<ExportInvitationDto>> CreateExportInvitationsDtosAsync(
-            List<InvitationForQueryDto> orderedInvitations,
-            List<Invitation> invitationsWithIncludes)
+        private async Task<List<ExportInvitationDto>> CreateExportInvitationDtosAsync(
+            IList<Invitation> invitationsWithIncludes)
         {
             var exportInvitations = new List<ExportInvitationDto>();
-            foreach (var invitation in orderedInvitations)
+            foreach (var invitation in invitationsWithIncludes)
             {
                 var organizer = await GetPersonNameAsync(invitation.CreatedById);
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
                 var participants = invitationWithIncludes.Participants.ToList();
-                exportInvitations.Add(new ExportInvitationDto(
+                var exportInvitationDto = new ExportInvitationDto(
                     invitation.Id,
                     invitation.ProjectName,
                     invitation.Status,
@@ -172,7 +168,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     invitation.AcceptedAtUtc,
                     invitation.CreatedAtUtc,
                     organizer
-                ));
+                );
+                exportInvitationDto.Participants.AddRange(AddParticipantsForSingleInvitation(invitation));
+                exportInvitations.Add(exportInvitationDto);
             }
 
             return exportInvitations.ToList();
