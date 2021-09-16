@@ -29,11 +29,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
         {
-            var invitationsWithIncludes = await GetOrderedInvitationsWithIncludes(request, cancellationToken);
+            var invitationsWithIncludes = await GetOrderedInvitationsWithIncludesAsync(request, cancellationToken);
 
             if (!invitationsWithIncludes.Any())
             {
-                return await CreateSuccessResult(null, request);
+                return await CreateSuccessResultAsync(null, request);
             }
 
             var invitationsToBeExported = await CreateExportInvitationDtosAsync(invitationsWithIncludes);
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 await AddHistoryToSingleInvitationInList(invitationsToBeExported, cancellationToken);
             }
 
-            return await CreateSuccessResult(invitationsToBeExported, request);
+            return await CreateSuccessResultAsync(invitationsToBeExported, request);
         }
 
         private async Task AddHistoryToSingleInvitationInList(IEnumerable<ExportInvitationDto> exportInvitationDtos,
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     cancellationToken));
         }
 
-        private async Task<List<Invitation>> GetOrderedInvitationsWithIncludes(GetInvitationsForExportQuery request,
+        private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
             var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
         }
 
-        private async Task<SuccessResult<ExportDto>> CreateSuccessResult(List<ExportInvitationDto> exportInvitationDtos, GetInvitationsForExportQuery request)
+        private async Task<SuccessResult<ExportDto>> CreateSuccessResultAsync(List<ExportInvitationDto> exportInvitationDtos, GetInvitationsForExportQuery request)
         {
             var filter = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
 
