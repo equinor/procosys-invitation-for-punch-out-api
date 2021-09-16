@@ -10,6 +10,7 @@ resources:
     type: github
     name: equinor/procosys-infra
     endpoint: 'equinor'
+    ref: infra/ipo_leader_pod_step_1
 
 # Global variables for the pipeline
 variables:
@@ -29,7 +30,7 @@ variables:
    value: 40
 
  - name: 'leaderElectorDockerImage'
-   value: 'leader-elector:9'
+   value: '${{ variables.containerRegistry }}.azurecr.io/leader-elector:9'
 
  - name: 'leaderElectorLeaseTime'
    value: '5'
