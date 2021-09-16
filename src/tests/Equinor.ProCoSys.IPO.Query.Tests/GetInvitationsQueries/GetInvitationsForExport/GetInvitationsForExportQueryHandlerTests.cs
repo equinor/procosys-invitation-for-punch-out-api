@@ -30,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         private string _frEmail1 = "FR1@email.com";
         private string _personEmail1 = "P1@email.com";
         private string _personEmail2 = "P2@email.com";
+        private string _personEmail3 = "P3@email.com";
         private string _frPersonEmail1 = "frp1@email.com";
         private string _frPersonEmail2 = "frp2@email.com";
         const string _projectName = "Project1";
@@ -144,6 +145,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     _frPersonGuid2,
                     1);
 
+                var supplierPersonParticipant = new Participant(
+                    TestPlant,
+                    Organization.Supplier,
+                    IpoParticipantType.Person,
+                    null,
+                    "SupplierFirstName",
+                    "SupplierLastName",
+                    "UN",
+                    _personEmail3,
+                    _personGuid,
+                    5);
+
                 var commPkg = new CommPkg(
                     TestPlant,
                     _projectName,
@@ -185,6 +198,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 _invitation1.AddParticipant(functionalRoleParticipant1);
                 _invitation1.AddParticipant(personParticipant2);
                 _invitation1.AddParticipant(frPerson1);
+                _invitation1.AddParticipant(supplierPersonParticipant);
 
                 var startTime2 = _timeProvider.UtcNow.AddWeeks(1);
 
@@ -690,7 +704,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         }
 
         [TestMethod]
-        public async Task HandleGetInvitationsForExportQuery_MultipleInvitations_ShouldReturnEmptyHistoryAndParticipants()
+        public async Task HandleGetInvitationsForExportQuery_MultipleInvitations_ShouldReturnEmptyHistory()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -700,7 +714,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 var result = await dut.Handle(query, default);
 
                 AssertCount(result.Data, 2);
-                Assert.IsTrue(result.Data.Invitations.All(inv => inv.Participants.Count == 0));
                 Assert.IsTrue(result.Data.Invitations.All(inv => inv.History.Count == 0));
             }
         }
@@ -719,7 +732,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 var invitation = _invitation1;
                 AssertInvitation(invitation, invitationDto);
                 AssertUsedFilter(result.Data.UsedFilter);
-                Assert.AreEqual(3, invitationDto.Participants.Count);
+                Assert.AreEqual(4, invitationDto.Participants.Count);
                 Assert.AreEqual(1, invitationDto.History.Count);
             }
         }
@@ -754,6 +767,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 invitation.Participants.Single(p => p.SortKey == 0 && p.Type == IpoParticipantType.FunctionalRole)
                     .FunctionalRoleCode, invitationDto.ContractorRep);
             Assert.IsTrue(invitationDto.ConstructionCompanyRep.StartsWith(invitation.Participants.Single(p => p.SortKey == 1).FirstName));
+            Assert.IsTrue(invitationDto.Participants.First(p => p.Organization == "Supplier").Participant
+                .StartsWith(invitation.Participants.First(p => p.Organization == Organization.Supplier).FirstName));
             Assert.AreEqual(invitation.McPkgs.Single().McPkgNo, invitationDto.McPkgs.Single());
             Assert.AreEqual(invitation.Status, invitationDto.Status);
             Assert.AreEqual(invitation.EndTimeUtc, invitationDto.EndTimeUtc);

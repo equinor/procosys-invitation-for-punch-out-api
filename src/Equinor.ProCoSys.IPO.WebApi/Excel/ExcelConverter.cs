@@ -134,36 +134,39 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
         private void CreateParticipantsSheet(XLWorkbook workbook, IList<ExportInvitationDto> invitations)
         {
-            if (invitations.Count != 1)
-            {
-                return;
-            }
-            var sheet = workbook.Worksheets.Add("Participants");
+            var severalParticipantsSheet = workbook.Worksheets.Add("Participants");
 
-            var rowIdx = 0;
-            var row = sheet.Row(++rowIdx);
-            row.Style.Font.SetBold();
-            row.Style.Font.SetFontSize(12);
-            row.Cell(ParticipantsSheetColumns.IpoNo).Value = "Ipo nr";
-            row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
-            row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
-            row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
+                var rowIdx = 0;
+                var row = severalParticipantsSheet.Row(++rowIdx);
+                row.Style.Font.SetBold();
+                row.Style.Font.SetFontSize(12);
+                row.Cell(ParticipantsSheetColumns.IpoNo).Value = "Ipo nr";
+                row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
+                row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
+                row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
 
-            var invitation = invitations.Single();
+                foreach (var invitation in invitations)
+                {
 
-            foreach (var participant in invitation.Participants)
-            {
-                row = sheet.Row(++rowIdx);
+                    foreach (var participant in invitation.Participants)
+                    {
+                        row = severalParticipantsSheet.Row(++rowIdx);
 
-                row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
-                row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization).SetDataType(XLDataType.Text);
-                row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
-                row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant).SetDataType(XLDataType.Text);
-            }
+                        row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
+                        row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization)
+                            .SetDataType(XLDataType.Text);
+                        row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
+                        row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant)
+                            .SetDataType(XLDataType.Text);
+                    }
 
-            const int minWidth = 10;
-            const int maxWidth = 100;
-            sheet.Columns(1, ParticipantsSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
+                    rowIdx++;
+                    row.InsertRowsBelow(1);
+                }
+
+                const int minWidth = 10;
+                const int maxWidth = 100;
+                severalParticipantsSheet.Columns(1, ParticipantsSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
         }
 
         private void CreateInvitationSheet(XLWorkbook workbook, IEnumerable<ExportInvitationDto> invitations)
