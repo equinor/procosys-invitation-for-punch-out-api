@@ -10,7 +10,6 @@ resources:
     type: github
     name: equinor/procosys-infra
     endpoint: 'equinor'
-    ref: ipo_leader_pod_step_1
 
 # Global variables for the pipeline
 variables:
