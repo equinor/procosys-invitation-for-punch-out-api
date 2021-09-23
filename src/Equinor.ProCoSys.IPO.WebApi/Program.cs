@@ -20,22 +20,24 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 .ConfigureAppConfiguration((context, config) =>
                 {
                     var settings = config.Build();
-                    if (settings.GetValue<bool>("UseAzureAppConfiguration"))
+                    var azConfig = settings.GetValue<bool>("UseAzureAppConfiguration");
+                    if (azConfig)
                     {
                         config.AddAzureAppConfiguration(options =>
                         {
-                            options.Connect(settings["ConnectionStrings:AppConfig"])
-                                    .ConfigureKeyVault(kv =>
-                                    {
-                                        kv.SetCredential(new DefaultAzureCredential());
-                                    })
-                                    .ConfigureRefresh(options =>
-                                    {
-                                        options.Register("Sentinel", true);
-                                        options.SetCacheExpiration(TimeSpan.FromMinutes(5));
-                                    })
-                                    .Select(KeyFilter.Any, LabelFilter.Null)
-                                    .Select(KeyFilter.Any, context.HostingEnvironment.EnvironmentName);
+                            var connectionString = settings["ConnectionStrings:AppConfig"];
+                            options.Connect(connectionString)
+                                .ConfigureKeyVault(kv =>
+                                {
+                                    kv.SetCredential(new DefaultAzureCredential());
+                                })
+                                .Select(KeyFilter.Any)
+                                .Select(KeyFilter.Any, context.HostingEnvironment.EnvironmentName)
+                                .ConfigureRefresh(refreshOptions =>
+                                {
+                                    refreshOptions.Register("Sentinel", true);
+                                    refreshOptions.SetCacheExpiration(TimeSpan.FromMinutes(5));
+                                });
                         });
                     }
                 })
