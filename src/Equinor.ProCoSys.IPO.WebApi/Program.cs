@@ -25,8 +25,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     {
                         config.AddAzureAppConfiguration(options =>
                         {
-                            var appConfigConnectionString = settings["ConnectionStrings:AppConfig"];
-                            options.Connect(appConfigConnectionString)
+                            var connectionString = settings["ConnectionStrings:AppConfig"];
+                            options.Connect(connectionString)
                                 .ConfigureKeyVault(kv =>
                                 {
                                     kv.SetCredential(new DefaultAzureCredential());
