@@ -270,7 +270,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       p.SortKey > 1 &&
                       (p.Organization == Organization.TechnicalIntegrity ||
                        p.Organization == Organization.Operation ||
-                       p.Organization == Organization.Commissioning)
+                       p.Organization == Organization.Commissioning ||
+                       p.Organization == Organization.Contractor ||
+                       p.Organization == Organization.ConstructionCompany)
                 select p).SingleAsync(cancellationToken);
 
             if (participant.Type == IpoParticipantType.FunctionalRole)
