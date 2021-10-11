@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="1.5.5" />
+    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="1.5.13" />
     <PackageReference Include="FluentValidation" Version="9.5.3" />
-    <PackageReference Include="Fusion.Integration.Meeting" Version="5.2.1" />
+    <PackageReference Include="Fusion.Integration.Meeting" Version="5.3.1" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.4" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
