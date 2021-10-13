@@ -7,7 +7,6 @@
         public const string MCPKG_READ = "MCPKG/READ";
         public const string LIBRARY_FUNCTIONAL_ROLE_READ = "LIBRARY_FUNCTIONAL_ROLE/READ";
         public const string USER_READ = "USER/READ";
-
         public const string IPO_READ = "IPO/READ";
         public const string IPO_CREATE = "IPO/CREATE";
         public const string IPO_WRITE = "IPO/WRITE";
