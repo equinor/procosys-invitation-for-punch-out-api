@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private int _invitationIdWithoutParticipants;
         private int _invitationIdWithCurrentUserOidAsParticipants;
         private int _invitationIdWithNotCurrentUserOidAsParticipants;
-        private int _invitationWithValidAndNonValidSignerParticipants;
+        private int _invitationIdWithValidAndNonValidSignerParticipants;
         private int _invitationIdWithAnotherCreator;
         private int _participantId1;
         private int _participantId2;
@@ -275,7 +275,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     null);
 
                 context.Invitations.Add(invitationWithValidAndNonValidSignerParticipants);
-                _invitationWithValidAndNonValidSignerParticipants = invitationWithValidAndNonValidSignerParticipants.Id;
+                _invitationIdWithValidAndNonValidSignerParticipants = invitationWithValidAndNonValidSignerParticipants.Id;
                 var contractorParticipant2 = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -1239,7 +1239,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-                    await dut.ValidSigningParticipantExistsAsync(_invitationWithValidAndNonValidSignerParticipants, _contractorId, default)
+                    await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _contractorId, default)
                 );
                 Assert.AreEqual(result.Message, "Sequence contains no elements");
             }
@@ -1252,7 +1252,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidSigningParticipantExistsAsync(_invitationWithValidAndNonValidSignerParticipants, _commissioningId, default);
+                var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _commissioningId, default);
                 Assert.IsTrue(result);
             }
         }
@@ -1264,7 +1264,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = await dut.ValidSigningParticipantExistsAsync(_invitationWithValidAndNonValidSignerParticipants, _additionalContractorId, default);
+                var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _additionalContractorId, default);
                 Assert.IsTrue(result);
             }
         }
@@ -1277,7 +1277,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-                    await dut.ValidSigningParticipantExistsAsync(_invitationWithValidAndNonValidSignerParticipants, _supplierId, default)
+                    await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _supplierId, default)
                 );
                 Assert.AreEqual(result.Message, "Sequence contains no elements");
             }
