@@ -24,16 +24,22 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _title3 = "Test title 3";
         private const string _title4 = "Test title 4";
         private const string _title5 = "Test title 5";
+        private const string _title6 = "Test title 6";
         private int _invitationIdWithFrAsParticipants;
         private int _invitationIdWithoutParticipants;
         private int _invitationIdWithCurrentUserOidAsParticipants;
         private int _invitationIdWithNotCurrentUserOidAsParticipants;
+        private int _invitationIdWithValidAndNonValidSignerParticipants;
         private int _invitationIdWithAnotherCreator;
         private int _participantId1;
         private int _participantId2;
         private int _operationCurrentPersonId;
         private int _operationFrId;
         private int _operationNotCurrentPersonId;
+        private int _contractorId;
+        private int _commissioningId;
+        private int _additionalContractorId;
+        private int _supplierId;
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;
         private const DisciplineType _typeMdp = DisciplineType.MDP;
@@ -256,6 +262,80 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithNotCurrentUserAsParticipants.AddParticipant(constructionParticipant);
                 invitationWithNotCurrentUserAsParticipants.AddParticipant(operationParticipant);
 
+                var invitationWithValidAndNonValidSignerParticipants = new Invitation(
+                    TestPlant,
+                    _projectName,
+                    _title6,
+                    _description,
+                    _typeDp,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    null);
+
+                context.Invitations.Add(invitationWithValidAndNonValidSignerParticipants);
+                _invitationIdWithValidAndNonValidSignerParticipants = invitationWithValidAndNonValidSignerParticipants.Id;
+                var contractorParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.Person,
+                    null,
+                    "First1",
+                    "Last",
+                    "UN1",
+                    "first1@last.com",
+                    _currentUserOid,
+                    0);
+                var constructionParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.ConstructionCompany,
+                    IpoParticipantType.Person,
+                    null,
+                    "First2",
+                    "Last",
+                    "UN2",
+                    "first2@last.com",
+                    _currentUserOid,
+                    1);
+                var commissioningParticipant = new Participant(
+                    TestPlant,
+                    Organization.Commissioning,
+                    IpoParticipantType.Person,
+                    null,
+                    "First3",
+                    "Last",
+                    "UN3",
+                    "first3@last.com",
+                    _currentUserOid,
+                    2);
+                var additionalContractorParticipant = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.Person,
+                    null,
+                    "First4",
+                    "Last",
+                    "UN4",
+                    "first4@last.com",
+                    _currentUserOid,
+                    3);
+                var supplierParticipant = new Participant(TestPlant,
+                    Organization.Supplier,
+                    IpoParticipantType.Person,
+                    null,
+                    "First5",
+                    "Last",
+                    "UN5",
+                    "first5@last.com",
+                    _currentUserOid,
+                    4);
+                invitationWithValidAndNonValidSignerParticipants.AddParticipant(contractorParticipant2);
+                invitationWithValidAndNonValidSignerParticipants.AddParticipant(constructionParticipant2);
+                invitationWithValidAndNonValidSignerParticipants.AddParticipant(commissioningParticipant);
+                invitationWithValidAndNonValidSignerParticipants.AddParticipant(additionalContractorParticipant);
+                invitationWithValidAndNonValidSignerParticipants.AddParticipant(supplierParticipant);
+
                 context.SaveChangesAsync().Wait();
 
                 // Add invitation with another currentuserprovider
@@ -299,6 +379,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 _operationCurrentPersonId = participant3.Id;
                 _operationFrId = frOperation.Id;
                 _operationNotCurrentPersonId = operationParticipant.Id;
+                _contractorId = contractorParticipant2.Id;
+                _commissioningId = commissioningParticipant.Id;
+                _additionalContractorId = additionalContractorParticipant.Id;
+                _supplierId = supplierParticipant.Id;
             }
         }
 
@@ -1144,6 +1228,58 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, _operationNotCurrentPersonId, default);
                 Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidSignerParticipantExistsAsync_ShouldThrowException_WhenSignerIsContractor()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                    await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _contractorId, default)
+                );
+                Assert.AreEqual(result.Message, "Sequence contains no elements");
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidSignerParticipantExistsAsync_SignerIsCommissioning_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _commissioningId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidSignerParticipantExistsAsync_SignerIsAdditionalContractor_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _additionalContractorId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidSignerParticipantExistsAsync_ShouldThrowException_WhenSignerIsSupplier()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider);
+                var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                    await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _supplierId, default)
+                );
+                Assert.AreEqual(result.Message, "Sequence contains no elements");
             }
         }
 
