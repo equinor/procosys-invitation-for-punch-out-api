@@ -107,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     _currentUserOid,
-                    0);
+                    1);
                 _personParticipant.SetProtectedIdForTesting(2);
 
                 _personParticipant2 = new Participant(
