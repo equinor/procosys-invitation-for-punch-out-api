@@ -162,10 +162,17 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
-            if (Configuration.GetValue<bool>("EnableServiceBus"))
+            if (Configuration.GetValue<bool>("ServiceBus:Enable"))
             {
+                // Env variable used in kubernetes. Configuration is added for easier use locally
+                // Url will be validated during startup of service bus intergration and give a
+                // Uri exception if invalid.
+                var leaderElectorUrl = "http://" + (Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? Configuration["ServiceBus:LeaderElectorUrl"]) + ":3003";
+
                 services.AddPcsServiceBusIntegration(options => options
                     .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
+                    .WithLeaderElector(leaderElectorUrl)
+                    .WithRenewLeaseInterval(int.Parse(Configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
                     .WithSubscription(PcsTopic.Ipo, "ipo_ipo")
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
