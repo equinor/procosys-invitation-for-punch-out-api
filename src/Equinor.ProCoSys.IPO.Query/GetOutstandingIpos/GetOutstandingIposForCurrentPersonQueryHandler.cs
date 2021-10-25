@@ -46,6 +46,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                         .Include(ss => ss.Participants)
                     where i.CompletedAtUtc.HasValue
                     where !i.AcceptedAtUtc.HasValue
+                    where i.Status != IpoStatus.Canceled
                     select i).ToListAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<Invitation>();
@@ -80,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         }
 
         private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid)
-            => invitation.Participants.Any(p => p.AzureOid == currentUserOid);
+            => invitation.Participants.Any(p => p.AzureOid == currentUserOid && p.SortKey == 1);
 
         private static bool UserWasInvitedAsPersonInFunctionalRole(Invitation invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
         {

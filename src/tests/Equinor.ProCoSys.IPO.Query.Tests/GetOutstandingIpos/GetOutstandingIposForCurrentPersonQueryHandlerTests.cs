@@ -25,10 +25,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private GetOutstandingIposForCurrentPersonQuery _query;
         private Person _person;
         private Participant _personParticipant;
+        private Participant _personParticipant2;
         private Participant _functionalRoleParticipant;
 
         private Invitation _invitationWithPersonParticipant;
         private Invitation _invitationWithFunctionalRoleParticipant;
+        private Invitation _cancelledInvitation;
         private string _functionalRoleCode = "FR1";
         private const string _projectName = "TestProject";
 
@@ -70,6 +72,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
+                _cancelledInvitation = new Invitation(
+                    TestPlant,
+                    _projectName,
+                    "TestInvitation3",
+                    "TestDescription3",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<CommPkg>());
+
                 _functionalRoleParticipant = new Participant(
                     TestPlant,
                     Organization.Contractor,
@@ -93,11 +107,25 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     _currentUserOid,
-                    0);
+                    1);
                 _personParticipant.SetProtectedIdForTesting(2);
+
+                _personParticipant2 = new Participant(
+                    TestPlant,
+                    Organization.Operation,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _currentUserOid,
+                    3);
+                _personParticipant2.SetProtectedIdForTesting(3);
 
                 _invitationWithPersonParticipant.AddParticipant(_personParticipant);
                 _invitationWithFunctionalRoleParticipant.AddParticipant(_functionalRoleParticipant);
+                _cancelledInvitation.AddParticipant(_personParticipant2);
 
                 _invitationWithPersonParticipant.CompleteIpo(
                     _personParticipant,
@@ -111,8 +139,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     _person,
                     new DateTime());
 
+                _cancelledInvitation.CompleteIpo(
+                    _personParticipant,
+                    _personParticipant.RowVersion.ConvertToString(),
+                    _person,
+                    new DateTime());
+                _cancelledInvitation.CancelIpo(_person);
+
                 context.Invitations.Add(_invitationWithPersonParticipant);
                 context.Invitations.Add(_invitationWithFunctionalRoleParticipant);
+                context.Invitations.Add(_cancelledInvitation);
+
                 context.SaveChangesAsync().Wait();
             }
         }
@@ -207,13 +244,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitationWithPersonParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+                context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
 
                 var invitationWithFunctionalRoleParticipant =
                     context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
 
+                var cancelledInvitation = context.Invitations.Single(i => i.Id == _cancelledInvitation.Id);
+
                 context.Remove(invitationWithPersonParticipant);
                 context.Remove(invitationWithFunctionalRoleParticipant);
+                context.Remove(cancelledInvitation);
 
                 context.SaveChangesAsync().Wait();
 
