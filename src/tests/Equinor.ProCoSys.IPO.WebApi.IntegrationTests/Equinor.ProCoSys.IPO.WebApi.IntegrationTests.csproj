@@ -37,10 +37,4 @@
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.WebApi\Equinor.ProCoSys.IPO.WebApi.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Microsoft.AspNetCore.Authentication">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\3.1.0\ref\netcoreapp3.1\Microsoft.AspNetCore.Authentication.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
