@@ -20,7 +20,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private Invitation _mdpInvitation;
         private Invitation _mdpInvitation1;
         private Invitation _mdpInvitation2;
-        private int _mdpInvitationId;
         private int _mdpInvitationId1;
         private int _mdpInvitationId2;
         private const string _commPkgNo1 = "CommPkgNo";
