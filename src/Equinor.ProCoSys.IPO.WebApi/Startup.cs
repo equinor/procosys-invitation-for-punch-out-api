@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using FluentValidation.AspNetCore;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +23,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Equinor.ProCoSys.IPO.WebApi
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                             typeof(Startup).Assembly,
                         }
                     );
-                    fv.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+                    fv.DisableDataAnnotationsValidation = true;
                 });
 
             var scopes = Configuration.GetSection("Swagger:Scopes")?.Get<Dictionary<string, string>>() ?? new Dictionary<string, string>();
@@ -131,13 +131,14 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
                 c.OperationFilter<AddRoleDocumentation>();
 
-                c.AddFluentValidationRules();
             });
 
             services.ConfigureSwaggerGen(options =>
             {
                 options.CustomSchemaIds(x => x.FullName);
             });
+
+            services.AddFluentValidationRulesToSwagger();
 
             services.AddResponseCompression(options =>
             {
