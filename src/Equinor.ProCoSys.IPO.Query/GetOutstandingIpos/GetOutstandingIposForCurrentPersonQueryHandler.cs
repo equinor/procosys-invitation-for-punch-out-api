@@ -44,9 +44,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 //so unlikely that we do not need to take it into consideration
                 var nonCancelledInvitations = await (from i in _context.QuerySet<Invitation>()
                         .Include(ss => ss.Participants)
-                    where !i.AcceptedAtUtc.HasValue
-                    where i.Status != IpoStatus.Canceled
-                    select i).ToListAsync(cancellationToken);
+                                                     where !i.AcceptedAtUtc.HasValue
+                                                     where i.Status != IpoStatus.Canceled
+                                                     select i).ToListAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<Invitation>();
                 foreach (var invitation in nonCancelledInvitations)
@@ -65,9 +65,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 }
 
                 var outstandingIposResultDto = new OutstandingIposResultDto(
-                    currentUsersOutstandingInvitations.Select(invitation => new OutstandingIpoDetailsDto
+                    currentUsersOutstandingInvitations.Select(invitation =>
                     {
-                        InvitationId = invitation.Id, Description = invitation.Description
+                        var organization = invitation.CompletedAtUtc.HasValue ? 
+                            Organization.ConstructionCompany : Organization.Contractor;
+                        return new OutstandingIpoDetailsDto
+                        {
+                            InvitationId = invitation.Id,
+                            Description = invitation.Description,
+                            Organization = organization
+                        };
                     }));
 
                 return new SuccessResult<OutstandingIposResultDto>(outstandingIposResultDto);
