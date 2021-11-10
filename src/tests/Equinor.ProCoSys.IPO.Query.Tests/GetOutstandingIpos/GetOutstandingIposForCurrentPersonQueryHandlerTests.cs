@@ -234,23 +234,36 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 Assert.AreEqual(4, result.Data.Items.Count());
                 var outstandingInvitationWithPersonParticipant = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitationWithPersonParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitationWithPersonParticipant.Description);
+                Assert.AreEqual(_invitationWithPersonParticipant.Id, 
+                        outstandingInvitationWithPersonParticipant.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipant.Description, 
+                        outstandingInvitationWithPersonParticipant.Description);
+                Assert.AreEqual(Organization.ConstructionCompany,
+                    outstandingInvitationWithPersonParticipant.Organization);
+
                 var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id, outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description, outstandingInvitationWithFunctionalRoleParticipant.Description);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id, 
+                        outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description, 
+                        outstandingInvitationWithFunctionalRoleParticipant.Description);
+                Assert.AreEqual(Organization.ConstructionCompany,
+                    outstandingInvitationWithFunctionalRoleParticipant.Organization);
 
                 var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(2);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
                     outstandingInvitationWithPersonParticipantContractor.InvitationId);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
                     outstandingInvitationWithPersonParticipantContractor.Description);
+                Assert.AreEqual(Organization.Contractor,
+                    outstandingInvitationWithPersonParticipantContractor.Organization);
 
                 var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(3);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Id,
                     outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description,
                     outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
+                Assert.AreEqual(Organization.Contractor,
+                    outstandingInvitationWithPersonParticipantContractor.Organization);
             }
         }
 
