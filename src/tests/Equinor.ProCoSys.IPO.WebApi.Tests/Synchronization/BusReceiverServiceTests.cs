@@ -337,7 +337,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [ExpectedException(typeof(Exception))]
         public async Task HandlingCommPkgTopic_ShouldFailIfEmpty()
         {
-
             var message = $"{{}}";
 
             // Act
@@ -348,7 +347,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [ExpectedException(typeof(Exception))]
         public async Task HandlingMcPkgTopic_ShouldFailIfEmpty()
         {
-
             var message = $"{{}}";
 
             // Act
@@ -359,7 +357,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [ExpectedException(typeof(Exception))]
         public async Task HandlingIpoTopic_ShouldFailIfEmpty()
         {
-
             var message = $"{{}}";
 
             // Act
@@ -370,7 +367,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [ExpectedException(typeof(Exception))]
         public async Task HandlingProjectTopic_ShouldFailIfEmpty()
         {
-
             var message = $"{{}}";
 
             // Act
@@ -381,7 +377,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [ExpectedException(typeof(Exception))]
         public async Task HandlingLibraryTopic_ShouldFailIfEmpty()
         {
-
             var message = $"{{}}";
 
             // Act
