@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string description = "789";
         private const string functionalRoleCodeOld = "IPO FR1 TEST";
         private const string functionalRoleCodeNew = "IPO FR2 TEST";
-        private const string librarytypefunctionalrole = "FUNCTIONAL ROLE";
+        private const string librarytypefunctionalrole = "FUNCTIONAL_ROLE";
 
         private List<McPkg> _mcPkgsOn1 = new List<McPkg>
         {

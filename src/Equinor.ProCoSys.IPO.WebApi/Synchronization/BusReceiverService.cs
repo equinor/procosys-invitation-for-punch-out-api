@@ -28,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IApplicationAuthenticator _authenticator;
         private readonly IBearerTokenSetter _bearerTokenSetter;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
+        private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
 
         public BusReceiverService(
             IInvitationRepository invitationRepository,
@@ -240,7 +241,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(libraryEvent.Plant);
 
-            _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
+            if (libraryEvent.Type == FunctionalRoleLibraryType)
+            {
+                _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
+            }
         }
 
         private async Task ClearM01DatesAndBlankExternalReferenceAsync(IpoTopic ipoEvent, Invitation invitation)
