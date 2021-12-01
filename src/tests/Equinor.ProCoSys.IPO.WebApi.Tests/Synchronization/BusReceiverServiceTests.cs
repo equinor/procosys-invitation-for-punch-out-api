@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -12,7 +11,6 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus;
-using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -38,10 +36,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string commPkgNo2 = "234";
         private const string commPkgNo3 = "456";
         private const string mcPkgNo1 = "456";
-        private const string mcPkgNo2 = "567";
         private const string mcPkgNo3 = "333";
         private const string mcPkgNo4 = "444";
         private const string description = "789";
+        private const string functionalRoleCodeOld = "IPO FR1 TEST";
+        private const string functionalRoleCodeNew = "IPO FR2 TEST";
+        private const string librarytypefunctionalrole = "FUNCTIONAL ROLE";
 
         private List<McPkg> _mcPkgsOn1 = new List<McPkg>
         {
@@ -185,12 +185,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
-        public void Testlkj()
+
+        public async Task HandlingLibraryTopicWithoutFailure()
         {
-            var k = "{ \"Plant\" : \"PCS$HEIDRUN\", \"ProjectName\" : \"M.O095C.20.A.0014\", \"CommPkgNo\" : \"7303-C01\", \"McPkgNo\" : \"7303-M001\", \"Description\" : \"Midlertidig kran\"}";
-            var mcPkgTopic = JsonSerializer.Deserialize<McPkgTopic>(k);
+            var message = $"{{\"Plant\" : \"{plant}\", \"Code\" : \"{functionalRoleCodeNew}\", \"CodeOld\" : \"{functionalRoleCodeOld}\", \"Description\" : \"{description}\", \"IsVoided\" : false, \"Type\" : \"{librarytypefunctionalrole}\"}}";
+
+            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+
+            _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
+            _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Once);
+            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
-        
 
     [TestMethod]
         public async Task HandlingProjectTopicWithoutFailure()
@@ -367,6 +375,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task HandlingLibraryTopic_ShouldFailIfEmpty()
+        {
+
+            var message = $"{{}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
         }
     }
 }
