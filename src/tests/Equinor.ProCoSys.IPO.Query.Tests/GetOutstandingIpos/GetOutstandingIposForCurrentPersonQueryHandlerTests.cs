@@ -358,8 +358,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 context.SaveChangesAsync().Wait();
 
-                var existingCompletedInvitations = context.Invitations.Count(i => i.CompletedAtUtc != null);
-                Assert.AreEqual(0, existingCompletedInvitations);
+                var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
+                Assert.AreEqual(0, existingUncancelledInvitations);
 
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider);
@@ -371,7 +371,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         }
 
         [TestMethod]
-        public async Task Handle_ShouldNotReturnIpo_AfterIpoHasBeenAccepted()
+        public async Task Handle_ShouldNotReturnIpoForConstructionCompany_AfterIpoHasBeenAccepted()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -413,7 +413,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
 
         [TestMethod]
-        public async Task Handle_ShouldNotReturnIpo_AfterIpoHasBeenCompleted()
+        public async Task Handle_ShouldNotReturnIpoForContractor_AfterIpoHasBeenCompleted()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
