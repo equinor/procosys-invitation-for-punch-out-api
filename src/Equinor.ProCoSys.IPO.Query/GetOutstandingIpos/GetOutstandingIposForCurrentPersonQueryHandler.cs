@@ -42,15 +42,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 //the scenario that a person should lose access to a single project
                 //in a plant after being added to the invitation is (according to the client)
                 //so unlikely that we do not need to take it into consideration
-                var completedInvitations = await (from i in _context.QuerySet<Invitation>()
+                var nonCancelledInvitations = await (from i in _context.QuerySet<Invitation>()
                         .Include(ss => ss.Participants)
-                    where i.CompletedAtUtc.HasValue
-                    where !i.AcceptedAtUtc.HasValue
-                    where i.Status != IpoStatus.Canceled
-                    select i).ToListAsync(cancellationToken);
+                                                     where !i.AcceptedAtUtc.HasValue
+                                                     where i.Status != IpoStatus.Canceled
+                                                     select i).ToListAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<Invitation>();
-                foreach (var invitation in completedInvitations)
+                foreach (var invitation in nonCancelledInvitations)
                 {
                     var currentUsersFunctionalRoleCodes =
                         await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
@@ -66,9 +65,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 }
 
                 var outstandingIposResultDto = new OutstandingIposResultDto(
-                    currentUsersOutstandingInvitations.Select(invitation => new OutstandingIpoDetailsDto
+                    currentUsersOutstandingInvitations.Select(invitation =>
                     {
-                        InvitationId = invitation.Id, Description = invitation.Description
+                        var organization = invitation.CompletedAtUtc.HasValue ? 
+                            Organization.ConstructionCompany : Organization.Contractor;
+                        return new OutstandingIpoDetailsDto
+                        {
+                            InvitationId = invitation.Id,
+                            Description = invitation.Description,
+                            Organization = organization
+                        };
                     }));
 
                 return new SuccessResult<OutstandingIposResultDto>(outstandingIposResultDto);
@@ -81,11 +87,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         }
 
         private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid)
-            => invitation.Participants.Any(p => p.AzureOid == currentUserOid && p.SortKey == 1);
+            => invitation.Participants.Any(p => p.AzureOid == currentUserOid && ((p.SortKey == 1 && invitation.CompletedAtUtc.HasValue) || (p.SortKey == 0 && !invitation.CompletedAtUtc.HasValue)));
 
         private static bool UserWasInvitedAsPersonInFunctionalRole(Invitation invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
         {
-            var functionalRoleParticipantCodesOnInvitation = invitation.Participants.Where(p => p.SortKey == 1 &&
+            var functionalRoleParticipantCodesOnInvitation = invitation.Participants.Where(p =>((p.SortKey == 1 && invitation.CompletedAtUtc.HasValue) || (p.SortKey == 0 && !invitation.CompletedAtUtc.HasValue)) &&
                                                p.FunctionalRoleCode != null &&
                                                p.Type == IpoParticipantType.FunctionalRole).Select(p => p.FunctionalRoleCode).ToList();
 
