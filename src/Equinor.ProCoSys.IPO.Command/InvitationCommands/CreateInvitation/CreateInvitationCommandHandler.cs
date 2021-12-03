@@ -163,8 +163,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participant.SortKey));
                     if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(fr.Email)));
+                        var emails = fr.Email.Split(";");
+                        foreach (var email in emails)
+                        {
+                            participants.Add(new BuilderParticipant(ParticipantType.Required,
+                                new ParticipantIdentifier(email)));
+                        }
                     }
                     foreach (var person in participant.FunctionalRole.Persons)
                     {
