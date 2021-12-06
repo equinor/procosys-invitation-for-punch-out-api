@@ -28,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IApplicationAuthenticator _authenticator;
         private readonly IBearerTokenSetter _bearerTokenSetter;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
+        private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
 
         public BusReceiverService(
             IInvitationRepository invitationRepository,
@@ -64,6 +65,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     break;
                 case PcsTopic.McPkg:
                     ProcessMcPkgEvent(messageJson);
+                    break;
+                case PcsTopic.Library:
+                    ProcessLibraryEvent(messageJson);
                     break;
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -221,6 +225,28 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
         }
 
+        private void ProcessLibraryEvent(string messageJson)
+        {
+            var libraryEvent = JsonSerializer.Deserialize<LibraryTopic>(messageJson);
+            if (string.IsNullOrWhiteSpace(libraryEvent.Plant))
+            {
+                throw new Exception($"Unable to deserialize JSON to LibraryEvent {messageJson}");
+            }
+
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.Plant, libraryEvent.Plant[4..]},
+                });
+            _plantSetter.SetPlant(libraryEvent.Plant);
+
+            if (libraryEvent.Type == FunctionalRoleLibraryType)
+            {
+                _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
+            }
+        }
+
         private async Task ClearM01DatesAndBlankExternalReferenceAsync(IpoTopic ipoEvent, Invitation invitation)
         {
             try
@@ -230,7 +256,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     null,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
-                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+                    invitation.CommPkgs.Select(commPkg => commPkg.CommPkgNo).ToList());
             }
             catch (Exception e)
             {
@@ -247,7 +273,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     invitation.Id,
                     invitation.ProjectName,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
-                    invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
+                    invitation.CommPkgs.Select(commPkg => commPkg.CommPkgNo).ToList());
             }
             catch (Exception e)
             {
