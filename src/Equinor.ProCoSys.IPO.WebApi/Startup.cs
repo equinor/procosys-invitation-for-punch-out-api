@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg")
-                    .WithSubscription(PcsTopic.Library, "ipo_libary"));
+                    .WithSubscription(PcsTopic.Library, "ipo_library"));
                 
                 services.AddTopicClients(
                     Configuration.GetConnectionString("ServiceBus"),
