@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 {
     public class Authenticator : IBearerTokenProvider, IBearerTokenSetter, IApplicationAuthenticator
     {
-        private readonly IOptions<AuthenticatorOptions> _options;
+        private readonly IOptionsMonitor<AuthenticatorOptions> _options;
         private readonly ILogger<Authenticator> _logger;
         private bool _canUseOnBehalfOf;
         private string _requestToken;
@@ -20,11 +20,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
         private readonly string _secretInfo;
 
-        public Authenticator(IOptions<AuthenticatorOptions> options, ILogger<Authenticator> logger)
+        public Authenticator(IOptionsMonitor<AuthenticatorOptions> options, ILogger<Authenticator> logger)
         {
             _options = options;
             _logger = logger;
-            var apiSecret = _options.Value.IPOApiSecret;
+            var apiSecret = _options.CurrentValue.IPOApiSecret;
             _secretInfo = $"{apiSecret.Substring(0, 2)}***{apiSecret.Substring(apiSecret.Length - 1, 1)}";
         }
 
@@ -35,10 +35,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         }
 
         public async ValueTask<string> GetBearerTokenForMainApiOnBehalfOfCurrentUserAsync()
-            => await GetBearerTokenOnBehalfOfCurrentUser(_options.Value.MainApiScope);
+            => await GetBearerTokenOnBehalfOfCurrentUser(_options.CurrentValue.MainApiScope);
 
         public async ValueTask<string> GetBearerTokenForLibraryApiOnBehalfOfCurrentUserAsync() 
-            => await GetBearerTokenOnBehalfOfCurrentUser(_options.Value.LibraryApiScope);
+            => await GetBearerTokenOnBehalfOfCurrentUser(_options.CurrentValue.LibraryApiScope);
 
         private async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUser(string apiScope)
         {
@@ -69,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
                 var app = CreateConfidentialIpoClient();
 
                 var tokenResult = await app
-                    .AcquireTokenForClient(new List<string> { _options.Value.MainApiScope })
+                    .AcquireTokenForClient(new List<string> { _options.CurrentValue.MainApiScope })
                     .ExecuteAsync();
 
                 _applicationToken = tokenResult.AccessToken;
@@ -79,11 +79,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 
         private IConfidentialClientApplication CreateConfidentialIpoClient()
         {
-            _logger.LogInformation($"Getting client using {_secretInfo} for {_options.Value.IPOApiClientId}");
+            _logger.LogInformation($"Getting client using {_secretInfo} for {_options.CurrentValue.IPOApiClientId}");
             return ConfidentialClientApplicationBuilder
-                .Create(_options.Value.IPOApiClientId)
-                .WithClientSecret(_options.Value.IPOApiSecret)
-                .WithAuthority(new Uri(_options.Value.Instance))
+                .Create(_options.CurrentValue.IPOApiClientId)
+                .WithClientSecret(_options.CurrentValue.IPOApiSecret)
+                .WithAuthority(new Uri(_options.CurrentValue.Instance))
                 .Build();
         }
     }
