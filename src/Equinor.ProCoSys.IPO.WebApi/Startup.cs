@@ -84,6 +84,11 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 config.Filters.Add(new AuthorizeFilter(policy));
             }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+            if (Configuration.GetValue<bool>("UseAzureAppConfiguration"))
+            {
+                services.AddAzureAppConfiguration();
+            }
+
             services.AddControllers()
                 .AddFluentValidation(fv =>
                 {
@@ -193,6 +198,11 @@ namespace Equinor.ProCoSys.IPO.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (Configuration.GetValue<bool>("UseAzureAppConfiguration"))
+            {
+                app.UseAzureAppConfiguration();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
