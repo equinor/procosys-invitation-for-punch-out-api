@@ -277,6 +277,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 new ParticipantIdentifier(email)));
                         }
                     }
+                    if (fr.InformationEmail != null)
+                    {
+                        var informationEmails = fr.InformationEmail.Split(";");
+                        foreach (var informationEmail in informationEmails)
+                        {
+                            participants.Add(new BuilderParticipant(ParticipantType.Required,
+                                new ParticipantIdentifier(informationEmail)));
+                        }
+                    }
                     foreach (var person in participant.FunctionalRole.Persons)
                     {
                         var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());
