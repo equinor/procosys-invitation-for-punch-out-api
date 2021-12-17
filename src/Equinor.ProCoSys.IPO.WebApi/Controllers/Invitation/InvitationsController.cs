@@ -14,6 +14,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
@@ -289,6 +290,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 throw;
             }
             
+        }
+
+        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [HttpPut("{id}/Unsign")]
+        public async Task<ActionResult<string>> UnsignPunchOut(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] UnSignPunchOutDto dto)
+        {
+            var result = await _mediator.Send(
+                new UnSignPunchOutCommand(id, dto.ParticipantId, dto.ParticipantRowVersion));
+            return this.FromResult(result);
         }
 
         [Authorize(Roles = Permissions.IPO_SIGN)]
