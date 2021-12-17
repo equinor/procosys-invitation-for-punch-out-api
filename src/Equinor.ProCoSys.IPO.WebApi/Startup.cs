@@ -45,7 +45,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
         {
             if (_environment.IsDevelopment() || _environment.IsTest())
             {
-                if (Configuration.GetValue<bool>("MigrateDatabase"))
+                var migrateDatabase = Configuration.GetValue<bool>("MigrateDatabase");
+                if (migrateDatabase)
                 {
                     services.AddHostedService<DatabaseMigrator>();
                 }
@@ -168,7 +169,10 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
-            if (Configuration.GetValue<bool>("ServiceBus:Enable"))
+
+            var serviceBusEnabled = Configuration.GetValue<bool>("ServiceBus:Enable") &&
+                (!_environment.IsDevelopment() || Configuration.GetValue<bool>("ServiceBus:EnableInDevelopment"));
+            if (serviceBusEnabled)
             {
                 // Env variable used in kubernetes. Configuration is added for easier use locally
                 // Url will be validated during startup of service bus intergration and give a
