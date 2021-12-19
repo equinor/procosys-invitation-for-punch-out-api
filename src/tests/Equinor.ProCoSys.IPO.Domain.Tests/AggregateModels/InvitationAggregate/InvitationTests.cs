@@ -20,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private Invitation _dutWithCompletedStatus;
         private Invitation _dutWithAcceptedStatus;
         private Invitation _dutWithCanceledStatus;
+        private Invitation _dutWithSignedParticipant;
         private Participant _personParticipant;
         private Participant _personParticipant2;
         private Participant _functionalRoleParticipant;
@@ -111,6 +112,19 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 null,
                 new List<CommPkg> { _commPkg1, _commPkg2 });
+
+            _dutWithSignedParticipant = new Invitation(
+                TestPlant,
+                ProjectName,
+                Title2,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1, _commPkg2 });
+
             _personParticipantId = 10033;
             _functionalRoleParticipantId = 3;
             _externalParticipantId = 967;
@@ -163,7 +177,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 "KH",
                 "kari@test.com",
                 new Guid("11111111-1111-2222-2222-333333333334"),
-                0);
+                3);
 
             _attachment = new Attachment(TestPlant, "filename.txt");
             _currentPerson = new Person(new Guid(), null, null, null, null);
@@ -189,6 +203,11 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _functionalRoleParticipant.RowVersion.ConvertToString(), _currentPerson, new DateTime());
             _dutWithCanceledStatus.SetCreated(_currentPerson);
             _dutWithCanceledStatus.CancelIpo(_currentPerson);
+            _dutWithSignedParticipant.AddParticipant(_personParticipant2);
+            _dutWithSignedParticipant.SignIpo(
+                _personParticipant2,
+                _currentPerson,
+                _personParticipant2.RowVersion.ConvertToString());
         }
 
         #region Constructor
@@ -1051,6 +1070,39 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _personParticipant2.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(IpoSignedEvent));
+        }
+        #endregion
+
+        #region Unsign
+        [TestMethod]
+        public void UnSignIpo_ShouldNotSignIpo_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(()
+                => _dutWithCanceledStatus.UnSignIpo(
+                    _functionalRoleParticipant,
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
+
+        [TestMethod]
+        public void UnSignIpo_ShouldUnSignIpo()
+        {
+            var participant = _dutWithSignedParticipant.Participants.Single(p => p.AzureOid == _personParticipant2.AzureOid);
+            Assert.AreEqual(_currentUserId, participant.SignedBy);
+
+            _dutWithSignedParticipant.UnSignIpo(
+                _personParticipant2,
+                _personParticipant2.RowVersion.ConvertToString());
+
+            Assert.IsNull(participant.SignedBy);
+            Assert.IsNull(participant.SignedAtUtc);
+        }
+
+        [TestMethod]
+        public void UnSignIpo_ShouldAddUnSignIpoEvent()
+        {
+            _dutWithSignedParticipant.UnSignIpo(
+                _personParticipant2,
+                _personParticipant2.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutWithSignedParticipant.PreSaveDomainEvents.Last(), typeof(IpoUnSignedEvent));
         }
         #endregion
 

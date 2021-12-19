@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+            return new SuccessResult<string>(participant.RowVersion.ConvertToString());
         }
         private async Task UnSignIpoAsPersonInFunctionalRoleAsync(
             Invitation invitation,

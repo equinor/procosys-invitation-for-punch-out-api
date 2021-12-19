@@ -659,6 +659,70 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.BadRequest);
         #endregion
 
+        #region Sign 
+        [TestMethod]
+        public async Task UnSignPunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task UnSignPunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnSignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Signer,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnSignPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnSignPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnSignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                38934,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest);
+        #endregion
+
         #region Cancel
         [TestMethod]
         public async Task CancelPunchOut_AsAnonymous_ShouldReturnUnauthorized()

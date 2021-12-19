@@ -487,6 +487,60 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task UnSignPunchOut_AsSigner_ShouldUnSignPunchOut()
+        {
+            // Arrange
+            var invitationToUnSignId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                "InvitationForSigningTitle",
+                "InvitationForSigningDescription",
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participantsForSigning,
+                _mcPkgScope,
+                null
+            );
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnSignId);
+
+            var participantPerson = invitation.Participants
+                .Single(p => p.Organization == Organization.TechnicalIntegrity).Person;
+
+            // IPO must be signed before it can be unsigned
+            var signedRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToUnSignId,
+                    participantPerson.Person.Id,
+                    participantPerson.Person.RowVersion);
+
+            // Act
+            var unSignedRowVersion = await InvitationsControllerTestsHelper.UnSignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToUnSignId,
+                    participantPerson.Person.Id,
+                    participantPerson.Person.RowVersion);
+
+            // Assert
+            var unSignedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnSignId);
+
+            var signerParticipant = unSignedInvitation.Participants.Single(p => p.Person?.Person.Id == participantPerson.Person.Id);
+            Assert.IsNull(signerParticipant.SignedAtUtc);
+            Assert.IsNull(signerParticipant.SignedBy);
+            AssertRowVersionChange(signedRowVersion, unSignedRowVersion);
+        }
+
+        [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldChangeAttendedStatus()
         {
             //Arrange
