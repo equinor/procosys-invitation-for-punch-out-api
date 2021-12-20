@@ -15,7 +15,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             bool canSign,
             ExternalEmailDto externalEmail,
             InvitedPersonDto person,
-            FunctionalRoleDto functionalRole)
+            FunctionalRoleDto functionalRole,
+            string rowVersion)
         {
             Organization = organization;
             SortKey = sortKey;
@@ -27,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             ExternalEmail = externalEmail;
             Person = person;
             FunctionalRole = functionalRole;
+            RowVersion = rowVersion;
         }
 
         public Organization Organization { get; }
@@ -39,5 +41,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public ExternalEmailDto ExternalEmail { get; }
         public InvitedPersonDto Person { get; }
         public FunctionalRoleDto FunctionalRole { get; }
+        public string RowVersion { get; }
     }
 }

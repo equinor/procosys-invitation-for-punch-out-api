@@ -1,21 +1,15 @@
-﻿using MediatR;
-using ServiceResult;
-
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
+﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class ExternalEmailForCommand : IRequest<Result<Unit>>
+    public class ExternalEmailForCommand
     {
         public ExternalEmailForCommand(
             string email,
-            int? id = null,
-            string rowVersion = null)
+            int? id = null)
         {
             Email = email;
             Id = id;
-            RowVersion = rowVersion;
         }
         public string Email { get; }
         public int? Id { get; }
-        public string RowVersion { get; }
     }
 }

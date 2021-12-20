@@ -459,7 +459,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId);
             var validParticipantForCompleting = _participantsForSigning
-                .Single(p => p.Organization == Organization.Contractor).Person;
+                .Single(p => p.Organization == Organization.Contractor);
 
             await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,

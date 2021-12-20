@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             fr.Email,
                             null,
                             participant.SortKey,
-                            participant.FunctionalRole.RowVersion);
+                            participant.RowVersion);
                     }
                     else
                     {
@@ -290,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                     frPerson.Email,
                                     new Guid(frPerson.AzureOid),
                                     participant.SortKey,
-                                    person.RowVersion);
+                                    participant.RowVersion);
                             }
                             else
                             {
@@ -338,7 +338,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         existingParticipants,
                         participant.Person,
                         participant.SortKey,
-                        participant.Organization);
+                        participant.Organization,
+                        participant.RowVersion);
                     personsAdded.Add(participant);
                 }
             }
@@ -372,7 +373,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 person.Email,
                                 new Guid(person.AzureOid),
                                 participant.SortKey,
-                                participant.Person.RowVersion);
+                                participant.RowVersion);
                         }
                         else
                         {
@@ -403,7 +404,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IList<Participant> existingParticipants,
             PersonForCommand person,
             int sortKey,
-            Organization organization)
+            Organization organization,
+            string rowVersion)
         {
             var personFromMain = await _personApiService.GetPersonByOidWithPrivilegesAsync(_plantProvider.Plant,
                 person.AzureOid.ToString(), _objectName, _signerPrivileges);
@@ -422,7 +424,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         personFromMain.Email,
                         new Guid(personFromMain.AzureOid),
                         sortKey,
-                        person.RowVersion);
+                        rowVersion);
                 }
                 else
                 {
@@ -468,7 +470,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participant.Person.Email,
                         null,
                         participant.SortKey,
-                        participant.Person.RowVersion);
+                        participant.RowVersion);
                 }
                 else
                 {
@@ -512,7 +514,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participant.ExternalEmail.Email,
                         null,
                         participant.SortKey,
-                        participant.ExternalEmail.RowVersion);
+                        participant.RowVersion);
                 }
                 else
                 {
