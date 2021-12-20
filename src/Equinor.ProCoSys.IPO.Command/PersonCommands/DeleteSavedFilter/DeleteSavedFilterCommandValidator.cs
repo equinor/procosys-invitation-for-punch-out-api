@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingSavedFilterAsync(command.SavedFilterId, cancellationToken))
-                .WithMessage(command => $"Saved filter doesn't exist! Saved filter={command.SavedFilterId}")
+                .WithMessage(command => $"Saved filter with this ID does not exist! Id={command.SavedFilterId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Not a valid row version! Row version={command.RowVersion}");
 

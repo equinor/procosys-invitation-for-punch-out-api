@@ -99,12 +99,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                1,
+                9876,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 false,
                 TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "Saved filter with this ID does not exist!");
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()

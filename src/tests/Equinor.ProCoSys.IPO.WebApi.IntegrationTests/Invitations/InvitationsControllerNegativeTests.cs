@@ -319,7 +319,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
-            var (_, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            var (_, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
@@ -332,7 +332,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
         {
-            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             editInvitationDto.RowVersion = TestFactory.WrongButValidRowVersion;
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
@@ -345,7 +345,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
         {
-            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             editInvitationDto.UpdatedParticipants.First().RowVersion = TestFactory.WrongButValidRowVersion;
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
@@ -410,14 +410,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
             => await InvitationsControllerTestsHelper.SignPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 38934,
                 88,
                 TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
+
+        [TestMethod]
+        public async Task SignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignId,
+                    participant.Person.Id,
+                    TestFactory.WrongButValidRowVersion,
+                    HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region Complete
@@ -497,7 +515,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     ParticipantRowVersion = validParticipantForCompleting.RowVersion,
                     Participants = new List<ParticipantToChangeDto>()
                 },
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         }
         #endregion
 
@@ -556,7 +575,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 9999,
                 new UnCompletePunchOutDto(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region Accept
@@ -623,7 +643,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 9999,
                 new AcceptPunchOutDto(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region UnAccept
@@ -682,7 +703,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 9999,
                 new UnAcceptPunchOutDto(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region Cancel
@@ -740,7 +762,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 9999,
                 new CancelPunchOutDto(),
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region ChangeAttendedStatusOnParticipants
@@ -792,7 +815,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     Attended = true, Id = 1, Note = "note", RowVersion = TestFactory.AValidRowVersion
                 }},
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region UploadAttachment
@@ -841,7 +865,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 9999,
                 FileToBeUploaded,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region DeleteAttachment
@@ -895,7 +920,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 _attachmentId,
                 TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "IPO with this ID does not exist!");
         #endregion
 
         #region GetAttachments

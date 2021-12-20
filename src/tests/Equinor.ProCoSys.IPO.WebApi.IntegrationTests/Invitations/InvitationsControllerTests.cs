@@ -106,34 +106,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task SignPunchOut_AsSigner_ShouldSignPunchOut()
         {
             // Arrange
-            var invitationToSignId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForSigningTitle",
-                "InvitationForSigningDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToSignId);
-
-            var participant = invitation.Participants
-                .Single(p => p.Organization == Organization.TechnicalIntegrity);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
                     UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
-                    participant.Person.Person.Id,
+                    participant.Person.Id,
                     participant.RowVersion);
 
             // Assert
@@ -142,10 +124,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
-            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participant.Person.Person.Id);
+            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participant.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, signerParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(editInvitationDto.RowVersion, newRowVersion);
         }
 
         [TestMethod]
@@ -622,7 +604,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task EditInvitation_AsPlanner_ShouldEditInvitation()
         {
             // Arrange
-            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
 
             var currentRowVersion = editInvitationDto.RowVersion;
             const string UpdatedTitle = "UpdatedInvitationTitle";

@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.DeleteSavedFilter
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Saved filter doesn't exist!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Saved filter with this ID does not exist!"));
         }
 
         [TestMethod]

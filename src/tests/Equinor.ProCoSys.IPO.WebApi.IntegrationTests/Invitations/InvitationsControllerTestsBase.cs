@@ -236,7 +236,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
 
-        internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync()
+        internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync(IList<ParticipantsForCommand> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -247,7 +247,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 DisciplineType.DP,
                 _invitationStartTime,
                 _invitationEndTime,
-                _participants,
+                participants,
                 _mcPkgScope,
                 null);
 

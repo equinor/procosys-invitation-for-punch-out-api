@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingSavedFilterAsync(command.SavedFilterId, cancellationToken))
-                .WithMessage(command => $"Saved filter doesn't exist! Saved filter={command.SavedFilterId}")
+                .WithMessage(command => $"Saved filter with this ID does not exist! Id={command.SavedFilterId}")
                 .MustAsync((command, cancellationToken) => HaveAUniqueTitleForPerson(command.Title, command.SavedFilterId, cancellationToken))
                 .WithMessage(command => $"A saved filter with this title already exists! Title={command.Title}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
