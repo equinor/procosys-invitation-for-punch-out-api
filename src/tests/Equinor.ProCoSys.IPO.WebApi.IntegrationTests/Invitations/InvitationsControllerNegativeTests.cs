@@ -319,7 +319,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
-            var editInvitationDto = await CreateValidEditInvitationDto();
+            var (_, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
@@ -327,6 +327,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 editInvitationDto,
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            editInvitationDto.RowVersion = TestFactory.WrongButValidRowVersion;
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
+            editInvitationDto.UpdatedParticipants.First().RowVersion = TestFactory.WrongButValidRowVersion;
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.Conflict);
         }
         #endregion
 
@@ -1039,50 +1065,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 123456,
                 HttpStatusCode.NotFound);
-        #endregion
-
-        #region Private methods
-        private async Task<EditInvitationDto> CreateValidEditInvitationDto()
-        {
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-
-            invitation.Status = IpoStatus.Planned;
-
-            var editInvitationDto = new EditInvitationDto
-            {
-                Title = invitation.Title,
-                Description = invitation.Description,
-                StartTime = _invitationStartTime,
-                EndTime = _invitationEndTime,
-                Location = invitation.Location,
-                ProjectName = invitation.ProjectName,
-                RowVersion = invitation.RowVersion,
-                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
-                UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = _mcPkgScope
-            };
-
-            return editInvitationDto;
-        }
-
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
-        {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
-            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
-                {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
-                    Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey
-                }));
-
-            return editVersionParticipantDtos;
-        }
         #endregion
     }
 }

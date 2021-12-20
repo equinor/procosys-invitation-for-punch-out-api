@@ -622,56 +622,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task EditInvitation_AsPlanner_ShouldEditInvitation()
         {
             // Arrange
-            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationToBeUpdatedTitle",
-                "InvitationToBeUpdatedDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync();
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                id);
-
-            invitation.Status = IpoStatus.Planned;
-
-            var currentRowVersion = invitation.RowVersion;
+            var currentRowVersion = editInvitationDto.RowVersion;
             const string UpdatedTitle = "UpdatedInvitationTitle";
             const string UpdatedDescription = "UpdatedInvitationDescription";
 
-            var editInvitationDto = new EditInvitationDto
-            {
-                Title = UpdatedTitle,
-                Description = UpdatedDescription,
-                StartTime = invitation.StartTimeUtc,
-                EndTime = invitation.EndTimeUtc,
-                Location = invitation.Location,
-                ProjectName = invitation.ProjectName,
-                RowVersion = invitation.RowVersion,
-                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
-                UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = _mcPkgScope
-            };
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                id,
+                invitationId,
                 editInvitationDto);
 
             // Assert
             var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                id);
+                invitationId);
 
             AssertRowVersionChange(currentRowVersion, newRowVersion);
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
@@ -880,23 +851,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
             AssertRowVersionChange(invitation.RowVersion, newRowVersion);
-        }
-        
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
-        {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
-            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
-                {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
-                    Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey,
-                    RowVersion = p.RowVersion
-                }));
-
-            return editVersionParticipantDtos;
         }
     }
 }

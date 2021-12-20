@@ -235,5 +235,59 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.CurrentValue)
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
+
+        internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync()
+        {
+            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
+                null);
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
+            var editInvitationDto = new EditInvitationDto
+            {
+                Title = invitation.Title,
+                Description = invitation.Description,
+                StartTime = invitation.StartTimeUtc,
+                EndTime = invitation.EndTimeUtc,
+                Location = invitation.Location,
+                ProjectName = invitation.ProjectName,
+                RowVersion = invitation.RowVersion,
+                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
+                UpdatedCommPkgScope = null,
+                UpdatedMcPkgScope = _mcPkgScope
+            };
+
+            return (id, editInvitationDto);
+        }
+
+        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
+        {
+            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
+            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
+                new ParticipantDtoEdit
+                {
+                    ExternalEmail = p.ExternalEmail,
+                    FunctionalRole = p.FunctionalRole,
+                    Organization = p.Organization,
+                    Person = p.Person?.Person,
+                    SortKey = p.SortKey,
+                    RowVersion = p.RowVersion
+                }));
+
+            return editVersionParticipantDtos;
+        }
     }
 }
