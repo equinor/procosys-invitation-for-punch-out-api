@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var newTitle = Guid.NewGuid().ToString();
             var newCriteria = Guid.NewGuid().ToString();
             // Act
-            await PersonsControllerTestsHelper.UpdateSavedFilter(
+            await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 savedFilter.Id,

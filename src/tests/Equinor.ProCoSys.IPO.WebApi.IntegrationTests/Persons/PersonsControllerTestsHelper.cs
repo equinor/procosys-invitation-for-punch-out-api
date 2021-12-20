@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
         }
 
-        public static async Task<string> UpdateSavedFilter(
+        public static async Task<string> UpdateSavedFilterAsync(
             UserType userType,
             string plant,
             int savedFilterId,
@@ -84,7 +84,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 DefaultFilter = defaultFilter,
                 RowVersion = rowVersion
             };
-
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
