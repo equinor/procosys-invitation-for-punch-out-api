@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.Unauthorized);
 
@@ -23,8 +24,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -34,8 +35,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.Forbidden);
         #endregion
@@ -73,11 +74,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.UpdateSavedFilter(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -85,11 +86,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.UpdateSavedFilter(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -98,11 +99,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             await PersonsControllerTestsHelper.UpdateSavedFilter(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "new title",
-                "new criteria",
+                1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 false,
-                "cm93VmVyc2lvbg==",
-                9999,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest);
 
         [TestMethod]
@@ -110,12 +111,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.UpdateSavedFilter(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                 Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+               false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UpdateSavedFilter_AsViewer_ShouldReturnConflict_WhenWrongRowVersion()
+        {
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                true);
+
+            // Act
+            await PersonsControllerTestsHelper.UpdateSavedFilter(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.WrongButValidRowVersion,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region DeleteSavedFilter
@@ -125,7 +148,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -134,7 +157,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -144,7 +167,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
         #endregion
     }

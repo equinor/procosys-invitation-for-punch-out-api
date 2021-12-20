@@ -69,11 +69,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         public static async Task<string> UpdateSavedFilter(
             UserType userType,
             string plant,
+            int savedFilterId,
             string newTitle,
             string newCriteria,
             bool defaultFilter,
             string rowVersion,
-            int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{id}", content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{savedFilterId}", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
