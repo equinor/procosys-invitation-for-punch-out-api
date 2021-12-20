@@ -134,43 +134,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task CompletePunchOut_AsSigner_ShouldCompletePunchOut()
         {
             // Arrange
-            var invitationToCompleteId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForCompletingTitle",
-                "InvitationForCompletingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToCompleteId);
-
-            var completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                {
-                    new ParticipantToChangeDto
-                    {
-                        Id = completerParticipant.Person.Person.Id,
-                        Note = "Some note about the punch round or attendee",
-                        RowVersion = completerParticipant.RowVersion,
-                        Attended = true
-                    }
-                }
-            };
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
@@ -186,11 +150,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCompleteId);
 
             var completingParticipant =
-                completedInvitation.Participants.Single(p => p.Person?.Person.Id == completerParticipant.Person.Person.Id);
+                completedInvitation.Participants.Single(p => p.Person?.Person.Id == completePunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, completingParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(completePunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]

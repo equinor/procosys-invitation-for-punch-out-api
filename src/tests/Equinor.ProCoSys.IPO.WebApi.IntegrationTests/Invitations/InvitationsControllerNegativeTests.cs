@@ -498,26 +498,51 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
-            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-            var validParticipantForCompleting = _participantsForSigning
-                .Single(p => p.Organization == Organization.Contractor);
+            // Arrange
+            var (_, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
 
+            // Act
             await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                38934,
-                new CompletePunchOutDto
-                {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = validParticipantForCompleting.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>()
-                },
+                9999,
+                completePunchOutDto,
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
         }
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.Participants.Single().RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
         #endregion
 
         #region UnComplete

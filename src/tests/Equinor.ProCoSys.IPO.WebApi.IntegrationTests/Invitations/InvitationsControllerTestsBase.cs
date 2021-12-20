@@ -236,6 +236,48 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
 
+        internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        {
+            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                participants,
+                _mcPkgScope,
+                null);
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
+            var completerParticipant = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
+
+            var completePunchOutDto = new CompletePunchOutDto
+            {
+                InvitationRowVersion = invitation.RowVersion,
+                ParticipantRowVersion = completerParticipant.RowVersion,
+                Participants = new List<ParticipantToChangeDto>
+                {
+                    new ParticipantToChangeDto
+                    {
+                        Id = completerParticipant.Person.Person.Id,
+                        Note = "Some note about the punch round or attendee",
+                        RowVersion = completerParticipant.RowVersion,
+                        Attended = true
+                    }
+                }
+            };
+
+            return (id, completePunchOutDto);
+        }
+
         internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync(IList<ParticipantsForCommand> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
