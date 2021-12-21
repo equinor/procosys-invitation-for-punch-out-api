@@ -23,11 +23,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
         protected readonly int InitialDpInvitationId = TestFactory.Instance.KnownTestData.DpInvitationIds.First();
-        protected int _attachmentId;
         protected int _commentId;
         protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
         protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
-        
+        protected AttachmentDto _attachmentOnInitialMdpInvitation;
+
         protected List<string> _mcPkgScope;
         protected List<ParticipantsForCommand> _participants;
         protected List<ParticipantsForCommand> _participantsForSigning;
@@ -36,13 +36,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
 
-        protected readonly TestFile FileToBeUploaded = new TestFile("test file content", "file.txt");
-        protected readonly TestFile FileToBeUploaded2 = new TestFile("test file 2 content", "file2.txt");
         protected TestProfile _sigurdSigner;
         protected TestProfile _pernillaPlanner;
 
         [TestInitialize]
-        public void TestInitialize()
+        public async Task TestInitializeAsync()
         {
             var personParticipant = new PersonForCommand(Guid.NewGuid(), "ola@test.com", true);
             var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
@@ -131,7 +129,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Title = string.Empty
             };
 
-            _attachmentId = TestFactory.Instance.KnownTestData.AttachmentIds.First();
             _commentId = TestFactory.Instance.KnownTestData.CommentIds.First();
 
             const string McPkgNo1 = "MC1";
@@ -234,6 +231,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .MeetingOptionsMock
                 .Setup(x => x.CurrentValue)
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
+            _attachmentOnInitialMdpInvitation = await UploadAttachmentAsync(InitialMdpInvitationId);
         }
 
         internal async Task<(int, UnAcceptPunchOutDto)> CreateValidUnAcceptPunchOutDtoAsync(List<ParticipantsForCommand> participants)
@@ -434,6 +432,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
 
             return (id, editInvitationDto);
+        }
+
+        internal async Task<AttachmentDto> UploadAttachmentAsync(int invitationId)
+        {
+            var fileToBeUploaded = TestFile.NewFileToBeUploaded();
+            await InvitationsControllerTestsHelper.UploadAttachmentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                fileToBeUploaded);
+
+            var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+            
+            return attachmentDtos.Single(t => t.FileName == fileToBeUploaded.FileName);
         }
 
         internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<ParticipantsForCommand> participants)

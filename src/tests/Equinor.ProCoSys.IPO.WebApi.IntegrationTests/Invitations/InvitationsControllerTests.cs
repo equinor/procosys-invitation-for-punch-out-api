@@ -358,7 +358,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                FileToBeUploaded);
+                TestFile.NewFileToBeUploaded());
 
             // Assert
             invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
@@ -404,7 +404,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(attachmentDtos);
             Assert.IsTrue(attachmentDtos.Count > 0);
 
-            var invitationAttachment = attachmentDtos.Single(a => a.Id == _attachmentId);
+            var invitationAttachment = attachmentDtos.Single(a => a.Id == _attachmentOnInitialMdpInvitation.Id);
             Assert.IsNotNull(invitationAttachment.FileName);
             Assert.IsNotNull(invitationAttachment.RowVersion);
         }
@@ -413,17 +413,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task DeleteAttachment_AsPlanner_ShouldDeleteAttachment()
         {
             // Arrange
-            await InvitationsControllerTestsHelper.UploadAttachmentAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId,
-                FileToBeUploaded2);
-
-            var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-            var attachment = attachmentDtos.Single(t => t.FileName == FileToBeUploaded2.FileName);
+            var attachment = await UploadAttachmentAsync(InitialMdpInvitationId);
 
             // Act
             await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
@@ -434,7 +424,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 attachment.RowVersion);
 
             // Assert
-            attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
+            var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId);

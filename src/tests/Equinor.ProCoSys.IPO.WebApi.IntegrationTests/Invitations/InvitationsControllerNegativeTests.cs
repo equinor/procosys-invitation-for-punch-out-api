@@ -1102,7 +1102,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -1111,7 +1111,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -1121,7 +1121,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -1131,7 +1131,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -1140,7 +1140,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
         #endregion
@@ -1152,7 +1152,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
@@ -1162,7 +1162,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -1173,7 +1173,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
 
@@ -1194,10 +1194,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
+
+        [TestMethod]
+        public async Task DeleteAttachment_AsPlanner_ShouldReturnConflict_WhenWrongAttachmentRowVersion()
+            => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId,
+                _attachmentOnInitialMdpInvitation.Id,
+                TestFactory.WrongButValidRowVersion,
+                HttpStatusCode.Conflict);
         #endregion
 
         #region GetAttachments
@@ -1242,7 +1252,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -1251,7 +1261,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -1261,7 +1271,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -1270,7 +1280,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 12456,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.NotFound);
 
         [TestMethod]
@@ -1279,7 +1289,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 12456,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.NotFound);
         #endregion
 
