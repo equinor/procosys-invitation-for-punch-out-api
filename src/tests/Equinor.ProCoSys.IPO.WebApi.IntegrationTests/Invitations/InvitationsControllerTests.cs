@@ -161,86 +161,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task UnCompletePunchOut_AsSigner_ShouldUnCompletePunchOut()
         {
             // Arrange
-            var invitationToUnCompletedId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForUnCompletingTitle",
-                "InvitationForUnCompletingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnCompletedId);
-
-            var completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerParticipant.Person.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = completerParticipant.RowVersion,
-                            Attended = true
-                        }
-                    }
-            };
-
-            // Punch round must be completed before it can be uncompleted
-            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnCompletedId,
-                completePunchOutDto);
-
-
-            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnCompletedId);
-
-            completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-            var unCompletePunchOutDto = new UnCompletePunchOutDto
-            {
-                InvitationRowVersion = newInvitationRowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-            };
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                invitationToUnCompletedId,
+                invitationToUnCompleteId,
                 unCompletePunchOutDto);
 
             // Assert
             var unCompletedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                invitationToUnCompletedId);
+                invitationToUnCompleteId);
+
+            var unCompleterParticipant = unCompletedInvitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
 
             var unCompletingParticipant =
-                unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == completerParticipant.Person.Person.Id);
+                unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == unCompleterParticipant.Person.Person.Id);
             Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
             Assert.IsNull(unCompletedInvitation.CompletedBy);
             Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedBy);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(unCompletePunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]

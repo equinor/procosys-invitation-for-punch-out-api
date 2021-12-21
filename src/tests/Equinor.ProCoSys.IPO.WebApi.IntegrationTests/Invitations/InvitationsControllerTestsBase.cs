@@ -236,6 +236,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
 
+        internal async Task<(int, UnCompletePunchOutDto)> CreateValidUnCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        {
+            var (invitationToCompleteAndUnCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
+
+            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteAndUnCompleteId,
+                completePunchOutDto);
+
+            var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteAndUnCompleteId);
+
+            var completerParticipant = completedInvitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
+            var unCompletePunchOutDto = new UnCompletePunchOutDto
+            {
+                InvitationRowVersion = newRowVersion,
+                ParticipantRowVersion = completerParticipant.RowVersion,
+            };
+
+            return (invitationToCompleteAndUnCompleteId, unCompletePunchOutDto);
+        }
+
         internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(

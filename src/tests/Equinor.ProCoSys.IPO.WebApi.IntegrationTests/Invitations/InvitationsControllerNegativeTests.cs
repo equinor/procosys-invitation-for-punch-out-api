@@ -602,6 +602,38 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new UnCompletePunchOutDto(),
                 HttpStatusCode.BadRequest,
                 "IPO with this ID does not exist!");
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompleteId,
+                unCompletePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.ParticipantRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompleteId,
+                unCompletePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region Accept
