@@ -263,11 +263,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToAcceptId, unAcceptPunchOutDto);
         }
 
+        internal async Task<(int, ParticipantToChangeDto[])> CreateValidParticipantToChangeDtosAsync(List<ParticipantsForCommand> participants)
+        {
+            var (invitationToChangeId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
+
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToChangeId,
+                completePunchOutDto);
+
+            var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToChangeId);
+
+            var completerParticipant = completedInvitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
+
+            var participantToChangeDtos = new[]
+            {
+                new ParticipantToChangeDto
+                {
+                    Id = completerParticipant.Person.Person.Id,
+                    Attended = false,
+                    Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
+                    RowVersion = completerParticipant.RowVersion
+                }
+            };
+
+            return (invitationToChangeId, participantToChangeDtos);
+        }
+
         internal async Task<(int, AcceptPunchOutDto)> CreateValidAcceptPunchOutDtoAsync(List<ParticipantsForCommand> participants)
         {
             var (invitationToCompleteAndAcceptId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
 
-            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToCompleteAndAcceptId,
@@ -283,14 +315,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             var acceptPunchOutDto = new AcceptPunchOutDto
             {
-                InvitationRowVersion = newRowVersion,
+                InvitationRowVersion = completedInvitation.RowVersion,
                 ParticipantRowVersion = accepterParticipant.RowVersion,
                 Participants = new List<ParticipantToUpdateNoteDto>
                 {
                     new ParticipantToUpdateNoteDto
                     {
                         Id = accepterParticipant.Person.Person.Id,
-                        Note = "Some note about the punch out round or attendee",
+                        Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = accepterParticipant.RowVersion
                     }
                 }
@@ -303,7 +335,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             var (invitationToCompleteAndUnCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
 
-            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToCompleteAndUnCompleteId,
@@ -318,7 +350,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor);
             var unCompletePunchOutDto = new UnCompletePunchOutDto
             {
-                InvitationRowVersion = newRowVersion,
+                InvitationRowVersion = completedInvitation.RowVersion,
                 ParticipantRowVersion = completerParticipant.RowVersion,
             };
 
@@ -357,7 +389,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     new ParticipantToChangeDto
                     {
                         Id = completerParticipant.Person.Person.Id,
-                        Note = "Some note about the punch round or attendee",
+                        Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = completerParticipant.RowVersion,
                         Attended = true
                     }

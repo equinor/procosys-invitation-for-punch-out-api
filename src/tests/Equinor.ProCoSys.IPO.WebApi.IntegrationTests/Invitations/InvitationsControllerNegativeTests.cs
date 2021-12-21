@@ -1025,16 +1025,52 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new[] {new ParticipantToChangeDto
-                {
-                    Attended = true, Id = 1, Note = "note", RowVersion = TestFactory.AValidRowVersion
-                }},
-                HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+        {
+            // Arrange
+            var (_, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           participantToChangeDtos,
+                           HttpStatusCode.BadRequest,
+                           "IPO with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            participantToChangeDtos[0].Id = 290690;
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToChangeId,
+                           participantToChangeDtos,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            participantToChangeDtos[0].RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToChangeId,
+                           participantToChangeDtos,
+                           HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region UploadAttachment

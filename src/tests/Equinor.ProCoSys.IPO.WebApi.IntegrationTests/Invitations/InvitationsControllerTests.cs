@@ -250,83 +250,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldChangeAttendedStatus()
         {
             //Arrange
-            const string updatedNote = "Updated note about attendee";
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            var updatedNote = participantToChangeDtos[0].Note;
             
-            var invitationToChangeId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationToChangeTitle",
-                "InvitationToChangeDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToChangeId);
-
-            var completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                {
-                    new ParticipantToChangeDto
-                    {
-                        Id = completerParticipant.Person.Person.Id,
-                        Note = "Some note about the punch round or attendee",
-                        RowVersion = completerParticipant.RowVersion,
-                        Attended = true
-                    }
-                }
-            };
-
-            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToChangeId,
-                completePunchOutDto);
-
-            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToChangeId);
-
-            completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-            
-            var participantToChangeDto = new[]
-            {
-                new ParticipantToChangeDto
-                {
-                    Id = completerParticipant.Person.Person.Id,
-                    Attended = false,
-                    Note = updatedNote,
-                    RowVersion = completerParticipant.RowVersion
-                }
-            };
-
             //Act
             await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId,
-                participantToChangeDto);
+                participantToChangeDtos);
 
             //Assert
             var invitationWithUpdatedAttendedStatus = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId);
+
+            var completerParticipant = invitationWithUpdatedAttendedStatus.Participants
+                .Single(p => p.Organization == Organization.Contractor);
 
             var participant =
                 invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Person.Id == completerParticipant.Person.Person.Id);
