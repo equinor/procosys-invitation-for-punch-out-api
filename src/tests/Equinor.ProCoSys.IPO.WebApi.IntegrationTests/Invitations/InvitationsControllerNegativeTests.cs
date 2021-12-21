@@ -330,6 +330,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
+            editInvitationDto.UpdatedParticipants.First(p => p.Person != null).Person.Id = 23451;
+            
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
         {
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
@@ -411,14 +426,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.SignPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                38934,
-                88,
-                TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+        {
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           38934,
+                           participant.Person.Id,
+                           TestFactory.AValidRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "IPO with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToSignId,
+                           38934,
+                           TestFactory.AValidRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
 
         [TestMethod]
         public async Task SignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
@@ -512,6 +550,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.Participants.Single().Id = 23423;
+            
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
         {
             // Arrange
@@ -595,13 +650,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task UnCompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new UnCompletePunchOutDto(),
-                HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+        {
+            // Arrange
+            var (_, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           unCompletePunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "IPO with this ID does not exist!");
+        }
 
         [TestMethod]
         public async Task UnCompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
@@ -695,13 +757,68 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task AcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+        {
+            // Arrange
+            var (_, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           acceptPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "IPO with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.Participants.Single().Id = 12399;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToAcceptId,
+                           acceptPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                9999,
-                new AcceptPunchOutDto(),
-                HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                invitationToAcceptId,
+                acceptPunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.Participants.Single().RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                acceptPunchOutDto,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region UnAccept

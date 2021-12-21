@@ -236,6 +236,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
         }
 
+        internal async Task<(int, AcceptPunchOutDto)> CreateValidAcceptPunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        {
+            var (invitationToCompleteAndAcceptId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
+
+            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteAndAcceptId,
+                completePunchOutDto);
+
+            var completedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteAndAcceptId);
+
+            var accepterParticipant = completedInvitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany);
+
+            var acceptPunchOutDto = new AcceptPunchOutDto
+            {
+                InvitationRowVersion = newRowVersion,
+                ParticipantRowVersion = accepterParticipant.RowVersion,
+                Participants = new List<ParticipantToUpdateNoteDto>
+                {
+                    new ParticipantToUpdateNoteDto
+                    {
+                        Id = accepterParticipant.Person.Person.Id,
+                        Note = "Some note about the punch out round or attendee",
+                        RowVersion = accepterParticipant.RowVersion
+                    }
+                }
+            };
+
+            return (invitationToCompleteAndAcceptId, acceptPunchOutDto);
+        }
+
         internal async Task<(int, UnCompletePunchOutDto)> CreateValidUnCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
         {
             var (invitationToCompleteAndUnCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);

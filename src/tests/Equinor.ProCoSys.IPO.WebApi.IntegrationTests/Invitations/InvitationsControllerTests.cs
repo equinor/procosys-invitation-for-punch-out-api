@@ -193,71 +193,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task AcceptPunchOut_AsSigner_ShouldAcceptPunchOut()
         {
             // Arrange
-            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForAcceptingTitle",
-                "InvitationForAcceptingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId);
-
-            var completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                {
-                    new ParticipantToChangeDto
-                    {
-                        Id = completerParticipant.Person.Person.Id,
-                        Note = "Some note about the punch out round or attendee",
-                        RowVersion = completerParticipant.RowVersion,
-                        Attended = true
-                    }
-                }
-            };
-
-            // Punch round must be completed before it can be accepted
-            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId,
-                completePunchOutDto);
-
-            var accepterParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany);
-
-            var acceptPunchOutDto = new AcceptPunchOutDto
-            {
-                InvitationRowVersion = newRowVersion,
-                ParticipantRowVersion = accepterParticipant.RowVersion,
-                Participants = new List<ParticipantToUpdateNoteDto>
-                {
-                    new ParticipantToUpdateNoteDto
-                    {
-                        Id = accepterParticipant.Person.Person.Id,
-                        Note = "Some note about the punch out round or attendee",
-                        RowVersion = accepterParticipant.RowVersion
-                    }
-                }
-            };
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
 
             // Act
-            newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+            var newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId,
@@ -270,11 +209,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToAcceptId);
 
             var acceptingParticipant =
-                acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterParticipant.Person.Person.Id);
+                acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == acceptPunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, acceptingParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(acceptPunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
