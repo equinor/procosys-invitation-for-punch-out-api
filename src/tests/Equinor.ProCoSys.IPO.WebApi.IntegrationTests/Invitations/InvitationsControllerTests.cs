@@ -507,28 +507,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
         {
             // Arrange
-            var invitationToCancelId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForCancelTitle",
-                "InvitationForCancelDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                invitationToCancelId);
-            var cancelPunchOutDto = new CancelPunchOutDto
-            {
-                RowVersion = invitation.RowVersion
-            };
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
                 UserType.Planner,
@@ -543,7 +523,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCancelId);
 
             Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
         }
     }
 }

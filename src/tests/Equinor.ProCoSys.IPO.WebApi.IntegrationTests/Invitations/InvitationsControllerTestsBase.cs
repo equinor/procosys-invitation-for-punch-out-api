@@ -436,6 +436,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, editInvitationDto);
         }
 
+        internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        {
+            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                participants,
+                _mcPkgScope,
+                null);
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
+            var cancelPunchOutDto = new CancelPunchOutDto
+            {
+                RowVersion = invitation.RowVersion
+            };
+
+            return (id, cancelPunchOutDto);
+        }
+
         private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
         {
             var editVersionParticipantDtos = new List<ParticipantDtoEdit>();

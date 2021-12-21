@@ -975,13 +975,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                9999,
-                new CancelPunchOutDto(),
-                HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+        {
+            // Arrange
+            var (_, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           cancelPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "IPO with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+            cancelPunchOutDto.RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           cancelPunchOutDto,
+                           HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region ChangeAttendedStatusOnParticipants
