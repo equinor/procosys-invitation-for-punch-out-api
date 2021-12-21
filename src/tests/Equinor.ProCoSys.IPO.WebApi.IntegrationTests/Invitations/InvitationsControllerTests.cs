@@ -220,89 +220,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task UnAcceptPunchOut_AsSigner_ShouldUnAcceptPunchOut()
         {
             // Arrange
-            var invitationToUnAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForUnAcceptingTitle",
-                "InvitationForUnAcceptingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId);
-
-            var completerParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor);
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerParticipant.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerParticipant.Person.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = completerParticipant.RowVersion,
-                            Attended = true
-                        }
-                    }
-            };
-
-            // Punch round must be completed before it can be accepted
-            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId,
-                completePunchOutDto);
-
-            var accepterParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany);
-
-            var acceptPunchOutDto = new AcceptPunchOutDto
-            {
-                InvitationRowVersion = newInvitationRowVersion,
-                ParticipantRowVersion = accepterParticipant.RowVersion,
-                Participants = new List<ParticipantToUpdateNoteDto>
-                    {
-                        new ParticipantToUpdateNoteDto
-                        {
-                            Id = accepterParticipant.Person.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = accepterParticipant.RowVersion
-                        }
-                    }
-            };
-
-            // Punch round must be accepted before it can be unaccepted
-            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId,
-                acceptPunchOutDto);
-
-            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId);
-
-            accepterParticipant = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany);
-
-            var unAcceptPunchOutDto = new UnAcceptPunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = accepterParticipant.RowVersion,
-            };
+            var (invitationToUnAcceptId, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
@@ -317,12 +235,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId);
 
+            var unAccepterParticipant = unAcceptedInvitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany);
+
             var unAcceptingParticipant =
-                unAcceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterParticipant.Person.Person.Id);
+                unAcceptedInvitation.Participants.Single(p => p.Person?.Person.Id == unAccepterParticipant.Person.Person.Id);
             Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
             Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
             Assert.IsNull(unAcceptingParticipant.SignedBy);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(unAcceptPunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
