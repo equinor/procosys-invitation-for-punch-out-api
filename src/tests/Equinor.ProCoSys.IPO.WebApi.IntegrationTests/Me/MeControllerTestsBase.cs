@@ -45,22 +45,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                     null,
                     _sigurdSigner.AsPersonForCommand(true),
                     null,
-                    0,
-                    null),
+                    0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
                     _sigurdSigner.AsPersonForCommand(true),
                     null,
-                    1,
-                    null),
+                    1),
                 new ParticipantsForCommand(
                     Organization.TechnicalIntegrity,
                     null,
                     _sigurdSigner.AsPersonForCommand(false),
                     null,
-                    2,
-                    null)
+                    2)
             };
 
             const string McPkgNo = "MC1";
