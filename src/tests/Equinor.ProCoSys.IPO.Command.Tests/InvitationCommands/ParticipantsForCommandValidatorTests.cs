@@ -15,21 +15,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         public void Setup_OkState()
         {
 
-            _validCommand =
-                new ParticipantsForCommand(
+            _validCommand = new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
                     null,
                     new FunctionalRoleForCommand("FR1", null),
-                    0,
-                    null);
+                    0);
             _invalidCommandNegativeSortKey = new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
                     new PersonForCommand(null,"ola@test.com", true),
                     null,
-                    -1,
-                    null);
+                    -1);
             _dut = new ParticipantsForCommandValidator();
         }
 

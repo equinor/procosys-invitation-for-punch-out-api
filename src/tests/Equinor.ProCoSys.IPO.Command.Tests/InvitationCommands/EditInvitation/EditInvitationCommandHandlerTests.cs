@@ -75,16 +75,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId),
-                0,
-                _participantRowVersion),
+                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(_newAzureOid, "kari@test.com", true),
                 null,
-                1,
-                null)
+                1)
         };
 
         private readonly List<string> _mcPkgScope = new List<string>

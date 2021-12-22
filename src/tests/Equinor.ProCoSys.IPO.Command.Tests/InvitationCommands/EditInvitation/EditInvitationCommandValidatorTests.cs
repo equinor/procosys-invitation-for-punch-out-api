@@ -34,15 +34,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 null,
                 new FunctionalRoleForCommand("FR1", null),
-                0,
-                _rowVersion),
+                0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(null, "ola@test.com", true),
                 null,
-                1,
-                _rowVersion)
+                1)
         };
 
         [TestInitialize]

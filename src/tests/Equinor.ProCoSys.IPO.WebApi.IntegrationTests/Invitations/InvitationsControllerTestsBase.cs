@@ -54,15 +54,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     null,
                     null,
                     functionalRoleParticipant,
-                    0,
-                    null),
+                    0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
                     personParticipant,
                     null,
-                    1,
-                    null)
+                    1)
             };
 
             _participantsForSigning = new List<ParticipantsForCommand>
@@ -72,22 +70,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     null,
                     _sigurdSigner.AsPersonForCommand(true),
                     null,
-                    0,
-                    null),
+                    0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
                     _sigurdSigner.AsPersonForCommand(true),
                     null,
-                    1,
-                    null),
+                    1),
                 new ParticipantsForCommand(
                     Organization.TechnicalIntegrity,
                     null,
                     _sigurdSigner.AsPersonForCommand(false),
                     null,
-                    2,
-                    null)
+                    2)
             };
 
             var knownGeneralMeeting = new ApiGeneralMeeting

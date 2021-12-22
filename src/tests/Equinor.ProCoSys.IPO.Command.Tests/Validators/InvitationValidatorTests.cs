@@ -62,15 +62,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 null,
                 null,
                 new FunctionalRoleForCommand("FR1", null),
-                0,
-                null),
+                0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true),
                 null,
-                1,
-                null)
+                1)
         };
 
         private readonly List<Attachment> _attachments = new List<Attachment>
@@ -510,15 +508,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("external@test.com"),
                         null,
                         null,
-                        0,
-                        null),
+                        0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         new ExternalEmailForCommand("external2@test.com"),
                         null,
                         null,
-                        1,
-                        null)
+                        1)
                 });
                 Assert.IsFalse(result);
             }
@@ -547,15 +543,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", null),
-                        0,
-                        null),
+                        0),
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
                         new PersonForCommand(Guid.Empty, "ola@test.com", true),
                         null,
-                        1,
-                        null)
+                        1)
                 });
                 Assert.IsFalse(result);
             }
@@ -586,8 +580,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         null,
-                        3,
-                    null)
+                        3)
                 });
                 Assert.IsFalse(result);
             }
@@ -607,8 +600,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("test@email.com"),
                         new PersonForCommand(null, "zoey@test.com", true),
                         null,
-                        3,
-                        null)
+                        3)
                 });
                 Assert.IsFalse(result);
             }
@@ -626,24 +618,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", null),
-                        2,
-                        null);
+                        2);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
                         new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true),
                         null,
-                        3,
-                        null);
+                        3);
                 var external =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         new ExternalEmailForCommand("External@test.com"),
                         null,
                         null,
-                        4,
-                        null);
+                        4);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr, person, external });
                 Assert.IsTrue(result);
@@ -662,8 +651,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), null, true),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
@@ -682,8 +670,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
@@ -702,8 +689,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, "zoey@test.com", true),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
@@ -723,8 +709,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new FunctionalRoleForCommand(
                         "FR",
                         new List<PersonForCommand>{ new PersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true)}), 
-                    3,
-                    null);
+                    3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr });
                 Assert.IsTrue(result);
@@ -744,8 +729,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("external@test.com"),
                         null,
                         new FunctionalRoleForCommand("FR1", null),
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
@@ -765,8 +749,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand(null, null),
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
@@ -786,8 +769,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("", null),
-                        3,
-                        null);
+                        3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
@@ -807,8 +789,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, null, true),
                         null,
-                        4,
-                        null);
+                        4);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
@@ -828,8 +809,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(Guid.Empty, "test", true),
                         null,
-                        4,
-                        null);
+                        4);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
@@ -861,8 +841,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, "zoey@test.com", true),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
@@ -881,15 +860,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", null),
-                        0,
-                        null),
+                        0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
                         new PersonForCommand(null, "ola@test.com", true),
                         null,
-                        0,
-                        null)
+                        0)
                 });
                 Assert.IsFalse(result);
             }
@@ -908,8 +885,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, "zoey@test.com", true),
                         null,
-                        0,
-                        null);
+                        0);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
@@ -928,8 +904,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("test@email.com", _participantId1),
                         null,
                         null,
-                        3,
-                        null);
+                        3);
                 var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -948,8 +923,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, "zoey@test.com", true, _participantId1),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -968,8 +942,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", null, _participantId1),
-                        0,
-                        null);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -992,8 +965,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             new PersonForCommand(null, "zoey1@test.com", false, _participantId2)
                             },
                             _operationCurrentPersonId),
-                        0,
-                        null);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1012,8 +984,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("test@email.com", 200),
                         null,
                         null,
-                        3,
-                        null);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1032,8 +1003,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         new PersonForCommand(null, "zoey@test.com", true, 500),
                         null,
-                        3,
-                        null);
+                        3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1052,8 +1022,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         null,
                         null,
                         new FunctionalRoleForCommand("FR1", null, 400),
-                        0,
-                        null);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1076,8 +1045,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             new PersonForCommand(null, "zoey1@test.com", false, 500)
                             }
                         ),
-                        0,
-                        null);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }

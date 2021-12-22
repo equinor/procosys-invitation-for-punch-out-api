@@ -86,7 +86,28 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 => rowVersionValidator.IsValid(rowVersion);
 
             bool ParticipantsHaveValidRowVersions(ParticipantsForCommand participant)
-                => rowVersionValidator.IsValid(participant.RowVersion);
+            {
+                if (participant.ExternalEmail?.Id != null)
+                {
+                    return rowVersionValidator.IsValid(participant.ExternalEmail.RowVersion);
+                }
+                if (participant.Person?.Id != null)
+                {
+                    return rowVersionValidator.IsValid(participant.Person.RowVersion);
+                }
+
+                if (participant.FunctionalRole != null)
+                {
+                    if (participant.FunctionalRole.Id != null && !rowVersionValidator.IsValid(participant.FunctionalRole.RowVersion))
+                    {
+                        return false;
+                    }
+
+                    return participant.FunctionalRole.Persons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
+                }
+
+                return true;
+            }
         }
     }
 }

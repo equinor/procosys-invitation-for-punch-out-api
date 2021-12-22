@@ -365,7 +365,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
-            editInvitationDto.UpdatedParticipants.First().RowVersion = TestFactory.WrongButValidRowVersion;
+            editInvitationDto.UpdatedParticipants.First(p => p.FunctionalRole != null).FunctionalRole.RowVersion = TestFactory.WrongButValidRowVersion;
 
             // Act
             await InvitationsControllerTestsHelper.EditInvitationAsync(
