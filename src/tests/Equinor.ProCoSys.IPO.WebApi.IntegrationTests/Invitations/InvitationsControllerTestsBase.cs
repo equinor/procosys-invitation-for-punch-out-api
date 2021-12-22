@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class InvitationsControllerTestsBase : TestBase
     {
-        private const string FunctionalRoleCode = "FRC";
+        private const string CreateFunctionalRoleCode = "FRC2";
         protected const string InvitationLocation = "InvitationLocation";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
@@ -35,8 +35,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         protected List<CreateParticipantsDto> _participantsForSigning;
         private ProCoSysMcPkg _mcPkgDetails1;
         private ProCoSysMcPkg _mcPkgDetails2;
-        private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
-        private List<ProCoSysPerson> _personsInFunctionalRole;
 
         protected TestProfile _sigurdSigner;
         protected TestProfile _pernillaPlanner;
@@ -52,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             var functionalRoleParticipant = new CreateFunctionalRoleForDto
             {
-                Code = FunctionalRoleCode
+                Code = CreateFunctionalRoleCode
             };
             
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
@@ -152,7 +150,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
-            _personsInFunctionalRole = new List<ProCoSysPerson>
+            TestFactory.Instance
+                .McPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
+                    _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var personsInFunctionalRole = new List<ProCoSysPerson>
             {
                 new ProCoSysPerson
                 {
@@ -164,30 +168,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 }
             };
 
-            _pcsFunctionalRoles = new List<ProCoSysFunctionalRole>
+            IList<ProCoSysFunctionalRole> pcsFunctionalRoles1 = new List<ProCoSysFunctionalRole>
             {
                 new ProCoSysFunctionalRole
                 {
-                    Code = FunctionalRoleCode,
+                    Code = KnownTestData.FunctionalRoleCode,
                     Description = "Description",
                     Email = "frEmail@test.com",
                     InformationEmail = null,
-                    Persons = _personsInFunctionalRole,
+                    Persons = personsInFunctionalRole,
+                    UsePersonalEmail = true
+                }
+            };
+
+            IList<ProCoSysFunctionalRole> pcsFunctionalRoles2 = new List<ProCoSysFunctionalRole>
+            {
+                new ProCoSysFunctionalRole
+                {
+                    Code = CreateFunctionalRoleCode,
+                    Description = "Description",
+                    Email = "frEmail@test.com",
+                    InformationEmail = null,
+                    Persons = personsInFunctionalRole,
                     UsePersonalEmail = true
                 }
             };
 
             TestFactory.Instance
-                .McPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
-                .Returns(Task.FromResult(mcPkgDetails));
+                .FunctionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
+                    new List<string> { KnownTestData.FunctionalRoleCode }))
+                .Returns(Task.FromResult(pcsFunctionalRoles1));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> {FunctionalRoleCode}))
-                .Returns(Task.FromResult(_pcsFunctionalRoles));
+                    new List<string> { CreateFunctionalRoleCode }))
+                .Returns(Task.FromResult(pcsFunctionalRoles2));
 
             TestFactory.Instance
                 .PersonApiServiceMock
