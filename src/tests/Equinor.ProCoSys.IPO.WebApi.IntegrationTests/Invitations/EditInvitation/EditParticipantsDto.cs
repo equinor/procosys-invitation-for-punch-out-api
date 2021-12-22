@@ -2,12 +2,12 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation
 {
-    public class ParticipantsForCommandDto
+    public class EditParticipantsDto
     {
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
-        public ExternalEmailForCommandDto ExternalEmail { get; set; }
-        public PersonForCommandDto Person { get; set; }
-        public FunctionalRoleForCommandDto FunctionalRole { get; set; }
+        public EditExternalEmailForDto ExternalEmail { get; set; }
+        public EditPersonDto Person { get; set; }
+        public EditFunctionalRoleForDto FunctionalRole { get; set; }
     }
 }

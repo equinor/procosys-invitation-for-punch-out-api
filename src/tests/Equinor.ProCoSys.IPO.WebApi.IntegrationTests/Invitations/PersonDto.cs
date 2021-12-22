@@ -10,6 +10,5 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public string LastName { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
-        public string RowVersion { get; set; }
     }
 }

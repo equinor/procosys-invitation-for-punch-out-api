@@ -7,7 +7,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
         protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
 
-        protected List<ParticipantsForCommandDto> _participants;
+        protected List<CreateParticipantsDto> _participants;
         protected List<string> _mcPkgScope;
         private ProCoSysMcPkg _mcPkgDetails;
 
@@ -38,24 +38,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         {
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
 
-            _participants = new List<ParticipantsForCommandDto>
+            _participants = new List<CreateParticipantsDto>
             {
-                new ParticipantsForCommandDto
+                new CreateParticipantsDto
                 {
                     Organization = Organization.Contractor,
-                    Person = _sigurdSigner.AsPersonForCommand(true),
+                    Person = _sigurdSigner.AsCreatePersonDto(true),
                     SortKey = 0
                 },
-                new ParticipantsForCommandDto
+                new CreateParticipantsDto
                 {
                     Organization = Organization.ConstructionCompany,
-                    Person = _sigurdSigner.AsPersonForCommand(true),
+                    Person = _sigurdSigner.AsCreatePersonDto(true),
                     SortKey = 1
                 },
-                new ParticipantsForCommandDto
+                new CreateParticipantsDto
                 {
                     Organization = Organization.TechnicalIntegrity,
-                    Person = _sigurdSigner.AsPersonForCommand(false),
+                    Person = _sigurdSigner.AsCreatePersonDto(false),
                     SortKey = 2
                 }
             };

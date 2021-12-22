@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Newtonsoft.Json;
 
@@ -372,7 +373,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             DisciplineType type,
             System.DateTime startTime,
             System.DateTime endTime,
-            IList<ParticipantsForCommandDto> participants,
+            IList<CreateParticipantsDto> participants,
             IEnumerable<string> mcPkgScope,
             IEnumerable<string> commPkgScope,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -411,7 +412,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             UserType userType, 
             string plant,
             int id,
-            EditInvitationCommandDto dto,
+            EditInvitation.EditInvitationDto dto,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {

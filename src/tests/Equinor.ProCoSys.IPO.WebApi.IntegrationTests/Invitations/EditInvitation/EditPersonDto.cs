@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation
 {
-    public class PersonForCommandDto
+    public class EditPersonDto
     {
         public Guid AzureOid { get; set; }
         public string Email { get; set; }
