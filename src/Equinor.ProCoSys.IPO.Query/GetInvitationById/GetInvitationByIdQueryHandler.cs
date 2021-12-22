@@ -70,6 +70,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             }
             catch (NotAuthorizedError e)
             {
+                // todo fix logging ... this codeline is not correct. 3 places in this class
                 _logger.LogWarning("Fusion meeting not authorized. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
             }
             catch (Exception e)
@@ -302,6 +303,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private void LogFusionMeeting(GeneralMeeting meeting) //This is temporary in the start phase of IPO, to make debugging easier.
         {
+            //if (meeting == null)
+            //{
+            //    return;
+            //}
             var meetingDetails = new Dictionary<string, string>
             {
                 {"Meeting ID", meeting.Id.ToString()},
