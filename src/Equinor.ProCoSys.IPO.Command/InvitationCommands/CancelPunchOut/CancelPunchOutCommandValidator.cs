@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => InvitationIsNotCanceled(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO is already canceled! Id={command.InvitationId}")

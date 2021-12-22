@@ -222,7 +222,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
                         null,
                         null,
-                        ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
+                        ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
+                        participant.RowVersion.ConvertToString()));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
@@ -236,7 +237,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
                         null,
                         ConvertToInvitedPersonDto(participant), 
-                        null));
+                        null,
+                        participant.RowVersion.ConvertToString()));
                 }
                 else if (participant.Organization == Organization.External)
                 {
@@ -251,7 +253,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         new ExternalEmailDto(participant.Id, participant.Email,
                             participant.RowVersion.ConvertToString()),
                         null,
-                        null));
+                        null,
+                        participant.RowVersion.ConvertToString()));
                 }
             }
 

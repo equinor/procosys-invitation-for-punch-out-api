@@ -425,16 +425,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.ExternalEmail != null
                         ? new ExternalEmailForCommand(
                             p.ExternalEmail.Email,
-                            p.ExternalEmail.Id,
-                            p.ExternalEmail.RowVersion)
+                            p.ExternalEmail.Id)
                         : null,
                     p.Person != null
                         ? new PersonForCommand(
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required,
-                            p.Person.Id,
-                            p.Person.RowVersion)
+                            p.Person.Id)
                         : null,
                     p.FunctionalRole != null
                         ? new FunctionalRoleForCommand(
@@ -444,12 +442,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                                     person.AzureOid,
                                     person.Email,
                                     person.Required,
-                                    person.Id,
-                                    person.RowVersion)).ToList(),
-                            p.FunctionalRole.Id,
-                            p.FunctionalRole.RowVersion)
+                                    person.Id)).ToList(),
+                            p.FunctionalRole.Id)
                         : null,
-                    p.SortKey)
+                    p.SortKey,
+                    p.RowVersion)
             ).ToList();
 
         private static GetInvitationsQuery CreateGetInvitationsQuery(FilterDto filter, SortingDto sorting, PagingDto paging)

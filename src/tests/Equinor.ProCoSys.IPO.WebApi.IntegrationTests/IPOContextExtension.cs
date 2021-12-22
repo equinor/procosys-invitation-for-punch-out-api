@@ -43,9 +43,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var mdpInvitation = SeedMdpInvitation(dbContext, plant);
             knownTestData.MdpInvitationIds.Add(mdpInvitation.Id);
 
-            var attachment = SeedAttachment(dbContext, mdpInvitation);
-            knownTestData.AttachmentIds.Add(attachment.Id);
-
             var comment = SeedComment(dbContext, mdpInvitation);
             knownTestData.CommentIds.Add(comment.Id);
             
@@ -114,14 +111,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             dbContext.SaveChangesAsync().Wait();
 
             return dpInvitation;
-        }
-
-        private static Attachment SeedAttachment(IPOContext dbContext, Invitation invitation)
-        {
-            var attachment = new Attachment(invitation.Plant, "Fil1.txt");
-            invitation.AddAttachment(attachment);
-            dbContext.SaveChangesAsync().Wait();
-            return attachment;
         }
 
         private static Comment SeedComment(IPOContext dbContext, Invitation invitation)

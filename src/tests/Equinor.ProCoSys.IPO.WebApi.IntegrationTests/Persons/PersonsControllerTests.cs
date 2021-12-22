@@ -1,4 +1,5 @@
-﻿﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,11 +12,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         public async Task CreateSavedFilter_AsViewer_ShouldSaveFilter()
         {
             // Act
+            var title = Guid.NewGuid().ToString();
+            var criteria = Guid.NewGuid().ToString();
             var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "test title",
-                "criteria",
+                title,
+                criteria,
                 true);
 
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
@@ -30,25 +33,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             Assert.IsTrue(id > 0);
             Assert.IsTrue(savedFilters.Count > 0);
             Assert.IsNotNull(savedFilter);
-            Assert.AreEqual(savedFilter.Title, "test title");
-            Assert.AreEqual(savedFilter.Criteria, "criteria");
+            Assert.AreEqual(title, savedFilter.Title);
+            Assert.AreEqual(criteria, savedFilter.Criteria);
         }
 
         [TestMethod]
         public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
         {
-            var id1 = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "filter1",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true);
 
             await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "filter2",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true);
 
             // Act
@@ -58,22 +61,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 null);
 
             // Assert
-            var savedFilter = savedFilters.Single(sf => sf.Id == id1);
+            var savedFilter = savedFilters.Single(sf => sf.Id == id);
             Assert.IsTrue(savedFilters.Count >= 2);
             Assert.IsNotNull(savedFilter);
-            Assert.AreEqual("filter1", savedFilter.Title);
-            Assert.AreEqual("criteria", savedFilter.Criteria);
         }
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
         {
-            // Act
             var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "filter to update",
-                "criteria to update",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true);
 
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
@@ -83,15 +83,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var savedFilter = savedFilters.Single(sf => sf.Id == id);
 
-            await PersonsControllerTestsHelper.UpdateSavedFilter(
+            var newTitle = Guid.NewGuid().ToString();
+            var newCriteria = Guid.NewGuid().ToString();
+            // Act
+            await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "new title",
-                "new criteria",
+                savedFilter.Id,
+                newTitle,
+                newCriteria,
                 true,
-                savedFilter.RowVersion,
-                savedFilter.Id);
+                savedFilter.RowVersion);
 
+            // Assert
             var updatedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
@@ -99,11 +103,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
             var updatedFilter = updatedFilters.Single(sf => sf.Id == id);
 
-            // Assert
             Assert.IsNotNull(updatedFilter);
             Assert.AreNotEqual(updatedFilter.RowVersion, savedFilter.RowVersion);
-            Assert.AreEqual("new title", updatedFilter.Title);
-            Assert.AreEqual("new criteria", updatedFilter.Criteria);
+            Assert.AreEqual(newTitle, updatedFilter.Title);
+            Assert.AreEqual(newCriteria, updatedFilter.Criteria);
         }
 
         [TestMethod]

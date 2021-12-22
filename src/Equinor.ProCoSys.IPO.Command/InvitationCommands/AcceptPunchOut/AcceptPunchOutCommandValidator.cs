@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => BeAnInvitationInCompletedStage(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is not in completed stage, and thus cannot be accepted!")
@@ -36,10 +36,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             RuleForEach(command => command.Participants)
                 .MustAsync((command, participant, _, cancellationToken) => BeAnExistingParticipant(participant.Id, command.InvitationId, cancellationToken))
                 .WithMessage((command, participant) =>
-                    $"Participant with ID does not exist on invitation! Participant={participant}")
+                    $"Participant with ID does not exist on invitation! Participant={participant.Id}")
                 .Must((command, participant) => HaveAValidRowVersion(participant.RowVersion))
                 .WithMessage((command, participant) =>
-                    $"Participant doesn't have valid rowVersion! Participant={participant}");
+                    $"Participant doesn't have valid rowVersion! Participant={participant.Id}");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);

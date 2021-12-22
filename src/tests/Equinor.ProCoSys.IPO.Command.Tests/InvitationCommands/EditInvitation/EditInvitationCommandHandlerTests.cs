@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private EditInvitationCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _rowVersion = "AAAAAAAAABA=";
-        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -68,21 +68,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _commPkgNo2 = "Comm2";
         private const string _system = "1|2";
         private const string _system2 = "2|2";
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOid, "ola@test.com", true),
-                null,
-                1)
-        };
 
         private readonly List<ParticipantsForCommand> _updatedParticipants = new List<ParticipantsForCommand>
         {
@@ -90,14 +75,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
-                0),
+                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId),
+                0,
+                _participantRowVersion),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(_newAzureOid, "kari@test.com", true),
                 null,
-                1)
+                1,
+                null)
         };
 
         private readonly List<string> _mcPkgScope = new List<string>
@@ -265,9 +252,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var participant = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
@@ -278,14 +265,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _dpInvitation.AddParticipant(participant);
             _dpInvitation.AddParticipant(new Participant(
                 _plant,
-                _participants[1].Organization,
+                Organization.ConstructionCompany,
                 IpoParticipantType.Person,
                 null,
                 _firstName,
                 _lastName,
                 null,
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
+                "ola@test.com",
+                _azureOid,
                 1));
             _dpInvitation.SetProtectedIdForTesting(_dpInvitationId);
 

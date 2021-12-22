@@ -17,13 +17,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 null,
                 new FunctionalRoleForCommand("FR1", null),
-                0),
+                0,
+                null),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(null, "ola@test.com", true),
                 null,
-                1)
+                1,
+                null)
         };
 
         private const string Title = "Test title";

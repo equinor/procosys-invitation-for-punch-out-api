@@ -34,13 +34,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 null,
                 null,
                 new FunctionalRoleForCommand("FR1", null),
-                0),
+                0,
+                _rowVersion),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
                 new PersonForCommand(null, "ola@test.com", true),
                 null,
-                1)
+                1,
+                _rowVersion)
         };
 
         [TestInitialize]
@@ -90,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this ID does not exist!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation with this ID does not exist!"));
         }
 
         [TestMethod]

@@ -18,7 +18,6 @@ namespace Equinor.ProCoSys.IPO.Domain
         public virtual int Id { get; protected set; }
 
         public readonly byte[] RowVersion = new byte[8];
-        
 
         public void AddPreSaveDomainEvent(INotification eventItem)
         {
@@ -32,9 +31,13 @@ namespace Equinor.ProCoSys.IPO.Domain
             _postSaveDomainEvents.Add(eventItem);
         }
 
-        public virtual void SetRowVersion(string value)
+        public virtual void SetRowVersion(string rowVersion)
         {
-            var newRowVersion = Convert.FromBase64String(value);
+            if (string.IsNullOrEmpty(rowVersion))
+            {
+                throw new ArgumentNullException(nameof(rowVersion));
+            }
+            var newRowVersion = Convert.FromBase64String(rowVersion);
             for (var index = 0; index < newRowVersion.Length; index++)
             {
                 RowVersion[index] = newRowVersion[index];
