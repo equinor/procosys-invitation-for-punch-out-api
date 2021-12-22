@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         protected DateTime _invitationStartTime = new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc);
         protected DateTime _invitationEndTime = new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc);
 
-        protected List<ParticipantsForCommand> _participants;
+        protected List<ParticipantsForCommandDto> _participants;
         protected List<string> _mcPkgScope;
         private ProCoSysMcPkg _mcPkgDetails;
 
@@ -38,26 +38,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         {
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
 
-            _participants = new List<ParticipantsForCommand>
+            _participants = new List<ParticipantsForCommandDto>
             {
-                new ParticipantsForCommand(
-                    Organization.Contractor,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(true),
-                    null,
-                    0),
-                new ParticipantsForCommand(
-                    Organization.ConstructionCompany,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(true),
-                    null,
-                    1),
-                new ParticipantsForCommand(
-                    Organization.TechnicalIntegrity,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(false),
-                    null,
-                    2)
+                new ParticipantsForCommandDto
+                {
+                    Organization = Organization.Contractor,
+                    Person = _sigurdSigner.AsPersonForCommand(true),
+                    SortKey = 0
+                },
+                new ParticipantsForCommandDto
+                {
+                    Organization = Organization.ConstructionCompany,
+                    Person = _sigurdSigner.AsPersonForCommand(true),
+                    SortKey = 1
+                },
+                new ParticipantsForCommandDto
+                {
+                    Organization = Organization.TechnicalIntegrity,
+                    Person = _sigurdSigner.AsPersonForCommand(false),
+                    SortKey = 2
+                }
             };
 
             const string McPkgNo = "MC1";

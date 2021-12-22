@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
 using Newtonsoft.Json;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.ForeignApi;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -16,8 +16,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public string UserName { get; set; }
         public bool IsAppToken { get; set; } = false;
 
-        public PersonForCommand AsPersonForCommand(bool required) 
-            => new PersonForCommand(Guid.Parse(Oid), Email, required);
+        public PersonForCommandDto AsPersonForCommand(bool required) 
+            => new PersonForCommandDto
+            {
+                AzureOid = Guid.Parse(Oid),
+                Email= Email,
+                Required = required
+            };
 
         public ProCoSysPerson AsProCoSysPerson() =>
             new ProCoSysPerson

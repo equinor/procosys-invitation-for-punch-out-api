@@ -4,10 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
-using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -374,7 +372,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             DisciplineType type,
             System.DateTime startTime,
             System.DateTime endTime,
-            IList<ParticipantsForCommand> participants,
+            IList<ParticipantsForCommandDto> participants,
             IEnumerable<string> mcPkgScope,
             IEnumerable<string> commPkgScope,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -413,7 +411,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             UserType userType, 
             string plant,
             int id,
-            EditInvitationDto dto,
+            EditInvitationCommandDto dto,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {

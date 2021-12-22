@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
                     participant.Person.Id,
-                    participant.RowVersion);
+                    participant.Person.RowVersion);
 
             // Assert
             var signedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -124,7 +124,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
-            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participant.Person.Id);
+            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Id == participant.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, signerParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(editInvitationDto.RowVersion, newRowVersion);
@@ -150,7 +150,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCompleteId);
 
             var completingParticipant =
-                completedInvitation.Participants.Single(p => p.Person?.Person.Id == completePunchOutDto.Participants.Single().Id);
+                completedInvitation.Participants.Single(p => p.Person?.Id == completePunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, completingParticipant.SignedBy.AzureOid.ToString());
@@ -180,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor);
 
             var unCompletingParticipant =
-                unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == unCompleterParticipant.Person.Person.Id);
+                unCompletedInvitation.Participants.Single(p => p.Person?.Id == unCompleterParticipant.Person.Id);
             Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
             Assert.IsNull(unCompletedInvitation.CompletedBy);
             Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
@@ -209,7 +209,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToAcceptId);
 
             var acceptingParticipant =
-                acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == acceptPunchOutDto.Participants.Single().Id);
+                acceptedInvitation.Participants.Single(p => p.Person?.Id == acceptPunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, acceptingParticipant.SignedBy.AzureOid.ToString());
@@ -239,7 +239,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.ConstructionCompany);
 
             var unAcceptingParticipant =
-                unAcceptedInvitation.Participants.Single(p => p.Person?.Person.Id == unAccepterParticipant.Person.Person.Id);
+                unAcceptedInvitation.Participants.Single(p => p.Person?.Id == unAccepterParticipant.Person.Id);
             Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
             Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
             Assert.IsNull(unAcceptingParticipant.SignedBy);
@@ -270,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor);
 
             var participant =
-                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Person.Id == completerParticipant.Person.Person.Id);
+                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Id == completerParticipant.Person.Id);
 
             Assert.AreEqual(updatedNote, participant.Note);
             Assert.AreEqual(false, participant.Attended);
