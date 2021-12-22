@@ -668,10 +668,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_rowVersion, result.Data);
             Assert.AreEqual(_rowVersion, _dpInvitation.RowVersion.ConvertToString());
-            foreach (var participant in _dpInvitation.Participants)
-            {
-                var r = participant.RowVersion.ConvertToString();
-            }
             Assert.IsTrue(_dpInvitation.Participants.Any(p => p.RowVersion.ConvertToString() == _participantRowVersion));
         }
     }

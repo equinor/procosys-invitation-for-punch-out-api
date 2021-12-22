@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitationAsync(command.InvitationId, cancellationToken))
-                    .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    .WithMessage(command => $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => BeAnExistingAttachmentAsync(command.InvitationId, command.AttachmentId, cancellationToken))
                     .WithMessage(command => $"Attachment doesn't exist! Attachment={command.AttachmentId}.")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))

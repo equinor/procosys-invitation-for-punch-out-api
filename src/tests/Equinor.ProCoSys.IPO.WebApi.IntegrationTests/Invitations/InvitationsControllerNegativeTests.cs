@@ -326,7 +326,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 38934,
                 editInvitationDto,
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -445,7 +445,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            participant.Person.Id,
                            TestFactory.AValidRowVersion,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -553,7 +553,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 completePunchOutDto,
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -669,7 +669,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            9999,
                            unCompletePunchOutDto,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -775,7 +775,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            9999,
                            acceptPunchOutDto,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -889,7 +889,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            9999,
                            unAcceptPunchOutDto,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -986,7 +986,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            9999,
                            cancelPunchOutDto,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -1058,7 +1058,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                            9999,
                            participantToChangeDtos,
                            HttpStatusCode.BadRequest,
-                           "IPO with this ID does not exist!");
+                           "Invitation with this ID does not exist!");
         }
 
         [TestMethod]
@@ -1142,7 +1142,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 9999,
                 TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                "Invitation with this ID does not exist!");
         #endregion
 
         #region DeleteAttachment
@@ -1197,7 +1197,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                "Invitation with this ID does not exist!");
 
         [TestMethod]
         public async Task DeleteAttachment_AsPlanner_ShouldReturnConflict_WhenWrongAttachmentRowVersion()
@@ -1341,7 +1341,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 123456,
                 "comment",
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist");
+                "Invitation with this ID does not exist");
         #endregion
 
         #region GetHistory

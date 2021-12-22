@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitationAsync(command.InvitationId, cancellationToken))
-                    .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    .WithMessage(command => $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => NotHaveAttachmentWithFileNameAsync(command.InvitationId, command.FileName, cancellationToken))
                     .WithMessage(command => $"Invitation already has an attachment with filename {command.FileName}! Please rename file or choose to overwrite.")
                     .When(c => !c.OverWriteIfExists, ApplyConditionTo.CurrentValidator);

@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
                 //business validators
                 .MustAsync((command, cancellationToken) => BeAnExistingIpo(command.InvitationId, cancellationToken))
-                .WithMessage(command => $"IPO with this ID does not exist! Id={command.InvitationId}")
+                .WithMessage(command => $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => BeAnIpoInPlannedStage(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))

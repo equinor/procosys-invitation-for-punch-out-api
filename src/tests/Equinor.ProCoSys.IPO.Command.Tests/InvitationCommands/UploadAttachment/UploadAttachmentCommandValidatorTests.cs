@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this ID does not exist"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation with this ID does not exist"));
         }
 
         [TestMethod]

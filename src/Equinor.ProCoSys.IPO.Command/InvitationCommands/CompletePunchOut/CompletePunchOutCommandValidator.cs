@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => BeAnInvitationInPlannedStage(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is not in planned stage, and thus cannot be completed!")
