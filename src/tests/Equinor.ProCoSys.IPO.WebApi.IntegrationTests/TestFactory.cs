@@ -68,6 +68,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public static string ProjectWithAccess => KnownTestData.ProjectName;
         public static string ProjectWithoutAccess => "Project999";
         public static string AValidRowVersion => "AAAAAAAAAAA=";
+        public static string WrongButValidRowVersion => "AAAAAAAAAAA=";
 
         public KnownTestData KnownTestData { get; }
 

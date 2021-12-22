@@ -984,7 +984,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         new ExternalEmailForCommand("test@email.com", 200),
                         null,
                         null,
-                        3);
+                        0);
                 var result = await dut.ParticipantWithIdExistsAsync(externalPerson, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }

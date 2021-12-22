@@ -1,10 +1,8 @@
 ﻿using System;
-using MediatR;
-using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class PersonForCommand : IRequest<Result<Unit>>
+    public class PersonForCommand
     {
         public PersonForCommand(
             Guid? azureOid,

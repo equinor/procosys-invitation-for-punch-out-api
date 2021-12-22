@@ -14,5 +14,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public ExternalEmailDto ExternalEmail { get; set; }
         public InvitedPersonDto Person { get; set; }
         public FunctionalRoleDto FunctionalRole { get; set; }
+        public string RowVersion { set; get; }
     }
 }

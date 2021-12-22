@@ -75,6 +75,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         {
             await DispatchPreSaveEventsAsync(cancellationToken);
             await SetAuditDataAsync();
+            UpdateConcurrencyToken();
+            
             try
             {
                 var result = await base.SaveChangesAsync(cancellationToken);
@@ -91,6 +93,27 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             => await base.Database.BeginTransactionAsync(cancellationToken);
 
         public void Commit() => base.Database.CommitTransaction();
+
+        private void UpdateConcurrencyToken()
+        {
+            if (!_plantProvider.IsOptimisticConcurrenyEnabled_HACK)
+            {
+                return;
+            }
+            var modifiedEntries = ChangeTracker
+                .Entries<EntityBase>()
+                .Where(x => x.State == EntityState.Modified || x.State == EntityState.Deleted);
+
+            foreach (var entry in modifiedEntries)
+            {
+                var currentRowVersion = entry.CurrentValues.GetValue<byte[]>(nameof(EntityBase.RowVersion));
+                var originalRowVersion = entry.OriginalValues.GetValue<byte[]>(nameof(EntityBase.RowVersion));
+                for (var i = 0; i < currentRowVersion.Length; i++)
+                {
+                    originalRowVersion[i] = currentRowVersion[i];
+                }
+            }
+        }
 
         private async Task DispatchPreSaveEventsAsync(CancellationToken cancellationToken = default)
         {

@@ -1,10 +1,8 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using MediatR;
-using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class ParticipantsForCommand : IRequest<Result<Unit>>
+    public class ParticipantsForCommand
     {
         public ParticipantsForCommand(
             Organization organization,

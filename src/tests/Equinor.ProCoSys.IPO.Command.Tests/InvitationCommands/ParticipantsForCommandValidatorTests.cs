@@ -15,8 +15,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         public void Setup_OkState()
         {
 
-            _validCommand =
-                new ParticipantsForCommand(
+            _validCommand = new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
                     null,

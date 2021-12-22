@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using MediatR;
-using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class FunctionalRoleForCommand : IRequest<Result<Unit>>
+    public class FunctionalRoleForCommand
     {
         public FunctionalRoleForCommand(
             string code,
