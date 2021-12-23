@@ -45,7 +45,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         };
         private List<ParticipantsForCommand> _participants;
 
-
         [TestInitialize]
         public void Setup_OkState()
         {
@@ -303,6 +302,59 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant with ID does not exist"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenParticipant_HasNegativeSortKey()
+        {
+            var editParticipants = new List<EditParticipantsForCommand>
+                {
+                    new EditParticipantsForCommand(
+                        Organization.Contractor,
+                        null,
+                        null,
+                        new EditFunctionalRoleForCommand(1, "FR1", null, _rowVersion),
+                        0),
+                    new EditParticipantsForCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new EditPersonForCommand(2, null, "ola@test.com", true, _rowVersion),
+                        null,
+                        1),
+                    new EditParticipantsForCommand(
+                        Organization.External,
+                        new EditExternalEmailForCommand(null, "jon@test.no", null),
+                        null,
+                        null,
+                        -3)
+                };
+            
+            var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            var command = new EditInvitationCommand(
+                _id,
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Sort key for participant must be a non negative number!"));
         }
     }
 }

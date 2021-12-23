@@ -46,6 +46,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => ParticipantListMustBeValid(command.Participants))
                 .WithMessage("Each participant must contain an email or oid!");
 
+            RuleForEach(command => command.Participants)
+                .Must(participant => participant.SortKey >= 0)
+                .WithMessage((_, participant) =>
+                    $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}");
+
             bool MustHaveValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(type, mcPkgScope, commPkgScope);
 

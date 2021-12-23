@@ -52,11 +52,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             RuleForEach(command => command.UpdatedParticipants)
                 .MustAsync((command, participant, _, cancellationToken) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, cancellationToken))
-                .WithMessage((command, participant) =>
-                    $"Participant with ID does not exist on invitation! Participant={participant}")
+                .WithMessage(_ => $"Participant with ID does not exist on invitation!")
+                .Must(participant => participant.SortKey >= 0)
+                .WithMessage((_, participant) =>
+                    $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}")
                 .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
-                .WithMessage((command, participant) =>
-                    $"Participant doesn't have valid rowVersion! Participant={participant}");
+                .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
             async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);

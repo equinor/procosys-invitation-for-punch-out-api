@@ -6,15 +6,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     {
         public EditParticipantsForCommand(
             Organization organization,
-            IExternalEmailForCommand externalEmail,
-            IPersonForCommand person,
-            IFunctionalRoleForCommand functionalRole,
+            EditExternalEmailForCommand externalEmail,
+            EditPersonForCommand person,
+            EditFunctionalRoleForCommand functionalRole,
             int sortKey) : base(organization, externalEmail, person, functionalRole, sortKey)
         {
+            EditExternalEmail = externalEmail;
+            EditPerson = person;
+            EditFunctionalRole = functionalRole;
         }
 
-        public EditExternalEmailForCommand EditExternalEmail => ExternalEmail as EditExternalEmailForCommand;
-        public EditPersonForCommand EditPerson => Person as EditPersonForCommand;
-        public EditFunctionalRoleForCommand EditFunctionalRole => FunctionalRole as EditFunctionalRoleForCommand;
+        public EditExternalEmailForCommand EditExternalEmail { get; }
+        public EditPersonForCommand EditPerson { get; }
+        public EditFunctionalRoleForCommand EditFunctionalRole { get; }
     }
 }
