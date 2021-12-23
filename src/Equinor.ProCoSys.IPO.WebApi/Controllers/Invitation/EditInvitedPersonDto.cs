@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
-    public class InvitedPersonDto
+    public class EditInvitedPersonDto
     {
         public int? Id { get; set; }
         public Guid? AzureOid { get; set; }

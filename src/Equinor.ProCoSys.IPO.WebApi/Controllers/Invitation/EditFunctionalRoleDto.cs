@@ -2,11 +2,11 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
-    public class FunctionalRoleDto
+    public class EditFunctionalRoleDto
     {
         public int? Id { get; set; }
         public string Code { get; set; }
-        public IEnumerable<InvitedPersonDto> Persons { get; set; }
+        public IEnumerable<EditInvitedPersonDto> Persons { get; set; }
         public string RowVersion { get; set; }
     }
 }

@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public DateTime EndTime { get; set; }
         public string ProjectName { get; set; }
         public DisciplineType Type { get; set; }
-        public IEnumerable<ParticipantDto> Participants { get; set; }
+        public IEnumerable<EditParticipantDto> Participants { get; set; }
         public IEnumerable<string> McPkgScope { get; set; }
         public IEnumerable<string> CommPkgScope { get; set; }
     }

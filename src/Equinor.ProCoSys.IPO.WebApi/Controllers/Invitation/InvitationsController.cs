@@ -418,7 +418,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<ParticipantDto> dto)
+        private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<EditParticipantDto> dto)
             => dto?.Select(p =>
                 new ParticipantsForCommand(
                     p.Organization,
