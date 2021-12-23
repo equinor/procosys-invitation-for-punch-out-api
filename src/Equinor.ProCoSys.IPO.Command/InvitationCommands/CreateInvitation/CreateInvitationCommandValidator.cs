@@ -49,7 +49,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             RuleForEach(command => command.Participants)
                 .Must(participant => participant.SortKey >= 0)
                 .WithMessage((_, participant) =>
-                    $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}");
+                    $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}")
+                .Must(FunctionalRoleParticipantsMustBeValid)
+                .WithMessage((_, participant) =>
+                    $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.FunctionalRole.Code}");
 
             bool MustHaveValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(type, mcPkgScope, commPkgScope);
@@ -62,6 +65,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);
+
+            bool FunctionalRoleParticipantsMustBeValid(ParticipantsForCommand participant)
+            {
+                if (participant.FunctionalRole == null)
+                {
+                    return true;
+                }
+
+                return participant.FunctionalRole.Code != null &&
+                    participant.FunctionalRole.Code.Length > 2 &&
+                    participant.FunctionalRole.Code.Length < Participant.FunctionalRoleCodeMaxLength;
+            }
         }
     }
 }

@@ -56,6 +56,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(participant => participant.SortKey >= 0)
                 .WithMessage((_, participant) =>
                     $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}")
+                .Must(FunctionalRoleParticipantsMustBeValid)
+                .WithMessage((_, participant) =>
+                    $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.FunctionalRole.Code}")
                 .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
@@ -108,6 +111,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 }
 
                 return true;
+            }
+
+            bool FunctionalRoleParticipantsMustBeValid(ParticipantsForCommand participant)
+            {
+                if (participant.FunctionalRole == null)
+                {
+                    return true;
+                }
+
+                return participant.FunctionalRole.Code != null &&
+                    participant.FunctionalRole.Code.Length > 2 &&
+                    participant.FunctionalRole.Code.Length < Participant.FunctionalRoleCodeMaxLength;
             }
         }
     }
