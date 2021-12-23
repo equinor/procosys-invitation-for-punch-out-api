@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -338,6 +340,51 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationId);
 
             AssertRowVersionChange(currentRowVersion, newRowVersion);
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldRemoveParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.External,
+                    ExternalEmail = new CreateExternalEmailForDto
+                    {
+                        Email = "knut@test.com"
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+
+            editInvitationDto.UpdatedParticipants = editInvitationDto.UpdatedParticipants.Take(2);
+
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(2, updatedInvitation.Participants.Count());
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
             Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());

@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class InvitationsControllerTestsBase : TestBase
     {
-        private const string CreateFunctionalRoleCode = "FRC2";
+        protected const string CreateFunctionalRoleCode = "FRC2";
         protected const string InvitationLocation = "InvitationLocation";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
