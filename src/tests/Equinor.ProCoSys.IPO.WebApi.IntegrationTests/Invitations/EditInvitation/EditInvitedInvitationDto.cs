@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation
 {
-    public class EditInvitationDto
+    public class EditInvitedInvitationDto
     {
         public string ProjectName { get; set; }
         public string Description { get; set; }

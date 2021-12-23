@@ -5,6 +5,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitat
     public class CreateFunctionalRoleForDto
     {
         public string Code { get; set; }
-        public IList<CreatePersonDto> Persons { get; set; }
+        public IList<CreateInvitedPersonDto> Persons { get; set; }
     }
 }

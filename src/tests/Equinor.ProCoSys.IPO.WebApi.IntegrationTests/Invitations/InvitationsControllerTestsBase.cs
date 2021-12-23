@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestInitialize]
         public async Task TestInitializeAsync()
         {
-            var personParticipant = new CreatePersonDto
+            var personParticipant = new CreateInvitedPersonDto
             {
                 AzureOid = Guid.NewGuid(),
                 Email = "ola@test.com",
@@ -420,7 +420,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, completePunchOutDto);
         }
 
-        internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync(IList<CreateParticipantsDto> participants)
+        internal async Task<(int, EditInvitedInvitationDto)> CreateValidEditInvitationDtoAsync(IList<CreateParticipantsDto> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -440,7 +440,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 id);
 
-            var editInvitationDto = new EditInvitationDto
+            var editInvitationDto = new EditInvitedInvitationDto
             {
                 Title = invitation.Title,
                 Description = invitation.Description,

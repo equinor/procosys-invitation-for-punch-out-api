@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
-    public class CommPkgsWithMdpIposDto
+    public class CommPkgWithMdpIposDto
     {
         public string CommPkgNo { get; set; }
         public int LatestMdpInvitationId { get; set; }

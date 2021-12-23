@@ -16,8 +16,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public string UserName { get; set; }
         public bool IsAppToken { get; set; } = false;
 
-        public CreatePersonDto AsCreatePersonDto(bool required) 
-            => new CreatePersonDto
+        public CreateInvitedPersonDto AsCreatePersonDto(bool required) 
+            => new CreateInvitedPersonDto
             {
                 AzureOid = Guid.Parse(Oid),
                 Email= Email,
