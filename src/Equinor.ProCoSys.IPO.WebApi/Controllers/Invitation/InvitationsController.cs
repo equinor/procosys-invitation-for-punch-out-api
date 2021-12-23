@@ -418,24 +418,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        private IList<EditParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
+        private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
-                new EditParticipantsForCommand(
+                new ParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new EditExternalEmailForCommand(p.ExternalEmail.Email)
+                        ? new CreateExternalEmailForCommand(p.ExternalEmail.Email)
                         : null,
                     p.Person != null
-                        ? new EditPersonForCommand(
+                        ? new CreatePersonForCommand(
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required)
                         : null,
                     p.FunctionalRole != null
-                        ? new EditFunctionalRoleForCommand(
+                        ? new CreateFunctionalRoleForCommand(
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new EditPersonForCommand(
+                                new CreatePersonForCommand(
                                     person.AzureOid,
                                     person.Email,
                                     person.Required)).ToList())
@@ -448,29 +448,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.Organization,
                     p.ExternalEmail != null
                         ? new EditExternalEmailForCommand(
-                            p.ExternalEmail.Email,
                             p.ExternalEmail.Id,
+                            p.ExternalEmail.Email,
                             p.ExternalEmail.RowVersion)
                         : null,
                     p.Person != null
                         ? new EditPersonForCommand(
+                            p.Person.Id,
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required,
-                            p.Person.Id,
                             p.Person.RowVersion)
                         : null,
                     p.FunctionalRole != null
                         ? new EditFunctionalRoleForCommand(
+                            p.FunctionalRole.Id,
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
                                 new EditPersonForCommand(
+                                    person.Id,
                                     person.AzureOid,
                                     person.Email,
                                     person.Required,
-                                    person.Id,
                                     person.RowVersion)).ToList(),
-                            p.FunctionalRole.Id,
                             p.FunctionalRole.RowVersion)
                         : null,
                     p.SortKey)

@@ -49,13 +49,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             bool MustHaveValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope)
                 => invitationValidator.IsValidScope(type, mcPkgScope, commPkgScope);
 
-            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<EditParticipantsForCommand> participants)
+            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);
 
-            bool RequiredParticipantsHaveLowestSortKeys(IList<EditParticipantsForCommand> participants)
+            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
                 => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants); 
 
-            bool ParticipantListMustBeValid(IList<EditParticipantsForCommand> participants)
+            bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);
         }
     }

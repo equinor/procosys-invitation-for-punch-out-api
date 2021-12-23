@@ -1,25 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
     public class EditFunctionalRoleForCommand : IFunctionalRoleForCommand
     {
         public EditFunctionalRoleForCommand(
+            int? id,
             string code,
             IEnumerable<EditPersonForCommand> persons,
-            int? id = null,
-            string rowVersion = null)
+            string rowVersion)
         {
+            Id = id;
             Code = code;
             EditPersons = persons ?? new List<EditPersonForCommand>();
-            Id = id;
             RowVersion = rowVersion;
         }
+
+        // null for Id will add new
+        public int? Id { get; }
         public string Code { get; }
         public IEnumerable<IPersonForCommand> Persons => EditPersons.Cast<IPersonForCommand>();
         public IEnumerable<EditPersonForCommand> EditPersons { get; }
-        public int? Id { get; }
         public string RowVersion { get; }
     }
 }

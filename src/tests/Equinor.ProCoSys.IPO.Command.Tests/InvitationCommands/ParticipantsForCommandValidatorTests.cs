@@ -1,4 +1,5 @@
 ﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -8,23 +9,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
     public class ParticipantsForCommandValidatorTests
     {
         private ParticipantsForCommandValidator _dut;
-        private EditParticipantsForCommand _validCommand;
-        private EditParticipantsForCommand _invalidCommandNegativeSortKey;
+        private ParticipantsForCommand _validCommand;
+        private ParticipantsForCommand _invalidCommandNegativeSortKey;
 
         [TestInitialize]
         public void Setup_OkState()
         {
 
-            _validCommand = new EditParticipantsForCommand(
+            _validCommand = new ParticipantsForCommand(
                     Organization.Contractor,
                     null,
                     null,
-                    new EditFunctionalRoleForCommand("FR1", null),
+                    new EditFunctionalRoleForCommand(1, "FR1", null, null),
                     0);
-            _invalidCommandNegativeSortKey = new EditParticipantsForCommand(
+            _invalidCommandNegativeSortKey = new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new EditPersonForCommand(null,"ola@test.com", true),
+                    new EditPersonForCommand(2, null,"ola@test.com", true, null),
                     null,
                     -1);
             _dut = new ParticipantsForCommandValidator();

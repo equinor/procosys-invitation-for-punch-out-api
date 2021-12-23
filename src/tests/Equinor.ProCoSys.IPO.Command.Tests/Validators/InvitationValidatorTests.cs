@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -55,18 +56,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             "COMM-02"
         };
 
-        private readonly List<EditParticipantsForCommand> _participantsOnlyRequired = new List<EditParticipantsForCommand>
+        private readonly List<ParticipantsForCommand> _participantsOnlyRequired = new List<ParticipantsForCommand>
         {
-            new EditParticipantsForCommand(
+            new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand("FR1", null),
+                new EditFunctionalRoleForCommand(1, "FR1", null, null),
                 0),
-            new EditParticipantsForCommand(
+            new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true),
+                new EditPersonForCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
                 null,
                 1)
         };
@@ -491,7 +492,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.RequiredParticipantsMustBeInvited(new List<EditParticipantsForCommand>());
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand>());
                 Assert.IsFalse(result);
             }
         }
@@ -502,16 +503,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.RequiredParticipantsMustBeInvited(new List<EditParticipantsForCommand> {
-                    new EditParticipantsForCommand(
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
+                    new ParticipantsForCommand(
                         Organization.Contractor,
-                        new EditExternalEmailForCommand("external@test.com"),
+                        new EditExternalEmailForCommand(null, "external@test.com", null),
                         null,
                         null,
                         0),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.ConstructionCompany,
-                        new EditExternalEmailForCommand("external2@test.com"),
+                        new EditExternalEmailForCommand(null, "external2@test.com", null),
                         null,
                         null,
                         1)
@@ -526,7 +527,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.RequiredParticipantsMustBeInvited(new List<EditParticipantsForCommand> { _participantsOnlyRequired[0] });
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> { _participantsOnlyRequired[0] });
                 Assert.IsFalse(result);
             }
         }
@@ -537,17 +538,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.RequiredParticipantsMustBeInvited(new List<EditParticipantsForCommand> {
-                    new EditParticipantsForCommand(
+                var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null),
+                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
                         0),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(Guid.Empty, "ola@test.com", true),
+                        new EditPersonForCommand(null, Guid.Empty, "ola@test.com", true, null),
                         null,
                         1)
                 });
@@ -572,10 +573,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidParticipantList(new List<EditParticipantsForCommand> {
+                var result = dut.IsValidParticipantList(new List<ParticipantsForCommand> {
                     _participantsOnlyRequired[0],
                     _participantsOnlyRequired[1],
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
                         null,
@@ -592,13 +593,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.IsValidParticipantList(new List<EditParticipantsForCommand> {
+                var result = dut.IsValidParticipantList(new List<ParticipantsForCommand> {
                     _participantsOnlyRequired[0],
                     _participantsOnlyRequired[1],
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
-                        new EditExternalEmailForCommand("test@email.com"),
-                        new EditPersonForCommand(null, "zoey@test.com", true),
+                        new EditExternalEmailForCommand(null, "test@email.com", null),
+                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3)
                 });
@@ -613,28 +614,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var fr =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null),
+                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
                         2);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true),
+                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true, null),
                         null,
                         3);
                 var external =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand("External@test.com"),
+                        new EditExternalEmailForCommand(null, "External@test.com", null),
                         null,
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr, person, external });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr, person, external });
                 Assert.IsTrue(result);
             }
         }
@@ -646,14 +647,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), null, true),
+                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), null, true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
         }
@@ -665,14 +666,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true),
+                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
         }
@@ -684,14 +685,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, "zoey@test.com", true),
+                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
         }
@@ -702,16 +703,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var fr = new EditParticipantsForCommand(
+                var fr = new ParticipantsForCommand(
                     Organization.Operation,
                     null,
                     null,
                     new EditFunctionalRoleForCommand(
+                        null, 
                         "FR",
-                        new List<EditPersonForCommand>{ new EditPersonForCommand(new Guid("11111111-2222-2222-2222-333333333333"), "", true)}), 
+                        new List<EditPersonForCommand>{ new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null)},
+                        null), 
                     3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], fr });
                 Assert.IsTrue(result);
             }
         }
@@ -724,14 +727,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var participantWithFunctionalRoleAndExternalEmail =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand("external@test.com"),
+                        new EditExternalEmailForCommand(null, "external@test.com", null),
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null),
+                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
             }
         }
@@ -744,14 +747,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var participantWithFunctionalRoleAndExternalEmail =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, null),
+                        new EditFunctionalRoleForCommand(null, null, null, null),
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
             }
         }
@@ -764,14 +767,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var participantWithFunctionalRoleAndExternalEmail =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("", null),
+                        new EditFunctionalRoleForCommand(null, "", null, null),
                         3);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
                 Assert.IsFalse(result);
             }
         }
@@ -784,14 +787,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, null, true),
+                        new EditPersonForCommand(null, null, null, true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }
@@ -804,14 +807,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(Guid.Empty, "test", true),
+                        new EditPersonForCommand(null, Guid.Empty, "test", true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
-                    new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                    new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }
@@ -836,13 +839,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, "zoey@test.com", true),
+                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3);
-                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsTrue(result);
             }
         }
@@ -854,17 +857,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
-                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<EditParticipantsForCommand> {
-                    new EditParticipantsForCommand(
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> {
+                    new ParticipantsForCommand(
                         Organization.Contractor,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null),
+                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
                         0),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new EditPersonForCommand(null, "ola@test.com", true),
+                        new EditPersonForCommand(null, null, "ola@test.com", true, null),
                         null,
                         0)
                 });
@@ -880,13 +883,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, "zoey@test.com", true),
+                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
                         null,
                         0);
-                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<EditParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
+                var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
                 Assert.IsFalse(result);
             }
         }
@@ -899,9 +902,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var externalPerson =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand("test@email.com", _participantId1),
+                        new EditExternalEmailForCommand(_participantId1, "test@email.com", null),
                         null,
                         null,
                         3);
@@ -918,10 +921,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, "zoey@test.com", true, _participantId1),
+                        new EditPersonForCommand(_participantId1, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -937,11 +940,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var functionalRole =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null, _participantId1),
+                        new EditFunctionalRoleForCommand(_participantId1, "FR1", null, null),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
@@ -956,15 +959,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var functionalRole =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", new List<EditPersonForCommand> {
-                            new EditPersonForCommand(null, "zoey@test.com", true, _participantId1),
-                            new EditPersonForCommand(null, "zoey1@test.com", false, _participantId2)
+                        new EditFunctionalRoleForCommand(
+                            _operationCurrentPersonId, 
+                            "FR1", 
+                        new List<EditPersonForCommand> {
+                            new EditPersonForCommand(_participantId1, null, "zoey@test.com", true, null),
+                            new EditPersonForCommand(_participantId2, null, "zoey1@test.com", false, null)
                             },
-                            _operationCurrentPersonId),
+                            null),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
@@ -979,9 +985,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var externalPerson =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand("test@email.com", 200),
+                        new EditExternalEmailForCommand(200, "test@email.com", null),
                         null,
                         null,
                         0);
@@ -998,10 +1004,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var person =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, "zoey@test.com", true, 500),
+                        new EditPersonForCommand(500, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -1017,11 +1023,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var functionalRole =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", null, 400),
+                        new EditFunctionalRoleForCommand(400, "FR1", null, null),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
@@ -1036,14 +1042,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var dut = new InvitationValidator(context, _currentUserProvider);
                 var functionalRole =
-                    new EditParticipantsForCommand(
+                    new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand("FR1", new List<EditPersonForCommand> {
-                            new EditPersonForCommand(null, "zoey@test.com", true, 400),
-                            new EditPersonForCommand(null, "zoey1@test.com", false, 500)
-                            }
+                        new EditFunctionalRoleForCommand(
+                            null, 
+                            "FR1", 
+                            new List<EditPersonForCommand> {
+                                new EditPersonForCommand(400, null, "zoey@test.com", true, null),
+                                new EditPersonForCommand(500, null, "zoey1@test.com", false, null)
+                            },
+                            null
                         ),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);

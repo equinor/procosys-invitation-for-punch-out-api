@@ -9,11 +9,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
     public interface IInvitationValidator
     {
         bool IsValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope);
-        Task<bool> ParticipantWithIdExistsAsync(EditParticipantsForCommand participant, int invitationId, CancellationToken token);
+        Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
         Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken token);
-        bool IsValidParticipantList(IList<EditParticipantsForCommand> participants);
-        bool RequiredParticipantsMustBeInvited(IList<EditParticipantsForCommand> participants);
-        bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<EditParticipantsForCommand> participants);
+        bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
+        bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
+        bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);
         Task<bool> AttachmentExistsAsync(int invitationId, int attachmentId, CancellationToken cancellationToken);
         Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
         Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken);

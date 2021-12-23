@@ -1,4 +1,5 @@
 ﻿using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,10 +18,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
         public void Setup_OkState()
         {
 
-            _validCommand = new EditFunctionalRoleForCommand("FR1", null);
-            _invalidCommandCodeNull = new EditFunctionalRoleForCommand(null, null);
-            _invalidCommandCodeTooShort = new EditFunctionalRoleForCommand("1", null);
-            _invalidCommandCodeTooLong = new EditFunctionalRoleForCommand(new string('x', Participant.FunctionalRoleCodeMaxLength + 1), null);
+            _validCommand = new EditFunctionalRoleForCommand(0, "FR1", null, null);
+            _invalidCommandCodeNull = new EditFunctionalRoleForCommand(0, null, null, null);
+            _invalidCommandCodeTooShort = new EditFunctionalRoleForCommand(0, "1", null, null);
+            _invalidCommandCodeTooLong = new EditFunctionalRoleForCommand(0, new string('x', Participant.FunctionalRoleCodeMaxLength + 1), null, null);
             _dut = new FunctionalRoleForCommandValidator();
         }
 

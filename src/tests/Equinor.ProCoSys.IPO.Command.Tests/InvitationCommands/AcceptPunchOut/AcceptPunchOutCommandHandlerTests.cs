@@ -60,22 +60,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _participantRowVersion2)
         };
 
-        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
-        {
-            new EditParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new EditFunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new EditParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new EditPersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
-                null,
-                1)
-        };
-
         [TestInitialize]
         public void Setup()
         {
@@ -119,11 +103,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                     new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
                     null)
                 { MeetingId = _meetingId };
+
             var participant1 = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
@@ -134,13 +119,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             _invitation.AddParticipant(participant1);
             var participant2 = new Participant(
                 _plant,
-                _participants[1].Organization,
+                Organization.ConstructionCompany,
                 IpoParticipantType.Person,
                 null,
                 _firstName,
                 _lastName,
                 "OlaN",
-                _participants[1].Person.Email,
+                "ola@test.com",
                 _azureOidForCurrentUser,
                 1);
             participant2.SetProtectedIdForTesting(_participantId2);

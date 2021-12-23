@@ -16,12 +16,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand("FR1", null),
+                new EditFunctionalRoleForCommand(null, "FR1", null, null),
                 0),
             new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(null, "ola@test.com", true),
+                new EditPersonForCommand(null, null, "ola@test.com", true, null),
                 null,
                 1)
         };

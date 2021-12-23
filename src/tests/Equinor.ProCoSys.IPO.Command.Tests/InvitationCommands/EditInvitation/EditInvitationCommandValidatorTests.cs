@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
@@ -27,25 +28,29 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _rowVersion = "AAAAAAAAABA=";
 
         private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
-        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
+        private readonly List<EditParticipantsForCommand> _editParticipants = new List<EditParticipantsForCommand>
         {
             new EditParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand("FR1", null),
+                new EditFunctionalRoleForCommand(1, "FR1", null, _rowVersion),
                 0),
             new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(null, "ola@test.com", true),
+                new EditPersonForCommand(2, null, "ola@test.com", true, _rowVersion),
                 null,
                 1)
         };
+        private List<ParticipantsForCommand> _participants;
+
 
         [TestInitialize]
         public void Setup_OkState()
         {
+            _participants = _editParticipants.Cast<ParticipantsForCommand>().ToList();
+
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_rowVersion)).Returns(true);
@@ -54,8 +59,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[0], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[1], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[0], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[1], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
             _command = new EditInvitationCommand(
                 _id,
@@ -65,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion);
@@ -125,7 +130,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -146,7 +151,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -167,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -188,7 +193,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -209,7 +214,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -230,7 +235,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _type,
-                _participants,
+                _editParticipants,
                 null,
                 _commPkgScope,
                 _rowVersion));
@@ -291,7 +296,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantsWithIdsDoNotExist()
         {
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_participants[0], _id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[0], _id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

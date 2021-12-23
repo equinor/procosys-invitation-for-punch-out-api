@@ -180,27 +180,27 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var existingParticipants = invitation.Participants.ToList();
 
             var functionalRoleParticipants =
-                participantsToUpdate.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
-            var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.FunctionalRole.Id).ToList();
+                participantsToUpdate.Where(p => p.EditFunctionalRole != null).Select(p => p).ToList();
+            var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.EditFunctionalRole.Id).ToList();
 
-            var personsWithOids = participantsToUpdate.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
-            var personsWithOidsIds = personsWithOids.Select(p => p.Person.Id).ToList();
+            var personsWithOids = participantsToUpdate.Where(p => p.EditPerson?.AzureOid != null).Select(p => p).ToList();
+            var personsWithOidsIds = personsWithOids.Select(p => p.EditPerson.Id).ToList();
 
-            var personParticipantsWithEmails = participantsToUpdate.Where(p => p.Person != null && p.Person.AzureOid == null)
+            var personParticipantsWithEmails = participantsToUpdate.Where(p => p.EditPerson != null && p.EditPerson.AzureOid == null)
                 .Select(p => p).ToList();
-            var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.Person.Id).ToList();
+            var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.EditPerson.Id).ToList();
 
-            var externalEmailParticipants = participantsToUpdate.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
-            var externalEmailParticipantsIds = externalEmailParticipants.Select(p => p.ExternalEmail.Id).ToList();
+            var externalEmailParticipants = participantsToUpdate.Where(p => p.EditExternalEmail != null).Select(p => p).ToList();
+            var externalEmailParticipantsIds = externalEmailParticipants.Select(p => p.EditExternalEmail.Id).ToList();
 
             var participantsToUpdateIds = externalEmailParticipantsIds
                 .Concat(personsWithOidsIds)
                 .Concat(personParticipantsWithEmailsIds)
                 .Concat(functionalRoleParticipantIds).ToList();
-            participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.Person != null select fr.Person.Id);
+            participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.EditPerson != null select fr.EditPerson.Id);
             foreach (var functionalRoleParticipant in functionalRoleParticipants)
             {
-                participantsToUpdateIds.AddRange(functionalRoleParticipant.FunctionalRole.EditPersons.Select(person => person.Id));
+                participantsToUpdateIds.AddRange(functionalRoleParticipant.EditFunctionalRole.EditPersons.Select(person => person.Id));
             }
 
             var participantsToDelete = existingParticipants.Where(p => !participantsToUpdateIds.Contains(p.Id));
@@ -228,7 +228,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IList<EditParticipantsForCommand> functionalRoleParticipants,
             IList<Participant> existingParticipants)
         {
-            var codes = functionalRoleParticipants.Select(p => p.FunctionalRole.Code).ToList();
+            var codes = functionalRoleParticipants.Select(p => p.EditFunctionalRole.Code).ToList();
             var functionalRoles =
                 await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
 
@@ -237,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
                 if (fr != null)
                 {
-                    var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.FunctionalRole.Id);
+                    var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.EditFunctionalRole.Id);
                     if (existingParticipant != null)
                     {
                         invitation.UpdateParticipant(
@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                             fr.Email,
                             null,
                             participant.SortKey,
-                            participant.FunctionalRole.RowVersion);
+                            participant.EditFunctionalRole.RowVersion);
                     }
                     else
                     {
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
                     }
-                    foreach (var person in participant.FunctionalRole.EditPersons)
+                    foreach (var person in participant.EditFunctionalRole.EditPersons)
                     {
                         var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());
                         if (frPerson != null)
@@ -326,7 +326,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             List<EditParticipantsForCommand> personParticipantsWithOids,
             IList<Participant> existingParticipants)
         {
-            var personsAdded = new List<EditParticipantsForCommand>();
+            var personsAdded = new List<ParticipantsForCommand>();
 
             foreach (var participant in personParticipantsWithOids)
             {
@@ -336,7 +336,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         invitation,
                         participants,
                         existingParticipants,
-                        participant.Person,
+                        participant.EditPerson,
                         participant.SortKey,
                         participant.Organization);
                     personsAdded.Add(participant);
@@ -346,7 +346,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             personParticipantsWithOids.RemoveAll(p => personsAdded.Contains(p));
 
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1)
-                .Select(p => p.Person.AzureOid.ToString())
+                .Select(p => p.EditPerson.AzureOid.ToString())
                 .ToList();
             var persons = oids.Count > 0
                 ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
@@ -355,11 +355,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             {
                 foreach (var participant in personParticipantsWithOids)
                 {
-                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
+                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.EditPerson.AzureOid.ToString());
                     if (person != null)
                     {
                         var existingParticipant =
-                            existingParticipants.SingleOrDefault(p => p.Id == participant.Person.Id);
+                            existingParticipants.SingleOrDefault(p => p.Id == participant.EditPerson.Id);
                         if (existingParticipant != null)
                         {
                             invitation.UpdateParticipant(
@@ -372,7 +372,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                                 person.Email,
                                 new Guid(person.AzureOid),
                                 participant.SortKey,
-                                participant.Person.RowVersion);
+                                participant.EditPerson.RowVersion);
                         }
                         else
                         {
@@ -455,7 +455,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             foreach (var participant in personsParticipantsWithEmail)
             {
-                var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.Person.Id);
+                var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == participant.EditPerson.Id);
                 if (existingParticipant != null)
                 {
                     invitation.UpdateParticipant(
@@ -465,10 +465,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         null,
                         null,
-                        participant.Person.Email,
+                        participant.EditPerson.Email,
                         null,
                         participant.SortKey,
-                        participant.Person.RowVersion);
+                        participant.EditPerson.RowVersion);
                 }
                 else
                 {
@@ -480,7 +480,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         null,
                         null,
-                        participant.Person.Email,
+                        participant.EditPerson.Email,
                         null,
                         participant.SortKey));
                 }
@@ -499,7 +499,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             foreach (var participant in participantsWithExternalEmail)
             {
                 var existingParticipant =
-                    existingParticipants.SingleOrDefault(p => p.Id == participant.ExternalEmail.Id);
+                    existingParticipants.SingleOrDefault(p => p.Id == participant.EditExternalEmail.Id);
                 if (existingParticipant != null)
                 {
                     invitation.UpdateParticipant(
@@ -509,10 +509,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         null,
                         null,
-                        participant.ExternalEmail.Email,
+                        participant.EditExternalEmail.Email,
                         null,
                         participant.SortKey,
-                        participant.ExternalEmail.RowVersion);
+                        participant.EditExternalEmail.RowVersion);
                 }
                 else
                 {
@@ -524,7 +524,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         null,
                         null,
                         null,
-                        participant.ExternalEmail.Email,
+                        participant.EditExternalEmail.Email,
                         null,
                         participant.SortKey));
                 }

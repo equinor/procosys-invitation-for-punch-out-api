@@ -1,18 +1,20 @@
-﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
+﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
     public class EditExternalEmailForCommand : IExternalEmailForCommand
     {
         public EditExternalEmailForCommand(
+            int? id,
             string email,
-            int? id = null,
-            string rowVersion = null)
+            string rowVersion)
         {
-            Email = email;
             Id = id;
+            Email = email;
             RowVersion = rowVersion;
         }
-        public string Email { get; }
+
+        // null for Id will add new
         public int? Id { get; }
+        public string Email { get; }
         public string RowVersion { get; }
     }
 }

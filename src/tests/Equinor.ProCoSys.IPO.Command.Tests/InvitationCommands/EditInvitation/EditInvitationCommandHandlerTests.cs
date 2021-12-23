@@ -75,12 +75,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                new EditFunctionalRoleForCommand(_participantId, _newFunctionalRoleCode, null, _participantRowVersion),
                 0),
             new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(_newAzureOid, "kari@test.com", true),
+                new EditPersonForCommand(null, _newAzureOid, "kari@test.com", true, null),
                 null,
                 1)
         };
@@ -654,6 +654,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_newAzureOid, _dpInvitation.Participants.ToList()[1].AzureOid);
             Assert.AreEqual(_newFunctionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
+
+        // todo add test to assert adding new participants
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldSetAndReturnRowVersion()

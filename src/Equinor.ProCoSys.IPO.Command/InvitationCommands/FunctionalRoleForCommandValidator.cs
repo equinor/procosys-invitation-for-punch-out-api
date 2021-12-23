@@ -4,7 +4,7 @@ using FluentValidation;
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     // todo Dead code. This validator will never be hit. Move to CreateInvitationCommandValidator and EditInvitationCommandValidator
-    public class FunctionalRoleForCommandValidator : AbstractValidator<EditFunctionalRoleForCommand>
+    public class FunctionalRoleForCommandValidator : AbstractValidator<IFunctionalRoleForCommand>
     {
         public FunctionalRoleForCommandValidator()
         {

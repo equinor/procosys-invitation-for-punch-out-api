@@ -22,18 +22,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly DisciplineType _type = DisciplineType.DP;
 
         private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
-        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
+        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
-            new EditParticipantsForCommand(
+            new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand("FR1", null),
+                new CreateFunctionalRoleForCommand("FR1", null),
                 0),
-            new EditParticipantsForCommand(
+            new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(null, "ola@test.com", true),
+                new CreatePersonForCommand(null, "ola@test.com", true),
                 null,
                 1)
         };

@@ -70,40 +70,40 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 IList<string> updatedCommPkgScope) 
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
-            async Task<bool> ParticipantToBeUpdatedMustExist(EditParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
+            async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<EditParticipantsForCommand> participants)
-                => invitationValidator.RequiredParticipantsMustBeInvited(participants);
+                => invitationValidator.RequiredParticipantsMustBeInvited(participants.Cast<ParticipantsForCommand>().ToList());
 
             bool RequiredParticipantsHaveLowestSortKeys(IList<EditParticipantsForCommand> participants)
-                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants);
+                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants.Cast<ParticipantsForCommand>().ToList());
 
             bool ParticipantListMustBeValid(IList<EditParticipantsForCommand> participants)
-                => invitationValidator.IsValidParticipantList(participants);
+                => invitationValidator.IsValidParticipantList(participants.Cast<ParticipantsForCommand>().ToList());
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
 
             bool ParticipantsHaveValidRowVersions(EditParticipantsForCommand participant)
             {
-                if (participant.ExternalEmail?.Id != null)
+                if (participant.EditExternalEmail?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.ExternalEmail.RowVersion);
+                    return rowVersionValidator.IsValid(participant.EditExternalEmail.RowVersion);
                 }
-                if (participant.Person?.Id != null)
+                if (participant.EditPerson?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.Person.RowVersion);
+                    return rowVersionValidator.IsValid(participant.EditPerson.RowVersion);
                 }
 
-                if (participant.FunctionalRole != null)
+                if (participant.EditFunctionalRole != null)
                 {
-                    if (participant.FunctionalRole.Id != null && !rowVersionValidator.IsValid(participant.FunctionalRole.RowVersion))
+                    if (participant.EditFunctionalRole.Id != null && !rowVersionValidator.IsValid(participant.EditFunctionalRole.RowVersion))
                     {
                         return false;
                     }
 
-                    return participant.FunctionalRole.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
+                    return participant.EditFunctionalRole.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
                 }
 
                 return true;

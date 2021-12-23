@@ -115,7 +115,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<EditParticipantsForCommand> ipoParticipants)
+            List<ParticipantsForCommand> ipoParticipants)
         {
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
@@ -139,7 +139,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddFunctionalRoleParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<EditParticipantsForCommand> functionalRoleParticipants)
+            List<ParticipantsForCommand> functionalRoleParticipants)
         {
             var codes = functionalRoleParticipants.Select(p => p.FunctionalRole.Code).ToList();
             var functionalRoles =
@@ -198,9 +198,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<EditParticipantsForCommand> personParticipantsWithOids)
+            List<ParticipantsForCommand> personParticipantsWithOids)
         {
-            var personsAdded = new List<EditParticipantsForCommand>();
+            var personsAdded = new List<ParticipantsForCommand>();
             foreach (var participant in personParticipantsWithOids)
             {
                 if (InvitationHelper.ParticipantIsSigningParticipant(participant))
@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            EditPersonForCommand signer,
+            IPersonForCommand signer,
             int sortKey,
             Organization organization)
         {
@@ -286,7 +286,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<EditParticipantsForCommand> personsParticipantsWithEmail)
+            List<ParticipantsForCommand> personsParticipantsWithEmail)
         {
             foreach (var participant in personsParticipantsWithEmail)
             {
@@ -313,7 +313,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private List<BuilderParticipant> AddExternalParticipant(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<EditParticipantsForCommand> participantsWithExternalEmail)
+            List<ParticipantsForCommand> participantsWithExternalEmail)
         {
             foreach (var participant in participantsWithExternalEmail)
             {
