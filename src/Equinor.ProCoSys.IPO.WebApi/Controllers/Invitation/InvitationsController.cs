@@ -143,7 +143,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
-            var participants = GetParticipantsForCommands(dto.Participants);
+            var participants = ConvertParticipantsForCreateCommands(dto.Participants);
 
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
@@ -170,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] EditInvitationDto dto)
         {
-            var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
+            var updatedParticipants = ConvertParticipantsForEditCommands(dto.UpdatedParticipants);
 
             var result = await _mediator.Send(
                 new EditInvitationCommand(
@@ -418,8 +418,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<EditParticipantDto> dto)
+        private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
+                new ParticipantsForCommand(
+                    p.Organization,
+                    p.ExternalEmail != null
+                        ? new ExternalEmailForCommand(p.ExternalEmail.Email)
+                        : null,
+                    p.Person != null
+                        ? new PersonForCommand(
+                            p.Person.AzureOid,
+                            p.Person.Email,
+                            p.Person.Required)
+                        : null,
+                    p.FunctionalRole != null
+                        ? new FunctionalRoleForCommand(
+                            p.FunctionalRole.Code,
+                            p.FunctionalRole.Persons?.Select(person =>
+                                new PersonForCommand(
+                                    person.AzureOid,
+                                    person.Email,
+                                    person.Required)).ToList())
+                        : null,
+                    p.SortKey)
+            ).ToList();
+
+        private IList<ParticipantsForCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
                 new ParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
