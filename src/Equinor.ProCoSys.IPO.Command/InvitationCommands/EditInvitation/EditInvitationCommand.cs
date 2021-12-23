@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             DateTime startTime,
             DateTime endTime,
             DisciplineType type,
-            IList<ParticipantsForCommand> updatedParticipants,
+            IList<EditParticipantsForCommand> updatedParticipants,
             IEnumerable<string> updatedMcPkgScope,
             IEnumerable<string> updatedCommPkgScope,
             string rowVersion)
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public DateTime EndTime { get; }
         public IList<string> UpdatedMcPkgScope { get; }
         public IList<string> UpdatedCommPkgScope { get; }
-        public IList<ParticipantsForCommand> UpdatedParticipants { get; }
+        public IList<EditParticipantsForCommand> UpdatedParticipants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }
         public string RowVersion { get; }

@@ -27,18 +27,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _rowVersion = "AAAAAAAAABA=";
 
         private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
         {
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand("FR1", null),
+                new EditFunctionalRoleForCommand("FR1", null),
                 0),
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(null, "ola@test.com", true),
+                new EditPersonForCommand(null, "ola@test.com", true),
                 null,
                 1)
         };

@@ -70,22 +70,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 IList<string> updatedCommPkgScope) 
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
-            async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
+            async Task<bool> ParticipantToBeUpdatedMustExist(EditParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
-            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
+            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<EditParticipantsForCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);
 
-            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
+            bool RequiredParticipantsHaveLowestSortKeys(IList<EditParticipantsForCommand> participants)
                 => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants);
 
-            bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
+            bool ParticipantListMustBeValid(IList<EditParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
 
-            bool ParticipantsHaveValidRowVersions(ParticipantsForCommand participant)
+            bool ParticipantsHaveValidRowVersions(EditParticipantsForCommand participant)
             {
                 if (participant.ExternalEmail?.Id != null)
                 {
@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         return false;
                     }
 
-                    return participant.FunctionalRole.Persons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
+                    return participant.FunctionalRole.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
                 }
 
                 return true;

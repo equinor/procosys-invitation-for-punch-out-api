@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             DateTime endTime,
             string projectName,
             DisciplineType type,
-            IList<ParticipantsForCommand> participants,
+            IList<EditParticipantsForCommand> participants,
             IEnumerable<string> mcPkgScope,
             IEnumerable<string> commPkgScope)
         {
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public DateTime EndTime { get; }
         public IList<string> McPkgScope { get; }
         public IList<string> CommPkgScope { get; }
-        public IList<ParticipantsForCommand> Participants { get; }
+        public IList<EditParticipantsForCommand> Participants { get; }
         public string Title { get; }
         public DisciplineType Type { get; }
         public string ProjectName { get; }

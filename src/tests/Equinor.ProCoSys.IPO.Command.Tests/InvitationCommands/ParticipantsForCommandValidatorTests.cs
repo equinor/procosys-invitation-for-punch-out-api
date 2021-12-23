@@ -8,23 +8,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
     public class ParticipantsForCommandValidatorTests
     {
         private ParticipantsForCommandValidator _dut;
-        private ParticipantsForCommand _validCommand;
-        private ParticipantsForCommand _invalidCommandNegativeSortKey;
+        private EditParticipantsForCommand _validCommand;
+        private EditParticipantsForCommand _invalidCommandNegativeSortKey;
 
         [TestInitialize]
         public void Setup_OkState()
         {
 
-            _validCommand = new ParticipantsForCommand(
+            _validCommand = new EditParticipantsForCommand(
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand("FR1", null),
+                    new EditFunctionalRoleForCommand("FR1", null),
                     0);
-            _invalidCommandNegativeSortKey = new ParticipantsForCommand(
+            _invalidCommandNegativeSortKey = new EditParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(null,"ola@test.com", true),
+                    new EditPersonForCommand(null,"ola@test.com", true),
                     null,
                     -1);
             _dut = new ParticipantsForCommandValidator();

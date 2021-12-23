@@ -2,13 +2,13 @@
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public class ParticipantsForCommand
+    public class EditParticipantsForCommand
     {
-        public ParticipantsForCommand(
+        public EditParticipantsForCommand(
             Organization organization,
-            ExternalEmailForCommand externalEmail,
-            PersonForCommand person,
-            FunctionalRoleForCommand functionalRole,
+            EditExternalEmailForCommand externalEmail,
+            EditPersonForCommand person,
+            EditFunctionalRoleForCommand functionalRole,
             int sortKey)
         {
             Organization = organization;
@@ -19,8 +19,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         }
         public Organization Organization { get; }
         public int SortKey { get; }
-        public ExternalEmailForCommand ExternalEmail { get; }
-        public PersonForCommand Person { get; }
-        public FunctionalRoleForCommand FunctionalRole { get; }
+        public EditExternalEmailForCommand ExternalEmail { get; }
+        public EditPersonForCommand Person { get; }
+        public EditFunctionalRoleForCommand FunctionalRole { get; }
     }
 }

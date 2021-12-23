@@ -64,18 +64,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 _participantRowVersion2)
         };
 
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
         {
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
+                new EditFunctionalRoleForCommand(_functionalRoleCode, null),
                 0),
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOid, "ola@test.com", true),
+                new EditPersonForCommand(_azureOid, "ola@test.com", true),
                 null,
                 1)
         };

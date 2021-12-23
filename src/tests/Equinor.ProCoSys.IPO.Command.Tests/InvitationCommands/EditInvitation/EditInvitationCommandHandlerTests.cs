@@ -69,18 +69,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _system = "1|2";
         private const string _system2 = "2|2";
 
-        private readonly List<ParticipantsForCommand> _updatedParticipants = new List<ParticipantsForCommand>
+        private readonly List<EditParticipantsForCommand> _updatedParticipants = new List<EditParticipantsForCommand>
         {
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                new EditFunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
                 0),
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_newAzureOid, "kari@test.com", true),
+                new EditPersonForCommand(_newAzureOid, "kari@test.com", true),
                 null,
                 1)
         };

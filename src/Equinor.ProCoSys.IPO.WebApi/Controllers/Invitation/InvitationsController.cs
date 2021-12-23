@@ -418,24 +418,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
+        private IList<EditParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
-                new ParticipantsForCommand(
+                new EditParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new ExternalEmailForCommand(p.ExternalEmail.Email)
+                        ? new EditExternalEmailForCommand(p.ExternalEmail.Email)
                         : null,
                     p.Person != null
-                        ? new PersonForCommand(
+                        ? new EditPersonForCommand(
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required)
                         : null,
                     p.FunctionalRole != null
-                        ? new FunctionalRoleForCommand(
+                        ? new EditFunctionalRoleForCommand(
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new PersonForCommand(
+                                new EditPersonForCommand(
                                     person.AzureOid,
                                     person.Email,
                                     person.Required)).ToList())
@@ -443,17 +443,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.SortKey)
             ).ToList();
 
-        private IList<ParticipantsForCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
-                new ParticipantsForCommand(
+        private IList<EditParticipantsForCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
+                new EditParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new ExternalEmailForCommand(
+                        ? new EditExternalEmailForCommand(
                             p.ExternalEmail.Email,
                             p.ExternalEmail.Id,
                             p.ExternalEmail.RowVersion)
                         : null,
                     p.Person != null
-                        ? new PersonForCommand(
+                        ? new EditPersonForCommand(
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required,
@@ -461,10 +461,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.Person.RowVersion)
                         : null,
                     p.FunctionalRole != null
-                        ? new FunctionalRoleForCommand(
+                        ? new EditFunctionalRoleForCommand(
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new PersonForCommand(
+                                new EditPersonForCommand(
                                     person.AzureOid,
                                     person.Email,
                                     person.Required,

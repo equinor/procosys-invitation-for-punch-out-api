@@ -39,18 +39,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private Invitation _invitation;
         private const int _participantId = 20;
 
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        private readonly List<EditParticipantsForCommand> _participants = new List<EditParticipantsForCommand>
         {
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
+                new EditFunctionalRoleForCommand(_functionalRoleCode, null),
                 0),
-            new ParticipantsForCommand(
+            new EditParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
+                new EditPersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
                 null,
                 1)
         };

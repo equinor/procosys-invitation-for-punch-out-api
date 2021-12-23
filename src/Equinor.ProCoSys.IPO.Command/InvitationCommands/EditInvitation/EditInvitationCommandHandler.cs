@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
         private async Task<List<BuilderParticipant>> UpdateParticipants(
             List<BuilderParticipant> participants,
-            IList<ParticipantsForCommand> participantsToUpdate,
+            IList<EditParticipantsForCommand> participantsToUpdate,
             Invitation invitation)
         {
             var existingParticipants = invitation.Participants.ToList();
@@ -200,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.Person != null select fr.Person.Id);
             foreach (var functionalRoleParticipant in functionalRoleParticipants)
             {
-                participantsToUpdateIds.AddRange(functionalRoleParticipant.FunctionalRole.Persons.Select(person => person.Id));
+                participantsToUpdateIds.AddRange(functionalRoleParticipant.FunctionalRole.EditPersons.Select(person => person.Id));
             }
 
             var participantsToDelete = existingParticipants.Where(p => !participantsToUpdateIds.Contains(p.Id));
@@ -225,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private async Task<List<BuilderParticipant>> UpdateFunctionalRoleParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            IList<ParticipantsForCommand> functionalRoleParticipants,
+            IList<EditParticipantsForCommand> functionalRoleParticipants,
             IList<Participant> existingParticipants)
         {
             var codes = functionalRoleParticipants.Select(p => p.FunctionalRole.Code).ToList();
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
                     }
-                    foreach (var person in participant.FunctionalRole.Persons)
+                    foreach (var person in participant.FunctionalRole.EditPersons)
                     {
                         var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());
                         if (frPerson != null)
@@ -323,10 +323,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            List<ParticipantsForCommand> personParticipantsWithOids,
+            List<EditParticipantsForCommand> personParticipantsWithOids,
             IList<Participant> existingParticipants)
         {
-            var personsAdded = new List<ParticipantsForCommand>();
+            var personsAdded = new List<EditParticipantsForCommand>();
 
             foreach (var participant in personParticipantsWithOids)
             {
@@ -401,7 +401,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             Invitation invitation,
             List<BuilderParticipant> participants,
             IList<Participant> existingParticipants,
-            PersonForCommand person,
+            EditPersonForCommand person,
             int sortKey,
             Organization organization)
         {
@@ -450,7 +450,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            IEnumerable<ParticipantsForCommand> personsParticipantsWithEmail,
+            IEnumerable<EditParticipantsForCommand> personsParticipantsWithEmail,
             IList<Participant> existingParticipants)
         {
             foreach (var participant in personsParticipantsWithEmail)
@@ -493,7 +493,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private List<BuilderParticipant> AddExternalParticipant(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            IEnumerable<ParticipantsForCommand> participantsWithExternalEmail,
+            IEnumerable<EditParticipantsForCommand> participantsWithExternalEmail,
             IList<Participant> existingParticipants)
         {
             foreach (var participant in participantsWithExternalEmail)

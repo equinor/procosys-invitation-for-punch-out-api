@@ -8,19 +8,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands
     public class FunctionalRoleForCommandValidatorTests
     {
         private FunctionalRoleForCommandValidator _dut;
-        private FunctionalRoleForCommand _validCommand;
-        private FunctionalRoleForCommand _invalidCommandCodeNull;
-        private FunctionalRoleForCommand _invalidCommandCodeTooShort;
-        private FunctionalRoleForCommand _invalidCommandCodeTooLong;
+        private EditFunctionalRoleForCommand _validCommand;
+        private EditFunctionalRoleForCommand _invalidCommandCodeNull;
+        private EditFunctionalRoleForCommand _invalidCommandCodeTooShort;
+        private EditFunctionalRoleForCommand _invalidCommandCodeTooLong;
 
         [TestInitialize]
         public void Setup_OkState()
         {
 
-            _validCommand = new FunctionalRoleForCommand("FR1", null);
-            _invalidCommandCodeNull = new FunctionalRoleForCommand(null, null);
-            _invalidCommandCodeTooShort = new FunctionalRoleForCommand("1", null);
-            _invalidCommandCodeTooLong = new FunctionalRoleForCommand(new string('x', Participant.FunctionalRoleCodeMaxLength + 1), null);
+            _validCommand = new EditFunctionalRoleForCommand("FR1", null);
+            _invalidCommandCodeNull = new EditFunctionalRoleForCommand(null, null);
+            _invalidCommandCodeTooShort = new EditFunctionalRoleForCommand("1", null);
+            _invalidCommandCodeTooLong = new EditFunctionalRoleForCommand(new string('x', Participant.FunctionalRoleCodeMaxLength + 1), null);
             _dut = new FunctionalRoleForCommandValidator();
         }
 
