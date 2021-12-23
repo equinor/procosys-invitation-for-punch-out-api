@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.GetInvitation;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -18,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class InvitationsControllerTestsBase : TestBase
     {
-        private const string FunctionalRoleCode = "FRC";
+        protected const string CreateFunctionalRoleCode = "FRC2";
         protected const string InvitationLocation = "InvitationLocation";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
@@ -29,12 +31,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         protected AttachmentDto _attachmentOnInitialMdpInvitation;
 
         protected List<string> _mcPkgScope;
-        protected List<ParticipantsForCommand> _participants;
-        protected List<ParticipantsForCommand> _participantsForSigning;
+        protected List<CreateParticipantsDto> _participants;
+        protected List<CreateParticipantsDto> _participantsForSigning;
         private ProCoSysMcPkg _mcPkgDetails1;
         private ProCoSysMcPkg _mcPkgDetails2;
-        private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
-        private List<ProCoSysPerson> _personsInFunctionalRole;
 
         protected TestProfile _sigurdSigner;
         protected TestProfile _pernillaPlanner;
@@ -42,47 +42,56 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestInitialize]
         public async Task TestInitializeAsync()
         {
-            var personParticipant = new PersonForCommand(Guid.NewGuid(), "ola@test.com", true);
-            var functionalRoleParticipant = new FunctionalRoleForCommand(FunctionalRoleCode, null);
+            var personParticipant = new CreateInvitedPersonDto
+            {
+                AzureOid = Guid.NewGuid(),
+                Email = "ola@test.com",
+                Required = true
+            };
+            var functionalRoleParticipant = new CreateFunctionalRoleForDto
+            {
+                Code = CreateFunctionalRoleCode
+            };
+            
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
             _pernillaPlanner = TestFactory.Instance.GetTestUserForUserType(UserType.Planner).Profile;
 
-            _participants = new List<ParticipantsForCommand>
+            _participants = new List<CreateParticipantsDto>
             {
-                new ParticipantsForCommand(
-                    Organization.Contractor,
-                    null,
-                    null,
-                    functionalRoleParticipant,
-                    0),
-                new ParticipantsForCommand(
-                    Organization.ConstructionCompany,
-                    null,
-                    personParticipant,
-                    null,
-                    1)
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.Contractor,
+                    FunctionalRole = functionalRoleParticipant,
+                    SortKey = 0
+                },
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.ConstructionCompany,
+                    Person = personParticipant,
+                    SortKey = 1
+                }
             };
 
-            _participantsForSigning = new List<ParticipantsForCommand>
+            _participantsForSigning = new List<CreateParticipantsDto>
             {
-                new ParticipantsForCommand(
-                    Organization.Contractor,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(true),
-                    null,
-                    0),
-                new ParticipantsForCommand(
-                    Organization.ConstructionCompany,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(true),
-                    null,
-                    1),
-                new ParticipantsForCommand(
-                    Organization.TechnicalIntegrity,
-                    null,
-                    _sigurdSigner.AsPersonForCommand(false),
-                    null,
-                    2)
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.Contractor,
+                    Person = _sigurdSigner.AsCreatePersonDto(true),
+                    SortKey = 0
+                },
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.ConstructionCompany,
+                    Person = _sigurdSigner.AsCreatePersonDto(true),
+                    SortKey = 1
+                },
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.TechnicalIntegrity,
+                    Person = _sigurdSigner.AsCreatePersonDto(false),
+                    SortKey = 2
+                }
             };
 
             var knownGeneralMeeting = new ApiGeneralMeeting
@@ -141,7 +150,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
-            _personsInFunctionalRole = new List<ProCoSysPerson>
+            TestFactory.Instance
+                .McPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
+                    _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var personsInFunctionalRole = new List<ProCoSysPerson>
             {
                 new ProCoSysPerson
                 {
@@ -153,30 +168,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 }
             };
 
-            _pcsFunctionalRoles = new List<ProCoSysFunctionalRole>
+            IList<ProCoSysFunctionalRole> pcsFunctionalRoles1 = new List<ProCoSysFunctionalRole>
             {
                 new ProCoSysFunctionalRole
                 {
-                    Code = FunctionalRoleCode,
+                    Code = KnownTestData.FunctionalRoleCode,
                     Description = "Description",
                     Email = "frEmail@test.com",
                     InformationEmail = null,
-                    Persons = _personsInFunctionalRole,
+                    Persons = personsInFunctionalRole,
+                    UsePersonalEmail = true
+                }
+            };
+
+            IList<ProCoSysFunctionalRole> pcsFunctionalRoles2 = new List<ProCoSysFunctionalRole>
+            {
+                new ProCoSysFunctionalRole
+                {
+                    Code = CreateFunctionalRoleCode,
+                    Description = "Description",
+                    Email = "frEmail@test.com",
+                    InformationEmail = null,
+                    Persons = personsInFunctionalRole,
                     UsePersonalEmail = true
                 }
             };
 
             TestFactory.Instance
-                .McPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
-                .Returns(Task.FromResult(mcPkgDetails));
+                .FunctionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
+                    new List<string> { KnownTestData.FunctionalRoleCode }))
+                .Returns(Task.FromResult(pcsFunctionalRoles1));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> {FunctionalRoleCode}))
-                .Returns(Task.FromResult(_pcsFunctionalRoles));
+                    new List<string> { CreateFunctionalRoleCode }))
+                .Returns(Task.FromResult(pcsFunctionalRoles2));
 
             TestFactory.Instance
                 .PersonApiServiceMock
@@ -229,7 +257,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             _attachmentOnInitialMdpInvitation = await UploadAttachmentAsync(InitialMdpInvitationId);
         }
 
-        internal async Task<(int, UnAcceptPunchOutDto)> CreateValidUnAcceptPunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, UnAcceptPunchOutDto)> CreateValidUnAcceptPunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(participants);
 
@@ -256,7 +284,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToAcceptId, unAcceptPunchOutDto);
         }
 
-        internal async Task<(int, ParticipantToChangeDto[])> CreateValidParticipantToChangeDtosAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, ParticipantToChangeDto[])> CreateValidParticipantToChangeDtosAsync(List<CreateParticipantsDto> participants)
         {
             var (invitationToChangeId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
 
@@ -278,7 +306,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 new ParticipantToChangeDto
                 {
-                    Id = completerParticipant.Person.Person.Id,
+                    Id = completerParticipant.Person.Id,
                     Attended = false,
                     Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                     RowVersion = completerParticipant.RowVersion
@@ -288,7 +316,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToChangeId, participantToChangeDtos);
         }
 
-        internal async Task<(int, AcceptPunchOutDto)> CreateValidAcceptPunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, AcceptPunchOutDto)> CreateValidAcceptPunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var (invitationToCompleteAndAcceptId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
 
@@ -314,7 +342,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     new ParticipantToUpdateNoteDto
                     {
-                        Id = accepterParticipant.Person.Person.Id,
+                        Id = accepterParticipant.Person.Id,
                         Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = accepterParticipant.RowVersion
                     }
@@ -324,7 +352,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToCompleteAndAcceptId, acceptPunchOutDto);
         }
 
-        internal async Task<(int, UnCompletePunchOutDto)> CreateValidUnCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, UnCompletePunchOutDto)> CreateValidUnCompletePunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var (invitationToCompleteAndUnCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(participants);
 
@@ -350,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToCompleteAndUnCompleteId, unCompletePunchOutDto);
         }
 
-        internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -381,7 +409,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     new ParticipantToChangeDto
                     {
-                        Id = completerParticipant.Person.Person.Id,
+                        Id = completerParticipant.Person.Id,
                         Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = completerParticipant.RowVersion,
                         Attended = true
@@ -392,7 +420,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, completePunchOutDto);
         }
 
-        internal async Task<(int, EditInvitationDto)> CreateValidEditInvitationDtoAsync(IList<ParticipantsForCommand> participants)
+        internal async Task<(int, EditInvitedInvitationDto)> CreateValidEditInvitationDtoAsync(IList<CreateParticipantsDto> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -412,7 +440,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 id);
 
-            var editInvitationDto = new EditInvitationDto
+            var editInvitationDto = new EditInvitedInvitationDto
             {
                 Title = invitation.Title,
                 Description = invitation.Description,
@@ -446,7 +474,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return attachmentDtos.Single(t => t.FileName == fileToBeUploaded.FileName);
         }
 
-        internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<ParticipantsForCommand> participants)
+        internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
                 UserType.Planner,
@@ -474,18 +502,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, cancelPunchOutDto);
         }
 
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
+        private IEnumerable<EditParticipantsDto> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDto> participants)
         {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
+            var editVersionParticipantDtos = new List<EditParticipantsDto>();
             participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
+                new EditParticipantsDto
                 {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
+                    ExternalEmail = p.ExternalEmail != null ? new EditExternalEmailForDto
+                    {
+                        Id = p.ExternalEmail.Id,
+                        Email = p.ExternalEmail.ExternalEmail,
+                        RowVersion = p.ExternalEmail.RowVersion
+                    } : null,
+                    FunctionalRole = p.FunctionalRole != null ? new EditFunctionalRoleForDto
+                    {
+                        Id = p.FunctionalRole.Id,
+                        Code = p.FunctionalRole.Code,
+                        RowVersion = p.FunctionalRole.RowVersion
+                    } : null,
                     Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey,
-                    RowVersion = p.RowVersion
+                    Person = p.Person != null ? new EditPersonDto
+                    {
+                        Id = p.Person.Id,
+                        AzureOid = p.Person.AzureOid,
+                        Email = p.Person.Email,
+                        Required = p.Person.Required,
+                        RowVersion = p.Person.RowVersion
+                    } : null,
+                    SortKey = p.SortKey
                 }));
 
             return editVersionParticipantDtos;

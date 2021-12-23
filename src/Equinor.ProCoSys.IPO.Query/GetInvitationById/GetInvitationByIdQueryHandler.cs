@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -70,11 +71,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             }
             catch (NotAuthorizedError e)
             {
-                _logger.LogWarning("Fusion meeting not authorized. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
+                _logger.LogWarning(e, $"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
             }
             catch (Exception e)
             {
-                _logger.LogError("Fusion meeting error. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
+                _logger.LogError(e, $"Fusion meeting error. MeetingId={invitation.MeetingId}.");
             }
 
             var invitationDto = ConvertToInvitationDto(invitation, meeting);
@@ -300,21 +301,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 .Select(p => new PersonDto(p.Id, p.FirstName, p.LastName, p.UserName, p.Oid, p.Email, p.RowVersion.ConvertToString()))
                 .SingleAsync();
 
-        private void LogFusionMeeting(GeneralMeeting meeting) //This is temporary in the start phase of IPO, to make debugging easier.
+        private void LogFusionMeeting(GeneralMeeting meeting)
         {
-            var meetingDetails = new Dictionary<string, string>
-            {
-                {"Meeting ID", meeting.Id.ToString()},
-                {"Classification", meeting.Classification.ToString()}
-            };
-            var personsString = "Person, Guid, Name, Email, OutlookResponse, Type, IsOrganizer, IsResponsible";
+            var message = new StringBuilder();
+            message.AppendLine($"Meeting ID: {meeting.Id}");
+            message.AppendLine($"Meeting Classification: {meeting.Classification}");
             foreach (var p in meeting.Participants)
             {
-                personsString +=
-                    $" /n {p.Person}, {p.Person.Id?.ToString()}, {p.Person?.Name}, {p.Person?.Mail}, {p.OutlookResponse}, {p.Type}, {p.Organizer}, {p.Responsible}";
+                message.AppendLine($" Guid:({p.Person.Id?.ToString()}), Name:({p.Person?.Name}), Email:({p.Person?.Mail}), OutlookResponse:({p.OutlookResponse}), Type:({p.Type}), IsOrganizer:({p.Organizer}), IsResponsible:({p.Responsible})");
             }
 
-            _logger.LogInformation("Fusion meeting ({@MeetingDetails}). ({@Persons})", meetingDetails, personsString);
+            _logger.LogInformation(message.ToString());
         }
     }
 }

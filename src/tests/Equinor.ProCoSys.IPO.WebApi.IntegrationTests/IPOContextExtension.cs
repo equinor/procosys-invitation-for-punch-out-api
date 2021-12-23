@@ -127,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 invitation.Plant,
                 Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                "FRC",
+                KnownTestData.FunctionalRoleCode,
                 null,
                 null,
                 null,

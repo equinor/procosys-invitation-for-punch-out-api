@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -266,7 +267,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithoutAccess, 
                 9999, 
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -275,7 +276,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -285,7 +286,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -295,7 +296,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -304,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -313,7 +314,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
