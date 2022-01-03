@@ -118,11 +118,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<ParticipantsForCommand> ipoParticipants)
         {
             var functionalRoleParticipants =
-                ipoParticipants.Where(p => p.FunctionalRole != null).Select(p => p).ToList();
-            var personsWithOids = ipoParticipants.Where(p => p.Person?.AzureOid != null).Select(p => p).ToList();
-            var personsWithoutOids = ipoParticipants.Where(p => p.Person != null && p.Person.AzureOid == null)
-                .Select(p => p).ToList();
-            var externalEmailParticipants = ipoParticipants.Where(p => p.ExternalEmail != null).Select(p => p).ToList();
+                ipoParticipants.Where(p => p.InvitedFunctionalRole != null).ToList();
+            var personsWithOids = ipoParticipants.Where(p => p.InvitedPerson?.AzureOid != null).ToList();
+            var personsWithoutOids = ipoParticipants.Where(p => p.InvitedPerson != null && p.InvitedPerson.AzureOid == null)
+                .ToList();
+            var externalEmailParticipants = ipoParticipants.Where(p => p.InvitedExternalEmail != null).ToList();
 
             participants = functionalRoleParticipants.Count > 0
                 ? await AddFunctionalRoleParticipantsAsync(invitation, participants, functionalRoleParticipants)
@@ -141,13 +141,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<BuilderParticipant> participants,
             List<ParticipantsForCommand> functionalRoleParticipants)
         {
-            var codes = functionalRoleParticipants.Select(p => p.FunctionalRole.Code).ToList();
+            var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRole.Code).ToList();
             var functionalRoles =
                 await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
 
             foreach (var participant in functionalRoleParticipants)
             {
-                var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.FunctionalRole.Code);
+                var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.InvitedFunctionalRole.Code);
                 if (fr != null)
                 {
                     invitation.AddParticipant(new Participant(
@@ -166,7 +166,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
                     }
-                    foreach (var person in participant.FunctionalRole.Persons)
+                    foreach (var person in participant.InvitedFunctionalRole.InvitedPersons)
                     {
                         var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());
                         if (frPerson != null)
@@ -189,7 +189,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 else
                 {
                     throw new IpoValidationException(
-                        $"Could not find functional role with functional role code '{participant.FunctionalRole.Code}' on participant {participant.Organization}.");
+                        $"Could not find functional role with functional role code '{participant.InvitedFunctionalRole.Code}' on participant {participant.Organization}.");
                 }
             }
             return participants;
@@ -208,7 +208,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participants = await AddSigner(
                         invitation,
                         participants,
-                        participant.Person,
+                        participant.InvitedPerson,
                         participant.SortKey,
                         participant.Organization);
                     personsAdded.Add(participant);
@@ -217,7 +217,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             personParticipantsWithOids.RemoveAll(p => personsAdded.Contains(p));
 
-            var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.Person.AzureOid.ToString()).ToList();
+            var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.InvitedPerson.AzureOid.ToString()).ToList();
             var persons = oids.Count > 0
                 ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
                 : new List<ProCoSysPerson>();
@@ -225,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 foreach (var participant in personParticipantsWithOids)
                 {
-                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.Person.AzureOid.ToString());
+                    var person = persons.SingleOrDefault(p => p.AzureOid == participant.InvitedPerson.AzureOid.ToString());
                     if (person != null)
                     {
                         invitation.AddParticipant(new Participant(
@@ -250,13 +250,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
             List<BuilderParticipant> participants,
-            PersonForCommand signer,
+            IInvitedPersonForCommand invitedSigner,
             int sortKey,
             Organization organization)
         {
             var person = await _personApiService.GetPersonByOidWithPrivilegesAsync(
                 _plantProvider.Plant,
-                signer.AzureOid.ToString(),
+                invitedSigner.AzureOid.ToString(),
                 _objectName,
                 _signerPrivileges);
             if (person != null)
@@ -300,11 +300,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     null,
                     null,
                     null,
-                    participant.Person.Email,
+                    participant.InvitedPerson.Email,
                     null,
                     participant.SortKey));
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(participant.Person.Email)));
+                    new ParticipantIdentifier(participant.InvitedPerson.Email)));
             }
 
             return participants;
@@ -325,11 +325,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     null,
                     null,
                     null,
-                    participant.ExternalEmail.Email,
+                    participant.InvitedExternalEmail.Email,
                     null,
                     participant.SortKey));
                 participants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(participant.ExternalEmail.Email)));
+                    new ParticipantIdentifier(participant.InvitedExternalEmail.Email)));
             }
 
             return participants;

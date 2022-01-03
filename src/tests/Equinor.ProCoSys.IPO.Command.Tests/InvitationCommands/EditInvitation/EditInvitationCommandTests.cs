@@ -10,18 +10,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
     [TestClass]
     public class EditInvitationCommandTests
     {
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForEditCommand> _participants = new List<ParticipantsForEditCommand>
         {
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand("FR1", null),
+                new InvitedFunctionalRoleForEditCommand(null, "FR1", null, null),
                 0),
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(null, "ola@test.com", true),
+                new InvitedPersonForEditCommand(null, null, "ola@test.com", true, null),
                 null,
                 1)
         };

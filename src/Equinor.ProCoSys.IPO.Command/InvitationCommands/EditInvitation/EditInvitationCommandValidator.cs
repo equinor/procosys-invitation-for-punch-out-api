@@ -52,11 +52,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             RuleForEach(command => command.UpdatedParticipants)
                 .MustAsync((command, participant, _, cancellationToken) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, cancellationToken))
-                .WithMessage((command, participant) =>
-                    $"Participant with ID does not exist on invitation! Participant={participant}")
+                .WithMessage(_ => $"Participant with ID does not exist on invitation!")
+                .Must(participant => participant.SortKey >= 0)
+                .WithMessage((_, participant) =>
+                    $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}")
+                .Must(FunctionalRoleParticipantsMustBeValid)
+                .WithMessage((_, participant) =>
+                    $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.InvitedFunctionalRole.Code}")
                 .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
-                .WithMessage((command, participant) =>
-                    $"Participant doesn't have valid rowVersion! Participant={participant}");
+                .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
             async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
@@ -73,40 +77,52 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
-            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForCommand> participants)
-                => invitationValidator.RequiredParticipantsMustBeInvited(participants);
+            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForEditCommand> participants)
+                => invitationValidator.RequiredParticipantsMustBeInvited(participants.Cast<ParticipantsForCommand>().ToList());
 
-            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
-                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants);
+            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForEditCommand> participants)
+                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants.Cast<ParticipantsForCommand>().ToList());
 
-            bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
-                => invitationValidator.IsValidParticipantList(participants);
+            bool ParticipantListMustBeValid(IList<ParticipantsForEditCommand> participants)
+                => invitationValidator.IsValidParticipantList(participants.Cast<ParticipantsForCommand>().ToList());
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
 
-            bool ParticipantsHaveValidRowVersions(ParticipantsForCommand participant)
+            bool ParticipantsHaveValidRowVersions(ParticipantsForEditCommand participant)
             {
-                if (participant.ExternalEmail?.Id != null)
+                if (participant.InvitedExternalEmailToEdit?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.ExternalEmail.RowVersion);
+                    return rowVersionValidator.IsValid(participant.InvitedExternalEmailToEdit.RowVersion);
                 }
-                if (participant.Person?.Id != null)
+                if (participant.InvitedPersonToEdit?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.Person.RowVersion);
+                    return rowVersionValidator.IsValid(participant.InvitedPersonToEdit.RowVersion);
                 }
 
-                if (participant.FunctionalRole != null)
+                if (participant.InvitedFunctionalRoleToEdit != null)
                 {
-                    if (participant.FunctionalRole.Id != null && !rowVersionValidator.IsValid(participant.FunctionalRole.RowVersion))
+                    if (participant.InvitedFunctionalRoleToEdit.Id != null && !rowVersionValidator.IsValid(participant.InvitedFunctionalRoleToEdit.RowVersion))
                     {
                         return false;
                     }
 
-                    return participant.FunctionalRole.Persons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
+                    return participant.InvitedFunctionalRoleToEdit.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
                 }
 
                 return true;
+            }
+
+            bool FunctionalRoleParticipantsMustBeValid(ParticipantsForCommand participant)
+            {
+                if (participant.InvitedFunctionalRole == null)
+                {
+                    return true;
+                }
+
+                return participant.InvitedFunctionalRole.Code != null &&
+                    participant.InvitedFunctionalRole.Code.Length > 2 &&
+                    participant.InvitedFunctionalRole.Code.Length < Participant.FunctionalRoleCodeMaxLength;
             }
         }
     }

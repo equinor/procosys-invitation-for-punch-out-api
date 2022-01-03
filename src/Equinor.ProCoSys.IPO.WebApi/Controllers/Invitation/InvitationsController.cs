@@ -143,7 +143,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             [FromBody] CreateInvitationDto dto)
         {
-            var participants = GetParticipantsForCommands(dto.Participants);
+            var participants = ConvertParticipantsForCreateCommands(dto.Participants);
 
             var result = await _mediator.Send(
                 new CreateInvitationCommand(
@@ -170,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id,
             [FromBody] EditInvitationDto dto)
         {
-            var updatedParticipants = GetParticipantsForCommands(dto.UpdatedParticipants);
+            var updatedParticipants = ConvertParticipantsForEditCommands(dto.UpdatedParticipants);
 
             var result = await _mediator.Send(
                 new EditInvitationCommand(
@@ -418,35 +418,59 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        private IList<ParticipantsForCommand> GetParticipantsForCommands(IEnumerable<ParticipantDto> dto)
+        private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
                 new ParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new ExternalEmailForCommand(
-                            p.ExternalEmail.Email,
+                        ? new InvitedExternalEmailForCreateCommand(p.ExternalEmail.Email)
+                        : null,
+                    p.Person != null
+                        ? new InvitedPersonForCreateCommand(
+                            p.Person.AzureOid,
+                            p.Person.Email,
+                            p.Person.Required)
+                        : null,
+                    p.FunctionalRole != null
+                        ? new InvitedFunctionalRoleForCreateCommand(
+                            p.FunctionalRole.Code,
+                            p.FunctionalRole.Persons?.Select(person =>
+                                new InvitedPersonForCreateCommand(
+                                    person.AzureOid,
+                                    person.Email,
+                                    person.Required)).ToList())
+                        : null,
+                    p.SortKey)
+            ).ToList();
+
+        private IList<ParticipantsForEditCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
+                new ParticipantsForEditCommand(
+                    p.Organization,
+                    p.ExternalEmail != null
+                        ? new InvitedExternalEmailForEditCommand(
                             p.ExternalEmail.Id,
+                            p.ExternalEmail.Email,
                             p.ExternalEmail.RowVersion)
                         : null,
                     p.Person != null
-                        ? new PersonForCommand(
+                        ? new InvitedPersonForEditCommand(
+                            p.Person.Id,
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required,
-                            p.Person.Id,
                             p.Person.RowVersion)
                         : null,
                     p.FunctionalRole != null
-                        ? new FunctionalRoleForCommand(
+                        ? new InvitedFunctionalRoleForEditCommand(
+                            p.FunctionalRole.Id,
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new PersonForCommand(
+                                new InvitedPersonForEditCommand(
+                                    person.Id,
                                     person.AzureOid,
                                     person.Email,
                                     person.Required,
-                                    person.Id,
                                     person.RowVersion)).ToList(),
-                            p.FunctionalRole.Id,
                             p.FunctionalRole.RowVersion)
                         : null,
                     p.SortKey)

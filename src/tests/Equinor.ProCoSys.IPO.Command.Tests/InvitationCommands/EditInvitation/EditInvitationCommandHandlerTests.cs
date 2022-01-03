@@ -69,18 +69,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _system = "1|2";
         private const string _system2 = "2|2";
 
-        private readonly List<ParticipantsForCommand> _updatedParticipants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForEditCommand> _updatedParticipants = new List<ParticipantsForEditCommand>
         {
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                new InvitedFunctionalRoleForEditCommand(_participantId, _newFunctionalRoleCode, null, _participantRowVersion),
                 0),
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_newAzureOid, "kari@test.com", true),
+                new InvitedPersonForEditCommand(null, _newAzureOid, "kari@test.com", true, null),
                 null,
                 1)
         };
@@ -654,6 +654,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_newAzureOid, _dpInvitation.Participants.ToList()[1].AzureOid);
             Assert.AreEqual(_newFunctionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
+
+        // todo add test to assert adding new participants
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldSetAndReturnRowVersion()

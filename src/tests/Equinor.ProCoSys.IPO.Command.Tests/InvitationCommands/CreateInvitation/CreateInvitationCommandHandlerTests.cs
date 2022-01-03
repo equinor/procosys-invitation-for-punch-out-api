@@ -49,18 +49,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private readonly string _plant = "PCS$TEST_PLANT";
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
+        List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
+                new InvitedFunctionalRoleForCreateCommand(_functionalRoleCode, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_azureOid, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
                 null,
                 1)
         };
