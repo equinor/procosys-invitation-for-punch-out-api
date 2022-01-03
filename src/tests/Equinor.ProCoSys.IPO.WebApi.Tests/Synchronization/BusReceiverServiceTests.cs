@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
     [TestClass]
     public class BusReceiverServiceTests
     {
+        private Mock<ICurrentUserSetter> _currentUserSetter;
         private BusReceiverService _dut;
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IInvitationRepository> _invitationRepository;
@@ -65,6 +67,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         };
 
         private Invitation _invitation1, _invitation2, _invitation3, _invitation4;
+        private Mock<IOptionsSnapshot<AuthenticatorOptions>> _options;
 
         [TestInitialize]
         public void Setup()
@@ -86,6 +89,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitation4 = new Invitation(plant, project1, "El invitasjån4", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån4", _mcPkgsOn4, null);
 
+            _options = new Mock<IOptionsSnapshot<AuthenticatorOptions>>();
+            _options.Setup(s => s.Value).Returns(new AuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
+            _currentUserSetter = new Mock<ICurrentUserSetter>();
+
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,
                                           _unitOfWork.Object,
@@ -93,6 +100,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _readOnlyContext.Object,
                                           _mcPkgApiService.Object,
                                           _applicationAuthenticator.Object,
+                                          _options.Object,
+                                          _currentUserSetter.Object,
                                           _bearerTokenSetter.Object);
 
             var list = new List<Invitation> {_invitation1, _invitation2, _invitation3, _invitation4};
@@ -106,6 +115,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
             await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
 
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(project1, commPkgNo2, description), Times.Once);
@@ -119,6 +129,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project2}\", \"ProjectNameOld\" : \"{project1}\", \"CommPkgNo\" :\"{commPkgNo3}\", \"Description\" : \"{description}\"}}";
             await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
 
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.MoveCommPkg(project1, project2, commPkgNo3, description));
@@ -141,6 +152,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"Description\" : \"{description}\", \"Milestones\": [{{\"Code\": \"M-01\",\"Planned\": \"2021-12-06T00:00:00.000Z\",\"Actual\": \"12-dec-2021\"}}]}}";
             await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
 
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(project1, mcPkgNo1, description), Times.Once);
@@ -190,8 +202,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"Code\" : \"{functionalRoleCodeNew}\", \"CodeOld\" : \"{functionalRoleCodeOld}\", \"Description\" : \"{description}\", \"IsVoided\" : false, \"Type\" : \"{librarytypefunctionalrole}\"}}";
 
-            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(It.IsAny<Guid>()), Times.Never);
 
+            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Once);
@@ -200,12 +215,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
-    [TestMethod]
+        [TestMethod]
         public async Task HandlingProjectTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1}\", \"Description\" : \"{description}\"}}";
             await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
 
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(project1, description), Times.Once);
@@ -286,6 +302,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
 
             // Assert
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant));
             _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Once);
@@ -306,6 +323,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
 
             // Assert
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant));
             _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Never);
@@ -326,6 +344,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
 
             // Assert
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant));
             _mcPkgApiService.Verify(m => m.ClearM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Never);
             _mcPkgApiService.Verify(m => m.SetM01DatesAsync(plant, _invitation1.Id, project1, new List<string> { mcPkgNo1 }, new List<string>()), Times.Never);

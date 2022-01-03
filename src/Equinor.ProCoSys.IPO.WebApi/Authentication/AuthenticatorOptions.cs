@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.WebApi.Authentication
+﻿using System;
+
+namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 {
     public class AuthenticatorOptions
     {
@@ -6,6 +8,7 @@
 
         public string IPOApiClientId { get; set; }
         public string IPOApiSecret { get; set; }
+        public Guid IpoApiObjectId { get; set; }
 
         public string MainApiScope { get; set; }
 

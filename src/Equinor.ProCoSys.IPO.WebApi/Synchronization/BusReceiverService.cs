@@ -14,6 +14,7 @@ using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -26,7 +27,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IReadOnlyContext _context;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IApplicationAuthenticator _authenticator;
+        private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IBearerTokenSetter _bearerTokenSetter;
+        private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
         private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
 
@@ -38,6 +41,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
             IApplicationAuthenticator authenticator,
+            IOptionsSnapshot<AuthenticatorOptions> options,
+            ICurrentUserSetter currentUserSetter,
             IBearerTokenSetter bearerTokenSetter)
         {
             _invitationRepository = invitationRepository;
@@ -47,11 +52,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _context = context;
             _mcPkgApiService = mcPkgApiService;
             _authenticator = authenticator;
+            _currentUserSetter = currentUserSetter;
             _bearerTokenSetter = bearerTokenSetter;
+            _ipoApiOid =  options.Value.IpoApiObjectId;
         }
 
         public async Task ProcessMessageAsync(PcsTopic pcsTopic, string messageJson, CancellationToken cancellationToken)
         {
+            _currentUserSetter.SetCurrentUserOid(_ipoApiOid);
+
             switch (pcsTopic)
             {
                 case PcsTopic.Ipo:
