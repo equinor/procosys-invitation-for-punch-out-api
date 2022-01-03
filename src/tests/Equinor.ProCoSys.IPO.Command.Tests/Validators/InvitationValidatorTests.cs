@@ -62,12 +62,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand(1, "FR1", null, null),
+                new InvitedFunctionalRoleForEditCommand(1, "FR1", null, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
+                new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
                 null,
                 1)
         };
@@ -506,13 +506,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
                     new ParticipantsForCommand(
                         Organization.Contractor,
-                        new EditExternalEmailForCommand(null, "external@test.com", null),
+                        new InvitedExternalEmailForEditCommand(null, "external@test.com", null),
                         null,
                         null,
                         0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
-                        new EditExternalEmailForCommand(null, "external2@test.com", null),
+                        new InvitedExternalEmailForEditCommand(null, "external2@test.com", null),
                         null,
                         null,
                         1)
@@ -543,12 +543,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, "FR1", null, null),
                         0),
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, Guid.Empty, "ola@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, Guid.Empty, "ola@test.com", true, null),
                         null,
                         1)
                 });
@@ -598,8 +598,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _participantsOnlyRequired[1],
                     new ParticipantsForCommand(
                         Organization.Operation,
-                        new EditExternalEmailForCommand(null, "test@email.com", null),
-                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedExternalEmailForEditCommand(null, "test@email.com", null),
+                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3)
                 });
@@ -618,19 +618,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, "FR1", null, null),
                         2);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true, null),
                         null,
                         3);
                 var external =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand(null, "External@test.com", null),
+                        new InvitedExternalEmailForEditCommand(null, "External@test.com", null),
                         null,
                         null,
                         4);
@@ -650,7 +650,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), null, true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), null, true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -669,7 +669,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -688,7 +688,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -707,10 +707,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     Organization.Operation,
                     null,
                     null,
-                    new EditFunctionalRoleForCommand(
+                    new InvitedFunctionalRoleForEditCommand(
                         null, 
                         "FR",
-                        new List<EditPersonForCommand>{ new EditPersonForCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null)},
+                        new List<InvitedPersonForEditCommand>{ new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null)},
                         null), 
                     3);
                 var result = dut.IsValidParticipantList(
@@ -729,9 +729,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var participantWithFunctionalRoleAndExternalEmail =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand(null, "external@test.com", null),
+                        new InvitedExternalEmailForEditCommand(null, "external@test.com", null),
                         null,
-                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, "FR1", null, null),
                         3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
@@ -751,7 +751,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, null, null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, null, null, null),
                         3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
@@ -771,7 +771,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, "", null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, "", null, null),
                         3);
                 var result = dut.IsValidParticipantList(
                     new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], participantWithFunctionalRoleAndExternalEmail });
@@ -790,7 +790,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, null, null, true, null),
+                        new InvitedPersonForEditCommand(null, null, null, true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -810,7 +810,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, Guid.Empty, "test", true, null),
+                        new InvitedPersonForEditCommand(null, Guid.Empty, "test", true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -842,7 +842,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
@@ -862,12 +862,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Contractor,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(null, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(null, "FR1", null, null),
                         0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new EditPersonForCommand(null, null, "ola@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, null, "ola@test.com", true, null),
                         null,
                         0)
                 });
@@ -886,7 +886,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
                         null,
                         0);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired[0], _participantsOnlyRequired[1], person });
@@ -904,7 +904,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand(_participantId1, "test@email.com", null),
+                        new InvitedExternalEmailForEditCommand(_participantId1, "test@email.com", null),
                         null,
                         null,
                         3);
@@ -924,7 +924,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(_participantId1, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(_participantId1, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -944,7 +944,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(_participantId1, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(_participantId1, "FR1", null, null),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
@@ -963,12 +963,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(
+                        new InvitedFunctionalRoleForEditCommand(
                             _operationCurrentPersonId, 
                             "FR1", 
-                        new List<EditPersonForCommand> {
-                            new EditPersonForCommand(_participantId1, null, "zoey@test.com", true, null),
-                            new EditPersonForCommand(_participantId2, null, "zoey1@test.com", false, null)
+                        new List<InvitedPersonForEditCommand> {
+                            new InvitedPersonForEditCommand(_participantId1, null, "zoey@test.com", true, null),
+                            new InvitedPersonForEditCommand(_participantId2, null, "zoey1@test.com", false, null)
                             },
                             null),
                         0);
@@ -987,7 +987,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
-                        new EditExternalEmailForCommand(200, "test@email.com", null),
+                        new InvitedExternalEmailForEditCommand(200, "test@email.com", null),
                         null,
                         null,
                         0);
@@ -1007,7 +1007,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new EditPersonForCommand(500, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(500, null, "zoey@test.com", true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipants, default);
@@ -1027,7 +1027,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(400, "FR1", null, null),
+                        new InvitedFunctionalRoleForEditCommand(400, "FR1", null, null),
                         0);
                 var result = await dut.ParticipantWithIdExistsAsync(functionalRole, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
@@ -1046,12 +1046,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                         Organization.Commissioning,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(
+                        new InvitedFunctionalRoleForEditCommand(
                             null, 
                             "FR1", 
-                            new List<EditPersonForCommand> {
-                                new EditPersonForCommand(400, null, "zoey@test.com", true, null),
-                                new EditPersonForCommand(500, null, "zoey1@test.com", false, null)
+                            new List<InvitedPersonForEditCommand> {
+                                new InvitedPersonForEditCommand(400, null, "zoey@test.com", true, null),
+                                new InvitedPersonForEditCommand(500, null, "zoey1@test.com", false, null)
                             },
                             null
                         ),

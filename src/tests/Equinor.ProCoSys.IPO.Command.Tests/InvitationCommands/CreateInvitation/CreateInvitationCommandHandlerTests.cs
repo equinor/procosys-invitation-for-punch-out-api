@@ -55,12 +55,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new CreateFunctionalRoleForCommand(_functionalRoleCode, null),
+                new InvitedFunctionalRoleForCreateCommand(_functionalRoleCode, null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new CreatePersonForCommand(_azureOid, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
                 null,
                 1)
         };

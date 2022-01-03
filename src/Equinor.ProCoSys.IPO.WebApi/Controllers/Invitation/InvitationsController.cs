@@ -423,19 +423,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new ParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new CreateExternalEmailForCommand(p.ExternalEmail.Email)
+                        ? new InvtiedExternalEmailForCreateCommand(p.ExternalEmail.Email)
                         : null,
                     p.Person != null
-                        ? new CreatePersonForCommand(
+                        ? new InvitedPersonForCreateCommand(
                             p.Person.AzureOid,
                             p.Person.Email,
                             p.Person.Required)
                         : null,
                     p.FunctionalRole != null
-                        ? new CreateFunctionalRoleForCommand(
+                        ? new InvitedFunctionalRoleForCreateCommand(
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new CreatePersonForCommand(
+                                new InvitedPersonForCreateCommand(
                                     person.AzureOid,
                                     person.Email,
                                     person.Required)).ToList())
@@ -443,17 +443,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.SortKey)
             ).ToList();
 
-        private IList<EditParticipantsForCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
-                new EditParticipantsForCommand(
+        private IList<ParticipantsForEditCommand> ConvertParticipantsForEditCommands(IEnumerable<EditParticipantDto> dto) => dto?.Select(p =>
+                new ParticipantsForEditCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new EditExternalEmailForCommand(
+                        ? new InvitedExternalEmailForEditCommand(
                             p.ExternalEmail.Id,
                             p.ExternalEmail.Email,
                             p.ExternalEmail.RowVersion)
                         : null,
                     p.Person != null
-                        ? new EditPersonForCommand(
+                        ? new InvitedPersonForEditCommand(
                             p.Person.Id,
                             p.Person.AzureOid,
                             p.Person.Email,
@@ -461,11 +461,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.Person.RowVersion)
                         : null,
                     p.FunctionalRole != null
-                        ? new EditFunctionalRoleForCommand(
+                        ? new InvitedFunctionalRoleForEditCommand(
                             p.FunctionalRole.Id,
                             p.FunctionalRole.Code,
                             p.FunctionalRole.Persons?.Select(person =>
-                                new EditPersonForCommand(
+                                new InvitedPersonForEditCommand(
                                     person.Id,
                                     person.AzureOid,
                                     person.Email,

@@ -28,12 +28,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Organization.Contractor,
                 null,
                 null,
-                new CreateFunctionalRoleForCommand("FR1", null),
+                new InvitedFunctionalRoleForCreateCommand("FR1", null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new CreatePersonForCommand(null, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(null, "ola@test.com", true),
                 null,
                 1)
         };
@@ -326,17 +326,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                         Organization.Contractor,
                         null,
                         null,
-                        new CreateFunctionalRoleForCommand("FR1", null),
+                        new InvitedFunctionalRoleForCreateCommand("FR1", null),
                         0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new CreatePersonForCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
                         null,
                         1),
                     new ParticipantsForCommand(
                         Organization.External,
-                        new CreateExternalEmailForCommand("jon@test.no"),
+                        new InvtiedExternalEmailForCreateCommand("jon@test.no"),
                         null,
                         null,
                         -3)
@@ -374,17 +374,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                         Organization.Contractor,
                         null,
                         null,
-                        new CreateFunctionalRoleForCommand("F", null),
+                        new InvitedFunctionalRoleForCreateCommand("F", null),
                         0),
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new CreatePersonForCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
                         null,
                         1),
                     new ParticipantsForCommand(
                         Organization.External,
-                        new CreateExternalEmailForCommand("jon@test.no"),
+                        new InvtiedExternalEmailForCreateCommand("jon@test.no"),
                         null,
                         null,
                         -3)

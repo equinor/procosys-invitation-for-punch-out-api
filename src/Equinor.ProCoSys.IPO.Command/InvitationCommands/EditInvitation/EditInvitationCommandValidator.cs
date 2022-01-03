@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     $"Sort key for participant must be a non negative number! SortKey={participant.SortKey}")
                 .Must(FunctionalRoleParticipantsMustBeValid)
                 .WithMessage((_, participant) =>
-                    $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.FunctionalRole.Code}")
+                    $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.InvitedFunctionalRole.Code}")
                 .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
@@ -77,37 +77,37 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
-            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<EditParticipantsForCommand> participants)
+            bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForEditCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants.Cast<ParticipantsForCommand>().ToList());
 
-            bool RequiredParticipantsHaveLowestSortKeys(IList<EditParticipantsForCommand> participants)
+            bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForEditCommand> participants)
                 => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants.Cast<ParticipantsForCommand>().ToList());
 
-            bool ParticipantListMustBeValid(IList<EditParticipantsForCommand> participants)
+            bool ParticipantListMustBeValid(IList<ParticipantsForEditCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants.Cast<ParticipantsForCommand>().ToList());
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
 
-            bool ParticipantsHaveValidRowVersions(EditParticipantsForCommand participant)
+            bool ParticipantsHaveValidRowVersions(ParticipantsForEditCommand participant)
             {
-                if (participant.EditExternalEmail?.Id != null)
+                if (participant.InvitedExternalEmailToEdit?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.EditExternalEmail.RowVersion);
+                    return rowVersionValidator.IsValid(participant.InvitedExternalEmailToEdit.RowVersion);
                 }
-                if (participant.EditPerson?.Id != null)
+                if (participant.InvitedPersonToEdit?.Id != null)
                 {
-                    return rowVersionValidator.IsValid(participant.EditPerson.RowVersion);
+                    return rowVersionValidator.IsValid(participant.InvitedPersonToEdit.RowVersion);
                 }
 
-                if (participant.EditFunctionalRole != null)
+                if (participant.InvitedFunctionalRoleToEdit != null)
                 {
-                    if (participant.EditFunctionalRole.Id != null && !rowVersionValidator.IsValid(participant.EditFunctionalRole.RowVersion))
+                    if (participant.InvitedFunctionalRoleToEdit.Id != null && !rowVersionValidator.IsValid(participant.InvitedFunctionalRoleToEdit.RowVersion))
                     {
                         return false;
                     }
 
-                    return participant.EditFunctionalRole.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
+                    return participant.InvitedFunctionalRoleToEdit.EditPersons.All(person => person.Id == null || rowVersionValidator.IsValid(person.RowVersion));
                 }
 
                 return true;
@@ -115,14 +115,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             bool FunctionalRoleParticipantsMustBeValid(ParticipantsForCommand participant)
             {
-                if (participant.FunctionalRole == null)
+                if (participant.InvitedFunctionalRole == null)
                 {
                     return true;
                 }
 
-                return participant.FunctionalRole.Code != null &&
-                    participant.FunctionalRole.Code.Length > 2 &&
-                    participant.FunctionalRole.Code.Length < Participant.FunctionalRoleCodeMaxLength;
+                return participant.InvitedFunctionalRole.Code != null &&
+                    participant.InvitedFunctionalRole.Code.Length > 2 &&
+                    participant.InvitedFunctionalRole.Code.Length < Participant.FunctionalRoleCodeMaxLength;
             }
         }
     }

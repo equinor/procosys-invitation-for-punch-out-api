@@ -2,9 +2,9 @@
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public interface IFunctionalRoleForCommand
+    public interface IInvitedFunctionalRoleForCommand
     {
         public string Code { get; }
-        public IEnumerable<IPersonForCommand> Persons { get; }
+        public IEnumerable<IInvitedPersonForCommand> InvitedPersons { get; }
     }
 }

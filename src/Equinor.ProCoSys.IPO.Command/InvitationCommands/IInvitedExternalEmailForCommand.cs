@@ -1,6 +1,6 @@
 ﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public interface IExternalEmailForCommand
+    public interface IInvitedExternalEmailForCommand
     {
         string Email { get; }
     }

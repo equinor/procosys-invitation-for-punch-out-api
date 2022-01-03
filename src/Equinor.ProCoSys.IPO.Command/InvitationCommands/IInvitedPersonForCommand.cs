@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
-    public interface IPersonForCommand
+    public interface IInvitedPersonForCommand
     {
         Guid? AzureOid { get; }
         string Email { get; }

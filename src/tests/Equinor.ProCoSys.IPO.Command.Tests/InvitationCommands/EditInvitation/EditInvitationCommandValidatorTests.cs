@@ -28,18 +28,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _rowVersion = "AAAAAAAAABA=";
 
         private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
-        private readonly List<EditParticipantsForCommand> _editParticipants = new List<EditParticipantsForCommand>
+        private readonly List<ParticipantsForEditCommand> _editParticipants = new List<ParticipantsForEditCommand>
         {
-            new EditParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new EditFunctionalRoleForCommand(1, "FR1", null, _rowVersion),
+                new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
                 0),
-            new EditParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new EditPersonForCommand(2, null, "ola@test.com", true, _rowVersion),
+                new InvitedPersonForEditCommand(2, null, "ola@test.com", true, _rowVersion),
                 null,
                 1)
         };
@@ -307,23 +307,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipant_HasNegativeSortKey()
         {
-            var editParticipants = new List<EditParticipantsForCommand>
+            var editParticipants = new List<ParticipantsForEditCommand>
                 {
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.Contractor,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(1, "FR1", null, _rowVersion),
+                        new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
                         0),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new EditPersonForCommand(2, null, "ola@test.com", true, _rowVersion),
+                        new InvitedPersonForEditCommand(2, null, "ola@test.com", true, _rowVersion),
                         null,
                         1),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.External,
-                        new EditExternalEmailForCommand(null, "jon@test.no", null),
+                        new InvitedExternalEmailForEditCommand(null, "jon@test.no", null),
                         null,
                         null,
                         -3)
@@ -360,23 +360,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenFunctinalRoleIsInvalid()
         {
-            var editParticipants = new List<EditParticipantsForCommand>
+            var editParticipants = new List<ParticipantsForEditCommand>
                 {
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.Contractor,
                         null,
                         null,
-                        new EditFunctionalRoleForCommand(1, "F", null, _rowVersion),
+                        new InvitedFunctionalRoleForEditCommand(1, "F", null, _rowVersion),
                         0),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new EditPersonForCommand(2, null, "ola@test.com", true, _rowVersion),
+                        new InvitedPersonForEditCommand(2, null, "ola@test.com", true, _rowVersion),
                         null,
                         1),
-                    new EditParticipantsForCommand(
+                    new ParticipantsForEditCommand(
                         Organization.External,
-                        new EditExternalEmailForCommand(null, "jon@test.no", null),
+                        new InvitedExternalEmailForEditCommand(null, "jon@test.no", null),
                         null,
                         null,
                         -3)

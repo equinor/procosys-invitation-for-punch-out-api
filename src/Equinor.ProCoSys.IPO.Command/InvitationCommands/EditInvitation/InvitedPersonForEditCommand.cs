@@ -2,9 +2,9 @@
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 {
-    public class EditPersonForCommand : IPersonForCommand
+    public class InvitedPersonForEditCommand : IInvitedPersonForCommand
     {
-        public EditPersonForCommand(
+        public InvitedPersonForEditCommand(
             int? id,
             Guid? azureOid,
             string email,

@@ -53,44 +53,44 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
-            var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
-            return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
+            var isValidEmail = new EmailAddressAttribute().IsValid(participant.InvitedExternalEmail.Email);
+            return isValidEmail && participant.InvitedPerson == null && participant.InvitedFunctionalRole == null;
         }
 
-        private bool IsValidPerson(IPersonForCommand person)
+        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson)
         {
-            if (person.Email == null && (person.AzureOid == Guid.Empty || person.AzureOid == null))
+            if (invitedPerson.Email == null && (invitedPerson.AzureOid == Guid.Empty || invitedPerson.AzureOid == null))
             {
                 return false;
             }
 
-            return person.AzureOid != Guid.Empty && person.AzureOid != null || 
-                   new EmailAddressAttribute().IsValid(person.Email);
+            return invitedPerson.AzureOid != Guid.Empty && invitedPerson.AzureOid != null || 
+                   new EmailAddressAttribute().IsValid(invitedPerson.Email);
         }
 
         private bool IsValidPersonParticipant(ParticipantsForCommand participant) 
-            => IsValidPerson(participant.Person) && participant.ExternalEmail == null && participant.FunctionalRole == null;
+            => IsValidPerson(participant.InvitedPerson) && participant.InvitedExternalEmail == null && participant.InvitedFunctionalRole == null;
 
         private bool IsValidFunctionalRoleParticipant(ParticipantsForCommand participant)
         {
-            if (string.IsNullOrEmpty(participant.FunctionalRole.Code))
+            if (string.IsNullOrEmpty(participant.InvitedFunctionalRole.Code))
             {
                 return false;
             }
 
-            if (participant.FunctionalRole.Persons.Any(person => !IsValidPerson(person)))
+            if (participant.InvitedFunctionalRole.InvitedPersons.Any(person => !IsValidPerson(person)))
             {
                 return false;
             }
 
-            return participant.Person == null && participant.ExternalEmail == null;
+            return participant.InvitedPerson == null && participant.InvitedExternalEmail == null;
         }
 
         public bool IsValidParticipantList(IList<ParticipantsForCommand> participants)
         {
             foreach (var p in participants)
             {
-                if (p.ExternalEmail == null && p.Person == null && p.FunctionalRole == null)
+                if (p.InvitedExternalEmail == null && p.InvitedPerson == null && p.InvitedFunctionalRole == null)
                 {
                     return false;
                 }
@@ -98,11 +98,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 {
                     return false;
                 }
-                if (p.Person != null && !IsValidPersonParticipant(p))
+                if (p.InvitedPerson != null && !IsValidPersonParticipant(p))
                 {
                     return false;
                 }
-                if (p.FunctionalRole != null && !IsValidFunctionalRoleParticipant(p))
+                if (p.InvitedFunctionalRole != null && !IsValidFunctionalRoleParticipant(p))
                 {
                     return false;
                 }
@@ -119,9 +119,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
 
             return participants.First().Organization == Organization.Contractor &&
-                   participants.First().ExternalEmail == null &&
+                   participants.First().InvitedExternalEmail == null &&
                    participants[1].Organization == Organization.ConstructionCompany &&
-                   participants[1].ExternalEmail == null;
+                   participants[1].InvitedExternalEmail == null;
         }
 
         public bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
@@ -169,7 +169,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
-            if (participant.Person is EditPersonForCommand editPerson)
+            if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
             { 
                 if (!await ParticipantExistsAsync(editPerson.Id, invitationId, cancellationToken))
                 {
@@ -177,7 +177,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 }
             }
             
-            if (participant.ExternalEmail is EditExternalEmailForCommand externalEmail)
+            if (participant.InvitedExternalEmail is InvitedExternalEmailForEditCommand externalEmail)
             {
                 if (!await ParticipantExistsAsync(externalEmail.Id, invitationId, cancellationToken))
                 {
@@ -185,7 +185,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 }
             }
 
-            if (participant.FunctionalRole is EditFunctionalRoleForCommand functionalRole)
+            if (participant.InvitedFunctionalRole is InvitedFunctionalRoleForEditCommand functionalRole)
             {
                 if (!await ParticipantExistsAsync(functionalRole.Id, invitationId, cancellationToken))
                 {

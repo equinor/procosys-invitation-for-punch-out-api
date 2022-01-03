@@ -6,21 +6,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
     {
         public ParticipantsForCommand(
             Organization organization,
-            IExternalEmailForCommand externalEmail,
-            IPersonForCommand person,
-            IFunctionalRoleForCommand functionalRole,
+            IInvitedExternalEmailForCommand invitedExternalEmail,
+            IInvitedPersonForCommand invitedPerson,
+            IInvitedFunctionalRoleForCommand invitedFunctionalRole,
             int sortKey)
         {
             Organization = organization;
-            FunctionalRole = functionalRole;
-            Person = person;
-            ExternalEmail = externalEmail;
+            InvitedFunctionalRole = invitedFunctionalRole;
+            InvitedPerson = invitedPerson;
+            InvitedExternalEmail = invitedExternalEmail;
             SortKey = sortKey;
         }
         public Organization Organization { get; }
         public int SortKey { get; }
-        public IExternalEmailForCommand ExternalEmail { get; }
-        public IPersonForCommand Person { get; }
-        public IFunctionalRoleForCommand FunctionalRole { get; }
+        public IInvitedExternalEmailForCommand InvitedExternalEmail { get; }
+        public IInvitedPersonForCommand InvitedPerson { get; }
+        public IInvitedFunctionalRoleForCommand InvitedFunctionalRole { get; }
     }
 }
