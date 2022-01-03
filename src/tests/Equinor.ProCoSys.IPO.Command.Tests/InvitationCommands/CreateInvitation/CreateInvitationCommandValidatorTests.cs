@@ -336,7 +336,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                         1),
                     new ParticipantsForCommand(
                         Organization.External,
-                        new InvtiedExternalEmailForCreateCommand("jon@test.no"),
+                        new InvitedExternalEmailForCreateCommand("jon@test.no"),
                         null,
                         null,
                         -3)
@@ -384,7 +384,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                         1),
                     new ParticipantsForCommand(
                         Organization.External,
-                        new InvtiedExternalEmailForCreateCommand("jon@test.no"),
+                        new InvitedExternalEmailForCreateCommand("jon@test.no"),
                         null,
                         null,
                         -3)

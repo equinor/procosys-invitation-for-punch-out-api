@@ -423,7 +423,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new ParticipantsForCommand(
                     p.Organization,
                     p.ExternalEmail != null
-                        ? new InvtiedExternalEmailForCreateCommand(p.ExternalEmail.Email)
+                        ? new InvitedExternalEmailForCreateCommand(p.ExternalEmail.Email)
                         : null,
                     p.Person != null
                         ? new InvitedPersonForCreateCommand(
