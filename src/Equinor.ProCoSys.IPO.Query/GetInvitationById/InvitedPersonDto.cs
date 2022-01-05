@@ -22,6 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         }
 
         public OutlookResponse? Response { get; set; }
+        [Obsolete("Use parent Participant.Id")]
         public int Id { get; }
         public string FirstName { get; }
         public string LastName { get; }

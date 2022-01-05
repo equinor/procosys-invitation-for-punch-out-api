@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
@@ -15,6 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             Persons = persons;
         }
 
+        [Obsolete("Use parent Participant.Id")]
         public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
