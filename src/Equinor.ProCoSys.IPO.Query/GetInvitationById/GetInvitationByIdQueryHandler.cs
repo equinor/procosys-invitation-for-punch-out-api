@@ -121,9 +121,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     OutlookResponse? participantPersonResponse = null;
                     if (meeting != null)
                     {
-                        participantPersonResponse = participant.Person.Person.AzureOid == meeting.Organizer.Id
+                        participantPersonResponse = participant.Person.AzureOid == meeting.Organizer.Id
                             ? OutlookResponse.Organizer
-                            : GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email);
+                            : GetOutlookResponseByEmailAsync(meeting, participant.Person.Email);
                     }
 
                     participant.Person.Response = participantPersonResponse;
@@ -142,12 +142,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
                     {
                         var participantType = meeting != null
-                            ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email)
+                            ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email)
                             : null;
                         personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
 
                         var functionalRolePersonResponse = meeting != null
-                            ? GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Person.Email)
+                            ? GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email)
                             : null;
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
@@ -176,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
             ?.OutlookResponse;
 
-        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<InvitedPersonDto> persons, OutlookResponse? frResponse)
+        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<FunctionalRolePersonDto> persons, OutlookResponse? frResponse)
         {
             if (frResponse == OutlookResponse.Accepted || persons.Any(p => p.Response == OutlookResponse.Accepted))
             {
@@ -251,8 +251,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.Note,
                         participant.Attended,
                         false,
-                        new ExternalEmailDto(participant.Id, participant.Email,
-                            participant.RowVersion.ConvertToString()),
+                        new ExternalEmailDto(participant.Id, participant.Email),
                         null,
                         null,
                         participant.RowVersion.ConvertToString()));
@@ -264,8 +263,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
 
-        private static FunctionalRoleDto ConvertToFunctionalRoleDto(Participant participant, IEnumerable<Participant> personsInFunctionalRole)
-            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToInvitedPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
+        private static FunctionalRoleDto ConvertToFunctionalRoleDto(
+            Participant participant,
+            IEnumerable<Participant> personsInFunctionalRole)
+            => new FunctionalRoleDto(
+                participant.FunctionalRoleCode,
+                participant.Email,
+                ConvertToInvitedPersonDto(personsInFunctionalRole)) 
+                {
+                    Id = participant.Id
+                };
 
         private static InvitedPersonDto ConvertToInvitedPersonDto(Participant participant)
             => new InvitedPersonDto(participant.Id,
@@ -273,11 +280,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 participant.LastName,
                 participant.UserName,
                 participant.AzureOid ?? Guid.Empty,
-                participant.Email,
-                participant.RowVersion.ConvertToString()); 
+                participant.Email);
 
-        private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
-            => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
+        private static FunctionalRolePersonDto ConvertToFunctionalRolePersonDto(Participant participant)
+            => new FunctionalRolePersonDto(participant.Id,
+                participant.FirstName,
+                participant.LastName,
+                participant.UserName,
+                participant.AzureOid ?? Guid.Empty,
+                participant.Email,
+                participant.RowVersion.ConvertToString());
+
+        private static IEnumerable<FunctionalRolePersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
+            => personsInFunctionalRole.Select(ConvertToFunctionalRolePersonDto).ToList();
 
         private bool IsSigningParticipant(Participant participant) 
             => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;

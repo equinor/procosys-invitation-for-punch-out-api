@@ -6,17 +6,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
     {
         public ExternalEmailDto(
             int id,
-            string externalEmail,
-            string rowVersion)
+            string externalEmail)
         {
             Id = id;
             ExternalEmail = externalEmail;
-            RowVersion = rowVersion;
         }
 
         public int Id { get; }
         public string ExternalEmail { get; }
         public OutlookResponse? Response { get; set; }
-        public string RowVersion { get; }
     }
 }

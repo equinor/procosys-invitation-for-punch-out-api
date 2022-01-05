@@ -8,20 +8,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public FunctionalRoleDto(
             string code,
             string email,
-            IEnumerable<InvitedPersonDto> persons,
-            string rowVersion)
+            IEnumerable<FunctionalRolePersonDto> persons)
         {
             Code = code;
             Email = email;
             Persons = persons;
-            RowVersion = rowVersion;
         }
 
         public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
-        public IEnumerable<InvitedPersonDto> Persons { get; }
+        public IEnumerable<FunctionalRolePersonDto> Persons { get; }
         public OutlookResponse? Response { get; set; }
-        public string RowVersion { get; }
     }
 }
