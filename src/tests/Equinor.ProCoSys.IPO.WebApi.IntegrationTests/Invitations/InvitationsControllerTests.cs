@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -387,6 +388,100 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationId);
 
             Assert.AreEqual(2, updatedInvitation.Participants.Count());
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldUpdateParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            const string email1 = "knut1@test.com";
+            const string email2 = "knut2@test.com";
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.External,
+                    ExternalEmail = new CreateExternalEmailForDto
+                    {
+                        Email = email1
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+            Assert.AreEqual(email1, editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email);
+
+            editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email = email2;
+
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+            Assert.AreEqual(email2, editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldAddParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(2, editInvitationDto.UpdatedParticipants.Count());
+
+            var updatedParticipants = new List<EditParticipantsDto>(editInvitationDto.UpdatedParticipants);
+            updatedParticipants.Add(new EditParticipantsDto
+            {
+                Organization = Organization.External,
+                ExternalEmail = new EditExternalEmailForDto
+                {
+                    Email = "knut@test.com"
+                },
+                SortKey = 3
+            });
+            editInvitationDto.UpdatedParticipants = updatedParticipants;
+
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
             Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
