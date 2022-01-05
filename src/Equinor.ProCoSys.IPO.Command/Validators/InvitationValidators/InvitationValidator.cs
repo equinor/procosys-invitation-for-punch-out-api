@@ -162,16 +162,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        public async Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken cancellationToken) 
-            => await(from p in _context.QuerySet<Participant>()
+        public async Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken cancellationToken)
+            => await (from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
-                     select p).AnyAsync(cancellationToken);
+                select p).AnyAsync(cancellationToken);
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
             if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
             { 
-                if (!await ParticipantExistsAsync(editPerson.Id, invitationId, cancellationToken))
+                if (editPerson.Id.HasValue && !await ParticipantExistsAsync(editPerson.Id.Value, invitationId, cancellationToken))
                 {
                     return false;
                 }
@@ -179,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             
             if (participant.InvitedExternalEmail is InvitedExternalEmailForEditCommand externalEmail)
             {
-                if (!await ParticipantExistsAsync(externalEmail.Id, invitationId, cancellationToken))
+                if (externalEmail.Id.HasValue && !await ParticipantExistsAsync(externalEmail.Id.Value, invitationId, cancellationToken))
                 {
                     return false;
                 }
@@ -187,14 +187,14 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participant.InvitedFunctionalRole is InvitedFunctionalRoleForEditCommand functionalRole)
             {
-                if (!await ParticipantExistsAsync(functionalRole.Id, invitationId, cancellationToken))
+                if (functionalRole.Id.HasValue && !await ParticipantExistsAsync(functionalRole.Id.Value, invitationId, cancellationToken))
                 {
                     return false;
                 }
 
                 foreach (var person in functionalRole.EditPersons)
                 {
-                    if (!await ParticipantExistsAsync(person.Id, invitationId, cancellationToken))
+                    if (person.Id.HasValue && !await ParticipantExistsAsync(person.Id.Value, invitationId, cancellationToken))
                     {
                         return false;
                     }
