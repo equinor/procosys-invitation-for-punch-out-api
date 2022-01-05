@@ -214,6 +214,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                                     && p.Type == IpoParticipantType.Person);
 
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
@@ -229,6 +230,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
@@ -244,6 +246,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 else if (participant.Organization == Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,

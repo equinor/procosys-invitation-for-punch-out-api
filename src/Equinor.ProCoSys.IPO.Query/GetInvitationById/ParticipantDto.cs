@@ -6,6 +6,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
     public class ParticipantDto
     {
         public ParticipantDto(
+            int id,
             Organization organization,
             int sortKey,
             PersonDto signedBy,
@@ -18,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             FunctionalRoleDto functionalRole,
             string rowVersion)
         {
+            Id = id;
             Organization = organization;
             SortKey = sortKey;
             SignedBy = signedBy;
@@ -31,6 +33,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             RowVersion = rowVersion;
         }
 
+        public int Id { get; }
         public Organization Organization { get; }
         public int SortKey { get; }
         public PersonDto SignedBy { get; }
