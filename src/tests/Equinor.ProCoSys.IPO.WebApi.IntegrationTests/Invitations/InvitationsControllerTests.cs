@@ -311,6 +311,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(Description, invitation.Description);
             Assert.AreEqual(InvitationLocation, invitation.Location);
             Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
+            var originalParticipants = _participants;
+            AssertParticipants(invitation, originalParticipants);
         }
 
         [TestMethod]
@@ -354,7 +356,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new CreateParticipantsDto
                 {
                     Organization = Organization.External,
-                    ExternalEmail = new CreateExternalEmailForDto
+                    ExternalEmail = new CreateExternalEmailDto
                     {
                         Email = "knut@test.com"
                     },
@@ -561,6 +563,63 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
             AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
+        }
+
+        private void AssertParticipants(InvitationDto invitation, List<CreateParticipantsDto> originalParticipants)
+        {
+            Assert.IsNotNull(invitation.Participants);
+            Assert.AreEqual(_participants.Count(), invitation.Participants.Count());
+
+            var originalFunctionalRoleParticipants = originalParticipants.Where(p => p.FunctionalRole != null).ToList();
+            var functionalRoleParticipants = invitation.Participants.Where(p => p.FunctionalRole != null).ToList();
+            AssertFunctionalRoleParticipants(originalFunctionalRoleParticipants, functionalRoleParticipants);
+
+            var originalExternalEmailParticipants = originalParticipants.Where(p => p.ExternalEmail != null).ToList();
+            var ExternalEmailParticipants = invitation.Participants.Where(p => p.ExternalEmail != null).ToList();
+
+            AssertExternalEmailParticipants(originalExternalEmailParticipants, ExternalEmailParticipants);
+
+            var originalPersonParticipants = originalParticipants.Where(p => p.Person != null).ToList();
+            var PersonParticipants = invitation.Participants.Where(p => p.Person != null).ToList();
+
+            AssertPersonParticipants(originalPersonParticipants, PersonParticipants);
+        }
+
+        private void AssertPersonParticipants(
+            List<CreateParticipantsDto> originalPersonParticipants,
+            List<GetInvitation.ParticipantDto> personParticipants)
+        {
+            Assert.AreEqual(originalPersonParticipants.Count(), personParticipants.Count());
+            foreach (var originalPersonParticipant in originalPersonParticipants)
+            {
+                var personParticipant = personParticipants.SingleOrDefault(p => p.Person.AzureOid == originalPersonParticipant.Person.AzureOid);
+                Assert.IsNotNull(personParticipant);
+            }
+        }
+
+        private void AssertExternalEmailParticipants(
+            List<CreateParticipantsDto> originalExternalEmailParticipants,
+            List<GetInvitation.ParticipantDto> externalEmailParticipants)
+        {
+            Assert.AreEqual(originalExternalEmailParticipants.Count(), externalEmailParticipants.Count());
+            foreach (var originalExternalEmailParticipant in originalExternalEmailParticipants)
+            {
+                var externalEmailParticipant = externalEmailParticipants.SingleOrDefault(p => p.ExternalEmail.ExternalEmail == originalExternalEmailParticipant.ExternalEmail.Email);
+                Assert.IsNotNull(externalEmailParticipant);
+            }
+        }
+
+        private static void AssertFunctionalRoleParticipants(
+            List<CreateParticipantsDto> originalFunctionalRoleParticipants,
+            List<GetInvitation.ParticipantDto> functionalRoleParticipants)
+        {
+            Assert.AreEqual(originalFunctionalRoleParticipants.Count(), functionalRoleParticipants.Count());
+            foreach (var originalFunctionalRoleParticipant in originalFunctionalRoleParticipants)
+            {
+                var functionalRoleParticipant = functionalRoleParticipants.SingleOrDefault(p => p.FunctionalRole.Code == originalFunctionalRoleParticipant.FunctionalRole.Code);
+                Assert.IsNotNull(functionalRoleParticipant);
+                Assert.AreEqual(originalFunctionalRoleParticipant.FunctionalRole.Persons.Count(), functionalRoleParticipant.FunctionalRole.Persons.Count());
+            }
         }
     }
 }
