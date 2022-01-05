@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
     public class InvitationsControllerTestsBase : TestBase
     {
-        protected const string CreateFunctionalRoleCode = "FRC2";
+        protected const string FunctionalRoleCode = "FRCA";
         protected const string InvitationLocation = "InvitationLocation";
         protected readonly int InitialMdpInvitationId = TestFactory.Instance.KnownTestData.MdpInvitationIds.First();
         protected readonly int InitialDpInvitationId = TestFactory.Instance.KnownTestData.DpInvitationIds.First();
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             var functionalRoleParticipant = new CreateFunctionalRoleDto
             {
-                Code = CreateFunctionalRoleCode,
+                Code = FunctionalRoleCode,
                 Persons = new List<CreateInvitedPersonDto>
                 {
                     person1InFunctionalRoleParticipant, 
@@ -207,7 +207,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 new ProCoSysFunctionalRole
                 {
-                    Code = CreateFunctionalRoleCode,
+                    Code = FunctionalRoleCode,
                     Description = "Description",
                     Email = "frEmail@test.com",
                     InformationEmail = null,
@@ -225,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> { CreateFunctionalRoleCode }))
+                    new List<string> { FunctionalRoleCode }))
                 .Returns(Task.FromResult(pcsFunctionalRoles2));
 
             TestFactory.Instance
@@ -328,7 +328,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             {
                 new ParticipantToChangeDto
                 {
-                    Id = completerParticipant.Person.Id,
+                    Id = completerParticipant.Id,
                     Attended = false,
                     Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                     RowVersion = completerParticipant.RowVersion
@@ -364,7 +364,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     new ParticipantToUpdateNoteDto
                     {
-                        Id = accepterParticipant.Person.Id,
+                        Id = accepterParticipant.Id,
                         Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = accepterParticipant.RowVersion
                     }
@@ -431,7 +431,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     new ParticipantToChangeDto
                     {
-                        Id = completerParticipant.Person.Id,
+                        Id = completerParticipant.Id,
                         Note = $"Some note about the punch round or attendee {Guid.NewGuid():B}",
                         RowVersion = completerParticipant.RowVersion,
                         Attended = true
@@ -532,17 +532,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 {
                     ExternalEmail = p.ExternalEmail != null ? new EditExternalEmailDto
                     {
-                        Id = p.ExternalEmail.Id,
+                        Id = p.Id,
                         Email = p.ExternalEmail.ExternalEmail,
                         RowVersion = p.RowVersion
                     } : null,
                     FunctionalRole = p.FunctionalRole != null ? new EditFunctionalRoleDto
                     {
-                        Id = p.FunctionalRole.Id,
+                        Id = p.Id,
                         Code = p.FunctionalRole.Code,
                         RowVersion = p.RowVersion,
                         Persons = p.FunctionalRole.Persons?.Select(person =>
-                                new EditPersonDto
+                                new EditInvitedPersonDto
                                 {
                                     AzureOid = person.AzureOid,
                                     Email = person.Email,
@@ -552,9 +552,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                                 }).ToList()
                     } : null,
                     Organization = p.Organization,
-                    Person = p.Person != null ? new EditPersonDto
+                    Person = p.Person != null ? new EditInvitedPersonDto
                     {
-                        Id = p.Person.Id,
+                        Id = p.Id,
                         AzureOid = p.Person.AzureOid,
                         Email = p.Person.Email,
                         Required = p.Person.Required,

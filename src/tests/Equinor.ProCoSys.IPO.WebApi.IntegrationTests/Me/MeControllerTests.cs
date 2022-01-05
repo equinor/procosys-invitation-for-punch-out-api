@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 {
                     new ParticipantToChangeDto
                     {
-                        Id = completerParticipant.Person.Id,
+                        Id = completerParticipant.Id,
                         Note = "Some note about the punch out round or attendee",
                         RowVersion = completerParticipant.RowVersion,
                         Attended = true

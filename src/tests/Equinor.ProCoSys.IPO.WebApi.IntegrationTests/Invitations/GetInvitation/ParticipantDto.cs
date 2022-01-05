@@ -5,6 +5,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.GetInvitation
 {
     public class ParticipantDto
     {
+        public int Id { get; set; }
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
         public PersonDto SignedBy { get; set; }
