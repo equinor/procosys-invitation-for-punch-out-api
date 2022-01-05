@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
             var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
-            var participants = new List<BuilderParticipant>();
+            var meetingParticipants = new List<BuilderParticipant>();
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
 
@@ -95,12 +95,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 commPkgs);
             _invitationRepository.Add(invitation);
 
-            participants = await AddParticipantsAsync(invitation, participants, request.Participants.ToList());
+            meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             try
             {
-                invitation.MeetingId = await CreateOutlookMeeting(request, participants, invitation);
+                invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
@@ -114,7 +114,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> ipoParticipants)
         {
             var functionalRoleParticipants =
@@ -124,21 +124,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.InvitedExternalEmail != null).ToList();
 
-            participants = functionalRoleParticipants.Count > 0
-                ? await AddFunctionalRoleParticipantsAsync(invitation, participants, functionalRoleParticipants)
-                : participants;
-            participants = personsWithOids.Count > 0
-                ? await AddPersonParticipantsWithOidsAsync(invitation, participants, personsWithOids)
-                : participants;
-            participants = AddExternalParticipant(invitation, participants, externalEmailParticipants);
-            participants = AddPersonParticipantsWithoutOids(invitation, participants, personsWithoutOids);
+            meetingParticipants = functionalRoleParticipants.Count > 0
+                ? await AddFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants)
+                : meetingParticipants;
+            meetingParticipants = personsWithOids.Count > 0
+                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, personsWithOids)
+                : meetingParticipants;
+            meetingParticipants = AddExternalParticipant(invitation, meetingParticipants, externalEmailParticipants);
+            meetingParticipants = AddPersonParticipantsWithoutOids(invitation, meetingParticipants, personsWithoutOids);
 
-            return participants;
+            return meetingParticipants;
         }
 
         private async Task<List<BuilderParticipant>> AddFunctionalRoleParticipantsAsync(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> functionalRoleParticipants)
         {
             var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRole.Code).ToList();
@@ -163,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participant.SortKey));
                     if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
-                        participants.Add(new BuilderParticipant(ParticipantType.Required,
+                        meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
                             new ParticipantIdentifier(fr.Email)));
                     }
                     foreach (var person in participant.InvitedFunctionalRole.InvitedPersons)
@@ -182,7 +182,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                                 frPerson.Email,
                                 new Guid(frPerson.AzureOid),
                                 participant.SortKey));
-                            participants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, participants, person.Required);
+                            meetingParticipants = InvitationHelper.AddPersonToOutlookParticipantList(frPerson, meetingParticipants, person.Required);
                         }
                     }
                 }
@@ -192,12 +192,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         $"Could not find functional role with functional role code '{participant.InvitedFunctionalRole.Code}' on participant {participant.Organization}.");
                 }
             }
-            return participants;
+            return meetingParticipants;
         }
 
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> personParticipantsWithOids)
         {
             var personsAdded = new List<ParticipantsForCommand>();
@@ -205,9 +205,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 if (InvitationHelper.ParticipantIsSigningParticipant(participant))
                 {
-                    participants = await AddSigner(
+                    meetingParticipants = await AddSigner(
                         invitation,
-                        participants,
+                        meetingParticipants,
                         participant.InvitedPerson,
                         participant.SortKey,
                         participant.Organization);
@@ -239,17 +239,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             person.Email,
                             new Guid(person.AzureOid),
                             participant.SortKey));
-                        participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
+                        meetingParticipants = InvitationHelper.AddPersonToOutlookParticipantList(person, meetingParticipants);
                     }
                 }
             }
 
-            return participants;
+            return meetingParticipants;
         }
 
         private async Task<List<BuilderParticipant>> AddSigner(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             IInvitedPersonForCommand invitedSigner,
             int sortKey,
             Organization organization)
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     person.Email,
                     new Guid(person.AzureOid),
                     sortKey));
-                participants = InvitationHelper.AddPersonToOutlookParticipantList(person, participants);
+                meetingParticipants = InvitationHelper.AddPersonToOutlookParticipantList(person, meetingParticipants);
             }
             else
             {
@@ -280,12 +280,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"Person does not have required privileges to be the {organization} participant.");
             }
 
-            return participants;
+            return meetingParticipants;
         }
 
         private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> personsParticipantsWithEmail)
         {
             foreach (var participant in personsParticipantsWithEmail)
@@ -303,16 +303,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participant.InvitedPerson.Email,
                     null,
                     participant.SortKey));
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
                     new ParticipantIdentifier(participant.InvitedPerson.Email)));
             }
 
-            return participants;
+            return meetingParticipants;
         }
 
         private List<BuilderParticipant> AddExternalParticipant(
             Invitation invitation,
-            List<BuilderParticipant> participants,
+            List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> participantsWithExternalEmail)
         {
             foreach (var participant in participantsWithExternalEmail)
@@ -328,11 +328,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     participant.InvitedExternalEmail.Email,
                     null,
                     participant.SortKey));
-                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
                     new ParticipantIdentifier(participant.InvitedExternalEmail.Email)));
             }
 
-            return participants;
+            return meetingParticipants;
         }
 
         private async Task<List<CommPkg>> GetCommPkgsToAddAsync(IList<string> commPkgScope, string projectName)
@@ -394,12 +394,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task<Guid> CreateOutlookMeeting(
             CreateInvitationCommand request,
-            IReadOnlyCollection<BuilderParticipant> participants,
+            IReadOnlyCollection<BuilderParticipant> meetingParticipants,
             Invitation invitation)
         {
-            foreach (var participant in participants)
+            foreach (var meetingParticipant in meetingParticipants)
             {
-                _logger.LogInformation($"Adding {participant.Person.AzureUniqueId} - {participant.Person.Mail} to invitation {invitation.Id}");
+                _logger.LogInformation($"Adding {meetingParticipant.Person.AzureUniqueId} - {meetingParticipant.Person.Mail} to invitation {invitation.Id}");
             }
 
             var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
@@ -412,7 +412,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
-                    .WithParticipants(participants)
+                    .WithParticipants(meetingParticipants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
                     .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
