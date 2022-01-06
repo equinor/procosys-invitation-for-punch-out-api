@@ -16,10 +16,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => BeAnExistingParticipant(command.ParticipantId, command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"Participant with this ID does not exist! Id={command.ParticipantId}")
+                    $"Participant with ID does not exist on invitation! Id={command.ParticipantId}")
                 .MustAsync((command, cancellationToken) => BeANonCanceledInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is canceled, and thus cannot be signed!")
