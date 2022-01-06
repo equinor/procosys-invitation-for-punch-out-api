@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -127,7 +128,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
-            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Id == participant.Person.Id);
+            var signerParticipant = signedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, signerParticipant.SignedBy.AzureOid.ToString());
             AssertRowVersionChange(editInvitationDto.RowVersion, newRowVersion);
@@ -153,7 +154,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCompleteId);
 
             var completingParticipant =
-                completedInvitation.Participants.Single(p => p.Person?.Id == completePunchOutDto.Participants.Single().Id);
+                completedInvitation.Participants.Single(p => p.Id == completePunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, completingParticipant.SignedBy.AzureOid.ToString());
@@ -183,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor);
 
             var unCompletingParticipant =
-                unCompletedInvitation.Participants.Single(p => p.Person?.Id == unCompleterParticipant.Person.Id);
+                unCompletedInvitation.Participants.Single(p => p.Id == unCompleterParticipant.Id);
             Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
             Assert.IsNull(unCompletedInvitation.CompletedBy);
             Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
@@ -212,7 +213,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToAcceptId);
 
             var acceptingParticipant =
-                acceptedInvitation.Participants.Single(p => p.Person?.Id == acceptPunchOutDto.Participants.Single().Id);
+                acceptedInvitation.Participants.Single(p => p.Id == acceptPunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, acceptingParticipant.SignedBy.AzureOid.ToString());
@@ -242,7 +243,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.ConstructionCompany);
 
             var unAcceptingParticipant =
-                unAcceptedInvitation.Participants.Single(p => p.Person?.Id == unAccepterParticipant.Person.Id);
+                unAcceptedInvitation.Participants.Single(p => p.Id == unAccepterParticipant.Id);
             Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
             Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
             Assert.IsNull(unAcceptingParticipant.SignedBy);
@@ -273,7 +274,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Single(p => p.Organization == Organization.Contractor);
 
             var participant =
-                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Id == completerParticipant.Person.Id);
+                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Id == completerParticipant.Id);
 
             Assert.AreEqual(updatedNote, participant.Note);
             Assert.AreEqual(false, participant.Attended);
@@ -312,6 +313,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(Description, invitation.Description);
             Assert.AreEqual(InvitationLocation, invitation.Location);
             Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
+            var originalParticipants = _participants;
+            AssertParticipants(invitation, originalParticipants);
         }
 
         [TestMethod]
@@ -355,7 +358,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new CreateParticipantsDto
                 {
                     Organization = Organization.External,
-                    ExternalEmail = new CreateExternalEmailForDto
+                    ExternalEmail = new CreateExternalEmailDto
                     {
                         Email = "knut@test.com"
                     },
@@ -402,7 +405,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new CreateParticipantsDto
                 {
                     Organization = Organization.External,
-                    ExternalEmail = new CreateExternalEmailForDto
+                    ExternalEmail = new CreateExternalEmailDto
                     {
                         Email = email1
                     },
@@ -410,15 +413,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 });
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
             Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
-            Assert.AreEqual(email1, editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email);
-
-            editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email = email2;
-
-            const string UpdatedTitle = "UpdatedInvitationTitle";
-            const string UpdatedDescription = "UpdatedInvitationDescription";
-
-            editInvitationDto.Title = UpdatedTitle;
-            editInvitationDto.Description = UpdatedDescription;
+            
+            var editParticipants = editInvitationDto.UpdatedParticipants.ElementAt(2);
+            Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
+            editParticipants.ExternalEmail.Email = email2;
 
             // Act
             await InvitationsControllerTestsHelper.EditInvitationAsync(
@@ -433,11 +431,80 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationId);
 
-            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
-            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
             Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
+            Assert.AreEqual(email2, updatedInvitation.Participants.ElementAt(2).ExternalEmail.ExternalEmail);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldUpdateParticipantOrganization()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            const string email1 = "knut1@test.com";
+            const string email2 = "knut2@test.com";
+            const Organization org1 = Organization.External;
+            const Organization org2 = Organization.TechnicalIntegrity;
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = org1,
+                    ExternalEmail = new CreateExternalEmailDto
+                    {
+                        Email = email1
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
             Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
-            Assert.AreEqual(email2, editInvitationDto.UpdatedParticipants.ElementAt(2).ExternalEmail.Email);
+            var editParticipants = editInvitationDto.UpdatedParticipants.ElementAt(2);
+            Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
+            Assert.AreEqual(org1, editParticipants.Organization);
+
+            editParticipants.Organization = org2;
+            editParticipants.ExternalEmail = null;
+            var editInvitedPersonDto = new EditInvitedPersonDto
+            {
+                AzureOid = Guid.NewGuid(),
+                Email = email2
+            };
+            editParticipants.Person = editInvitedPersonDto;
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                        TestFactory.PlantWithAccess,
+                        editInvitedPersonDto.AzureOid.ToString(),
+                        "IPO",
+                        new List<string> { "SIGN" }))
+                .Returns(Task.FromResult(new ProCoSysPerson
+                {
+                    AzureOid = editInvitedPersonDto.AzureOid.ToString(),
+                    Email = editInvitedPersonDto.Email,
+                    FirstName = "Ola",
+                    LastName = "Nordmann",
+                    UserName = "UserName"
+                }));
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
+            Assert.AreEqual(org2, updatedInvitation.Participants.ElementAt(2).Organization);
+            Assert.IsNull(updatedInvitation.Participants.ElementAt(2).ExternalEmail);
+            Assert.IsNotNull(updatedInvitation.Participants.ElementAt(2).Person);
+            Assert.AreEqual(email2, updatedInvitation.Participants.ElementAt(2).Person.Email);
         }
 
         [TestMethod]
@@ -452,7 +519,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             updatedParticipants.Add(new EditParticipantsDto
             {
                 Organization = Organization.External,
-                ExternalEmail = new EditExternalEmailForDto
+                ExternalEmail = new EditExternalEmailDto
                 {
                     Email = "knut@test.com"
                 },
@@ -656,6 +723,63 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
             AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
+        }
+
+        private void AssertParticipants(InvitationDto invitation, List<CreateParticipantsDto> originalParticipants)
+        {
+            Assert.IsNotNull(invitation.Participants);
+            Assert.AreEqual(_participants.Count(), invitation.Participants.Count());
+
+            var originalFunctionalRoleParticipants = originalParticipants.Where(p => p.FunctionalRole != null).ToList();
+            var functionalRoleParticipants = invitation.Participants.Where(p => p.FunctionalRole != null).ToList();
+            AssertFunctionalRoleParticipants(originalFunctionalRoleParticipants, functionalRoleParticipants);
+
+            var originalExternalEmailParticipants = originalParticipants.Where(p => p.ExternalEmail != null).ToList();
+            var ExternalEmailParticipants = invitation.Participants.Where(p => p.ExternalEmail != null).ToList();
+
+            AssertExternalEmailParticipants(originalExternalEmailParticipants, ExternalEmailParticipants);
+
+            var originalPersonParticipants = originalParticipants.Where(p => p.Person != null).ToList();
+            var PersonParticipants = invitation.Participants.Where(p => p.Person != null).ToList();
+
+            AssertPersonParticipants(originalPersonParticipants, PersonParticipants);
+        }
+
+        private void AssertPersonParticipants(
+            List<CreateParticipantsDto> originalPersonParticipants,
+            List<GetInvitation.ParticipantDto> personParticipants)
+        {
+            Assert.AreEqual(originalPersonParticipants.Count(), personParticipants.Count());
+            foreach (var originalPersonParticipant in originalPersonParticipants)
+            {
+                var personParticipant = personParticipants.SingleOrDefault(p => p.Person.AzureOid == originalPersonParticipant.Person.AzureOid);
+                Assert.IsNotNull(personParticipant);
+            }
+        }
+
+        private void AssertExternalEmailParticipants(
+            List<CreateParticipantsDto> originalExternalEmailParticipants,
+            List<GetInvitation.ParticipantDto> externalEmailParticipants)
+        {
+            Assert.AreEqual(originalExternalEmailParticipants.Count(), externalEmailParticipants.Count());
+            foreach (var originalExternalEmailParticipant in originalExternalEmailParticipants)
+            {
+                var externalEmailParticipant = externalEmailParticipants.SingleOrDefault(p => p.ExternalEmail.ExternalEmail == originalExternalEmailParticipant.ExternalEmail.Email);
+                Assert.IsNotNull(externalEmailParticipant);
+            }
+        }
+
+        private static void AssertFunctionalRoleParticipants(
+            List<CreateParticipantsDto> originalFunctionalRoleParticipants,
+            List<GetInvitation.ParticipantDto> functionalRoleParticipants)
+        {
+            Assert.AreEqual(originalFunctionalRoleParticipants.Count(), functionalRoleParticipants.Count());
+            foreach (var originalFunctionalRoleParticipant in originalFunctionalRoleParticipants)
+            {
+                var functionalRoleParticipant = functionalRoleParticipants.SingleOrDefault(p => p.FunctionalRole.Code == originalFunctionalRoleParticipant.FunctionalRole.Code);
+                Assert.IsNotNull(functionalRoleParticipant);
+                Assert.AreEqual(originalFunctionalRoleParticipant.FunctionalRole.Persons.Count(), functionalRoleParticipant.FunctionalRole.Persons.Count());
+            }
         }
     }
 }

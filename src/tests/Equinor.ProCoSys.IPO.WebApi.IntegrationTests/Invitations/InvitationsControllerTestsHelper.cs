@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
-using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations

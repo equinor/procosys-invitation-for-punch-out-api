@@ -6,8 +6,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitat
     {
         public Organization Organization { get; set; }
         public int SortKey { get; set; }
-        public CreateExternalEmailForDto ExternalEmail { get; set; }
+        public CreateExternalEmailDto ExternalEmail { get; set; }
         public CreateInvitedPersonDto Person { get; set; }
-        public CreateFunctionalRoleForDto FunctionalRole { get; set; }
+        public CreateFunctionalRoleDto FunctionalRole { get; set; }
     }
 }
