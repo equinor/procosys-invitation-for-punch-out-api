@@ -11,6 +11,5 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.GetInvitation
         public string UserName { get; set; }
         public Guid AzureOid { get; set; }
         public string Email { get; set; }
-        public bool Required { get; set; }
     }
 }

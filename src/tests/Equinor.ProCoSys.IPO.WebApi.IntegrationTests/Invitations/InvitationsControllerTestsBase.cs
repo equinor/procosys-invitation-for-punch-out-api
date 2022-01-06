@@ -557,7 +557,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         Id = p.Id,
                         AzureOid = p.Person.AzureOid,
                         Email = p.Person.Email,
-                        Required = p.Person.Required,
                         RowVersion = p.RowVersion
                     } : null,
                     SortKey = p.SortKey

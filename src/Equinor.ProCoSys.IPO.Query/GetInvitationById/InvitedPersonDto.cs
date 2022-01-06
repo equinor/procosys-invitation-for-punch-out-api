@@ -29,6 +29,5 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public string UserName { get; }
         public Guid AzureOid { get; }
         public string Email { get; }
-        public bool Required { get; set; }
     }
 }
