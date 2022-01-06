@@ -13,6 +13,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut
         {
             CascadeMode = CascadeMode.Stop;
 
+            // Todo Validators for unsign, sign, accept, unaccept, complete and uncomplete should all have a new rule checking if participant has signed or not
+            // nothing prevent to sign or unsign twice in a row for same participant as it is now
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
