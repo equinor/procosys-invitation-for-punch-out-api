@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -162,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToSignAndUnsignId);
 
-            var signerParticipant = unsignedInvitation.Participants.Single(p => p.Person?.Id == participant.Person.Id);
+            var signerParticipant = unsignedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
             Assert.IsNull(signerParticipant.SignedAtUtc);
             Assert.IsNull(signerParticipant.SignedBy);
             AssertRowVersionChange(currentRowVersion, newRowVersion);
