@@ -135,6 +135,41 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldUnsignPunchOut()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    currentRowVersion);
+
+            // Assert
+            var unsignedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToSignAndUnsignId);
+
+            var signerParticipant = unsignedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
+            Assert.IsNull(signerParticipant.SignedAtUtc);
+            Assert.IsNull(signerParticipant.SignedBy);
+            AssertRowVersionChange(currentRowVersion, newRowVersion);
+        }
+
+        [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldCompletePunchOut()
         {
             // Arrange

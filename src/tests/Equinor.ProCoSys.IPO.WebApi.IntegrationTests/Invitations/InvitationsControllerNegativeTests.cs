@@ -467,7 +467,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
-        public async Task SignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        public async Task SignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
         {
             // Arrange
             var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
@@ -478,6 +478,133 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
+                    participant.Person.Id,
+                    TestFactory.WrongButValidRowVersion,
+                    HttpStatusCode.Conflict);
+        }
+        #endregion
+
+        #region Unsign
+        [TestMethod]
+        public async Task UnsignPunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Signer,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           38934,
+                           participant.Person.Id,
+                           currentRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToSignAndUnsignId,
+                           38934,
+                           currentRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
                     participant.Person.Id,
                     TestFactory.WrongButValidRowVersion,
                     HttpStatusCode.Conflict);
