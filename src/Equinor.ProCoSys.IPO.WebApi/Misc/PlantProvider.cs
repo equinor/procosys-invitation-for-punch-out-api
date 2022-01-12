@@ -11,9 +11,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
 
         public string Plant { get; private set; }
 
-        public bool IsOptimisticConcurrenyEnabled_HACK
-            => _configuration.GetValue("IsOptimisticConcurrenyEnabled", false);
-
         public void SetPlant(string plant) => Plant = plant;
     }
 }
