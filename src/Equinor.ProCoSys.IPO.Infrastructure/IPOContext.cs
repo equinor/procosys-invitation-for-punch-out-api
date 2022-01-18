@@ -96,10 +96,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         private void UpdateConcurrencyToken()
         {
-            if (!_plantProvider.IsOptimisticConcurrenyEnabled_HACK)
-            {
-                return;
-            }
             var modifiedEntries = ChangeTracker
                 .Entries<EntityBase>()
                 .Where(x => x.State == EntityState.Modified || x.State == EntityState.Deleted);
