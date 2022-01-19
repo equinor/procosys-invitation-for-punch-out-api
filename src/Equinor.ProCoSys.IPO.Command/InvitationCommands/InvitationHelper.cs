@@ -16,6 +16,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant) 
             => participant.Organization != Organization.External && participant.Organization != Organization.Supplier;
 
+        public static List<BuilderParticipant> SplitAndCreateOutlookParticipantsFromEmailList(
+            string emails)
+        {
+            var participants = new List<BuilderParticipant>();
+            var splitEmails = emails.Split(";");
+            foreach (var email in splitEmails)
+            {
+                participants.Add(new BuilderParticipant(ParticipantType.Required,
+                    new ParticipantIdentifier(email)));
+            }
+            return participants;
+        }
+
         public static List<BuilderParticipant> AddPersonToOutlookParticipantList(
             ProCoSysPerson person,
             List<BuilderParticipant> participants,

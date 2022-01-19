@@ -269,22 +269,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     
                     if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
-
-                        var emails = fr.Email.Split(";");
-                        foreach (var email in emails)
-                        {
-                            participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                new ParticipantIdentifier(email)));
-                        }
+                        participants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.Email));
                     }
                     if (fr.InformationEmail != null)
                     {
-                        var informationEmails = fr.InformationEmail.Split(";");
-                        foreach (var informationEmail in informationEmails)
-                        {
-                            participants.Add(new BuilderParticipant(ParticipantType.Required,
-                                new ParticipantIdentifier(informationEmail)));
-                        }
+                        participants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.InformationEmail));
                     }
                     foreach (var person in participant.FunctionalRole.Persons)
                     {
