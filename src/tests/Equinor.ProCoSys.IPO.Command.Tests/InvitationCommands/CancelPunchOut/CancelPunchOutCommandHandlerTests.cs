@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Fusion.Integration.Meeting;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -23,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<ILogger<CancelPunchOutCommandHandler>> _loggerMock;
 
         private CancelPunchOutCommand _command;
         private CancelPunchOutCommandHandler _dut;
@@ -49,6 +51,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+            _loggerMock = new Mock<ILogger<CancelPunchOutCommandHandler>>();
+
 
             var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
             _personRepositoryMock = new Mock<IPersonRepository>();
@@ -97,7 +102,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 _personRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _fusionMeetingClient.Object,
-                _currentUserProviderMock.Object);
+                _currentUserProviderMock.Object,
+                _loggerMock.Object
+                );
         }
 
         [TestMethod]

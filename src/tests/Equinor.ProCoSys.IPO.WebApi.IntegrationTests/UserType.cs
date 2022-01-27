@@ -6,6 +6,7 @@
         Signer,
         Planner,
         Viewer,
-        Hacker
+        Hacker,
+        Contractor
     }
 }

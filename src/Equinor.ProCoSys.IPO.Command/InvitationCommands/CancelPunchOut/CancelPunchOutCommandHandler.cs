@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
@@ -17,19 +18,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly ILogger<CancelPunchOutCommandHandler> _logger;
 
         public CancelPunchOutCommandHandler(
             IInvitationRepository invitationRepository,
             IPersonRepository personRepository,
             IUnitOfWork unitOfWork,
             IFusionMeetingClient meetingClient,
-            ICurrentUserProvider currentUserProvider)
+            ICurrentUserProvider currentUserProvider,
+            ILogger<CancelPunchOutCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
             _personRepository = personRepository;
             _unitOfWork = unitOfWork;
             _meetingClient = meetingClient;
             _currentUserProvider = currentUserProvider;
+            _logger = logger;
         }
 
         public async Task<Result<string>> Handle(CancelPunchOutCommand request, CancellationToken cancellationToken)
@@ -51,9 +55,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             {
                 await _meetingClient.DeleteMeetingAsync(meetingId);
             }
-            catch (Exception e)
+            catch (MeetingApiException e)
             {
-                throw new Exception("Error: Could not cancel outlook meeting.", e);
+                if (e.Code.ToString().ToUpperInvariant() == "FORBIDDEN")
+                {
+                    _logger.LogError(e, $"Unable to cancel outlook meeting for IPO.");
+                    return;
+                }
+                else
+                {
+                    throw e;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

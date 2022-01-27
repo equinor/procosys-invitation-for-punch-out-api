@@ -36,6 +36,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         private ProCoSysMcPkg _mcPkgDetails2;
 
         protected TestProfile _sigurdSigner;
+        protected TestProfile _contractor;
         protected TestProfile _pernillaPlanner;
 
         [TestInitialize]
@@ -69,6 +70,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             
             _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
             _pernillaPlanner = TestFactory.Instance.GetTestUserForUserType(UserType.Planner).Profile;
+            _contractor = TestFactory.Instance.GetTestUserForUserType(UserType.Contractor).Profile;
 
             _participants = new List<CreateParticipantsDto>
             {
@@ -236,6 +238,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     "IPO",
                     It.IsAny<List<string>>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _contractor.Oid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
 
             TestFactory.Instance
                 .PersonApiServiceMock

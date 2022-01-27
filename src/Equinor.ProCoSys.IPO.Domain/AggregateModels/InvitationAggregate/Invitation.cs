@@ -388,11 +388,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentNullException(nameof(caller));
             }
 
-            if (caller.Id != CreatedById)
-            {
-                throw new InvalidOperationException("Only the creator can cancel an invitation");
-            }
-
             if (Status == IpoStatus.Canceled)
             {
                 throw new Exception($"{nameof(Invitation)} {Id} is already canceled");

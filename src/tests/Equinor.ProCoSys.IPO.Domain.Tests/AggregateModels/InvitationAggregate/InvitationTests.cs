@@ -1179,36 +1179,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void CancelIpo_CallerIsNotCreator_ThrowsException()
-        {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
-            var caller = new Person(new Guid("99999999-9999-9999-9999-999999999999"), "Another", "Person", "ap", "ap@pcs.pcs");
-
-            // Set caller ID to a different ID than the creator
-            caller
-                .GetType()
-                .GetProperty(nameof(Person.Id))
-                ?.SetValue(caller, 1, null);
-
-            var dut = new Invitation(
-                TestPlant,
-                ProjectName,
-                Title,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                null,
-                new List<CommPkg> {_commPkg1});
-
-            dut.SetCreated(creator);
-
-            Assert.ThrowsException<InvalidOperationException>(() => dut.CancelIpo(caller));
-        }
-
-        [TestMethod]
         public void CancelIpo_CallerIsNull_ThrowsException()
         {
             var dut = new Invitation(

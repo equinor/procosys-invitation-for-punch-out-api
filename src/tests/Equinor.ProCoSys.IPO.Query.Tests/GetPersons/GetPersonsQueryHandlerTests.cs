@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersons
     [TestClass]
     public class GetPersonsQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IPersonApiService> _personApiServiceMock;
+        
         private IList<ProCoSysPerson> _mainApiPersons;
         private GetPersonsQuery _query;
 

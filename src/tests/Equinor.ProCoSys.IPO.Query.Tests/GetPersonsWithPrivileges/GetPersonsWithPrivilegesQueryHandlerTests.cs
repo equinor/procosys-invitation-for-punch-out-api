@@ -17,7 +17,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
     [TestClass]
     public class GetPersonsWithPrivilegesQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Mock<IPersonApiService> _personApiServiceMock;
         private IList<ProCoSysPerson> _mainApiContractorPersons;
         private IList<ProCoSysPerson> _mainApiConstructionPersons;
         private GetPersonsWithPrivilegesQuery _query;
