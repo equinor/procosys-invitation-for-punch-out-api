@@ -40,6 +40,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPersonRepository> _personRepositoryMock;
 
         private const string _functionalRoleCode = "FR1";
+        private const string _functionalRoleWithMultipleEmailsCode = "FR2";
+        private const string _functionalRoleWithMultipleInformationEmailsCode = "FR3";
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _commPkgNo = "Comm1";
@@ -67,6 +69,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
         private ProCoSysPerson _personDetails;
         private ProCoSysFunctionalRole _functionalRoleDetails;
+        private ProCoSysFunctionalRole _functionalRoleWithMultipleEmailsDetails;
+        private ProCoSysFunctionalRole _functionalRoleWithMultipleInformationEmailsDetails;
 
         private readonly string _projectName = "Project name";
         private readonly string _title = "Test title";
@@ -171,12 +175,39 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 Persons = null,
                 UsePersonalEmail = false
             };
-            IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole>{ _functionalRoleDetails };
+            _functionalRoleWithMultipleEmailsDetails = new ProCoSysFunctionalRole
+            {
+                Code = _functionalRoleWithMultipleEmailsCode,
+                Description = "FR description",
+                Email = "fr@email.com;fr2@email.com",
+                InformationEmail = null,
+                Persons = null,
+                UsePersonalEmail = false
+            };
+            _functionalRoleWithMultipleInformationEmailsDetails = new ProCoSysFunctionalRole
+            {
+                Code = _functionalRoleWithMultipleInformationEmailsCode,
+                Description = "FR description",
+                Email = "fr@email.com",
+                InformationEmail = "ie@email.com;ie2@email.com",
+                Persons = null,
+                UsePersonalEmail = false
+            };
+
+            IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { _functionalRoleDetails };
+            IList<ProCoSysFunctionalRole> frMultipleEmailsDetails = new List<ProCoSysFunctionalRole> { _functionalRoleWithMultipleEmailsDetails };
+            IList<ProCoSysFunctionalRole> frMultipleInformationDetails = new List<ProCoSysFunctionalRole> { _functionalRoleWithMultipleInformationEmailsDetails };
 
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
                 .Returns(Task.FromResult(frDetails));
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleEmailsCode }))
+                .Returns(Task.FromResult(frMultipleEmailsDetails));
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleInformationEmailsCode }))
+                .Returns(Task.FromResult(frMultipleInformationDetails));
 
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
 
@@ -407,5 +438,92 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInEmailField()
+        {
+            // Setup
+            var participants = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new FunctionalRoleForCommand(_functionalRoleWithMultipleEmailsCode, null),
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    null,
+                    1)
+            };
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                participants,
+                _mcPkgScope,
+                null);
+
+            await _dut.Handle(command, default);
+
+            // Assert
+            Assert.IsNotNull(_createdInvitation);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            var invitationParticipants = _createdInvitation.Participants.Select(p => p).ToList();
+            Assert.AreEqual(invitationParticipants.Count, 2);
+            Assert.AreEqual(invitationParticipants[0].FunctionalRoleCode, _functionalRoleWithMultipleEmailsCode);
+            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInInformationEmailField()
+        {
+            // Setup
+            var participants = new List<ParticipantsForCommand>
+            {
+                new ParticipantsForCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new FunctionalRoleForCommand(_functionalRoleWithMultipleInformationEmailsCode, null),
+                    0),
+                new ParticipantsForCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    null,
+                    1)
+            };
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                participants,
+                _mcPkgScope,
+                null);
+
+            await _dut.Handle(command, default);
+
+            // Assert
+            Assert.IsNotNull(_createdInvitation);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            var invitationParticipants = _createdInvitation.Participants.Select(p => p).ToList();
+            Assert.AreEqual(invitationParticipants.Count, 2);
+            Assert.AreEqual(invitationParticipants[0].FunctionalRoleCode, _functionalRoleWithMultipleInformationEmailsCode);
+            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
     }
 }
