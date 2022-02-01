@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
@@ -70,11 +71,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             }
             catch (NotAuthorizedError e)
             {
-                _logger.LogWarning("Fusion meeting not authorized. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
+                _logger.LogWarning(e, $"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
             }
             catch (Exception e)
             {
-                _logger.LogError("Fusion meeting error. MeetingId={MeetingId}. ({@Exception})", invitation.MeetingId, e);
+                _logger.LogError(e, $"Fusion meeting error. MeetingId={invitation.MeetingId}.");
             }
 
             var invitationDto = ConvertToInvitationDto(invitation, meeting);
@@ -120,9 +121,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     OutlookResponse? participantPersonResponse = null;
                     if (meeting != null)
                     {
-                        participantPersonResponse = participant.Person.Person.AzureOid == meeting.Organizer.Id
+                        participantPersonResponse = participant.Person.AzureOid == meeting.Organizer.Id
                             ? OutlookResponse.Organizer
-                            : GetOutlookResponseByEmailAsync(meeting, participant.Person?.Person?.Email);
+                            : GetOutlookResponseByEmailAsync(meeting, participant.Person.Email);
                     }
 
                     participant.Person.Response = participantPersonResponse;
@@ -141,12 +142,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                     foreach (var personInFunctionalRole in participant.FunctionalRole.Persons)
                     {
                         var participantType = meeting != null
-                            ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Person.Email)
+                            ? GetParticipantTypeByEmail(meeting, personInFunctionalRole.Email)
                             : null;
                         personInFunctionalRole.Required = participantType.Equals(ParticipantType.Required);
 
                         var functionalRolePersonResponse = meeting != null
-                            ? GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Person.Email)
+                            ? GetOutlookResponseByEmailAsync(meeting, personInFunctionalRole.Email)
                             : null;
                         personInFunctionalRole.Response = functionalRolePersonResponse;
                     }
@@ -175,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             => string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))
             ?.OutlookResponse;
 
-        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<InvitedPersonDto> persons, OutlookResponse? frResponse)
+        private static OutlookResponse? GetOutlookResponseForFunctionalRole(IList<FunctionalRolePersonDto> persons, OutlookResponse? frResponse)
         {
             if (frResponse == OutlookResponse.Accepted || persons.Any(p => p.Response == OutlookResponse.Accepted))
             {
@@ -213,6 +214,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                                     && p.Type == IpoParticipantType.Person);
 
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
@@ -222,11 +224,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
                         null,
                         null,
-                        ConvertToFunctionalRoleDto(participant, personsInFunctionalRole)));
+                        ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
+                        participant.RowVersion.ConvertToString()));
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
@@ -236,11 +240,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
                         null,
                         ConvertToInvitedPersonDto(participant), 
-                        null));
+                        null,
+                        participant.RowVersion.ConvertToString()));
                 }
                 else if (participant.Organization == Organization.External)
                 {
                     participantDtos.Add(new ParticipantDto(
+                        participant.Id,
                         participant.Organization,
                         participant.SortKey,
                         participant.SignedBy != null ? ConvertToPersonDto(participant.SignedBy).Result : null,
@@ -248,10 +254,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.Note,
                         participant.Attended,
                         false,
-                        new ExternalEmailDto(participant.Id, participant.Email,
-                            participant.RowVersion.ConvertToString()),
+                        new ExternalEmailDto(participant.Id, participant.Email),
                         null,
-                        null));
+                        null,
+                        participant.RowVersion.ConvertToString()));
                 }
             }
 
@@ -260,21 +266,36 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
         private static bool ParticipantIsNotInFunctionalRole(Participant participant) => string.IsNullOrWhiteSpace(participant.FunctionalRoleCode);
 
-        private static FunctionalRoleDto ConvertToFunctionalRoleDto(Participant participant, IEnumerable<Participant> personsInFunctionalRole)
-            => new FunctionalRoleDto(participant.FunctionalRoleCode, participant.Email, ConvertToInvitedPersonDto(personsInFunctionalRole), participant.RowVersion.ConvertToString()) {Id = participant.Id};
+        private static FunctionalRoleDto ConvertToFunctionalRoleDto(
+            Participant participant,
+            IEnumerable<Participant> personsInFunctionalRole)
+            => new FunctionalRoleDto(
+                participant.FunctionalRoleCode,
+                participant.Email,
+                ConvertToInvitedPersonDto(personsInFunctionalRole)) 
+                {
+                    Id = participant.Id
+                };
 
         private static InvitedPersonDto ConvertToInvitedPersonDto(Participant participant)
-            => new InvitedPersonDto(new PersonDto(
-                participant.Id,
+            => new InvitedPersonDto(participant.Id,
+                participant.FirstName,
+                participant.LastName,
+                participant.UserName,
+                participant.AzureOid ?? Guid.Empty,
+                participant.Email);
+
+        private static FunctionalRolePersonDto ConvertToFunctionalRolePersonDto(Participant participant)
+            => new FunctionalRolePersonDto(participant.Id,
                 participant.FirstName,
                 participant.LastName,
                 participant.UserName,
                 participant.AzureOid ?? Guid.Empty,
                 participant.Email,
-                participant.RowVersion.ConvertToString())); 
+                participant.RowVersion.ConvertToString());
 
-        private static IEnumerable<InvitedPersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
-            => personsInFunctionalRole.Select(ConvertToInvitedPersonDto).ToList();
+        private static IEnumerable<FunctionalRolePersonDto> ConvertToInvitedPersonDto(IEnumerable<Participant> personsInFunctionalRole) 
+            => personsInFunctionalRole.Select(ConvertToFunctionalRolePersonDto).ToList();
 
         private bool IsSigningParticipant(Participant participant) 
             => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;
@@ -298,21 +319,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 .Select(p => new PersonDto(p.Id, p.FirstName, p.LastName, p.UserName, p.Oid, p.Email, p.RowVersion.ConvertToString()))
                 .SingleAsync();
 
-        private void LogFusionMeeting(GeneralMeeting meeting) //This is temporary in the start phase of IPO, to make debugging easier.
+        private void LogFusionMeeting(GeneralMeeting meeting)
         {
-            var meetingDetails = new Dictionary<string, string>
-            {
-                {"Meeting ID", meeting.Id.ToString()},
-                {"Classification", meeting.Classification.ToString()}
-            };
-            var personsString = "Person, Guid, Name, Email, OutlookResponse, Type, IsOrganizer, IsResponsible";
+            var message = new StringBuilder();
+            message.AppendLine($"Meeting ID: {meeting.Id}");
+            message.AppendLine($"Meeting Classification: {meeting.Classification}");
             foreach (var p in meeting.Participants)
             {
-                personsString +=
-                    $" /n {p.Person}, {p.Person.Id?.ToString()}, {p.Person?.Name}, {p.Person?.Mail}, {p.OutlookResponse}, {p.Type}, {p.Organizer}, {p.Responsible}";
+                message.AppendLine($" Guid:({p.Person.Id?.ToString()}), Name:({p.Person?.Name}), Email:({p.Person?.Mail}), OutlookResponse:({p.OutlookResponse}), Type:({p.Type}), IsOrganizer:({p.Organizer}), IsResponsible:({p.Responsible})");
             }
 
-            _logger.LogInformation("Fusion meeting ({@MeetingDetails}). ({@Persons})", meetingDetails, personsString);
+            _logger.LogInformation(message.ToString());
         }
     }
 }

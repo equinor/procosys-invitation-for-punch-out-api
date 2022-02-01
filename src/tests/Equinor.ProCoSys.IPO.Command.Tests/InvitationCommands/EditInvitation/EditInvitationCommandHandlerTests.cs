@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private EditInvitationCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _rowVersion = "AAAAAAAAABA=";
-        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -70,34 +70,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _commPkgNo2 = "Comm2";
         private const string _system = "1|2";
         private const string _system2 = "2|2";
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOid, "ola@test.com", true),
-                null,
-                1)
-        };
 
-        private readonly List<ParticipantsForCommand> _updatedParticipants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForEditCommand> _updatedParticipants = new List<ParticipantsForEditCommand>
         {
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                new InvitedFunctionalRoleForEditCommand(_participantId, _newFunctionalRoleCode, null, _participantRowVersion),
                 0),
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_newAzureOid, "kari@test.com", true),
+                new InvitedPersonForEditCommand(null, _newAzureOid, "kari@test.com", true, null),
                 null,
                 1)
         };
@@ -293,9 +278,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var participant = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
@@ -306,14 +291,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _dpInvitation.AddParticipant(participant);
             _dpInvitation.AddParticipant(new Participant(
                 _plant,
-                _participants[1].Organization,
+                Organization.ConstructionCompany,
                 IpoParticipantType.Person,
                 null,
                 _firstName,
                 _lastName,
                 null,
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
+                "ola@test.com",
+                _azureOid,
                 1));
             _dpInvitation.SetProtectedIdForTesting(_dpInvitationId);
 
@@ -697,6 +682,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_newAzureOid, _dpInvitation.Participants.ToList()[1].AzureOid);
             Assert.AreEqual(_newFunctionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
+
+        // todo add test to assert adding new participants
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldSetAndReturnRowVersion()

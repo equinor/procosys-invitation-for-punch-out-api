@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
@@ -401,6 +402,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new SignPunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region UnSignInvitationCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnUnSignInvitationCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new UnSignPunchOutCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnUnSignInvitationCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new UnSignPunchOutCommand(
                 _invitationIdWithoutAccessToProject,
                 0,
                 null);

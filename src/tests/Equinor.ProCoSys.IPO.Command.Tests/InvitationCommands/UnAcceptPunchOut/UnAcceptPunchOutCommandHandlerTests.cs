@@ -39,22 +39,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private Invitation _invitation;
         private const int _participantId = 20;
 
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOidForCurrentUser, "ola@test.com", true),
-                null,
-                1)
-        };
-
         [TestInitialize]
         public void Setup()
         {
@@ -82,11 +66,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                     new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
                    null)
                 { MeetingId = _meetingId };
+
             var participant1 = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
@@ -96,14 +81,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _invitation.AddParticipant(participant1);
             var participant2 = new Participant(
                 _plant,
-                _participants[1].Organization,
+                Organization.ConstructionCompany,
                 IpoParticipantType.Person,
                 null,
                 _firstName,
                 _lastName,
                 "OlaN",
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
+                "ola@test.com",
+                _azureOidForCurrentUser,
                 1);
             participant2.SetProtectedIdForTesting(_participantId);
             _invitation.AddParticipant(participant2);

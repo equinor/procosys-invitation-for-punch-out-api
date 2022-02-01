@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.Unauthorized);
 
@@ -23,8 +24,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -34,8 +35,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                "title",
-                "criteria",
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 true,
                 HttpStatusCode.Forbidden);
         #endregion
@@ -70,52 +71,75 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         #region UpdateSavedFilter
         [TestMethod]
         public async Task UpdateSavedFilter_AsAnonymous_ShouldReturnUnauthorized()
-            => await PersonsControllerTestsHelper.UpdateSavedFilter(
+            => await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await PersonsControllerTestsHelper.UpdateSavedFilter(
+            => await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsViewer_ShouldReturnBadRequest_WhenUnknownId() =>
-            await PersonsControllerTestsHelper.UpdateSavedFilter(
+            await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                "new title",
-                "new criteria",
+                9876,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
                 false,
-                "cm93VmVyc2lvbg==",
-                9999,
-                HttpStatusCode.BadRequest);
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "Saved filter with this ID does not exist!");
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await PersonsControllerTestsHelper.UpdateSavedFilter(
+            => await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                "new title",
-                "new criteria",
-                false,
-                "cm93VmVyc2lvbg==",
                 1,
+                 Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+               false,
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UpdateSavedFilter_AsViewer_ShouldReturnConflict_WhenWrongRowVersion()
+        {
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                true);
+
+            // Act
+            await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                false,
+                TestFactory.WrongButValidRowVersion,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region DeleteSavedFilter
@@ -125,7 +149,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -134,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -144,8 +168,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 1,
-                "AAAAAAAAABA=",
+                TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task DeleteSavedFilter_AsViewer_ShouldReturnConflict_WhenWrongRowVersion()
+        {
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                true);
+
+            // Act
+            await PersonsControllerTestsHelper.DeleteSavedFilterAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id,
+                TestFactory.WrongButValidRowVersion,
+                HttpStatusCode.Conflict);
+        }
         #endregion
     }
 }

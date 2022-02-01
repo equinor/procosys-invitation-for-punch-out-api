@@ -4,10 +4,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
-using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -114,7 +112,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return JsonConvert.DeserializeObject<List<InvitationForMainDto>>(content);
         }
 
-        public static async Task<List<CommPkgsWithMdpIposDto>> GetLatestMdpIpoOnCommPkgsAsync(
+        public static async Task<List<CommPkgWithMdpIposDto>> GetLatestMdpIpoOnCommPkgsAsync(
             UserType userType,
             string plant,
             IList<string> commPkgNos,
@@ -138,7 +136,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<CommPkgsWithMdpIposDto>>(content);
+            return JsonConvert.DeserializeObject<List<CommPkgWithMdpIposDto>>(content);
         }
 
         public static async Task<List<AttachmentDto>> GetAttachmentsAsync(
@@ -220,6 +218,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}/Sign", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public static async Task<string> UnsignPunchOutAsync(
+            UserType userType,
+            string plant,
+            int id,
+            int participantId,
+            string participantRowVersion,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                participantId,
+                participantRowVersion
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}/Unsign", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -374,7 +401,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             DisciplineType type,
             System.DateTime startTime,
             System.DateTime endTime,
-            IList<ParticipantsForCommand> participants,
+            IList<CreateParticipantsDto> participants,
             IEnumerable<string> mcPkgScope,
             IEnumerable<string> commPkgScope,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -413,7 +440,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             UserType userType, 
             string plant,
             int id,
-            EditInvitationDto dto,
+            EditInvitation.EditInvitedInvitationDto dto,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {

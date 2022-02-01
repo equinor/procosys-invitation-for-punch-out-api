@@ -45,7 +45,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
         {
             if (_environment.IsDevelopment() || _environment.IsTest())
             {
-                if (Configuration.GetValue<bool>("MigrateDatabase"))
+                var migrateDatabase = Configuration.GetValue<bool>("MigrateDatabase");
+                if (migrateDatabase)
                 {
                     services.AddHostedService<DatabaseMigrator>();
                 }
@@ -83,6 +84,11 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
             }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+            if (Configuration.GetValue<bool>("UseAzureAppConfiguration"))
+            {
+                services.AddAzureAppConfiguration();
+            }
 
             services.AddControllers()
                 .AddFluentValidation(fv =>
@@ -163,7 +169,10 @@ namespace Equinor.ProCoSys.IPO.WebApi
             services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
-            if (Configuration.GetValue<bool>("ServiceBus:Enable"))
+
+            var serviceBusEnabled = Configuration.GetValue<bool>("ServiceBus:Enable") &&
+                (!_environment.IsDevelopment() || Configuration.GetValue<bool>("ServiceBus:EnableInDevelopment"));
+            if (serviceBusEnabled)
             {
                 // Env variable used in kubernetes. Configuration is added for easier use locally
                 // Url will be validated during startup of service bus intergration and give a
@@ -177,7 +186,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Ipo, "ipo_ipo")
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
-                    .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg"));
+                    .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg")
+                    .WithSubscription(PcsTopic.Library, "ipo_library"));
                 
                 services.AddTopicClients(
                     Configuration.GetConnectionString("ServiceBus"),
@@ -192,6 +202,11 @@ namespace Equinor.ProCoSys.IPO.WebApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            if (Configuration.GetValue<bool>("UseAzureAppConfiguration"))
+            {
+                app.UseAzureAppConfiguration();
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

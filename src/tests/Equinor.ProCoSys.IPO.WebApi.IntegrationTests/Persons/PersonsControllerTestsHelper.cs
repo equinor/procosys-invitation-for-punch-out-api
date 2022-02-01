@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Persons;
 using Newtonsoft.Json;
 
@@ -66,14 +65,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             return JsonConvert.DeserializeObject<List<SavedFilterDto>>(jsonString);
         }
 
-        public static async Task<string> UpdateSavedFilter(
+        public static async Task<string> UpdateSavedFilterAsync(
             UserType userType,
             string plant,
+            int savedFilterId,
             string newTitle,
             string newCriteria,
             bool defaultFilter,
             string rowVersion,
-            int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
@@ -85,10 +84,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 RowVersion = rowVersion
             };
 
-
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
-            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{id}", content);
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/SavedFilters/{savedFilterId}", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 

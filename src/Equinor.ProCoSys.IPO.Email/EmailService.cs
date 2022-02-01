@@ -16,10 +16,10 @@ namespace Equinor.ProCoSys.IPO.Email
         private readonly SmtpClient _client;
         private readonly ILogger _logger;
 
-        public EmailService(IOptions<EmailOptions> emailOptions, ILogger<EmailService> logger)
+        public EmailService(IOptionsMonitor<EmailOptions> emailOptions, ILogger<EmailService> logger)
         {
             _logger = logger;
-            _emailOptions = emailOptions.Value;
+            _emailOptions = emailOptions.CurrentValue;
 
             if (_emailOptions.Enabled)
             {

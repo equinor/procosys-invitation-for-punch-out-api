@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -52,44 +53,44 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         private bool IsValidExternalParticipant(ParticipantsForCommand participant)
         { 
-            var isValidEmail = new EmailAddressAttribute().IsValid(participant.ExternalEmail.Email);
-            return isValidEmail && participant.Person == null && participant.FunctionalRole == null;
+            var isValidEmail = new EmailAddressAttribute().IsValid(participant.InvitedExternalEmail.Email);
+            return isValidEmail && participant.InvitedPerson == null && participant.InvitedFunctionalRole == null;
         }
 
-        private bool IsValidPerson(PersonForCommand person)
+        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson)
         {
-            if (person.Email == null && (person.AzureOid == Guid.Empty || person.AzureOid == null))
+            if (invitedPerson.Email == null && (invitedPerson.AzureOid == Guid.Empty || invitedPerson.AzureOid == null))
             {
                 return false;
             }
 
-            return person.AzureOid != Guid.Empty && person.AzureOid != null || 
-                   new EmailAddressAttribute().IsValid(person.Email);
+            return invitedPerson.AzureOid != Guid.Empty && invitedPerson.AzureOid != null || 
+                   new EmailAddressAttribute().IsValid(invitedPerson.Email);
         }
 
         private bool IsValidPersonParticipant(ParticipantsForCommand participant) 
-            => IsValidPerson(participant.Person) && participant.ExternalEmail == null && participant.FunctionalRole == null;
+            => IsValidPerson(participant.InvitedPerson) && participant.InvitedExternalEmail == null && participant.InvitedFunctionalRole == null;
 
         private bool IsValidFunctionalRoleParticipant(ParticipantsForCommand participant)
         {
-            if (string.IsNullOrEmpty(participant.FunctionalRole.Code))
+            if (string.IsNullOrEmpty(participant.InvitedFunctionalRole.Code))
             {
                 return false;
             }
 
-            if (participant.FunctionalRole.Persons.Any(person => !IsValidPerson(person)))
+            if (participant.InvitedFunctionalRole.InvitedPersons.Any(person => !IsValidPerson(person)))
             {
                 return false;
             }
 
-            return participant.Person == null && participant.ExternalEmail == null;
+            return participant.InvitedPerson == null && participant.InvitedExternalEmail == null;
         }
 
         public bool IsValidParticipantList(IList<ParticipantsForCommand> participants)
         {
             foreach (var p in participants)
             {
-                if (p.ExternalEmail == null && p.Person == null && p.FunctionalRole == null)
+                if (p.InvitedExternalEmail == null && p.InvitedPerson == null && p.InvitedFunctionalRole == null)
                 {
                     return false;
                 }
@@ -97,11 +98,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 {
                     return false;
                 }
-                if (p.Person != null && !IsValidPersonParticipant(p))
+                if (p.InvitedPerson != null && !IsValidPersonParticipant(p))
                 {
                     return false;
                 }
-                if (p.FunctionalRole != null && !IsValidFunctionalRoleParticipant(p))
+                if (p.InvitedFunctionalRole != null && !IsValidFunctionalRoleParticipant(p))
                 {
                     return false;
                 }
@@ -118,9 +119,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
 
             return participants.First().Organization == Organization.Contractor &&
-                   participants.First().ExternalEmail == null &&
+                   participants.First().InvitedExternalEmail == null &&
                    participants[1].Organization == Organization.ConstructionCompany &&
-                   participants[1].ExternalEmail == null;
+                   participants[1].InvitedExternalEmail == null;
         }
 
         public bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
@@ -161,31 +162,39 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return invitation;
         }
 
-        public async Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken cancellationToken) 
-            => await(from p in _context.QuerySet<Participant>()
+        public async Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken cancellationToken)
+            => await (from p in _context.QuerySet<Participant>()
                 where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
-                     select p).AnyAsync(cancellationToken);
+                select p).AnyAsync(cancellationToken);
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
-            if (participant.Person?.Id != null && !await ParticipantExistsAsync(participant.Person.Id, invitationId, cancellationToken))
-            {
-                return false;
+            if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
+            { 
+                if (editPerson.Id.HasValue && !await ParticipantExistsAsync(editPerson.Id.Value, invitationId, cancellationToken))
+                {
+                    return false;
+                }
             }
-            if (participant.ExternalEmail?.Id != null && !await ParticipantExistsAsync(participant.ExternalEmail.Id, invitationId, cancellationToken))
+            
+            if (participant.InvitedExternalEmail is InvitedExternalEmailForEditCommand externalEmail)
             {
-                return false;
+                if (externalEmail.Id.HasValue && !await ParticipantExistsAsync(externalEmail.Id.Value, invitationId, cancellationToken))
+                {
+                    return false;
+                }
             }
-            if (participant.FunctionalRole != null)
+
+            if (participant.InvitedFunctionalRole is InvitedFunctionalRoleForEditCommand functionalRole)
             {
-                if (participant.FunctionalRole?.Id != null && !await ParticipantExistsAsync(participant.FunctionalRole.Id, invitationId, cancellationToken))
+                if (functionalRole.Id.HasValue && !await ParticipantExistsAsync(functionalRole.Id.Value, invitationId, cancellationToken))
                 {
                     return false;
                 }
 
-                foreach (var person in participant.FunctionalRole.Persons)
+                foreach (var person in functionalRole.EditPersons)
                 {
-                    if (person.Id != null && !await ParticipantExistsAsync(person.Id, invitationId, cancellationToken))
+                    if (person.Id.HasValue && !await ParticipantExistsAsync(person.Id.Value, invitationId, cancellationToken))
                     {
                         return false;
                     }
