@@ -320,7 +320,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return acceptingPerson != null && _currentUserProvider.GetCurrentUserOid() == acceptingPerson.Oid;
         }
 
-        public async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
@@ -348,13 +348,13 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
                 if (participants.Any(p => p.FunctionalRoleCode != null))
                 {
+                    var contractorCode = participants.First().FunctionalRoleCode;
                     var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                                _plantProvider.Plant,
                                currentUserOid.ToString(),
-                               participants.FirstOrDefault().FunctionalRoleCode);
+                               contractorCode);
 
-                    return person != null;
-
+                    return person != null && new Guid(person.AzureOid) == currentUserOid;
                 }
                 return false;
             };

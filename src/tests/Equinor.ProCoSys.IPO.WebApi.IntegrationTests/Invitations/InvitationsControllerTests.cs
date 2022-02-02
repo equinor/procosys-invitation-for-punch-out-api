@@ -771,7 +771,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                         TestFactory.PlantWithAccess,
                         _contractor.AsProCoSysPerson().AzureOid,
-                        "FRCA")).Returns(Task.FromResult(new ProCoSysPerson()));
+                        "FRCA"))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(

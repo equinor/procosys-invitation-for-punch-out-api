@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
