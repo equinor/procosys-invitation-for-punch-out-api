@@ -341,14 +341,14 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             else
             {
                 // allow if user is member of contractor functional role
-                var participants = await (from participant in _context.QuerySet<Participant>()
+                var contractorParticipants = await (from participant in _context.QuerySet<Participant>()
                                           where EF.Property<int>(participant, "InvitationId") == invitationId &&
                                                 participant.Organization == Organization.Contractor
                                           select participant).ToListAsync(cancellationToken);
 
-                if (participants.Any(p => p.FunctionalRoleCode != null))
+                if (contractorParticipants.Any(p => p.FunctionalRoleCode != null))
                 {
-                    var contractorCode = participants.First().FunctionalRoleCode;
+                    var contractorCode = contractorParticipants.First().FunctionalRoleCode;
                     var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                                _plantProvider.Plant,
                                currentUserOid.ToString(),
