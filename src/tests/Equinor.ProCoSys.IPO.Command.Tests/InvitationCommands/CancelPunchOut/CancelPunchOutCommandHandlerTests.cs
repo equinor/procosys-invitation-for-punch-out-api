@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
                         
             // Act
-            var result = await _dut.Handle(_command, default);
+            await _dut.Handle(_command, default);
 
             // Assert
             Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 0;
