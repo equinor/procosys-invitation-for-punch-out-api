@@ -760,6 +760,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
         }
 
+        [TestMethod]
+        public async Task CancelPunchOut_AsContractor_ShouldCancelPunchOut()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participants);
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                        TestFactory.PlantWithAccess,
+                        _contractor.AsProCoSysPerson().AzureOid,
+                        "FRCA"))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId,
+                cancelPunchOutDto);
+
+            // Assert
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
+            AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
+        }
+
         private void AssertParticipants(InvitationDto invitation, List<CreateParticipantsDto> originalParticipants)
         {
             Assert.IsNotNull(invitation.Participants);

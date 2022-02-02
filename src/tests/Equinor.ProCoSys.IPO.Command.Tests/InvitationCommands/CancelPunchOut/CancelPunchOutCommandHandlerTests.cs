@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Fusion.Integration.Meeting;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -23,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<ILogger<CancelPunchOutCommandHandler>> _loggerMock;
 
         private CancelPunchOutCommand _command;
         private CancelPunchOutCommandHandler _dut;
@@ -49,6 +51,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+            _loggerMock = new Mock<ILogger<CancelPunchOutCommandHandler>>();
+
 
             var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
             _personRepositoryMock = new Mock<IPersonRepository>();
@@ -97,7 +102,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 _personRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _fusionMeetingClient.Object,
-                _currentUserProviderMock.Object);
+                _currentUserProviderMock.Object,
+                _loggerMock.Object
+                );
         }
 
         [TestMethod]
@@ -105,9 +112,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         {
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
 
-            await _dut.Handle(_command, default);
+            var result = await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Canceled, _invitation.Status);
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Once);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -124,6 +132,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
         }
 
         [TestMethod]
@@ -133,11 +142,36 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             Assert.AreEqual(1, _invitation.PostSaveDomainEvents.Count);
 
             // Act
-            await _dut.Handle(_command, default);
+            var result = await _dut.Handle(_command, default);
 
             // Assert
             Assert.AreEqual(2, _invitation.PostSaveDomainEvents.Count);
             Assert.AreEqual(typeof(IpoCanceledEvent), _invitation.PostSaveDomainEvents.Last().GetType());
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+        }
+
+        [TestMethod]
+        public async Task HandlingCancelIpoCommandMeetingApiException_ShouldCallLogErrorOnce()
+        {
+            // Setup exception in Delete meeting.
+            _fusionMeetingClient.Setup(c => c.DeleteMeetingAsync(_meetingId))
+                .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
+                        
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 0;
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => state(v, t)),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
         }
     }
 }
