@@ -1351,7 +1351,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 TestPlant,
                 _currentUserOid.ToString(),
                 "Contractor"))
-                .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson()));
+                .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = _currentUserOid.ToString() }));
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

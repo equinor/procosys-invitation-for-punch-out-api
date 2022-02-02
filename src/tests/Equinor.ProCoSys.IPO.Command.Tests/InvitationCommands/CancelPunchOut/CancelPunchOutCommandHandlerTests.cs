@@ -146,5 +146,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             Assert.AreEqual(2, _invitation.PostSaveDomainEvents.Count);
             Assert.AreEqual(typeof(IpoCanceledEvent), _invitation.PostSaveDomainEvents.Last().GetType());
         }
+
+        [TestMethod]
+        public async Task HandlingCancelIpoCommandMeetingApiException_ShouldCallLogErrorOnce()
+        {
+            // Setup exception in Delete meeting.
+            _fusionMeetingClient.Setup(c => c.DeleteMeetingAsync(_meetingId))
+                .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
+                        
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 0;
+
+            _loggerMock.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => state(v, t)),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)));
+        }
     }
 }
