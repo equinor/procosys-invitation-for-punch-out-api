@@ -115,7 +115,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             var result = await _dut.Handle(_command, default);
 
             Assert.AreEqual(IpoStatus.Canceled, _invitation.Status);
-            Assert.AreEqual(result.ResultType, ServiceResult.ResultType.Ok);
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _fusionMeetingClient.Verify(f => f.DeleteMeetingAsync(_invitation.MeetingId), Times.Once);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -132,7 +132,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Since UnitOfWorkMock is a Mock this will not happen here, so we assert that RowVersion is set from command
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
-            Assert.AreEqual(result.ResultType, ServiceResult.ResultType.Ok);
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
         }
 
         [TestMethod]
@@ -147,7 +147,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Assert
             Assert.AreEqual(2, _invitation.PostSaveDomainEvents.Count);
             Assert.AreEqual(typeof(IpoCanceledEvent), _invitation.PostSaveDomainEvents.Last().GetType());
-            Assert.AreEqual(result.ResultType, ServiceResult.ResultType.Ok);
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Assert
             Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 0;
 
-            Assert.AreEqual(result.ResultType, ServiceResult.ResultType.Ok);
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _loggerMock.Verify(
                 x => x.Log(
