@@ -703,18 +703,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         public async Task HandlingUpdateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInEmailField()
         {
             // Setup
-            var newParticipants = new List<ParticipantsForCommand>
+            var newParticipants = new List<ParticipantsForEditCommand>
             {
-                new ParticipantsForCommand(
+                new ParticipantsForEditCommand(
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand(_functionalRoleWithMultipleEmailsCode, null),
+                    new InvitedFunctionalRoleForEditCommand(null, _functionalRoleWithMultipleEmailsCode, null, _participantRowVersion),
                     0),
-                new ParticipantsForCommand(
+                new ParticipantsForEditCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForEditCommand(null, _azureOid, "ola@test.com", true, null),
                     null,
                     1)
             };
@@ -744,18 +744,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         public async Task HandlingUpdateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInInformationEmailField()
         {
             // Setup
-            var newParticipants = new List<ParticipantsForCommand>
+            var newParticipants = new List<ParticipantsForEditCommand>
             {
-                new ParticipantsForCommand(
+                new ParticipantsForEditCommand(
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand(_functionalRoleWithMultipleInformationEmailsCode, null),
+                    new InvitedFunctionalRoleForEditCommand(null, _functionalRoleWithMultipleInformationEmailsCode, null, _participantRowVersion),
                     0),
-                new ParticipantsForCommand(
+                new ParticipantsForEditCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForEditCommand(null, _azureOid, "ola@test.com", true, null),
                     null,
                     1)
             };

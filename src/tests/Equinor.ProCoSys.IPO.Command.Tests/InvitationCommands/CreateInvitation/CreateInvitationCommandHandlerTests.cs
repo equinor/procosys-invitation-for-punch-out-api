@@ -449,12 +449,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand(_functionalRoleWithMultipleEmailsCode, null),
+                    new InvitedFunctionalRoleForCreateCommand(_functionalRoleWithMultipleEmailsCode, null),
                     0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
                     null,
                     1)
             };
@@ -492,12 +492,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     Organization.Contractor,
                     null,
                     null,
-                    new FunctionalRoleForCommand(_functionalRoleWithMultipleInformationEmailsCode, null),
+                    new InvitedFunctionalRoleForCreateCommand(_functionalRoleWithMultipleInformationEmailsCode, null),
                     0),
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new PersonForCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
                     null,
                     1)
             };
