@@ -144,7 +144,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRole.Code).ToList();
             var functionalRoles =
                 await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
-
             foreach (var participant in functionalRoleParticipants)
             {
                 var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.InvitedFunctionalRole.Code);
@@ -163,8 +162,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         participant.SortKey));
                     if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
-                        meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(fr.Email)));
+                        meetingParticipants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.Email));
+                    }
+                    if (fr.InformationEmail != null)
+                    {
+                        meetingParticipants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.InformationEmail));
                     }
                     foreach (var person in participant.InvitedFunctionalRole.InvitedPersons)
                     {

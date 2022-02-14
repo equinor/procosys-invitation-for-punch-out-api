@@ -269,8 +269,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     
                     if (fr.UsePersonalEmail != null && fr.UsePersonalEmail == false && fr.Email != null)
                     {
-                        meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
-                            new ParticipantIdentifier(fr.Email)));
+                        meetingParticipants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.Email));
+                    }
+                    if (fr.InformationEmail != null)
+                    {
+                        meetingParticipants.AddRange(InvitationHelper.SplitAndCreateOutlookParticipantsFromEmailList(fr.InformationEmail));
                     }
                     foreach (var person in participant.InvitedFunctionalRoleToEdit.EditPersons)
                     {
