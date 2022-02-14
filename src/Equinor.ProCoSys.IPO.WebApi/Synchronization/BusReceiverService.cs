@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(libraryEvent.Plant);
 
-            if (libraryEvent.Type == FunctionalRoleLibraryType)
+            if (libraryEvent.Type == FunctionalRoleLibraryType && libraryEvent.CodeOld != null)
             {
                 _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
             }

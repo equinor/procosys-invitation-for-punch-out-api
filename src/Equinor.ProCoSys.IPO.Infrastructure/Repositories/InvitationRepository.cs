@@ -94,18 +94,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew)
         {
-            if (functionalRoleCodeOld != null)
-            {
-                var invitationsToUpdate = _context.Invitations
-                    .Include(i => i.Participants)
-                    .Where(invitation => invitation.Participants
-                    .Any(p => p.FunctionalRoleCode == functionalRoleCodeOld) && invitation.Plant == plant);
+            var invitationsToUpdate = _context.Invitations
+                .Include(i => i.Participants)
+                .Where(invitation => invitation.Participants
+                .Any(p => p.FunctionalRoleCode == functionalRoleCodeOld) && invitation.Plant == plant);
 
-                foreach (var invitation in invitationsToUpdate)
-                {
-                    invitation.Participants.Where(p => p.FunctionalRoleCode == functionalRoleCodeOld).ToList()
-                        .ForEach(p => p.FunctionalRoleCode = functionalRoleCodeNew);
-                }
+            foreach (var invitation in invitationsToUpdate)
+            {
+                invitation.Participants.Where(p => p.FunctionalRoleCode == functionalRoleCodeOld).ToList()
+                    .ForEach(p => p.FunctionalRoleCode = functionalRoleCodeNew);
             }
         }
 
