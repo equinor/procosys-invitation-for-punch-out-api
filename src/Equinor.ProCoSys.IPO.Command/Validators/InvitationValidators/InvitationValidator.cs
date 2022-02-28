@@ -327,8 +327,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
-        public async Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken)
         {
+            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            if (permissions.Contains("IPO/ADMIN")) { return true; }
+
             var completingPerson = await (from i in _context.QuerySet<Invitation>()
                                           join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
                                           where i.Id == invitationId
@@ -337,8 +340,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return completingPerson != null && _currentUserProvider.GetCurrentUserOid() == completingPerson.Oid;
         }
 
-        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken)
         {
+            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            if (permissions.Contains("IPO/ADMIN")) { return true; }
+
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
                                          join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
                                          where i.Id == invitationId
