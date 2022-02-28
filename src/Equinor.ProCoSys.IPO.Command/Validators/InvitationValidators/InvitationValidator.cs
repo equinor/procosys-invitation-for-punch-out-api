@@ -20,17 +20,20 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public InvitationValidator(IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
-            IPlantProvider plantProvider
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache
             )
         {
             _context = context;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken) =>
@@ -291,6 +294,30 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                                             p.Organization == Organization.Contractor ||
                                             p.Organization == Organization.ConstructionCompany)
                                      select p).SingleAsync(cancellationToken);
+
+            if (participant.Type == IpoParticipantType.FunctionalRole)
+            {
+                return true;
+            }
+
+            return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
+        public async Task<bool> ValidUnsigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken)
+        {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                                     where EF.Property<int>(p, "InvitationId") == invitationId &&
+                                           p.Id == participantId &&
+                                           p.SortKey > 1 &&
+                                           (p.Organization == Organization.TechnicalIntegrity ||
+                                            p.Organization == Organization.Operation ||
+                                            p.Organization == Organization.Commissioning ||
+                                            p.Organization == Organization.Contractor ||
+                                            p.Organization == Organization.ConstructionCompany)
+                                     select p).SingleAsync(cancellationToken);
+
+            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            if (permissions.Contains("IPO/ADMIN")) { return true; }
 
             if (participant.Type == IpoParticipantType.FunctionalRole)
             {
