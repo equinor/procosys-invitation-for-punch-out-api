@@ -395,7 +395,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeDp, _mcPkgScope, new List<string>());
                 Assert.IsTrue(result);
             }
@@ -406,7 +406,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeMdp, new List<string>(), _commPkgScope);
                 Assert.IsTrue(result);
             }
@@ -417,7 +417,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeMdp, _mcPkgScope, new List<string>());
                 Assert.IsFalse(result);
             }
@@ -428,7 +428,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeDp, new List<string>(), _commPkgScope);
                 Assert.IsFalse(result);
             }
@@ -439,7 +439,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeDp, _mcPkgScope, _commPkgScope);
                 Assert.IsFalse(result);
             }
@@ -450,7 +450,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeMdp, _mcPkgScope, _commPkgScope);
                 Assert.IsFalse(result);
             }
@@ -461,7 +461,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeDp, new List<string>(), new List<string>());
                 Assert.IsFalse(result);
             }
@@ -472,7 +472,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidScope(_typeMdp, new List<string>(), new List<string>());
                 Assert.IsFalse(result);
             }
@@ -483,7 +483,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(_participantsOnlyRequired);
                 Assert.IsTrue(result);
             }
@@ -494,7 +494,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand>());
                 Assert.IsFalse(result);
             }
@@ -505,7 +505,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
                     new ParticipantsForCommand(
                         Organization.Contractor,
@@ -529,7 +529,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> { _participantsOnlyRequired[0] });
                 Assert.IsFalse(result);
             }
@@ -540,7 +540,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(new List<ParticipantsForCommand> {
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -564,7 +564,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.RequiredParticipantsMustBeInvited(_participantsOnlyRequired);
                 Assert.IsTrue(result);
             }
@@ -575,7 +575,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidParticipantList(new List<ParticipantsForCommand> {
                     _participantsOnlyRequired[0],
                     _participantsOnlyRequired[1],
@@ -595,7 +595,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.IsValidParticipantList(new List<ParticipantsForCommand> {
                     _participantsOnlyRequired[0],
                     _participantsOnlyRequired[1],
@@ -615,7 +615,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var fr =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -648,7 +648,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Operation,
@@ -667,7 +667,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Operation,
@@ -686,7 +686,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Operation,
@@ -705,7 +705,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var fr = new ParticipantsForCommand(
                     Organization.Operation,
                     null,
@@ -728,7 +728,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var participantWithFunctionalRoleAndExternalEmail =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -748,7 +748,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var participantWithFunctionalRoleAndExternalEmail =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -768,7 +768,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var participantWithFunctionalRoleAndExternalEmail =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -788,7 +788,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -808,7 +808,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -828,7 +828,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(_participantsOnlyRequired);
                 Assert.IsTrue(result);
             }
@@ -840,7 +840,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -859,7 +859,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> {
                     new ParticipantsForCommand(
                         Organization.Contractor,
@@ -884,7 +884,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -903,7 +903,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -922,7 +922,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -941,7 +941,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var functionalRole =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -960,7 +960,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var functionalRole =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -986,7 +986,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var externalPerson =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -1005,7 +1005,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var person =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -1024,7 +1024,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var functionalRole =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -1043,7 +1043,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var functionalRole =
                     new ParticipantsForCommand(
                         Organization.Commissioning,
@@ -1070,7 +1070,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1082,7 +1082,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoExistsAsync(100, default);
                 Assert.IsFalse(result);
             }
@@ -1094,7 +1094,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1106,7 +1106,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1118,7 +1118,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidAccepterParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1130,7 +1130,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoHasAccepterAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1142,7 +1142,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoHasAccepterAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1154,7 +1154,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithFrAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1166,7 +1166,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1178,7 +1178,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidCompleterParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1190,7 +1190,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoHasCompleterAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1202,7 +1202,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoHasCompleterAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsFalse(result);
             }
@@ -1214,7 +1214,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithFrAsParticipants, _operationFrId, default);
                 Assert.IsTrue(result);
             }
@@ -1226,7 +1226,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, _operationCurrentPersonId, default);
                 Assert.IsTrue(result);
             }
@@ -1238,7 +1238,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, _operationNotCurrentPersonId, default);
                 Assert.IsFalse(result);
             }
@@ -1250,7 +1250,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
                     await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _contractorId, default)
                 );
@@ -1264,7 +1264,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _commissioningId, default);
                 Assert.IsTrue(result);
             }
@@ -1276,7 +1276,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _additionalContractorId, default);
                 Assert.IsTrue(result);
             }
@@ -1288,7 +1288,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
                     await dut.ValidSigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _supplierId, default)
                 );
@@ -1302,7 +1302,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.SignerExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, _operationCurrentPersonId, default);
                 Assert.IsTrue(result);
             }
@@ -1314,7 +1314,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.SignerExistsAsync(_invitationIdWithoutParticipants, _operationCurrentPersonId, default);
                 Assert.IsFalse(result);
             }
@@ -1326,7 +1326,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsTrue(result);
             }
@@ -1338,7 +1338,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsFalse(result);
             }
@@ -1356,7 +1356,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsTrue(result);
             }
@@ -1370,7 +1370,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsFalse(result);
             }
@@ -1382,7 +1382,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoIsInStageAsync(_invitationIdWithFrAsParticipants, IpoStatus.Planned, default);
                 Assert.IsTrue(result);
             }
@@ -1394,7 +1394,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Accepted, default);
                 Assert.IsTrue(result);
             }
@@ -1406,7 +1406,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Planned, default);
                 Assert.IsFalse(result);
             }
@@ -1418,7 +1418,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
                 var result = await dut.IpoIsInStageAsync(_invitationIdWithCurrentUserOidAsParticipants, IpoStatus.Completed, default);
                 Assert.IsFalse(result);
             }
@@ -1430,8 +1430,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
-                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.AdminOrSameUserThatAcceptedIsUnAcceptingAsync(_invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -1442,8 +1442,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider);
-                var result = await dut.SameUserUnAcceptingThatAcceptedAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.AdminOrSameUserThatAcceptedIsUnAcceptingAsync(_invitationIdWithNotCurrentUserOidAsParticipants, default);
                 //This is not a full test coverage, because we do not have a history event for this accepting. We get false because there are not history events in this validation. Cannot add history event that is created by a user other than current user
                 Assert.IsFalse(result);
             }
