@@ -330,7 +330,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken)
         {
             var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            if (permissions.Contains("IPO/ADMIN")) { return true; }
+            if (permissions != null && permissions.Contains("IPO/ADMIN")) { return true; }
 
             var completingPerson = await (from i in _context.QuerySet<Invitation>()
                                           join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
@@ -343,7 +343,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken)
         {
             var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            if (permissions.Contains("IPO/ADMIN")) { return true; }
+            if (permissions != null && permissions.Contains("IPO/ADMIN")) { return true; }
 
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
                                          join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
