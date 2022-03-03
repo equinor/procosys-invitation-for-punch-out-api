@@ -11,3 +11,4 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public EditFunctionalRoleDto FunctionalRole { get; set; }
     }
 }
+
