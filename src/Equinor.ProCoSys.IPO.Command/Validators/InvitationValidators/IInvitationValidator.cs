@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
     {
         bool IsValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope);
         Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
-        Task<bool> ParticipantExistsAsync(int? id, int invitationId, CancellationToken token);
+        Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken token);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);
@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> IpoHasAccepterAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
         Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken cancellationToken);
     }

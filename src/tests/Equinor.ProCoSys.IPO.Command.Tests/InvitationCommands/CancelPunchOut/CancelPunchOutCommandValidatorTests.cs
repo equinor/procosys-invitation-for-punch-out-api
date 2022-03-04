@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOfInvitation(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new CancelPunchOutCommand(_id, _invitationRowVersion);
 
             _dut = new CancelPunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO with this ID does not exist!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation with this ID does not exist!"));
         }
 
         [TestMethod]
@@ -91,13 +91,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenUserTryingToCancelIsNotOrganizerOfIpo()
         {
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOfInvitation(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Current user is not the creator of the invitation!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Current user is not the creator of the invitation and not in Contractor Functional Role!"));
         }
     }
 }

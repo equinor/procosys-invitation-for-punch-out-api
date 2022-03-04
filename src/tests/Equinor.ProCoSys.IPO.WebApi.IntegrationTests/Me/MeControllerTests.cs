@@ -33,20 +33,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 TestFactory.PlantWithAccess,
                 invitationId);
 
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
+            var completerParticipant = invitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
 
             var completePunchOutDto = new CompletePunchOutDto
             {
                 InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
+                ParticipantRowVersion = completerParticipant.RowVersion,
                 Participants = new List<ParticipantToChangeDto>
                 {
                     new ParticipantToChangeDto
                     {
-                        Id = completerPerson.Person.Id,
+                        Id = completerParticipant.Id,
                         Note = "Some note about the punch out round or attendee",
-                        RowVersion = completerPerson.Person.RowVersion,
+                        RowVersion = completerParticipant.RowVersion,
                         Attended = true
                     }
                 }

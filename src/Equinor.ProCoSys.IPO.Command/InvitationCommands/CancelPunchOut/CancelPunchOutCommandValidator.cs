@@ -18,16 +18,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO with this ID does not exist! Id={command.InvitationId}")
+                    $"Invitation with this ID does not exist! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => InvitationIsNotCanceled(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO is already canceled! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => InvitationIsNotAccepted(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"IPO is in accepted stage! Id={command.InvitationId}")
-                .MustAsync((command, cancellationToken) => CurrentUserIsCreatorOfInvitation(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"Current user is not the creator of the invitation! Id={command.InvitationId}")
+                    $"Current user is not the creator of the invitation and not in Contractor Functional Role! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command =>
                     $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}");
@@ -35,8 +35,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
-            async Task<bool> CurrentUserIsCreatorOfInvitation(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.CurrentUserIsCreatorOfInvitation(invitationId, cancellationToken);
+            async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);

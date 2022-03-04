@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private EditInvitationCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _rowVersion = "AAAAAAAAABA=";
-        private const string _participantRowVersion = "AAAAAAAAABA=";
+        private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
         private const string _title = "Test title";
@@ -61,6 +61,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private static Guid _newAzureOid = new Guid("11111111-2222-2222-3333-333333333333");
         private const string _functionalRoleCode = "FR1";
         private const string _newFunctionalRoleCode = "NEWFR1";
+        private const string _functionalRoleWithMultipleEmailsCode = "FR2";
+        private const string _functionalRoleWithMultipleInformationEmailsCode = "FR3";
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
         private const string _mcPkgNo3 = "MC3";
@@ -68,34 +70,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _commPkgNo2 = "Comm2";
         private const string _system = "1|2";
         private const string _system2 = "2|2";
-        private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
-        {
-            new ParticipantsForCommand(
-                Organization.Contractor,
-                null,
-                null,
-                new FunctionalRoleForCommand(_functionalRoleCode, null),
-                0),
-            new ParticipantsForCommand(
-                Organization.ConstructionCompany,
-                null,
-                new PersonForCommand(_azureOid, "ola@test.com", true),
-                null,
-                1)
-        };
 
-        private readonly List<ParticipantsForCommand> _updatedParticipants = new List<ParticipantsForCommand>
+        private readonly List<ParticipantsForEditCommand> _updatedParticipants = new List<ParticipantsForEditCommand>
         {
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.Contractor,
                 null,
                 null,
-                new FunctionalRoleForCommand(_newFunctionalRoleCode, null, _participantId, _participantRowVersion),
+                new InvitedFunctionalRoleForEditCommand(_participantId, _newFunctionalRoleCode, null, _participantRowVersion),
                 0),
-            new ParticipantsForCommand(
+            new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new PersonForCommand(_newAzureOid, "kari@test.com", true),
+                new InvitedPersonForEditCommand(null, _newAzureOid, "kari@test.com", true, null),
                 null,
                 1)
         };
@@ -214,8 +201,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 Persons = null,
                 UsePersonalEmail = false
             };
+            var frMultipleEmailsDetails = new ProCoSysFunctionalRole
+            {
+                Code = _functionalRoleWithMultipleEmailsCode,
+                Description = "FR description",
+                Email = "fr3@email.com;fr76@email.com",
+                InformationEmail = null,
+                Persons = null,
+                UsePersonalEmail = false
+            };
+            var frMultipleInformationEmailsDetails = new ProCoSysFunctionalRole
+            {
+                Code = _functionalRoleWithMultipleInformationEmailsCode,
+                Description = "FR description",
+                Email = "fr4@email.com",
+                InformationEmail = "ie@email.com;ie2@email.com",
+                Persons = null,
+                UsePersonalEmail = false
+            };
             IList<ProCoSysFunctionalRole> pcsFrDetails = new List<ProCoSysFunctionalRole> { frDetails };
             IList<ProCoSysFunctionalRole> newPcsFrDetails = new List<ProCoSysFunctionalRole> { newFrDetails };
+            IList<ProCoSysFunctionalRole> pcsFrMultipleEmailsDetails = new List<ProCoSysFunctionalRole> { frMultipleEmailsDetails };
+            IList<ProCoSysFunctionalRole> pcsFrMultipleInformationEmailsDetails = new List<ProCoSysFunctionalRole> { frMultipleInformationEmailsDetails };
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
@@ -223,6 +230,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _newFunctionalRoleCode }))
                 .Returns(Task.FromResult(newPcsFrDetails));
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleEmailsCode }))
+                .Returns(Task.FromResult(pcsFrMultipleEmailsDetails));
+            _functionalRoleApiServiceMock
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleInformationEmailsCode }))
+                .Returns(Task.FromResult(pcsFrMultipleInformationEmailsDetails));
 
             var mcPkgs = new List<McPkg>
             {
@@ -265,9 +278,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var participant = new Participant(
                 _plant,
-                _participants[0].Organization,
+                Organization.Contractor,
                 IpoParticipantType.FunctionalRole,
-                _participants[0].FunctionalRole.Code,
+                _functionalRoleCode,
                 null,
                 null,
                 null,
@@ -278,14 +291,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _dpInvitation.AddParticipant(participant);
             _dpInvitation.AddParticipant(new Participant(
                 _plant,
-                _participants[1].Organization,
+                Organization.ConstructionCompany,
                 IpoParticipantType.Person,
                 null,
                 _firstName,
                 _lastName,
                 null,
-                _participants[1].Person.Email,
-                _participants[1].Person.AzureOid,
+                "ola@test.com",
+                _azureOid,
                 1));
             _dpInvitation.SetProtectedIdForTesting(_dpInvitationId);
 
@@ -670,6 +683,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_newFunctionalRoleCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
 
+        // todo add test to assert adding new participants
+
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldSetAndReturnRowVersion()
         {
@@ -683,5 +698,88 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_rowVersion, _dpInvitation.RowVersion.ConvertToString());
             Assert.IsTrue(_dpInvitation.Participants.Any(p => p.RowVersion.ConvertToString() == _participantRowVersion));
         }
+
+        [TestMethod]
+        public async Task HandlingUpdateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInEmailField()
+        {
+            // Setup
+            var newParticipants = new List<ParticipantsForEditCommand>
+            {
+                new ParticipantsForEditCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new InvitedFunctionalRoleForEditCommand(null, _functionalRoleWithMultipleEmailsCode, null, _participantRowVersion),
+                    0),
+                new ParticipantsForEditCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new InvitedPersonForEditCommand(null, _azureOid, "ola@test.com", true, null),
+                    null,
+                    1)
+            };
+
+            var command = new EditInvitationCommand(
+                _dpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeMdp,
+                newParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+            await _dut.Handle(command, default);
+
+            // Assert
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _meetingClientMock.Verify(x => x.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()), Times.Once);
+            Assert.AreEqual(_functionalRoleWithMultipleEmailsCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInInformationEmailField()
+        {
+            // Setup
+            var newParticipants = new List<ParticipantsForEditCommand>
+            {
+                new ParticipantsForEditCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new InvitedFunctionalRoleForEditCommand(null, _functionalRoleWithMultipleInformationEmailsCode, null, _participantRowVersion),
+                    0),
+                new ParticipantsForEditCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new InvitedPersonForEditCommand(null, _azureOid, "ola@test.com", true, null),
+                    null,
+                    1)
+            };
+
+            var command = new EditInvitationCommand(
+                _dpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeMdp,
+                newParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+            await _dut.Handle(command, default);
+
+            // Assert
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _meetingClientMock.Verify(x => x.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()), Times.Once);
+            Assert.AreEqual(_functionalRoleWithMultipleInformationEmailsCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
+        }
+
     }
 }

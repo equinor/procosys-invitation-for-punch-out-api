@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Query.GetInvitationById;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.GetInvitation;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public string RowVersion { get; set; }
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
-        public IEnumerable<ParticipantDtoGet> Participants { get; set; }
+        public IEnumerable<ParticipantDto> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
         public IEnumerable<CommPkgScopeDto> CommPkgScope { get; set; }
     }

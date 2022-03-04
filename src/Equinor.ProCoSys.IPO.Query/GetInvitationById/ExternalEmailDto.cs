@@ -1,4 +1,5 @@
-﻿using Fusion.Integration.Meeting;
+﻿using System;
+using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
@@ -6,17 +7,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
     {
         public ExternalEmailDto(
             int id,
-            string externalEmail,
-            string rowVersion)
+            string externalEmail)
         {
             Id = id;
             ExternalEmail = externalEmail;
-            RowVersion = rowVersion;
         }
 
+        [Obsolete("Use parent Participant.Id")]
         public int Id { get; }
         public string ExternalEmail { get; }
         public OutlookResponse? Response { get; set; }
-        public string RowVersion { get; }
     }
 }

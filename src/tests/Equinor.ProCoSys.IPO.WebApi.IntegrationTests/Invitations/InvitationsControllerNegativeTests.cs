@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -266,7 +267,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithoutAccess, 
                 9999, 
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -275,7 +276,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -285,7 +286,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -295,7 +296,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -304,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -313,20 +314,67 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 9999,
-                new EditInvitationDto(),
+                new EditInvitedInvitationDto(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
-            var editInvitationDto = await CreateValidEditInvitationDto();
+            var (_, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 38934,
                 editInvitationDto,
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist!");
+                "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
+            editInvitationDto.UpdatedParticipants.First(p => p.Person != null).Person.Id = 23451;
+            
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
+            editInvitationDto.RowVersion = TestFactory.WrongButValidRowVersion;
+            
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
+            editInvitationDto.UpdatedParticipants.First(p => p.FunctionalRole != null).FunctionalRole.RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto,
+                HttpStatusCode.Conflict);
         }
         #endregion
 
@@ -384,14 +432,183 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
-        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId() 
-            => await InvitationsControllerTestsHelper.SignPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                38934,
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            // Arrange
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            // Act
+            await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           38934,
+                           participant.Person.Id,
+                           TestFactory.AValidRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task SignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToSignId,
+                           38934,
+                           TestFactory.AValidRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task SignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignId,
+                    participant.Person.Id,
+                    TestFactory.WrongButValidRowVersion,
+                    HttpStatusCode.Conflict);
+        }
+        #endregion
+
+        #region Unsign
+        [TestMethod]
+        public async Task UnsignPunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
                 88,
                 TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Signer,
+                TestFactory.UnknownPlant,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                88,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           38934,
+                           participant.Person.Id,
+                           currentRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToSignAndUnsignId,
+                           38934,
+                           currentRowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    TestFactory.WrongButValidRowVersion,
+                    HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region Complete
@@ -454,25 +671,68 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
         {
-            var validInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-            var validParticipantForCompleting = _participantsForSigning
-                .Single(p => p.Organization == Organization.Contractor).Person;
+            // Arrange
+            var (_, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
 
+            // Act
             await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                38934,
-                new CompletePunchOutDto
-                {
-                    InvitationRowVersion = validInvitation.RowVersion,
-                    ParticipantRowVersion = validParticipantForCompleting.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>()
-                },
-                HttpStatusCode.BadRequest);
+                9999,
+                completePunchOutDto,
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist!");
         }
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.Participants.Single().Id = 23423;
+            
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task CompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            completePunchOutDto.Participants.Single().RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                completePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
         #endregion
 
         #region UnComplete
@@ -525,12 +785,52 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task UnCompletePunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+        {
+            // Arrange
+            var (_, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           unCompletePunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                9999,
-                new UnCompletePunchOutDto(),
-                HttpStatusCode.BadRequest);
+                invitationToUnCompleteId,
+                unCompletePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+            unCompletePunchOutDto.ParticipantRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompleteId,
+                unCompletePunchOutDto,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region Accept
@@ -592,12 +892,68 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task AcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+        {
+            // Arrange
+            var (_, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           acceptPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.Participants.Single().Id = 12399;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToAcceptId,
+                           acceptPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                9999,
-                new AcceptPunchOutDto(),
-                HttpStatusCode.BadRequest);
+                invitationToAcceptId,
+                acceptPunchOutDto,
+                HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task AcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
+            acceptPunchOutDto.Participants.Single().RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToAcceptId,
+                acceptPunchOutDto,
+                HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region UnAccept
@@ -648,15 +1004,53 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 new UnAcceptPunchOutDto(),
                 HttpStatusCode.Forbidden);
 
-
         [TestMethod]
         public async Task UnAcceptPunchOut_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new UnAcceptPunchOutDto(),
-                HttpStatusCode.BadRequest);
+        {
+            // Arrange
+            var (_, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
+            
+            // Act
+            await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           unAcceptPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToUnAcceptId, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
+            unAcceptPunchOutDto.InvitationRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToUnAcceptId,
+                           unAcceptPunchOutDto,
+                           HttpStatusCode.Conflict);
+        }
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToUnAcceptId, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
+            unAcceptPunchOutDto.ParticipantRowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToUnAcceptId,
+                           unAcceptPunchOutDto,
+                           HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region Cancel
@@ -709,12 +1103,35 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.CancelPunchOutAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                9999,
-                new CancelPunchOutDto(),
-                HttpStatusCode.BadRequest);
+        {
+            // Arrange
+            var (_, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           cancelPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+            cancelPunchOutDto.RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           cancelPunchOutDto,
+                           HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region ChangeAttendedStatusOnParticipants
@@ -758,15 +1175,52 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnBadRequest_WhenUnknownInvitationId()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                9999,
-                new[] {new ParticipantToChangeDto
-                {
-                    Attended = true, Id = 1, Note = "note", RowVersion = TestFactory.AValidRowVersion
-                }},
-                HttpStatusCode.BadRequest);
+        {
+            // Arrange
+            var (_, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           participantToChangeDtos,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            // Arrange
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            participantToChangeDtos[0].Id = 290690;
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToChangeId,
+                           participantToChangeDtos,
+                           HttpStatusCode.BadRequest,
+                           "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            participantToChangeDtos[0].RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+                           UserType.Signer,
+                           TestFactory.PlantWithAccess,
+                           invitationToChangeId,
+                           participantToChangeDtos,
+                           HttpStatusCode.Conflict);
+        }
         #endregion
 
         #region UploadAttachment
@@ -776,7 +1230,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -785,7 +1239,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -795,7 +1249,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -805,7 +1259,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
+                TestFile.NewFileToBeUploaded(),
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -814,8 +1268,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                FileToBeUploaded,
-                HttpStatusCode.BadRequest);
+                TestFile.NewFileToBeUploaded(),
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist!");
         #endregion
 
         #region DeleteAttachment
@@ -825,7 +1280,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Unauthorized);
 
@@ -835,7 +1290,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
@@ -846,7 +1301,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
                 HttpStatusCode.Forbidden);
 
@@ -867,9 +1322,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 9999,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 TestFactory.AValidRowVersion,
-                HttpStatusCode.BadRequest);
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist!");
+
+        [TestMethod]
+        public async Task DeleteAttachment_AsPlanner_ShouldReturnConflict_WhenWrongAttachmentRowVersion()
+            => await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId,
+                _attachmentOnInitialMdpInvitation.Id,
+                TestFactory.WrongButValidRowVersion,
+                HttpStatusCode.Conflict);
         #endregion
 
         #region GetAttachments
@@ -914,7 +1380,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.Unauthorized);
 
         [TestMethod]
@@ -923,7 +1389,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.BadRequest,
                 "is not a valid plant");
 
@@ -933,7 +1399,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
@@ -942,7 +1408,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 12456,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.NotFound);
 
         [TestMethod]
@@ -951,7 +1417,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 12456,
-                _attachmentId,
+                _attachmentOnInitialMdpInvitation.Id,
                 HttpStatusCode.NotFound);
         #endregion
 
@@ -1003,7 +1469,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 123456,
                 "comment",
                 HttpStatusCode.BadRequest,
-                "IPO with this ID does not exist");
+                "Invitation with this ID does not exist");
         #endregion
 
         #region GetHistory
@@ -1039,50 +1505,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 123456,
                 HttpStatusCode.NotFound);
-        #endregion
-
-        #region Private methods
-        private async Task<EditInvitationDto> CreateValidEditInvitationDto()
-        {
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-
-            invitation.Status = IpoStatus.Planned;
-
-            var editInvitationDto = new EditInvitationDto
-            {
-                Title = invitation.Title,
-                Description = invitation.Description,
-                StartTime = _invitationStartTime,
-                EndTime = _invitationEndTime,
-                Location = invitation.Location,
-                ProjectName = invitation.ProjectName,
-                RowVersion = invitation.RowVersion,
-                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
-                UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = _mcPkgScope
-            };
-
-            return editInvitationDto;
-        }
-
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
-        {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
-            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
-                {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
-                    Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey
-                }));
-
-            return editVersionParticipantDtos;
-        }
         #endregion
     }
 }

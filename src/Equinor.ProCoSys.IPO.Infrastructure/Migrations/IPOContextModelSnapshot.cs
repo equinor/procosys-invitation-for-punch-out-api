@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("ProductVersion", "5.0.13")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.ToTable("History");
 
-                    b.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled')");
+                    b.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled')");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Attachment", b =>

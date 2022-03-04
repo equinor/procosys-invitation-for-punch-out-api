@@ -32,5 +32,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             multipartContent.Add(bytes, parameterName, FileName);
             return multipartContent;
         }
+
+        public static TestFile NewFileToBeUploaded()
+        {
+            var content = Guid.NewGuid().ToString("B");
+            return new TestFile(content, $"{content}.txt");
+        }
     }
 }

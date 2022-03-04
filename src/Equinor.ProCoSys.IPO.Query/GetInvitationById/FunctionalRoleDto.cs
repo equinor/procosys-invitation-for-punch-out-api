@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Fusion.Integration.Meeting;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
@@ -8,20 +9,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public FunctionalRoleDto(
             string code,
             string email,
-            IEnumerable<InvitedPersonDto> persons,
-            string rowVersion)
+            IEnumerable<FunctionalRolePersonDto> persons)
         {
             Code = code;
             Email = email;
             Persons = persons;
-            RowVersion = rowVersion;
         }
 
+        [Obsolete("Use parent Participant.Id")]
         public int Id { get; set; }
         public string Code { get; }
         public string Email { get; }
-        public IEnumerable<InvitedPersonDto> Persons { get; }
+        public IEnumerable<FunctionalRolePersonDto> Persons { get; }
         public OutlookResponse? Response { get; set; }
-        public string RowVersion { get; }
     }
 }

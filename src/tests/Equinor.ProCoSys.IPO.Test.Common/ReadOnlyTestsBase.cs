@@ -4,6 +4,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,6 +24,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;
         protected ICurrentUserProvider _currentUserProvider;
+        protected Mock<IPersonApiService> _personApiServiceMock;
+        protected IPersonApiService _personApiService;
         protected IEventDispatcher _eventDispatcher;
         protected ManualTimeProvider _timeProvider;
 
@@ -32,6 +35,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
+            
+            _personApiServiceMock = new Mock<IPersonApiService>();
+            _personApiService = _personApiServiceMock.Object;
 
             var currentUserProviderMock = new Mock<ICurrentUserProvider>();
             currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(_currentUserOid);

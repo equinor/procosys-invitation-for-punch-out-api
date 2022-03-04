@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
+using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
@@ -106,35 +110,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task SignPunchOut_AsSigner_ShouldSignPunchOut()
         {
             // Arrange
-            var invitationToSignId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForSigningTitle",
-                "InvitationForSigningDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
+            var (invitationToSignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToSignId);
-
-            var participantPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.TechnicalIntegrity).Person;
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
                     UserType.Signer,
                     TestFactory.PlantWithAccess,
                     invitationToSignId,
-                    participantPerson.Person.Id,
-                    participantPerson.Person.RowVersion);
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
 
             // Assert
             var signedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -142,53 +128,52 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToSignId);
 
-            var signerParticipant = signedInvitation.Participants.Single(p => p.Person?.Person.Id == participantPerson.Person.Id);
+            var signerParticipant = signedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
             Assert.IsNotNull(signerParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, signerParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(editInvitationDto.RowVersion, newRowVersion);
+        }
+
+        [TestMethod]
+        public async Task UnsignPunchOut_AsSigner_ShouldUnsignPunchOut()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    currentRowVersion);
+
+            // Assert
+            var unsignedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToSignAndUnsignId);
+
+            var signerParticipant = unsignedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
+            Assert.IsNull(signerParticipant.SignedAtUtc);
+            Assert.IsNull(signerParticipant.SignedBy);
+            AssertRowVersionChange(currentRowVersion, newRowVersion);
         }
 
         [TestMethod]
         public async Task CompletePunchOut_AsSigner_ShouldCompletePunchOut()
         {
             // Arrange
-            var invitationToCompleteId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForCompletingTitle",
-                "InvitationForCompletingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToCompleteId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-                var completePunchOutDto = new CompletePunchOutDto
-                {
-                    InvitationRowVersion = invitation.RowVersion,
-                    ParticipantRowVersion = completerPerson.Person.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerPerson.Person.Id,
-                            Note = "Some note about the punch round or attendee",
-                            RowVersion = completerPerson.Person.RowVersion,
-                            Attended = true
-                        }
-                    }
-                };
+            var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
@@ -204,160 +189,53 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCompleteId);
 
             var completingParticipant =
-                completedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
+                completedInvitation.Participants.Single(p => p.Id == completePunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Completed, completedInvitation.Status);
             Assert.IsNotNull(completingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, completingParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(completePunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
         public async Task UnCompletePunchOut_AsSigner_ShouldUnCompletePunchOut()
         {
             // Arrange
-            var invitationToUnCompletedId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForUnCompletingTitle",
-                "InvitationForUnCompletingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnCompletedId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerPerson.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = completerPerson.Person.RowVersion,
-                            Attended = true
-                        }
-                    }
-            };
-
-            // Punch round must be completed before it can be uncompleted
-            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnCompletedId,
-                completePunchOutDto);
-
-            var unCompletePunchOutDto = new UnCompletePunchOutDto
-            {
-                InvitationRowVersion = newInvitationRowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
-            };
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                invitationToUnCompletedId,
+                invitationToUnCompleteId,
                 unCompletePunchOutDto);
 
             // Assert
             var unCompletedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
-                invitationToUnCompletedId);
+                invitationToUnCompleteId);
+
+            var unCompleterParticipant = unCompletedInvitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
 
             var unCompletingParticipant =
-                unCompletedInvitation.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
+                unCompletedInvitation.Participants.Single(p => p.Id == unCompleterParticipant.Id);
             Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
             Assert.IsNull(unCompletedInvitation.CompletedBy);
             Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedAtUtc);
             Assert.IsNull(unCompletingParticipant.SignedBy);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(unCompletePunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
         public async Task AcceptPunchOut_AsSigner_ShouldAcceptPunchOut()
         {
             // Arrange
-            var invitationToAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForAcceptingTitle",
-                "InvitationForAcceptingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                {
-                    new ParticipantToChangeDto
-                    {
-                        Id = completerPerson.Person.Id,
-                        Note = "Some note about the punch out round or attendee",
-                        RowVersion = completerPerson.Person.RowVersion,
-                        Attended = true
-                    }
-                }
-            };
-
-            // Punch round must be completed before it can be accepted
-            var newRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToAcceptId,
-                completePunchOutDto);
-
-            var accepterPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
-
-            var acceptPunchOutDto = new AcceptPunchOutDto
-            {
-                InvitationRowVersion = newRowVersion,
-                ParticipantRowVersion = accepterPerson.Person.RowVersion,
-                Participants = new List<ParticipantToUpdateNoteDto>
-                {
-                    new ParticipantToUpdateNoteDto
-                    {
-                        Id = accepterPerson.Person.Id,
-                        Note = "Some note about the punch out round or attendee",
-                        RowVersion = accepterPerson.Person.RowVersion
-                    }
-                }
-            };
+            var (invitationToAcceptId, acceptPunchOutDto) = await CreateValidAcceptPunchOutDtoAsync(_participantsForSigning);
 
             // Act
-            newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
+            var newRowVersion = await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToAcceptId,
@@ -370,100 +248,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToAcceptId);
 
             var acceptingParticipant =
-                acceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
+                acceptedInvitation.Participants.Single(p => p.Id == acceptPunchOutDto.Participants.Single().Id);
             Assert.AreEqual(IpoStatus.Accepted, acceptedInvitation.Status);
             Assert.IsNotNull(acceptingParticipant.SignedAtUtc);
             Assert.AreEqual(_sigurdSigner.Oid, acceptingParticipant.SignedBy.AzureOid.ToString());
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(acceptPunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
         public async Task UnAcceptPunchOut_AsSigner_ShouldUnAcceptPunchOut()
         {
             // Arrange
-            var invitationToUnAcceptId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForUnAcceptingTitle",
-                "InvitationForUnAcceptingDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-            var completePunchOutDto = new CompletePunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = completerPerson.Person.RowVersion,
-                Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerPerson.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = completerPerson.Person.RowVersion,
-                            Attended = true
-                        }
-                    }
-            };
-
-            // Punch round must be completed before it can be accepted
-            var newInvitationRowVersion = await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId,
-                completePunchOutDto);
-
-            var accepterPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
-
-            var acceptPunchOutDto = new AcceptPunchOutDto
-            {
-                InvitationRowVersion = newInvitationRowVersion,
-                ParticipantRowVersion = accepterPerson.Person.RowVersion,
-                Participants = new List<ParticipantToUpdateNoteDto>
-                    {
-                        new ParticipantToUpdateNoteDto
-                        {
-                            Id = accepterPerson.Person.Id,
-                            Note = "Some note about the punch out round or attendee",
-                            RowVersion = accepterPerson.Person.RowVersion
-                        }
-                    }
-            };
-
-            // Punch round must be accepted before it can be unaccepted
-            await InvitationsControllerTestsHelper.AcceptPunchOutAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId,
-                acceptPunchOutDto);
-
-            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToUnAcceptId);
-
-            accepterPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.ConstructionCompany).Person;
-
-            var unAcceptPunchOutDto = new UnAcceptPunchOutDto
-            {
-                InvitationRowVersion = invitation.RowVersion,
-                ParticipantRowVersion = accepterPerson.Person.RowVersion,
-            };
+            var (invitationToUnAcceptId, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
@@ -478,81 +274,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToUnAcceptId);
 
+            var unAccepterParticipant = unAcceptedInvitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany);
+
             var unAcceptingParticipant =
-                unAcceptedInvitation.Participants.Single(p => p.Person?.Person.Id == accepterPerson.Person.Id);
+                unAcceptedInvitation.Participants.Single(p => p.Id == unAccepterParticipant.Id);
             Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
             Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
             Assert.IsNull(unAcceptingParticipant.SignedBy);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(unAcceptPunchOutDto.InvitationRowVersion, newRowVersion);
         }
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsSigner_ShouldChangeAttendedStatus()
         {
             //Arrange
-            const string updatedNote = "Updated note about attendee";
+            var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
+            var updatedNote = participantToChangeDtos[0].Note;
             
-            var invitationToChangeId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationToChangeTitle",
-                "InvitationToChangeDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
-
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Signer,
-                TestFactory.PlantWithAccess,
-                invitationToChangeId);
-
-            var completerPerson = invitation.Participants
-                .Single(p => p.Organization == Organization.Contractor).Person;
-
-                var completePunchOutDto = new CompletePunchOutDto
-                {
-                    InvitationRowVersion = invitation.RowVersion,
-                    ParticipantRowVersion = completerPerson.Person.RowVersion,
-                    Participants = new List<ParticipantToChangeDto>
-                    {
-                        new ParticipantToChangeDto
-                        {
-                            Id = completerPerson.Person.Id,
-                            Note = "Some note about the punch round or attendee",
-                            RowVersion = completerPerson.Person.RowVersion,
-                            Attended = true
-                        }
-                    }
-                };
-
-                await InvitationsControllerTestsHelper.CompletePunchOutAsync(
-                    UserType.Signer,
-                    TestFactory.PlantWithAccess,
-                    invitationToChangeId,
-                    completePunchOutDto);
-
-                var participantToChangeDto = new[]
-                {
-                    new ParticipantToChangeDto
-                    {
-                        Id = completerPerson.Person.Id,
-                        Attended = false,
-                        Note = updatedNote,
-                        RowVersion = completerPerson.Person.RowVersion
-                    }
-                };
-
             //Act
             await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId,
-                participantToChangeDto);
+                participantToChangeDtos);
 
             //Assert
             var invitationWithUpdatedAttendedStatus = await InvitationsControllerTestsHelper.GetInvitationAsync(
@@ -560,8 +305,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 TestFactory.PlantWithAccess,
                 invitationToChangeId);
 
+            var completerParticipant = invitationWithUpdatedAttendedStatus.Participants
+                .Single(p => p.Organization == Organization.Contractor);
+
             var participant =
-                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Person?.Person.Id == completerPerson.Person.Id);
+                invitationWithUpdatedAttendedStatus.Participants.Single(p => p.Id == completerParticipant.Id);
 
             Assert.AreEqual(updatedNote, participant.Note);
             Assert.AreEqual(false, participant.Attended);
@@ -600,64 +348,240 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(Description, invitation.Description);
             Assert.AreEqual(InvitationLocation, invitation.Location);
             Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
+            var originalParticipants = _participants;
+            AssertParticipants(invitation, originalParticipants);
         }
 
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldEditInvitation()
         {
             // Arrange
-            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationToBeUpdatedTitle",
-                "InvitationToBeUpdatedDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                id);
-
-            invitation.Status = IpoStatus.Planned;
-
-            var currentRowVersion = invitation.RowVersion;
+            var currentRowVersion = editInvitationDto.RowVersion;
             const string UpdatedTitle = "UpdatedInvitationTitle";
             const string UpdatedDescription = "UpdatedInvitationDescription";
 
-            var editInvitationDto = new EditInvitationDto
-            {
-                Title = UpdatedTitle,
-                Description = UpdatedDescription,
-                StartTime = invitation.StartTimeUtc,
-                EndTime = invitation.EndTimeUtc,
-                Location = invitation.Location,
-                ProjectName = invitation.ProjectName,
-                RowVersion = invitation.RowVersion,
-                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants),
-                UpdatedCommPkgScope = null,
-                UpdatedMcPkgScope = _mcPkgScope
-            };
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
-                id,
+                invitationId,
                 editInvitationDto);
 
             // Assert
             var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                id);
+                invitationId);
 
             AssertRowVersionChange(currentRowVersion, newRowVersion);
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldRemoveParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.External,
+                    ExternalEmail = new CreateExternalEmailDto
+                    {
+                        Email = "knut@test.com"
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+
+            editInvitationDto.UpdatedParticipants = editInvitationDto.UpdatedParticipants.Take(2);
+
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(2, updatedInvitation.Participants.Count());
+            Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
+            Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldUpdateParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            const string email1 = "knut1@test.com";
+            const string email2 = "knut2@test.com";
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.External,
+                    ExternalEmail = new CreateExternalEmailDto
+                    {
+                        Email = email1
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+            
+            var editParticipants = editInvitationDto.UpdatedParticipants.ElementAt(2);
+            Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
+            editParticipants.ExternalEmail.Email = email2;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
+            Assert.AreEqual(email2, updatedInvitation.Participants.ElementAt(2).ExternalEmail.ExternalEmail);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldUpdateParticipantOrganization()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            const string email1 = "knut1@test.com";
+            const string email2 = "knut2@test.com";
+            const Organization org1 = Organization.External;
+            const Organization org2 = Organization.TechnicalIntegrity;
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = org1,
+                    ExternalEmail = new CreateExternalEmailDto
+                    {
+                        Email = email1
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
+            var editParticipants = editInvitationDto.UpdatedParticipants.ElementAt(2);
+            Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
+            Assert.AreEqual(org1, editParticipants.Organization);
+
+            editParticipants.Organization = org2;
+            editParticipants.ExternalEmail = null;
+            var editInvitedPersonDto = new EditInvitedPersonDto
+            {
+                AzureOid = Guid.NewGuid(),
+                Email = email2
+            };
+            editParticipants.Person = editInvitedPersonDto;
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                        TestFactory.PlantWithAccess,
+                        editInvitedPersonDto.AzureOid.ToString(),
+                        "IPO",
+                        new List<string> { "SIGN" }))
+                .Returns(Task.FromResult(new ProCoSysPerson
+                {
+                    AzureOid = editInvitedPersonDto.AzureOid.ToString(),
+                    Email = editInvitedPersonDto.Email,
+                    FirstName = "Ola",
+                    LastName = "Nordmann",
+                    UserName = "UserName"
+                }));
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
+            Assert.AreEqual(org2, updatedInvitation.Participants.ElementAt(2).Organization);
+            Assert.IsNull(updatedInvitation.Participants.ElementAt(2).ExternalEmail);
+            Assert.IsNotNull(updatedInvitation.Participants.ElementAt(2).Person);
+            Assert.AreEqual(email2, updatedInvitation.Participants.ElementAt(2).Person.Email);
+        }
+
+        [TestMethod]
+        public async Task EditInvitation_AsPlanner_ShouldAddParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+            Assert.AreEqual(2, editInvitationDto.UpdatedParticipants.Count());
+
+            var updatedParticipants = new List<EditParticipantsDto>(editInvitationDto.UpdatedParticipants);
+            updatedParticipants.Add(new EditParticipantsDto
+            {
+                Organization = Organization.External,
+                ExternalEmail = new EditExternalEmailDto
+                {
+                    Email = "knut@test.com"
+                },
+                SortKey = 3
+            });
+            editInvitationDto.UpdatedParticipants = updatedParticipants;
+
+            const string UpdatedTitle = "UpdatedInvitationTitle";
+            const string UpdatedDescription = "UpdatedInvitationDescription";
+
+            editInvitationDto.Title = UpdatedTitle;
+            editInvitationDto.Description = UpdatedDescription;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editInvitationDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
             Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
@@ -678,7 +602,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId,
-                FileToBeUploaded);
+                TestFile.NewFileToBeUploaded());
 
             // Assert
             invitationAttachments = InvitationsControllerTestsHelper.GetAttachmentsAsync(
@@ -724,7 +648,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(attachmentDtos);
             Assert.IsTrue(attachmentDtos.Count > 0);
 
-            var invitationAttachment = attachmentDtos.Single(a => a.Id == _attachmentId);
+            var invitationAttachment = attachmentDtos.Single(a => a.Id == _attachmentOnInitialMdpInvitation.Id);
             Assert.IsNotNull(invitationAttachment.FileName);
             Assert.IsNotNull(invitationAttachment.RowVersion);
         }
@@ -733,17 +657,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task DeleteAttachment_AsPlanner_ShouldDeleteAttachment()
         {
             // Arrange
-            await InvitationsControllerTestsHelper.UploadAttachmentAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId,
-                FileToBeUploaded2);
-
-            var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                InitialMdpInvitationId);
-            var attachment = attachmentDtos.Single(t => t.FileName == FileToBeUploaded2.FileName);
+            var attachment = await UploadAttachmentAsync(InitialMdpInvitationId);
 
             // Act
             await InvitationsControllerTestsHelper.DeleteAttachmentAsync(
@@ -754,7 +668,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 attachment.RowVersion);
 
             // Assert
-            attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
+            var attachmentDtos = await InvitationsControllerTestsHelper.GetAttachmentsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 InitialMdpInvitationId);
@@ -827,28 +741,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
         {
             // Arrange
-            var invitationToCancelId = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                "InvitationForCancelTitle",
-                "InvitationForCancelDescription",
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participantsForSigning,
-                _mcPkgScope,
-                null
-            );
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
 
-            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                invitationToCancelId);
-            var cancelPunchOutDto = new CancelPunchOutDto
-            {
-                RowVersion = invitation.RowVersion
-            };
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
                 UserType.Planner,
@@ -863,23 +757,95 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 invitationToCancelId);
 
             Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
-            AssertRowVersionChange(invitation.RowVersion, newRowVersion);
+            AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
         }
-        
-        private IEnumerable<ParticipantDtoEdit> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDtoGet> participants)
-        {
-            var editVersionParticipantDtos = new List<ParticipantDtoEdit>();
-            participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new ParticipantDtoEdit
-                {
-                    ExternalEmail = p.ExternalEmail,
-                    FunctionalRole = p.FunctionalRole,
-                    Organization = p.Organization,
-                    Person = p.Person?.Person,
-                    SortKey = p.SortKey
-                }));
 
-            return editVersionParticipantDtos;
+        [TestMethod]
+        public async Task CancelPunchOut_AsContractor_ShouldCancelPunchOut()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participants);
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                        TestFactory.PlantWithAccess,
+                        _contractor.AsProCoSysPerson().AzureOid,
+                        "FRCA"))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId,
+                cancelPunchOutDto);
+
+            // Assert
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            Assert.AreEqual(IpoStatus.Canceled, canceledInvitation.Status);
+            AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
+        }
+
+        private void AssertParticipants(InvitationDto invitation, List<CreateParticipantsDto> originalParticipants)
+        {
+            Assert.IsNotNull(invitation.Participants);
+            Assert.AreEqual(_participants.Count(), invitation.Participants.Count());
+
+            var originalFunctionalRoleParticipants = originalParticipants.Where(p => p.FunctionalRole != null).ToList();
+            var functionalRoleParticipants = invitation.Participants.Where(p => p.FunctionalRole != null).ToList();
+            AssertFunctionalRoleParticipants(originalFunctionalRoleParticipants, functionalRoleParticipants);
+
+            var originalExternalEmailParticipants = originalParticipants.Where(p => p.ExternalEmail != null).ToList();
+            var ExternalEmailParticipants = invitation.Participants.Where(p => p.ExternalEmail != null).ToList();
+
+            AssertExternalEmailParticipants(originalExternalEmailParticipants, ExternalEmailParticipants);
+
+            var originalPersonParticipants = originalParticipants.Where(p => p.Person != null).ToList();
+            var PersonParticipants = invitation.Participants.Where(p => p.Person != null).ToList();
+
+            AssertPersonParticipants(originalPersonParticipants, PersonParticipants);
+        }
+
+        private void AssertPersonParticipants(
+            List<CreateParticipantsDto> originalPersonParticipants,
+            List<GetInvitation.ParticipantDto> personParticipants)
+        {
+            Assert.AreEqual(originalPersonParticipants.Count(), personParticipants.Count());
+            foreach (var originalPersonParticipant in originalPersonParticipants)
+            {
+                var personParticipant = personParticipants.SingleOrDefault(p => p.Person.AzureOid == originalPersonParticipant.Person.AzureOid);
+                Assert.IsNotNull(personParticipant);
+            }
+        }
+
+        private void AssertExternalEmailParticipants(
+            List<CreateParticipantsDto> originalExternalEmailParticipants,
+            List<GetInvitation.ParticipantDto> externalEmailParticipants)
+        {
+            Assert.AreEqual(originalExternalEmailParticipants.Count(), externalEmailParticipants.Count());
+            foreach (var originalExternalEmailParticipant in originalExternalEmailParticipants)
+            {
+                var externalEmailParticipant = externalEmailParticipants.SingleOrDefault(p => p.ExternalEmail.ExternalEmail == originalExternalEmailParticipant.ExternalEmail.Email);
+                Assert.IsNotNull(externalEmailParticipant);
+            }
+        }
+
+        private static void AssertFunctionalRoleParticipants(
+            List<CreateParticipantsDto> originalFunctionalRoleParticipants,
+            List<GetInvitation.ParticipantDto> functionalRoleParticipants)
+        {
+            Assert.AreEqual(originalFunctionalRoleParticipants.Count(), functionalRoleParticipants.Count());
+            foreach (var originalFunctionalRoleParticipant in originalFunctionalRoleParticipants)
+            {
+                var functionalRoleParticipant = functionalRoleParticipants.SingleOrDefault(p => p.FunctionalRole.Code == originalFunctionalRoleParticipant.FunctionalRole.Code);
+                Assert.IsNotNull(functionalRoleParticipant);
+                Assert.AreEqual(originalFunctionalRoleParticipant.FunctionalRole.Persons.Count(), functionalRoleParticipant.FunctionalRole.Persons.Count());
+            }
         }
     }
 }
