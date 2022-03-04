@@ -17,7 +17,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             DateTime startTimeUtc,
             DateTime endTimeUtc,
             bool canEdit,
-            string rowVersion)
+            string rowVersion,
+            bool canCancel)
         {
             ProjectName = projectName;
             Title = title;
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             StartTimeUtc = startTimeUtc;
             EndTimeUtc = endTimeUtc;
             CanEdit = canEdit;
+            CanCancel = canCancel;
             RowVersion = rowVersion;
         }
 
@@ -42,6 +44,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public DateTime StartTimeUtc { get; }
         public DateTime EndTimeUtc { get; }
         public bool CanEdit { get; }
+        public bool CanCancel { get; }
         public string RowVersion { get; }
         public IEnumerable<ParticipantDto> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }
