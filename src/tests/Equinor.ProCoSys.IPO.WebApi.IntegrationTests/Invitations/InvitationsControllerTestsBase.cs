@@ -507,10 +507,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return attachmentDtos.Single(t => t.FileName == fileToBeUploaded.FileName);
         }
 
-        internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<CreateParticipantsDto> participants)
+        internal async Task<(int, CancelPunchOutDto)> CreateValidCancelPunchOutDtoAsync(List<CreateParticipantsDto> participants, UserType userType = UserType.Planner)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
+                userType,
                 TestFactory.PlantWithAccess,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),

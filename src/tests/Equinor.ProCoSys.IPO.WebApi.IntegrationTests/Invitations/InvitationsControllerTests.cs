@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var commPkgs = await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                new List<string>{KnownTestData.CommPkgNo},
+                new List<string> { KnownTestData.CommPkgNo },
                 TestFactory.ProjectWithAccess);
 
             // Assert
@@ -291,7 +291,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             //Arrange
             var (invitationToChangeId, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
             var updatedNote = participantToChangeDtos[0].Note;
-            
+
             //Act
             await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
                 UserType.Signer,
@@ -448,7 +448,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 });
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
             Assert.AreEqual(3, editInvitationDto.UpdatedParticipants.Count());
-            
+
             var editParticipants = editInvitationDto.UpdatedParticipants.ElementAt(2);
             Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
             editParticipants.ExternalEmail.Email = email2;
@@ -736,23 +736,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.IsNotNull(historyEvent.Description);
             Assert.IsNotNull(historyEvent.EventType);
         }
-        
+
         [TestMethod]
-        public async Task CancelPunchOut_AsPlanner_ShouldCancelPunchOut()
+        public async Task CancelPunchOut_AsCreator_ShouldCancelPunchOut()
         {
             // Arrange
-            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning, UserType.Creator);
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
-                UserType.Planner,
+                UserType.Creator,
                 TestFactory.PlantWithAccess,
                 invitationToCancelId,
                 cancelPunchOutDto);
 
             // Assert
             var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
-                UserType.Planner,
+                UserType.Creator,
                 TestFactory.PlantWithAccess,
                 invitationToCancelId);
 

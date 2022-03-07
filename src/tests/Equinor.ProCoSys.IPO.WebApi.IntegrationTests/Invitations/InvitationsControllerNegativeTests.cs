@@ -1118,6 +1118,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning, UserType.Creator);
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           cancelPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Current user is not the creator of the invitation and not in Contractor Functional Role!");
+        }
+
+        [TestMethod]
         public async Task CancelPunchOut_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
         {
             // Arrange

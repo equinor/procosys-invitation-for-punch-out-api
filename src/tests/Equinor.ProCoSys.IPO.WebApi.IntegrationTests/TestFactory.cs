@@ -38,6 +38,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private const string SignerOid = "00000000-0000-0000-0000-000000000001";
         private const string PlannerOid = "00000000-0000-0000-0000-000000000002";
         private const string ViewerOid = "00000000-0000-0000-0000-000000000003";
+        private const string CreatorOid = "00000000-0000-0000-0000-000000000004";
         private const string HackerOid = "00000000-0000-0000-0000-000000000666";
         private const string ContractorOid = "00000000-0000-0000-0000-000000000007";
 
@@ -305,7 +306,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             AddHackerUser(commonProCoSysProjects);
 
             AddContractorUser(commonProCoSysPlants, commonProCoSysProjects);
-            
+
+            AddCreatorUser(commonProCoSysPlants, commonProCoSysProjects); 
+
             var webHostBuilder = WithWebHostBuilder(builder =>
             {
                 builder.UseEnvironment(IntegrationTestEnvironment);
@@ -464,6 +467,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_READ,
                         Permissions.IPO_WRITE,
                         Permissions.IPO_VOIDUNVOID,
+                    },
+                    ProCoSysProjects = commonProCoSysProjects
+                });
+
+        private void AddCreatorUser(
+            List<ProCoSysPlant> commonProCoSysPlants,
+            List<ProCoSysProject> commonProCoSysProjects)
+            => _testUsers.Add(UserType.Creator,
+                new TestUser
+                {
+                    Profile =
+                        new TestProfile
+                        {
+                            FirstName = "Bill",
+                            LastName = "Shankly",
+                            UserName = "ShanklyCreator",
+                            Oid = CreatorOid,
+                            Email = "bill.shankly@pcs.pcs"
+                        },
+                    ProCoSysPlants = commonProCoSysPlants,
+                    ProCoSysPermissions = new List<string>
+                    {
+                        Permissions.COMMPKG_READ,
+                        Permissions.MCPKG_READ,
+                        Permissions.PROJECT_READ,
+                        Permissions.LIBRARY_FUNCTIONAL_ROLE_READ,
+                        Permissions.USER_READ,
+                        Permissions.IPO_READ,
+                        Permissions.IPO_WRITE,
+                        Permissions.IPO_CREATE,
+                        Permissions.IPO_DELETE,
+                        Permissions.IPO_ATTACHFILE,
+                        Permissions.IPO_DETACHFILE,
+                        Permissions.IPO_VOIDUNVOID
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
