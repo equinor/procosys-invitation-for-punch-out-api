@@ -24,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;
         protected ICurrentUserProvider _currentUserProvider;
+        protected IPermissionCache _permissionCache;
         protected Mock<IPersonApiService> _personApiServiceMock;
         protected IPersonApiService _personApiService;
         protected IEventDispatcher _eventDispatcher;
@@ -45,6 +46,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
             var eventDispatcher = new Mock<IEventDispatcher>();
             _eventDispatcher = eventDispatcher.Object;
+
+            var permissionCacheMock = new Mock<IPermissionCache>();
+            _permissionCache = permissionCacheMock.Object;
 
             _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
             TimeService.SetProvider(_timeProvider);

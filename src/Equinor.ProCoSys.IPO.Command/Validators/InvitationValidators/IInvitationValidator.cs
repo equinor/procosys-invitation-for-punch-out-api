@@ -11,6 +11,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         bool IsValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope);
         Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
         Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> IsSignedParticipantAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> HasOppositeAttendedStatusAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -157,12 +156,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _participantRowVersion,
                 _participantsToChange);
 
-            _dut = new AcceptPunchOutCommandHandler(
-                _plantProviderMock.Object,
-                _invitationRepositoryMock.Object,
+            _dut = new AcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personApiServiceMock.Object,
                 _personRepositoryMock.Object);
         }
 

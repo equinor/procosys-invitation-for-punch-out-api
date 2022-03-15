@@ -821,6 +821,49 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
         #endregion
 
+        #region UpdateAttendedStatus
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldNotUpdateAttendedStatus_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(()
+                => _dutWithCanceledStatus.UpdateAttendedStatus(
+                    _functionalRoleParticipant,
+                    true,
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
+
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldUpdateAttendedStatusEvent()
+        {
+            _dutDpIpo.UpdateAttendedStatus(
+                _personParticipant,
+                true,
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(AttendedStatusUpdatedEvent));
+        }
+        #endregion
+
+
+        #region UpdateNote
+        [TestMethod]
+        public void UpdateNote_ShouldNotUpdateNote_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(()
+                => _dutWithCanceledStatus.UpdateNote(
+                    _functionalRoleParticipant,
+                    "note",
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
+
+        [TestMethod]
+        public void UpdateNote_ShouldUpdateNoteEvent()
+        {
+            _dutDpIpo.UpdateNote(
+                _personParticipant,
+                "note",
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(NoteUpdatedEvent));
+        }
+        #endregion
+
         #region Complete
         [TestMethod]
         public void CompleteIpo_ShouldNotCompleteIpo_WhenIpoIsNotPlanned()

@@ -20,17 +20,19 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public InvitationValidator(IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
-            IPlantProvider plantProvider
-            )
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache)
         {
             _context = context;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken) =>
@@ -175,6 +177,46 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                       select p).AnyAsync(cancellationToken);
 
+        public async Task<bool> IsSignedParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
+            => await (from p in _context.QuerySet<Participant>()
+                      where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null && p.SignedAtUtc != null
+                      select p).AnyAsync(cancellationToken);
+
+        public async Task<bool> HasOppositeAttendedStatusAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
+            => await (from p in _context.QuerySet<Participant>()
+                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.Attended != attended
+                select p).AnyAsync(cancellationToken);
+
+        public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
+        {
+            if (await IsIpoAdmin()) { return true; }
+
+            if (await ValidCompleterParticipantExistsAsync(invitationId, cancellationToken)) { return true; }
+
+            var invitation = await (from i in _context.QuerySet<Invitation>()
+                where i.Id == invitationId
+                select i).SingleAsync(cancellationToken);
+            if (invitation.Status is IpoStatus.Completed or IpoStatus.Accepted 
+                && await ValidAccepterParticipantExistsAsync(invitationId, cancellationToken)) { return true; }
+
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId &&
+                      p.Id == id
+                select p).SingleAsync(cancellationToken);
+            if (participant.FunctionalRoleCode == null && participant.AzureOid == _currentUserProvider.GetCurrentUserOid()) { return true; }
+            var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                _plantProvider.Plant,
+                _currentUserProvider.GetCurrentUserOid().ToString(),
+                participant.FunctionalRoleCode);
+            return person != null;
+        }
+
+        private async Task<bool> IsIpoAdmin()
+        {
+            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            return permissions != null && permissions.Contains("IPO/ADMIN");
+        }
+
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
             if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
@@ -221,8 +263,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participants.Any(p => p.FunctionalRoleCode != null))
             {
-                return participants
-                    .SingleOrDefault(p => p.Type == IpoParticipantType.FunctionalRole) != null;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    _currentUserProvider.GetCurrentUserOid().ToString(),
+                    participants[0].FunctionalRoleCode);
+                return person != null;
             }
 
             if (participants.SingleOrDefault() == null || participants.Single().Type != IpoParticipantType.Person)
@@ -242,9 +287,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participants[0].FunctionalRoleCode != null)
             {
-                return participants
-                           .SingleOrDefault(p => p.SortKey == 1 &&
-                                                 p.Type == IpoParticipantType.FunctionalRole) != null;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    _currentUserProvider.GetCurrentUserOid().ToString(),
+                    participants[0].FunctionalRoleCode);
+                return person != null;
             }
 
             if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
@@ -343,7 +390,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 // allow if user is member of contractor functional role
                 var contractorParticipants = await (from participant in _context.QuerySet<Participant>()
                                           where EF.Property<int>(participant, "InvitationId") == invitationId &&
-                                                participant.Organization == Organization.Contractor
+                                                participant.Organization == Organization.Contractor// && participant.SortKey == 0
                                           select participant).ToListAsync(cancellationToken);
 
                 if (contractorParticipants.Any(p => p.FunctionalRoleCode != null))

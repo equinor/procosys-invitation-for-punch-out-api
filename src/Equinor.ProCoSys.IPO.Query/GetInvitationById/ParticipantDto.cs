@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             string note,
             bool attended,
             bool canSign,
+            bool canEditAttendedStatusAndNote,
             ExternalEmailDto externalEmail,
             InvitedPersonDto person,
             FunctionalRoleDto functionalRole,
@@ -27,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             Note = note;
             Attended = attended;
             CanSign = canSign;
+            CanEditAttendedStatusAndNote = canEditAttendedStatusAndNote;
             ExternalEmail = externalEmail;
             Person = person;
             FunctionalRole = functionalRole;
@@ -41,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public string Note { get; }
         public bool Attended { get; }
         public bool CanSign { get; }
+        public bool CanEditAttendedStatusAndNote { get; }
         public ExternalEmailDto ExternalEmail { get; }
         public InvitedPersonDto Person { get; }
         public FunctionalRoleDto FunctionalRole { get; }

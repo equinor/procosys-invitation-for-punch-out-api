@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly IFusionMeetingClient _meetingClient;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IPermissionCache _permissionCache;
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
@@ -31,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,
             IFunctionalRoleApiService functionalRoleApiService,
+            IPermissionCache permissionCache,
             IPlantProvider plantProvider,
             ILogger<GetInvitationByIdQueryHandler> logger)
         {
@@ -38,6 +40,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             _meetingClient = meetingClient;
             _currentUserProvider = currentUserProvider;
             _functionalRoleApiService = functionalRoleApiService;
+            _permissionCache = permissionCache;
             _plantProvider = plantProvider;
             _logger = logger;
         }
@@ -216,6 +219,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode
                                     && p.SortKey == participant.SortKey
                                     && p.Type == IpoParticipantType.Person);
+                    var currentUserIsInFunctionalRole = CurrentUserIsInFunctionalRole(participant).Result;
+                    var canSign = IsSigningParticipant(participant) && currentUserIsInFunctionalRole;
 
                     participantDtos.Add(new ParticipantDto(
                         participant.Id,
@@ -225,7 +230,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
-                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
+                        canSign,
+                        canSign || currentUserIsInFunctionalRole || HasIpoAdminPrivilege().Result,
                         null,
                         null,
                         ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
@@ -233,6 +239,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 }
                 else if (ParticipantIsNotInFunctionalRole(participant) && participant.Organization != Organization.External)
                 {
+                    var currentUserIsParticipant = _currentUserProvider.GetCurrentUserOid() == participant.AzureOid;
+                    var canSign = IsSigningParticipant(participant) && currentUserIsParticipant;
                     participantDtos.Add(new ParticipantDto(
                         participant.Id,
                         participant.Organization,
@@ -241,7 +249,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
-                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
+                        canSign,
+                        canSign || currentUserIsParticipant || HasIpoAdminPrivilege().Result,
                         null,
                         ConvertToInvitedPersonDto(participant), 
                         null,
@@ -257,6 +266,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
+                        false,
                         false,
                         new ExternalEmailDto(participant.Id, participant.Email),
                         null,
@@ -304,17 +314,23 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private bool IsSigningParticipant(Participant participant) 
             => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;
 
-        private async Task<bool> CurrentUserCanSignAsPersonInFunctionalRole(Participant participant)
+        private async Task<bool> CurrentUserIsInFunctionalRole(Participant participant)
         {
             var functionalRoles = await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
                 _plantProvider.Plant,
                 new List<string> {participant.FunctionalRoleCode});
             var functionalRole = functionalRoles.SingleOrDefault();
-
+            
             return functionalRole?.Persons != null &&
                    functionalRole.Persons.Any(person =>
                        !string.IsNullOrEmpty(person.AzureOid) &&
                        new Guid(person.AzureOid) == _currentUserProvider.GetCurrentUserOid());
+        }
+        
+        private async Task<bool> HasIpoAdminPrivilege()
+        {
+            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            return permissions != null && permissions.Contains("IPO/ADMIN");
         }
 
         private Task<PersonDto> ConvertToPersonDto(int? personId) =>

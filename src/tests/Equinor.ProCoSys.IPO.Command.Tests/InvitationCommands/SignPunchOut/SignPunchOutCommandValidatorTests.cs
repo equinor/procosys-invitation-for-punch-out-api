@@ -82,6 +82,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is canceled, and thus cannot be signed"));
         }
 
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenParticipantIsSigned()
+        {
+            _invitationValidatorMock.Setup(inv => inv.IsSignedParticipantAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant is already signed!"));
+        }
+
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {

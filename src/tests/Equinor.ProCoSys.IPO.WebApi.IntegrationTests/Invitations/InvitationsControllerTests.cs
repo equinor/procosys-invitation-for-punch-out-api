@@ -293,7 +293,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var updatedNote = participantToChangeDtos[0].Note;
 
             //Act
-            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                 UserType.Signer,
                 TestFactory.PlantWithAccess,
                 invitationToChangeId,
@@ -717,6 +717,215 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 InitialMdpInvitationId);
 
             Assert.AreEqual(commentsCount + 1, invitationComments.Result.Count);
+        }
+
+        [TestMethod]
+        public async Task UpdateAttendedStatus_AsAdmin_ShouldUpdateAttendedStatus()
+        {
+            // Arrange
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId);
+            var participant = invitation.Participants.First();
+            var dto = new ParticipantToUpdateAttendedStatusDto
+                {
+                    Id = participant.Id, Attended = !participant.Attended, RowVersion = participant.RowVersion
+                };
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId,
+                dto);
+
+            // Assert
+            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId);
+
+            Assert.AreEqual(invitation.Participants.First().Attended, dto.Attended);
+            Assert.AreNotEqual(invitation.Participants.First().RowVersion, dto.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task UpdateAttendedStatus_AsSigner_ShouldUpdateAttendedStatus()
+        {
+            // Arrange
+            var (invitationToCompleteId, _) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+            var participant = invitation.Participants.First();
+            var dto = new ParticipantToUpdateAttendedStatusDto
+            {
+                Id = participant.Id,
+                Attended = !participant.Attended,
+                RowVersion = participant.RowVersion
+            };
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                dto);
+
+            // Assert
+            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+
+            Assert.AreEqual(invitation.Participants.First().Attended, dto.Attended);
+            Assert.AreNotEqual(invitation.Participants.First().RowVersion, dto.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task UpdateAttendedStatus_AsContractor_ShouldUpdateAttendedStatus()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+
+            var dto = new ParticipantToUpdateAttendedStatusDto
+            {
+                Id = editInvitationDto.UpdatedParticipants.Last().Person.Id,
+                Attended = true,
+                RowVersion = editInvitationDto.UpdatedParticipants.Last().Person.RowVersion
+            };
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                    TestFactory.PlantWithAccess,
+                    _contractor.AsProCoSysPerson().AzureOid,
+                    participants.First().FunctionalRole.Code))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                dto);
+
+            // Assert
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(invitation.Participants.Last().Attended, dto.Attended);
+            Assert.AreNotEqual(invitation.Participants.Last().RowVersion, dto.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task UpdateNote_AsAdmin_ShouldUpdateNote()
+        {
+            // Arrange
+            var note = "new note";
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId);
+            var participant = invitation.Participants.First();
+            var dto = new ParticipantToUpdateNoteDto
+            {
+                Id = participant.Id,
+                Note = note,
+                RowVersion = participant.RowVersion
+            };
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId,
+                dto);
+
+            // Assert
+            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                InitialMdpInvitationId);
+
+            Assert.AreEqual(invitation.Participants.First().Note, dto.Note);
+            Assert.AreNotEqual(invitation.Participants.First().RowVersion, dto.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task UpdateNote_AsSigner_ShouldUpdateNote()
+        {
+            // Arrange
+            var (invitationToCompleteId, _) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+            var participant = invitation.Participants.First();
+            var dto = new ParticipantToUpdateNoteDto
+            {
+                Id = participant.Id,
+                Note = "new note",
+                RowVersion = participant.RowVersion
+            };
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId,
+                dto);
+
+            // Assert
+            invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationToCompleteId);
+
+            Assert.AreEqual(invitation.Participants.First().Note, dto.Note);
+            Assert.AreNotEqual(invitation.Participants.First().RowVersion, dto.RowVersion);
+        }
+
+        [TestMethod]
+        public async Task UpdateNote_AsContractor_ShouldUpdateNote()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
+
+            var dto = new ParticipantToUpdateNoteDto
+            {
+                Id = editInvitationDto.UpdatedParticipants.Last().Person.Id,
+                Note = "new note",
+                RowVersion = editInvitationDto.UpdatedParticipants.Last().Person.RowVersion
+            };
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                    TestFactory.PlantWithAccess,
+                    _contractor.AsProCoSysPerson().AzureOid,
+                    participants.First().FunctionalRole.Code))
+                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+
+            // Act
+            await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Contractor,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                dto);
+
+            // Assert
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(invitation.Participants.Last().Note, dto.Note);
+            Assert.AreNotEqual(invitation.Participants.Last().RowVersion, dto.RowVersion);
         }
 
         [TestMethod]
