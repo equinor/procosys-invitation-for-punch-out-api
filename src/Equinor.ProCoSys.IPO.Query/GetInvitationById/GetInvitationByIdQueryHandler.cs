@@ -320,7 +320,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 _plantProvider.Plant,
                 new List<string> {participant.FunctionalRoleCode});
             var functionalRole = functionalRoles.SingleOrDefault();
-            
+
             return functionalRole?.Persons != null &&
                    functionalRole.Persons.Any(person =>
                        !string.IsNullOrEmpty(person.AzureOid) &&
