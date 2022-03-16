@@ -16,29 +16,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public UnCompletePunchOutCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IMcPkgApiService mcPkgApiService)
+            IMcPkgApiService mcPkgApiService,
+            IPermissionCache permissionCache)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _mcPkgApiService = mcPkgApiService;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Result<string>> Handle(UnCompletePunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
+            var hasAdminPrivilege = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 0 && 
                 p.Organization == Organization.Contractor && 
-                p.AzureOid == currentUserAzureOid);
+                (p.AzureOid == currentUserAzureOid || hasAdminPrivilege));
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {

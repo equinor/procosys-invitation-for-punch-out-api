@@ -13,24 +13,31 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IPlantProvider _plantProvider;
+        private readonly IPermissionCache _permissionCache;
 
         public UnAcceptPunchOutCommandHandler(IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserProvider currentUserProvider)
+            ICurrentUserProvider currentUserProvider,
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache)
         {
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
+            _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Result<string>> Handle(UnAcceptPunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
+            var hasAdminPrivilege = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 1 && 
                 p.Organization == Organization.ConstructionCompany && 
-                p.AzureOid == currentUserAzureOid);
+                (p.AzureOid == currentUserAzureOid || hasAdminPrivilege));
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {
@@ -51,7 +58,5 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
-
-        
     }
 }

@@ -315,11 +315,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                                             p.Organization == Organization.Contractor ||
                                             p.Organization == Organization.ConstructionCompany)
                                      select p).SingleAsync(cancellationToken);
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
 
-            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            if (permissions.Contains("IPO/ADMIN")) { return true; }
-
-            if (participant.Type == IpoParticipantType.FunctionalRole)
+            if (participant.Type == IpoParticipantType.FunctionalRole || hasAdminPermission)
             {
                 return true;
             }
@@ -329,8 +327,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            if (permissions != null && permissions.Contains("IPO/ADMIN")) { return true; }
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            if (hasAdminPermission) return true;
 
             var completingPerson = await (from i in _context.QuerySet<Invitation>()
                                           join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
@@ -342,8 +340,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            if (permissions != null && permissions.Contains("IPO/ADMIN")) { return true; }
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            if (hasAdminPermission) return true;
 
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
                                          join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
