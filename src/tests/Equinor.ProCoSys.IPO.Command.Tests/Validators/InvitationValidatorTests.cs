@@ -1297,6 +1297,94 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_FunctionalRoleAsUnsigner_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithFrAsParticipants, _operationFrId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_PersonAsUnsigner_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithCurrentUserOidAsParticipants, _operationCurrentPersonId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_UnsignerPersonIsntCurrentUser_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithNotCurrentUserOidAsParticipants, _operationNotCurrentPersonId, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_ShouldThrowException_WhenUnsignerIsContractor()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                    await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _contractorId, default)
+                );
+                Assert.AreEqual(result.Message, "Sequence contains no elements");
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_UnsignerIsCommissioning_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _commissioningId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_UnsignerIsAdditionalContractor_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _additionalContractorId, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ValidUnsignerParticipantExistsAsync_ShouldThrowException_WhenUnsignerIsSupplier()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
+                    await dut.ValidUnsigningParticipantExistsAsync(_invitationIdWithValidAndNonValidSignerParticipants, _supplierId, default)
+                );
+                Assert.AreEqual(result.Message, "Sequence contains no elements");
+            }
+        }
+
+        [TestMethod]
         public async Task SignerExistsAsync_SignerExists_ReturnsTrue()
         {
             using (var context =
@@ -1425,7 +1513,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task SameUserUnAcceptingThatAcceptedAsync_SameUser_ReturnsTrue()
+        public async Task AdminOrSameUserUnAcceptingThatAcceptedAsync_SameUser_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1437,7 +1525,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task SameUserUnAcceptingThatAcceptedAsync_DifferentUser_ReturnsFalse()
+        public async Task AdminOrSameUserUnAcceptingThatAcceptedAsync_DifferentUser_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

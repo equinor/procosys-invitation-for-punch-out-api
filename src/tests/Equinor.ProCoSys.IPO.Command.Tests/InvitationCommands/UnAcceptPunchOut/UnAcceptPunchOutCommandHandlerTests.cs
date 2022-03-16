@@ -21,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IPermissionCache> _permissionCacheMock;
 
         private UnAcceptPunchOutCommand _command;
         private UnAcceptPunchOutCommandHandler _dut;
@@ -52,6 +53,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+            _permissionCacheMock = new Mock<IPermissionCache>();
 
             //create invitation
             _invitation = new Invitation(
@@ -111,7 +114,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
 
             _dut = new UnAcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
-                _currentUserProviderMock.Object);
+                _currentUserProviderMock.Object,
+                _plantProviderMock.Object,
+                _permissionCacheMock.Object);
         }
 
         [TestMethod]

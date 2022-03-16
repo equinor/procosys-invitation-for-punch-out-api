@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IPermissionCache> _permissionCacheMock;
 
         private UnCompletePunchOutCommand _command;
         private UnCompletePunchOutCommandHandler _dut;
@@ -54,6 +55,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+            _permissionCacheMock = new Mock<IPermissionCache>();
 
             //create invitation
             _invitation = new Invitation(
@@ -117,7 +120,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _mcPkgApiServiceMock.Object);
+                _mcPkgApiServiceMock.Object,
+                _permissionCacheMock.Object);
         }
 
         [TestMethod]
