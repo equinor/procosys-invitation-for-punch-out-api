@@ -352,6 +352,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             AssertParticipants(invitation, originalParticipants);
         }
 
+
+        [TestMethod]
+        public async Task DeleteInvitation_AsPlanner_ShouldDeleteInvitation()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning);
+
+            var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Creator,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId,
+                cancelPunchOutDto);
+
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Creator,
+                TestFactory.PlantWithAccess,
+                invitationToCancelId);
+
+            // Act
+            await InvitationsControllerTestsHelper.DeletePunchOutAsync()
+
+            // Assert
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
+            Assert.IsTrue(id > 0);
+            Assert.IsNotNull(invitation);
+            Assert.AreEqual(Title, invitation.Title);
+            Assert.AreEqual(Description, invitation.Description);
+            Assert.AreEqual(InvitationLocation, invitation.Location);
+            Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
+            var originalParticipants = _participants;
+            AssertParticipants(invitation, originalParticipants);
+        }
+
         [TestMethod]
         public async Task EditInvitation_AsPlanner_ShouldEditInvitation()
         {

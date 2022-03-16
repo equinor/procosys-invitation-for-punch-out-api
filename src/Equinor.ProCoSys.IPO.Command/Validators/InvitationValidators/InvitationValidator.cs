@@ -20,17 +20,19 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public InvitationValidator(IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
-            IPlantProvider plantProvider
-            )
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache)
         {
             _context = context;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken) =>
@@ -322,42 +324,50 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken)
         {
+            var currentUserIsCreator = CurrentUserIsCreatorOfIpoAsync(invitationId, cancellationToken).Result;
+            if (currentUserIsCreator) return true;
+            // allow if user is member of contractor functional role
+            var currentUserOid = _currentUserProvider.GetCurrentUserOid();
+            var contractorParticipants = await (from participant in _context.QuerySet<Participant>()
+                where EF.Property<int>(participant, "InvitationId") == invitationId &&
+                      participant.Organization == Organization.Contractor
+                select participant).ToListAsync(cancellationToken);
+
+            if (contractorParticipants.Any(p => p.FunctionalRoleCode != null))
+            {
+                var contractorCode = contractorParticipants.First().FunctionalRoleCode;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    currentUserOid.ToString(),
+                    contractorCode);
+
+                return person != null && new Guid(person.AzureOid) == currentUserOid;
+            }
+            return false;
+        }
+
+        public async Task<bool> CurrentUserIsCreatorOfInvitationOrAdminAsync(int invitationId,
+            CancellationToken cancellationToken)
+        {
+            var currentUserIsCreator = CurrentUserIsCreatorOfIpoAsync(invitationId, cancellationToken).Result;
+            return currentUserIsCreator || await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+        }
+
+        private async Task<bool> CurrentUserIsCreatorOfIpoAsync(int invitationId, CancellationToken cancellationToken)
+        {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
             var currentUserId = await (from person in _context.QuerySet<Person>()
-                                       where person.Oid == currentUserOid
-                                       select person.Id)
-                                   .SingleAsync(cancellationToken);
+                    where person.Oid == currentUserOid
+                    select person.Id)
+                .SingleAsync(cancellationToken);
 
             var createdById = await (from invitation in _context.QuerySet<Invitation>()
-                                     where invitation.Id == invitationId
-                                     select invitation.CreatedById)
-                              .SingleAsync(cancellationToken);
+                    where invitation.Id == invitationId
+                    select invitation.CreatedById)
+                .SingleAsync(cancellationToken);
 
-            if (currentUserId == createdById)
-            {
-                return true;
-            }
-            else
-            {
-                // allow if user is member of contractor functional role
-                var contractorParticipants = await (from participant in _context.QuerySet<Participant>()
-                                          where EF.Property<int>(participant, "InvitationId") == invitationId &&
-                                                participant.Organization == Organization.Contractor
-                                          select participant).ToListAsync(cancellationToken);
-
-                if (contractorParticipants.Any(p => p.FunctionalRoleCode != null))
-                {
-                    var contractorCode = contractorParticipants.First().FunctionalRoleCode;
-                    var person = await _personApiService.GetPersonInFunctionalRoleAsync(
-                               _plantProvider.Plant,
-                               currentUserOid.ToString(),
-                               contractorCode);
-
-                    return person != null && new Guid(person.AzureOid) == currentUserOid;
-                }
-                return false;
-            };
+            return currentUserId == createdById;
         }
     }
 }

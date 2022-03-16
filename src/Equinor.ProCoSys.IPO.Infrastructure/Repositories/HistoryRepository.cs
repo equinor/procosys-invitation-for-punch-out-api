@@ -8,5 +8,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             : base(context, context.History)
         {
         }
+
+        public void RemoveHistory(History history)
+            => _context.History.Remove(history);
     }
 }

@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
@@ -201,6 +202,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         {
             var result = await _mediator.Send(
                 new CancelPunchOutCommand(id, dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        //[AuthorizeAny(Permissions.IPO_DELETE, Permissions.IPO_ADMIN)]
+        [HttpDelete("{id}/Delete")]
+        public async Task<ActionResult> DeleteInvitation(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] DeletePunchOutDto dto)
+        {
+            var result = await _mediator.Send(
+                new DeletePunchOutCommand(id, dto.RowVersion));
             return this.FromResult(result);
         }
 

@@ -480,7 +480,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
-        #region CancelPunchOutCommand
+        #region DeletePunchOutCommand
         [TestMethod]
         public async Task ValidateAsync_OnCancelPunchOutCommand_ShouldReturnTrue_WhenAccessToProject()
         {
