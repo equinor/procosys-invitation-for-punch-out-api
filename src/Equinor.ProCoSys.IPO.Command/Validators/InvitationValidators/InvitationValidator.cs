@@ -189,7 +189,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
-            if (await IsIpoAdmin()) { return true; }
+            if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider)) { return true; }
             var participant = await (from p in _context.QuerySet<Participant>()
                 where EF.Property<int>(p, "InvitationId") == invitationId &&
                       p.Id == id
@@ -212,12 +212,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 _currentUserProvider.GetCurrentUserOid().ToString(),
                 participant.FunctionalRoleCode);
             return person != null;
-        }
-
-        private async Task<bool> IsIpoAdmin()
-        {
-            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            return permissions != null && permissions.Contains("IPO/ADMIN");
         }
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
