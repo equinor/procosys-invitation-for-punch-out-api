@@ -190,6 +190,12 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
             if (await IsIpoAdmin()) { return true; }
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId &&
+                      p.Id == id
+                select p).SingleAsync(cancellationToken);
+
+            if (participant.SignedAtUtc != null) { return false; }
 
             if (await ValidCompleterParticipantExistsAsync(invitationId, cancellationToken)) { return true; }
 
@@ -199,10 +205,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             if (invitation.Status is IpoStatus.Completed or IpoStatus.Accepted 
                 && await ValidAccepterParticipantExistsAsync(invitationId, cancellationToken)) { return true; }
 
-            var participant = await (from p in _context.QuerySet<Participant>()
-                where EF.Property<int>(p, "InvitationId") == invitationId &&
-                      p.Id == id
-                select p).SingleAsync(cancellationToken);
+            
             if (participant.FunctionalRoleCode == null && participant.AzureOid == _currentUserProvider.GetCurrentUserOid()) { return true; }
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,

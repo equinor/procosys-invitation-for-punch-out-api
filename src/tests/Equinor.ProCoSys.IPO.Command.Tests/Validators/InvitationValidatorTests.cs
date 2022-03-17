@@ -1551,6 +1551,34 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             }
         }
 
+        [TestMethod]
+        public async Task HasPermissionToEditParticipantAsync_ParticipantHasSigned_ReturnsFalse()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.HasPermissionToEditParticipantAsync(_participantId2, _invitationIdWithCurrentUserOidAsParticipants, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task HasPermissionToEditParticipantAsync_ParticipantHasSignedButIsAdmin_ReturnsTrue()
+        {
+            var permissionCacheMock = new Mock<IPermissionCache>();
+            IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
+            permissionCacheMock
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserOid))
+                .Returns(Task.FromResult(ipoAdminPrivilege));
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, permissionCacheMock.Object);
+                var result = await dut.HasPermissionToEditParticipantAsync(_participantId2, _invitationIdWithCurrentUserOidAsParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
 
         [TestMethod]
         public async Task HasPermissionToEditParticipantAsync_UserIsIpoAdmin_ReturnsTrue()

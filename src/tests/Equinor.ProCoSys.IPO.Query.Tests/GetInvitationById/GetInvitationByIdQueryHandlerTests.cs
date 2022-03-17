@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -27,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private Invitation _dpInvitation;
         private int _mdpInvitationId;
         private int _dpInvitationId;
-        
+
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IPermissionCache> _permissionCacheMock;
@@ -162,8 +163,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 {
                     MeetingId = _meetingId
                 };
-
-          
 
                 var functionalRoleParticipantForDp = new Participant(
                     TestPlant,
@@ -688,11 +687,290 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
 
                 var invitationDto = result.Data;
-                Assert.IsTrue(invitationDto.Participants.All(participant => participant.CanEditAttendedStatusAndNote == true));
+                Assert.IsTrue(invitationDto.Participants.All(participant => participant.CanEditAttendedStatusAndNote));
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnWithCanEditAttendedStatusAndNotesForContractor()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var functionalRoleDetails = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode1,
+                    Description = "FR description",
+                    Email = "fr@email.com",
+                    InformationEmail = null,
+                    Persons = new List<ProCoSysPerson>
+                    {
+                        new ProCoSysPerson
+                        {
+                            AzureOid = _currentUserOid.ToString(),
+                            Email = "test@email.com",
+                            FirstName = "FN",
+                            LastName = "LN",
+                            UserName = "UN"
+                        }
+                    },
+                    UsePersonalEmail = true
+                };
+                IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 }))
+                    .Returns(Task.FromResult(frDetails));
+
+                var query = new GetInvitationByIdQuery(_mdpInvitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _permissionCacheMock.Object,
+                    _plantProvider,
+                    _loggerMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+
+                var invitationDto = result.Data;
+                Assert.IsTrue(invitationDto.Participants.All(participant => participant.CanEditAttendedStatusAndNote));
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnWithCannotEditAttendedStatusAndNotesForContractorWhenCompleted()
+        {
+            var newCurrentUserOid = new Guid("11111111-2222-2222-2222-333333333339");
+            var currentUserProviderMock = new Mock<ICurrentUserProvider>();
+            currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(newCurrentUserOid);
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var person = context.QuerySet<Person>().FirstAsync().Result;
+                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _mdpInvitationId);
+                invitation.CompleteIpo(
+                    invitation.Participants.First(),
+                    invitation.Participants.First().RowVersion.ConvertToString(),
+                    person,
+                    DateTime.Now);
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var functionalRoleDetails = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode1,
+                    Description = "FR description",
+                    Email = "fr@email.com",
+                    InformationEmail = null,
+                    Persons = new List<ProCoSysPerson>
+                    {
+                        new ProCoSysPerson
+                        {
+                            AzureOid = newCurrentUserOid.ToString(),
+                            Email = "test@email.com",
+                            FirstName = "FN",
+                            LastName = "LN",
+                            UserName = "UN"
+                        }
+                    },
+                    UsePersonalEmail = true
+                };
+                IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 }))
+                    .Returns(Task.FromResult(frDetails));
+
+                var query = new GetInvitationByIdQuery(_mdpInvitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    currentUserProviderMock.Object,
+                    _functionalRoleApiServiceMock.Object,
+                    _permissionCacheMock.Object,
+                    _plantProvider,
+                    _loggerMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+
+                var invitationDto = result.Data;
+                Assert.IsFalse(invitationDto.Participants.All(participant => participant.CanEditAttendedStatusAndNote));
             }
         }
 
 
+        [TestMethod]
+        public async Task Handler_ShouldReturnWithCanEditAttendedStatusAndNotesForSignerWhenNotSigned()
+        {
+            var newCurrentUserOid = new Guid("11111111-2222-2222-2222-333333333332");
+            var currentUserProviderMock = new Mock<ICurrentUserProvider>();
+            currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(newCurrentUserOid);
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var functionalRoleDetails = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode2,
+                    Description = "FR description",
+                    Email = "fr@email.com",
+                    InformationEmail = null,
+                    Persons = new List<ProCoSysPerson>
+                    {
+                        new ProCoSysPerson
+                        {
+                            AzureOid = newCurrentUserOid.ToString(),
+                            Email = "test@email.com",
+                            FirstName = "FN",
+                            LastName = "LN",
+                            UserName = "UN"
+                        }
+                    },
+                    UsePersonalEmail = true
+                };
+                IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
+                        new List<string> { _functionalRoleCode2 }))
+                    .Returns(Task.FromResult(frDetails));
+
+                var query = new GetInvitationByIdQuery(_mdpInvitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    currentUserProviderMock.Object,
+                    _functionalRoleApiServiceMock.Object,
+                    _permissionCacheMock.Object,
+                    _plantProvider,
+                    _loggerMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+
+                var invitationDto = result.Data;
+                Assert.IsFalse(invitationDto.Participants.First().CanEditAttendedStatusAndNote);
+                Assert.IsFalse(invitationDto.Participants.ToList()[1].CanEditAttendedStatusAndNote);
+                Assert.IsTrue(invitationDto.Participants.ToList()[2].CanEditAttendedStatusAndNote);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldReturnWithCannotEditAttendedStatusAndNotesForSignerWhenSigned()
+        {
+            var newCurrentUserOid = new Guid("11111111-2222-2222-2222-333333333332");
+            var currentUserProviderMock = new Mock<ICurrentUserProvider>();
+            currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(newCurrentUserOid);
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var person = context.QuerySet<Person>().FirstAsync().Result;
+                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _mdpInvitationId);
+                invitation.SignIpo(
+                    invitation.Participants.ToList()[2],
+                    person,
+                    invitation.Participants.First().RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var functionalRoleDetails = new ProCoSysFunctionalRole
+                {
+                    Code = _functionalRoleCode2,
+                    Description = "FR description",
+                    Email = "fr@email.com",
+                    InformationEmail = null,
+                    Persons = new List<ProCoSysPerson>
+                    {
+                        new ProCoSysPerson
+                        {
+                            AzureOid = newCurrentUserOid.ToString(),
+                            Email = "test@email.com",
+                            FirstName = "FN",
+                            LastName = "LN",
+                            UserName = "UN"
+                        }
+                    },
+                    UsePersonalEmail = true
+                };
+                IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
+
+                _functionalRoleApiServiceMock
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
+                        new List<string> { _functionalRoleCode2 }))
+                    .Returns(Task.FromResult(frDetails));
+
+                var query = new GetInvitationByIdQuery(_mdpInvitationId);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    currentUserProviderMock.Object,
+                    _functionalRoleApiServiceMock.Object,
+                    _permissionCacheMock.Object,
+                    _plantProvider,
+                    _loggerMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+
+                var invitationDto = result.Data;
+                Assert.IsTrue(invitationDto.Participants.All(participant => !participant.CanEditAttendedStatusAndNote));
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldNotReturnWithCanEditAttendedStatusAndNotesForAdmin()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations.Single(inv => inv.Id == _mdpInvitationId);
+                invitation.CancelIpo(new Person(_currentUserOid, "Ola", "N", "olan", "email"));
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
+                _permissionCacheMock
+                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserOid))
+                    .Returns(Task.FromResult(ipoAdminPrivilege));
+                
+                var query = new GetInvitationByIdQuery(_mdpInvitation.Id);
+                var dut = new GetInvitationByIdQueryHandler(
+                    context,
+                    _meetingClientMock.Object,
+                    _currentUserProvider,
+                    _functionalRoleApiServiceMock.Object,
+                    _permissionCacheMock.Object,
+                    _plantProvider,
+                    _loggerMock.Object);
+
+                var result = await dut.Handle(query, default);
+
+                Assert.IsNotNull(result);
+                Assert.AreEqual(ResultType.Ok, result.ResultType);
+
+                var invitationDto = result.Data;
+                Assert.IsTrue(invitationDto.Participants.All(participant => !participant.CanEditAttendedStatusAndNote));
+            }
+        }
 
         private static void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
         {
