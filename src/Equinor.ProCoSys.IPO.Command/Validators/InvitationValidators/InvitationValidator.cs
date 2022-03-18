@@ -315,7 +315,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                                             p.Organization == Organization.Contractor ||
                                             p.Organization == Organization.ConstructionCompany)
                                      select p).SingleAsync(cancellationToken);
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
 
             if (participant.Type == IpoParticipantType.FunctionalRole || hasAdminPermission)
             {
@@ -327,7 +327,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
             if (hasAdminPermission) return true;
 
             var completingPerson = await (from i in _context.QuerySet<Invitation>()
@@ -340,7 +340,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
             if (hasAdminPermission) return true;
 
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
