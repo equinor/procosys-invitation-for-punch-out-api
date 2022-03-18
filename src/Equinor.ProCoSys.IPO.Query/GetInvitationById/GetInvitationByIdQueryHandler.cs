@@ -78,16 +78,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 _logger.LogError(e, $"Fusion meeting error. MeetingId={invitation.MeetingId}.");
             }
 
-            var invitationDto = ConvertToInvitationDto(invitation, meeting);
+            var invitationDto = ConvertToInvitationDto(invitation, meeting, createdBy);
 
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private InvitationDto ConvertToInvitationDto(Invitation invitation,  GeneralMeeting meeting)
+        private InvitationDto ConvertToInvitationDto(Invitation invitation,  GeneralMeeting meeting, Person createdBy)
         {
             var canEdit = meeting != null && 
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
+
+
+            var canCancel = (createdBy.Id == invitation.CreatedById);
 
             var invitationResult = new InvitationDto(
                 invitation.ProjectName,
@@ -100,7 +103,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 invitation.StartTimeUtc,
                 invitation.EndTimeUtc,
                 canEdit,
-                invitation.RowVersion.ConvertToString())
+                invitation.RowVersion.ConvertToString(), 
+                canCancel)
             {
                 Participants = ConvertToParticipantDto(invitation.Participants, invitation.Status),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
