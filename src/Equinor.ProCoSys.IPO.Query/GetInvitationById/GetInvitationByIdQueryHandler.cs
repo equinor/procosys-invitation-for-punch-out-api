@@ -102,7 +102,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 canEdit,
                 invitation.RowVersion.ConvertToString())
             {
-                Participants = ConvertToParticipantDto(invitation.Participants),
+                Participants = ConvertToParticipantDto(invitation.Participants, invitation.Status),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
             };
@@ -200,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs) 
             => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo, mcPkg.System));
 
-        private IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants)
+        private IEnumerable<ParticipantDto> ConvertToParticipantDto(IReadOnlyCollection<Participant> participants, IpoStatus status)
         {
             var participantDtos = new List<ParticipantDto>();
             var orderedParticipants = participants.OrderBy(p => p.SortKey);
@@ -221,8 +221,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
-                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
-                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result,
+                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result && status != IpoStatus.Canceled,
+                        IsSigningParticipant(participant) && CurrentUserCanSignAsPersonInFunctionalRole(participant).Result && status != IpoStatus.Canceled,
                         null,
                         null,
                         ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
@@ -238,8 +238,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.SignedAtUtc,
                         participant.Note,
                         participant.Attended,
-                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
-                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid,
+                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid && status != IpoStatus.Canceled,
+                        IsSigningParticipant(participant) && _currentUserProvider.GetCurrentUserOid() == participant.AzureOid && status != IpoStatus.Canceled,
                         null,
                         ConvertToInvitedPersonDto(participant), 
                         null,
