@@ -1,4 +1,4 @@
-﻿                                                                                                                                                                                                                         using MediatR;
+﻿using MediatR;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
