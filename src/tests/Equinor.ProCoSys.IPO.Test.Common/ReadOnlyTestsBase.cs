@@ -24,11 +24,11 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;
         protected ICurrentUserProvider _currentUserProvider;
-        protected IPermissionCache _permissionCache;
         protected Mock<IPersonApiService> _personApiServiceMock;
         protected IPersonApiService _personApiService;
         protected IEventDispatcher _eventDispatcher;
         protected ManualTimeProvider _timeProvider;
+        protected IPermissionCache _permissionCache;
 
         [TestInitialize]
         public void SetupBase()

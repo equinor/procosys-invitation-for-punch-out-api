@@ -29,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut
                 .MustAsync((command, cancellationToken) => BeASigningParticipantOnIpo(command.InvitationId, command.ParticipantId, cancellationToken))
                 .WithMessage(command =>
                     $"Participant is not assigned to unsign this IPO! ParticipantId={command.ParticipantId}")
-                .MustAsync((command, cancellationToken) => BeTheAssignedPersonIfPersonParticipant(command.InvitationId, command.ParticipantId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeAdminOrTheAssignedPersonIfPersonParticipant(command.InvitationId, command.ParticipantId, cancellationToken))
                 .WithMessage(command =>
-                    "Person unsigning is not assigned to unsign IPO, or there is not a valid functional role on the IPO!")
+                    "Person unsigning is not admin, not assigned to unsign IPO, or there is not a valid functional role on the IPO!")
                 .MustAsync((command, cancellationToken) => BeSignedParticipant(command.ParticipantId, command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "An unsigned participant cannot be unsigned!");
@@ -45,8 +45,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut
             async Task<bool> BeASigningParticipantOnIpo(int invitationId, int participantId, CancellationToken cancellationToken)
                 => await invitationValidator.SignerExistsAsync(invitationId, participantId, cancellationToken);
 
-            async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, int participantId, CancellationToken cancellationToken)
-                => await invitationValidator.ValidSigningParticipantExistsAsync(invitationId, participantId, cancellationToken);
+            async Task<bool> BeAdminOrTheAssignedPersonIfPersonParticipant(int invitationId, int participantId, CancellationToken cancellationToken)
+                => await invitationValidator.ValidUnsigningParticipantExistsAsync(invitationId, participantId, cancellationToken);
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);

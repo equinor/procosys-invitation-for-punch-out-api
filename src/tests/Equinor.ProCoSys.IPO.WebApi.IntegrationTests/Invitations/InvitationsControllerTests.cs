@@ -1000,6 +1000,103 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             AssertRowVersionChange(cancelPunchOutDto.RowVersion, newRowVersion);
         }
 
+        [TestMethod]
+        public async Task UnsignPunchOut_AsAdmin_ShouldUnsignPunchOut()
+        {
+            // Arrange
+            var (invitationToSignAndUnsignId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participantsForSigning);
+
+            var participant = editInvitationDto.UpdatedParticipants.Single(p => p.Organization == Organization.TechnicalIntegrity);
+
+            var currentRowVersion = await InvitationsControllerTestsHelper.SignPunchOutAsync(
+                    UserType.Signer,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    participant.Person.RowVersion);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnsignPunchOutAsync(
+                    UserType.Admin,
+                    TestFactory.PlantWithAccess,
+                    invitationToSignAndUnsignId,
+                    participant.Person.Id,
+                    currentRowVersion);
+
+            // Assert
+            var unsignedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToSignAndUnsignId);
+
+            var signerParticipant = unsignedInvitation.Participants.Single(p => p.Id == participant.Person.Id);
+            Assert.IsNull(signerParticipant.SignedAtUtc);
+            Assert.IsNull(signerParticipant.SignedBy);
+            AssertRowVersionChange(currentRowVersion, newRowVersion);
+        }
+
+        [TestMethod]
+        public async Task UnCompletePunchOut_AsAdmin_ShouldUnCompletePunchOut()
+        {
+            // Arrange
+            var (invitationToUnCompleteId, unCompletePunchOutDto) = await CreateValidUnCompletePunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnCompletePunchOutAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompleteId,
+                unCompletePunchOutDto);
+
+            // Assert
+            var unCompletedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                invitationToUnCompleteId);
+
+            var unCompleterParticipant = unCompletedInvitation.Participants
+                .Single(p => p.Organization == Organization.Contractor);
+
+            var unCompletingParticipant =
+                unCompletedInvitation.Participants.Single(p => p.Id == unCompleterParticipant.Id);
+            Assert.AreEqual(IpoStatus.Planned, unCompletedInvitation.Status);
+            Assert.IsNull(unCompletedInvitation.CompletedBy);
+            Assert.IsNull(unCompletedInvitation.CompletedAtUtc);
+            Assert.IsNull(unCompletingParticipant.SignedAtUtc);
+            Assert.IsNull(unCompletingParticipant.SignedBy);
+            AssertRowVersionChange(unCompletePunchOutDto.InvitationRowVersion, newRowVersion);
+        }
+
+        [TestMethod]
+        public async Task UnAcceptPunchOut_AsAdmin_ShouldUnAcceptPunchOut()
+        {
+            // Arrange
+            var (invitationToUnAcceptId, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            var newRowVersion = await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId,
+                unAcceptPunchOutDto);
+
+            // Assert
+            var unAcceptedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationToUnAcceptId);
+
+            var unAccepterParticipant = unAcceptedInvitation.Participants
+                .Single(p => p.Organization == Organization.ConstructionCompany);
+
+            var unAcceptingParticipant =
+                unAcceptedInvitation.Participants.Single(p => p.Id == unAccepterParticipant.Id);
+            Assert.AreEqual(IpoStatus.Completed, unAcceptedInvitation.Status);
+            Assert.IsNull(unAcceptingParticipant.SignedAtUtc);
+            Assert.IsNull(unAcceptingParticipant.SignedBy);
+            AssertRowVersionChange(unAcceptPunchOutDto.InvitationRowVersion, newRowVersion);
+        }
+
         private void AssertParticipants(InvitationDto invitation, List<CreateParticipantsDto> originalParticipants)
         {
             Assert.IsNotNull(invitation.Participants);

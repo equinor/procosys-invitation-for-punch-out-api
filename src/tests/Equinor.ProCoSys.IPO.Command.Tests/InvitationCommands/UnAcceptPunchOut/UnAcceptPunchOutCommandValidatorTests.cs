@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Accepted, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.AdminOrSameUserThatAcceptedIsUnAcceptingAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoHasAccepterAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new UnAcceptPunchOutCommand(
                 _id,
@@ -96,16 +96,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenPersonTryingToUnAcceptIsNotThePersonWhoAcceptedTheIpo()
+        public void Validate_ShouldFail_WhenPersonTryingToUnAcceptIsNotThePersonWhoAcceptedTheIpoOrAnAdmin()
         {
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnAcceptingThatAcceptedAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.AdminOrSameUserThatAcceptedIsUnAcceptingAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person trying to unaccept is not the person who accepted the IPO!"));
+                .StartsWith("Person trying to unaccept is not an admin and not the person who accepted the IPO!"));
         }
     }
 }

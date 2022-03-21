@@ -239,7 +239,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Uncomplete")]
         public async Task<ActionResult<string>> UncompletePunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -254,7 +254,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unaccept")]
         public async Task<ActionResult<string>> UnacceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -295,7 +295,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             }
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unsign")]
         public async Task<ActionResult<string>> UnsignPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]

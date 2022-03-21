@@ -308,9 +308,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddContractorUser(commonProCoSysPlants, commonProCoSysProjects);
 
-            AddCreatorUser(commonProCoSysPlants, commonProCoSysProjects);
-
             AddAdminUser(commonProCoSysPlants, commonProCoSysProjects);
+
+            AddCreatorUser(commonProCoSysPlants, commonProCoSysProjects); 
 
             var webHostBuilder = WithWebHostBuilder(builder =>
             {
@@ -473,18 +473,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     },
                     ProCoSysProjects = commonProCoSysProjects
                 });
-
+                
         // Authenticated user with all IPO permissions
         private void AddAdminUser(
             List<ProCoSysPlant> commonProCoSysPlants,
             List<ProCoSysProject> commonProCoSysProjects)
             => _testUsers.Add(UserType.Admin,
-                new TestUser
+            new TestUser
                 {
                     Profile =
                         new TestProfile
                         {
-                            FirstName = "Andrea",
+                          FirstName = "Andrea",
                             LastName = "Admin",
                             UserName = "AndreaAdminUserName",
                             Oid = AdminOid,
