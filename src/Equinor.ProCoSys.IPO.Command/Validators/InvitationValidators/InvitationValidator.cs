@@ -20,17 +20,20 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public InvitationValidator(IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
-            IPlantProvider plantProvider
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache
             )
         {
             _context = context;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken) =>
@@ -300,8 +303,33 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
-        public async Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> ValidUnsigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                                     where EF.Property<int>(p, "InvitationId") == invitationId &&
+                                           p.Id == participantId &&
+                                           p.SortKey > 1 &&
+                                           (p.Organization == Organization.TechnicalIntegrity ||
+                                            p.Organization == Organization.Operation ||
+                                            p.Organization == Organization.Commissioning ||
+                                            p.Organization == Organization.Contractor ||
+                                            p.Organization == Organization.ConstructionCompany)
+                                     select p).SingleAsync(cancellationToken);
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+
+            if (participant.Type == IpoParticipantType.FunctionalRole || hasAdminPermission)
+            {
+                return true;
+            }
+
+            return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
+        }
+
+        public async Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken)
+        {
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            if (hasAdminPermission) return true;
+
             var completingPerson = await (from i in _context.QuerySet<Invitation>()
                                           join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
                                           where i.Id == invitationId
@@ -310,8 +338,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return completingPerson != null && _currentUserProvider.GetCurrentUserOid() == completingPerson.Oid;
         }
 
-        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken)
         {
+            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            if (hasAdminPermission) return true;
+
             var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
                                          join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
                                          where i.Id == invitationId

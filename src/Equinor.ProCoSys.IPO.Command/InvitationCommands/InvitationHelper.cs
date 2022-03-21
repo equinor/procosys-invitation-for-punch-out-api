@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -15,6 +17,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
         public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant) 
             => participant.Organization != Organization.External && participant.Organization != Organization.Supplier;
+        public static async Task<bool> HasIpoAdminPrivilege(IPermissionCache permissionCache, IPlantProvider plantProvider, ICurrentUserProvider currentUserProvider)
+        {
+            var permissions = await permissionCache.GetPermissionsForUserAsync(plantProvider.Plant, currentUserProvider.GetCurrentUserOid());
+            return permissions != null && permissions.Contains("IPO/ADMIN");
+        }
 
         public static List<BuilderParticipant> SplitAndCreateOutlookParticipantsFromEmailList(
             string emails)

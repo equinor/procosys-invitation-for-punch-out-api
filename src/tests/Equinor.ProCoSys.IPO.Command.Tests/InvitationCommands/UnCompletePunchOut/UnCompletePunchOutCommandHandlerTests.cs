@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IPermissionCache> _permissionCacheMock;
 
         private UnCompletePunchOutCommand _command;
         private UnCompletePunchOutCommandHandler _dut;
@@ -37,6 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private const string _participantRowVersion = "AAAAAAAAABA=";
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
+        private static Guid _azureOidNotForCurrentUser = new Guid("11111111-1111-2222-3333-333333333336");
         private const string _functionalRoleCode = "FR1";
         private Invitation _invitation;
         private const int _participantId = 20;
@@ -54,6 +56,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
+
+            _permissionCacheMock = new Mock<IPermissionCache>();
 
             //create invitation
             _invitation = new Invitation(
@@ -117,7 +121,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _mcPkgApiServiceMock.Object);
+                _mcPkgApiServiceMock.Object,
+                _permissionCacheMock.Object);
         }
 
         [TestMethod]
@@ -153,6 +158,34 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+        }
+
+        [TestMethod]
+        public async Task UnCompletePunchOutCommand_WhenUserIsAdmin_ShouldUnCompletePunchOut()
+        {
+            _currentUserProviderMock
+                .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidNotForCurrentUser);
+
+            IList<string> permissions = new List<string> { "IPO/ADMIN" };
+            _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
+                _plant, _azureOidNotForCurrentUser))
+                .Returns(Task.FromResult(permissions));
+            Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
+            var participant = _invitation.Participants.Single(p => p.Organization == Organization.Contractor);
+            Assert.IsNotNull(participant);
+            Assert.IsNotNull(participant.SignedAtUtc);
+            Assert.IsNotNull(participant.SignedBy);
+            Assert.IsNotNull(_invitation.CompletedAtUtc);
+            Assert.IsNotNull(_invitation.CompletedBy);
+
+            await _dut.Handle(_command, default);
+
+            Assert.AreEqual(IpoStatus.Planned, _invitation.Status);
+            Assert.IsNull(participant.SignedAtUtc);
+            Assert.IsNull(participant.SignedBy);
+            Assert.IsNull(_invitation.CompletedAtUtc);
+            Assert.IsNull(_invitation.CompletedBy);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
