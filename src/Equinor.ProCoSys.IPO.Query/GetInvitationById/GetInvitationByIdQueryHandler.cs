@@ -224,7 +224,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode
                                     && p.SortKey == participant.SortKey
                                     && p.Type == IpoParticipantType.Person);
-                    var currentUserIsInFunctionalRole = CurrentUserIsInFunctionalRoleAsync(participant).Result;
+                    var currentUserIsInFunctionalRole = await CurrentUserIsInFunctionalRoleAsync(participant);
                     var canSign = ipoStatus != IpoStatus.Canceled && IsSigningParticipant(participant) && currentUserIsInFunctionalRole;
 
                     participantDtos.Add(new ParticipantDto(
@@ -238,7 +238,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         canSign,
                         canSign,
                         ipoStatus != IpoStatus.Canceled
-                            && (HasIpoAdminPrivilegeAsync().Result || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsInFunctionalRole)),
+                            && (await HasIpoAdminPrivilegeAsync() || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsInFunctionalRole)),
                         null,
                         null,
                         ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
@@ -259,7 +259,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         canSign,
                         canSign,
                         ipoStatus != IpoStatus.Canceled
-                            && (HasIpoAdminPrivilegeAsync().Result || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsParticipant)),
+                            && (await HasIpoAdminPrivilegeAsync() || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsParticipant)),
                         null,
                         ConvertToInvitedPersonDto(participant),
                         null,

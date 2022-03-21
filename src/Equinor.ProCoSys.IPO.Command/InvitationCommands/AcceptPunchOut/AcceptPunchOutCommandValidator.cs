@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
                 => await invitationValidator.IpoHasAccepterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ValidAccepterParticipantExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);

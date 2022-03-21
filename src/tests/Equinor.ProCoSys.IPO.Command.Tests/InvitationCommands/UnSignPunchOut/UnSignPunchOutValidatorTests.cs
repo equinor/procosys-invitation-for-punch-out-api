@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ValidUnsigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidUnsigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IsSignedParticipantAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenPersonTryingToCompleteIsNotAValidSigningParticipant()
         {
-            _invitationValidatorMock.Setup(inv => inv.ValidUnsigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidUnsigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

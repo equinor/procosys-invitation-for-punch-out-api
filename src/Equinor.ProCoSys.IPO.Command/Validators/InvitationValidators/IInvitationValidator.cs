@@ -21,15 +21,15 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
         Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoIsInStageAsync(int invitationId, IpoStatus stage, CancellationToken cancellationToken);
-        Task<bool> ValidCompleterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> ValidAccepterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidCompleterParticipantAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoHasCompleterAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoHasAccepterAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> ValidUnsigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidSigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> AdminOrSameUserThatCompletedIsUnCompletingAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> AdminOrSameUserThatAcceptedIsUnAcceptingAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
     }
 }

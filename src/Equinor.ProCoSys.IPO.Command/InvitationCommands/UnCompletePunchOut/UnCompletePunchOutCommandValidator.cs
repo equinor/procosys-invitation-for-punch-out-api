@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
                 => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAdminOrThePersonWhoCompleted(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.AdminOrSameUserThatCompletedIsUnCompletingAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsAdminOrValidCompletorParticipantAsync(invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);
