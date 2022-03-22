@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> CurrentUserIsCreatorOrOfInvitationOrAdmin(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.CurrentUserIsAdminOrCreatorAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsAllowedToDeleteIpoAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsCanceled(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);

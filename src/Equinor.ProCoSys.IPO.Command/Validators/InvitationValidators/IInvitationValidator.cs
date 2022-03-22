@@ -28,9 +28,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsValidSigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> CurrentUserIsAdminOrCreatorOrCompletorAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAllowedToCancelIpoAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> CurrentUserIsAdminOrCreatorAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken);
     }
 }

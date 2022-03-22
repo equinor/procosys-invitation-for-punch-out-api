@@ -395,7 +395,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken);
         }
 
-        public async Task<bool> CurrentUserIsAdminOrCreatorOrCompletorAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsAllowedToCancelIpoAsync(int invitationId, CancellationToken cancellationToken)
         {
             var currentUserIsAdminOrCompletor =
                 await CurrentUserIsAdminOrValidCompletorParticipantAsync(invitationId, cancellationToken);
@@ -407,7 +407,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return await CurrentUserIsCreatorOfIpoAsync(invitationId, cancellationToken);
         }
 
-        public async Task<bool> CurrentUserIsAdminOrCreatorAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken)
         {
             var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
             if (hasAdminPermission)
