@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
@@ -15,8 +14,5 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public IList<History> GetHistoryByObjectGuid(Guid guid) 
             => _context.History.Where(h => h.ObjectGuid == guid).ToList();
-
-        public void RemoveHistory(History history)
-            => _context.History.Remove(history);
     }
 }

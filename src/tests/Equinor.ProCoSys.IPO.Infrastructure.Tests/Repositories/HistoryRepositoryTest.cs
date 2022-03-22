@@ -49,13 +49,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut = new HistoryRepository(ContextHelper.ContextMock.Object);
         }
 
-
         [TestMethod]
-        public void RemoveHistory_KnownHistory_ShouldRemoveHistory()
+        public void GetHistoryByOid_KnownHistory_ShouldGetHistory()
         {
-            _dut.RemoveHistory(_completeHistory1);
+            var history = _dut.GetHistoryByObjectGuid(_guid1);
 
-            _dbHistorySetMock.Verify(s => s.Remove(_completeHistory1), Times.Once);
+            Assert.AreEqual(2, history.Count);
+            Assert.AreEqual(_createHistory1, history.First());
+            Assert.AreEqual(_completeHistory1, history.Last());
         }
     }
 }
