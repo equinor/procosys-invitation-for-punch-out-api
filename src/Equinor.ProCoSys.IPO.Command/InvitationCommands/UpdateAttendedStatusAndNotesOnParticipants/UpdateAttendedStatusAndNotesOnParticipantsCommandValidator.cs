@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);
 
             async Task<bool> BeTheAssignedContractorIfPersonParticipant(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ValidCompleterParticipantExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAContractorOnIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);

@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ValidSigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsValidSigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
             _command = new SignPunchOutCommand(
@@ -82,6 +82,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is canceled, and thus cannot be signed"));
         }
 
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenParticipantIsSigned()
+        {
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participant is already signed!"));
+        }
+
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {
@@ -109,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenPersonTryingToCompleteIsNotAValidSigningParticipant()
         {
-            _invitationValidatorMock.Setup(inv => inv.ValidSigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsValidSigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

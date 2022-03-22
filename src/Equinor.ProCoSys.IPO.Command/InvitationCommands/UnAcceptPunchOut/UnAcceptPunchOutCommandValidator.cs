@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                 => await invitationValidator.IpoHasAccepterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAdminOrThePersonWhoAccepted(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.AdminOrSameUserThatAcceptedIsUnAcceptingAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsAdminOrValidAccepterParticipantAsync(invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

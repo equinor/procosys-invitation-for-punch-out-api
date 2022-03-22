@@ -312,7 +312,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddCreatorUser(commonProCoSysPlants, commonProCoSysProjects); 
 
-
             var webHostBuilder = WithWebHostBuilder(builder =>
             {
                 builder.UseEnvironment(IntegrationTestEnvironment);
