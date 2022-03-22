@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnCompletingThatCompletedAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidCompletorParticipantAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoHasCompleterAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new UnCompletePunchOutCommand(
                 _id,
@@ -96,16 +96,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenPersonTryingToUnCompleteIsNotThePersonWhoCompletedTheIpo()
+        public void Validate_ShouldFail_WhenPersonTryingToUnCompleteIsNotThePersonWhoCompletedTheIpoOrAnAdmin()
         {
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnCompletingThatCompletedAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidCompletorParticipantAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person trying to uncomplete is not the person who completed the IPO!"));
+                .StartsWith("Person trying to uncomplete is not an admin and not the person who completed the IPO!"));
         }
     }
 }

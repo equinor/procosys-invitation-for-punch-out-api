@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
                     $"IPO is not canceled! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => CurrentUserIsCreatorOrOfInvitationOrAdmin(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"Current user is not the creator of the invitation and not in Contractor Functional Role! Id={command.InvitationId}")
+                    $"Current user is not the creator of the invitation and not ipo admin! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command =>
                     $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}");
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> CurrentUserIsCreatorOrOfInvitationOrAdmin(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.CurrentUserIsCreatorOfInvitationOrAdminAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsAdminOrCreatorAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsCanceled(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);

@@ -8,6 +8,7 @@
         Viewer,
         Hacker,
         Contractor,
+        Admin,
         Creator
     }
 }

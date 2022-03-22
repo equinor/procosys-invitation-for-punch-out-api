@@ -38,10 +38,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         protected TestProfile _sigurdSigner;
         protected TestProfile _contractor;
         protected TestProfile _pernillaPlanner;
+        protected TestProfile _andreaAdmin;
 
         [TestInitialize]
         public async Task TestInitializeAsync()
         {
+            _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
+            _pernillaPlanner = TestFactory.Instance.GetTestUserForUserType(UserType.Planner).Profile;
+            _contractor = TestFactory.Instance.GetTestUserForUserType(UserType.Contractor).Profile;
+            _andreaAdmin = TestFactory.Instance.GetTestUserForUserType(UserType.Admin).Profile;
+
             var personParticipant = new CreateInvitedPersonDto
             {
                 AzureOid = Guid.NewGuid(),
@@ -50,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
             var person1InFunctionalRoleParticipant = new CreateInvitedPersonDto
             {
-                AzureOid = Guid.NewGuid(),
+                AzureOid = new Guid(_contractor.Oid),
                 Email = "per@test.com"
             };
             var person2InFunctionalRoleParticipant = new CreateInvitedPersonDto
@@ -63,14 +69,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Code = FunctionalRoleCode,
                 Persons = new List<CreateInvitedPersonDto>
                 {
-                    person1InFunctionalRoleParticipant, 
+                    person1InFunctionalRoleParticipant,
                     person2InFunctionalRoleParticipant
                 }
             };
-            
-            _sigurdSigner = TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile;
-            _pernillaPlanner = TestFactory.Instance.GetTestUserForUserType(UserType.Planner).Profile;
-            _contractor = TestFactory.Instance.GetTestUserForUserType(UserType.Contractor).Profile;
 
             _participants = new List<CreateParticipantsDto>
             {
@@ -260,6 +262,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             TestFactory.Instance
                 .PersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
+                    TestFactory.PlantWithAccess,
+                    _andreaAdmin.Oid,
+                    "IPO",
+                    It.IsAny<List<string>>()))
+                .Returns(Task.FromResult(_andreaAdmin.AsProCoSysPerson()));
+
+            TestFactory.Instance
+                .PersonApiServiceMock
+                .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),
                         "IPO",
@@ -409,6 +420,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             };
 
             return (invitationToCompleteAndUnCompleteId, unCompletePunchOutDto);
+        }
+
+        internal async Task<(int, string)> CreateValidDeletePunchOutDtoAsync(List<CreateParticipantsDto> participants, UserType userType = UserType.Planner)
+        {
+            var (invitationId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(participants, userType);
+
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                cancelPunchOutDto);
+
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            return (invitationId, canceledInvitation.RowVersion);
         }
 
         internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<CreateParticipantsDto> participants)

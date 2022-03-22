@@ -17,6 +17,8 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
@@ -205,7 +207,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        //[AuthorizeAny(Permissions.IPO_DELETE, Permissions.IPO_ADMIN)]
+        [AuthorizeAny(Permissions.IPO_DELETE, Permissions.IPO_ADMIN)]
         [HttpDelete("{id}/Delete")]
         public async Task<ActionResult> DeleteInvitation(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -235,6 +237,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        // TODO remove participants from DTO once new endpoints to update note and attended status are taken into use
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Accept")]
         public async Task<ActionResult<string>> AcceptPunchOut(
@@ -252,7 +255,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Uncomplete")]
         public async Task<ActionResult<string>> UncompletePunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -267,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unaccept")]
         public async Task<ActionResult<string>> UnacceptPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -282,6 +285,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        // TODO remove participants from DTO once new endpoints to update note and attended status are taken into use
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompletePunchOut(
@@ -305,10 +309,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 Console.WriteLine(e);
                 throw;
             }
-            
         }
 
-        [Authorize(Roles = Permissions.IPO_SIGN)]
+        [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unsign")]
         public async Task<ActionResult<string>> UnsignPunchOut(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
@@ -323,9 +326,39 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [AuthorizeAny(Permissions.IPO_WRITE, Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
+        [HttpPut("{id}/AttendedStatus")]
+        public async Task<ActionResult> UpdateAttendedStatusOnParticipant(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] ParticipantToUpdateStatusDto dto)
+        {
+            var result = await _mediator.Send(new UpdateAttendedStatusOnParticipantCommand(id, dto.Id, dto.Attended, dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [AuthorizeAny(Permissions.IPO_WRITE, Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
+        [HttpPut("{id}/Note")]
+        public async Task<ActionResult> UpdateNoteOnParticipant(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] ParticipantToUpdateNoteDto dto)
+        {
+            var result = await _mediator.Send(
+                new UpdateNoteOnParticipantCommand(id, dto.Id, dto.Note, dto.RowVersion));
+            return this.FromResult(result);
+        }
+        
+        // TODO: This endpoint will be replaced by the two above, and this this endpoint can be removed once frontend stops using it.
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/AttendedStatusAndNotes")]
-        public async Task<ActionResult> ChangeAttendedStatusOnParticipants(
+        public async Task<ActionResult> ChangeAttendedStatusAndNotesOnParticipants(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -450,6 +483,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        #region Helpers
         private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
                 new ParticipantsForCommand(
@@ -597,5 +631,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
             return query;
         }
+        #endregion
     }
 }

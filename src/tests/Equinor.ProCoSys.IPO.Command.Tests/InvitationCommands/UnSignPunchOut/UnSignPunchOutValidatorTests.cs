@@ -27,9 +27,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ValidSigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidUnsigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+
             _command = new UnSignPunchOutCommand(
                 _invitationId,
                 _participantId,
@@ -79,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is canceled, and thus cannot be signed"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Invitation is canceled, and thus cannot be unsigned"));
         }
 
         [TestMethod]
@@ -107,16 +109,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
         }
 
         [TestMethod]
+        public void Validate_ShouldFail_WhenParticipantIsNotSigned()
+        {
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(false));
+
+            var result = _dut.Validate(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("An unsigned participant cannot be unsigned"));
+        }
+
+        [TestMethod]
         public void Validate_ShouldFail_WhenPersonTryingToCompleteIsNotAValidSigningParticipant()
         {
-            _invitationValidatorMock.Setup(inv => inv.ValidSigningParticipantExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidUnsigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person unsigning is not assigned to unsign IPO, or there is not a valid functional role on the IPO!"));
+                .StartsWith("Person unsigning is not admin, not assigned to unsign IPO, or there is not a valid functional role on the IPO!"));
         }
     }
 }

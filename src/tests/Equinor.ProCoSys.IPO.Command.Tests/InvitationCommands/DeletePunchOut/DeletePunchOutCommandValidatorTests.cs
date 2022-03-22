@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOfInvitationOrAdminAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrCreatorAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new DeletePunchOutCommand(_id, _invitationRowVersion);
 
             _dut = new DeletePunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
@@ -78,9 +78,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenUserTryingToDeleteIsNotOrganizerOfIpoOrAdmin()
+        public void Validate_ShouldFail_WhenUserTryingToDeleteIsNotOrganizerOrIpoOrAdmin()
         {
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOfInvitationOrAdminAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrCreatorAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

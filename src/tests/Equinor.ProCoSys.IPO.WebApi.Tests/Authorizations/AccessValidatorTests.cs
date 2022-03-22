@@ -12,6 +12,8 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
 using Equinor.ProCoSys.IPO.Domain;
@@ -512,6 +514,77 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
+        #region UpdateAttendedStatusCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateAttendedStatusOnParticipantCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateAttendedStatusOnParticipantCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                true,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateAttendedStatusOnParticipantCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateAttendedStatusOnParticipantCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                true,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region UpdateNoteCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateNoteOnParticipantCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateNoteOnParticipantCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateNoteOnParticipantCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateNoteOnParticipantCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
         #region CreateSavedFilterCommand
         [TestMethod]
         public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnTrue_WhenAccessToProject()
