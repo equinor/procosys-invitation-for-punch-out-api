@@ -831,7 +831,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     _functionalRoleParticipant.RowVersion.ConvertToString()));
 
         [TestMethod]
-        public void UpdateAttendedStatus_ShouldUpdateAttendedStatusEvent()
+        public void UpdateAttendedStatus_ShouldAddUpdateAttendedStatusEvent()
         {
             _dutDpIpo.UpdateAttendedStatus(
                 _personParticipant,
@@ -839,6 +839,17 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _personParticipant.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(AttendedStatusUpdatedEvent));
+        }
+
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldUpdateAttendedStatus()
+        {
+            _dutDpIpo.UpdateAttendedStatus(
+                _personParticipant,
+                true,
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsTrue(_dutDpIpo.Participants.First().Attended);
         }
         #endregion
 
@@ -853,7 +864,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     _functionalRoleParticipant.RowVersion.ConvertToString()));
 
         [TestMethod]
-        public void UpdateNote_ShouldUpdateNoteEvent()
+        public void UpdateNote_ShouldAddUpdateNoteEvent()
         {
             _dutDpIpo.UpdateNote(
                 _personParticipant,
@@ -861,6 +872,17 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 _personParticipant.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(NoteUpdatedEvent));
+        }
+
+        [TestMethod]
+        public void UpdateNote_ShouldUpdateNote()
+        {
+            _dutDpIpo.UpdateNote(
+                _personParticipant,
+                "note",
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.AreEqual("note", _dutDpIpo.Participants.First().Note);
         }
         #endregion
 

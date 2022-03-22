@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
             _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidUnsigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.IsSignedParticipantAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
 
             _command = new UnSignPunchOutCommand(
                 _invitationId,
@@ -111,7 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantIsNotSigned()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsSignedParticipantAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 

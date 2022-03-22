@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantIsSigned()
         {
-            _invitationValidatorMock.Setup(inv => inv.IsSignedParticipantAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
 
             var result = _dut.Validate(_command);
 

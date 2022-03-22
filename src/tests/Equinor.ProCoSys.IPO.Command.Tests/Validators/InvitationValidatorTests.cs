@@ -1232,7 +1232,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.IsSignedParticipantAsync(_participantId2, _invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.ParticipantIsSignedAsync(_participantId2, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsTrue(result);
             }
         }
@@ -1244,7 +1244,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.IsSignedParticipantAsync(_operationCurrentPersonId, _invitationIdWithCurrentUserOidAsParticipants, default);
+                var result = await dut.ParticipantIsSignedAsync(_operationCurrentPersonId, _invitationIdWithCurrentUserOidAsParticipants, default);
                 Assert.IsFalse(result);
             }
         }

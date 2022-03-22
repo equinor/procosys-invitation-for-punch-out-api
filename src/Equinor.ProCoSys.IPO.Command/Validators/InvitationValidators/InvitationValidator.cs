@@ -177,7 +177,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                       select p).AnyAsync(cancellationToken);
 
-        public async Task<bool> IsSignedParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> ParticipantIsSignedAsync(int id, int invitationId, CancellationToken cancellationToken)
             => await (from p in _context.QuerySet<Participant>()
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null && p.SignedAtUtc != null
                       select p).AnyAsync(cancellationToken);
@@ -189,24 +189,38 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
-            if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider)) { return true; }
+            if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider))
+            {
+                return true;
+            }
+
+            var invitation = await (from i in _context.QuerySet<Invitation>()
+                where i.Id == invitationId
+                select i).SingleAsync(cancellationToken);
+            
+            switch (invitation.Status)
+            {
+                case IpoStatus.Planned when await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken):
+                case IpoStatus.Completed when await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken):
+                    return true;
+            }
+
             var participant = await (from p in _context.QuerySet<Participant>()
                 where EF.Property<int>(p, "InvitationId") == invitationId &&
                       p.Id == id
                 select p).SingleAsync(cancellationToken);
 
-            if (participant.SignedAtUtc != null) { return false; }
+            if (participant.SignedAtUtc != null)
+            {
+                return false;
+            }
 
-            if (await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken)) { return true; }
+            if (participant.FunctionalRoleCode == null &&
+                participant.AzureOid == _currentUserProvider.GetCurrentUserOid())
+            {
+                return true;
+            }
 
-            var invitation = await (from i in _context.QuerySet<Invitation>()
-                where i.Id == invitationId
-                select i).SingleAsync(cancellationToken);
-            if (invitation.Status is IpoStatus.Completed or IpoStatus.Accepted 
-                && await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken)) { return true; }
-
-            
-            if (participant.FunctionalRoleCode == null && participant.AzureOid == _currentUserProvider.GetCurrentUserOid()) { return true; }
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,
                 _currentUserProvider.GetCurrentUserOid().ToString(),
@@ -351,14 +365,21 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
             var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
-            if (hasAdminPermission) return true;
+            if (hasAdminPermission)
+            {
+                return true;
+            }
+
             return await CurrentUserIsValidSigningParticipantAsync(invitationId, participantId, cancellationToken);
         }
 
         public async Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
             var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
-            if (hasAdminPermission) return true;
+            if (hasAdminPermission)
+            {
+                return true;
+            }
 
             return await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken);
         }
@@ -366,7 +387,10 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
             var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
-            if (hasAdminPermission) return true;
+            if (hasAdminPermission)
+            {
+                return true;
+            }
 
             return await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken);
         }

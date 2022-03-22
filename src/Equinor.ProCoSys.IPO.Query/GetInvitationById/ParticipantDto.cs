@@ -46,7 +46,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public bool Attended { get; }
         [Obsolete("Use isSigner")]
         public bool CanSign { get; }
-        // IsSigner can be false even if the participant is in theory a signer, if the IPO is cancelled.
         public bool IsSigner { get; }
         public bool CanEditAttendedStatusAndNote { get; }
         public ExternalEmailDto ExternalEmail { get; }
