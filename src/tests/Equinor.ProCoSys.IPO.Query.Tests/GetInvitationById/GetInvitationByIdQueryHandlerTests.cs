@@ -333,7 +333,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -356,7 +355,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -382,7 +380,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -407,7 +404,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -504,7 +500,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -537,7 +532,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -569,7 +563,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -596,7 +589,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -648,7 +640,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                         _meetingClientMock.Object,
                         _currentUserProvider,
                         _functionalRoleApiServiceMock.Object,
-                        _permissionCacheMock.Object,
                         _plantProvider,
                         _loggerMock.Object);
 
@@ -659,38 +650,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     var invitationDto = result.Data;
                     AssertInvitation(invitationDto, _mdpInvitation);
                 }
-        }
-
-        [TestMethod]
-        public async Task Handler_ShouldReturnWithCanEditAttendedStatusAndNotesForAdmin()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
-                _permissionCacheMock
-                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserOid))
-                    .Returns(Task.FromResult(ipoAdminPrivilege));
-
-                var query = new GetInvitationByIdQuery(_mdpInvitationId);
-                var dut = new GetInvitationByIdQueryHandler(
-                    context,
-                    _meetingClientMock.Object,
-                    _currentUserProvider,
-                    _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
-                    _plantProvider,
-                    _loggerMock.Object);
-
-                var result = await dut.Handle(query, default);
-
-                Assert.IsNotNull(result);
-                Assert.AreEqual(ResultType.Ok, result.ResultType);
-
-                var invitationDto = result.Data;
-                Assert.IsTrue(invitationDto.Participants.All(participant => participant.CanEditAttendedStatusAndNote));
-                Assert.IsFalse(invitationDto.CanDelete);
-                Assert.IsTrue(invitationDto.CanCancel);
-            }
         }
 
         [TestMethod]
@@ -730,7 +689,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -800,7 +758,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     currentUserProviderMock.Object,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -858,7 +815,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     currentUserProviderMock.Object,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -926,7 +882,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     currentUserProviderMock.Object,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 
@@ -943,7 +898,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         }
 
         [TestMethod]
-        public async Task Handler_ShouldReturnWithCannotEditAttendedStatusAndNotes_ButDelete_ForAdmin()
+        public async Task Handler_ShouldReturnWithCannotEditAttendedStatusAndNotes_ForAdminCreator()
         {
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -966,7 +921,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     _meetingClientMock.Object,
                     _currentUserProvider,
                     _functionalRoleApiServiceMock.Object,
-                    _permissionCacheMock.Object,
                     _plantProvider,
                     _loggerMock.Object);
 

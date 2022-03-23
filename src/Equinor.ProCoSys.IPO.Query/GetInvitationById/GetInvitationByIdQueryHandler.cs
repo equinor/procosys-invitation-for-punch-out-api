@@ -23,16 +23,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private readonly IFusionMeetingClient _meetingClient;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
-        private readonly IPermissionCache _permissionCache;
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetInvitationByIdQueryHandler> _logger;
 
-        public GetInvitationByIdQueryHandler(
-            IReadOnlyContext context,
+        public GetInvitationByIdQueryHandler(IReadOnlyContext context,
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,
             IFunctionalRoleApiService functionalRoleApiService,
-            IPermissionCache permissionCache,
             IPlantProvider plantProvider,
             ILogger<GetInvitationByIdQueryHandler> logger)
         {
@@ -40,7 +37,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             _meetingClient = meetingClient;
             _currentUserProvider = currentUserProvider;
             _functionalRoleApiService = functionalRoleApiService;
-            _permissionCache = permissionCache;
             _plantProvider = plantProvider;
             _logger = logger;
         }
@@ -91,11 +87,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             var canEdit = meeting != null && 
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
-            var currentUserIsCreatorOrAdmin = createdBy.Id == invitation.CreatedById
-                                     || await HasIpoAdminPrivilegeAsync();
-            var canDelete = invitation.Status == IpoStatus.Canceled && currentUserIsCreatorOrAdmin;
+            var currentUserIsCreator = createdBy.Id == invitation.CreatedById;
+            var canDelete = invitation.Status == IpoStatus.Canceled && currentUserIsCreator;
             var canCancel = invitation.Status is IpoStatus.Completed or IpoStatus.Planned
-                            && (currentUserIsCreatorOrAdmin 
+                            && (currentUserIsCreator 
                                 || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList()));
 
             var invitationResult = new InvitationDto(
@@ -220,7 +215,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 0 && p.SignedAtUtc == null).ToList()))
                 || (ipoStatus == IpoStatus.Completed
                 && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 1 && p.SignedAtUtc == null).ToList()));
-            var hasAdminPermission = await HasIpoAdminPrivilegeAsync();
             foreach (var participant in orderedParticipants)
             {
                 if (participant.Type == IpoParticipantType.FunctionalRole)
@@ -243,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         canSign,
                         canSign,
                         ipoStatus != IpoStatus.Canceled
-                            && (hasAdminPermission || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsInFunctionalRole)),
+                            && (currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsInFunctionalRole)),
                         null,
                         null,
                         ConvertToFunctionalRoleDto(participant, personsInFunctionalRole),
@@ -264,7 +258,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         canSign,
                         canSign,
                         ipoStatus != IpoStatus.Canceled
-                            && (hasAdminPermission || currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsParticipant)),
+                            && (currentUserNextRequiredSigner || (participant.SignedAtUtc == null && currentUserIsParticipant)),
                         null,
                         ConvertToInvitedPersonDto(participant),
                         null,
@@ -282,7 +276,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         participant.Attended,
                         false,
                         false,
-                        ipoStatus != IpoStatus.Canceled && (hasAdminPermission || currentUserNextRequiredSigner),
+                        ipoStatus != IpoStatus.Canceled && currentUserNextRequiredSigner,
                         new ExternalEmailDto(participant.Id, participant.Email),
                         null,
                         null,
@@ -354,13 +348,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             return false;
         }
-
-        private async Task<bool> HasIpoAdminPrivilegeAsync()
-        {
-            var permissions = await _permissionCache.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
-            return permissions != null && permissions.Contains("IPO/ADMIN");
-        }
-
         private Task<PersonDto> ConvertToPersonDto(int? personId) =>
             _context.QuerySet<Person>()
                 .Where(p => p.Id == personId)
