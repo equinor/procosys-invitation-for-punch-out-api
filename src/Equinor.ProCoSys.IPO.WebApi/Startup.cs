@@ -187,8 +187,12 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg")
-                    .WithSubscription(PcsTopic.Library, "ipo_library"));
-                
+                    .WithSubscription(PcsTopic.Library, "ipo_library")
+                    //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
+                    //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
+                    //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE
+                    .WithReadFromDeadLetterQueue(Configuration.GetValue<bool>("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
+
                 services.AddTopicClients(
                     Configuration.GetConnectionString("ServiceBus"),
                     Configuration["ServiceBus:TopicNames"]);
