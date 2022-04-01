@@ -89,7 +89,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
         private void AddDateCell(IXLRow row, int cellIdx, DateTime date, bool onlyDate = true)
         {
             var cell = row.Cell(cellIdx);
-            cell.SetValue(date).SetDataType(XLDataType.DateTime);
+
+            if (date != DateTime.MinValue)
+            {
+                cell.SetValue(date).SetDataType(XLDataType.DateTime);
+            }
+
             var format = "yyyy-mm-dd";
             if (!onlyDate)
             {
