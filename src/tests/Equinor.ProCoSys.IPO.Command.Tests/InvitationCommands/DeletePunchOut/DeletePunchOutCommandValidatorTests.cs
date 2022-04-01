@@ -1,21 +1,21 @@
 ﻿using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
 {
     [TestClass]
-    public class CancelPunchOutCommandValidatorTests
+    public class DeletePunchOutCommandValidatorTests
     {
-        private CancelPunchOutCommandValidator _dut;
+        private DeletePunchOutCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private CancelPunchOutCommand _command;
+        private DeletePunchOutCommand _command;
         private const int _id = 1;
         private const string _invitationRowVersion = "AAAAAAAAABA=";
 
@@ -25,11 +25,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToCancelIpoAsync(_id, default)).Returns(Task.FromResult(true));
-            _command = new CancelPunchOutCommand(_id, _invitationRowVersion);
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToDeleteIpoAsync(_id, default)).Returns(Task.FromResult(true));
+            _command = new DeletePunchOutCommand(_id, _invitationRowVersion);
 
-            _dut = new CancelPunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new DeletePunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]
@@ -53,27 +54,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsInAcceptedStage()
+        public void Validate_ShouldFail_WhenInvitationIsNotInCancelledStage()
         {
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Accepted, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Canceled, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO is in accepted stage"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsInCanceledStage()
-        {
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO is already canceled"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("IPO is not canceled!"));
         }
 
         [TestMethod]
@@ -89,15 +78,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenUserTryingToCancelIsNotOrganizerOfIpo()
+        public void Validate_ShouldFail_WhenUserTryingToDeleteIsNotOrganizerOrIpoOrAdmin()
         {
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToCancelIpoAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToDeleteIpoAsync(_id, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Current user is not the creator of the invitation and not in Contractor Functional Role!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Current user is not the creator of the invitation and not ipo admin!"));
         }
     }
 }

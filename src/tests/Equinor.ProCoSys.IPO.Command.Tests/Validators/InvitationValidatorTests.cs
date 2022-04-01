@@ -1572,33 +1572,46 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
         #endregion
 
-        #region CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation
+        #region CurrentUserIsAllowedToCancelIpo
         [TestMethod]
-        public async Task CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation_CurrentUserIsCreator_ReturnsTrue()
+        public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsCreator_ReturnsTrue()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithoutParticipants, default);
+                var result = await dut.CurrentUserIsAllowedToCancelIpoAsync(_invitationIdWithoutParticipants, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation_CurrentUserIsNotCreator_ReturnsFalse()
+        public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsNotCreator_ReturnsFalse()
         {
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
+                var result = await dut.CurrentUserIsAllowedToCancelIpoAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsFalse(result);
             }
         }
 
+
         [TestMethod]
-        public async Task CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation_CurrentUserIsNotCreatorOfInvitationButContractor_ReturnsTrue()
+        public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsAdmin_ReturnsTrue()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCacheForAdmin);
+                var result = await dut.CurrentUserIsAllowedToCancelIpoAsync(_invitationIdWithAnotherCreator, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsNotCreatorOfInvitationButContractor_ReturnsTrue()
         {
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                 TestPlant,
@@ -1610,13 +1623,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
+                var result = await dut.CurrentUserIsAllowedToCancelIpoAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation_CurrentUserIsNotCreatorOfInvitationAndNotContractor_ReturnsFalse()
+        public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsNotCreatorOfInvitationAndNotContractor_ReturnsFalse()
         {
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(TestPlant, _currentUserOid.ToString(), "Contractor")).Returns(Task.FromResult<ForeignApi.ProCoSysPerson>(null));
 
@@ -1624,7 +1637,63 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_invitationIdWithAnotherCreator, default);
+                var result = await dut.CurrentUserIsAllowedToCancelIpoAsync(_invitationIdWithAnotherCreator, default);
+                Assert.IsFalse(result);
+            }
+        }
+        #endregion
+
+        #region CurrentUserIsAllowedToDeleteIpo
+        [TestMethod]
+        public async Task CurrentUserIsAllowedToDeleteIpo_CurrentUserIsCreator_ReturnsTrue()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.CurrentUserIsAllowedToDeleteIpoAsync(_invitationIdWithoutParticipants, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsAllowedToDeleteIpo_CurrentUserIsNotCreator_ReturnsFalse()
+        {
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.CurrentUserIsAllowedToDeleteIpoAsync(_invitationIdWithAnotherCreator, default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsAllowedToDeleteIpo_CurrentUserIsAdmin_ReturnsTrue()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCacheForAdmin);
+                var result = await dut.CurrentUserIsAllowedToDeleteIpoAsync(_invitationIdWithAnotherCreator, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task CurrentUserIsAllowedToDeleteIpo_CurrentUserIsNotCreatorOfInvitationButContractor_ReturnsFalse()
+        {
+            _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
+                TestPlant,
+                _currentUserOid.ToString(),
+                "Contractor"))
+                .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = _currentUserOid.ToString() }));
+
+            using (var context =
+                new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.CurrentUserIsAllowedToDeleteIpoAsync(_invitationIdWithAnotherCreator, default);
                 Assert.IsFalse(result);
             }
         }

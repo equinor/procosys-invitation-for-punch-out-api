@@ -618,5 +618,28 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             return await response.Content.ReadAsStringAsync();
         }
+
+
+        public static async Task DeletePunchOutAsync(
+            UserType userType,
+            string plant,
+            int id,
+            string rowVersion,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                rowVersion
+            };
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Route}/{id}/Delete")
+            {
+                Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
+            };
+
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+        }
     }
 }

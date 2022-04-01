@@ -422,6 +422,24 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (invitationToCompleteAndUnCompleteId, unCompletePunchOutDto);
         }
 
+        internal async Task<(int, string)> CreateValidDeletePunchOutDtoAsync(List<CreateParticipantsDto> participants, UserType userType = UserType.Planner)
+        {
+            var (invitationId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(participants, userType);
+
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                cancelPunchOutDto);
+
+            var canceledInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            return (invitationId, canceledInvitation.RowVersion);
+        }
+
         internal async Task<(int, CompletePunchOutDto)> CreateValidCompletePunchOutDtoAsync(List<CreateParticipantsDto> participants)
         {
             var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(

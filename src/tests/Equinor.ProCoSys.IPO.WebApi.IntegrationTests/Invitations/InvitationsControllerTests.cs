@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -350,6 +351,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(_mcPkgScope.Count, invitation.McPkgScope.Count());
             var originalParticipants = _participants;
             AssertParticipants(invitation, originalParticipants);
+        }
+
+        [TestMethod]
+        public async Task DeleteInvitation_AsPlanner_ShouldDeleteInvitation()
+        {
+            // Arrange
+            var (invitationToDeleteId, rowVersion) = await CreateValidDeletePunchOutDtoAsync(_participantsForSigning);
+            await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Creator,
+                TestFactory.PlantWithAccess,
+                invitationToDeleteId);
+
+            // Act
+            await InvitationsControllerTestsHelper.DeletePunchOutAsync(UserType.Planner, TestFactory.PlantWithAccess,
+                invitationToDeleteId, rowVersion);
+
+            // Assert
+            await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Creator,
+                TestFactory.PlantWithAccess,
+                invitationToDeleteId,
+                HttpStatusCode.NotFound);
+            await InvitationsControllerTestsHelper.GetHistoryAsync(
+                UserType.Creator,
+                TestFactory.PlantWithAccess,
+                invitationToDeleteId,
+                HttpStatusCode.NotFound);
         }
 
         [TestMethod]

@@ -8,6 +8,7 @@
         void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew);
         void RemoveParticipant(Participant participant);
         void RemoveAttachment(Attachment attachment);
+        void RemoveInvitation(Invitation invitation);
         void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description);
         void MoveMcPkg(string projectName, string fromCommPkgNo, string toCommPkgNo, string fromMcPkgNo, string toMcPkgNo, string description);
     }

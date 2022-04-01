@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
@@ -514,6 +515,38 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
         #endregion
 
+        #region DeletePunchOutCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnDeletePunchOutCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new DeletePunchOutCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnDeletePunchOutCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new DeletePunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
         #region UpdateAttendedStatusCommand
         [TestMethod]
         public async Task ValidateAsync_OnUpdateAttendedStatusOnParticipantCommand_ShouldReturnTrue_WhenAccessToProject()
@@ -585,6 +618,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             Assert.IsFalse(result);
         }
         #endregion
+
         #region CreateSavedFilterCommand
         [TestMethod]
         public async Task ValidateAsync_OnCreateSavedFilterCommand_ShouldReturnTrue_WhenAccessToProject()
