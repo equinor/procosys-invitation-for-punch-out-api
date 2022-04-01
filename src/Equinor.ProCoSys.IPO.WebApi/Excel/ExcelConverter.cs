@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ClosedXML.Excel;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
+        private readonly ILogger<ExcelConverter> _logger;
+
+        public  ExcelConverter(ILogger<ExcelConverter> logger)
+        {
+            _logger = logger;
+        }
+
         public static class FrontSheetRows
         {
             public static int MainHeading = 1;
@@ -72,16 +81,32 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             // see https://github.com/ClosedXML/ClosedXML for sample code
             var excelStream = new MemoryStream();
 
+            _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
+            var mainStopWatch = Stopwatch.StartNew();
+
             using (var workbook = new XLWorkbook())
             {
+                var stopWatch = Stopwatch.StartNew();
                 CreateFrontSheet(workbook, dto.UsedFilter);
+                _logger.LogInformation("DEBUG - 90734 - CreateFrontSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
                 var exportInvitationDtos = dto.Invitations.ToList();
+
+                stopWatch.Restart();
                 CreateInvitationSheet(workbook, exportInvitationDtos);
+                _logger.LogInformation("DEBUG - 90734 - CreateInvitationSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+
+                stopWatch.Restart();
                 CreateParticipantsSheet(workbook, exportInvitationDtos);
+                _logger.LogInformation("DEBUG - 90734 - CreateParticipantsSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+
+                stopWatch.Restart();
                 CreateHistorySheet(workbook, exportInvitationDtos);
+                _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
 
                 workbook.SaveAs(excelStream);
             }
+
+            _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms."); 
 
             return excelStream;
         }
