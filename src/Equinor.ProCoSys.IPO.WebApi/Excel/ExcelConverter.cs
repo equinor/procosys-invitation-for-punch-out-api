@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
     {
         private readonly ILogger<ExcelConverter> _logger;
 
-        public  ExcelConverter(ILogger<ExcelConverter> logger)
+        public ExcelConverter(ILogger<ExcelConverter> logger)
         {
             _logger = logger;
         }
@@ -78,37 +78,45 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
         public MemoryStream Convert(ExportDto dto)
         {
-            // see https://github.com/ClosedXML/ClosedXML for sample code
-            var excelStream = new MemoryStream();
-
-           _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
-            var mainStopWatch = Stopwatch.StartNew();
-
-            using (var workbook = new XLWorkbook())
+            try
             {
-                var stopWatch = Stopwatch.StartNew();
-                CreateFrontSheet(workbook, dto.UsedFilter);
-               _logger.LogInformation("DEBUG - 90734 - CreateFrontSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-                var exportInvitationDtos = dto.Invitations.ToList();
+                // see https://github.com/ClosedXML/ClosedXML for sample code
+                var excelStream = new MemoryStream();
 
-                stopWatch.Restart();
-                CreateInvitationSheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateInvitationSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
+                var mainStopWatch = Stopwatch.StartNew();
 
-                stopWatch.Restart();
-                CreateParticipantsSheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateParticipantsSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                using (var workbook = new XLWorkbook())
+                {
+                    var stopWatch = Stopwatch.StartNew();
+                    CreateFrontSheet(workbook, dto.UsedFilter);
+                    _logger.LogInformation("DEBUG - 90734 - CreateFrontSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                    var exportInvitationDtos = dto.Invitations.ToList();
 
-                stopWatch.Restart();
-                CreateHistorySheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                    stopWatch.Restart();
+                    CreateInvitationSheet(workbook, exportInvitationDtos);
+                    _logger.LogInformation("DEBUG - 90734 - CreateInvitationSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
 
-                workbook.SaveAs(excelStream);
+                    stopWatch.Restart();
+                    CreateParticipantsSheet(workbook, exportInvitationDtos);
+                    _logger.LogInformation("DEBUG - 90734 - CreateParticipantsSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+
+                    stopWatch.Restart();
+                    CreateHistorySheet(workbook, exportInvitationDtos);
+                    _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+
+                    workbook.SaveAs(excelStream);
+                }
+
+                _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms.");
+
+                return excelStream;
             }
-
-           _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms."); 
-
-            return excelStream;
+            catch (Exception ex)
+            {
+                _logger.LogError("DEBUG - 90734 - Exception in Excel Conversion!", ex);
+                throw ex;
+            }
         }
 
         private void AddDateCell(IXLRow row, int cellIdx, DateTime date, bool onlyDate = true)
@@ -166,37 +174,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
         {
             var severalParticipantsSheet = workbook.Worksheets.Add("Participants");
 
-                var rowIdx = 0;
-                var row = severalParticipantsSheet.Row(++rowIdx);
-                row.Style.Font.SetBold();
-                row.Style.Font.SetFontSize(12);
-                row.Cell(ParticipantsSheetColumns.IpoNo).Value = "Ipo nr";
-                row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
-                row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
-                row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
+            var rowIdx = 0;
+            var row = severalParticipantsSheet.Row(++rowIdx);
+            row.Style.Font.SetBold();
+            row.Style.Font.SetFontSize(12);
+            row.Cell(ParticipantsSheetColumns.IpoNo).Value = "Ipo nr";
+            row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
+            row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
+            row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
 
-                foreach (var invitation in invitations)
+            foreach (var invitation in invitations)
+            {
+
+                foreach (var participant in invitation.Participants)
                 {
+                    row = severalParticipantsSheet.Row(++rowIdx);
 
-                    foreach (var participant in invitation.Participants)
-                    {
-                        row = severalParticipantsSheet.Row(++rowIdx);
-
-                        row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
-                        row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization)
-                            .SetDataType(XLDataType.Text);
-                        row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
-                        row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant)
-                            .SetDataType(XLDataType.Text);
-                    }
-
-                    rowIdx++;
-                    row.InsertRowsBelow(1);
+                    row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization)
+                        .SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant)
+                        .SetDataType(XLDataType.Text);
                 }
 
-                const int minWidth = 10;
-                const int maxWidth = 100;
-                severalParticipantsSheet.Columns(1, ParticipantsSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
+                rowIdx++;
+                row.InsertRowsBelow(1);
+            }
+
+            const int minWidth = 10;
+            const int maxWidth = 100;
+            severalParticipantsSheet.Columns(1, ParticipantsSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
         }
 
         private void CreateInvitationSheet(XLWorkbook workbook, IEnumerable<ExportInvitationDto> invitations)
@@ -285,7 +293,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             AddUsedFilter(sheet.Row(FrontSheetRows.Status), "Ipo status", usedFilter.IpoStatuses);
             AddUsedFilter(sheet.Row(FrontSheetRows.Role), "Functional role invited", usedFilter.FunctionalRoleInvited);
             AddUsedFilter(sheet.Row(FrontSheetRows.Person), "Person invited", usedFilter.PersonInvited);
-         
+
             sheet.Columns(1, 2).AdjustToContents();
         }
 
@@ -310,6 +318,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             row.Style.Font.SetBold(bold);
         }
 
-        public string GetFileName()=> $"InvitationForPunchOuts-{DateTime.Now:yyyyMMdd-hhmmss}";
+        public string GetFileName() => $"InvitationForPunchOuts-{DateTime.Now:yyyyMMdd-hhmmss}";
     }
 }
