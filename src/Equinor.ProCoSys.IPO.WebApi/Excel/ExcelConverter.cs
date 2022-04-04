@@ -83,7 +83,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 // see https://github.com/ClosedXML/ClosedXML for sample code
                 var excelStream = new MemoryStream();
 
-<<<<<<< HEAD
                 _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
                 var mainStopWatch = Stopwatch.StartNew();
 
@@ -105,45 +104,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                     stopWatch.Restart();
                     CreateHistorySheet(workbook, exportInvitationDtos);
                     _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-=======
-           _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
-            var mainStopWatch = Stopwatch.StartNew();
-
-            using (var workbook = new XLWorkbook())
-            {
-                var stopWatch = Stopwatch.StartNew();
-                CreateFrontSheet(workbook, dto.UsedFilter);
-               _logger.LogInformation("DEBUG - 90734 - CreateFrontSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-                var exportInvitationDtos = dto.Invitations.ToList();
-
-                stopWatch.Restart();
-                CreateInvitationSheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateInvitationSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-
-                stopWatch.Restart();
-                CreateParticipantsSheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateParticipantsSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-
-                stopWatch.Restart();
-                CreateHistorySheet(workbook, exportInvitationDtos);
-               _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
->>>>>>> master
 
                     workbook.SaveAs(excelStream);
                 }
 
-<<<<<<< HEAD
                 _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms.");
-=======
-           _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms."); 
->>>>>>> master
 
                 return excelStream;
             }
             catch (Exception ex)
             {
                 _logger.LogError("DEBUG - 90734 - Exception in Excel Conversion!", ex);
-                throw ex;
+                throw;
             }
         }
 
