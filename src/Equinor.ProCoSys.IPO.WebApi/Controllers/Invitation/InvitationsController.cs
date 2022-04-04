@@ -39,6 +39,7 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceResult;
 using ServiceResult.ApiExtensions;
 using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -48,13 +49,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     {
         private readonly IMediator _mediator;
         private readonly IExcelConverter _excelConverter;
+        private readonly ILogger<InvitationsController> _logger;
 
         public InvitationsController(
             IMediator mediator,
-            IExcelConverter excelConverter)
+            IExcelConverter excelConverter, ILogger<InvitationsController> logger)
         {
             _mediator = mediator;
             _excelConverter = excelConverter;
+            _logger = logger;
         }
 
         [Authorize(Roles = Permissions.IPO_READ)]
@@ -82,9 +85,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromQuery] FilterDto filter,
             [FromQuery] SortingDto sorting)
         {
+           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - START");
             var query = CreateGetInvitationsForExportQuery(filter, sorting);
 
             var result = await _mediator.Send(query);
+
+           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - AFTER MEDIATOR SEND");
 
             if (result.ResultType != ResultType.Ok)
             {
@@ -93,6 +99,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
             var excelMemoryStream = _excelConverter.Convert(result.Data);
             excelMemoryStream.Position = 0;
+
+           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - AFTER EXCEL CONVERT");
 
             return File(excelMemoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{_excelConverter.GetFileName()}.xlsx");
         }
