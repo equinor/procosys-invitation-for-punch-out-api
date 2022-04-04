@@ -89,6 +89,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Client
         private async ValueTask<HttpClient> CreateHttpClientAsync(List<KeyValuePair<string, string>> extraHeaders = null)
         {
             var httpClient = _httpClientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(200); //TODO: Technical debth, add this value to config
             if (extraHeaders == null)
             {
                 var bearerToken = await _bearerTokenProvider.GetBearerTokenForMainApiOnBehalfOfCurrentUserAsync();
