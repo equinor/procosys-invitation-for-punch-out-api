@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ClosedXML.Excel;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
-using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
-        private readonly ILogger<ExcelConverter> _logger;
-
-        public ExcelConverter(ILogger<ExcelConverter> logger)
-        {
-            _logger = logger;
-        }
-
         public static class FrontSheetRows
         {
             public static int MainHeading = 1;
@@ -78,45 +69,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
         public MemoryStream Convert(ExportDto dto)
         {
-            try
+            // see https://github.com/ClosedXML/ClosedXML for sample code
+            var excelStream = new MemoryStream();
+
+            using (var workbook = new XLWorkbook())
             {
-                // see https://github.com/ClosedXML/ClosedXML for sample code
-                var excelStream = new MemoryStream();
+                CreateFrontSheet(workbook, dto.UsedFilter);
 
-                _logger.LogInformation("DEBUG - 90734 - Starting Excel Convert");
-                var mainStopWatch = Stopwatch.StartNew();
+                var exportInvitationDtos = dto.Invitations.ToList();
 
-                using (var workbook = new XLWorkbook())
-                {
-                    var stopWatch = Stopwatch.StartNew();
-                    CreateFrontSheet(workbook, dto.UsedFilter);
-                    _logger.LogInformation("DEBUG - 90734 - CreateFrontSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-                    var exportInvitationDtos = dto.Invitations.ToList();
+                CreateInvitationSheet(workbook, exportInvitationDtos);
 
-                    stopWatch.Restart();
-                    CreateInvitationSheet(workbook, exportInvitationDtos);
-                    _logger.LogInformation("DEBUG - 90734 - CreateInvitationSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                CreateParticipantsSheet(workbook, exportInvitationDtos);
 
-                    stopWatch.Restart();
-                    CreateParticipantsSheet(workbook, exportInvitationDtos);
-                    _logger.LogInformation("DEBUG - 90734 - CreateParticipantsSheet took " + stopWatch.ElapsedMilliseconds + "ms.");
+                CreateHistorySheet(workbook, exportInvitationDtos);
 
-                    stopWatch.Restart();
-                    CreateHistorySheet(workbook, exportInvitationDtos);
-                    _logger.LogInformation("DEBUG - 90734 - CreateHistorySheet took " + stopWatch.ElapsedMilliseconds + "ms.");
-
-                    workbook.SaveAs(excelStream);
-                }
-
-                _logger.LogInformation("DEBUG - 90734 - Total excel convert took " + mainStopWatch.ElapsedMilliseconds + "ms.");
-
-                return excelStream;
+                workbook.SaveAs(excelStream);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError("DEBUG - 90734 - Exception in Excel Conversion!", ex);
-                throw;
-            }
+
+            return excelStream;
         }
 
         private void AddDateCell(IXLRow row, int cellIdx, DateTime date, bool onlyDate = true)

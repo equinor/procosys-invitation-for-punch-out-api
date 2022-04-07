@@ -11,7 +11,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
@@ -21,31 +20,24 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
         private readonly DateTime _utcNow;
-        private readonly ILogger<GetInvitationsForExportQueryHandler> _logger;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, ILogger<GetInvitationsForExportQueryHandler> logger)
+        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider)
         {
             _context = context;
             _plantProvider = plantProvider;
             _utcNow = TimeService.UtcNow;
-            _logger = logger;
         }
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
         {
-            var stopWatch = Stopwatch.StartNew();
-            _logger.LogInformation("DEBUG - 90374 - GET_INVITATIONS_FOR_EXPORT START");
             var invitationsWithIncludes = await GetOrderedInvitationsWithIncludesAsync(request, cancellationToken);
-            _logger.LogInformation("DEBUG - 90374 - GetOrderedInvitationsWithIncludesAsync took " + stopWatch.ElapsedMilliseconds + "ms.");
 
             if (!invitationsWithIncludes.Any())
             {
                 return await CreateSuccessResultAsync(null, request);
             }
 
-            stopWatch.Restart();
             var invitationsToBeExported = await CreateExportInvitationDtosAsync(invitationsWithIncludes);
-            _logger.LogInformation("DEBUG - 90374 - CreateExportInvitationDtosAsync took " + stopWatch.ElapsedMilliseconds + " ms.");
 
             if (invitationsToBeExported.Count == 1)
             {
@@ -68,16 +60,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
-            var stopWatch = Stopwatch.StartNew();
             var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
-            _logger.LogInformation("DEBUG - 90374 - CreateQueryableWithFilter took " + stopWatch.ElapsedMilliseconds + " ms.");
 
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
 
-            stopWatch.Restart();
             var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
-            _logger.LogInformation("DEBUG - 90374 - GetInvitationsWithIncludesAsync took " + stopWatch.ElapsedMilliseconds + " ms.");
 
             return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
         }
@@ -85,8 +73,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<SuccessResult<ExportDto>> CreateSuccessResultAsync(List<ExportInvitationDto> exportInvitationDtos, GetInvitationsForExportQuery request)
         {
             var filter = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
-
-            _logger.LogInformation("DEBUG - 90374 - GET_INVITATIONS_FOR_EXPORT END");
             return new SuccessResult<ExportDto>(new ExportDto(exportInvitationDtos, filter));
         }
 
