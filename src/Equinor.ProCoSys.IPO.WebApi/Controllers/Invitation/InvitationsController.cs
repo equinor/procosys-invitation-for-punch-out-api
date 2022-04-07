@@ -7,11 +7,11 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
@@ -23,8 +23,8 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
-using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetComments;
+using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
@@ -39,7 +39,6 @@ using Microsoft.AspNetCore.Mvc;
 using ServiceResult;
 using ServiceResult.ApiExtensions;
 using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
-using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
@@ -49,15 +48,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     {
         private readonly IMediator _mediator;
         private readonly IExcelConverter _excelConverter;
-        private readonly ILogger<InvitationsController> _logger;
 
         public InvitationsController(
             IMediator mediator,
-            IExcelConverter excelConverter, ILogger<InvitationsController> logger)
+            IExcelConverter excelConverter)
         {
             _mediator = mediator;
             _excelConverter = excelConverter;
-            _logger = logger;
         }
 
         [Authorize(Roles = Permissions.IPO_READ)]
@@ -85,12 +82,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromQuery] FilterDto filter,
             [FromQuery] SortingDto sorting)
         {
-           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - START");
             var query = CreateGetInvitationsForExportQuery(filter, sorting);
 
             var result = await _mediator.Send(query);
-
-           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - AFTER MEDIATOR SEND");
 
             if (result.ResultType != ResultType.Ok)
             {
@@ -99,8 +93,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
             var excelMemoryStream = _excelConverter.Convert(result.Data);
             excelMemoryStream.Position = 0;
-
-           _logger.LogInformation("DEBUG - 90374 - ExportInvitationsToExcel - AFTER EXCEL CONVERT");
 
             return File(excelMemoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{_excelConverter.GetFileName()}.xlsx");
         }
