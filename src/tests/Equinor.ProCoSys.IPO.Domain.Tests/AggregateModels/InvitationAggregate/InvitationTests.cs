@@ -844,12 +844,16 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void UpdateAttendedStatus_ShouldUpdateAttendedStatus()
         {
+            Assert.IsFalse(_dutDpIpo.Participants.First().Attended);
+            Assert.IsFalse(_dutDpIpo.Participants.First().IsAttendedTouched);
+
             _dutDpIpo.UpdateAttendedStatus(
                 _personParticipant,
                 true,
                 _personParticipant.RowVersion.ConvertToString());
 
             Assert.IsTrue(_dutDpIpo.Participants.First().Attended);
+            Assert.IsTrue(_dutDpIpo.Participants.First().IsAttendedTouched);
         }
         #endregion
 

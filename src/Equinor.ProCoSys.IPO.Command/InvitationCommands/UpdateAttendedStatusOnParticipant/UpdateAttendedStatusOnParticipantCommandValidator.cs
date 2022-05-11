@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOn
                     HavePermissionToEdit(command.ParticipantId, command.InvitationId, cancellationToken))
                 .WithMessage("The current user does not have sufficient privileges to edit this participant.")
                 .MustAsync((command, cancellationToken) =>
-                    HaveOppositeAttendedStatus(command.ParticipantId, command.InvitationId, command.Attended, cancellationToken))
+                    HaveOppositeAttendedStatusIfTouched(command.ParticipantId, command.InvitationId, command.Attended, cancellationToken))
                 .WithMessage("Cannot update participant to its current attendedStatus.");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
@@ -48,8 +48,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOn
             async Task<bool> HavePermissionToEdit(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.HasPermissionToEditParticipantAsync(participantId, invitationId, cancellationToken);
 
-            async Task<bool> HaveOppositeAttendedStatus(int participantId, int invitationId, bool attended, CancellationToken cancellationToken)
-                => await invitationValidator.HasOppositeAttendedStatusAsync(participantId, invitationId, attended, cancellationToken);
+            async Task<bool> HaveOppositeAttendedStatusIfTouched(int participantId, int invitationId, bool attended, CancellationToken cancellationToken)
+                => await invitationValidator.HasOppositeAttendedStatusIfTouchedAsync(participantId, invitationId, attended, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

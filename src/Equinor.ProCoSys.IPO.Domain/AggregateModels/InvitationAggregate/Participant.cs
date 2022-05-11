@@ -48,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Guid? AzureOid { get; set; }
         public int SortKey { get; set; }
         public bool Attended { get; set; }
+        public bool IsAttendedTouched { get; set; }
         public string Note { get; set; }
         public DateTime? SignedAtUtc { get; set; }
         public int? SignedBy { get; set; }

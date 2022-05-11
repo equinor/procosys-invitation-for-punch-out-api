@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _invitationId, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.HasPermissionToEditParticipantAsync(_participantId1, _invitationId, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.HasOppositeAttendedStatusAsync(_participantId1, _invitationId, _attended, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.HasOppositeAttendedStatusIfTouchedAsync(_participantId1, _invitationId, _attended, default)).Returns(Task.FromResult(true));
             _command = new UpdateAttendedStatusOnParticipantCommand(_invitationId, _participantId1, _attended, _participantRowVersion1);
             _dut = new UpdateAttendedStatusOnParticipantCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         [TestMethod]
         public void Validate_ShouldFail_WhenCurrentAttendedStatusIsTheSameAsStatusInRequest()
         {
-            _invitationValidatorMock.Setup(inv => inv.HasOppositeAttendedStatusAsync(_participantId1, _invitationId, _attended, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.HasOppositeAttendedStatusIfTouchedAsync(_participantId1, _invitationId, _attended, default)).Returns(Task.FromResult(false));
 
             var result = _dut.Validate(_command);
 
