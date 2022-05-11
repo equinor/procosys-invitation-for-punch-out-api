@@ -202,6 +202,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"Update on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
             participant.Attended = attended;
+            participant.IsAttendedTouched = true;
             participant.SetRowVersion(participantRowVersion);
             AddPreSaveDomainEvent(new AttendedStatusUpdatedEvent(Plant, ObjectGuid));
         }

@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken token);
         Task<bool> ParticipantIsSignedAsync(int id, int invitationId, CancellationToken token);
         Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken token);
-        Task<bool> HasOppositeAttendedStatusAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken);
+        Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);

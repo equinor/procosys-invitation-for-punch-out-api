@@ -347,7 +347,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(commissioningParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(additionalContractorParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(supplierParticipant);
-
+   
                 context.SaveChangesAsync().Wait();
 
                 // Add invitation with another currentuserprovider
@@ -2004,28 +2004,69 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
         #endregion
 
-        #region HasOppositeAttendedStatus
+        #region HasOppositeAttendedStatusIfTouched
         [TestMethod]
-        public async Task HasOppositeAttendedStatusAsync_ParticipantHasOppositeAttendedStatus_ReturnsTrue()
+        public async Task HasOppositeAttendedStatusAsync_ParticipantHasOppositeAttendedStatusIfTouched_NotTouched_ReturnsTrue()
         {
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.HasOppositeAttendedStatusAsync(_contractorFrId, _invitationIdWithFrAsParticipants, true, default);
+                var result = await dut.HasOppositeAttendedStatusIfTouchedAsync(_contractorFrId, _invitationIdWithFrAsParticipants, true, default);
                 Assert.IsTrue(result);
             }
         }
 
         [TestMethod]
-        public async Task HasOppositeAttendedStatusAsync_ParticipantDoesNotHaveOppositeAttendedStatus_ReturnsFalse()
+        public async Task HasOppositeAttendedStatusAsync_ParticipantHasOppositeAttendedStatusIfTouched_NotTouched_ReturnsTrue2()
         {
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.HasOppositeAttendedStatusAsync(_contractorFrId, _invitationIdWithFrAsParticipants, false, default);
+                var result = await dut.HasOppositeAttendedStatusIfTouchedAsync(_contractorFrId, _invitationIdWithFrAsParticipants, false, default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task HasOppositeAttendedStatusAsync_ParticipantDoesNotHaveOppositeAttendedStatusIfTouched_ReturnsFalse()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations.Include(inv => inv.Participants).Single(inv => inv.Id == _invitationIdWithFrAsParticipants);
+                var participant = invitation.Participants.Single(p => p.Id == _contractorFrId);
+                invitation.UpdateAttendedStatus(participant, false, participant.RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.HasOppositeAttendedStatusIfTouchedAsync(_contractorFrId, _invitationIdWithFrAsParticipants, false, default);
                 Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task HasOppositeAttendedStatusAsync_ParticipantHasOppositeAttendedStatusIfTouched_ReturnsTrue()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations.Include(inv => inv.Participants).Single(inv => inv.Id == _invitationIdWithFrAsParticipants);
+                var participant = invitation.Participants.Single(p => p.Id == _contractorFrId);
+                invitation.UpdateAttendedStatus(participant, false, participant.RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                var result = await dut.HasOppositeAttendedStatusIfTouchedAsync(_contractorFrId, _invitationIdWithFrAsParticipants, true, default);
+                Assert.IsTrue(result);
             }
         }
         #endregion

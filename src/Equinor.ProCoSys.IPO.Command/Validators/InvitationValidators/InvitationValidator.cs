@@ -182,10 +182,17 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null && p.SignedAtUtc != null
                       select p).AnyAsync(cancellationToken);
 
-        public async Task<bool> HasOppositeAttendedStatusAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
-            => await (from p in _context.QuerySet<Participant>()
-                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.Attended != attended
-                select p).AnyAsync(cancellationToken);
+        public async Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
+        {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
+                select p).SingleAsync(cancellationToken);
+            if (participant.IsAttendedTouched)
+            {
+                return participant.Attended != attended;
+            }
+            return true;
+        }
 
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
