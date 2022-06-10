@@ -55,7 +55,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             public static int Organization = 2;
             public static int Type = 3;
             public static int Participant = 4;
-            public static int Last = Participant;
+            public static int Attended = 5;
+            public static int Note = 6;
+            public static int SignedBy = 7;
+            public static int SignedAtUtc = 8;
+            public static int Last = SignedAtUtc;
         }
 
         public static class HistorySheetColumns
@@ -153,6 +157,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
             row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
             row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
+            row.Cell(ParticipantsSheetColumns.Attended).Value = "Attended";
+            row.Cell(ParticipantsSheetColumns.Note).Value = "Note";
+            row.Cell(ParticipantsSheetColumns.SignedBy).Value = "SignedBy";
+            row.Cell(ParticipantsSheetColumns.SignedAtUtc).Value = "SignedAtUtc";
 
             foreach (var invitation in invitations)
             {
@@ -167,6 +175,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                     row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
                     row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant)
                         .SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.Attended).SetValue(participant.Attended)
+                        .SetDataType(XLDataType.Boolean);
+                    row.Cell(ParticipantsSheetColumns.Note).SetValue(participant.Note)
+                        .SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.SignedBy).SetValue(participant.SignedBy)
+                        .SetDataType(XLDataType.Text);
+                    if (participant.SignedAtUtc.HasValue)
+                    {
+                        AddDateCell(row, ParticipantsSheetColumns.SignedAtUtc, participant.SignedAtUtc.Value, false);
+                    }
                 }
 
                 rowIdx++;

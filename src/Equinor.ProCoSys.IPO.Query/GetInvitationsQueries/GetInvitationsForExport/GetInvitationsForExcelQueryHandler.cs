@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,12 +18,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
     {
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
+        private readonly IPersonRepository _personRepository;
         private readonly DateTime _utcNow;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider)
+        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, IPersonRepository personRepository)
         {
             _context = context;
             _plantProvider = plantProvider;
+            _personRepository = personRepository;
             _utcNow = TimeService.UtcNow;
         }
 
@@ -96,14 +97,32 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}")).ToList();
         }
 
-        private static IEnumerable<ExportParticipantDto> AddParticipantsForSingleInvitation(
-            Invitation invitationWithIncludes) =>
-            invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
+        private async Task<IList<ExportParticipantDto>> AddParticipantsForSingleInvitationAsync(
+            Invitation invitationWithIncludes)
+        {
+            var participants = invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
                 participant.Id,
                 participant.Organization.ToString(),
                 participant.Type.ToString(),
-                participant.Type == IpoParticipantType.Person ? $"{participant.FirstName} {participant.LastName}" 
-                    : participant.FunctionalRoleCode));
+                participant.Type == IpoParticipantType.Person
+                    ? $"{participant.FirstName} {participant.LastName}"
+                    : participant.FunctionalRoleCode,
+                participant.Attended,
+                participant.Note,
+                participant.SignedAtUtc,
+                null,
+                participant.SignedBy)).ToList();
+
+            foreach (var participant in participants)
+            {
+                var person = participant.SignedById.HasValue
+                    ? await _personRepository.GetByIdAsync(participant.SignedById.Value)
+                    : null;
+                participant.SignedBy = person?.UserName;
+            }
+
+            return participants;
+        }
 
         private async Task<UsedFilterDto> CreateUsedFilterDtoAsync(string projectName, Filter filter)
         {
@@ -170,7 +189,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     invitation.CreatedAtUtc,
                     organizer
                 );
-                exportInvitationDto.Participants.AddRange(AddParticipantsForSingleInvitation(invitation));
+                exportInvitationDto.Participants.AddRange(await AddParticipantsForSingleInvitationAsync(invitation));
                 exportInvitations.Add(exportInvitationDto);
             }
 
