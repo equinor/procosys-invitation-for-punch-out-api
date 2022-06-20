@@ -7,6 +7,5 @@
         public string Description { get; set; }
         public string CommStatus { get; set; }
         public string System { get; set; }
-        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
     }
 }

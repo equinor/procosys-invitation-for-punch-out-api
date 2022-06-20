@@ -8,6 +8,5 @@
         public string DisciplineCode { get; set; }
         public string CommPkgNo { get; set; }
         public string System { get; set; }
-        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
     }
 }
