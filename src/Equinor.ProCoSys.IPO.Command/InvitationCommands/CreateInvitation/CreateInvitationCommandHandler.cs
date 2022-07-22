@@ -376,10 +376,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 throw new IpoValidationException("Could not find all mc pkgs in scope.");
             }
 
-            var initialCommPkg = mcPkgDetailsList.FirstOrDefault();
-            if (initialCommPkg != null)
+            var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
+            if (initialMcPkg != null)
             {
-                var initialSection = initialCommPkg.Section;
+                var initialSection = initialMcPkg.Section;
                 if (mcPkgDetailsList.Any(commPkg => commPkg.Section != initialSection))
                 {
                     throw new IpoValidationException("Mc pkg scope must be within a section.");
