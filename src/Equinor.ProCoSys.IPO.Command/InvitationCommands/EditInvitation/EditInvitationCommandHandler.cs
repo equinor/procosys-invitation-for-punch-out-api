@@ -115,6 +115,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     throw new IpoValidationException("Could not find all mc pkgs in scope.");
                 }
 
+                var initialCommPkg = mcPkgsFromMain.FirstOrDefault();
+                if (initialCommPkg != null)
+                {
+                    var initialSection = initialCommPkg.Section;
+                    if (mcPkgsFromMain.Any(commPkg => commPkg.Section != initialSection))
+                    {
+                        throw new IpoValidationException("Mc pkg scope must be within a section.");
+                    }
+                }
+
                 return mcPkgsFromMain.Select(mc => new McPkg(
                     _plantProvider.Plant,
                     projectName,
@@ -137,6 +147,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 if (commPkgsFromMain.Count != commPkgNos.Count)
                 {
                     throw new IpoValidationException("Could not find all comm pkgs in scope.");
+                }
+
+                var initialCommPkg = commPkgsFromMain.FirstOrDefault();
+                if (initialCommPkg != null)
+                {
+                    var initialSection = initialCommPkg.Section;
+                    if (commPkgsFromMain.Any(commPkg => commPkg.Section != initialSection))
+                    {
+                        throw new IpoValidationException("Comm pkg scope must be within a section.");
+                    }
                 }
 
                 return commPkgsFromMain.Select(c => new CommPkg(
