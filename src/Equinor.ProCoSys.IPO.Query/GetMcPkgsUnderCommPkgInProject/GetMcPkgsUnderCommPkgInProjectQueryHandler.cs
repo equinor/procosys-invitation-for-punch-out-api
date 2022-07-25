@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
                     mcPkg.Description,
                     mcPkg.DisciplineCode,
                     mcPkg.CommPkgNo,
-                    mcPkg.System)).ToList();
+                    mcPkg.SystemPath)).ToList();
 
             return new SuccessResult<List<ProCoSysMcPkgDto>>(mcPkgDtos);
         }

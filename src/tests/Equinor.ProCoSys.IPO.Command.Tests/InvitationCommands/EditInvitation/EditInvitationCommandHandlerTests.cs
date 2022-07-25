@@ -68,8 +68,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _mcPkgNo3 = "MC3";
         private const string _commPkgNo = "Comm1";
         private const string _commPkgNo2 = "Comm2";
-        private const string _system = "1|2";
-        private const string _system2 = "2|2";
+        private const string _systemPathWithoutSection = "1|2";
+        private const string _systemPathWithoutSection2 = "2|2";
+        private const string _systemPathWithSection = "14|1|2";
+        private const string _systemPathWithSection2 = "15|1|2";
 
         private readonly List<ParticipantsForEditCommand> _updatedParticipants = new List<ParticipantsForEditCommand>
         {
@@ -139,7 +141,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             //mock comm pkg response from main API
-            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", System = _system};
+            var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemPath = _systemPathWithSection};
             IList<ProCoSysCommPkg> pcsCommPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails };
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
             _commPkgApiServiceMock
@@ -147,8 +149,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(Task.FromResult(pcsCommPkgDetails));
 
             //mock mc pkg response from main API
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system};
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system};
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithoutSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithoutSection };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
             _mcPkgApiServiceMock
@@ -239,8 +241,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _system),
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _system)
+                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
+                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
             };
             //create invitation
             _dpInvitation = new Invitation(
@@ -258,8 +260,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var commPkgs = new List<CommPkg>
             {
-                new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _system),
-                new CommPkg(_plant, _projectName, _commPkgNo, "d2", "ok", _system)
+                new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _systemPathWithSection),
+                new CommPkg(_plant, _projectName, _commPkgNo, "d2", "ok", _systemPathWithSection)
             };
             //create invitation
             _mdpInvitation = new Invitation(
@@ -380,11 +382,80 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSystems()
+        public async Task HandleEditInvitationCommand_ShouldBeAbleToAddMcScopeAcrossSystems()
         {
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system };
-            var mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, System = _system2 };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithoutSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithoutSection2 };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
+            var mcPkgScope = new List<string>
+            {
+                _mcPkgNo1,
+                _mcPkgNo2
+            };
+
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var command = new EditInvitationCommand(
+                _dpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeDp,
+                _updatedParticipants,
+                mcPkgScope,
+                null,
+                _rowVersion);
+
+            await _dut.Handle(command, default);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task HandleEditInvitationCommand_ShouldBeAbleToAddCommScopeAcrossSystems()
+        {
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithoutSection };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, SystemPath = _systemPathWithoutSection2 };
+            IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
+            var commPkgScope = new List<string>
+            {
+                _commPkgNo,
+                _commPkgNo2
+            };
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Returns(Task.FromResult(commPkgDetails));
+
+            var command = new EditInvitationCommand(
+                _dpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeMdp,
+                _updatedParticipants,
+                null,
+                commPkgScope,
+                _rowVersion);
+
+            await _dut.Handle(command, default);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+
+        [TestMethod]
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSections()
+        {
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithSection };
+            var mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = "CommPkgNo3", Description = "D2", Id = 2, McPkgNo = _mcPkgNo3, SystemPath = _systemPathWithSection2 };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2, mcPkgDetails3 };
             var addedScope = new List<string>
             {
@@ -412,7 +483,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Mc pkg scope must be within a system"));
+            Assert.IsTrue(result.Message.StartsWith("Mc pkg scope must be within a section"));
         }
 
         [TestMethod]
@@ -544,8 +615,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfMcScopeIsNotFoundInMain()
         {
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _system };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _system };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithSection };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             var addedScope = new List<string>
             {
@@ -577,10 +648,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSystems()
+        public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSections()
         {
-            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system };
-            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _system2 };
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithSection };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, SystemPath = _systemPathWithSection2 };
             IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
             var newScope = new List<string>
             {
@@ -607,13 +678,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
-            Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a system"));
+            Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a section"));
         }
 
         [TestMethod]
         public async Task HandlingUpdateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsNotFoundInMain()
         {
-            var commPkg = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _system };
+            var commPkg = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithSection };
             IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkg };
             var newScope = new List<string>
             {

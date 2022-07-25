@@ -350,19 +350,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
-                var initialSystem = initialCommPkg.SystemSubString;
-                if (commPkgDetailsList.Any(commPkg => commPkg.SystemSubString != initialSystem))
+                var initialSection = initialCommPkg.Section;
+                if (commPkgDetailsList.Any(commPkg => commPkg.Section != initialSection))
                 {
-                    throw new IpoValidationException("Comm pkg scope must be within a system.");
+                    throw new IpoValidationException("Comm pkg scope must be within a section.");
                 }
             }
+
             return commPkgDetailsList.Select(c => new CommPkg(
                 _plantProvider.Plant,
                 projectName,
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
-                c.System)).ToList();
+                c.SystemPath)).ToList();
         }
 
         private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
@@ -378,10 +379,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
             if (initialMcPkg != null)
             {
-                var initialSystem = initialMcPkg.SystemSubString;
-                if (mcPkgDetailsList.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
+                var initialSection = initialMcPkg.Section;
+                if (mcPkgDetailsList.Any(commPkg => commPkg.Section != initialSection))
                 {
-                    throw new IpoValidationException("Mc pkg scope must be within a system.");
+                    throw new IpoValidationException("Mc pkg scope must be within a section.");
                 }
             }
 
@@ -391,7 +392,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
-                    mc.System)).ToList();
+                    mc.SystemPath)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(

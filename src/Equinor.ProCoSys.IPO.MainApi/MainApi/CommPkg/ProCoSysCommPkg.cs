@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
+﻿using System.Linq;
+
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public class ProCoSysCommPkg
     {
@@ -6,7 +8,10 @@
         public string CommPkgNo { get; set; }
         public string Description { get; set; }
         public string CommStatus { get; set; }
-        public string System { get; set; }
-        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
+        public string SystemPath { get; set; }
+        public string Section
+            => SystemPath.Count(s => s == '|') == 2
+                ? SystemPath.Substring(0, SystemPath.IndexOf('|'))
+                : null;
     }
 }

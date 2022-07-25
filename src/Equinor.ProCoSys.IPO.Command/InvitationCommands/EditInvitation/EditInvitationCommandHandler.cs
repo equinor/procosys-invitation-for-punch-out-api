@@ -118,10 +118,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialMcPkg = mcPkgsFromMain.FirstOrDefault();
                 if (initialMcPkg != null)
                 {
-                    var initialSystem = initialMcPkg.SystemSubString;
-                    if (mcPkgsFromMain.Any(mcPkg => mcPkg.SystemSubString != initialSystem))
+                    var initialSection = initialMcPkg.Section;
+                    if (mcPkgsFromMain.Any(commPkg => commPkg.Section != initialSection))
                     {
-                        throw new IpoValidationException("Mc pkg scope must be within a system.");
+                        throw new IpoValidationException("Mc pkg scope must be within a section.");
                     }
                 }
 
@@ -131,7 +131,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
-                    mc.System)).ToList();
+                    mc.SystemPath)).ToList();
             }
 
             return new List<McPkg>();
@@ -152,11 +152,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 var initialCommPkg = commPkgsFromMain.FirstOrDefault();
                 if (initialCommPkg != null)
                 {
-                    var initialSystem = initialCommPkg.SystemSubString;
-
-                    if (commPkgsFromMain.Any(commPkg => commPkg.SystemSubString != initialSystem))
+                    var initialSection = initialCommPkg.Section;
+                    if (commPkgsFromMain.Any(commPkg => commPkg.Section != initialSection))
                     {
-                        throw new IpoValidationException("Comm pkg scope must be within a system.");
+                        throw new IpoValidationException("Comm pkg scope must be within a section.");
                     }
                 }
 
@@ -166,7 +165,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     c.CommPkgNo,
                     c.Description,
                     c.CommStatus,
-                    c.System)).ToList();
+                    c.SystemPath)).ToList();
             }
 
             return new List<CommPkg>();
