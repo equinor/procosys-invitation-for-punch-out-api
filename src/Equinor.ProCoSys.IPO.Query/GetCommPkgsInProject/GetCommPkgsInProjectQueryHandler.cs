@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
                         commPkg.CommPkgNo,
                         commPkg.Description,
                         commPkg.CommStatus,
-                        commPkg.SystemPath)).ToList();
+                        commPkg.System)).ToList();
             }
 
             var commPkgSearchDto = new ProCoSysCommPkgSearchDto(mainApiCommPkgSearchResult.MaxAvailable, commPkgDtos);
