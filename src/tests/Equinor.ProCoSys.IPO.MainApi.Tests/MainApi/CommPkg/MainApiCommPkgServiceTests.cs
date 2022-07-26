@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 CommPkgNo = "CommNo1",
                                 Description = "Description1",
                                 CommStatus = "OK",
-                                System = "1|2"
+                                SystemPath = "1|2"
                             },
                             new ProCoSysCommPkg
                             {
@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 CommPkgNo = "CommNo2",
                                 Description = "Description2",
                                 CommStatus = "PA",
-                                System = "1|2"
+                                SystemPath = "1|2"
                             },
                             new ProCoSysCommPkg
                             {
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 CommPkgNo = "CommNo3",
                                 Description = "Description3",
                                 CommStatus = "PB",
-                                System = "1|2"
+                                SystemPath = "1|2"
                             }
                         }
             };
@@ -163,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             Assert.AreEqual("CommNo1", commPkg.CommPkgNo);
             Assert.AreEqual("Description1", commPkg.Description);
             Assert.AreEqual("OK", commPkg.CommStatus);
-            Assert.AreEqual("1|2", commPkg.System);
+            Assert.AreEqual("1|2", commPkg.SystemPath);
         }
     }
 }
