@@ -69,7 +69,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 Description = "D1",
                 Id = 1,
                 McPkgNo = McPkgNo,
-                SystemPath = KnownTestData.System
+                System = KnownTestData.System
             };
 
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails};

@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OK",
                     Description = "CommPkg1Description",
                     Id = 1,
-                    SystemPath = System
+                    System = System
                 },
                 new ProCoSysCommPkg
                 {
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OS",
                     Description = "CommPkg2Description",
                     Id = 2,
-                    SystemPath = System
+                    System = System
                 }
             };
 
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     McPkgNo = McPkgNo1,
                     Description = "McPkg1Description",
                     DisciplineCode = "A",
-                    SystemPath = System
+                    System = System
                 },
                 new ProCoSysMcPkg
                 {
@@ -70,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     McPkgNo = McPkgNo2,
                     Description = "McPkg2Description",
                     DisciplineCode = "B",
-                    SystemPath = System
+                    System = System
                 }
             };
 

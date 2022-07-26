@@ -363,7 +363,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
-                c.SystemPath)).ToList();
+                c.System)).ToList();
         }
 
         private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
@@ -392,7 +392,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
-                    mc.SystemPath)).ToList();
+                    mc.System)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(
