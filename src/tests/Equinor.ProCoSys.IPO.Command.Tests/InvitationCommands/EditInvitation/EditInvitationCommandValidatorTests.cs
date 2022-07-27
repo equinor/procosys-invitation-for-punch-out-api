@@ -358,7 +358,105 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenFunctinalRoleIsInvalid()
+        public void Validate_ShouldFail_WhenChangingFirstContractorWhenCompleted()
+        {
+            var editParticipants = new List<ParticipantsForEditCommand>
+                {
+                    new ParticipantsForEditCommand(
+                        Organization.Contractor,
+                        null,
+                        null,
+                        new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
+                        0),
+                    new ParticipantsForEditCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new InvitedPersonForEditCommand(2, null, "ola@test.com", true, _rowVersion),
+                        null,
+                        1)
+                };
+
+            var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdmin()).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default)).Returns(Task.FromResult(false));
+            var command = new EditInvitationCommand(
+                _id,
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Cannot change first contractor or construction company if they have signed!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_TryingToEditSignedParticipant()
+        {
+            var editParticipants = new List<ParticipantsForEditCommand>
+            {
+                new ParticipantsForEditCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
+                    0),
+                new ParticipantsForEditCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new InvitedPersonForEditCommand(2, null, "ola@test.com", true, _rowVersion),
+                    null,
+                    1)
+            };
+
+            var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdmin()).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock
+                .Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(false));
+            var command = new EditInvitationCommand(
+                _id,
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage
+                .StartsWith("Participants that have signed must be unsigned before edited!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenFunctionalRoleIsInvalid()
         {
             var editParticipants = new List<ParticipantsForEditCommand>
                 {

@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ServiceResult;
 using ParticipantType = Fusion.Integration.Meeting.ParticipantType;
@@ -34,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
         private readonly IPersonRepository _personRepository;
+        private readonly ILogger<EditInvitationCommandHandler> _logger;
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository, 
@@ -45,7 +47,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions,
-            IPersonRepository personRepository)
+            IPersonRepository personRepository,
+            ILogger<EditInvitationCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -57,6 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _functionalRoleApiService = functionalRoleApiService;
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
+            _logger = logger;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -64,21 +68,25 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var meetingParticipants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             
-            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, invitation.ProjectName);
-            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, invitation.ProjectName);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
 
-            invitation.EditIpo(
-                request.Title,
-                request.Description,
-                request.Type,
-                request.StartTime,
-                request.EndTime,
-                request.Location,
-                mcPkgScope,
-                commPkgScope);
+            if (invitation.Status == IpoStatus.Planned)
+            {
+                var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, invitation.ProjectName);
+                var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, invitation.ProjectName);
+                invitation.EditIpo(
+                    request.Title,
+                    request.Description,
+                    request.Type,
+                    request.StartTime,
+                    request.EndTime,
+                    request.Location,
+                    mcPkgScope,
+                    commPkgScope);
+            }
 
             invitation.SetRowVersion(request.RowVersion);
+
             try
             {
                 var baseUrl =
@@ -94,9 +102,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
                 });
             }
-            catch (Exception e)
+            catch (MeetingApiException e)
             {
-                throw new Exception("Error: Could not update outlook meeting.", e);
+                _logger.LogError(e ,"Error: Could not update outlook meeting.");
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

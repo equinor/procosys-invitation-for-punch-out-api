@@ -34,11 +34,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
+
                 //business validators
                 .MustAsync((command, cancellationToken) => BeAnExistingIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"Invitation with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, cancellationToken) => BeAnIpoInPlannedStage(command.InvitationId, cancellationToken))
-                .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}")
                 .Must(command => HaveAValidRowVersion(command.RowVersion))
                 .WithMessage(command => $"Invitation does not have valid rowVersion! RowVersion={command.RowVersion}")
                 .Must(command => MustHaveValidScope(command.Type, command.UpdatedMcPkgScope, command.UpdatedCommPkgScope))
@@ -59,8 +58,28 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(FunctionalRoleParticipantsMustBeValid)
                 .WithMessage((_, participant) =>
                     $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.InvitedFunctionalRole.Code}")
-                .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
+                .Must((_, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage(_ => "Participant doesn't have valid rowVersion!");
+
+            WhenAsync((command, token) => IsAdmin(), () =>
+            {
+                RuleFor(command => command)
+                    .MustAsync((command, cancellationToken) =>
+                        NotBeCancelled(command.InvitationId, cancellationToken))
+                    .WithMessage(command => $"IPO cannot be cancelled when editing as admin! Id={command.InvitationId}")
+                    .MustAsync((command, cancellationToken) =>
+                        SignedParticipantsCannotBeAltered(command.UpdatedParticipants, command.InvitationId, cancellationToken))
+                    .WithMessage(command => $"Participants that have signed must be unsigned before edited! Id={command.InvitationId}")
+                    .MustAsync((command, cancellationToken) =>
+                        SortKeyIsNotChangedForSignedFirstSigners(command.UpdatedParticipants, command.InvitationId, cancellationToken))
+                    .WithMessage(command => $"Cannot change first contractor or construction company if they have signed! Id={command.InvitationId}");
+            }).Otherwise(() =>
+            {
+                RuleFor(command => command)
+                    .MustAsync((command, cancellationToken) =>
+                        BeAnIpoInPlannedStage(command.InvitationId, cancellationToken))
+                    .WithMessage(command => $"IPO must be in planned stage to be edited! Id={command.InvitationId}");
+            });
 
             async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
@@ -68,14 +87,28 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             async Task<bool> BeAnIpoInPlannedStage(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Planned, cancellationToken);
 
+            async Task<bool> NotBeCancelled(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
+
             bool MustHaveValidScope(
                 DisciplineType type,
                 IList<string> updatedMcPkgScope, 
                 IList<string> updatedCommPkgScope) 
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
+            async Task<bool> IsAdmin()
+            {
+                return await invitationValidator.CurrentUserIsAdmin();
+            }
+
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
+
+            async Task<bool> SignedParticipantsCannotBeAltered(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.SignedParticipantsCannotBeAlteredAsync(participants, invitationId, cancellationToken);
+
+            async Task<bool> SortKeyIsNotChangedForSignedFirstSigners(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.SortKeyCannotBeChangedForSignedFirstSignersAsync(participants, invitationId, cancellationToken);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForEditCommand> participants)
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants.Cast<ParticipantsForCommand>().ToList());

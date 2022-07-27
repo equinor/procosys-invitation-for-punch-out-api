@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
@@ -12,6 +13,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
         Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken token);
         Task<bool> ParticipantIsSignedAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> SignedParticipantsCannotBeAlteredAsync(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken token);
+        Task<bool> SortKeyCannotBeChangedForSignedFirstSignersAsync(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken token);
         Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken token);
         Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
@@ -32,5 +35,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdmin();
     }
 }

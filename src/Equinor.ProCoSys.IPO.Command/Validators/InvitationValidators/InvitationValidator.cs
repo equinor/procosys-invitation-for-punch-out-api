@@ -182,6 +182,85 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null && p.SignedAtUtc != null
                       select p).AnyAsync(cancellationToken);
 
+        public async Task<bool> SortKeyCannotBeChangedForSignedFirstSignersAsync(IList<ParticipantsForEditCommand> participants,
+            int invitationId, CancellationToken token)
+        {
+            var existingSignedFirstSigners = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedAtUtc != null && p.SortKey < 2
+                select p).ToListAsync(token);
+
+            try
+            {
+                foreach (var existing in existingSignedFirstSigners)
+                {
+                    var participantInCommand = participants.Single(p =>
+                        p.InvitedFunctionalRoleToEdit?.Id == existing.Id || p.InvitedPersonToEdit?.Id == existing.Id);
+                    if (participantInCommand.InvitedFunctionalRoleToEdit != null)
+                    {
+                        if (participantInCommand.InvitedFunctionalRoleToEdit.Code != existing.FunctionalRoleCode ||
+                            participantInCommand.Organization != existing.Organization || participantInCommand.SortKey != existing.SortKey)
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (participantInCommand.InvitedPersonToEdit != null)
+                    {
+                        if (participantInCommand.InvitedPersonToEdit.AzureOid != existing.AzureOid ||
+                            participantInCommand.Organization != existing.Organization || participantInCommand.SortKey != existing.SortKey)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SignedParticipantsCannotBeAlteredAsync(IList<ParticipantsForEditCommand> participants,
+            int invitationId, CancellationToken token)
+        {
+            var existingSignedParticipants = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null
+                select p).ToListAsync(token);
+            var participantIds = participants.Select(p => 
+                p.InvitedFunctionalRoleToEdit != null ? p.InvitedFunctionalRoleToEdit.Id : p.InvitedPersonToEdit?.Id)
+                .Where(id => id != null).ToList();
+            var existingParticipantIds = existingSignedParticipants.Select(p => p.Id).ToList();
+            var allSignedParticipantsRemain = existingParticipantIds.All(p => participantIds.Contains(p));
+
+            if (!allSignedParticipantsRemain)
+            {
+                return false;
+            }
+
+            foreach (var existing in existingSignedParticipants)
+            {
+                var participantInCommand = participants.Single(p => p.InvitedFunctionalRoleToEdit?.Id == existing.Id || p.InvitedPersonToEdit?.Id == existing.Id);
+                if (participantInCommand.InvitedFunctionalRoleToEdit != null)
+                {
+                    if (participantInCommand.InvitedFunctionalRoleToEdit.Code != existing.FunctionalRoleCode)
+                    {
+                        return false;
+                    }
+                }
+                if (participantInCommand.InvitedPersonToEdit != null)
+                {
+                    if (participantInCommand.InvitedPersonToEdit.AzureOid != existing.AzureOid)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public async Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
         {
             var participant = await (from p in _context.QuerySet<Participant>()
@@ -196,7 +275,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
-            if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider))
+            if (await CurrentUserIsAdmin())
             {
                 return true;
             }
@@ -236,6 +315,42 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         }
 
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
+        {
+            if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
+            {
+                if (editPerson.Id.HasValue && !await ParticipantExistsAsync(editPerson.Id.Value, invitationId, cancellationToken))
+                {
+                    return false;
+                }
+            }
+
+            if (participant.InvitedExternalEmail is InvitedExternalEmailForEditCommand externalEmail)
+            {
+                if (externalEmail.Id.HasValue && !await ParticipantExistsAsync(externalEmail.Id.Value, invitationId, cancellationToken))
+                {
+                    return false;
+                }
+            }
+
+            if (participant.InvitedFunctionalRole is InvitedFunctionalRoleForEditCommand functionalRole)
+            {
+                if (functionalRole.Id.HasValue && !await ParticipantExistsAsync(functionalRole.Id.Value, invitationId, cancellationToken))
+                {
+                    return false;
+                }
+
+                foreach (var person in functionalRole.EditPersons)
+                {
+                    if (person.Id.HasValue && !await ParticipantExistsAsync(person.Id.Value, invitationId, cancellationToken))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public async Task<bool> ParticipantIsNotChangedAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
             if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
             {
@@ -371,7 +486,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            var hasAdminPermission = await CurrentUserIsAdmin();
             if (hasAdminPermission)
             {
                 return true;
@@ -382,7 +497,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            var hasAdminPermission = await CurrentUserIsAdmin();
             if (hasAdminPermission)
             {
                 return true;
@@ -393,7 +508,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            var hasAdminPermission = await CurrentUserIsAdmin();
             if (hasAdminPermission)
             {
                 return true;
@@ -416,7 +531,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            var hasAdminPermission = await CurrentUserIsAdmin();
             if (hasAdminPermission)
             {
                 return true;
@@ -441,5 +556,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             return currentUserId == createdById;
         }
+
+        public async Task<bool> CurrentUserIsAdmin()
+            => await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
     }
 }

@@ -16,6 +16,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -35,6 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<ILogger<EditInvitationCommandHandler>> _loggerMock;
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
@@ -139,6 +141,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 })));
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _loggerMock = new Mock<ILogger<EditInvitationCommandHandler>>();
 
             //mock comm pkg response from main API
             var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, CommStatus = "OK", SystemPath = _systemPathWithSection};
@@ -341,7 +344,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _personApiServiceMock.Object,
                 _functionalRoleApiServiceMock.Object,
                 _meetingOptionsMock.Object,
-                _personRepositoryMock.Object);
+                _personRepositoryMock.Object,
+                _loggerMock.Object);
         }
 
         [TestMethod]
@@ -852,5 +856,49 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.AreEqual(_functionalRoleWithMultipleInformationEmailsCode, _dpInvitation.Participants.ToList()[0].FunctionalRoleCode);
         }
 
+        [TestMethod]
+        public async Task HandlingUpdateInvitationCommand_ShouldNotUpdateScopeIfCompleted()
+        {
+            // Setup
+            _dpInvitation.CompleteIpo(_dpInvitation.Participants.First(),
+                _dpInvitation.Participants.First().RowVersion.ConvertToString(),
+                new Person(_azureOid, "first", "last", "user", "email"),
+                DateTime.Now);
+            var newParticipants = new List<ParticipantsForEditCommand>
+            {
+                new ParticipantsForEditCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new InvitedFunctionalRoleForEditCommand(null, _functionalRoleWithMultipleInformationEmailsCode, null, _participantRowVersion),
+                    0),
+                new ParticipantsForEditCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new InvitedPersonForEditCommand(null, _azureOid, "ola@test.com", true, null),
+                    null,
+                    1)
+            };
+
+            var command = new EditInvitationCommand(
+                _dpInvitationId,
+                _newTitle,
+                _newDescription,
+                null,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _typeMdp,
+                newParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion);
+
+            await _dut.Handle(command, default);
+
+            // Assert
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _meetingClientMock.Verify(x => x.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()), Times.Once);
+            Assert.AreEqual(0, _dpInvitation.CommPkgs.Count);
+        }
     }
 }
