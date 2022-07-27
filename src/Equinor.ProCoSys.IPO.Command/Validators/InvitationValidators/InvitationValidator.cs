@@ -350,42 +350,6 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return true;
         }
 
-        public async Task<bool> ParticipantIsNotChangedAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
-        {
-            if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
-            {
-                if (editPerson.Id.HasValue && !await ParticipantExistsAsync(editPerson.Id.Value, invitationId, cancellationToken))
-                {
-                    return false;
-                }
-            }
-
-            if (participant.InvitedExternalEmail is InvitedExternalEmailForEditCommand externalEmail)
-            {
-                if (externalEmail.Id.HasValue && !await ParticipantExistsAsync(externalEmail.Id.Value, invitationId, cancellationToken))
-                {
-                    return false;
-                }
-            }
-
-            if (participant.InvitedFunctionalRole is InvitedFunctionalRoleForEditCommand functionalRole)
-            {
-                if (functionalRole.Id.HasValue && !await ParticipantExistsAsync(functionalRole.Id.Value, invitationId, cancellationToken))
-                {
-                    return false;
-                }
-
-                foreach (var person in functionalRole.EditPersons)
-                {
-                    if (person.Id.HasValue && !await ParticipantExistsAsync(person.Id.Value, invitationId, cancellationToken))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
         public async Task<bool> CurrentUserIsValidCompleterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
             var participants = await (from participant in _context.QuerySet<Participant>()

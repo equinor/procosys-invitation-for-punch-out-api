@@ -2122,7 +2122,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(updatedParticipants, _invitationIdWithFrAsParticipants, default);
+                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(
+                    updatedParticipants,
+                    _invitationIdWithFrAsParticipants,
+                    default);
                 Assert.IsFalse(result);
             }
         }
@@ -2178,7 +2181,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
                 invitation.UnAcceptIpo(
                     invitation.Participants.First(),
                     invitation.Participants.First().RowVersion.ConvertToString());
@@ -2189,7 +2194,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(_participantsOnlyRequired, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(
+                    _participantsOnlyRequired,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsFalse(result);
             }
         }
@@ -2201,7 +2209,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(_participantsOnlyRequired, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                var result = await dut.SortKeyCannotBeChangedForSignedFirstSignersAsync(
+                    _participantsOnlyRequired,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsFalse(result);
             }
         }
@@ -2214,7 +2225,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
                 invitation.UnAcceptIpo(
                     invitation.Participants.Single(p => p.SortKey == 1),
                     invitation.Participants.Single(p => p.SortKey == 1).RowVersion.ConvertToString());
@@ -2227,8 +2240,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                _participantsOnlyRequired.Add(new ParticipantsForEditCommand(Organization.ConstructionCompany, null, new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null), null, 3));
-                var result = await dut.SignedParticipantsCannotBeAlteredAsync(_participantsOnlyRequired, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                _participantsOnlyRequired.Add(
+                    new ParticipantsForEditCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                        null,
+                        3));
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    _participantsOnlyRequired,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsTrue(result);
             }
         }
@@ -2240,7 +2262,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var result = await dut.SignedParticipantsCannotBeAlteredAsync(_participantsOnlyRequired, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    _participantsOnlyRequired,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsFalse(result);
             }
         }
@@ -2251,7 +2276,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
                 var participantsToUpdate = new List<ParticipantsForEditCommand>();
                 foreach (var participant in invitation.Participants)
                 {
@@ -2263,8 +2290,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     participantsToUpdate.Add(participantsForEditCommand);
                 }
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                _participantsOnlyRequired.Add(new ParticipantsForEditCommand(Organization.ConstructionCompany, null, new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null), null, 3));
-                var result = await dut.SignedParticipantsCannotBeAlteredAsync(participantsToUpdate, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                _participantsOnlyRequired.Add(
+                    new ParticipantsForEditCommand
+                        (Organization.ConstructionCompany,
+                            null,
+                            new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                            null,
+                            3));
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    participantsToUpdate,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsTrue(result);
             }
         }
@@ -2275,7 +2311,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var invitation = context.Invitations.Include(i => i.Participants).Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
                 var participantsToUpdate = new List<ParticipantsForEditCommand>();
                 foreach (var participant in invitation.Participants)
                 {
@@ -2293,8 +2331,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 }
 
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                _participantsOnlyRequired.Add(new ParticipantsForEditCommand(Organization.ConstructionCompany, null, new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null), null, 3));
-                var result = await dut.SignedParticipantsCannotBeAlteredAsync(participantsToUpdate, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
+                _participantsOnlyRequired.Add(
+                    new ParticipantsForEditCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                        null,
+                        3));
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    participantsToUpdate,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
                 Assert.IsTrue(result);
             }
         }

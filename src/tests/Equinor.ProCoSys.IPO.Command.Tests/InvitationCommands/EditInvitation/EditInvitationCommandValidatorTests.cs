@@ -332,9 +332,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default))
+                .Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
             var command = new EditInvitationCommand(
                 _id,
@@ -378,13 +381,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
             _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdmin()).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants))
+                .Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(false));
             var command = new EditInvitationCommand(
                 _id,
                 _title,

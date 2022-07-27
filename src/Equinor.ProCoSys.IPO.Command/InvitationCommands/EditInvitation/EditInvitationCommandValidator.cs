@@ -101,10 +101,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
 
-            async Task<bool> SignedParticipantsCannotBeAltered(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken cancellationToken)
+            async Task<bool> SignedParticipantsCannotBeAltered(IList<ParticipantsForEditCommand> participants, int invitationId,
+                CancellationToken cancellationToken)
                 => await invitationValidator.SignedParticipantsCannotBeAlteredAsync(participants, invitationId, cancellationToken);
 
-            async Task<bool> SortKeyIsNotChangedForSignedFirstSigners(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken cancellationToken)
+            async Task<bool> SortKeyIsNotChangedForSignedFirstSigners(IList<ParticipantsForEditCommand> participants, int invitationId,
+                CancellationToken cancellationToken)
                 => await invitationValidator.SortKeyCannotBeChangedForSignedFirstSignersAsync(participants, invitationId, cancellationToken);
 
             bool TwoFirstParticipantsMustBeSetWithCorrectOrganization(IList<ParticipantsForEditCommand> participants)
