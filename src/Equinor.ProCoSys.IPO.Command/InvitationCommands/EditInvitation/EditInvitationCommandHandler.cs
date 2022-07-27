@@ -83,29 +83,29 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     request.Location,
                     mcPkgScope,
                     commPkgScope);
+
+                try
+                {
+                    var baseUrl =
+                        InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
+
+                    var organizer = await _personRepository.GetByIdAsync(invitation.CreatedById);
+                    await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
+                    {
+                        builder.UpdateLocation(request.Location);
+                        builder.UpdateMeetingDate(request.StartTime, request.EndTime);
+                        builder.UpdateTimeZone("UTC");
+                        builder.UpdateParticipants(meetingParticipants);
+                        builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
+                    });
+                }
+                catch (MeetingApiException e)
+                {
+                    _logger.LogError(e, "Error: Could not update outlook meeting.");
+                }
             }
 
             invitation.SetRowVersion(request.RowVersion);
-
-            try
-            {
-                var baseUrl =
-                    InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
-
-                var organizer = await _personRepository.GetByIdAsync(invitation.CreatedById);
-                await _meetingClient.UpdateMeetingAsync(invitation.MeetingId, builder =>
-                {
-                    builder.UpdateLocation(request.Location);
-                    builder.UpdateMeetingDate(request.StartTime, request.EndTime);
-                    builder.UpdateTimeZone("UTC");
-                    builder.UpdateParticipants(meetingParticipants);
-                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
-                });
-            }
-            catch (MeetingApiException e)
-            {
-                _logger.LogError(e ,"Error: Could not update outlook meeting.");
-            }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());

@@ -96,10 +96,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 IList<string> updatedCommPkgScope) 
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
-            async Task<bool> IsAdmin()
-            {
-                return await invitationValidator.CurrentUserIsAdmin();
-            }
+            async Task<bool> IsAdmin() => await invitationValidator.CurrentUserIsAdmin();
 
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);
