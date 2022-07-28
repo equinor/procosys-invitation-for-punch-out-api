@@ -31,6 +31,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
+        private Mock<IPermissionCache> _permissionCacheMock;
+        private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
@@ -111,6 +113,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Returns(_plant);
 
             _personRepositoryMock = new Mock<IPersonRepository>();
+            _permissionCacheMock = new Mock<IPermissionCache>();
+            _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
@@ -345,7 +349,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _functionalRoleApiServiceMock.Object,
                 _meetingOptionsMock.Object,
                 _personRepositoryMock.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _permissionCacheMock.Object,
+                _currentUserProviderMock.Object);
         }
 
         [TestMethod]
@@ -898,6 +904,48 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             // Assert
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.AreEqual(0, _dpInvitation.CommPkgs.Count);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateInvitationCommand_UpdatingPlannedInvitationAsAdmin_ShouldCallLogErrorOnce()
+        {
+            // Setup exception in Edit meeting.
+            _meetingClientMock.Setup(c => c.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()))
+                .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
+
+            IList<string> permissions = new List<string> { "IPO/ADMIN" };
+            _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
+                    _plant, It.IsAny<Guid>()))
+                .Returns(Task.FromResult(permissions));
+
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Admin could not update outlook meeting.") == 0;
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _loggerMock.Verify(
+                x => x.Log(
+                    It.Is<LogLevel>(l => l == LogLevel.Error),
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => state(v, t)),
+                    It.IsAny<Exception>(),
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateInvitationCommand_UpdatingPlannedInvitationAsParticipant_FailingMeetingsApi_ShouldThrow()
+        {
+            // Setup exception in Edit meeting.
+            _meetingClientMock.Setup(c => c.UpdateMeetingAsync(_meetingId, It.IsAny<Action<GeneralMeetingPatcher>>()))
+                .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
+
+            // Act
+            // Assert
+            await Assert.ThrowsExceptionAsync<Exception>(() =>
+                _dut.Handle(_command, default));
         }
     }
 }

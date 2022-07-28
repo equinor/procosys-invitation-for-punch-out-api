@@ -892,8 +892,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var invitationDto = result.Data;
                 Assert.IsTrue(invitationDto.Participants.All(participant => !participant.CanEditAttendedStatusAndNote));
+                Assert.IsFalse(invitationDto.CanEdit);
+                Assert.IsFalse(invitationDto.CanCancel);
                 Assert.IsFalse(invitationDto.CanDelete);
-                Assert.IsTrue(invitationDto.CanCancel);
             }
         }
 

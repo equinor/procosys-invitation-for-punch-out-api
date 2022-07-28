@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must((_, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
-            WhenAsync((command, token) => IsAdmin(), () =>
+            WhenAsync((_, _) => IsAdmin(), () =>
             {
                 RuleFor(command => command)
                     .MustAsync((command, cancellationToken) =>

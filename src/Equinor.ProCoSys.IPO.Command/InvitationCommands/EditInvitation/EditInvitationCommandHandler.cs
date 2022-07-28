@@ -28,6 +28,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IInvitationRepository _invitationRepository;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IPlantProvider _plantProvider;
+        private readonly IPermissionCache _permissionCache;
+        private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly ICommPkgApiService _commPkgApiService;
@@ -48,7 +50,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions,
             IPersonRepository personRepository,
-            ILogger<EditInvitationCommandHandler> logger)
+            ILogger<EditInvitationCommandHandler> logger,
+            IPermissionCache permissionCache,
+            ICurrentUserProvider currentUserProvider)
         {
             _invitationRepository = invitationRepository;
             _meetingClient = meetingClient;
@@ -61,6 +65,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
             _logger = logger;
+            _permissionCache = permissionCache;
+            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<Result<string>> Handle(EditInvitationCommand request, CancellationToken cancellationToken)
@@ -99,9 +105,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                         builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
                     });
                 }
-                catch (MeetingApiException e)
+                catch (Exception e)
                 {
-                    _logger.LogError(e, "Error: Could not update outlook meeting.");
+                    if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider))
+                    {
+                        _logger.LogError(e, "Admin could not update outlook meeting.");
+                    }
+                    else
+                    {
+                        throw new Exception("Error: Could not update outlook meeting.", e);
+                    }
                 }
             }
 
