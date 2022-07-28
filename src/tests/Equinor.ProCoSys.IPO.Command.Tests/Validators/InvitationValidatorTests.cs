@@ -2256,7 +2256,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public async Task SignedParticipantsCannotBeAlteredAsync_HasSignatures_ReturnsFalse()
+        public async Task SignedParticipantsCannotBeAlteredAsync_ChangeFirstParticipantsWithSignatures_ReturnsFalse()
         {
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -2272,6 +2272,107 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 
         [TestMethod]
         public async Task SignedParticipantsCannotBeAlteredAsync_SignedButNotChangedParticipants_ReturnsTrue()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var person = context.QuerySet<Person>().FirstAsync().Result;
+
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                invitation.SignIpo(
+                    invitation.Participants.Last(),
+                    person,
+                    invitation.Participants.Last().RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                Assert.IsTrue(invitation.Participants.All(p => p.SignedBy != null));
+
+                var participantsToUpdate = new List<ParticipantsForEditCommand>();
+                foreach (var participant in invitation.Participants)
+                {
+                    // We know that there are only three person participants
+                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
+                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
+                        participant.SortKey);
+                    participantsToUpdate.Add(participantsForEditCommand);
+                }
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                _participantsOnlyRequired.Add(
+                    new ParticipantsForEditCommand
+                        (Organization.ConstructionCompany,
+                            null,
+                            new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                            null,
+                            3));
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    participantsToUpdate,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
+                Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SignedParticipantsCannotBeAlteredAsync_RemovingSignedParticipant_ReturnsFalse()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var person = context.QuerySet<Person>().FirstAsync().Result;
+
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                invitation.SignIpo(
+                    invitation.Participants.Last(),
+                    person,
+                    invitation.Participants.Last().RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                Assert.IsTrue(invitation.Participants.All(p => p.SignedBy != null));
+
+                var participantsToUpdate = new List<ParticipantsForEditCommand>();
+                foreach (var participant in invitation.Participants)
+                {
+                    // We know that there are only three person participants
+                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
+                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
+                        participant.SortKey);
+                    if (participant.SortKey < 2)
+                    {
+                        participantsToUpdate.Add(participantsForEditCommand);
+                    }
+                }
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+   
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    participantsToUpdate,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SignedParticipantsCannotBeAlteredAsync_SignedButNotChangedParticipants_AddNew_ReturnsTrue()
         {
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -2302,6 +2403,61 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
                     default);
                 Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task SignedParticipantsCannotBeAlteredAsync_ChangingSignedParticipantToExternal_ReturnsFalse()
+        {
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var person = context.QuerySet<Person>().FirstAsync().Result;
+
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                invitation.SignIpo(
+                    invitation.Participants.Last(),
+                    person,
+                    invitation.Participants.Last().RowVersion.ConvertToString());
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitation = context.Invitations
+                    .Include(i => i.Participants)
+                    .Single(inv => inv.Id == _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus);
+                var participantsToUpdate = new List<ParticipantsForEditCommand>();
+                foreach (var participant in invitation.Participants)
+                {
+                    // We know that there are only three person participants
+                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
+                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
+                        participant.SortKey);
+                    if (participant.SortKey > 1)
+                    {
+                        var external = new InvitedExternalEmailForEditCommand(participant.Id, "email", participant.RowVersion.ConvertToString());
+                        participantsForEditCommand = new ParticipantsForEditCommand(Organization.External, external, null, null, participant.SortKey);
+                    }
+                    participantsToUpdate.Add(participantsForEditCommand);
+                }
+                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
+                _participantsOnlyRequired.Add(
+                    new ParticipantsForEditCommand
+                        (Organization.ConstructionCompany,
+                            new InvitedExternalEmailForEditCommand(null, "email", null),
+                            null,
+                            null,
+                            3));
+                var result = await dut.SignedParticipantsCannotBeAlteredAsync(
+                    participantsToUpdate,
+                    _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
+                    default);
+                Assert.IsFalse(result);
             }
         }
 
