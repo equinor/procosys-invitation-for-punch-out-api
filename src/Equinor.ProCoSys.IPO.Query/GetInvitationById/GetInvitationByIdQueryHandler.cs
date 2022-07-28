@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             var canEdit = meeting != null && 
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
-            var currentUserIsCreator = createdBy.Id == invitation.CreatedById;
+            var currentUserIsCreator = _currentUserProvider.GetCurrentUserOid() == createdBy.Oid;
             var canDelete = invitation.Status == IpoStatus.Canceled && currentUserIsCreator;
             var canCancel = invitation.Status is IpoStatus.Completed or IpoStatus.Planned
                             && (currentUserIsCreator 
