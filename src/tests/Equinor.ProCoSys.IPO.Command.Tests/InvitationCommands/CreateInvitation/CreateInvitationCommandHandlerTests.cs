@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(_azureOid, true),
                 null,
                 1)
         };
@@ -145,8 +145,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
-            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithoutSection };
-            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithoutSection };
+            _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithoutSection };
+            _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithoutSection };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
 
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
@@ -252,8 +252,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public async Task HandleCreateInvitationCommand_ShouldBeAbleToAddMcScopeAcrossSystems()
         {
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithoutSection };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithoutSection2 };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithoutSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithoutSection2 };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
 
             _mcPkgApiServiceMock
@@ -281,8 +281,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public async Task HandleCreateInvitationCommand_ShouldBeAbleToAddCommScopeAcrossSystems()
         {
-            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithoutSection };
-            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, SystemPath = _systemPathWithoutSection2 };
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _systemPathWithoutSection };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _systemPathWithoutSection2 };
             IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
             var commPkgScope = new List<string>
             {
@@ -326,8 +326,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfMcScopeIsAcrossSection()
         {
-            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, SystemPath = _systemPathWithSection };
-            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, SystemPath = _systemPathWithSection2 };
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithSection };
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithSection2 };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
 
             _mcPkgApiServiceMock
@@ -380,8 +380,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         [TestMethod]
         public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsAcrossSections()
         {
-            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithSection };
-            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, SystemPath = _systemPathWithSection2 };
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _systemPathWithSection };
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _systemPathWithSection2 };
             IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
             var commPkgScope = new List<string>
             {
@@ -414,7 +414,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsNotFoundInMain()
         {
             IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { 
-                    new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, SystemPath = _systemPathWithSection }
+                    new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _systemPathWithSection }
                 };
 
             var commPkgScope = new List<string>
@@ -519,7 +519,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, true),
                     null,
                     1)
             };
@@ -562,7 +562,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, true),
                     null,
                     1)
             };

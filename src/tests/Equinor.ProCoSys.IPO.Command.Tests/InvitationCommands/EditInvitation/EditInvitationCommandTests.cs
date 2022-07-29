@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForEditCommand(null, null, "ola@test.com", true, null),
+                new InvitedPersonForEditCommand(null, new Guid(), true, null),
                 null,
                 1)
         };

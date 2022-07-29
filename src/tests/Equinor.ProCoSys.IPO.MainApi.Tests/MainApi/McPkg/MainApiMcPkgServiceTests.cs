@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo1",
                 Description = "Description1",
                 DisciplineCode = "A",
-                SystemPath = "1|2"
+                System = "1|2"
             };
             _proCoSysMcPkg2 = new ProCoSysMcPkg
             {
@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo2",
                 Description = "Description2",
                 DisciplineCode = "A",
-                SystemPath = "1|2"
+                System = "1|2"
             };
             _proCoSysMcPkg3 = new ProCoSysMcPkg
             {
@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo3",
                 Description = "Description3",
                 DisciplineCode = "B",
-                SystemPath = "1|2"
+                System = "1|2"
             };
 
             _foreignApiClient
@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("McNo1", mcPkg.McPkgNo);
             Assert.AreEqual("Description1", mcPkg.Description);
             Assert.AreEqual("A", mcPkg.DisciplineCode);
-            Assert.AreEqual("1|2", mcPkg.SystemPath);
+            Assert.AreEqual("1|2", mcPkg.System);
         }
 
         [TestMethod]
@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("McNo1", mcPkg.McPkgNo);
             Assert.AreEqual("Description1", mcPkg.Description);
             Assert.AreEqual("A", mcPkg.DisciplineCode);
-            Assert.AreEqual("1|2", mcPkg.SystemPath);
+            Assert.AreEqual("1|2", mcPkg.System);
             mcPkg = result[1];
             Assert.AreEqual(222222222, mcPkg.Id);
             Assert.AreEqual("McNo2", mcPkg.McPkgNo);

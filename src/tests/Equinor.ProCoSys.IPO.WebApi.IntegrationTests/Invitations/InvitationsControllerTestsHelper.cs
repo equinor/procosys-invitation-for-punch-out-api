@@ -505,6 +505,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return await response.Content.ReadAsStringAsync();
         }
 
+        public static async Task<string> EditParticipantsAsync(
+            UserType userType,
+            string plant,
+            int id,
+            EditInvitation.EditParticipantsDto dto,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                dto.UpdatedParticipants,
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}/Participants", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
         public static async Task UploadAttachmentAsync(
             UserType userType, 
             string plant,

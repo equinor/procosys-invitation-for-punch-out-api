@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(new Guid(), true),
                 null,
                 1)
         };
@@ -331,7 +331,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(
@@ -379,7 +379,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(

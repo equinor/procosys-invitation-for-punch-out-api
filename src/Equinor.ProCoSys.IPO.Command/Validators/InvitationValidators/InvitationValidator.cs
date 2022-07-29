@@ -67,16 +67,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return isValidEmail && participant.InvitedPerson == null && participant.InvitedFunctionalRole == null;
         }
 
-        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson)
-        {
-            if (invitedPerson.Email == null && (invitedPerson.AzureOid == Guid.Empty || invitedPerson.AzureOid == null))
-            {
-                return false;
-            }
-
-            return invitedPerson.AzureOid != Guid.Empty && invitedPerson.AzureOid != null ||
-                   new EmailAddressAttribute().IsValid(invitedPerson.Email);
-        }
+        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson) 
+            => invitedPerson.AzureOid != Guid.Empty;
 
         private bool IsValidPersonParticipant(ParticipantsForCommand participant)
             => IsValidPerson(participant.InvitedPerson) && participant.InvitedExternalEmail == null && participant.InvitedFunctionalRole == null;

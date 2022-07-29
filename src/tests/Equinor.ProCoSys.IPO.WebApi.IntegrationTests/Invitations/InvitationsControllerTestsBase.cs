@@ -160,11 +160,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             _mcPkgDetails1 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1, SystemPath = KnownTestData.System
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1, System = KnownTestData.System
             };
             _mcPkgDetails2 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2, SystemPath = KnownTestData.System
+                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2, System = KnownTestData.System
             };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
 
@@ -519,6 +519,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, editInvitationDto);
         }
 
+        internal async Task<(int, EditParticipantsDto)> CreateValidEditParticipantsDtoAsync(IList<CreateParticipantsDto> participants)
+        {
+            var id = await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                participants,
+                _mcPkgScope,
+                null);
+
+            var invitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                id);
+
+            var editParticipantsDto = new EditParticipantsDto
+            {
+                UpdatedParticipants = ConvertToParticipantDtoEdit(invitation.Participants)
+            };
+
+            return (id, editParticipantsDto);
+        }
+
         internal async Task<AttachmentDto> UploadAttachmentAsync(int invitationId)
         {
             var fileToBeUploaded = TestFile.NewFileToBeUploaded();
@@ -564,11 +592,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return (id, cancelPunchOutDto);
         }
 
-        private IEnumerable<EditParticipantsDto> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDto> participants)
+        private IEnumerable<EditParticipantDto> ConvertToParticipantDtoEdit(IEnumerable<ParticipantDto> participants)
         {
-            var editVersionParticipantDtos = new List<EditParticipantsDto>();
+            var editVersionParticipantDtos = new List<EditParticipantDto>();
             participants.ToList().ForEach(p => editVersionParticipantDtos.Add(
-                new EditParticipantsDto
+                new EditParticipantDto
                 {
                     ExternalEmail = p.ExternalEmail != null ? new EditExternalEmailDto
                     {

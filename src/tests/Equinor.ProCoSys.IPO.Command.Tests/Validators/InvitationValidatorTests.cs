@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
+                new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                 null,
                 1)
         };
@@ -569,7 +569,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new InvitedPersonForEditCommand(null, Guid.Empty, "ola@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, Guid.Empty, true, null),
                         null,
                         1)
                 });
@@ -622,7 +622,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         new InvitedExternalEmailForEditCommand(null, "test@email.com", null),
-                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid(), true, null),
                         null,
                         3)
                 });
@@ -647,7 +647,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                         null,
                         3);
                 var external =
@@ -673,7 +673,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), null, true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -692,7 +692,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Operation,
                         null,
-                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                         null,
                         3);
                 var result = dut.IsValidParticipantList(
@@ -702,26 +702,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
-        public void IsValidParticipantList_RequiredParticipantsListAndPersonWithOnlyEmail_ReturnsTrue()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-                var person =
-                    new ParticipantsForCommand(
-                        Organization.Operation,
-                        null,
-                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
-                        null,
-                        3);
-                var result = dut.IsValidParticipantList(
-                    new List<ParticipantsForCommand> { _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[0], _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[1], person });
-                Assert.IsTrue(result);
-            }
-        }
-
-        [TestMethod]
-        public void IsValidParticipantList_RequiredParticipantsListAndFRWithPersonWithGuidAndEmptyEmail_ReturnsTrue()
+        public void IsValidParticipantList_RequiredParticipantsListAndFRWithPersonWithGuid_ReturnsTrue()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -733,7 +714,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new InvitedFunctionalRoleForEditCommand(
                         null,
                         "FR",
-                        new List<InvitedPersonForEditCommand> { new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), "", true, null) },
+                        new List<InvitedPersonForEditCommand> { new InvitedPersonForEditCommand(null, new Guid("11111111-2222-2222-2222-333333333333"), true, null) },
                         null),
                     3);
                 var result = dut.IsValidParticipantList(
@@ -813,7 +794,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(null, null, null, true, null),
+                        new InvitedPersonForEditCommand(null, new Guid(), true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -833,7 +814,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(null, Guid.Empty, "test", true, null),
+                        new InvitedPersonForEditCommand(null, Guid.Empty, true, null),
                         null,
                         4);
                 var result = dut.IsValidParticipantList(
@@ -867,7 +848,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid(), true, null),
                         null,
                         3);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[0], _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[1], person });
@@ -892,7 +873,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForEditCommand(null, null, "ola@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid(), true, null),
                         null,
                         0)
                 });
@@ -911,7 +892,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(null, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(null, new Guid(), true, null),
                         null,
                         0);
                 var result = dut.OnlyRequiredParticipantsHaveLowestSortKeys(new List<ParticipantsForCommand> { _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[0], _participantsOnlyRequired.Cast<ParticipantsForCommand>().ToList()[1], person });
@@ -951,7 +932,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(_participantId1, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(_participantId1, new Guid(), true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
@@ -994,8 +975,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             _operationCurrentPersonId,
                             "FR1",
                         new List<InvitedPersonForEditCommand> {
-                            new InvitedPersonForEditCommand(_participantId1, null, "zoey@test.com", true, null),
-                            new InvitedPersonForEditCommand(_participantId2, null, "zoey1@test.com", false, null)
+                            new InvitedPersonForEditCommand(_participantId1, new Guid(), true, null),
+                            new InvitedPersonForEditCommand(_participantId2, new Guid(), false, null)
                             },
                             null),
                         0);
@@ -1034,7 +1015,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForCommand(
                         Organization.Commissioning,
                         null,
-                        new InvitedPersonForEditCommand(500, null, "zoey@test.com", true, null),
+                        new InvitedPersonForEditCommand(500, new Guid(), true, null),
                         null,
                         3);
                 var result = await dut.ParticipantWithIdExistsAsync(person, _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus, default);
@@ -1077,8 +1058,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                             null,
                             "FR1",
                             new List<InvitedPersonForEditCommand> {
-                                new InvitedPersonForEditCommand(400, null, "zoey@test.com", true, null),
-                                new InvitedPersonForEditCommand(500, null, "zoey1@test.com", false, null)
+                                new InvitedPersonForEditCommand(400, new Guid(), true, null),
+                                new InvitedPersonForEditCommand(500, new Guid(), false, null)
                             },
                             null
                         ),
@@ -2114,7 +2095,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new ParticipantsForEditCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
+                    new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                     null,
                     1)
             };
@@ -2162,7 +2143,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 new ParticipantsForEditCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), "ola@test.com", true, null),
+                    new InvitedPersonForEditCommand(2, new Guid("11111111-2222-2222-2222-333333333333"), true, null),
                     null,
                     1)
             };
@@ -2244,7 +2225,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForEditCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                        new InvitedPersonForEditCommand(null, _azureOid, true, null),
                         null,
                         3));
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(
@@ -2300,8 +2281,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
-                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2311,7 +2291,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForEditCommand
                         (Organization.ConstructionCompany,
                             null,
-                            new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                            new InvitedPersonForEditCommand(null, _azureOid, true, null),
                             null,
                             3));
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(
@@ -2352,8 +2332,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
-                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey < 2)
@@ -2384,8 +2363,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
-                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2395,7 +2373,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForEditCommand
                         (Organization.ConstructionCompany,
                             null,
-                            new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                            new InvitedPersonForEditCommand(null, _azureOid, true, null),
                             null,
                             3));
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(
@@ -2434,8 +2412,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
-                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)
@@ -2474,13 +2451,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, participant.AzureOid,
-                        participant.Email, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)
                     {
-                        person = new InvitedPersonForEditCommand(null, _azureOid, participant.Email, true, null);
+                        person = new InvitedPersonForEditCommand(null, _azureOid, true, null);
                         participantsForEditCommand = new ParticipantsForEditCommand(Organization.Commissioning, null, person, null, 11);
                     }
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2491,7 +2467,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     new ParticipantsForEditCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForEditCommand(null, _azureOid, "testemail", true, null),
+                        new InvitedPersonForEditCommand(null, _azureOid, true, null),
                         null,
                         3));
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(

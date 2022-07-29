@@ -120,8 +120,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.InvitedFunctionalRole != null).ToList();
             var personsWithOids = ipoParticipants.Where(p => p.InvitedPerson?.AzureOid != null).ToList();
-            var personsWithoutOids = ipoParticipants.Where(p => p.InvitedPerson != null && p.InvitedPerson.AzureOid == null)
-                .ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.InvitedExternalEmail != null).ToList();
 
             meetingParticipants = functionalRoleParticipants.Count > 0
@@ -131,7 +129,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, personsWithOids)
                 : meetingParticipants;
             meetingParticipants = AddExternalParticipant(invitation, meetingParticipants, externalEmailParticipants);
-            meetingParticipants = AddPersonParticipantsWithoutOids(invitation, meetingParticipants, personsWithoutOids);
 
             return meetingParticipants;
         }
@@ -285,33 +282,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return meetingParticipants;
         }
 
-        private List<BuilderParticipant> AddPersonParticipantsWithoutOids(
-            Invitation invitation,
-            List<BuilderParticipant> meetingParticipants,
-            List<ParticipantsForCommand> personsParticipantsWithEmail)
-        {
-            foreach (var participant in personsParticipantsWithEmail)
-            {
-                //This code will only hit for users that do not have and azure oid (which all users should have).
-                //Therefore, insert null for names - no endpoint in main is created to retrieve info from users based on email
-                invitation.AddParticipant(new Participant(
-                    _plantProvider.Plant,
-                    participant.Organization,
-                    IpoParticipantType.Person,
-                    null,
-                    null,
-                    null,
-                    null,
-                    participant.InvitedPerson.Email,
-                    null,
-                    participant.SortKey));
-                meetingParticipants.Add(new BuilderParticipant(ParticipantType.Required,
-                    new ParticipantIdentifier(participant.InvitedPerson.Email)));
-            }
-
-            return meetingParticipants;
-        }
-
         private List<BuilderParticipant> AddExternalParticipant(
             Invitation invitation,
             List<BuilderParticipant> meetingParticipants,
@@ -363,7 +333,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
-                c.SystemPath)).ToList();
+                c.System)).ToList();
         }
 
         private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
@@ -392,7 +362,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
-                    mc.SystemPath)).ToList();
+                    mc.System)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(

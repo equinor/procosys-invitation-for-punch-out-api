@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
+﻿namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class InvitedExternalEmailForEditCommand : IInvitedExternalEmailForCommand
     {
