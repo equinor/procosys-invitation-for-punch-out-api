@@ -87,13 +87,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         }
 
         private static bool UserWasInvitedAsPersonParticipant(Invitation invitation, Guid currentUserOid)
-            => invitation.Participants.Any(p => p.AzureOid == currentUserOid && ((p.SortKey == 1 && invitation.CompletedAtUtc.HasValue) || (p.SortKey == 0 && !invitation.CompletedAtUtc.HasValue)));
+            => invitation.Participants.Any(p => 
+                p.AzureOid == currentUserOid
+                && p.FunctionalRoleCode == null
+                &&((!p.SignedAtUtc.HasValue 
+                && p.Organization != Organization.Supplier 
+                && p.Organization != Organization.External
+                && p.SortKey != 1) 
+                || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed)));
 
         private static bool UserWasInvitedAsPersonInFunctionalRole(Invitation invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
         {
-            var functionalRoleParticipantCodesOnInvitation = invitation.Participants.Where(p =>((p.SortKey == 1 && invitation.CompletedAtUtc.HasValue) || (p.SortKey == 0 && !invitation.CompletedAtUtc.HasValue)) &&
-                                               p.FunctionalRoleCode != null &&
-                                               p.Type == IpoParticipantType.FunctionalRole).Select(p => p.FunctionalRoleCode).ToList();
+            var functionalRoleParticipantCodesOnInvitation = 
+                invitation.Participants.Where(p => ((
+                    !p.SignedAtUtc.HasValue
+                    && p.Organization != Organization.Supplier
+                    && p.Organization != Organization.External
+                    && p.SortKey != 1) 
+                    || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed))
+                    && p.FunctionalRoleCode != null
+                    && p.Type == IpoParticipantType.FunctionalRole)
+                    .Select(p => p.FunctionalRoleCode).ToList();
 
             return currentUsersFunctionalRoleCodes.Select(functionalRoleCode 
                 => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode)).FirstOrDefault();

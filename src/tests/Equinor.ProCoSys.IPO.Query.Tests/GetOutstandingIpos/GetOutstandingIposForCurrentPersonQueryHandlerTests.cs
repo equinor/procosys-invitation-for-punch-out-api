@@ -24,16 +24,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private GetOutstandingIposForCurrentPersonQuery _query;
         private Person _person;
-        private Participant _personParticipant;
-        private Participant _personParticipant2;
-        private Participant _functionalRoleParticipant;
         private Participant _personParticipantContractor;
+        private Participant _personParticipant2;
+        private Participant _functionalRoleParticipantConstructionCompany;
+        private Participant _personParticipantConstructionCompany;
+        private Participant _personParticipantSupplier;
         private Participant _functionalRoleParticipantContractor;
 
-        private Invitation _invitationWithPersonParticipant;
-        private Invitation _invitationWithFunctionalRoleParticipant;
-        private Invitation _cancelledInvitation;
         private Invitation _invitationWithPersonParticipantContractor;
+        private Invitation _invitationWithFunctionalRoleParticipantConstructionCompany;
+        private Invitation _cancelledInvitation;
+        private Invitation _invitationWithPersonParticipantConstructionCompany;
         private Invitation _invitationWithFunctionalRoleParticipantContractor;
         private string _functionalRoleCode = "FR1";
         private const string _projectName = "TestProject";
@@ -52,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
                     .Returns(Task.FromResult(pcsFunctionalRoleCodes));
 
-                _invitationWithPersonParticipant = new Invitation(
+                _invitationWithPersonParticipantContractor = new Invitation(
                     TestPlant,
                     _projectName,
                     "TestInvitation1",
@@ -64,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
-                _invitationWithFunctionalRoleParticipant = new Invitation(
+                _invitationWithFunctionalRoleParticipantConstructionCompany = new Invitation(
                     TestPlant,
                     _projectName,
                     "TestInvitation2",
@@ -88,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
-                _invitationWithPersonParticipantContractor = new Invitation(
+                _invitationWithPersonParticipantConstructionCompany = new Invitation(
                     TestPlant,
                     _projectName,
                     "TestInvitation4",
@@ -112,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
-                _functionalRoleParticipant = new Participant(
+                _functionalRoleParticipantConstructionCompany = new Participant(
                     TestPlant,
                     Organization.ConstructionCompany,
                     IpoParticipantType.FunctionalRole,
@@ -123,11 +124,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     1);
-                _functionalRoleParticipant.SetProtectedIdForTesting(1);
+                _functionalRoleParticipantConstructionCompany.SetProtectedIdForTesting(1);
 
-                _personParticipant = new Participant(
+                _personParticipantContractor = new Participant(
                     TestPlant,
-                    Organization.ConstructionCompany,
+                    Organization.Contractor,
                     IpoParticipantType.Person,
                     null,
                     null,
@@ -135,8 +136,21 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     _currentUserOid,
-                    1);
-                _personParticipant.SetProtectedIdForTesting(2);
+                    0);
+
+                var helperPerson = new Participant(
+                    TestPlant,
+                    Organization.Contractor,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _currentUserOid,
+                    0);
+
+                _personParticipantContractor.SetProtectedIdForTesting(2);
 
                 _personParticipant2 = new Participant(
                     TestPlant,
@@ -164,9 +178,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     0);
                 _functionalRoleParticipantContractor.SetProtectedIdForTesting(4);
 
-                _personParticipantContractor = new Participant(
+                _personParticipantConstructionCompany = new Participant(
                     TestPlant,
-                    Organization.Contractor,
+                    Organization.ConstructionCompany,
                     IpoParticipantType.Person,
                     null,
                     null,
@@ -174,38 +188,47 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     null,
                     null,
                     _currentUserOid,
-                    0);
-                _personParticipantContractor.SetProtectedIdForTesting(5);
+                    1);
+                _personParticipantConstructionCompany.SetProtectedIdForTesting(5);
 
-                _invitationWithPersonParticipant.AddParticipant(_personParticipant);
-                _invitationWithFunctionalRoleParticipant.AddParticipant(_functionalRoleParticipant);
-                _cancelledInvitation.AddParticipant(_personParticipant2);
+                _personParticipantSupplier = new Participant(
+                    TestPlant,
+                    Organization.Supplier,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _currentUserOid,
+                    6);
+                _personParticipantSupplier.SetProtectedIdForTesting(6);
+
                 _invitationWithPersonParticipantContractor.AddParticipant(_personParticipantContractor);
+                _invitationWithPersonParticipantContractor.AddParticipant(_personParticipantSupplier);
+                _invitationWithFunctionalRoleParticipantConstructionCompany.AddParticipant(_functionalRoleParticipantConstructionCompany);
+                _cancelledInvitation.AddParticipant(_personParticipant2);
+                _invitationWithPersonParticipantConstructionCompany.AddParticipant(_personParticipantConstructionCompany);
                 _invitationWithFunctionalRoleParticipantContractor.AddParticipant(_functionalRoleParticipantContractor);
 
-                _invitationWithPersonParticipant.CompleteIpo(
-                    _personParticipant,
-                    _personParticipant.RowVersion.ConvertToString(),
+                _invitationWithPersonParticipantConstructionCompany.CompleteIpo(
+                    helperPerson,
+                    helperPerson.RowVersion.ConvertToString(),
                     _person,
                     new DateTime());
 
-                _invitationWithFunctionalRoleParticipant.CompleteIpo(
-                    _functionalRoleParticipant,
-                    _functionalRoleParticipant.RowVersion.ConvertToString(),
+                _invitationWithFunctionalRoleParticipantConstructionCompany.CompleteIpo(
+                    helperPerson,
+                    helperPerson.RowVersion.ConvertToString(),
                     _person,
                     new DateTime());
 
-                _cancelledInvitation.CompleteIpo(
-                    _personParticipant,
-                    _personParticipant.RowVersion.ConvertToString(),
-                    _person,
-                    new DateTime());
                 _cancelledInvitation.CancelIpo(_person);
 
-                context.Invitations.Add(_invitationWithPersonParticipant);
-                context.Invitations.Add(_invitationWithFunctionalRoleParticipant);
-                context.Invitations.Add(_cancelledInvitation);
                 context.Invitations.Add(_invitationWithPersonParticipantContractor);
+                context.Invitations.Add(_invitationWithFunctionalRoleParticipantConstructionCompany);
+                context.Invitations.Add(_cancelledInvitation);
+                context.Invitations.Add(_invitationWithPersonParticipantConstructionCompany);
                 context.Invitations.Add(_invitationWithFunctionalRoleParticipantContractor);
 
                 context.SaveChangesAsync().Wait();
@@ -233,29 +256,29 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(4, result.Data.Items.Count());
-                var outstandingInvitationWithPersonParticipant = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, 
-                        outstandingInvitationWithPersonParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, 
-                        outstandingInvitationWithPersonParticipant.Description);
-                Assert.AreEqual(Organization.ConstructionCompany,
-                    outstandingInvitationWithPersonParticipant.Organization);
-
-                var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id, 
-                        outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description, 
-                        outstandingInvitationWithFunctionalRoleParticipant.Description);
-                Assert.AreEqual(Organization.ConstructionCompany,
-                    outstandingInvitationWithFunctionalRoleParticipant.Organization);
-
-                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(2);
+                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(0);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
-                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
+                        outstandingInvitationWithPersonParticipantContractor.InvitationId);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
-                    outstandingInvitationWithPersonParticipantContractor.Description);
+                        outstandingInvitationWithPersonParticipantContractor.Description);
                 Assert.AreEqual(Organization.Contractor,
                     outstandingInvitationWithPersonParticipantContractor.Organization);
+
+                var outstandingInvitationWithFunctionalRoleParticipantConstructionCompany = result.Data.Items.ElementAt(1);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantConstructionCompany.Id,
+                        outstandingInvitationWithFunctionalRoleParticipantConstructionCompany.InvitationId);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantConstructionCompany.Description,
+                        outstandingInvitationWithFunctionalRoleParticipantConstructionCompany.Description);
+                Assert.AreEqual(Organization.ConstructionCompany,
+                    outstandingInvitationWithFunctionalRoleParticipantConstructionCompany.Organization);
+
+                var outstandingInvitationWithPersonParticipantConstructionCompany = result.Data.Items.ElementAt(2);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id,
+                    outstandingInvitationWithPersonParticipantConstructionCompany.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description,
+                    outstandingInvitationWithPersonParticipantConstructionCompany.Description);
+                Assert.AreEqual(Organization.ConstructionCompany,
+                    outstandingInvitationWithPersonParticipantConstructionCompany.Organization);
 
                 var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(3);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Id,
@@ -281,16 +304,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(2, result.Data.Items.Count());
-                var outstandingInvitation = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, outstandingInvitation.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, outstandingInvitation.Description);
-
-                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
-                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
-                    outstandingInvitationWithPersonParticipantContractor.Description);
-
+                var firstOutstandingInvitation = result.Data.Items.ElementAt(0);
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id, firstOutstandingInvitation.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description, firstOutstandingInvitation.Description);
+                var secondOutstandingInvitation = result.Data.Items.ElementAt(1);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id, secondOutstandingInvitation.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description, secondOutstandingInvitation.Description);
             }
         }
 
@@ -300,13 +319,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitationWithPersonParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantContractor.Id);
 
                 var invitationWithFunctionalRoleParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
 
                 var invitationWithPersonParticipantContractor =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantContractor.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantConstructionCompany.Id);
 
                 var invitationWithFunctionalRoleParticipantContractor =
                     context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantContractor.Id);
@@ -337,15 +356,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitationWithPersonParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantContractor.Id);
 
                 var invitationWithFunctionalRoleParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipant.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
 
                 var cancelledInvitation = context.Invitations.Single(i => i.Id == _cancelledInvitation.Id);
 
                 var invitationWithPersonParticipantContractor = 
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantContractor.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantConstructionCompany.Id);
 
                 var invitationWithFunctionalRoleParticipantContractor =
                     context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantContractor.Id);
@@ -371,57 +390,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         }
 
         [TestMethod]
-        public async Task Handle_ShouldNotReturnIpoForConstructionCompany_AfterIpoHasBeenAccepted()
-        {
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var invitationWithPersonParticipant =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipant.Id);
-
-                invitationWithPersonParticipant.AcceptIpo(_personParticipant,
-                    _personParticipant.RowVersion.ConvertToString(), _person, DateTime.Now);
-
-                context.SaveChangesAsync().Wait();
-            }
-
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
-                    _meApiServiceMock.Object, _plantProvider);
-                var result = await dut.Handle(_query, default);
-
-                Assert.AreEqual(3, result.Data.Items.Count());
-                var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id,
-                    outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description,
-                    outstandingInvitationWithFunctionalRoleParticipant.Description);
-
-                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
-                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
-                    outstandingInvitationWithPersonParticipantContractor.Description);
-                
-                var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(2);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Id, 
-                    outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description, 
-                    outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
-            }
-        }
-
-
-        [TestMethod]
-        public async Task Handle_ShouldNotReturnIpoForContractor_AfterIpoHasBeenCompleted()
+        public async Task Handle_ShouldNotReturnIpoForConstructionCompanyPerson_AfterIpoHasBeenAccepted()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitationWithPersonParticipantContractor =
-                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantContractor.Id);
+                    context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantConstructionCompany.Id);
 
-                invitationWithPersonParticipantContractor.CompleteIpo(_personParticipant,
-                    _personParticipant.RowVersion.ConvertToString(), _person, DateTime.Now);
+                invitationWithPersonParticipantContractor.AcceptIpo(_personParticipantConstructionCompany,
+                    _personParticipantContractor.RowVersion.ConvertToString(), _person, DateTime.Now);
 
                 context.SaveChangesAsync().Wait();
             }
@@ -433,16 +410,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var result = await dut.Handle(_query, default);
 
                 Assert.AreEqual(3, result.Data.Items.Count());
-                var outstandingInvitationWithPersonParticipant = result.Data.Items.ElementAt(0);
-                Assert.AreEqual(_invitationWithPersonParticipant.Id, 
-                    outstandingInvitationWithPersonParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithPersonParticipant.Description, 
-                    outstandingInvitationWithPersonParticipant.Description);
+                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.First();
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
+                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
+                    outstandingInvitationWithPersonParticipantContractor.Description);
 
                 var outstandingInvitationWithFunctionalRoleParticipant = result.Data.Items.ElementAt(1);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Id,
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantConstructionCompany.Id,
                     outstandingInvitationWithFunctionalRoleParticipant.InvitationId);
-                Assert.AreEqual(_invitationWithFunctionalRoleParticipant.Description,
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantConstructionCompany.Description,
                     outstandingInvitationWithFunctionalRoleParticipant.Description);
 
                 var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(2);
@@ -453,6 +430,46 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             }
         }
 
+        [TestMethod]
+        public async Task Handle_ShouldNotReturnIpoForConstructionCompanyFunctionalRole_AfterIpoHasBeenAccepted()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithFunctionalRoleParticipantConstructionCompany =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
+
+                invitationWithFunctionalRoleParticipantConstructionCompany.AcceptIpo(_personParticipantConstructionCompany,
+                    _personParticipantContractor.RowVersion.ConvertToString(), _person, DateTime.Now);
+
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider);
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(3, result.Data.Items.Count());
+                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.First();
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
+                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
+                    outstandingInvitationWithPersonParticipantContractor.Description);
+
+                var outstandingInvitation = result.Data.Items.ElementAt(1);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id,
+                    outstandingInvitation.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description,
+                    outstandingInvitation.Description);
+
+                var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(2);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Id,
+                    outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description,
+                    outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
+            }
+        }
 
         [TestMethod]
         public async Task Handle_ShouldReturnEmptyList_WhenUserNotExists()
