@@ -215,7 +215,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
                 };
 
             var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdmin()).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants))
                 .Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);

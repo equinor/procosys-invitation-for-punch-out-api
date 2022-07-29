@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -35,11 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
         private const string _firstName = "Ola";
         private const string _lastName = "Nordmann";
         private const DisciplineType _typeDp = DisciplineType.DP;
-        private const DisciplineType _typeMdp = DisciplineType.MDP;
-        private readonly Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _dpInvitation;
-        private Invitation _mdpInvitation;
-        private const int _mdpInvitationId = 50;
         private const int _dpInvitationId = 60;
 
         private static Guid _azureOid = new Guid("11111111-1111-2222-3333-333333333333");
@@ -177,28 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
                     new DateTime(),
                     null,
                     mcPkgs,
-                    null) 
-                { MeetingId = _meetingId };
-
-            var commPkgs = new List<CommPkg>
-            {
-                new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _systemPathWithSection),
-                new CommPkg(_plant, _projectName, _commPkgNo, "d2", "ok", _systemPathWithSection)
-            };
-            //create invitation
-            _mdpInvitation = new Invitation(
-                    _plant,
-                    _projectName,
-                    "mdp title",
-                    "mdp description",
-                    _typeMdp,
-                    new DateTime(),
-                    new DateTime(),
-                    null,
-                    new List<McPkg>(),
-                    commPkgs)
-                { MeetingId = _meetingId };
-            _mdpInvitation.SetProtectedIdForTesting(_mdpInvitationId);
+                    null);
 
             var participant = new Participant(
                 _plant,
@@ -230,10 +204,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(_dpInvitationId))
                 .Returns(Task.FromResult(_dpInvitation));
-
-            _invitationRepositoryMock
-                .Setup(x => x.GetByIdAsync(_mdpInvitationId))
-                .Returns(Task.FromResult(_mdpInvitation));
 
             //command
             _command = new EditParticipantsCommand(

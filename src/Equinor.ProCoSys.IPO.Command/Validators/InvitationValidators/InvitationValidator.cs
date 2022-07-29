@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -513,7 +512,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return currentUserId == createdById;
         }
 
-        public async Task<bool> CurrentUserIsAdmin()
+        private async Task<bool> CurrentUserIsAdmin()
             => await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
     }
 }

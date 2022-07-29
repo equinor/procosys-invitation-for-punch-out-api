@@ -35,6 +35,5 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> CurrentUserIsAdmin();
     }
 }
