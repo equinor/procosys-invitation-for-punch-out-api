@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.Participants))
                 .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.Participants))
-                .WithMessage("Each participant must contain an email or oid!");
+                .WithMessage("Each participant must contain an oid!");
 
             RuleForEach(command => command.Participants)
                 .Must(participant => participant.SortKey >= 0)

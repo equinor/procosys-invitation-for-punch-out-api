@@ -290,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Each participant must contain an email"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.Equals("Each participant must contain an oid!"));
         }
 
         [TestMethod]
