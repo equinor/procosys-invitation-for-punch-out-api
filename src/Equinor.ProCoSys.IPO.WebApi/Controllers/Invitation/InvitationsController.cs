@@ -195,7 +195,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         [Authorize(Roles = Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Participants")]
-        public async Task<ActionResult<string>> EditParticipants(
+        public async Task<ActionResult> EditParticipants(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
