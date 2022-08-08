@@ -8,7 +8,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
     public class FilterDto
     {
-        [Required]
         public string ProjectName { get; set; }
         public IEnumerable<IpoStatus> IpoStatuses { get; set; }
         public string FunctionalRoleCode { get; set; }
