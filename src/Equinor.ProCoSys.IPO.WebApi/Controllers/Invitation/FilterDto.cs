@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 
@@ -7,6 +8,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 {
     public class FilterDto
     {
+        [Required]
         public string ProjectName { get; set; }
         public IEnumerable<IpoStatus> IpoStatuses { get; set; }
         public string FunctionalRoleCode { get; set; }
