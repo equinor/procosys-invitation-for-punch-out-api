@@ -354,7 +354,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new UpdateNoteOnParticipantCommand(id, dto.Id, dto.Note, dto.RowVersion));
             return this.FromResult(result);
         }
-        
+
         // TODO: This endpoint will be replaced by the two above, and this this endpoint can be removed once frontend stops using it.
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/AttendedStatusAndNotes")]
@@ -544,8 +544,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         private static GetInvitationsQuery CreateGetInvitationsQuery(FilterDto filter, SortingDto sorting, PagingDto paging)
         {
+            var projectNames = new List<string>();
+
+            if (filter.ProjectName != null)
+            {
+                projectNames.Add(filter.ProjectName);
+            }
+
             var query = new GetInvitationsQuery(
-                filter.ProjectName,
+                projectNames,
                 new Sorting(sorting.Direction, sorting.Property),
                 new Filter(),
                 new Paging(paging.Page, paging.Size)
@@ -621,8 +628,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         private static GetInvitationsForExportQuery CreateGetInvitationsForExportQuery(FilterDto filter, SortingDto sorting)
         {
+            var projectNames = new List<string>();
+
+            if (filter.ProjectName != null)
+            {
+                projectNames.Add(filter.ProjectName);
+            }
+
             var query = new GetInvitationsForExportQuery(
-                filter.ProjectName,
+                projectNames,
                 new Sorting(sorting.Direction, sorting.Property),
                 new Filter()
             );

@@ -37,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 
             var userOid = _currentUserProvider.GetCurrentUserOid();
             if (request is IProjectRequest projectRequest &&
+                projectRequest.ProjectName != null &&
                 !_projectAccessChecker.HasCurrentUserAccessToProject(projectRequest.ProjectName))
             {
                 _logger.LogWarning($"Current user {userOid} don't have access to project {projectRequest.ProjectName}");

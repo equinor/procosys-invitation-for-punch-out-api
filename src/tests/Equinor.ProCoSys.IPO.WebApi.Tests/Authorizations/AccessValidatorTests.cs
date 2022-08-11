@@ -35,6 +35,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 {
@@ -47,8 +48,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private const int _invitationIdWithAccessToProject = 1;
         private const int _invitationIdWithoutAccessToProject = 2;
-        private const string _projectWithAccess = "TestProjectWithAccess";
-        private const string _projectWithoutAccess = "TestProjectWithoutAccess";
+
+        private List<string> _projectWithAccess = new List<string> { "TestProjectWithAccess" };
+        private List<string> _projectWithoutAccess = new List<string> { "TestProjectWithoutAccess" };
 
         [TestInitialize]
         public void Setup()
@@ -57,14 +59,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 
             _projectAccessCheckerMock = new Mock<IProjectAccessChecker>();
 
-            _projectAccessCheckerMock.Setup(p => p.HasCurrentUserAccessToProject(_projectWithoutAccess)).Returns(false);
-            _projectAccessCheckerMock.Setup(p => p.HasCurrentUserAccessToProject(_projectWithAccess)).Returns(true);
+            _projectAccessCheckerMock.Setup(p => p.HasCurrentUserAccessToProject(_projectWithoutAccess.FirstOrDefault())).Returns(false);
+            _projectAccessCheckerMock.Setup(p => p.HasCurrentUserAccessToProject(_projectWithAccess.FirstOrDefault())).Returns(true);
 
             var invitationHelperMock = new Mock<IInvitationHelper>();
             invitationHelperMock.Setup(p => p.GetProjectNameAsync(_invitationIdWithAccessToProject))
-                .Returns(Task.FromResult(_projectWithAccess));
+                .Returns(Task.FromResult(_projectWithAccess.FirstOrDefault()));
             invitationHelperMock.Setup(p => p.GetProjectNameAsync(_invitationIdWithoutAccessToProject))
-                .Returns(Task.FromResult(_projectWithoutAccess));
+                .Returns(Task.FromResult(_projectWithoutAccess.FirstOrDefault()));
 
             _loggerMock = new Mock<ILogger<AccessValidator>>();
 
@@ -88,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectWithAccess,
+                _projectWithAccess.FirstOrDefault(),
                 DisciplineType.DP,
                 null,
                 null,
@@ -111,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _projectWithoutAccess,
+                _projectWithoutAccess.FirstOrDefault(),
                 DisciplineType.DP,
                 null,
                 null,
@@ -625,7 +627,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new CreateSavedFilterCommand(
-                _projectWithAccess,
+                _projectWithAccess.FirstOrDefault(),
                 "title",
                 "criteria",
                 false);
@@ -642,7 +644,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new CreateSavedFilterCommand(
-                _projectWithoutAccess,
+                _projectWithoutAccess.FirstOrDefault(),
                 "title",
                 "criteria",
                 false);
@@ -720,7 +722,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetCommPkgsInProjectQuery(_projectWithAccess, null, 10, 0);
+            var query = new GetCommPkgsInProjectQuery(_projectWithAccess.FirstOrDefault(), null, 10, 0);
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -733,7 +735,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetCommPkgsInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null, 10, 0);
+            var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess.FirstOrDefault(), null, 10, 0);
             
             // act
             var result = await _dut.ValidateAsync(query);
@@ -832,7 +834,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithAccess);
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithAccess.FirstOrDefault());
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -845,7 +847,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNoQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithoutAccess);
+            var query = new GetInvitationsByCommPkgNoQuery("commpkg", _projectWithoutAccess.FirstOrDefault());
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -860,7 +862,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {"commpkg"}, _projectWithAccess);
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {"commpkg"}, _projectWithAccess.FirstOrDefault());
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -873,7 +875,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "commpkg" }, _projectWithoutAccess);
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "commpkg" }, _projectWithoutAccess.FirstOrDefault());
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -888,7 +890,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetMcPkgsUnderCommPkgInProjectQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithAccess, null);
+            var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithAccess.FirstOrDefault(), null);
             
             // act
             var result = await _dut.ValidateAsync(query);
@@ -901,7 +903,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetMcPkgsUnderCommPkgInProjectQuery_ShouldReturnFalse_WhenNoAccessToProject()
         {
             // Arrange
-            var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithoutAccess, null);
+            var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithoutAccess.FirstOrDefault(), null);
             
             // act
             var result = await _dut.ValidateAsync(query);

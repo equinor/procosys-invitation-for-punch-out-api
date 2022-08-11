@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
@@ -10,13 +12,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         public const SortingDirection DefaultSortingDirection = SortingDirection.Asc;
         public const SortingProperty DefaultSortingProperty = SortingProperty.CreatedAtUtc;
 
-        public GetInvitationsForExportQuery(string projectName, Sorting sorting = null, Filter filter = null)
+        public GetInvitationsForExportQuery(List<string> projectNames, Sorting sorting = null, Filter filter = null)
         {
-            if (string.IsNullOrEmpty(projectName))
-            {
-                throw new ArgumentNullException(nameof(projectName));
-            }
-            ProjectName = projectName;
+            ProjectName = projectNames.FirstOrDefault();
             Sorting = sorting ?? new Sorting(DefaultSortingDirection, DefaultSortingProperty);
             Filter = filter ?? new Filter();
         }

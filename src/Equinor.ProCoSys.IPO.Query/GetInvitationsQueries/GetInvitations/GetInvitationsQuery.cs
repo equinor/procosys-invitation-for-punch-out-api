@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
@@ -12,13 +14,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         public const int DefaultPage = 0;
         public const int DefaultPagingSize = 20;
 
-        public GetInvitationsQuery(string projectName, Sorting sorting = null, Filter filter = null, Paging paging = null)
+        public GetInvitationsQuery(List<string> projectNames, Sorting sorting = null, Filter filter = null, Paging paging = null)
         {
-            if (string.IsNullOrEmpty(projectName))
-            {
-                throw new ArgumentNullException(nameof(projectName));
-            }
-            ProjectName = projectName;
+            ProjectName = projectNames.FirstOrDefault();
             Sorting = sorting ?? new Sorting(DefaultSortingDirection, DefaultSortingProperty);
             Filter = filter ?? new Filter();
             Paging = paging ?? new Paging(DefaultPage, DefaultPagingSize);

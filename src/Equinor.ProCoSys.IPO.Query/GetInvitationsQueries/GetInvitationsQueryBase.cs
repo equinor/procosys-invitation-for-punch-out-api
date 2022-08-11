@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public abstract class GetInvitationsQueryBase
     {
-        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
+        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(IReadOnlyContext context, List<string> projectNames, Filter filter, DateTime utcNow)
         {
             var startOfThisWeekUtc = DateTime.MinValue;
             var startOfNextWeekUtc = DateTime.MinValue;
@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
 
             var queryable = from invitation in context.QuerySet<Invitation>()
-                where invitation.ProjectName == projectName &&
+                where projectNames.Contains(invitation.ProjectName) &&
                       (!filter.PunchOutDates.Any() ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&

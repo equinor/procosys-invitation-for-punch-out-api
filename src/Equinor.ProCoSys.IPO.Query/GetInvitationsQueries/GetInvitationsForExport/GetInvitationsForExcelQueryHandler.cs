@@ -19,14 +19,23 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonRepository _personRepository;
+        private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IPermissionCache _permissionCache;
         private readonly DateTime _utcNow;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, IPersonRepository personRepository)
+        public GetInvitationsForExportQueryHandler(
+            IReadOnlyContext context, 
+            IPlantProvider plantProvider, 
+            IPersonRepository personRepository, 
+            ICurrentUserProvider currentUserProvider, 
+            IPermissionCache permissionCache)
         {
             _context = context;
             _plantProvider = plantProvider;
             _personRepository = personRepository;
             _utcNow = TimeService.UtcNow;
+            _currentUserProvider = currentUserProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
@@ -61,7 +70,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var projectNames = new List<string>();
+
+            if (request.ProjectName == null)
+            {
+                projectNames = (List<string>)await _permissionCache.GetProjectsForUserAsync(_plantProvider.Plant, _currentUserProvider.GetCurrentUserOid());
+            }
+            else
+            {
+                projectNames.Add(request.ProjectName);
+            }
+
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, projectNames, request.Filter, _utcNow);
 
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
@@ -82,14 +102,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             CancellationToken cancellationToken)
         {
             var history = await (from h in _context.QuerySet<History>()
-                    join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
-                    join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
-                    where invitation.Id == invitationId
-                    select new
-                    {
-                        History = h,
-                        CreatedBy = createdBy
-                    })
+                                 join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
+                                 join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
+                                 where invitation.Id == invitationId
+                                 select new
+                                 {
+                                     History = h,
+                                     CreatedBy = createdBy
+                                 })
                 .ToListAsync(cancellationToken);
 
             return history.OrderByDescending(x => x.History.CreatedAtUtc).Select(dto
@@ -152,14 +172,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             }
 
             return await (from p in _context.QuerySet<Person>()
-                where p.Oid == personOid.Value
-                select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
+                          where p.Oid == personOid.Value
+                          select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
         }
 
         private async Task<string> GetPersonNameAsync(int personId) =>
             await (from p in _context.QuerySet<Person>()
-                where p.Id == personId
-                select $"{p.FirstName} {p.LastName}").SingleAsync();
+                   where p.Id == personId
+                   select $"{p.FirstName} {p.LastName}").SingleAsync();
 
         private async Task<List<ExportInvitationDto>> CreateExportInvitationDtosAsync(
             IList<Invitation> invitationsWithIncludes)

@@ -8,10 +8,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         {
             RuleFor(x => x)
                 .NotNull();
-
-            RuleFor(x => x.ProjectName)
-                .NotNull()
-                .NotEmpty();
         }
     }
 }
