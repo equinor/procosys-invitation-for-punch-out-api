@@ -107,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             catch (Exception e)
             {
-                if (await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider))
+                if (await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider))
                 {
                     _logger.LogInformation(e, $"Unable to edit outlook meeting for IPO as admin.");
                 }
@@ -200,19 +200,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 participantsToUpdate.Where(p => p.InvitedFunctionalRoleToEdit != null).ToList();
             var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.InvitedFunctionalRoleToEdit.Id).ToList();
 
-            var personsWithOids = participantsToUpdate.Where(p => p.InvitedPersonToEdit?.AzureOid != null).ToList();
+            var personsWithOids = participantsToUpdate.Where(p => p.InvitedPersonToEdit != null).ToList();
             var personsWithOidsIds = personsWithOids.Select(p => p.InvitedPersonToEdit.Id).ToList();
-
-            var personParticipantsWithEmails = participantsToUpdate.Where(p => p.InvitedPersonToEdit != null && p.InvitedPersonToEdit.AzureOid == null)
-                .ToList();
-            var personParticipantsWithEmailsIds = personParticipantsWithEmails.Select(p => p.InvitedPersonToEdit.Id).ToList();
 
             var externalEmailParticipants = participantsToUpdate.Where(p => p.InvitedExternalEmailToEdit != null).ToList();
             var externalEmailParticipantsIds = externalEmailParticipants.Select(p => p.InvitedExternalEmailToEdit.Id).ToList();
 
             var participantsToUpdateIds = externalEmailParticipantsIds
                 .Concat(personsWithOidsIds)
-                .Concat(personParticipantsWithEmailsIds)
                 .Concat(functionalRoleParticipantIds).ToList();
             participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.InvitedPersonToEdit != null select fr.InvitedPersonToEdit.Id);
             foreach (var functionalRoleParticipant in functionalRoleParticipants)

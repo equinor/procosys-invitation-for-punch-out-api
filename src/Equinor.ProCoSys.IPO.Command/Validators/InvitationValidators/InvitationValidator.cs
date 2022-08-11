@@ -266,7 +266,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
         {
-            if (await CurrentUserIsAdmin())
+            if (await CurrentUserIsAdminAsync())
             {
                 return true;
             }
@@ -441,7 +441,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await CurrentUserIsAdmin();
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
             if (hasAdminPermission)
             {
                 return true;
@@ -452,7 +452,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await CurrentUserIsAdmin();
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
             if (hasAdminPermission)
             {
                 return true;
@@ -463,7 +463,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await CurrentUserIsAdmin();
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
             if (hasAdminPermission)
             {
                 return true;
@@ -486,7 +486,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
         public async Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var hasAdminPermission = await CurrentUserIsAdmin();
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
             if (hasAdminPermission)
             {
                 return true;
@@ -512,7 +512,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return currentUserId == createdById;
         }
 
-        private async Task<bool> CurrentUserIsAdmin()
-            => await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+        private async Task<bool> CurrentUserIsAdminAsync()
+            => await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider);
     }
 }

@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.InvitedFunctionalRole != null).ToList();
-            var personsWithOids = ipoParticipants.Where(p => p.InvitedPerson?.AzureOid != null).ToList();
+            var personsWithOids = ipoParticipants.Where(p => p.InvitedPerson != null).ToList();
             var externalEmailParticipants = ipoParticipants.Where(p => p.InvitedExternalEmail != null).ToList();
 
             meetingParticipants = functionalRoleParticipants.Count > 0

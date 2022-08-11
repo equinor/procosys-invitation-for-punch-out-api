@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 participantsToUpdate.Where(p => p.InvitedFunctionalRoleToEdit != null).ToList();
             var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.InvitedFunctionalRoleToEdit.Id).ToList();
 
-            var personsWithOids = participantsToUpdate.Where(p => p.InvitedPersonToEdit?.AzureOid != null).ToList();
+            var personsWithOids = participantsToUpdate.Where(p => p.InvitedPersonToEdit != null).ToList();
             var personsWithOidsIds = personsWithOids.Select(p => p.InvitedPersonToEdit.Id).ToList();
 
             var externalEmailParticipants = participantsToUpdate.Where(p => p.InvitedExternalEmailToEdit != null).ToList();
