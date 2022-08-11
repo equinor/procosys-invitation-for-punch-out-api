@@ -12,8 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             get => _id.HasValue && _id.Value != 0 ? _id.Value : null;
             set => _id = value;
         }
-        public Guid? AzureOid { get; set; }
-        public string Email { get; set; }
+        public Guid AzureOid { get; set; }
         public bool Required { get; set; }
         public string RowVersion { get; set; }
     }

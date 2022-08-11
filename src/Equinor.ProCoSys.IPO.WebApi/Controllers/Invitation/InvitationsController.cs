@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
@@ -189,6 +190,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.UpdatedMcPkgScope,
                     dto.UpdatedCommPkgScope,
                     dto.RowVersion));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_ADMIN)]
+        [HttpPut("{id}/Participants")]
+        public async Task<ActionResult> EditParticipants(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            [FromRoute] int id,
+            [FromBody] EditParticipantsDto dto)
+        {
+            var updatedParticipants = ConvertParticipantsForEditCommands(dto.UpdatedParticipants);
+
+            var result = await _mediator.Send(
+                new EditParticipantsCommand(
+                    id,
+                    updatedParticipants));
+
             return this.FromResult(result);
         }
 
@@ -494,7 +515,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     p.Person != null
                         ? new InvitedPersonForCreateCommand(
                             p.Person.AzureOid,
-                            p.Person.Email,
                             p.Person.Required)
                         : null,
                     p.FunctionalRole != null
@@ -503,7 +523,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                             p.FunctionalRole.Persons?.Select(person =>
                                 new InvitedPersonForCreateCommand(
                                     person.AzureOid,
-                                    person.Email,
                                     person.Required)).ToList())
                         : null,
                     p.SortKey)
@@ -522,7 +541,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                         ? new InvitedPersonForEditCommand(
                             p.Person.Id,
                             p.Person.AzureOid,
-                            p.Person.Email,
                             p.Person.Required,
                             p.Person.RowVersion)
                         : null,
@@ -534,7 +552,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                                 new InvitedPersonForEditCommand(
                                     person.Id,
                                     person.AzureOid,
-                                    person.Email,
                                     person.Required,
                                     person.RowVersion)).ToList(),
                             p.FunctionalRole.RowVersion)

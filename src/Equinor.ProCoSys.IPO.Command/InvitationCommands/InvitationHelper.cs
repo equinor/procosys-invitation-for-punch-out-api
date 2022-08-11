@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant) 
             => participant.Organization != Organization.External && participant.Organization != Organization.Supplier;
 
-        public static async Task<bool> HasIpoAdminPrivilege(
+        public static async Task<bool> HasIpoAdminPrivilegeAsync(
             IPermissionCache permissionCache,
             IPlantProvider plantProvider,
             ICurrentUserProvider currentUserProvider)

@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
@@ -197,6 +198,39 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null);
             
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        #endregion
+
+        #region EditParticipantsCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnEditParticipantsCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new EditParticipantsCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnEditParticipantsCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new EditParticipantsCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
             // act
             var result = await _dut.ValidateAsync(command);
 

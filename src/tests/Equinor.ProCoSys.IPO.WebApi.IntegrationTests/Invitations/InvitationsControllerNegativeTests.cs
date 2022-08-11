@@ -378,6 +378,118 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
         #endregion
 
+        #region EditParticipants
+        [TestMethod]
+        public async Task EditParticipants_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task EditParticipants_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task EditParticipants_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task EditParticipants_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsViewer_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            var (_, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                38934,
+                editParticipantsDto,
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            var (invitationId, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            editParticipantsDto.UpdatedParticipants.First(p => p.Person != null).Person.Id = 23451;
+
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editParticipantsDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationId, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            editParticipantsDto.UpdatedParticipants.First(p => p.FunctionalRole != null).FunctionalRole.RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editParticipantsDto,
+                HttpStatusCode.Conflict);
+        }
+        #endregion
+
+
         #region Sign 
         [TestMethod]
         public async Task SignPunchOut_AsAnonymous_ShouldReturnUnauthorized()

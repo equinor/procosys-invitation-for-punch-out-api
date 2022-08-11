@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(new Guid(), true),
                 null,
                 1)
         };
@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants cannot be null!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants must be invited!"));
         }
 
         [TestMethod]
@@ -290,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Each participant must contain an email"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.Equals("Each participant must contain an oid!"));
         }
 
         [TestMethod]
@@ -331,7 +331,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(
@@ -379,7 +379,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(

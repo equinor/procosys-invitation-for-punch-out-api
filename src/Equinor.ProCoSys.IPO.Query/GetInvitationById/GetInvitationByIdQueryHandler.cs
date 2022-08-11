@@ -82,12 +82,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private async Task<InvitationDto> ConvertToInvitationDtoAsync(Invitation invitation,  GeneralMeeting meeting, Person createdBy)
+        private async Task<InvitationDto> ConvertToInvitationDtoAsync(Invitation invitation, GeneralMeeting meeting, Person createdBy)
         {
             var canEdit = meeting != null && 
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
-            var currentUserIsCreator = createdBy.Id == invitation.CreatedById;
+            var currentUserIsCreator = _currentUserProvider.GetCurrentUserOid() == createdBy.Oid;
             var canDelete = invitation.Status == IpoStatus.Canceled && currentUserIsCreator;
             var canCancel = invitation.Status is IpoStatus.Completed or IpoStatus.Planned
                             && (currentUserIsCreator 

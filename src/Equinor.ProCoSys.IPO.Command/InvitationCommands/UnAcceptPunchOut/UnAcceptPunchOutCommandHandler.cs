@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUserAzureOid = _currentUserProvider.GetCurrentUserOid();
-            var hasAdminPrivilege = await InvitationHelper.HasIpoAdminPrivilege(_permissionCache, _plantProvider, _currentUserProvider);
+            var hasAdminPrivilege = await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider);
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 1 && 
                 p.Organization == Organization.ConstructionCompany && 

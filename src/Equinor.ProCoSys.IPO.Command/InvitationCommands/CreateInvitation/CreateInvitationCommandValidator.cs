@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
@@ -13,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             RuleFor(command => command)
                 //input validators
-                .Must(command => command.Participants != null)
-                .WithMessage("Participants cannot be null!")
+                .Must(command => command.Participants != null && command.Participants.Any())
+                .WithMessage("Participants must be invited!")
                 .Must(command =>
                     command.ProjectName != null && 
                     command.ProjectName.Length >= Invitation.ProjectNameMinLength &&
@@ -44,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.Participants))
                 .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.Participants))
-                .WithMessage("Each participant must contain an email or oid!");
+                .WithMessage("Each participant must contain an oid!");
 
             RuleForEach(command => command.Participants)
                 .Must(participant => participant.SortKey >= 0)

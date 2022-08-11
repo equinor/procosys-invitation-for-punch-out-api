@@ -578,8 +578,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(participants);
             Assert.AreEqual(2, editInvitationDto.UpdatedParticipants.Count());
 
-            var updatedParticipants = new List<EditParticipantsDto>(editInvitationDto.UpdatedParticipants);
-            updatedParticipants.Add(new EditParticipantsDto
+            var updatedParticipants = new List<EditParticipantDto>(editInvitationDto.UpdatedParticipants);
+            updatedParticipants.Add(new EditParticipantDto
             {
                 Organization = Organization.External,
                 ExternalEmail = new EditExternalEmailDto
@@ -613,6 +613,47 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             Assert.AreEqual(UpdatedTitle, updatedInvitation.Title);
             Assert.AreEqual(UpdatedDescription, updatedInvitation.Description);
             Assert.AreEqual(_mcPkgScope.Count, updatedInvitation.McPkgScope.Count());
+        }
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldUpdateParticipant()
+        {
+            // Arrange
+            var participants = new List<CreateParticipantsDto>(_participants);
+            const string email1 = "knut1@test.com";
+            const string email2 = "knut2@test.com";
+            participants.Add(
+                new CreateParticipantsDto
+                {
+                    Organization = Organization.External,
+                    ExternalEmail = new CreateExternalEmailDto
+                    {
+                        Email = email1
+                    },
+                    SortKey = 3
+                });
+            var (invitationId, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(participants);
+            Assert.AreEqual(3, editParticipantsDto.UpdatedParticipants.Count());
+
+            var editParticipants = editParticipantsDto.UpdatedParticipants.ElementAt(2);
+            Assert.AreEqual(email1, editParticipants.ExternalEmail.Email);
+            editParticipants.ExternalEmail.Email = email2;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editParticipantsDto);
+
+            // Assert
+            var updatedInvitation = await InvitationsControllerTestsHelper.GetInvitationAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                invitationId);
+
+            Assert.AreEqual(3, updatedInvitation.Participants.Count());
+            Assert.AreEqual(email2, updatedInvitation.Participants.ElementAt(2).ExternalEmail.ExternalEmail);
         }
 
         [TestMethod]

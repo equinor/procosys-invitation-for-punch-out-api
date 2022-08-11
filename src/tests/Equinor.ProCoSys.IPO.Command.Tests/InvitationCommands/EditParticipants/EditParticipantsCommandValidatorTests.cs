@@ -3,31 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
 {
     [TestClass]
-    public class EditInvitationCommandValidatorTests
+    public class EditParticipantsCommandValidatorTests
     {
-        private EditInvitationCommandValidator _dut;
+        private EditParticipantsCommandValidator _dut;
         private Mock<IInvitationValidator> _invitationValidatorMock;
         private Mock<IRowVersionValidator> _rowVersionValidatorMock;
 
-        private EditInvitationCommand _command;
-        private const string _title = "Test title";
-        private const string _description = "body";
-        private const string _location = "location A";
+        private EditParticipantsCommand _command;
         private const int _id = 1;
-        private const DisciplineType _type = DisciplineType.DP;
         private const string _rowVersion = "AAAAAAAAABA=";
 
-        private readonly IList<string> _commPkgScope = new List<string> { "COMM-02" };
         private readonly List<ParticipantsForEditCommand> _editParticipants = new List<ParticipantsForEditCommand>
         {
             new ParticipantsForEditCommand(
@@ -53,28 +48,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationValidatorMock = new Mock<IInvitationValidator>();
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_rowVersion)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Planned, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[0], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[1], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(true);
-            _command = new EditInvitationCommand(
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(_editParticipants, _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(_editParticipants, _id, default)).Returns(Task.FromResult(true));
+            _command = new EditParticipantsCommand(
                 _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion);
+                _editParticipants);
 
-            _dut = new EditInvitationCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
+            _dut = new EditParticipantsCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]
@@ -100,160 +86,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestMethod]
         public void Validate_ShouldFail_WhenParticipantsIsNull()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = _dut.Validate(new EditParticipantsCommand(
                 _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                null,
-                null,
-                _commPkgScope,
-                _rowVersion));
+                null));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants must be invited!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenDescriptionIsTooLong()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                new string('x', Invitation.DescriptionMaxLength + 1),
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Description cannot be more than {Invitation.DescriptionMaxLength} characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenStartDateIsAfterEndDate()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Start time must be before end time!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_TitleIsTooShort()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                "t",
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_TitleIsTooLong()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                new string('x', Invitation.TitleMaxLength + 1),
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_TitleIsNull()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                null,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_LocationIsTooLong()
-        {
-            var result = _dut.Validate(new EditInvitationCommand(
-                _id,
-                _title,
-                _description,
-                new string('x', Invitation.LocationMaxLength + 1),
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                _editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion));
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Location cannot be more than {Invitation.LocationMaxLength} characters!"));
-        }
-
-        [TestMethod]
-        public void Validate_ShouldFail_WhenScopeIsInvalid()
-        {
-            _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(false);
-
-            var result = _dut.Validate(_command);
-
-            Assert.IsFalse(result.IsValid);
-            Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope"));
         }
 
         [TestMethod]
@@ -328,26 +167,25 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                         null,
                         -3)
                 };
-
+            
             var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default))
+                .Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
-            var command = new EditInvitationCommand(
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            var command = new EditParticipantsCommand(
                 _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion);
+                editParticipants);
 
 
             var result = _dut.Validate(command);
@@ -358,7 +196,90 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenFunctinalRoleIsInvalid()
+        public void Validate_ShouldFail_WhenChangingFirstContractorWhenCompleted()
+        {
+            var editParticipants = new List<ParticipantsForEditCommand>
+                {
+                    new ParticipantsForEditCommand(
+                        Organization.Contractor,
+                        null,
+                        null,
+                        new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
+                        0),
+                    new ParticipantsForEditCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new InvitedPersonForEditCommand(2, new Guid(), true, _rowVersion),
+                        null,
+                        1)
+                };
+
+            var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants))
+                .Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(false));
+            var command = new EditParticipantsCommand(
+                _id,
+                editParticipants);
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Cannot change first contractor or construction company if they have signed!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_TryingToEditSignedParticipant()
+        {
+            var editParticipants = new List<ParticipantsForEditCommand>
+            {
+                new ParticipantsForEditCommand(
+                    Organization.Contractor,
+                    null,
+                    null,
+                    new InvitedFunctionalRoleForEditCommand(1, "FR1", null, _rowVersion),
+                    0),
+                new ParticipantsForEditCommand(
+                    Organization.ConstructionCompany,
+                    null,
+                    new InvitedPersonForEditCommand(2, new Guid(), true, _rowVersion),
+                    null,
+                    1)
+            };
+
+            var participants = editParticipants.Cast<ParticipantsForCommand>().ToList();
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[0], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock
+                .Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(false));
+            var command = new EditParticipantsCommand(
+                _id,
+                editParticipants);
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage
+                .StartsWith("Participants that have signed must be unsigned before edited!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenFunctionalRoleIsInvalid()
         {
             var editParticipants = new List<ParticipantsForEditCommand>
                 {
@@ -389,19 +310,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[1], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(editParticipants[2], _id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
-            var command = new EditInvitationCommand(
+            _invitationValidatorMock.Setup(inv => inv.SignedParticipantsCannotBeAlteredAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.SortKeyCannotBeChangedForSignedFirstSignersAsync(editParticipants, _id, default))
+                .Returns(Task.FromResult(true));
+            var command = new EditParticipantsCommand(
                 _id,
-                _title,
-                _description,
-                _location,
-                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
-                _type,
-                editParticipants,
-                null,
-                _commPkgScope,
-                _rowVersion);
-
+                editParticipants);
 
             var result = _dut.Validate(command);
 

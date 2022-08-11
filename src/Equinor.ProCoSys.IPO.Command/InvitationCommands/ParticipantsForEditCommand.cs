@@ -1,6 +1,6 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class ParticipantsForEditCommand : ParticipantsForCommand
     {

@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(_azureOid, true),
                 null,
                 1)
         };
@@ -519,7 +519,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, true),
                     null,
                     1)
             };
@@ -562,7 +562,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 new ParticipantsForCommand(
                     Organization.ConstructionCompany,
                     null,
-                    new InvitedPersonForCreateCommand(_azureOid, "ola@test.com", true),
+                    new InvitedPersonForCreateCommand(_azureOid, true),
                     null,
                     1)
             };
