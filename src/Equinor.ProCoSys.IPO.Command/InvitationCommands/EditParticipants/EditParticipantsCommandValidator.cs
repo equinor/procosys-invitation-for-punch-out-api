@@ -17,8 +17,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
             RuleFor(command => command)
                 //input validators
-                .Must(command => command.UpdatedParticipants != null)
-                .WithMessage("Participants cannot be null!")
+                .Must(command => command.UpdatedParticipants != null && command.UpdatedParticipants.Any())
+                .WithMessage("Participants must be invited!")
 
                 //business validators
                 .MustAsync((command, cancellationToken) => BeAnExistingIpo(command.InvitationId, cancellationToken))

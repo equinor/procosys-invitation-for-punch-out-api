@@ -115,7 +115,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants cannot be null!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants must be invited!"));
         }
 
         [TestMethod]

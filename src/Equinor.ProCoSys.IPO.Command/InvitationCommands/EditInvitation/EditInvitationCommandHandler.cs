@@ -200,14 +200,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 participantsToUpdate.Where(p => p.InvitedFunctionalRoleToEdit != null).ToList();
             var functionalRoleParticipantIds = functionalRoleParticipants.Select(p => p.InvitedFunctionalRoleToEdit.Id).ToList();
 
-            var personsWithOids = participantsToUpdate.Where(p => p.InvitedPersonToEdit != null).ToList();
-            var personsWithOidsIds = personsWithOids.Select(p => p.InvitedPersonToEdit.Id).ToList();
+            var persons = participantsToUpdate.Where(p => p.InvitedPersonToEdit != null).ToList();
+            var personsIds = persons.Select(p => p.InvitedPersonToEdit.Id).ToList();
 
             var externalEmailParticipants = participantsToUpdate.Where(p => p.InvitedExternalEmailToEdit != null).ToList();
             var externalEmailParticipantsIds = externalEmailParticipants.Select(p => p.InvitedExternalEmailToEdit.Id).ToList();
 
             var participantsToUpdateIds = externalEmailParticipantsIds
-                .Concat(personsWithOidsIds)
+                .Concat(personsIds)
                 .Concat(functionalRoleParticipantIds).ToList();
             participantsToUpdateIds.AddRange(from fr in functionalRoleParticipants where fr.InvitedPersonToEdit != null select fr.InvitedPersonToEdit.Id);
             foreach (var functionalRoleParticipant in functionalRoleParticipants)
@@ -225,8 +225,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             meetingParticipants = functionalRoleParticipants.Count > 0
                 ? await UpdateFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants, existingParticipants)
                 : meetingParticipants;
-            meetingParticipants = personsWithOids.Count > 0
-                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, personsWithOids, existingParticipants)
+            meetingParticipants = persons.Count > 0
+                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons, existingParticipants)
                 : meetingParticipants;
             meetingParticipants = AddExternalParticipant(invitation, meetingParticipants, externalEmailParticipants, existingParticipants);
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
@@ -13,8 +14,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             RuleFor(command => command)
                 //input validators
-                .Must(command => command.Participants != null)
-                .WithMessage("Participants cannot be null!")
+                .Must(command => command.Participants != null && command.Participants.Any())
+                .WithMessage("Participants must be invited!")
                 .Must(command =>
                     command.ProjectName != null && 
                     command.ProjectName.Length >= Invitation.ProjectNameMinLength &&

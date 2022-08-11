@@ -17,8 +17,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             RuleFor(command => command)
                 //input validators
-                .Must(command => command.UpdatedParticipants != null)
-                .WithMessage("Participants cannot be null!")
+                .Must(command => command.UpdatedParticipants != null && command.UpdatedParticipants.Any())
+                .WithMessage("Participants must be invited!")
                 .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
                     $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
