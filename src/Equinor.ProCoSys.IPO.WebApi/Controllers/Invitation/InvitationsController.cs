@@ -565,6 +565,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
 
         private static void FillFilterFromDto(FilterDto source, Filter target)
         {
+            if (source.ProjectName != null)
+            { 
+                target.ProjectName = source.ProjectName;
+            }
+            
             if (source.PunchOutDates != null)
             {
                 target.PunchOutDates = source.PunchOutDates.ToList();

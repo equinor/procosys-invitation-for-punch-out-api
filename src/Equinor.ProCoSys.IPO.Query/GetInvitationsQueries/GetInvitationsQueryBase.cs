@@ -106,6 +106,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                         case SortingProperty.AcceptedAtUtc:
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.AcceptedAtUtc);
                             break;
+                        case SortingProperty.ProjectName:
+                            invitationForQueryDtos= invitationForQueryDtos.OrderBy(dto => dto.ProjectName);
+                            break;
                         default:
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
@@ -135,6 +138,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                             break;
                         case SortingProperty.AcceptedAtUtc:
                             invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.AcceptedAtUtc);
+                            break;
+                        case SortingProperty.ProjectName:
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.ProjectName);
                             break;
                         default:
                             invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);
