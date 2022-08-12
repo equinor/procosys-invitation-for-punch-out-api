@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
@@ -48,6 +50,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _eventDispatcher = eventDispatcher.Object;
 
             var permissionCacheMock = new Mock<IPermissionCache>();
+            permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, _currentUserOid))
+                .Returns(Task.FromResult(new List<string> { "Project1", "Project2" } as IList<string>));
             _permissionCache = permissionCacheMock.Object;
 
             _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));

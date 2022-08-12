@@ -12,10 +12,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
 
         public GetInvitationsForExportQuery(string projectName, Sorting sorting = null, Filter filter = null)
         {
-            if (string.IsNullOrEmpty(projectName))
-            {
-                throw new ArgumentNullException(nameof(projectName));
-            }
             ProjectName = projectName;
             Sorting = sorting ?? new Sorting(DefaultSortingDirection, DefaultSortingProperty);
             Filter = filter ?? new Filter();
