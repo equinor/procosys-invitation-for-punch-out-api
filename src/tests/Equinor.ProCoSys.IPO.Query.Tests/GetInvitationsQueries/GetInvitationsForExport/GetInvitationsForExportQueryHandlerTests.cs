@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
                 var query = new GetInvitationsForExportQuery(_projectName);
 
                 var result = await dut.Handle(query, default);
@@ -287,7 +287,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
 
@@ -301,7 +301,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, new Sorting(SortingDirection.Asc, SortingProperty.PunchOutDateUtc));
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -316,7 +316,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, new Sorting(SortingDirection.Desc, SortingProperty.PunchOutDateUtc));
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -334,7 +334,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -350,7 +350,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -366,7 +366,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -394,7 +394,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -415,7 +415,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -431,7 +431,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -447,7 +447,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -463,7 +463,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -479,7 +479,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -495,7 +495,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -511,7 +511,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -527,7 +527,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -544,7 +544,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -560,7 +560,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -577,7 +577,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -592,7 +592,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -608,7 +608,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 1);
@@ -624,7 +624,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -640,7 +640,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -656,7 +656,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 0);
@@ -672,7 +672,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
@@ -688,7 +688,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, sorting);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 Assert.AreEqual(_invitation2.Id, result.Data.Invitations.First().Id);
@@ -706,7 +706,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, sorting);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 Assert.AreEqual(_invitation3.Id, result.Data.Invitations.First().Id);
@@ -724,7 +724,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, sorting);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 Assert.AreEqual(_invitation3.Id, result.Data.Invitations.First().Id);
@@ -742,7 +742,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2, sorting);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
                 Assert.AreEqual(_invitation2.Id, result.Data.Invitations.First().Id);
@@ -757,7 +757,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName2);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
 
@@ -772,7 +772,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var query = new GetInvitationsForExportQuery(_projectName);
-                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object);
+                var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _personRepositoryMock.Object, _currentUserProvider, _permissionCache);
 
                 var result = await dut.Handle(query, default);
 

@@ -19,14 +19,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonRepository _personRepository;
+        private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IPermissionCache _permissionCache;
         private readonly DateTime _utcNow;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, IPersonRepository personRepository)
+        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, IPersonRepository personRepository, ICurrentUserProvider currentUserProvider, IPermissionCache permissionCache)
         {
             _context = context;
             _plantProvider = plantProvider;
             _personRepository = personRepository;
             _utcNow = TimeService.UtcNow;
+            _currentUserProvider = currentUserProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
@@ -61,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
 
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();

@@ -31,21 +31,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
         public static class InvitationSheetColumns
         {
             public static int IpoNo = 1;
-            public static int Status = 2;
-            public static int Title = 3;
-            public static int Description = 4;
-            public static int Location = 5;
-            public static int Type = 6;
-            public static int StartTimeUtc = 7;
-            public static int EndTimeUtc = 8;
-            public static int McPkgs = 9;
-            public static int CommPkgs = 10;
-            public static int ContractorRep = 11;
-            public static int ConstructionCompanyRep = 12;
-            public static int CompletedAtUtc = 13;
-            public static int AcceptedAtUtc = 14;
-            public static int CreatedAtUtc = 15;
-            public static int CreatedBy = 16;
+            public static int ProjectName = 2;
+            public static int Status = 3;
+            public static int Title = 4;
+            public static int Description = 5;
+            public static int Location = 6;
+            public static int Type = 7;
+            public static int StartTimeUtc = 8;
+            public static int EndTimeUtc = 9;
+            public static int McPkgs = 10;
+            public static int CommPkgs = 11;
+            public static int ContractorRep = 12;
+            public static int ConstructionCompanyRep = 13;
+            public static int CompletedAtUtc = 14;
+            public static int AcceptedAtUtc = 15;
+            public static int CreatedAtUtc = 16;
+            public static int CreatedBy = 17;
             public static int Last = CreatedBy;
         }
 
@@ -205,6 +206,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             row.Style.Font.SetBold();
             row.Style.Font.SetFontSize(12);
             row.Cell(InvitationSheetColumns.IpoNo).Value = "Ipo no";
+            row.Cell(InvitationSheetColumns.ProjectName).Value = "Project name";
             row.Cell(InvitationSheetColumns.Status).Value = "Status";
             row.Cell(InvitationSheetColumns.Title).Value = "Title";
             row.Cell(InvitationSheetColumns.Description).Value = "Description";
@@ -226,6 +228,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 row = sheet.Row(++rowIdx);
 
                 row.Cell(InvitationSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
+                row.Cell(InvitationSheetColumns.ProjectName).SetValue(invitation.ProjectName).SetDataType(XLDataType.Text);
                 row.Cell(InvitationSheetColumns.Status).SetValue(invitation.Status).SetDataType(XLDataType.Text);
                 row.Cell(InvitationSheetColumns.Title).SetValue(invitation.Title).SetDataType(XLDataType.Text);
                 row.Cell(InvitationSheetColumns.Description).SetValue(invitation.Description).SetDataType(XLDataType.Text);
