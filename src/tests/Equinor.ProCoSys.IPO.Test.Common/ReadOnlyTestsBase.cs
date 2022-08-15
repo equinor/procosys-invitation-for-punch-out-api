@@ -31,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected IEventDispatcher _eventDispatcher;
         protected ManualTimeProvider _timeProvider;
         protected IPermissionCache _permissionCache;
+        protected Mock<IPermissionCache> _permissionCacheMock;
 
         [TestInitialize]
         public void SetupBase()
@@ -49,10 +50,10 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             var eventDispatcher = new Mock<IEventDispatcher>();
             _eventDispatcher = eventDispatcher.Object;
 
-            var permissionCacheMock = new Mock<IPermissionCache>();
-            permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, _currentUserOid))
+            _permissionCacheMock = new Mock<IPermissionCache>();
+            _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, _currentUserOid))
                 .Returns(Task.FromResult(new List<string> { "Project1", "Project2" } as IList<string>));
-            _permissionCache = permissionCacheMock.Object;
+            _permissionCache = _permissionCacheMock.Object;
 
             _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
             TimeService.SetProvider(_timeProvider);

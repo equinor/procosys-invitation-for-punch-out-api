@@ -10,6 +10,7 @@ using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
@@ -835,6 +836,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider);
 
                 var result = await dut.Handle(query, default);
+                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, _currentUserOid), Times.Once);                
                 Assert.IsTrue(result.Data.Invitations.DistinctBy(x => x.ProjectName).Count() > 1);
             }
         }
