@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter
             ISavedFilterValidator savedFilterValidator,
             IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingSavedFilterAsync(command.SavedFilterId, cancellationToken))

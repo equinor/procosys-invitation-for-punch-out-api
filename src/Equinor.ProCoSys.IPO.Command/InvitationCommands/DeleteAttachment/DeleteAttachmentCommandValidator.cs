@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
             IInvitationValidator invitationValidator,
             IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitationAsync(command.InvitationId, cancellationToken))

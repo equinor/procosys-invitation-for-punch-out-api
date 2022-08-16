@@ -36,19 +36,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenInvitationIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -56,11 +56,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenParticipantIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId1, _invitationId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -68,11 +68,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantDoesNotHavePermissionToEdit()
+        public async Task Validate_ShouldFail_WhenParticipantDoesNotHavePermissionToEdit()
         {
             _invitationValidatorMock.Setup(inv => inv.HasPermissionToEditParticipantAsync(_participantId1, _invitationId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -80,11 +80,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsCancelled()
+        public async Task Validate_ShouldFail_WhenInvitationIsCancelled()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_invitationId, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -92,11 +92,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
+        public async Task Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion1)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
