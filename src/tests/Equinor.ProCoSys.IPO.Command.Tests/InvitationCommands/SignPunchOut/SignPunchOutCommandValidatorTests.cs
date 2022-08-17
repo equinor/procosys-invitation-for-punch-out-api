@@ -39,19 +39,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenInvitationIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_invitationId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -59,11 +59,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenParticipantIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync( _participantId, _invitationId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -71,11 +71,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsInCanceledStage()
+        public async Task Validate_ShouldFail_WhenInvitationIsInCanceledStage()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_invitationId, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -84,11 +84,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
 
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantIsSigned()
+        public async Task Validate_ShouldFail_WhenParticipantIsSigned()
         {
             _invitationValidatorMock.Setup(inv => inv.ParticipantIsSignedAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(true));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -96,11 +96,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
+        public async Task Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(false);
             
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -108,11 +108,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationDoesNotHaveSigningParticipant()
+        public async Task Validate_ShouldFail_WhenInvitationDoesNotHaveSigningParticipant()
         {
             _invitationValidatorMock.Setup(inv => inv.SignerExistsAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -120,11 +120,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenPersonTryingToCompleteIsNotAValidSigningParticipant()
+        public async Task Validate_ShouldFail_WhenPersonTryingToCompleteIsNotAValidSigningParticipant()
         {
             _invitationValidatorMock.Setup(inv => inv.CurrentUserIsValidSigningParticipantAsync(_invitationId, _participantId, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

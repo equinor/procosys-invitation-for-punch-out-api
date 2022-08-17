@@ -78,19 +78,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenInvitationIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -98,9 +98,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantsIsNull()
+        public async Task Validate_ShouldFail_WhenParticipantsIsNull()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 _title,
                 _description,
@@ -119,9 +119,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenDescriptionIsTooLong()
+        public async Task Validate_ShouldFail_WhenDescriptionIsTooLong()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 _title,
                 new string('x', Invitation.DescriptionMaxLength + 1),
@@ -140,9 +140,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenStartDateIsAfterEndDate()
+        public async Task Validate_ShouldFail_WhenStartDateIsAfterEndDate()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 _title,
                 _description,
@@ -161,12 +161,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_TitleIsTooShort()
+        public async Task Validate_ShouldFail_TitleIsTooShort()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 "t",
-                _description,
+                description: _description,
                 _location,
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
@@ -182,9 +182,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_TitleIsTooLong()
+        public async Task Validate_ShouldFail_TitleIsTooLong()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 new string('x', Invitation.TitleMaxLength + 1),
                 _description,
@@ -203,9 +203,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_TitleIsNull()
+        public async Task Validate_ShouldFail_TitleIsNull()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 null,
                 _description,
@@ -224,9 +224,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_LocationIsTooLong()
+        public async Task Validate_ShouldFail_LocationIsTooLong()
         {
-            var result = _dut.Validate(new EditInvitationCommand(
+            var result = await _dut.ValidateAsync(new EditInvitationCommand(
                 _id,
                 _title,
                 _description,
@@ -245,11 +245,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenScopeIsInvalid()
+        public async Task Validate_ShouldFail_WhenScopeIsInvalid()
         {
             _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -257,11 +257,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantListIsInvalid()
+        public async Task Validate_ShouldFail_WhenParticipantListIsInvalid()
         {
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -269,11 +269,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantListDoesNotHaveRequiredParticipants()
+        public async Task Validate_ShouldFail_WhenParticipantListDoesNotHaveRequiredParticipants()
         {
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -281,11 +281,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenRequiredParticipantsDoNotHaveLowestSortKeys()
+        public async Task Validate_ShouldFail_WhenRequiredParticipantsDoNotHaveLowestSortKeys()
         {
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -293,11 +293,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantsWithIdsDoNotExist()
+        public async Task Validate_ShouldFail_WhenParticipantsWithIdsDoNotExist()
         {
             _invitationValidatorMock.Setup(inv => inv.ParticipantWithIdExistsAsync(_editParticipants[0], _id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -305,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipant_HasNegativeSortKey()
+        public async Task Validate_ShouldFail_WhenParticipant_HasNegativeSortKey()
         {
             var editParticipants = new List<ParticipantsForEditCommand>
                 {
@@ -350,7 +350,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _rowVersion);
 
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -358,7 +358,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenFunctinalRoleIsInvalid()
+        public async Task Validate_ShouldFail_WhenFunctinalRoleIsInvalid()
         {
             var editParticipants = new List<ParticipantsForEditCommand>
                 {
@@ -403,7 +403,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _rowVersion);
 
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

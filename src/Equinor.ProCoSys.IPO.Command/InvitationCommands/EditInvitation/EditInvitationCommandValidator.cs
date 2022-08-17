@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     {
         public EditInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 //input validators

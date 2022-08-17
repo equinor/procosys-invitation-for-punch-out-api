@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
         public CreateSavedFilterCommandValidator(
             ISavedFilterValidator savedFilterValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => NotExistsASavedFilterWithSameTitleForPersonOnProject(command.Title, command.ProjectName, cancellationToken))

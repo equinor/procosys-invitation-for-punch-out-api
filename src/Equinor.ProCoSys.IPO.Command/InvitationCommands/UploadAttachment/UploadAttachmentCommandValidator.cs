@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
     {
         public UploadAttachmentCommandValidator(IInvitationValidator invitationValidator, IOptionsMonitor<BlobStorageOptions> options)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x)
                 .NotNull();

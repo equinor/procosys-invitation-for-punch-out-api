@@ -37,21 +37,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         }
 
         [TestMethod]
-        public void Validate_Succeeds_WhenInvitationExists()
+        public async Task Validate_Succeeds_WhenInvitationExists()
         {
             var command = new UploadAttachmentCommand(1, "newfile.txt", false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenInvitationDoesNotExist()
+        public async Task Validate_Fails_WhenInvitationDoesNotExist()
         {
             var command = new UploadAttachmentCommand(-1, "newfile.txt", false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -59,11 +59,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenAttachmentExists()
+        public async Task Validate_Fails_WhenAttachmentExists()
         {
             var command = new UploadAttachmentCommand(1, "existingfile.txt", false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -71,22 +71,22 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         }
 
         [TestMethod]
-        public void Validate_Succeeds_WhenAttachmentDoesNotExist()
+        public async Task Validate_Succeeds_WhenAttachmentDoesNotExist()
         {
             var command = new UploadAttachmentCommand(1, "newfile.txt", false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenFileNameIsNotGiven()
+        public async Task Validate_Fails_WhenFileNameIsNotGiven()
         {
 
             var command = new UploadAttachmentCommand(1, string.Empty, false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -94,12 +94,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenFileNameIsTooLong()
+        public async Task Validate_Fails_WhenFileNameIsTooLong()
         {
 
             var command = new UploadAttachmentCommand(1, new string('a', 252) + ".txt", false, new MemoryStream());
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -107,12 +107,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenAttachmentIsTooLarge()
+        public async Task Validate_Fails_WhenAttachmentIsTooLarge()
         {
             var data = new byte[2 * 1024 * 1024];
             var command = new UploadAttachmentCommand(1, "newfile.txt", false, new MemoryStream(data));
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
