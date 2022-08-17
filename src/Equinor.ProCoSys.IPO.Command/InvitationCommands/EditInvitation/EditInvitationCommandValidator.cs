@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         public EditInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 //input validators

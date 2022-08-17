@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         public CompletePunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
