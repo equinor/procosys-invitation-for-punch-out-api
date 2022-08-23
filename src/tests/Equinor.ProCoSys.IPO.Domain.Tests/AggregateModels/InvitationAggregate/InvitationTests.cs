@@ -821,6 +821,75 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
         #endregion
 
+        #region UpdateAttendedStatus
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldNotUpdateAttendedStatus_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(()
+                => _dutWithCanceledStatus.UpdateAttendedStatus(
+                    _functionalRoleParticipant,
+                    true,
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
+
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldAddUpdateAttendedStatusEvent()
+        {
+            _dutDpIpo.UpdateAttendedStatus(
+                _personParticipant,
+                true,
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(AttendedStatusUpdatedEvent));
+        }
+
+        [TestMethod]
+        public void UpdateAttendedStatus_ShouldUpdateAttendedStatus()
+        {
+            Assert.IsFalse(_dutDpIpo.Participants.First().Attended);
+            Assert.IsFalse(_dutDpIpo.Participants.First().IsAttendedTouched);
+
+            _dutDpIpo.UpdateAttendedStatus(
+                _personParticipant,
+                true,
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsTrue(_dutDpIpo.Participants.First().Attended);
+            Assert.IsTrue(_dutDpIpo.Participants.First().IsAttendedTouched);
+        }
+        #endregion
+
+
+        #region UpdateNote
+        [TestMethod]
+        public void UpdateNote_ShouldNotUpdateNote_WhenIpoIsCanceled()
+            => Assert.ThrowsException<Exception>(()
+                => _dutWithCanceledStatus.UpdateNote(
+                    _functionalRoleParticipant,
+                    "note",
+                    _functionalRoleParticipant.RowVersion.ConvertToString()));
+
+        [TestMethod]
+        public void UpdateNote_ShouldAddUpdateNoteEvent()
+        {
+            _dutDpIpo.UpdateNote(
+                _personParticipant,
+                "note",
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.IsInstanceOfType(_dutDpIpo.PreSaveDomainEvents.Last(), typeof(NoteUpdatedEvent));
+        }
+
+        [TestMethod]
+        public void UpdateNote_ShouldUpdateNote()
+        {
+            _dutDpIpo.UpdateNote(
+                _personParticipant,
+                "note",
+                _personParticipant.RowVersion.ConvertToString());
+
+            Assert.AreEqual("note", _dutDpIpo.Participants.First().Note);
+        }
+        #endregion
+
         #region Complete
         [TestMethod]
         public void CompleteIpo_ShouldNotCompleteIpo_WhenIpoIsNotPlanned()

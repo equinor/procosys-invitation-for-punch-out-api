@@ -378,6 +378,118 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
         #endregion
 
+        #region EditParticipants
+        [TestMethod]
+        public async Task EditParticipants_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task EditParticipants_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task EditParticipants_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task EditParticipants_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsViewer_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsPlanner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                new EditParticipantsDto(),
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            var (_, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                38934,
+                editParticipantsDto,
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnBadRequest_WhenUnknownParticipantId()
+        {
+            var (invitationId, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            editParticipantsDto.UpdatedParticipants.First(p => p.Person != null).Person.Id = 23451;
+
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editParticipantsDto,
+                HttpStatusCode.BadRequest,
+                "Participant with ID does not exist on invitation!");
+        }
+
+        [TestMethod]
+        public async Task EditParticipants_AsAdmin_ShouldReturnConflict_WhenWrongParticipantRowVersion()
+        {
+            // Arrange
+            var (invitationId, editParticipantsDto) = await CreateValidEditParticipantsDtoAsync(_participants);
+            editParticipantsDto.UpdatedParticipants.First(p => p.FunctionalRole != null).FunctionalRole.RowVersion = TestFactory.WrongButValidRowVersion;
+
+            // Act
+            await InvitationsControllerTestsHelper.EditParticipantsAsync(
+                UserType.Admin,
+                TestFactory.PlantWithAccess,
+                invitationId,
+                editParticipantsDto,
+                HttpStatusCode.Conflict);
+        }
+        #endregion
+
+
         #region Sign 
         [TestMethod]
         public async Task SignPunchOut_AsAnonymous_ShouldReturnUnauthorized()
@@ -1118,6 +1230,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         [TestMethod]
+        public async Task CancelPunchOut_AsPlanner_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participantsForSigning, UserType.Creator);
+
+            // Act
+            await InvitationsControllerTestsHelper.CancelPunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           cancelPunchOutDto,
+                           HttpStatusCode.BadRequest,
+                           "Current user is not the creator of the invitation and not in Contractor Functional Role!");
+        }
+
+        [TestMethod]
         public async Task CancelPunchOut_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
         {
             // Arrange
@@ -1134,10 +1262,208 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
         #endregion
 
-        #region ChangeAttendedStatusOnParticipants
+        #region Delete
+        [TestMethod]
+        public async Task DeletePunchOut_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithoutAccess,
+                9999,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsSigner_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                UserType.Signer,
+                TestFactory.PlantWithAccess,
+                9999,
+                TestFactory.AValidRowVersion,
+                HttpStatusCode.Forbidden);
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+        {
+            // Arrange
+            var (_, rowVersion) = await CreateValidDeletePunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           9999,
+                           rowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Invitation with this ID does not exist!");
+        }
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsPlanner_ShouldReturnBadRequest()
+        {
+            // Arrange
+            var (invitationToCancelId, rowVersion) = await CreateValidDeletePunchOutDtoAsync(_participantsForSigning, UserType.Creator);
+
+            // Act
+            await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           rowVersion,
+                           HttpStatusCode.BadRequest,
+                           "Current user is not the creator of the invitation and not ipo admin!");
+        }
+
+        [TestMethod]
+        public async Task DeletePunchOut_AsPlanner_ShouldReturnConflict_WhenWrongInvitationRowVersion()
+        {
+            // Arrange
+            var (invitationToCancelId, _) = await CreateValidDeletePunchOutDtoAsync(_participantsForSigning);
+
+            // Act
+            await InvitationsControllerTestsHelper.DeletePunchOutAsync(
+                           UserType.Planner,
+                           TestFactory.PlantWithAccess,
+                           invitationToCancelId,
+                           TestFactory.AValidRowVersion,
+                           HttpStatusCode.Conflict);
+        }
+        #endregion
+
+        #region UpdateAttendedStatusOnParticipant
+        [TestMethod]
+        public async Task ChangeAttendedStatus_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithAccess,
+                9999,
+                new ParticipantToUpdateAttendedStatusDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task ChangeAttendedStatus_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new ParticipantToUpdateAttendedStatusDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task ChangeAttendedStatus_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                new ParticipantToUpdateAttendedStatusDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task ChangeAttendedStatus_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new ParticipantToUpdateAttendedStatusDto(),
+                HttpStatusCode.Forbidden);
+
+
+        [TestMethod]
+        public async Task ChangeAttendedStatus_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
+                new ParticipantToUpdateAttendedStatusDto(),
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist");
+        #endregion
+
+        #region UpdateNoteOnParticipant
+        [TestMethod]
+        public async Task ChangeNote_AsAnonymous_ShouldReturnUnauthorized()
+            => await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Anonymous,
+                TestFactory.PlantWithAccess,
+                9999,
+                new ParticipantToUpdateNoteDto(),
+                HttpStatusCode.Unauthorized);
+
+        [TestMethod]
+        public async Task ChangeNote_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Hacker,
+                TestFactory.UnknownPlant,
+                9999,
+                new ParticipantToUpdateNoteDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task ChangeNote_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
+            => await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Planner,
+                TestFactory.UnknownPlant,
+                9999,
+                new ParticipantToUpdateNoteDto(),
+                HttpStatusCode.BadRequest,
+                "is not a valid plant");
+
+        [TestMethod]
+        public async Task ChangeNote_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
+            => await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Hacker,
+                TestFactory.PlantWithAccess,
+                9999,
+                new ParticipantToUpdateNoteDto(),
+                HttpStatusCode.Forbidden);
+
+
+        [TestMethod]
+        public async Task ChangeNote_AsPlanner_ShouldReturnBadRequest_WhenUnknownInvitationId()
+            => await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                123456,
+                new ParticipantToUpdateNoteDto(),
+                HttpStatusCode.BadRequest,
+                "Invitation with this ID does not exist");
+        #endregion
+
+        #region ChangeAttendedStatusAndNotesOnParticipants
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsAnonymous_ShouldReturnUnauthorized()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            => await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                 UserType.Anonymous,
                 TestFactory.PlantWithoutAccess,
                 9999,
@@ -1146,7 +1472,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            => await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
                 9999,
@@ -1156,7 +1482,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsPlanner_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            => await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                 UserType.Planner,
                 TestFactory.UnknownPlant,
                 9999,
@@ -1166,7 +1492,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
         [TestMethod]
         public async Task ChangeAttendedStatusOnParticipants_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            => await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
                 9999,
@@ -1180,7 +1506,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var (_, participantToChangeDtos) = await CreateValidParticipantToChangeDtosAsync(_participantsForSigning);
 
             // Act
-            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                            UserType.Signer,
                            TestFactory.PlantWithAccess,
                            9999,
@@ -1197,7 +1523,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             participantToChangeDtos[0].Id = 290690;
 
             // Act
-            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                            UserType.Signer,
                            TestFactory.PlantWithAccess,
                            invitationToChangeId,
@@ -1214,7 +1540,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             participantToChangeDtos[0].RowVersion = TestFactory.WrongButValidRowVersion;
 
             // Act
-            await InvitationsControllerTestsHelper.ChangeAttendedStatusOnParticipantsAsync(
+            await InvitationsControllerTestsHelper.ChangeAttendedStatusAndNotesOnParticipantsAsync(
                            UserType.Signer,
                            TestFactory.PlantWithAccess,
                            invitationToChangeId,

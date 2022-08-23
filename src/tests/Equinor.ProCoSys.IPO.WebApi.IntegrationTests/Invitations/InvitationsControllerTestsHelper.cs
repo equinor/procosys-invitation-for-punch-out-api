@@ -376,7 +376,39 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             return await response.Content.ReadAsStringAsync();
         }
 
-        public static async Task ChangeAttendedStatusOnParticipantsAsync(
+        public static async Task UpdateAttendedStatusOnParticipantAsync(
+            UserType userType,
+            string plant,
+            int id,
+            ParticipantToUpdateAttendedStatusDto dto,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var serializePayload = JsonConvert.SerializeObject(dto);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant)
+                .PutAsync($"{Route}/{id}/AttendedStatus", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+        }
+        
+        public static async Task UpdateNoteOnParticipantAsync(
+            UserType userType,
+            string plant,
+            int id,
+            ParticipantToUpdateNoteDto dto,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var serializePayload = JsonConvert.SerializeObject(dto);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant)
+                .PutAsync($"{Route}/{id}/Note", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+        }
+        
+        public static async Task ChangeAttendedStatusAndNotesOnParticipantsAsync(
             UserType userType,
             string plant,
             int id,
@@ -462,6 +494,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var serializePayload = JsonConvert.SerializeObject(bodyPayload);
             var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}", content);
+
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+
+            if (expectedStatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public static async Task<string> EditParticipantsAsync(
+            UserType userType,
+            string plant,
+            int id,
+            EditInvitation.EditParticipantsDto dto,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                dto.UpdatedParticipants,
+            };
+
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var content = new StringContent(serializePayload, Encoding.UTF8, "application/json");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).PutAsync($"{Route}/{id}/Participants", content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 
@@ -585,6 +644,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             }
 
             return await response.Content.ReadAsStringAsync();
+        }
+
+
+        public static async Task DeletePunchOutAsync(
+            UserType userType,
+            string plant,
+            int id,
+            string rowVersion,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            string expectedMessageOnBadRequest = null)
+        {
+            var bodyPayload = new
+            {
+                rowVersion
+            };
+            var serializePayload = JsonConvert.SerializeObject(bodyPayload);
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"{Route}/{id}/Delete")
+            {
+                Content = new StringContent(serializePayload, Encoding.UTF8, "application/json")
+            };
+
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).SendAsync(request);
+            await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
     }
 }

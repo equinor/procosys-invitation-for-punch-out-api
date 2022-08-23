@@ -11,6 +11,7 @@
         CompletedAtUtc,
         AcceptedAtUtc,
         ContractorRep,
-        ConstructionCompanyRep
+        ConstructionCompanyRep,
+        ProjectName
     }
 }

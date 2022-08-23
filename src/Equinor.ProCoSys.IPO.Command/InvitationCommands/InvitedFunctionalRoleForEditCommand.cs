@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class InvitedFunctionalRoleForEditCommand : IInvitedFunctionalRoleForCommand
     {

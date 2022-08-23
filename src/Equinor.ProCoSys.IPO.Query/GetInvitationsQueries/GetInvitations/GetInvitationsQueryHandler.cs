@@ -15,19 +15,28 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
     public class GetInvitationsQueryHandler : GetInvitationsQueryBase, IRequestHandler<GetInvitationsQuery, Result<InvitationsResult>>
     {
         private readonly IReadOnlyContext _context;
-
+        private readonly IPermissionCache _permissionCache;
+        private readonly IPlantProvider _plantProvider;
+        private readonly ICurrentUserProvider _currentUserProvider;
         private readonly DateTime _utcNow;
 
         public GetInvitationsQueryHandler(
-            IReadOnlyContext context)
+           IReadOnlyContext context,
+           IPermissionCache permissionCache,
+           IPlantProvider plantProvider,
+           ICurrentUserProvider currentUserProvider)
         {
             _context = context;
             _utcNow = TimeService.UtcNow;
+            _permissionCache = permissionCache;
+            _plantProvider = plantProvider;
+            _currentUserProvider = currentUserProvider;
         }
 
         public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
+
 
             // count before adding sorting/paging
             var maxAvailable = await invitationForQueryDtos.CountAsync(cancellationToken);

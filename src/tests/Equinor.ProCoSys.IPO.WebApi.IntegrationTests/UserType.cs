@@ -7,6 +7,8 @@
         Planner,
         Viewer,
         Hacker,
-        Contractor
+        Contractor,
+        Admin,
+        Creator
     }
 }

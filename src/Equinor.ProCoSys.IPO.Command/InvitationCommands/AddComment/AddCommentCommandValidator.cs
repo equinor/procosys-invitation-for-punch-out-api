@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment
     {
         public AddCommentCommandValidator(IInvitationValidator invitationValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 //input validators

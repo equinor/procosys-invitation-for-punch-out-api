@@ -15,5 +15,6 @@
         public const string IPO_ATTACHFILE = "IPO/ATTACHFILE";
         public const string IPO_DETACHFILE = "IPO/DETACHFILE";
         public const string IPO_VOIDUNVOID = "IPO/VOID/UNVOID";
+        public const string IPO_ADMIN = "IPO/ADMIN";
     }
 }

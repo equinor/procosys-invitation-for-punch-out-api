@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.WebApi.Seeding;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -90,20 +91,16 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 services.AddAzureAppConfiguration();
             }
 
-            services.AddControllers()
-                .AddFluentValidation(fv =>
-                {
-                    fv.RegisterValidatorsFromAssemblies
-                    (
-                        new List<Assembly>
-                        {
-                            typeof(IQueryMarker).GetTypeInfo().Assembly,
-                            typeof(ICommandMarker).GetTypeInfo().Assembly,
-                            typeof(Startup).Assembly,
-                        }
-                    );
-                    fv.DisableDataAnnotationsValidation = true;
-                });
+            services.AddFluentValidationAutoValidation(fv =>
+            {
+                fv.DisableDataAnnotationsValidation = true;
+            });
+            services.AddValidatorsFromAssemblies(new List<Assembly>
+            {
+                typeof(IQueryMarker).GetTypeInfo().Assembly,
+                typeof(ICommandMarker).GetTypeInfo().Assembly,
+                typeof(Startup).Assembly
+            });
 
             var scopes = Configuration.GetSection("Swagger:Scopes")?.Get<Dictionary<string, string>>() ?? new Dictionary<string, string>();
             services.AddSwaggerGen(c =>
@@ -166,7 +163,10 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 options.DisableClaimsTransformation();                                  // Disable this - Fusion adds relevant claims
             });
 
-            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
+            services.AddApplicationInsightsTelemetry(options =>
+            {
+                options.ConnectionString = Configuration["ApplicationInsights:InstrumentationKey"];
+            });
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
 
@@ -187,8 +187,12 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .WithSubscription(PcsTopic.Project, "ipo_project")
                     .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg")
-                    .WithSubscription(PcsTopic.Library, "ipo_library"));
-                
+                    .WithSubscription(PcsTopic.Library, "ipo_library")
+                    //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
+                    //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
+                    //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE
+                    .WithReadFromDeadLetterQueue(Configuration.GetValue<bool>("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
+
                 services.AddTopicClients(
                     Configuration.GetConnectionString("ServiceBus"),
                     Configuration["ServiceBus:TopicNames"]);

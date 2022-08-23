@@ -7,11 +7,15 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
 using Equinor.ProCoSys.IPO.Domain;
@@ -194,6 +198,39 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null);
             
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+
+        #endregion
+
+        #region EditParticipantsCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnEditParticipantsCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new EditParticipantsCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnEditParticipantsCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new EditParticipantsCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -502,6 +539,110 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             // Arrange
             var command = new CancelPunchOutCommand(
                 _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region DeletePunchOutCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnDeletePunchOutCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new DeletePunchOutCommand(
+                _invitationIdWithAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnDeletePunchOutCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new DeletePunchOutCommand(
+                _invitationIdWithoutAccessToProject,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region UpdateAttendedStatusCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateAttendedStatusOnParticipantCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateAttendedStatusOnParticipantCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                true,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateAttendedStatusOnParticipantCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateAttendedStatusOnParticipantCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                true,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsFalse(result);
+        }
+        #endregion
+
+        #region UpdateNoteCommand
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateNoteOnParticipantCommand_ShouldReturnTrue_WhenAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateNoteOnParticipantCommand(
+                _invitationIdWithAccessToProject,
+                0,
+                null,
+                null);
+
+            // act
+            var result = await _dut.ValidateAsync(command);
+
+            // Assert
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task ValidateAsync_OnUpdateNoteOnParticipantCommand_ShouldReturnFalse_WhenNoAccessToProject()
+        {
+            // Arrange
+            var command = new UpdateNoteOnParticipantCommand(
+                _invitationIdWithoutAccessToProject,
+                0,
+                null,
                 null);
 
             // act

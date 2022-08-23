@@ -111,5 +111,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void RemoveAttachment(Attachment attachment)
             => _context.Attachments.Remove(attachment);
+
+        public void RemoveInvitation(Invitation invitation)
+        {
+            foreach (var attachment in invitation.Attachments)
+            {
+                RemoveAttachment(attachment);
+            }
+            foreach (var participant in invitation.Participants)
+            {
+                RemoveParticipant(participant);
+            }
+            _context.Invitations.Remove(invitation);
+        }
     }
 }

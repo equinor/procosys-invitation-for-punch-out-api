@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
     {
         public UnCompletePunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
@@ -29,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
                 .MustAsync((command, cancellationToken) => BeACompleterOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a contractor assigned to uncomplete the IPO!")
-                .MustAsync((command, cancellationToken) => BeThePersonWhoCompleted(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeAdminOrThePersonWhoCompleted(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    "Person trying to uncomplete is not the person who completed the IPO!");
+                    "Person trying to uncomplete is not an admin and not the person who completed the IPO!");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
@@ -42,8 +42,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
             async Task<bool> BeACompleterOnIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeThePersonWhoCompleted(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.SameUserUnCompletingThatCompletedAsync(invitationId, cancellationToken);
+            async Task<bool> BeAdminOrThePersonWhoCompleted(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.CurrentUserIsAdminOrValidCompletorParticipantAsync(invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

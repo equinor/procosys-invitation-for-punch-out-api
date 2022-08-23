@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             new ParticipantsForEditCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForEditCommand(null, null, "ola@test.com", true, null),
+                new InvitedPersonForEditCommand(null, new Guid(), true, null),
                 null,
                 1)
         };

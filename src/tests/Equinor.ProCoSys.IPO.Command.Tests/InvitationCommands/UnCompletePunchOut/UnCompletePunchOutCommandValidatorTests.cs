@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnCompletingThatCompletedAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidCompletorParticipantAsync(_id, default)).Returns(Task.FromResult(true));
             _invitationValidatorMock.Setup(inv => inv.IpoHasCompleterAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new UnCompletePunchOutCommand(
                 _id,
@@ -40,19 +40,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenInvitationIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -60,11 +60,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsNotInCompletedStage()
+        public async Task Validate_ShouldFail_WhenInvitationIsNotInCompletedStage()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Completed, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -72,11 +72,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
+        public async Task Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(false);
             
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -84,11 +84,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationDoesNotHaveContractorParticipant()
+        public async Task Validate_ShouldFail_WhenInvitationDoesNotHaveContractorParticipant()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoHasCompleterAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -96,16 +96,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenPersonTryingToUnCompleteIsNotThePersonWhoCompletedTheIpo()
+        public async Task Validate_ShouldFail_WhenPersonTryingToUnCompleteIsNotThePersonWhoCompletedTheIpoOrAnAdmin()
         {
-            _invitationValidatorMock.Setup(inv => inv.SameUserUnCompletingThatCompletedAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAdminOrValidCompletorParticipantAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage
-                .StartsWith("Person trying to uncomplete is not the person who completed the IPO!"));
+                .StartsWith("Person trying to uncomplete is not an admin and not the person who completed the IPO!"));
         }
     }
 }

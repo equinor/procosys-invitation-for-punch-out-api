@@ -18,13 +18,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
     {
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
+        private readonly IPersonRepository _personRepository;
+        private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IPermissionCache _permissionCache;
         private readonly DateTime _utcNow;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider)
+        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, IPersonRepository personRepository, ICurrentUserProvider currentUserProvider, IPermissionCache permissionCache)
         {
             _context = context;
             _plantProvider = plantProvider;
+            _personRepository = personRepository;
             _utcNow = TimeService.UtcNow;
+            _currentUserProvider = currentUserProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<Result<ExportDto>> Handle(GetInvitationsForExportQuery request, CancellationToken cancellationToken)
@@ -59,19 +65,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow);
+            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
 
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
 
             var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
+
             return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
         }
 
         private async Task<SuccessResult<ExportDto>> CreateSuccessResultAsync(List<ExportInvitationDto> exportInvitationDtos, GetInvitationsForExportQuery request)
         {
             var filter = await CreateUsedFilterDtoAsync(request.ProjectName, request.Filter);
-
             return new SuccessResult<ExportDto>(new ExportDto(exportInvitationDtos, filter));
         }
 
@@ -95,14 +101,32 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}")).ToList();
         }
 
-        private static IEnumerable<ExportParticipantDto> AddParticipantsForSingleInvitation(
-            Invitation invitationWithIncludes) =>
-            invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
+        private async Task<IList<ExportParticipantDto>> AddParticipantsForSingleInvitationAsync(
+            Invitation invitationWithIncludes)
+        {
+            var participants = invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
                 participant.Id,
                 participant.Organization.ToString(),
                 participant.Type.ToString(),
-                participant.Type == IpoParticipantType.Person ? $"{participant.FirstName} {participant.LastName}" 
-                    : participant.FunctionalRoleCode));
+                participant.Type == IpoParticipantType.Person
+                    ? $"{participant.FirstName} {participant.LastName}"
+                    : participant.FunctionalRoleCode,
+                participant.Attended,
+                participant.Note,
+                participant.SignedAtUtc,
+                null,
+                participant.SignedBy)).ToList();
+
+            foreach (var participant in participants)
+            {
+                var person = participant.SignedById.HasValue
+                    ? await _personRepository.GetByIdAsync(participant.SignedById.Value)
+                    : null;
+                participant.SignedBy = person?.UserName;
+            }
+
+            return participants;
+        }
 
         private async Task<UsedFilterDto> CreateUsedFilterDtoAsync(string projectName, Filter filter)
         {
@@ -169,7 +193,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     invitation.CreatedAtUtc,
                     organizer
                 );
-                exportInvitationDto.Participants.AddRange(AddParticipantsForSingleInvitation(invitation));
+                exportInvitationDto.Participants.AddRange(await AddParticipantsForSingleInvitationAsync(invitation));
                 exportInvitations.Add(exportInvitationDto);
             }
 

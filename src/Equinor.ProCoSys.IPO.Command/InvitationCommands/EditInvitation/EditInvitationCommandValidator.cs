@@ -13,12 +13,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
     {
         public EditInvitationCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 //input validators
-                .Must(command => command.UpdatedParticipants != null)
-                .WithMessage("Participants cannot be null!")
+                .Must(command => command.UpdatedParticipants != null && command.UpdatedParticipants.Any())
+                .WithMessage("Participants must be invited!")
                 .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
                     $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
@@ -48,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.UpdatedParticipants))
                 .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.UpdatedParticipants))
-                .WithMessage("Each participant must contain an email or oid!");
+                .WithMessage("Each participant must contain an oid!");
 
             RuleForEach(command => command.UpdatedParticipants)
                 .MustAsync((command, participant, _, cancellationToken) => ParticipantToBeUpdatedMustExist(participant, command.InvitationId, cancellationToken))
@@ -70,8 +71,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             bool MustHaveValidScope(
                 DisciplineType type,
-                IList<string> updatedMcPkgScope, 
-                IList<string> updatedCommPkgScope) 
+                IList<string> updatedMcPkgScope,
+                IList<string> updatedCommPkgScope)
                 => invitationValidator.IsValidScope(type, updatedMcPkgScope, updatedCommPkgScope);
 
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)

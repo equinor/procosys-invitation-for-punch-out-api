@@ -1,4 +1,7 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
@@ -8,5 +11,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             : base(context, context.History)
         {
         }
+
+        public IList<History> GetHistoryByObjectGuid(Guid guid) 
+            => _context.History.Where(h => h.ObjectGuid == guid).ToList();
     }
 }

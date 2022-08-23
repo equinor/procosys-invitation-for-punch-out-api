@@ -178,6 +178,35 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
         }
 
+        public void UpdateNote(
+            Participant participant,
+            string note,
+            string participantRowVersion)
+        {
+            if (Status == IpoStatus.Canceled)
+            {
+                throw new Exception($"Update on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+            participant.Note = note;
+            participant.SetRowVersion(participantRowVersion);
+            AddPreSaveDomainEvent(new NoteUpdatedEvent(Plant, ObjectGuid, note));
+        }
+        
+        public void UpdateAttendedStatus(
+            Participant participant,
+            bool attended,
+            string participantRowVersion)
+        {
+            if (Status == IpoStatus.Canceled)
+            {
+                throw new Exception($"Update on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+            participant.Attended = attended;
+            participant.IsAttendedTouched = true;
+            participant.SetRowVersion(participantRowVersion);
+            AddPreSaveDomainEvent(new AttendedStatusUpdatedEvent(Plant, ObjectGuid));
+        }
+
         public void CompleteIpo(Participant participant, string participantRowVersion, Person completedBy, DateTime completedAtUtc)
         {
             if (participant == null)

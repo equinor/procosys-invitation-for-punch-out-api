@@ -11,7 +11,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
     {
         public CompletePunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
@@ -51,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 => await invitationValidator.IpoHasCompleterAsync(invitationId, cancellationToken);
 
             async Task<bool> BeTheAssignedPersonIfPersonParticipant(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.ValidCompleterParticipantExistsAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken);
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);

@@ -39,21 +39,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         }
 
         [TestMethod]
-        public void Validate_Succeeds()
+        public async Task Validate_Succeeds()
         {
             var command = new DeleteAttachmentCommand(1, 2, "ABC");
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenInvitationDoesNotExist()
+        public async Task Validate_Fails_WhenInvitationDoesNotExist()
         {
             var command = new DeleteAttachmentCommand(0, 2, "ABC");
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -61,11 +61,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenAttachmentDoesNotExist()
+        public async Task Validate_Fails_WhenAttachmentDoesNotExist()
         {
             var command = new DeleteAttachmentCommand(1, 0, "ABC");
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -73,11 +73,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         }
 
         [TestMethod]
-        public void Validate_Fails_WhenRowVersionIsInvalid()
+        public async Task Validate_Fails_WhenRowVersionIsInvalid()
         {
             var command = new DeleteAttachmentCommand(1, 2, "Invalid");
 
-            var result = _dut.Validate(command);
+            var result = await _dut.ValidateAsync(command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

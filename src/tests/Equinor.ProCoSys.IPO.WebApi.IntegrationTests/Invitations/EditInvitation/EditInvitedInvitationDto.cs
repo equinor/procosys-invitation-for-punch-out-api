@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitatio
         public DateTime EndTime { get; set; }
         public IEnumerable<string> UpdatedMcPkgScope { get; set; }
         public IEnumerable<string> UpdatedCommPkgScope { get; set; }
-        public IEnumerable<EditParticipantsDto> UpdatedParticipants { get; set; }
+        public IEnumerable<EditParticipantDto> UpdatedParticipants { get; set; }
         public string Title { get; set; }
         public DisciplineType Type { get; set; }
         public string RowVersion { get; set; }

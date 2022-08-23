@@ -185,7 +185,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         }
 
         [TestMethod]
-        public async Task HandlingCompleteIpoCommand_ShouldSetVersions()
+        public async Task HandlingUpdateAttendedStatusAndNotesOnParticipantsCommand_ShouldSetVersions()
         {
             // Act
             await _dut.Handle(_command, default);

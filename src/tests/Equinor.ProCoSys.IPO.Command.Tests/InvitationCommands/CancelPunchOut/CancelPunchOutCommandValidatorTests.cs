@@ -26,26 +26,26 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _rowVersionValidatorMock = new Mock<IRowVersionValidator>();
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(true);
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(true));
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_id, default)).Returns(Task.FromResult(true));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToCancelIpoAsync(_id, default)).Returns(Task.FromResult(true));
             _command = new CancelPunchOutCommand(_id, _invitationRowVersion);
 
             _dut = new CancelPunchOutCommandValidator(_invitationValidatorMock.Object, _rowVersionValidatorMock.Object);
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIdIsNonExisting()
+        public async Task Validate_ShouldFail_WhenInvitationIdIsNonExisting()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoExistsAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -53,11 +53,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsInAcceptedStage()
+        public async Task Validate_ShouldFail_WhenInvitationIsInAcceptedStage()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Accepted, default)).Returns(Task.FromResult(true));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -65,11 +65,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationIsInCanceledStage()
+        public async Task Validate_ShouldFail_WhenInvitationIsInCanceledStage()
         {
             _invitationValidatorMock.Setup(inv => inv.IpoIsInStageAsync(_id, IpoStatus.Canceled, default)).Returns(Task.FromResult(true));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -77,11 +77,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
+        public async Task Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(false);
             
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -89,11 +89,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenUserTryingToCancelIsNotOrganizerOfIpo()
+        public async Task Validate_ShouldFail_WhenUserTryingToCancelIsNotOrganizerOfIpo()
         {
-            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(_id, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.CurrentUserIsAllowedToCancelIpoAsync(_id, default)).Returns(Task.FromResult(false));
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

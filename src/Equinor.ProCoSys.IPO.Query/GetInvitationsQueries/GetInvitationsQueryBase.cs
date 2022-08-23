@@ -11,8 +11,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public abstract class GetInvitationsQueryBase
     {
-        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(IReadOnlyContext context, string projectName, Filter filter, DateTime utcNow)
+        protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(
+            IReadOnlyContext context, 
+            string projectName, 
+            Filter filter, 
+            DateTime utcNow, 
+            ICurrentUserProvider currentUserProvider, 
+            IPermissionCache permissionCache, 
+            IPlantProvider plantProvider)
         {
+
+            var projectNames = new List<string>();
+
+            if (projectName == null)
+            {
+                projectNames.AddRange(permissionCache.GetProjectsForUserAsync(plantProvider.Plant, currentUserProvider.GetCurrentUserOid()).GetAwaiter().GetResult());
+            }
+            else
+            {
+                projectNames.Add(projectName);
+            }
+
             var startOfThisWeekUtc = DateTime.MinValue;
             var startOfNextWeekUtc = DateTime.MinValue;
             var startOfTwoWeeksUtc = DateTime.MinValue;
@@ -26,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
 
             var queryable = from invitation in context.QuerySet<Invitation>()
-                where invitation.ProjectName == projectName &&
+                where projectNames.Contains(invitation.ProjectName) &&
                       (!filter.PunchOutDates.Any() ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
                            (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
@@ -106,6 +125,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                         case SortingProperty.AcceptedAtUtc:
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.AcceptedAtUtc);
                             break;
+                        case SortingProperty.ProjectName:
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy( dto => dto.ProjectName);
+                            break;
                         default:
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
                             break;
@@ -135,6 +157,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                             break;
                         case SortingProperty.AcceptedAtUtc:
                             invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.AcceptedAtUtc);
+                            break;
+                        case SortingProperty.ProjectName:
+                            invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.ProjectName);
                             break;
                         default:
                             invitationForQueryDtos = invitationForQueryDtos.OrderByDescending(dto => dto.Id);

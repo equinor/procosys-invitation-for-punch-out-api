@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -20,17 +19,19 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPlantProvider _plantProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IPermissionCache _permissionCache;
 
         public InvitationValidator(IReadOnlyContext context,
             ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
-            IPlantProvider plantProvider
-            )
+            IPlantProvider plantProvider,
+            IPermissionCache permissionCache)
         {
             _context = context;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _plantProvider = plantProvider;
+            _permissionCache = permissionCache;
         }
 
         public async Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken) =>
@@ -65,16 +66,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return isValidEmail && participant.InvitedPerson == null && participant.InvitedFunctionalRole == null;
         }
 
-        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson)
-        {
-            if (invitedPerson.Email == null && (invitedPerson.AzureOid == Guid.Empty || invitedPerson.AzureOid == null))
-            {
-                return false;
-            }
-
-            return invitedPerson.AzureOid != Guid.Empty && invitedPerson.AzureOid != null ||
-                   new EmailAddressAttribute().IsValid(invitedPerson.Email);
-        }
+        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson) 
+            => invitedPerson.AzureOid != Guid.Empty;
 
         private bool IsValidPersonParticipant(ParticipantsForCommand participant)
             => IsValidPerson(participant.InvitedPerson) && participant.InvitedExternalEmail == null && participant.InvitedFunctionalRole == null;
@@ -175,6 +168,143 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                       where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
                       select p).AnyAsync(cancellationToken);
 
+        public async Task<bool> ParticipantIsSignedAsync(int id, int invitationId, CancellationToken cancellationToken)
+            => await (from p in _context.QuerySet<Participant>()
+                      where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null && p.SignedAtUtc != null
+                      select p).AnyAsync(cancellationToken);
+
+        public async Task<bool> SortKeyCannotBeChangedForSignedFirstSignersAsync(IList<ParticipantsForEditCommand> participants,
+            int invitationId, CancellationToken token)
+        {
+            var existingSignedFirstSigners = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedAtUtc != null && p.SortKey < 2
+                select p).ToListAsync(token);
+
+            try
+            {
+                foreach (var existing in existingSignedFirstSigners)
+                {
+                    var participantInCommand = participants.Single(p =>
+                        p.InvitedFunctionalRoleToEdit?.Id == existing.Id || p.InvitedPersonToEdit?.Id == existing.Id);
+                    if (participantInCommand.InvitedFunctionalRoleToEdit != null)
+                    {
+                        if (participantInCommand.InvitedFunctionalRoleToEdit.Code != existing.FunctionalRoleCode ||
+                            participantInCommand.Organization != existing.Organization || participantInCommand.SortKey != existing.SortKey)
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (participantInCommand.InvitedPersonToEdit != null)
+                    {
+                        if (participantInCommand.InvitedPersonToEdit.AzureOid != existing.AzureOid ||
+                            participantInCommand.Organization != existing.Organization || participantInCommand.SortKey != existing.SortKey)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SignedParticipantsCannotBeAlteredAsync(IList<ParticipantsForEditCommand> participants,
+            int invitationId, CancellationToken token)
+        {
+            var existingSignedParticipants = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null
+                select p).ToListAsync(token);
+            var participantIds = participants.Select(p => 
+                p.InvitedFunctionalRoleToEdit != null ? p.InvitedFunctionalRoleToEdit.Id : p.InvitedPersonToEdit?.Id)
+                .Where(id => id != null).ToList();
+            var existingParticipantIds = existingSignedParticipants.Select(p => p.Id).ToList();
+            var allSignedParticipantsRemain = existingParticipantIds.All(p => participantIds.Contains(p));
+
+            if (!allSignedParticipantsRemain)
+            {
+                return false;
+            }
+
+            foreach (var existing in existingSignedParticipants)
+            {
+                var participantInCommand = participants.Single(p => p.InvitedFunctionalRoleToEdit?.Id == existing.Id || p.InvitedPersonToEdit?.Id == existing.Id);
+                if (participantInCommand.InvitedFunctionalRoleToEdit != null)
+                {
+                    if (participantInCommand.InvitedFunctionalRoleToEdit.Code != existing.FunctionalRoleCode)
+                    {
+                        return false;
+                    }
+                }
+                if (participantInCommand.InvitedPersonToEdit != null)
+                {
+                    if (participantInCommand.InvitedPersonToEdit.AzureOid != existing.AzureOid)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
+        {
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
+                select p).SingleAsync(cancellationToken);
+            if (participant.IsAttendedTouched)
+            {
+                return participant.Attended != attended;
+            }
+            return true;
+        }
+
+        public async Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken cancellationToken)
+        {
+            if (await CurrentUserIsAdminAsync())
+            {
+                return true;
+            }
+
+            var invitation = await (from i in _context.QuerySet<Invitation>()
+                where i.Id == invitationId
+                select i).SingleAsync(cancellationToken);
+            
+            switch (invitation.Status)
+            {
+                case IpoStatus.Planned when await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken):
+                case IpoStatus.Completed when await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken):
+                    return true;
+            }
+
+            var participant = await (from p in _context.QuerySet<Participant>()
+                where EF.Property<int>(p, "InvitationId") == invitationId &&
+                      p.Id == id
+                select p).SingleAsync(cancellationToken);
+
+            if (participant.SignedAtUtc != null)
+            {
+                return false;
+            }
+
+            if (participant.FunctionalRoleCode == null &&
+                participant.AzureOid == _currentUserProvider.GetCurrentUserOid())
+            {
+                return true;
+            }
+
+            var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                _plantProvider.Plant,
+                _currentUserProvider.GetCurrentUserOid().ToString(),
+                participant.FunctionalRoleCode);
+            return person != null;
+        }
+
         public async Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
         {
             if (participant.InvitedPerson is InvitedPersonForEditCommand editPerson)
@@ -211,7 +341,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return true;
         }
 
-        public async Task<bool> ValidCompleterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsValidCompleterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
             var participants = await (from participant in _context.QuerySet<Participant>()
                                       where EF.Property<int>(participant, "InvitationId") == invitationId &&
@@ -221,8 +351,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participants.Any(p => p.FunctionalRoleCode != null))
             {
-                return participants
-                    .SingleOrDefault(p => p.Type == IpoParticipantType.FunctionalRole) != null;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    _currentUserProvider.GetCurrentUserOid().ToString(),
+                    participants[0].FunctionalRoleCode);
+                return person != null;
             }
 
             if (participants.SingleOrDefault() == null || participants.Single().Type != IpoParticipantType.Person)
@@ -232,7 +365,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return participants.Single().AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
-        public async Task<bool> ValidAccepterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
             var participants = await (from participant in _context.QuerySet<Participant>()
                                       where EF.Property<int>(participant, "InvitationId") == invitationId &&
@@ -242,9 +375,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participants[0].FunctionalRoleCode != null)
             {
-                return participants
-                           .SingleOrDefault(p => p.SortKey == 1 &&
-                                                 p.Type == IpoParticipantType.FunctionalRole) != null;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    _currentUserProvider.GetCurrentUserOid().ToString(),
+                    participants[0].FunctionalRoleCode);
+                return person != null;
             }
 
             if (participants.Count != 1 || participants[0].Type != IpoParticipantType.Person)
@@ -279,7 +414,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                           participant.Organization == Organization.ConstructionCompany)
                    select participant).AnyAsync(cancellationToken);
 
-        public async Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsValidSigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
             var participant = await (from p in _context.QuerySet<Participant>()
                                      where EF.Property<int>(p, "InvitationId") == invitationId &&
@@ -294,70 +429,90 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 
             if (participant.Type == IpoParticipantType.FunctionalRole)
             {
-                return true;
+                var person = await _personApiService.GetPersonInFunctionalRoleAsync(
+                    _plantProvider.Plant,
+                    _currentUserProvider.GetCurrentUserOid().ToString(),
+                    participant.FunctionalRoleCode);
+                return person != null;
             }
 
             return participant.AzureOid == _currentUserProvider.GetCurrentUserOid();
         }
 
-        public async Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken)
         {
-            var completingPerson = await (from i in _context.QuerySet<Invitation>()
-                                          join p in _context.QuerySet<Person>() on i.CompletedBy equals p.Id
-                                          where i.Id == invitationId
-                                          select p).SingleOrDefaultAsync(cancellationToken);
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
+            if (hasAdminPermission)
+            {
+                return true;
+            }
 
-            return completingPerson != null && _currentUserProvider.GetCurrentUserOid() == completingPerson.Oid;
+            return await CurrentUserIsValidSigningParticipantAsync(invitationId, participantId, cancellationToken);
         }
 
-        public async Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken)
         {
-            var acceptingPerson = await (from i in _context.QuerySet<Invitation>()
-                                         join p in _context.QuerySet<Person>() on i.AcceptedBy equals p.Id
-                                         where i.Id == invitationId
-                                         select p).SingleOrDefaultAsync(cancellationToken);
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
+            if (hasAdminPermission)
+            {
+                return true;
+            }
 
-            return acceptingPerson != null && _currentUserProvider.GetCurrentUserOid() == acceptingPerson.Oid;
+            return await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken);
         }
 
-        public async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken)
+        public async Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken)
+        {
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
+            if (hasAdminPermission)
+            {
+                return true;
+            }
+
+            return await CurrentUserIsValidAccepterParticipantAsync(invitationId, cancellationToken);
+        }
+
+        public async Task<bool> CurrentUserIsAllowedToCancelIpoAsync(int invitationId, CancellationToken cancellationToken)
+        {
+            var currentUserIsAdminOrCompletor =
+                await CurrentUserIsAdminOrValidCompletorParticipantAsync(invitationId, cancellationToken);
+            if (currentUserIsAdminOrCompletor)
+            {
+                return true;
+            }
+
+            return await CurrentUserIsCreatorOfIpoAsync(invitationId, cancellationToken);
+        }
+
+        public async Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken)
+        {
+            var hasAdminPermission = await CurrentUserIsAdminAsync();
+            if (hasAdminPermission)
+            {
+                return true;
+            }
+
+            return await CurrentUserIsCreatorOfIpoAsync(invitationId, cancellationToken);
+        }
+
+        private async Task<bool> CurrentUserIsCreatorOfIpoAsync(int invitationId, CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
             var currentUserId = await (from person in _context.QuerySet<Person>()
-                                       where person.Oid == currentUserOid
-                                       select person.Id)
-                                   .SingleAsync(cancellationToken);
+                    where person.Oid == currentUserOid
+                    select person.Id)
+                .SingleAsync(cancellationToken);
 
             var createdById = await (from invitation in _context.QuerySet<Invitation>()
-                                     where invitation.Id == invitationId
-                                     select invitation.CreatedById)
-                              .SingleAsync(cancellationToken);
+                    where invitation.Id == invitationId
+                    select invitation.CreatedById)
+                .SingleAsync(cancellationToken);
 
-            if (currentUserId == createdById)
-            {
-                return true;
-            }
-            else
-            {
-                // allow if user is member of contractor functional role
-                var contractorParticipants = await (from participant in _context.QuerySet<Participant>()
-                                          where EF.Property<int>(participant, "InvitationId") == invitationId &&
-                                                participant.Organization == Organization.Contractor
-                                          select participant).ToListAsync(cancellationToken);
-
-                if (contractorParticipants.Any(p => p.FunctionalRoleCode != null))
-                {
-                    var contractorCode = contractorParticipants.First().FunctionalRoleCode;
-                    var person = await _personApiService.GetPersonInFunctionalRoleAsync(
-                               _plantProvider.Plant,
-                               currentUserOid.ToString(),
-                               contractorCode);
-
-                    return person != null && new Guid(person.AzureOid) == currentUserOid;
-                }
-                return false;
-            };
+            return currentUserId == createdById;
         }
+
+        private async Task<bool> CurrentUserIsAdminAsync()
+            => await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider);
     }
 }

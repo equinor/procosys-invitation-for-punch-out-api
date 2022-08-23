@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             IInvitationValidator invitationValidator,
             IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
 
             async Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitation(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(invitationId, cancellationToken);
+                => await invitationValidator.CurrentUserIsAllowedToCancelIpoAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsNotCanceled(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);

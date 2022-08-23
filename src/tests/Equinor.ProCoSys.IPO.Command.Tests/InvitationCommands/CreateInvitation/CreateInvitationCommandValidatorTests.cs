@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -33,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                new InvitedPersonForCreateCommand(new Guid(), true),
                 null,
                 1)
         };
@@ -62,9 +63,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldBeValid_WhenOkState()
+        public async Task Validate_ShouldBeValid_WhenOkState()
         {
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsTrue(result.IsValid);
         }
@@ -86,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants cannot be null!"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Participants must be invited!"));
         }
 
         [TestMethod]
@@ -270,11 +271,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenScopeIsInvalid()
+        public async Task Validate_ShouldFail_WhenScopeIsInvalid()
         {
             _invitationValidatorMock.Setup(inv => inv.IsValidScope(_type, new List<string>(), _commPkgScope)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -282,23 +283,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantListIsInvalid()
+        public async Task Validate_ShouldFail_WhenParticipantListIsInvalid()
         {
             _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
-            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Each participant must contain an email"));
+            Assert.IsTrue(result.Errors[0].ErrorMessage.Equals("Each participant must contain an oid!"));
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenParticipantListDoesNotHaveRequiredParticipants()
+        public async Task Validate_ShouldFail_WhenParticipantListDoesNotHaveRequiredParticipants()
         {
             _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -306,11 +307,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public void Validate_ShouldFail_WhenRequiredParticipantsDoNotHaveLowestSortKeys()
+        public async Task Validate_ShouldFail_WhenRequiredParticipantsDoNotHaveLowestSortKeys()
         {
             _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(_participants)).Returns(false);
 
-            var result = _dut.Validate(_command);
+            var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -331,7 +332,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(
@@ -379,7 +380,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                     new ParticipantsForCommand(
                         Organization.ConstructionCompany,
                         null,
-                        new InvitedPersonForCreateCommand(null, "ola@test.com", true),
+                        new InvitedPersonForCreateCommand(new Guid(), true),
                         null,
                         1),
                     new ParticipantsForCommand(

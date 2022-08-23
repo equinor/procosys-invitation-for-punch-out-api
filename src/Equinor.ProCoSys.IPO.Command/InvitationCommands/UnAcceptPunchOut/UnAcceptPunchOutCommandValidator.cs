@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
     {
         public UnAcceptPunchOutCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
@@ -29,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
                 .MustAsync((command, cancellationToken) => BeAnAccepterOnIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "The IPO does not have a construction company assigned to accept the IPO!")
-                .MustAsync((command, cancellationToken) => BeThePersonWhoAccepted(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => BeAdminOrThePersonWhoAccepted(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    "Person trying to unaccept is not the person who accepted the IPO!");
+                    "Person trying to unaccept is not an admin and not the person who accepted the IPO!");
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
@@ -42,8 +42,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut
             async Task<bool> BeAnAccepterOnIpo(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoHasAccepterAsync(invitationId, cancellationToken);
 
-            async Task<bool> BeThePersonWhoAccepted(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.SameUserUnAcceptingThatAcceptedAsync(invitationId, cancellationToken);
+            async Task<bool> BeAdminOrThePersonWhoAccepted(int invitationId, CancellationToken cancellationToken)
+                => await invitationValidator.CurrentUserIsAdminOrValidAccepterParticipantAsync(invitationId, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

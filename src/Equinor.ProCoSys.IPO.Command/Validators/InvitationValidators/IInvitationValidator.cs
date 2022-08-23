@@ -11,6 +11,11 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         bool IsValidScope(DisciplineType type, IList<string> mcPkgScope, IList<string> commPkgScope);
         Task<bool> ParticipantWithIdExistsAsync(ParticipantsForCommand participant, int invitationId, CancellationToken token);
         Task<bool> ParticipantExistsAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> ParticipantIsSignedAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> SignedParticipantsCannotBeAlteredAsync(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken token);
+        Task<bool> SortKeyCannotBeChangedForSignedFirstSignersAsync(IList<ParticipantsForEditCommand> participants, int invitationId, CancellationToken token);
+        Task<bool> HasPermissionToEditParticipantAsync(int id, int invitationId, CancellationToken token);
+        Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken);
         bool IsValidParticipantList(IList<ParticipantsForCommand> participants);
         bool RequiredParticipantsMustBeInvited(IList<ParticipantsForCommand> participants);
         bool OnlyRequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants);
@@ -18,14 +23,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         Task<bool> AttachmentWithFileNameExistsAsync(int invitationId, string fileName, CancellationToken cancellationToken);
         Task<bool> IpoExistsAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoIsInStageAsync(int invitationId, IpoStatus stage, CancellationToken cancellationToken);
-        Task<bool> ValidCompleterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> ValidAccepterParticipantExistsAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidCompleterParticipantAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoHasCompleterAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> IpoHasAccepterAsync(int invitationId, CancellationToken cancellationToken);
         Task<bool> SignerExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> ValidSigningParticipantExistsAsync(int invitationId, int participantId, CancellationToken cancellationToken);
-        Task<bool> CurrentUserIsCreatorOrIsInContractorFunctionalRoleOfInvitationAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> SameUserUnCompletingThatCompletedAsync(int invitationId, CancellationToken cancellationToken);
-        Task<bool> SameUserUnAcceptingThatAcceptedAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsValidSigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidUnsigningParticipantAsync(int invitationId, int participantId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAllowedToCancelIpoAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidCompletorParticipantAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAdminOrValidAccepterParticipantAsync(int invitationId, CancellationToken cancellationToken);
+        Task<bool> CurrentUserIsAllowedToDeleteIpoAsync(int invitationId, CancellationToken cancellationToken);
     }
 }

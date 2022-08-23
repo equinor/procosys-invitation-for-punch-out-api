@@ -7,7 +7,8 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson
     {
         public CreatePersonCommandValidator()
         {
-            CascadeMode = CascadeMode.Stop;
+            RuleLevelCascadeMode = CascadeMode.Stop;
+            ClassLevelCascadeMode = CascadeMode.Stop;
 
             RuleFor(x => x.Email)
                 .NotEmpty()

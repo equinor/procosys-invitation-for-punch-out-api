@@ -14,10 +14,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
         public GetInvitationsQuery(string projectName, Sorting sorting = null, Filter filter = null, Paging paging = null)
         {
-            if (string.IsNullOrEmpty(projectName))
-            {
-                throw new ArgumentNullException(nameof(projectName));
-            }
             ProjectName = projectName;
             Sorting = sorting ?? new Sorting(DefaultSortingDirection, DefaultSortingProperty);
             Filter = filter ?? new Filter();

@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
+﻿using System.Linq;
+
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
     public class ProCoSysMcPkg
     {
@@ -8,6 +10,9 @@
         public string DisciplineCode { get; set; }
         public string CommPkgNo { get; set; }
         public string System { get; set; }
-        public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
+        public string Section
+            => System.Count(s => s == '|') == 2
+                ? System.Substring(0, System.IndexOf('|'))
+                : null;
     }
 }

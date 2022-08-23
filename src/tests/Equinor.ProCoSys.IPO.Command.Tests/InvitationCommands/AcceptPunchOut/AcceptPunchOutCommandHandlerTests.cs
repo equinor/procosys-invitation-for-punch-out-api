@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,11 +16,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
     [TestClass]
     public class AcceptPunchOutCommandHandlerTests
     {
-        private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
 
         private AcceptPunchOutCommand _command;
@@ -63,32 +58,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         [TestInitialize]
         public void Setup()
         {
-            _plantProviderMock = new Mock<IPlantProvider>();
-            _plantProviderMock
-                .Setup(x => x.Plant)
-                .Returns(_plant);
-
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
-
-            //mock person response from main API
-            var personDetails = new ProCoSysPerson
-            {
-                AzureOid = _azureOidForCurrentUser.ToString(),
-                FirstName = _firstName,
-                LastName = _lastName,
-                Email = "ola@test.com",
-                UserName = "ON"
-            };
-
-            _personApiServiceMock = new Mock<IPersonApiService>();
-            _personApiServiceMock
-                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
-                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
-                .Returns(Task.FromResult(personDetails));
 
             //create invitation
             _invitation = new Invitation(
@@ -157,12 +131,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 _participantRowVersion,
                 _participantsToChange);
 
-            _dut = new AcceptPunchOutCommandHandler(
-                _plantProviderMock.Object,
-                _invitationRepositoryMock.Object,
+            _dut = new AcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personApiServiceMock.Object,
                 _personRepositoryMock.Object);
         }
 
