@@ -165,7 +165,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
             services.AddApplicationInsightsTelemetry(options =>
             {
-                options.ConnectionString = Configuration["ApplicationInsights:InstrumentationKey"];
+                options.ConnectionString = Configuration["ApplicationInsights:ConnectionString"];
             });
             services.AddMediatrModules();
             services.AddApplicationModules(Configuration);
