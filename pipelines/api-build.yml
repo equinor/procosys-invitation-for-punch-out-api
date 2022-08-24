@@ -45,7 +45,6 @@ stages:
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
     testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
 
-
   jobs:
   # Run Test
   - template: /templates/pipelines/runtest.yml@templates
@@ -97,21 +96,6 @@ stages:
       buildContext: '$(Build.SourcesDirectory)/src'
       repository: '${{ variables.repositoryName }}'
       dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
-
-      # Docker Push (Master Only)
-  # - template: /templates/pipelines/dockerbuild-ipo.yml@templates
-  #   parameters:
-  #     deploymentName: 'docker_push_master_only'
-  #     dependsOn: 'docker_build_master_only'
-  #     condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
-  #     envGroup: '${{ variables.envGroupName }}'
-  #     arguments: ''
-  #     buildCommand: push
-  #     versionNumber: ${{ variables.versionNumber }}
-  #     dockerfilePath: '${{ variables.dockerfilePath }}'
-  #     buildContext: '$(Build.SourcesDirectory)/src'
-  #     repository: '${{ variables.repositoryName }}'
-  #     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnection }}'
 
   # Create Migration Script
   - template: /templates/pipelines/createsqlmigrate-ipo.yml@templates
@@ -274,4 +258,3 @@ stages:
       replicas: 3      
       leaderElectorDockerImage: '${{ variables.leaderElectorDockerImage }}'
       leaderElectorLeaseTime: '${{ variables.leaderElectorLeaseTime }}'
-

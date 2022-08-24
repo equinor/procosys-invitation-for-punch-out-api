@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -13,15 +14,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
     public class IpoUnAcceptedEventHandlerTests
     {
         private IpoUnAcceptedEventHandler _dut;
-        private Mock<ITopicClient> _topicClient;
+        private Mock<ServiceBusSender> _serviceBusSender;
         private PcsBusSender _pcsBusSender;
 
         [TestInitialize]
         public void Setup()
         {
-            _topicClient = new Mock<ITopicClient>();
+            _serviceBusSender = new Mock<ServiceBusSender>();
             _pcsBusSender = new PcsBusSender();
-            _pcsBusSender.Add("ipo", _topicClient.Object);
+            _pcsBusSender.Add("ipo", _serviceBusSender.Object);
             _dut = new IpoUnAcceptedEventHandler(_pcsBusSender);
         }
 
@@ -30,14 +31,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "TestPlant";
-            var ipoUnAcceptedEvent = new IpoUnAcceptedEvent(plant, objectGuid);
+            const string Plant = "TestPlant";
+            var ipoUnAcceptedEvent = new IpoUnAcceptedEvent(Plant, objectGuid);
 
             // Act
             await _dut.Handle(ipoUnAcceptedEvent, default);
 
             // Assert
-            _topicClient.Verify(t => t.SendAsync(It.IsAny<Message>()), Times.Once());
+            _serviceBusSender.Verify(t => t.SendMessageAsync(It.IsAny<ServiceBusMessage>(),
+                It.IsAny<CancellationToken>()), Times.Once());
         }
     }
 }
