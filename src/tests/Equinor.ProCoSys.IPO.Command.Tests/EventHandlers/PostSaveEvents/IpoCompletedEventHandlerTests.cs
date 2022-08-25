@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
     public class IpoCompletedEventHandlerTests
     {
         private IpoCompletedEventHandler _dut;
-        private Mock<ITopicClient> _topicClient;
+        private Mock<ServiceBusSender> _serviceBusSender;
         private PcsBusSender _pcsBusSender;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IEmailService> _emailServiceMock;
@@ -26,9 +26,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         [TestInitialize]
         public void Setup()
         {
-            _topicClient = new Mock<ITopicClient>();
+            _serviceBusSender = new Mock<ServiceBusSender>();
             _pcsBusSender = new PcsBusSender();
-            _pcsBusSender.Add("ipo", _topicClient.Object);
+            _pcsBusSender.Add("ipo", _serviceBusSender.Object);
 
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
             _meetingOptionsMock.Setup(m => m.CurrentValue).Returns(new MeetingOptions() { PcsBaseUrl = "baseUrl"});
@@ -42,15 +42,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "TestPlant";
+            const string Plant = "TestPlant";
             var emails = new List<string> {"email1@test.com", "email2@test.com"};
-            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, 1234, "Invitation title", emails);
+            var ipoCompletedEvent = new IpoCompletedEvent(Plant, objectGuid, 1234, "Invitation title", emails);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);
 
             // Assert
-            _topicClient.Verify(t => t.SendAsync(It.IsAny<Message>()), Times.Once());
+            _serviceBusSender.Verify(t => t.SendMessageAsync(It.IsAny<ServiceBusMessage>(),It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [TestMethod]

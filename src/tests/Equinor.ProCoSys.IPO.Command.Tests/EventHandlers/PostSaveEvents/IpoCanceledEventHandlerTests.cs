@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -14,15 +15,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
     public class IpoCanceledEventHandlerTests
     {
         private IpoCanceledEventHandler _dut;
-        private Mock<ITopicClient> _topicClient;
+        private Mock<ServiceBusSender> _serviceBusSender;
         private PcsBusSender _pcsBusSender;
 
         [TestInitialize]
         public void Setup()
         {
-            _topicClient = new Mock<ITopicClient>();
+            _serviceBusSender = new Mock<ServiceBusSender>();
             _pcsBusSender = new PcsBusSender();
-            _pcsBusSender.Add("ipo", _topicClient.Object);
+            _pcsBusSender.Add("ipo", _serviceBusSender.Object);
             _dut = new IpoCanceledEventHandler(_pcsBusSender);
         }
 
@@ -31,14 +32,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         {
             // Arrange
             var objectGuid = Guid.NewGuid();
-            var plant = "TestPlant";
-            var ipoCanceledEvent = new IpoCanceledEvent(plant, objectGuid, IpoStatus.Canceled);
+            const string Plant = "TestPlant";
+            var ipoCanceledEvent = new IpoCanceledEvent(Plant, objectGuid, IpoStatus.Canceled);
 
             // Act
             await _dut.Handle(ipoCanceledEvent, default);
 
             // Assert
-            _topicClient.Verify(t => t.SendAsync(It.IsAny<Message>()), Times.Once());
+            _serviceBusSender.Verify(t => t.SendMessageAsync(It.IsAny<ServiceBusMessage>(),
+                It.IsAny<CancellationToken>()), 
+                Times.Once());
         }
     }
 }
