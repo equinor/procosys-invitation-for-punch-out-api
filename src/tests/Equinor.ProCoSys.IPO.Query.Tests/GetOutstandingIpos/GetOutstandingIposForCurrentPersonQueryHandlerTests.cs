@@ -310,6 +310,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var secondOutstandingInvitation = result.Data.Items.ElementAt(1);
                 Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id, secondOutstandingInvitation.InvitationId);
                 Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description, secondOutstandingInvitation.Description);
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
             }
         }
 
@@ -347,6 +348,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 Assert.AreEqual(0, result.Data.Items.Count());
                 Assert.AreEqual(ResultType.Ok, result.ResultType);
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Never);
             }
         }
 
@@ -379,6 +381,37 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
                 Assert.AreEqual(0, existingUncancelledInvitations);
+
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider);
+
+                await dut.Handle(_query, default);
+
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Never);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldNotCheckForPersonsFunctionalRoles_WhenNoFunctionalRolesOnIpos()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithFunctionalRoleParticipant =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
+
+                var cancelledInvitation = context.Invitations.Single(i => i.Id == _cancelledInvitation.Id);
+
+                var invitationWithFunctionalRoleParticipantContractor =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantContractor.Id);
+
+                context.Remove(invitationWithFunctionalRoleParticipant);
+                context.Remove(cancelledInvitation);
+                context.Remove(invitationWithFunctionalRoleParticipantContractor);
+
+                context.SaveChangesAsync().Wait();
+
+                var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
+                Assert.AreEqual(2, existingUncancelledInvitations);
 
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider);
@@ -427,6 +460,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description,
                     outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
             }
         }
 
@@ -468,6 +502,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
                 Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description,
                     outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
             }
         }
 
