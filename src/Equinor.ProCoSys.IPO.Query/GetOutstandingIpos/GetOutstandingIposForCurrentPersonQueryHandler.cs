@@ -49,10 +49,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                                                      select i).ToListAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<Invitation>();
+                var listHasFunctionalRoles =
+                    nonCancelledInvitations.Any(i => i.Participants.Any(p => p.FunctionalRoleCode != null));
+                IList<string> currentUsersFunctionalRoleCodes = null;
+                if (listHasFunctionalRoles)
+                {
+                    currentUsersFunctionalRoleCodes = await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
+                }
+
                 foreach (var invitation in nonCancelledInvitations)
                 {
-                    var currentUsersFunctionalRoleCodes =
-                        await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
                     if (UserWasInvitedAsPersonParticipant(invitation, currentUserOid))
                     {
