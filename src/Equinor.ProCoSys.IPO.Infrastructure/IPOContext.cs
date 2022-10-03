@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             SetGlobalPlantFilter(modelBuilder);
+            SetIndexes(modelBuilder);
+        }
+
+        private void SetIndexes(ModelBuilder modelBuilder)
+        {
+            //Improve GetOutstandingIPOs performance
+
+            modelBuilder.Entity<Invitation>()
+            .HasIndex(i => i.Plant)
+            .HasFilter("[Status] <> 3")
+            .IncludeProperties(i => new { i.Description, i.Status });
+
+            modelBuilder.Entity<Participant>()
+            .HasIndex("[InvitationId]", "[Plant]")
+            .IncludeProperties("[AzureOid], [FunctionalRoleCode], [Organization], [SignedAtUtc], [SortKey], [Type], [SignedBy]");
         }
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();

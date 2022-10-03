@@ -37,12 +37,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
         {
             try
             {
-                //NEW
-                var outstandingIPOsNew = await GetOustandingIPOsNew(request, cancellationToken);
-
-                //OLD
+                var outstandingIPOs = await GetOustandingIPOsNew(request, cancellationToken);
                 //var outstandingIPOs = await GetOustandingIPOsOld(request, cancellationToken);
-                return new SuccessResult<OutstandingIposResultDto>(outstandingIPOsNew);
+                return new SuccessResult<OutstandingIposResultDto>(outstandingIPOs);
             }
             catch (Exception)
             {
@@ -57,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
             var spElapsed = Stopwatch.StartNew();
-
+           
             var nonCancelledInvitations =
               await (from i in _context.QuerySet<Invitation>()
                      join p in _context.QuerySet<Participant>() on i.Id equals EF.Property<int>(p, "InvitationId")
@@ -79,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 
                      })
                      .ToListAsync(cancellationToken);
+           
 
             var elapsedProjection = spElapsed.ElapsedMilliseconds;
             spElapsed.Restart();
@@ -104,7 +102,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                             FunctionalRoleCode = p.FunctionalRoleCode,
                             Organization = p.Organization,
                             SignedAtUtc = p.SignedAtUtc,
-                            SignedBy = p.SignedBy
+                            SignedBy = p.SignedBy,
+                            SortKey = p.SortKey,
+                            Type = p.Type
                         }).ToList(),
 
                     }
@@ -112,10 +112,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             }
 
 
-            //We could have filtered based on project access, however
-            //the scenario that a person should lose access to a single project
-            //in a plant after being added to the invitation is (according to the client)
-            //so unlikely that we do not need to take it into consideration
+           
 
             var currentUsersOutstandingInvitations = new List<InvitationDto>();
 
