@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         private void SetIndexes(ModelBuilder modelBuilder)
         {
-            //Improve GetOutstandingIPOs performance
+            //Improve GetOutstandingIPOs performance          
 
             modelBuilder.Entity<Invitation>()
             .HasIndex(i => i.Plant)
@@ -51,8 +51,17 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             .IncludeProperties(i => new { i.Description, i.Status });
 
             modelBuilder.Entity<Participant>()
-            .HasIndex("[InvitationId]", "[Plant]")
-            .IncludeProperties("[AzureOid], [FunctionalRoleCode], [Organization], [SignedAtUtc], [SortKey], [Type], [SignedBy]");
+            .HasIndex("InvitationId", "Plant")
+              .IncludeProperties(p => new
+              {
+                  p.AzureOid,
+                  p.FunctionalRoleCode,
+                  p.Organization,
+                  p.SignedAtUtc,
+                  p.SortKey,
+                  p.Type,
+                  p.SignedBy
+              });
         }
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();
