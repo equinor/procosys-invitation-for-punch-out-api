@@ -44,14 +44,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 //so unlikely that we do not need to take it into consideration
                 var nonCancelledInvitations = await (from i in _context.QuerySet<Invitation>()
                         .Include(ss => ss.Participants)
-                                                     where !i.AcceptedAtUtc.HasValue
                                                      where i.Status != IpoStatus.Canceled
                                                      select i).ToListAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<Invitation>();
                 var listHasFunctionalRoles =
                     nonCancelledInvitations.Any(i => i.Participants.Any(p => p.FunctionalRoleCode != null));
-                IList<string> currentUsersFunctionalRoleCodes = null;
+                IList<string> currentUsersFunctionalRoleCodes = new List<string>();
                 if (listHasFunctionalRoles)
                 {
                     currentUsersFunctionalRoleCodes = await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
@@ -73,8 +72,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 var outstandingIposResultDto = new OutstandingIposResultDto(
                     currentUsersOutstandingInvitations.Select(invitation =>
                     {
-                        var organization = invitation.CompletedAtUtc.HasValue ? 
-                            Organization.ConstructionCompany : Organization.Contractor;
+                        var organization = invitation.Participants.First(p =>
+                            p.AzureOid == currentUserOid ||
+                            currentUsersFunctionalRoleCodes.Contains(p.FunctionalRoleCode)).Organization;
                         return new OutstandingIpoDetailsDto
                         {
                             InvitationId = invitation.Id,
