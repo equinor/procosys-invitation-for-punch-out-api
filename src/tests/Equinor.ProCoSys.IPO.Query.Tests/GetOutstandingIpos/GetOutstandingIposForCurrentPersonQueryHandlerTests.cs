@@ -45,6 +45,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
+            _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
+
             _query = new GetOutstandingIposForCurrentPersonQuery();
 
             _person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
@@ -282,7 +284,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
+              
 
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
@@ -295,9 +297,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         public async Task Handle_ShouldReturnCorrectItems()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
-            {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
-
+            {             
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
 
@@ -349,8 +349,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
-
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 IList<string> emptyListOfFunctionalRoleCodes = new List<string>();
                 _meApiServiceMock
@@ -401,8 +399,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
-
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
@@ -447,9 +443,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
                 Assert.AreEqual(0, existingUncancelledInvitations);
-
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
-
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
@@ -480,8 +473,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
                 Assert.AreEqual(3, existingUncancelledInvitations);
-
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
@@ -507,7 +498,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
@@ -556,7 +546,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
@@ -598,7 +587,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             {
                 _currentUserProviderMock = new Mock<ICurrentUserProvider>();
                 _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
-                _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
+               
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProviderMock.Object,
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
