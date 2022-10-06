@@ -9,10 +9,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Participants_InvitationId",
-                table: "Participants");
-
             migrationBuilder.CreateIndex(
                 name: "IX_Participants_InvitationId_Plant",
                 table: "Participants",
@@ -35,12 +31,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_Invitations_Plant",
-                table: "Invitations");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Participants_InvitationId",
-                table: "Participants",
-                column: "InvitationId");
+                table: "Invitations");       
         }
     }
 }
