@@ -32,6 +32,19 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .WithMany()
                 .HasForeignKey(x => x.SignedBy)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder
+                .HasIndex("InvitationId", "Plant")
+                .IncludeProperties(p => new
+                {
+                    p.AzureOid,
+                    p.FunctionalRoleCode,
+                    p.Organization,
+                    p.SignedAtUtc,
+                    p.SortKey,
+                    p.Type,
+                    p.SignedBy
+                });
         }
     }
 }

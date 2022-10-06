@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             SetGlobalPlantFilter(modelBuilder);
-        }
+        }      
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();
         

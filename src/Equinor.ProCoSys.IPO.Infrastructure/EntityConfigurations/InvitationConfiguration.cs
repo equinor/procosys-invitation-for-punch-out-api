@@ -88,6 +88,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .WithMany()
                 .HasForeignKey(x => x.AcceptedBy)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder
+                .HasIndex(i => i.Plant)
+                .HasFilter("[Status] <> 3")
+                .IncludeProperties(i => new { i.Description, i.Status });
         }
     }
 }
