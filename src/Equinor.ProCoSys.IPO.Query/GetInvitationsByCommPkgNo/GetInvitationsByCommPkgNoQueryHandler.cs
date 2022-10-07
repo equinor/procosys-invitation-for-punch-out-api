@@ -39,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
                                            i.AcceptedAtUtc,
                                            i.StartTimeUtc,
                                            i.RowVersion.ConvertToString()))
+                    .Distinct()
                     .ToListAsync(cancellationToken);
 
             return new SuccessResult<List<InvitationForMainDto>>(invitations);
