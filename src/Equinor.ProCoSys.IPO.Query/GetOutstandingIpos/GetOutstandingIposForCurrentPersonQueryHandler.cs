@@ -54,7 +54,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                             p.FunctionalRoleCode != null)
                 );
 
-                var currentUsersFunctionalRoleCodes = listHasFunctionalRoles ? await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant) : null;
+                var currentUsersFunctionalRoleCodes = listHasFunctionalRoles
+                    ? await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant)
+                    : new List<string>();
 
                 foreach (var invitation in nonCancelledInvitationsGrouped)
                 {
