@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             if (_environment.IsDevelopment() || _environment.IsTest())
-            {
+            {               
                 var migrateDatabase = Configuration.GetValue<bool>("MigrateDatabase");
                 if (migrateDatabase)
                 {
