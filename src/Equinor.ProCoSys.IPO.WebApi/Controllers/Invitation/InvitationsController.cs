@@ -117,8 +117,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
-            string plant,
+            string plant,           
             [FromRoute] string commPkgNo,
+            [Required]
             [FromQuery] string projectName)
         {
             var result = await _mediator.Send(new GetInvitationsByCommPkgNoQuery(commPkgNo, projectName));
