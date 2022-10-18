@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                .HasIndex("Plant", "InvitationId")
                .IncludeProperties(c => new
                {
-                   c.CommPkgNo                 
+                   c.CommPkgNo
                });
         }
     }
