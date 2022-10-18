@@ -28,6 +28,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.Property(x => x.System)
                 .HasMaxLength(McPkg.SystemMaxLength)
                 .IsRequired();
+
+            builder
+              .HasIndex("Plant", "InvitationId")
+              .IncludeProperties(c => new
+              {
+                  c.CommPkgNo
+              });
         }
     }
 }

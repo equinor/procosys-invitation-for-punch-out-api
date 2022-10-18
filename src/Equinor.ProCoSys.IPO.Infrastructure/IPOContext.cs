@@ -31,10 +31,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             _eventDispatcher = eventDispatcher;
             _currentUserProvider = currentUserProvider;
         }
-
-        // enable these lines to log sql queries locally
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //    => optionsBuilder.LogTo(System.Console.WriteLine);
+       
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.LogTo(System.Console.WriteLine);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
