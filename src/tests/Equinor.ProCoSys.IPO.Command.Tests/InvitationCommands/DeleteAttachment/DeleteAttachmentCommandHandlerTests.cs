@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
     {
         private const string _plant = "PCS$TESTPLANT";
         private const string _projectName = "TestProject";
-        private readonly Project _project = new Project(_plant, _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}");
 
         private Invitation _invitation;
         private Attachment _attachment;

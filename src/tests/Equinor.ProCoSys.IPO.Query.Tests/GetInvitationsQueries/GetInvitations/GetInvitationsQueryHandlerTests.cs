@@ -46,8 +46,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
         private const string _system = "1|2";
-        private readonly Project _project1 = new Project(TestPlant, _projectName, $"Description of {_projectName}");
-        private readonly Project _project2 = new Project(TestPlant, _projectName2, $"Description of {_projectName2}");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

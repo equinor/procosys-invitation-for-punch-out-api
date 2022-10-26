@@ -35,10 +35,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IProjectRepository> _projectRepository;
 
         private const string plant = "PCS$HEIMDAL";
-        private static readonly Project project1 = new Project(plant, $"{project1Name} project", $"Description of {project1Name} project");
+        private static readonly Project project1 = new(plant, $"{project1Name} project", $"Description of {project1Name} project");
         private const string project1Name = "HEIMDAL";
         private const string project2Name = "XYZ";
-        private static readonly Project project2 = new Project($"{plant}", $"{project2Name} project", $"Description of {project2Name} project");
 
         private const string commPkgNo1 = "123";
         private const string commPkgNo2 = "234";

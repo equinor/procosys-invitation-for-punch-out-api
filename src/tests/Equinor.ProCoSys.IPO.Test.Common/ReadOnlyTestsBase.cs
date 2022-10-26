@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
     public abstract class ReadOnlyTestsBase
     {
         protected const string TestPlant = "PCS$PlantA";
-        protected readonly Project Project = new Project(TestPlant, $"{ProjectName} project", $"Description of {ProjectName} project");
+        protected readonly Project Project = new(TestPlant, $"{ProjectName} project", $"Description of {ProjectName} project");
         protected const string ProjectName = "Pname";
         protected const string FilterName = "Fname";
         protected const string Criteria = "Fcriteria";

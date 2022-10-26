@@ -27,9 +27,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project1Id = 430;
         private const int Project2Id = 598;
         private readonly List<Project> _projects = new List<Project>();
-        private readonly Project _project1 = new Project("PCS$TEST_PLANT", $"{_projectName}", $"Description of {_projectName} project");
-        private readonly Project _project2 = new Project("PCS$TEST_PLANT", $"{_projectName2}", $"Description of {_projectName2} project");
-        private readonly Project _project3 = new Project("PCS$TEST_PLANT", $"{_projectName3}", $"Description of {_projectName2} project");
+        private readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
+        private readonly Project _project2 = new("PCS$TEST_PLANT", _projectName2, $"Description of {_projectName2} project");
+        private readonly Project _project3 = new("PCS$TEST_PLANT", _projectName3, $"Description of {_projectName3} project");
 
         private const string _projectName = "ProjectName";
         private const string _projectName2 = "ProjectName2";

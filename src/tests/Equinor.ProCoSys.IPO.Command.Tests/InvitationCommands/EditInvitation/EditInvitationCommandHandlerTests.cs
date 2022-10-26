@@ -49,7 +49,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
-        private readonly Project _project = new Project(_plant, $"{_projectName} project", $"Description of {_projectName} project");
+        private const int _projectId = 320;
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
         private const string _title = "Test title";
         private const string _newTitle = "Test title 2";
         private const string _description = "Test description";
@@ -110,6 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestInitialize]
         public void Setup()
         {
+            _project.SetProtectedIdForTesting(_projectId);
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock
                 .Setup(x => x.Plant)
@@ -325,6 +327,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             _projectRepositoryMock = new Mock<IProjectRepository>();
             _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+            _projectRepositoryMock.Setup(x => x.GetByIdAsync(_projectId)).Returns(Task.FromResult(_project));
 
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
             _meetingOptionsMock.Setup(x => x.CurrentValue)

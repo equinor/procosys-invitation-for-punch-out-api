@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int PersonId = 5;
         private const int SavedFilterId = 51;
         private const string _projectName = "ProjectName";
-        private readonly Project project = new Project("PCS$TEST_PLANT", $"{_projectName} project", $"Description of {_projectName} project");
+        private readonly Project project = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
         private Guid Oid = new Guid("11111111-1111-2222-2222-333333333333");
         private List<Person> _persons;
         private Mock<DbSet<Person>> _dbPersonSetMock;

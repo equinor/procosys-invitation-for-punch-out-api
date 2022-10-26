@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
         private const string _projectName = "Project";
         private const int _projectId = 320;
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
-        private readonly Project _project = new Project("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
 
         [TestInitialize]
         public void Setup()

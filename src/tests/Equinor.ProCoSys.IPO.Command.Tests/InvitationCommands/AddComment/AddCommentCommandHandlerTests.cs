@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         private AddCommentCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private static readonly Project _project1 = new Project(_plant, $"{_projectName} project", $"Description of {_projectName} project");
+        private static readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const string _commentText = "comment text";
@@ -42,14 +42,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             //create invitation
             _invitation = new Invitation(
                 _plant,
-                _project1,
+                _project,
                 _title,
                 _description,
                 _typeDP,
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project1, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2") },
                 null);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();

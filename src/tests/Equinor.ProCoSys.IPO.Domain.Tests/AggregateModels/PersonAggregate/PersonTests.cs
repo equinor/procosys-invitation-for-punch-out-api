@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         private const string ProjectName = "Project name";
         private Person _dut;
         private SavedFilter _savedDefaultFilter;
-        private readonly Project _project = new Project(TestPlant, ProjectName, $"Description of {ProjectName}");
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
 
         [TestInitialize]
         public void Setup()

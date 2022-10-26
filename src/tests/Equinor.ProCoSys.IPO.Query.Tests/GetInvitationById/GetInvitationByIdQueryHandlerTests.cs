@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 const string projectName = "Project1";
-                var project = new Project("PCS$TEST_PLANT", $"{projectName} project", $"Description of {projectName} project");
+                var project = new Project("PCS$TEST_PLANT", projectName, $"Description of {projectName} project");
                 project.SetProtectedIdForTesting(_projectId);
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";

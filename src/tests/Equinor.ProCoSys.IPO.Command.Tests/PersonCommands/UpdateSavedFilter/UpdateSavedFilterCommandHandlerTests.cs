@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
         private bool _newDefaultFilter = true;
         private readonly string _rowVersion = "AAAAAAAAABA=";
         private readonly Guid _currentUserOid = new Guid();
-        private readonly Project _project = new Project("PCS$TEST_PLANT", $"Project", $"Description of Project");
+        private readonly Project _project = new("PCS$TEST_PLANT", $"Project", $"Description of Project");
 
         private UpdateSavedFilterCommand _command;
         private UpdateSavedFilterCommandHandler _dut;

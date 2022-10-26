@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private UnCompletePunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private readonly Project _project = new Project(_plant, _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}");
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const string _firstName = "Ola";

@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 
         private const string _title = "title";
         private const string _projectName = "projectName";
-        private readonly Project _project = new Project("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

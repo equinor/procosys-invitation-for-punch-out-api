@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private const string _plant = "PCS$TEST_PLANT";
-        private readonly Project _project = new Project(_plant, $"Project", $"Description of Project");
+        private readonly Project _project = new(_plant, $"Project", $"Description of Project");
 
         List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {

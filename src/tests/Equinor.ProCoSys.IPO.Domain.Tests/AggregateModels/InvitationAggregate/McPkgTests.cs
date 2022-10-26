@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string McPkgNo = "Mc1";
         private const string Description = "D1";
         private const string System = "1|2";
-        private readonly Project _project = new Project(TestPlant, ProjectName, $"Description of {ProjectName}");
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
 
 
         [TestInitialize]
