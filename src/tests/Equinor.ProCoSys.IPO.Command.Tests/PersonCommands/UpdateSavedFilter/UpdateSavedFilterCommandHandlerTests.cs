@@ -21,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
         private bool _newDefaultFilter = true;
         private readonly string _rowVersion = "AAAAAAAAABA=";
         private readonly Guid _currentUserOid = new Guid();
+        private readonly int _projectId = 320;
         private readonly Project _project = new("PCS$TEST_PLANT", $"Project", $"Description of Project");
 
         private UpdateSavedFilterCommand _command;
@@ -37,9 +38,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
         [TestInitialize]
         public void Setup()
         {
+            _project.SetProtectedIdForTesting(_projectId);
             _projectRepositoryMock = new Mock<IProjectRepository>();
-            //TOOD: JSOI Not needed?
-            //_projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+            _projectRepositoryMock.Setup(x => x.GetByIdAsync(_projectId)).Returns(Task.FromResult(_project));
 
             _person = new Person(_currentUserOid, "FirstName", "LastName", "UserName" ,"email@address.com");
             //_project = new ProCoSysProject() { Id = 0, Description = "", IsClosed = false, Name = "ProjectName" };

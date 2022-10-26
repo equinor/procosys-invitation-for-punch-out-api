@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var person = AddPerson(context, _personOid, "Current", "User", "", "");
                 _savedFilter1 = new SavedFilter(TestPlant, _project, _title, "criteria");
                 _savedFilter2 = new SavedFilter(TestPlant, _project, _title, "C");
-
+                context.Projects.Add(_project);
                 person.AddSavedFilter(_savedFilter1);
                 person.AddSavedFilter(_savedFilter2);
                 context.SaveChangesAsync().Wait();

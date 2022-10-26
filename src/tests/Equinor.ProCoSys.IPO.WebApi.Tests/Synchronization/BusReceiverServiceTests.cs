@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
@@ -35,7 +36,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IProjectRepository> _projectRepository;
 
         private const string plant = "PCS$HEIMDAL";
-        private static readonly Project project1 = new(plant, $"{project1Name} project", $"Description of {project1Name} project");
+        private static readonly Project project1 = new(plant, project1Name, $"Description of {project1Name} project");
+        private const int project1Id = 320;
         private const string project1Name = "HEIMDAL";
         private const string project2Name = "XYZ";
 
@@ -77,6 +79,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [TestInitialize]
         public void Setup()
         {
+            project1.SetProtectedIdForTesting(project1Id);
+
             _invitationRepository = new Mock<IInvitationRepository>();
             _projectRepository = new Mock<IProjectRepository>();
             _plantSetter = new Mock<IPlantSetter>();
@@ -98,6 +102,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _options = new Mock<IOptionsSnapshot<AuthenticatorOptions>>();
             _options.Setup(s => s.Value).Returns(new AuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
             _currentUserSetter = new Mock<ICurrentUserSetter>();
+
+            _projectRepository.Setup(x => x.GetByIdAsync(project1Id)).Returns(Task.FromResult(project1));
 
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,

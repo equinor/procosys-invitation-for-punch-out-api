@@ -42,7 +42,12 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Id.Equals(savedFilterId), cancellationToken); //TODO: JSOI Ought to centralize a query like this??
+            //var project = await _context.QuerySet<SavedFilter>().SingleOrDefaultAsync(x => x.Id.Equals(savedFilterId), cancellationToken); //TODO: JSOI Ought to centralize a query like this??
+            var project = await (from s in _context.QuerySet<SavedFilter>()
+                    join p in _context.QuerySet<Project>() on s.ProjectId equals p.Id
+                    select p)
+                .SingleOrDefaultAsync(cancellationToken);
+
             //var projectName = await (from s in _context.QuerySet<SavedFilter>() 
             //        where s.Id == savedFilterId select s.Project.Name).SingleOrDefaultAsync(cancellationToken);
 
