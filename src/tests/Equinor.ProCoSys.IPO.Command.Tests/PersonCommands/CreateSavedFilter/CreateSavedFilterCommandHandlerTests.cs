@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -14,6 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
     public class CreateSavedFilterCommandHandlerTests : CommandHandlerTestsBase
     {
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IProjectApiService> _projectApiServiceMock;
         private Person _person;
@@ -23,12 +27,19 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
         private const string _title = "T1";
         private const string _criteria = "C1";
         private const string _projectName = "Project";
+        private const int _projectId = 320;
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
+        private readonly Project _project = new Project("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
 
         [TestInitialize]
         public void Setup()
         {
             // Arrange
+            _project.SetProtectedIdForTesting(_projectId);
+            _projectRepositoryMock = new Mock<IProjectRepository>();
+            //TODO: JSOI Is this needed?
+            _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+
             _person = new Person(_currentUserOid, "Current", "User", "", "");
             _personRepositoryMock = new Mock<IPersonRepository>();
             _personRepositoryMock
@@ -57,7 +68,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
                 UnitOfWorkMock.Object,
                 PlantProviderMock.Object,
                 _currentUserProviderMock.Object,
-                _projectApiServiceMock.Object);
+                _projectApiServiceMock.Object,
+                _projectRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -71,7 +83,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
             Assert.AreEqual(0, result.Errors.Count);
             Assert.AreEqual(0, result.Data);
             Assert.IsTrue(savedFilter.DefaultFilter);
-            Assert.AreEqual(_projectName, savedFilter.ProjectName);
+            //Assert.AreEqual(_projectName, savedFilter.ProjectName);
+            Assert.AreEqual(_projectId, savedFilter.ProjectId);
             Assert.AreEqual(_title, savedFilter.Title);
             Assert.AreEqual(_criteria, savedFilter.Criteria);
         }

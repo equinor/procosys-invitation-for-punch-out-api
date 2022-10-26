@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
@@ -42,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Invitation _invitationWithFunctionalRoleParticipantContractor;
         private string _functionalRoleCode = "FR1";
         private const string _projectName = "TestProject";
+        private Project _testProject;
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -50,6 +52,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _query = new GetOutstandingIposForCurrentPersonQuery();
 
             _person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
+
+            _testProject = new Project("TestPlant", "TestProject", "Description for TestProject");
+
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 IList<string> pcsFunctionalRoleCodes = new List<string> { _functionalRoleCode };
@@ -61,74 +66,74 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 _invitationWithPersonParticipantContractor = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation1",
                     "TestDescription1",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _invitationWithFunctionalRoleParticipantConstructionCompany = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation2",
                     "TestDescription2",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _cancelledInvitation = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation3",
                     "TestDescription3",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _invitationWithPersonParticipantConstructionCompany = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation4",
                     "TestDescription4",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _invitationWithFunctionalRoleParticipantContractor = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation5",
                     "TestDescription5",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _acceptedInvitationWithOperationPerson = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _testProject,
                     "TestInvitation6",
                     "TestDescription6",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                     new List<CommPkg>());
 
                 _functionalRoleParticipantConstructionCompany = new Participant(

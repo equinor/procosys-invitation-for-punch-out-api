@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -17,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
     public abstract class ReadOnlyTestsBase
     {
         protected const string TestPlant = "PCS$PlantA";
+        protected readonly Project Project = new Project(TestPlant, $"{ProjectName} project", $"Description of {ProjectName} project");
         protected const string ProjectName = "Pname";
         protected const string FilterName = "Fname";
         protected const string Criteria = "Fcriteria";
@@ -77,6 +79,12 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
         protected abstract void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions);
 
+        protected Project GetProjectById(int projectId)
+        {
+            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            return context.Projects.Single(x => x.Id == projectId);
+        }
+
         protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email)
         {
             var person = new Person(oid, firstName, lastName, userName, email);
@@ -87,8 +95,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
         protected Person AddSavedFiltersToPerson(IPOContext context, Person person)
         {
-            _savedFilter = new SavedFilter(TestPlant, ProjectName, FilterName, Criteria);
-            var filter2 = new SavedFilter(TestPlant, ProjectName, "filter2", Criteria);
+            _savedFilter = new SavedFilter(TestPlant, Project, FilterName, Criteria);
+            var filter2 = new SavedFilter(TestPlant, Project, "filter2", Criteria);
             person.AddSavedFilter(_savedFilter);
             person.AddSavedFilter(filter2);
             context.SaveChangesAsync().Wait();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -15,6 +16,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
     {
         private int _invitationId;
         private const string _projectName = "Project1";
+        private static readonly Project project1 = new Project("PCS$TEST_PLANT", $"{_projectName} project", $"Description of {_projectName} project");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -22,14 +24,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
             {
                 var invitation = new Invitation(
                     TestPlant,
-                    _projectName,
+                    project1,
                     "Title",
                     "Description",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, _projectName, "commno", "mcno", "d", "1|2")},
+                    new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2")},
                     null);
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();

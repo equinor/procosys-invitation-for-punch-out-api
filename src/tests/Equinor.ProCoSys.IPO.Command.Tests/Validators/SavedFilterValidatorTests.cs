@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
@@ -20,8 +22,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private SavedFilter _savedFilter1;
         private SavedFilter _savedFilter2;
 
-        private readonly string _title = "title";
-        private readonly string _projectName = "projectName";
+        private const string _title = "title";
+        private const string _projectName = "projectName";
+        private readonly Project _project = new Project("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -31,8 +34,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 _personOid = new Guid();
 
                 var person = AddPerson(context, _personOid, "Current", "User", "", "");
-                _savedFilter1 = new SavedFilter(TestPlant, _projectName, _title, "criteria");
-                _savedFilter2 = new SavedFilter(TestPlant, _projectName, _title, "C");
+                _savedFilter1 = new SavedFilter(TestPlant, _project, _title, "criteria");
+                _savedFilter2 = new SavedFilter(TestPlant, _project, _title, "C");
 
                 person.AddSavedFilter(_savedFilter1);
                 person.AddSavedFilter(_savedFilter2);

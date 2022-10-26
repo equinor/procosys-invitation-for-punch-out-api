@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
@@ -67,7 +68,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             _savedFilters.Remove(savedFilter);
         }
 
-        public SavedFilter GetDefaultFilter(string projectName) =>
-            _savedFilters.SingleOrDefault(s => s.ProjectName == projectName && s.DefaultFilter);
+        public SavedFilter GetDefaultFilter(Project project) =>
+            //_savedFilters.SingleOrDefault(s => s.Project.Name == project.Name && s.DefaultFilter); //JSOI
+            _savedFilters.SingleOrDefault(s => s.ProjectId == project.Id && s.DefaultFilter);
+
     }
 }

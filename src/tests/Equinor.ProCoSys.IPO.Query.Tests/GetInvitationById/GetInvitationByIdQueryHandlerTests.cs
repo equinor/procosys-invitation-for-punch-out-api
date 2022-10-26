@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationById;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Fusion.Integration.Http.Models;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
@@ -28,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private Invitation _dpInvitation;
         private int _mdpInvitationId;
         private int _dpInvitationId;
+        private const int _projectId = 320;
 
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
@@ -47,6 +50,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 const string projectName = "Project1";
+                var project = new Project("PCS$TEST_PLANT", $"{projectName} project", $"Description of {projectName} project");
+                project.SetProtectedIdForTesting(_projectId);
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
                 const string mcPkgNo = "McPkgNo";
@@ -114,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var commPkg = new CommPkg(
                     TestPlant,
-                    projectName,
+                    project,
                     commPkgNo,
                     description,
                     "OK",
@@ -122,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
-                    projectName,
+                    project,
                     "Title", 
                     "Description",
                     DisciplineType.MDP,
@@ -143,7 +148,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var mcPkg = new McPkg(
                     TestPlant,
-                    projectName,
+                    project,
                     commPkgNo,
                     mcPkgNo,
                     description,
@@ -151,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 _dpInvitation = new Invitation(
                     TestPlant,
-                    projectName,
+                    project,
                     "Title 2",
                     "Description 2",
                     DisciplineType.DP,
@@ -312,7 +317,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 Title = string.Empty
                             })));
 
-
+                context.Projects.Add(project);
                 context.Invitations.Add(_mdpInvitation);
                 context.Invitations.Add(_dpInvitation);
                 context.SaveChangesAsync().Wait();
@@ -937,16 +942,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             }
         }
 
-        private static void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
+        private void AssertInvitation(InvitationDto invitationDto, Invitation invitation)
         {
             var functionalRoleParticipant = invitation.Participants.First();
             var personParticipant = invitation.Participants.ToList()[1];
             var commPkgs = invitation.CommPkgs.Count;
             var mcPkgs = invitation.McPkgs.Count;
-
+            
             Assert.AreEqual(invitation.Title, invitationDto.Title);
             Assert.AreEqual(invitation.Description, invitationDto.Description);
-            Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
+            Assert.AreEqual(GetProjectById(invitation.ProjectId).Name, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Type, invitationDto.Type);
             Assert.AreEqual(functionalRoleParticipant.FunctionalRoleCode, invitationDto.Participants.First().FunctionalRole.Code);
             Assert.IsFalse(invitationDto.Participants.First().CanEditAttendedStatusAndNote);

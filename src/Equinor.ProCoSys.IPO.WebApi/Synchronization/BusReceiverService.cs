@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IApplicationAuthenticator _authenticator;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IBearerTokenSetter _bearerTokenSetter;
+        private readonly IProjectRepository _projectRepository;
         private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
         private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
@@ -43,7 +45,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IApplicationAuthenticator authenticator,
             IOptionsSnapshot<AuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
-            IBearerTokenSetter bearerTokenSetter)
+            IBearerTokenSetter bearerTokenSetter,
+            IProjectRepository projectRepository)
         {
             _invitationRepository = invitationRepository;
             _plantSetter = plantSetter;
@@ -54,6 +57,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _authenticator = authenticator;
             _currentUserSetter = currentUserSetter;
             _bearerTokenSetter = bearerTokenSetter;
+            _projectRepository = projectRepository;
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }
 
@@ -260,10 +264,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         {
             try
             {
+                var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
                 await _mcPkgApiService.ClearM01DatesAsync(
                     ipoEvent.Plant,
                     null,
-                    invitation.ProjectName,
+                    project.Name,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(commPkg => commPkg.CommPkgNo).ToList());
             }
@@ -277,10 +282,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         {
             try
             {
+                var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
                 await _mcPkgApiService.SetM01DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
-                    invitation.ProjectName,
+                    project.Name,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(commPkg => commPkg.CommPkgNo).ToList());
             }
@@ -296,10 +303,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             {
                 try
                 {
+                    var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
                     await _mcPkgApiService.ClearM01DatesAsync(
                         ipoEvent.Plant,
                         invitation.Id,
-                        invitation.ProjectName,
+                        project.Name,
                         invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                         invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
                 }
@@ -314,10 +323,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         {
             try
             {
+                var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
                 await _mcPkgApiService.SetM02DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
-                    invitation.ProjectName,
+                    project.Name,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }
@@ -331,10 +342,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         {
             try
             {
+                var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
                 await _mcPkgApiService.ClearM02DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
-                    invitation.ProjectName,
+                    project.Name,
                     invitation.McPkgs.Select(mcPkg => mcPkg.McPkgNo).ToList(),
                     invitation.CommPkgs.Select(c => c.CommPkgNo).ToList());
             }

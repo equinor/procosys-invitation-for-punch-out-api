@@ -4,6 +4,7 @@ using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
@@ -65,12 +66,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private static Invitation SeedMdpInvitation(IPOContext dbContext, string plant)
         {
-            var commPkg = new CommPkg(plant, KnownTestData.ProjectName, KnownTestData.CommPkgNo, "Description", "OK",
+            var project = new Project(plant, KnownTestData.ProjectName, $"Description for {KnownTestData.ProjectName}");
+            var commPkg = new CommPkg(plant, project, KnownTestData.CommPkgNo, "Description", "OK",
                 "1|2");
             var invitationRepository = new InvitationRepository(dbContext);
             var seedMdpInvitation = new Invitation(
                 plant,
-                KnownTestData.ProjectName,
+                project,
                 $"{KnownTestData.InvitationTitle} MDP",
                 KnownTestData.InvitationDescription,
                 DisciplineType.MDP,
@@ -90,12 +92,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private static Invitation SeedDpInvitation(IPOContext dbContext, string plant)
         {
-            var mcPkg = new McPkg(plant, KnownTestData.ProjectName, KnownTestData.CommPkgNo,
+            var project = new Project(plant, KnownTestData.ProjectName, $"Description for {KnownTestData.ProjectName}");
+
+            var mcPkg = new McPkg(plant, project, KnownTestData.CommPkgNo,
                 KnownTestData.McPkgNo, "Description", KnownTestData.System);
             var invitationRepository = new InvitationRepository(dbContext);
             var dpInvitation = new Invitation(
                 plant,
-                KnownTestData.ProjectName,
+                project,
                 $"{KnownTestData.InvitationTitle} DP",
                 KnownTestData.InvitationDescription,
                 DisciplineType.DP,

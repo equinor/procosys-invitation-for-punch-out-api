@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -29,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
@@ -52,7 +54,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private const string _systemPathWithSection2 = "12|1|2";
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
-        private readonly string _plant = "PCS$TEST_PLANT";
+        private const string _plant = "PCS$TEST_PLANT";
+        private readonly Project _project = new Project(_plant, $"Project", $"Description of Project");
+
         List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
@@ -137,6 +141,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _invitationRepositoryMock
                 .Setup(x => x.Add(It.IsAny<Invitation>()))
                 .Callback<Invitation>(x => _createdInvitation = x);
+
+            _projectRepositoryMock = new Mock<IProjectRepository>();
+            _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
 
             _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -237,6 +244,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _meetingOptionsMock.Object,
                 _personRepositoryMock.Object,
                 _currentUserProviderMock.Object,
+                _projectRepositoryMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 

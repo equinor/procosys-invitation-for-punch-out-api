@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -36,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
         private readonly IPersonRepository _personRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IProjectRepository _projectRepository;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -49,6 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IOptionsMonitor<MeetingOptions> meetingOptions,
             IPersonRepository personRepository,
             ICurrentUserProvider currentUserProvider,
+            IProjectRepository projectRepository,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -62,6 +65,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
             _currentUserProvider = currentUserProvider;
+            _projectRepository = projectRepository;
             _logger = logger;
         }
 
@@ -82,9 +86,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 mcPkgs = await GetMcPkgsToAddAsync(request.McPkgScope, request.ProjectName);
             }
 
+            var project = await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName);
+
             var invitation = new Invitation(
                 _plantProvider.Plant,
-                request.ProjectName,
+                project,
                 request.Title,
                 request.Description,
                 request.Type,
@@ -327,9 +333,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
+            var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
             return commPkgDetailsList.Select(c => new CommPkg(
                 _plantProvider.Plant,
-                projectName,
+                project,
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
@@ -356,9 +364,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
+            var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
             return mcPkgDetailsList.Select(mc => new McPkg(
                     _plantProvider.Plant,
-                    projectName,
+                    project,
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
@@ -382,13 +392,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
 
                 meetingBuilder
-                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
+                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, _projectRepository), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(meetingParticipants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, _projectRepository));
             });
             return meeting.Id;
         }

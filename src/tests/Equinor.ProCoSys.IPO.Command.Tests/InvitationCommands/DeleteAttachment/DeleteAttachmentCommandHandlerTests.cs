@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
     {
         private const string _plant = "PCS$TESTPLANT";
         private const string _projectName = "TestProject";
+        private readonly Project _project = new Project(_plant, _projectName, $"Description of {_projectName}");
 
         private Invitation _invitation;
         private Attachment _attachment;
@@ -33,14 +35,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         {
             _invitation = new Invitation(
                 _plant,
-                _projectName,
+                _project,
                 "TestInvitation", 
                 "Description",
                 DisciplineType.DP,
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2")},
                 null);
             _attachment = new Attachment(_plant, "ExistingFile.txt");
             _attachment.SetProtectedIdForTesting(2);

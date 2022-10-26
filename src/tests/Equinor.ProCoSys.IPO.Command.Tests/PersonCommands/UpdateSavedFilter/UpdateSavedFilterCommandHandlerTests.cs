@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,21 +21,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
         private bool _newDefaultFilter = true;
         private readonly string _rowVersion = "AAAAAAAAABA=";
         private readonly Guid _currentUserOid = new Guid();
+        private readonly Project _project = new Project("PCS$TEST_PLANT", $"Project", $"Description of Project");
 
         private UpdateSavedFilterCommand _command;
         private UpdateSavedFilterCommandHandler _dut;
 
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
-        private ProCoSysProject _project;
+        private Mock<IProjectRepository> _projectRepositoryMock;
+
+        //private ProCoSysProject _project;
         private Person _person;
         private SavedFilter _savedFilter;
 
         [TestInitialize]
         public void Setup()
         {
+            _projectRepositoryMock = new Mock<IProjectRepository>();
+            //TOOD: JSOI Not needed?
+            //_projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+
             _person = new Person(_currentUserOid, "FirstName", "LastName", "UserName" ,"email@address.com");
-            _project = new ProCoSysProject() { Id = 0, Description = "", IsClosed = false, Name = "ProjectName" };
+            //_project = new ProCoSysProject() { Id = 0, Description = "", IsClosed = false, Name = "ProjectName" };
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid())
@@ -44,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
             _personRepositoryMock.Setup(x => x.GetWithSavedFiltersByOidAsync(_currentUserOid))
                 .Returns(Task.FromResult(_person));
 
-            _savedFilter = new SavedFilter(TestPlant, _project.Name, _oldTitle, _oldCriteria);
+            _savedFilter = new SavedFilter(TestPlant, _project, _oldTitle, _oldCriteria);
             _savedFilter.SetProtectedIdForTesting(2);
             _person.AddSavedFilter(_savedFilter);
 
@@ -53,7 +61,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
             _dut = new UpdateSavedFilterCommandHandler(
                 UnitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personRepositoryMock.Object
+                _personRepositoryMock.Object,
+                _projectRepositoryMock.Object
             );
         }
 

@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Fusion.Integration.Meeting;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private CancelPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
+        private readonly Project _project1 = new Project(_plant, $"{_projectName} project", $"Description of {_projectName} project");
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _typeDP = DisciplineType.DP;
@@ -65,14 +67,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             //create invitation
             _invitation = new Invitation(
                     _plant,
-                    _projectName,
+                    _project1,
                     _title,
                     _description,
                     _typeDP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
+                    new List<McPkg> { new McPkg(_plant, _project1, "Comm", "Mc", "d", "1|2")},
                     null)
                 { MeetingId = _meetingId };
 

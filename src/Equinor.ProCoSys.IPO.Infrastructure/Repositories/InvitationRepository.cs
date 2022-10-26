@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
@@ -26,19 +28,34 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
         {
-            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.ProjectName == projectName && cp.CommPkgNo == commPkgNo).ToList();
+            //var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Project.Name == projectName && cp.CommPkgNo == commPkgNo).ToList();
+            
+            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.ProjectId == projectEntity.Id && cp.CommPkgNo == commPkgNo).ToList();
 
             commPkgsToUpdate.ForEach(cp => cp.Description = description);
         }
 
         public void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description)
         {
-            var commPkgsToMove = _context.CommPkgs.Where(cp => cp.ProjectName == fromProject && cp.CommPkgNo == commPkgNo).ToList();
-            var mcPkgsToMove = _context.McPkgs.Where(mc => mc.ProjectName == fromProject && mc.CommPkgNo == commPkgNo).ToList();
+            var toProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProject)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+            var fromProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProject)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+
+            //var commPkgsToMove = _context.CommPkgs.Where(cp => cp.Project.Name == fromProject && cp.CommPkgNo == commPkgNo).ToList();
+            var commPkgsToMove = _context.CommPkgs.Where(cp => fromProjectEntity != null && cp.ProjectId == fromProjectEntity.Id && cp.CommPkgNo == commPkgNo).ToList();
+
+            //var mcPkgsToMove = _context.McPkgs.Where(mc => mc.Project.Name == fromProject && mc.CommPkgNo == commPkgNo).ToList();
+            var mcPkgsToMove = _context.McPkgs.Where(mc => fromProjectEntity != null && mc.ProjectId == fromProjectEntity.Id && mc.CommPkgNo == commPkgNo).ToList();
+
+            //var invitationsToMove =
+            //    _context.Invitations
+            //        .Where(i => i.Project.Name == fromProject &&
+            //                    (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
             var invitationsToMove =
                 _context.Invitations
-                    .Where(i => i.ProjectName == fromProject &&
+                    .Where(i => fromProjectEntity != null && i.ProjectId == fromProjectEntity.Id &&
                                 (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
             if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgNo, invitationsToMove))
@@ -48,18 +65,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             invitationsToMove.ForEach(i =>
             {
-                i.MoveToProject(toProject);
+                i.MoveToProject(toProjectEntity);
             });
 
             commPkgsToMove.ForEach(cp =>
             {
                 cp.Description = description;
-                cp.MoveToProject(toProject);
+                cp.MoveToProject(toProjectEntity);
             });
 
             mcPkgsToMove.ForEach(mc =>
             {
-                mc.MoveToProject(toProject);
+                mc.MoveToProject(toProjectEntity);
             });
         }
 
@@ -75,7 +92,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             string toMcPkgNo,
             string description)
         {
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
+            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+
+            //var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.Project.Name == projectName && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
+            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectId == projectEntity.Id && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
 
             mcPkgsToUpdate.ForEach(mp =>
             {
@@ -87,7 +107,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description)
         {
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectName == projectName && mp.McPkgNo == mcPkgNo).ToList();
+            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+
+            //var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.Project.Name == projectName && mp.McPkgNo == mcPkgNo).ToList();
+            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectId == projectEntity.Id && mp.McPkgNo == mcPkgNo).ToList();
 
             mcPkgsToUpdate.ForEach(mp => mp.Description=description);
         }

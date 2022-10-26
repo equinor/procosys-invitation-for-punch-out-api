@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         private SignPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
+        private readonly Project _project = new Project(_plant, _projectName, $"Description of {_projectName}");
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;
@@ -47,14 +49,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
             //create invitation
             _invitation = new Invitation(
                 _plant,
-                _projectName,
+                _project,
                 _title,
                 _description,
                 _typeDp,
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2")},
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2")},
                 null) { MeetingId = _meetingId };
             var participant = new Participant(
                 _plant,

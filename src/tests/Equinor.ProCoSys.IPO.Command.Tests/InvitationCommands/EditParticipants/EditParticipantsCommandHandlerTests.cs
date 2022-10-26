@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -31,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
+        private readonly Project _project = new Project(_plant, _projectName, $"Description of {_projectName}");
         private const string _firstName = "Ola";
         private const string _lastName = "Nordmann";
         private const DisciplineType _typeDp = DisciplineType.DP;
@@ -158,13 +160,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
             };
             //create invitation
             _dpInvitation = new Invitation(
                     _plant,
-                    _projectName,
+                    _project,
                     "dp title",
                     "dp description",
                     _typeDp,

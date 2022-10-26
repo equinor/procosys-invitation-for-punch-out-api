@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     public class InvitationValidatorTests : ReadOnlyTestsBase
     {
         #region Setup
+        private static readonly Project _project1 = new Project("PCS$TEST_PLANT", $"{_projectName} project", $"Description of {_projectName} project");
+        private static readonly Project _project2 = new Project("PCS$TEST_PLANT", $"{_projectName2} project", $"Description of {_projectName2} project");
         private const string _projectName = "Project name";
         private const string _projectName2 = "Project name 2";
         private const string _title1 = "Test title";
@@ -97,14 +100,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             {
                 var invitationWithCurrentUserAsParticipants = new Invitation(
                        TestPlant,
-                       _projectName,
+                       _project1,
                        _title1,
                        _description,
                        _typeDp,
                        new DateTime(),
                        new DateTime(),
                        null,
-                       new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                       new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                        null);
 
                 foreach (var attachment in _attachments)
@@ -166,14 +169,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 
                 var invitationWithFrAsParticipants = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _title2,
                     _description,
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                     null);
                 context.Invitations.Add(invitationWithFrAsParticipants);
                 _invitationIdWithFrAsParticipants = invitationWithFrAsParticipants.Id;
@@ -216,28 +219,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 
                 var invitationWithoutParticipants = new Invitation(
                     TestPlant,
-                    _projectName2,
+                    _project2,
                     _title3,
                     _description,
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                     null);
                 context.Invitations.Add(invitationWithoutParticipants);
                 _invitationIdWithoutParticipants = invitationWithoutParticipants.Id;
 
                 var invitationWithNotCurrentUserAsParticipants = new Invitation(
                     TestPlant,
-                    _projectName2,
+                    _project2,
                     _title4,
                     _description,
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                     null);
 
                 context.Invitations.Add(invitationWithNotCurrentUserAsParticipants);
@@ -279,14 +282,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 
                 var invitationWithValidAndNonValidSignerParticipants = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _title6,
                     _description,
                     _typeDp,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                    new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                     null);
 
                 context.Invitations.Add(invitationWithValidAndNonValidSignerParticipants);
@@ -373,14 +376,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     {
                         var invitationWithAnotherCreator = new Invitation(
                         TestPlant,
-                        _projectName,
+                        _project1,
                         _title5,
                         _description,
                         _typeDp,
                         new DateTime(),
                         new DateTime(),
                         null,
-                        new List<McPkg> { new McPkg(TestPlant, _projectName, "Comm", "Mc", "d", "1|2") },
+                        new List<McPkg> { new McPkg(TestPlant, _project1, "Comm", "Mc", "d", "1|2") },
                         null);
                         context2.Invitations.Add(invitationWithAnotherCreator);
 

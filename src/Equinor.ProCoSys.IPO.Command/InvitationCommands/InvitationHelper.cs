@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Fusion.Integration.Meeting;
 
@@ -63,10 +64,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         private static bool IsValidEmail(string email)
             => new EmailAddressAttribute().IsValid(email);
 
-        public static string GenerateMeetingTitle(Invitation invitation) 
-            => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
+        public static string GenerateMeetingTitle(Invitation invitation, IProjectRepository projectRepository)
+        {
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+            return $"Invitation for punch-out, IPO-{invitation.Id}, Project: {project.Name}"; 
+        }
 
-        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer)
+        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, IProjectRepository projectRepository)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
@@ -79,12 +83,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
             if (invitation.McPkgs.Count > 0)
             {
-                meetingDescription += GenerateMcPkgTable(invitation, baseUrl);
+                meetingDescription += GenerateMcPkgTable(invitation, baseUrl, projectRepository);
             }
 
             if (invitation.CommPkgs.Count > 0)
             {
-                meetingDescription += GenerateCommPkgTable(invitation, baseUrl);
+                meetingDescription += GenerateCommPkgTable(invitation, baseUrl, projectRepository);
             }
 
             meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
@@ -93,8 +97,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return meetingDescription;
         }
 
-        private static string GenerateMcPkgTable(Invitation invitation, string baseUrl)
+        private static string GenerateMcPkgTable(Invitation invitation, string baseUrl, IProjectRepository projectRepository)
         {
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr>" +
                                   "<td style='border: 1px solid black;padding-right:5px;'>Mc pkg no</td>" +
@@ -106,17 +112,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             {
                 table +=
                     "<tr>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}'>{mcPkg.McPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#McPkg|?projectName={project.Name}&mcpkgno={mcPkg.McPkgNo}'>{mcPkg.McPkgNo}</a></td>" +
                     $"<td style='border: 1px solid black;'>{mcPkg.Description}</td>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={mcPkg.CommPkgNo}'>{mcPkg.CommPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={project.Name}&commpkgno={mcPkg.CommPkgNo}'>{mcPkg.CommPkgNo}</a></td>" +
                     "</tr>";
             }
             table += $"</table>";
             return table;
         }
 
-        private static string GenerateCommPkgTable(Invitation invitation, string baseUrl)
+        private static string GenerateCommPkgTable(Invitation invitation, string baseUrl, IProjectRepository projectRepository)
         {
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr style='font-weight:bold;'>" +
                                   "<td style='border: 1px solid black;padding-right:5px;'>Comm pkg no</td>" +
@@ -127,7 +135,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             {
                 table +=
                     "<tr>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={project.Name}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></td>" +
                     $"<td style='border: 1px solid black;'>{commPkg.Description}</td>" +
                     "</tr>";
             }

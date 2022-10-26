@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -22,6 +23,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
         private const string _commPkgNo = "CommPkgNo";
         private const string _projectName = "Project1";
         private const string _system = "1|2";
+        private readonly Project _project = new Project(TestPlant, ProjectName, $"Description of {ProjectName}");
+
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -81,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 var commPkg = new CommPkg(
                     TestPlant,
-                    _projectName,
+                    _project,
                     _commPkgNo,
                     description,
                     "OK",
@@ -89,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
-                    _projectName,
+                    _project,
                     _commPkgNo,
                     "McPkgNo1",
                     description,
@@ -97,7 +100,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
-                    _projectName,
+                    _project,
                     _commPkgNo,
                     "McPkgNo2",
                     description,
@@ -105,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 _dpInvitation = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project,
                     "DP Title",
                     "Description1",
                     DisciplineType.DP,
@@ -123,7 +126,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project,
                     "MDP Title",
                     "Description2",
                     DisciplineType.MDP,

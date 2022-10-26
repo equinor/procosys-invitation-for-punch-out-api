@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -21,6 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         private AddCommentCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
+        private static readonly Project _project1 = new Project(_plant, $"{_projectName} project", $"Description of {_projectName} project");
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const string _commentText = "comment text";
@@ -40,14 +42,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             //create invitation
             _invitation = new Invitation(
                 _plant,
-                _projectName,
+                _project1,
                 _title,
                 _description,
                 _typeDP,
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _projectName, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(_plant, _project1, "Comm", "Mc", "d", "1|2") },
                 null);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();

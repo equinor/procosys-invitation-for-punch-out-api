@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
 {
@@ -27,25 +28,30 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
+            var project = _context.QuerySet<Project>().SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Ought to centralize a query like this??
+
             return await (from s in _context.QuerySet<SavedFilter>()
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      && s.ProjectName == projectName
+                      //&& s.Project.Name == projectName
+                      && s.ProjectId == project.Id
                 select s).AnyAsync(cancellationToken);
         }
         public async Task<bool> ExistsAnotherWithSameTitleForPersonInProjectAsync(int savedFilterId, string title,
             CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var projectName = await (from s in _context.QuerySet<SavedFilter>() 
-                    where s.Id == savedFilterId select s.ProjectName).SingleOrDefaultAsync(cancellationToken);
+            var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Id.Equals(savedFilterId), cancellationToken); //TODO: JSOI Ought to centralize a query like this??
+            //var projectName = await (from s in _context.QuerySet<SavedFilter>() 
+            //        where s.Id == savedFilterId select s.Project.Name).SingleOrDefaultAsync(cancellationToken);
 
             return await (from s in _context.QuerySet<SavedFilter>()
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      && s.ProjectName == projectName
+                      //&& s.Project.Name == projectName
+                      && s.ProjectId == project.Id
                       && s.Id != savedFilterId
                 select s).AnyAsync(cancellationToken);
         }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
@@ -31,7 +32,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
                 where p.Oid == currentUserOid 
                 select p).SingleAsync(cancellationToken);
 
-            var savedFilterDtos = person.SavedFilters.Where(sf => sf.ProjectName == request.ProjectName)
+            var projectFromRequest = await (from pro in _context.QuerySet<Project>() 
+                where pro.Name.Equals(request.ProjectName)
+                select pro).SingleAsync(cancellationToken);
+
+            var savedFilterDtos = person.SavedFilters.Where(sf => sf.ProjectId == projectFromRequest.Id)
                 .Select(savedFilter => new SavedFilterDto(
                     savedFilter.Id, 
                     savedFilter.Title, 
