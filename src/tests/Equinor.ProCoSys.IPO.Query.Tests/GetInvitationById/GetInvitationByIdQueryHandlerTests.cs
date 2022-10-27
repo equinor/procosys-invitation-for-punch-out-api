@@ -31,8 +31,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         private int _mdpInvitationId;
         private int _dpInvitationId;
         private const int _projectId = 320;
-        private const string projectName = "Project1";
-        Project project = new ("PCS$TEST_PLANT", projectName, $"Description of {projectName} project");
 
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
@@ -51,7 +49,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-
+                const string projectName = "Project1";
+                var project = new Project("PCS$TEST_PLANT", projectName, $"Description of {projectName} project");
                 project.SetProtectedIdForTesting(_projectId);
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
