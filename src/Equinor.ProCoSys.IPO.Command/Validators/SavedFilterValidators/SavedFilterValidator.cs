@@ -28,13 +28,12 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-            var project = _context.QuerySet<Project>().SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Ought to centralize a query like this??
+            var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Name.Equals(projectName), cancellationToken);
 
             return await (from s in _context.QuerySet<SavedFilter>()
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      //&& s.Project.Name == projectName
                       && s.ProjectId == project.Id
                 select s).AnyAsync(cancellationToken);
         }
@@ -42,21 +41,16 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            //var project = await _context.QuerySet<SavedFilter>().SingleOrDefaultAsync(x => x.Id.Equals(savedFilterId), cancellationToken); //TODO: JSOI Ought to centralize a query like this??
             var projectForSavedFilter = await (from s in _context.QuerySet<SavedFilter>()
                     join p in _context.QuerySet<Project>() on s.ProjectId equals p.Id
                     where s.Id == savedFilterId
                     select p)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            //var projectName = await (from s in _context.QuerySet<SavedFilter>() 
-            //        where s.Id == savedFilterId select s.Project.Name).SingleOrDefaultAsync(cancellationToken);
-
             return await (from s in _context.QuerySet<SavedFilter>()
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      //&& s.Project.Name == projectName
                       && s.ProjectId == projectForSavedFilter.Id
                       && s.Id != savedFilterId
                 select s).AnyAsync(cancellationToken);

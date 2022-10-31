@@ -83,7 +83,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
             Assert.AreEqual(0, result.Errors.Count);
             Assert.AreEqual(0, result.Data);
             Assert.IsTrue(savedFilter.DefaultFilter);
-            //Assert.AreEqual(_projectName, savedFilter.ProjectName);
             Assert.AreEqual(_projectId, savedFilter.ProjectId);
             Assert.AreEqual(_title, savedFilter.Title);
             Assert.AreEqual(_criteria, savedFilter.Criteria);

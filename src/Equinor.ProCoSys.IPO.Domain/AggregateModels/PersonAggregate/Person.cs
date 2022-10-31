@@ -69,7 +69,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         }
 
         public SavedFilter GetDefaultFilter(Project project) =>
-            //_savedFilters.SingleOrDefault(s => s.Project.Name == project.Name && s.DefaultFilter); //JSOI
             _savedFilters.SingleOrDefault(s => s.ProjectId == project.Id && s.DefaultFilter);
 
     }

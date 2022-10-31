@@ -28,8 +28,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
         {
-            //var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Project.Name == projectName && cp.CommPkgNo == commPkgNo).ToList();
-            
             var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
             var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.ProjectId == projectEntity.Id && cp.CommPkgNo == commPkgNo).ToList();
@@ -39,19 +37,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description)
         {
-            var toProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProject)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
-            var fromProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProject)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+            var toProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProject));
+            var fromProjectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProject));
 
-            //var commPkgsToMove = _context.CommPkgs.Where(cp => cp.Project.Name == fromProject && cp.CommPkgNo == commPkgNo).ToList();
             var commPkgsToMove = _context.CommPkgs.Where(cp => fromProjectEntity != null && cp.ProjectId == fromProjectEntity.Id && cp.CommPkgNo == commPkgNo).ToList();
 
-            //var mcPkgsToMove = _context.McPkgs.Where(mc => mc.Project.Name == fromProject && mc.CommPkgNo == commPkgNo).ToList();
             var mcPkgsToMove = _context.McPkgs.Where(mc => fromProjectEntity != null && mc.ProjectId == fromProjectEntity.Id && mc.CommPkgNo == commPkgNo).ToList();
-
-            //var invitationsToMove =
-            //    _context.Invitations
-            //        .Where(i => i.Project.Name == fromProject &&
-            //                    (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
             var invitationsToMove =
                 _context.Invitations
@@ -92,10 +83,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             string toMcPkgNo,
             string description)
         {
-            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
-            //var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.Project.Name == projectName && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectId == projectEntity.Id && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
+            var mcPkgsToUpdate = _context.McPkgs.Where(mp => projectEntity != null && mp.ProjectId == projectEntity.Id && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
 
             mcPkgsToUpdate.ForEach(mp =>
             {
@@ -107,10 +97,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description)
         {
-            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName)); //TODO: JSOI Need to filter on Plant as well to get correct Project?
+            var projectEntity = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
-            //var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.Project.Name == projectName && mp.McPkgNo == mcPkgNo).ToList();
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => mp.ProjectId == projectEntity.Id && mp.McPkgNo == mcPkgNo).ToList();
+            var mcPkgsToUpdate = _context.McPkgs.Where(mp => projectEntity != null && mp.ProjectId == projectEntity.Id && mp.McPkgNo == mcPkgNo).ToList();
 
             mcPkgsToUpdate.ForEach(mp => mp.Description=description);
         }

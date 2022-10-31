@@ -173,14 +173,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             foreach (var invitation in invitationsWithIncludes)
             {
                 var project = await _context.QuerySet<Project>()
-                    .SingleOrDefaultAsync(x => x.Id == invitation.ProjectId); //TODO: JSOI Common query?
+                    .SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
 
                 var organizer = await GetPersonNameAsync(invitation.CreatedById);
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
                 var participants = invitationWithIncludes.Participants.ToList();
                 var exportInvitationDto = new ExportInvitationDto(
                     invitation.Id,
-                    project.Name, //TODO: Possible NullReferenceException
+                    project.Name, //TODO: JSOI Possible NullReferenceException
                     invitation.Status,
                     invitation.Title,
                     invitation.Description,

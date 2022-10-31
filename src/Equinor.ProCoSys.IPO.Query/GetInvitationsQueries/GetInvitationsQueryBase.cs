@@ -47,8 +47,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
             var queryable = from invitation in context.QuerySet<Invitation>()
                 join project in context.QuerySet<Project>() on invitation.ProjectId equals project.Id
-                            //where projectNames.Contains(invitation.Project.Name) &&
-                where projectNames.Contains(project.Name) && invitation.ProjectId == project.Id && //TODO: JSOI Hmmm, is this working...
+                where projectNames.Contains(project.Name) && invitation.ProjectId == project.Id &&
                       (!filter.PunchOutDates.Any() ||
                        (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
                        (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
@@ -84,7 +83,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                 select new InvitationForQueryDto
                 {
                     Id = invitation.Id,
-                    //ProjectName = invitation.ProjectName,
                     ProjectName = project.Name,
                     Title = invitation.Title,
                     Description = invitation.Description,

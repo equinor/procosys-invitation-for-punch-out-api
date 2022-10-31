@@ -22,8 +22,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
             CancellationToken cancellationToken)
         {
             var projectFromRequest = await _context.QuerySet<Project>()
-                .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); //TODO: JSOI Common query?
-            
+                .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); 
+            //JSOI: TODO Handle projectFromRequest is null???
             var invitations =
                 await (from i in _context.QuerySet<Invitation>()
                        from comm in _context.QuerySet<CommPkg>().Where(c => i.Id == EF.Property<int>(c, "InvitationId"))

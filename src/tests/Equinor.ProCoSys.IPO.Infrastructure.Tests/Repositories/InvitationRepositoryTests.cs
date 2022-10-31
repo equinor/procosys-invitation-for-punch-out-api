@@ -26,6 +26,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int ParticipantId = 1;
         private const int Project1Id = 430;
         private const int Project2Id = 598;
+        private const int Project3Id = 714;
+
         private readonly List<Project> _projects = new List<Project>();
         private readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
         private readonly Project _project2 = new("PCS$TEST_PLANT", _projectName2, $"Description of {_projectName2} project");
@@ -72,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             _project1.SetProtectedIdForTesting(Project1Id);
             _project2.SetProtectedIdForTesting(Project2Id);
+            _project3.SetProtectedIdForTesting(Project3Id);
 
             _projects.AddRange(new List<Project> { _project1, _project2, _project3 });
             _projectSetMock = _projects.AsQueryable().BuildMockDbSet();

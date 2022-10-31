@@ -21,7 +21,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         private readonly Project project = new(Plant, "Project", "Description of Project");
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         private readonly DateTime _currentTime = new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc);
-        //private McPkg _mcPkg = new McPkg(Plant, "project", "commno", "mcno", "d", "1|2");
         private McPkg _mcPkg;
 
         private DbContextOptions<IPOContext> _dbContextOptions;

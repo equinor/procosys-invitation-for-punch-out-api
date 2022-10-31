@@ -95,8 +95,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                                 || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList()));
 
             var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
+            if (project is null)
+            {
+                _logger.LogWarning($"Cannot find project with id {invitation.ProjectId} on invitation {invitation.Title}");
+            }
+
             var invitationResult = new InvitationDto(
-                project.Name, //TODO: JSOI: How to handle possible null reference exception? Ignore because database has constraint...??
+                project?.Name ?? "Project name not found",
                 invitation.Title,
                 invitation.Description,
                 invitation.Location,

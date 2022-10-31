@@ -15,10 +15,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
 
         public async Task<string> GetProjectNameAsync(int invitationId)
         {
-            //var projectName = await (from i in _context.QuerySet<Invitation>() 
-            //    where i.Id == invitationId
-            //    select i.ProjectName).SingleOrDefaultAsync();
-
             var projectName = await (from p in _context.QuerySet<Project>()
                 join i in _context.QuerySet<Invitation>() on p.Id equals i.ProjectId
                 where i.Id == invitationId
