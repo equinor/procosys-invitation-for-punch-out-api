@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,23 +17,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
     {
         private int _invitationId;
         private const string _projectName = "Project1";
-        private static readonly Project project1 = new Project("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
+        private const int _projectId = 320;
+        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project1.SetProtectedIdForTesting(_projectId);
                 var invitation = new Invitation(
                     TestPlant,
-                    project1,
+                    _project1,
                     "Title",
                     "Description",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2")},
+                    new List<McPkg> {new McPkg(TestPlant, _project1, "commno", "mcno", "d", "1|2")},
                     null);
+                context.Projects.Add(_project1);
                 context.Invitations.Add(invitation);
                 context.SaveChangesAsync().Wait();
                 _invitationId = invitation.Id;

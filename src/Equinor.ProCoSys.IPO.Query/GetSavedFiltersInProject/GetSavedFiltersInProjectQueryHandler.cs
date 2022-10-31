@@ -34,7 +34,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
 
             var projectFromRequest = await (from pro in _context.QuerySet<Project>() 
                 where pro.Name.Equals(request.ProjectName)
-                select pro).SingleAsync(cancellationToken);
+                select pro).SingleOrDefaultAsync(cancellationToken);
+
+            if (projectFromRequest is null)
+            {
+                return EmptyList();
+            }
 
             var savedFilterDtos = person.SavedFilters.Where(sf => sf.ProjectId == projectFromRequest.Id)
                 .Select(savedFilter => new SavedFilterDto(
@@ -47,5 +52,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
 
             return new SuccessResult<List<SavedFilterDto>>(savedFilterDtos);
         }
+
+        private static SuccessResult<List<SavedFilterDto>> EmptyList() => new(new List<SavedFilterDto>());
     }
 }
