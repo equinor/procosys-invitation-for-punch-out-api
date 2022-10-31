@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
         public async Task<Result<List<InvitationForMainDto>>> Handle(GetInvitationsByCommPkgNoQuery request,
             CancellationToken cancellationToken)
         {
-            var projectFromRequest = _context.QuerySet<Project>()
+            var projectFromRequest = await _context.QuerySet<Project>()
                 .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); //TODO: JSOI Common query?
             
             var invitations =

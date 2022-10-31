@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceResult;
@@ -22,14 +23,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
         private int _mdpInvitationId;
         private const string _commPkgNo = "CommPkgNo";
         private const string _projectName = "Project1";
+        private const int _projectId = 320;
         private const string _system = "1|2";
-        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
-
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project.SetProtectedIdForTesting(_projectId);
                 var meetingId = new Guid("11111111-2222-2222-2222-333333333333");
                 var personAzureOid = new Guid("44444444-5555-5555-5555-666666666666");
                 const string description = "Description";
@@ -142,6 +144,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                 _mdpInvitation.AddParticipant(functionalRoleParticipant2);
                 _mdpInvitation.AddParticipant(personParticipant2);
 
+                context.Projects.Add(_project);
                 context.Invitations.Add(_dpInvitation);
                 context.Invitations.Add(_mdpInvitation);
                 context.SaveChangesAsync().Wait();

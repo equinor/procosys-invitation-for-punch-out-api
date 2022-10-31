@@ -43,8 +43,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
             //var project = await _context.QuerySet<SavedFilter>().SingleOrDefaultAsync(x => x.Id.Equals(savedFilterId), cancellationToken); //TODO: JSOI Ought to centralize a query like this??
-            var project = await (from s in _context.QuerySet<SavedFilter>()
+            var projectForSavedFilter = await (from s in _context.QuerySet<SavedFilter>()
                     join p in _context.QuerySet<Project>() on s.ProjectId equals p.Id
+                    where s.Id == savedFilterId
                     select p)
                 .SingleOrDefaultAsync(cancellationToken);
 
@@ -56,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
                 where p.Oid == currentUserOid
                       && s.Title == title
                       //&& s.Project.Name == projectName
-                      && s.ProjectId == project.Id
+                      && s.ProjectId == projectForSavedFilter.Id
                       && s.Id != savedFilterId
                 select s).AnyAsync(cancellationToken);
         }

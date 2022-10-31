@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
         public async Task<Result<List<CommPkgsWithMdpIposDto>>> Handle(GetLatestMdpIpoStatusOnCommPkgsQuery request,
             CancellationToken cancellationToken)
         {
-            var projectFromRequest = _context.QuerySet<Project>()
+            var projectFromRequest = await _context.QuerySet<Project>()
                 .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); //TODO: JSOI Common query?
 
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()

@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -46,6 +47,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
         private const string _system = "1|2";
+        private const int _projectId1 = 320;
+        private const int _projectId2 = 640;
         private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
         private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
 
@@ -53,6 +56,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project1.SetProtectedIdForTesting(_projectId1);
+                _project2.SetProtectedIdForTesting(_projectId2);
+
                 const string description = "Description";
 
                 var contractorFunctionalRoleParticipant = new Participant(
@@ -280,6 +286,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 _invitation3.AddParticipant(contractorPersonParticipant1);
                 _invitation3.AddParticipant(constructionCompanyPersonParticipant1);
 
+                context.Projects.Add(_project1);
+                context.Projects.Add(_project2);
                 context.Invitations.Add(_invitation1);
                 context.Invitations.Add(_invitation2);
                 context.Invitations.Add(_invitation3);

@@ -16,7 +16,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.HasOne<Project>()
                 .WithMany()
-                .IsRequired();
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Property(x => x.McPkgNo)
                 .HasMaxLength(McPkg.McPkgNoMaxLength)

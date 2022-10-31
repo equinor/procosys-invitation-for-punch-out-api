@@ -48,15 +48,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
         const string _system = "1|2";
+        private const int _projectId1 = 320;
+        private const int _projectId2 = 640; 
         private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
         private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
-
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context =
                 new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project1.SetProtectedIdForTesting(_projectId1);
+                _project2.SetProtectedIdForTesting(_projectId2);
                 const string description = "Description";
 
                 var functionalRoleParticipant1 = new Participant(
@@ -253,6 +256,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 _invitation3.AddParticipant(personParticipant3);
                 _invitation3.AddParticipant(personParticipant4);
+
+                context.Projects.Add(_project1);
+                context.Projects.Add(_project2);
 
                 context.Invitations.Add(_invitation1);
                 var history1 = new History(TestPlant, "D1", _invitation1.ObjectGuid, EventType.IpoCreated);

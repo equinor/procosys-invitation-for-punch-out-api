@@ -49,9 +49,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                const string projectName = "Project1";
-                var project = new Project("PCS$TEST_PLANT", projectName, $"Description of {projectName} project");
-                project.SetProtectedIdForTesting(_projectId);
+                Project.SetProtectedIdForTesting(_projectId);
                 const string description = "Description";
                 const string commPkgNo = "CommPkgNo";
                 const string mcPkgNo = "McPkgNo";
@@ -119,7 +117,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var commPkg = new CommPkg(
                     TestPlant,
-                    project,
+                    Project,
                     commPkgNo,
                     description,
                     "OK",
@@ -127,7 +125,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
-                    project,
+                    Project,
                     "Title", 
                     "Description",
                     DisciplineType.MDP,
@@ -148,7 +146,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 var mcPkg = new McPkg(
                     TestPlant,
-                    project,
+                    Project,
                     commPkgNo,
                     mcPkgNo,
                     description,
@@ -156,7 +154,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 _dpInvitation = new Invitation(
                     TestPlant,
-                    project,
+                    Project,
                     "Title 2",
                     "Description 2",
                     DisciplineType.DP,
@@ -317,7 +315,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 Title = string.Empty
                             })));
 
-                context.Projects.Add(project);
+                context.Projects.Add(Project);
                 context.Invitations.Add(_mdpInvitation);
                 context.Invitations.Add(_dpInvitation);
                 context.SaveChangesAsync().Wait();

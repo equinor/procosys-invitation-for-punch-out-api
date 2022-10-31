@@ -23,10 +23,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasMaxLength(SavedFilter.CriteriaLengthMax)
                 .IsRequired();
 
-            builder
-                .HasOne<Project>()
+            builder.HasOne<Project>()
                 .WithMany()
-                .IsRequired();
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

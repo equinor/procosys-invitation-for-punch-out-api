@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,14 +24,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private SavedFilter _savedFilter2;
 
         private const string _title = "title";
+        private const int _projectId = 320;
         private const string _projectName = "projectName";
-        private readonly Project _project = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher,
                 _currentUserProvider))
             {
+                _project.SetProtectedIdForTesting(_projectId);
+
                 _personOid = new Guid();
 
                 var person = AddPerson(context, _personOid, "Current", "User", "", "");
