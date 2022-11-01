@@ -14,6 +14,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -40,12 +41,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IDbContextTransaction> _transactionMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<IProjectApiService> _projectApiServiceMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _functionalRoleWithMultipleEmailsCode = "FR2";
         private const string _functionalRoleWithMultipleInformationEmailsCode = "FR3";
         private const string _mcPkgNo1 = "MC1";
         private const string _mcPkgNo2 = "MC2";
+        private const string _mcPkgNo3 = "MC3";
+        private const string _mcPkgNo4 = "MC4";
         private const string _commPkgNo = "Comm1";
         private const string _commPkgNo2 = "Comm2";
         private const string _systemPathWithoutSection = "1|2";
@@ -55,8 +59,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private const string _plant = "PCS$TEST_PLANT";
-        private readonly Project _project = new(_plant, $"Project", $"Description of Project");
-
+        private readonly Project _project = new(_plant, _projectName, "Description of Project");
+        private readonly Project _project2 = new(_plant, _proCoSysProjectName, _proCoSysProjectDescription);
+        
         List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(
@@ -77,8 +82,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private ProCoSysFunctionalRole _functionalRoleDetails;
         private ProCoSysFunctionalRole _functionalRoleWithMultipleEmailsDetails;
         private ProCoSysFunctionalRole _functionalRoleWithMultipleInformationEmailsDetails;
+        private ProCoSysProject _proCoSysProject;
+        private ProCoSysProject _proCoSysProject2;
 
-        private readonly string _projectName = "Project name";
+        private const string _projectName = "Project name";
+        private const string _proCoSysProjectName = "ProCoSys Project name";
+        private const string _proCoSysProjectDescription = "ProCoSys Project description";
         private readonly string _title = "Test title";
         private readonly string _description = "Body";
         private readonly string _location = "Outside";
@@ -88,9 +97,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _mcPkgNo1,
             _mcPkgNo2
         };
+        private readonly List<string> _mcPkgScope2 = new List<string>
+        {
+            _mcPkgNo3,
+            _mcPkgNo4
+        };
 
         private ProCoSysMcPkg _mcPkgDetails1;
         private ProCoSysMcPkg _mcPkgDetails2;
+        private ProCoSysMcPkg _mcPkgDetails3;
+        private ProCoSysMcPkg _mcPkgDetails4;
 
         private Guid _meetingId = new Guid("11111111-2222-2222-2222-333333333333");
         private Invitation _createdInvitation;
@@ -143,7 +159,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Callback<Invitation>(x => _createdInvitation = x);
 
             _projectRepositoryMock = new Mock<IProjectRepository>();
+            //We want to return a value for _project2 only after it has been added to the context
+            _projectRepositoryMock.Setup(x => x.Add(_project2))
+                .Callback<Project>(project => 
+                    _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_project2.Name)).Returns(Task.FromResult(project)));
             _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+            
+
+            _proCoSysProject = new ProCoSysProject {Name = _proCoSysProjectName, Description = _proCoSysProjectDescription, IsClosed = false};
+            _proCoSysProject2 = new ProCoSysProject { Name = _projectName, Description = "Whatever", IsClosed = false };
+
+            _projectApiServiceMock = new Mock<IProjectApiService>();
+            _projectApiServiceMock
+                .Setup(x => x.TryGetProjectAsync(_plant, _proCoSysProjectName))
+                .Returns(Task.FromResult(_proCoSysProject));
+            _projectApiServiceMock
+                .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
+                .Returns(Task.FromResult(_proCoSysProject2));
 
             _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -154,12 +186,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _mcPkgDetails1 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithoutSection };
             _mcPkgDetails2 = new ProCoSysMcPkg {CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithoutSection };
+            _mcPkgDetails3 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D3", Id = 3, McPkgNo = _mcPkgNo3, System = _systemPathWithoutSection };
+            _mcPkgDetails4 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D4", Id = 4, McPkgNo = _mcPkgNo4, System = _systemPathWithoutSection };
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg>{ _mcPkgDetails1, _mcPkgDetails2 };
-
+            IList<ProCoSysMcPkg> mcPkgDetails2 = new List<ProCoSysMcPkg> { _mcPkgDetails3, _mcPkgDetails4 };
+            
             _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
             _mcPkgApiServiceMock
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
                 .Returns(Task.FromResult(mcPkgDetails));
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _proCoSysProjectName, _mcPkgScope2))
+                .Returns(Task.FromResult(mcPkgDetails2));
 
             _personDetails = new ProCoSysPerson
             {
@@ -245,6 +283,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _personRepositoryMock.Object,
                 _currentUserProviderMock.Object,
                 _projectRepositoryMock.Object,
+                _projectApiServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
@@ -598,5 +637,83 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldAddProjectToRepositoryIfItDoesNotExist()
+        {
+            var projectRepositoryTestDouble = new ProjectRepositoryTestDouble();
+
+            _dut = new CreateInvitationCommandHandler(
+                _plantProviderMock.Object,
+                _meetingClientMock.Object,
+                _invitationRepositoryMock.Object,
+                _unitOfWorkMock.Object,
+                _commPkgApiServiceMock.Object,
+                _mcPkgApiServiceMock.Object,
+                _personApiServiceMock.Object,
+                _functionalRoleApiServiceMock.Object,
+                _meetingOptionsMock.Object,
+                _personRepositoryMock.Object,
+                _currentUserProviderMock.Object,
+                projectRepositoryTestDouble,
+                _projectApiServiceMock.Object,
+                new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _proCoSysProjectName,
+                _type,
+                _participants,
+                _mcPkgScope2,
+                null);
+
+            await _dut.Handle(command, default);
+
+            Assert.IsNotNull(_createdInvitation);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(3));
+        }
+
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldNotAddProjectToRepositoryIfItDoesExist()
+        {
+            var projectRepositoryTestDouble = new ProjectRepositoryTestDouble();
+            projectRepositoryTestDouble.Add(_project);
+
+            _dut = new CreateInvitationCommandHandler(
+                _plantProviderMock.Object,
+                _meetingClientMock.Object,
+                _invitationRepositoryMock.Object,
+                _unitOfWorkMock.Object,
+                _commPkgApiServiceMock.Object,
+                _mcPkgApiServiceMock.Object,
+                _personApiServiceMock.Object,
+                _functionalRoleApiServiceMock.Object,
+                _meetingOptionsMock.Object,
+                _personRepositoryMock.Object,
+                _currentUserProviderMock.Object,
+                projectRepositoryTestDouble,
+                _projectApiServiceMock.Object,
+                new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null);
+
+            await _dut.Handle(command, default);
+
+            Assert.IsNotNull(_createdInvitation);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+        }
     }
 }
