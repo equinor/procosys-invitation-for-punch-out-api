@@ -213,6 +213,66 @@ on p.Name = sf.ProjectName and p.Plant = sf.Plant
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "ProjectName",
+                table: "SavedFilters",
+                type: "nvarchar(max)",
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "ProjectName",
+                table: "McPkgs",
+                type: "nvarchar(512)",
+                maxLength: 512,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "ProjectName",
+                table: "Invitations",
+                type: "nvarchar(512)",
+                maxLength: 512,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.AddColumn<string>(
+                name: "ProjectName",
+                table: "CommPkgs",
+                type: "nvarchar(512)",
+                maxLength: 512,
+                nullable: false,
+                defaultValue: "");
+
+            migrationBuilder.Sql(@"
+-- Update ProjectName in CommPkgs
+update CommPkgs 
+set CommPkgs.ProjectName = p.Name
+from CommPkgs c
+inner join Projects p
+on p.Id = c.ProjectId and p.Plant = c.Plant
+
+-- Update ProjectName in McPkgs
+update McPkgs 
+set McPkgs.ProjectName = p.Name
+from McPkgs m
+inner join Projects p
+on p.Id = m.ProjectId and p.Plant = m.Plant
+
+-- Update ProjectName in Invitations
+update Invitations 
+set Invitations.ProjectName = p.Name
+from Invitations i
+inner join Projects p
+on p.Id = i.ProjectId and p.Plant = i.Plant
+
+-- Update ProjectName in SavedFilters  !!! Not tested!!! 0 rows in local database
+update SavedFilters 
+set SavedFilters.ProjectName = p.Name
+from SavedFilters sf
+inner join Projects p
+on p.Id = sf.ProjectId and p.Plant = sf.Plant
+");
             migrationBuilder.DropForeignKey(
                 name: "FK_CommPkgs_Projects_ProjectId",
                 table: "CommPkgs");
@@ -264,36 +324,7 @@ on p.Name = sf.ProjectName and p.Plant = sf.Plant
                 name: "ProjectId",
                 table: "CommPkgs");
 
-            migrationBuilder.AddColumn<string>(
-                name: "ProjectName",
-                table: "SavedFilters",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ProjectName",
-                table: "McPkgs",
-                type: "nvarchar(512)",
-                maxLength: 512,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ProjectName",
-                table: "Invitations",
-                type: "nvarchar(512)",
-                maxLength: 512,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "ProjectName",
-                table: "CommPkgs",
-                type: "nvarchar(512)",
-                maxLength: 512,
-                nullable: false,
-                defaultValue: "");
+ 
 
             migrationBuilder.CreateIndex(
                     name: "IX_Invitations_Plant_ProjectName",
