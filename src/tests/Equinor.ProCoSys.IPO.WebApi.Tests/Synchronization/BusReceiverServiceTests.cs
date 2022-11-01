@@ -249,8 +249,28 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [TestMethod]
         public async Task HandlingProjectTopicWithoutFailure()
         {
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
+            var projectRepositoryTestDouble = new ProjectRepositoryTestDouble();
+            projectRepositoryTestDouble.Add(new Project(plant, project1Name, "Description to be changed") { IsClosed = false });
+
+            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"IsClosed\" : true, \"Description\" : \"{description}\"}}";
+
+            var preActualProject = await projectRepositoryTestDouble.GetProjectOnlyByNameAsync(project1Name);
+            Assert.AreEqual("Description to be changed", preActualProject.Description);
+            Assert.IsFalse(preActualProject.IsClosed);
+
+            var dut = new BusReceiverService(_invitationRepository.Object,
+                _plantSetter.Object,
+                _unitOfWork.Object,
+                _telemetryClient.Object,
+                _readOnlyContext.Object,
+                _mcPkgApiService.Object,
+                _applicationAuthenticator.Object,
+                _options.Object,
+                _currentUserSetter.Object,
+                _bearerTokenSetter.Object,
+                projectRepositoryTestDouble);
+
+            await dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -258,6 +278,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(project1Name, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            
+            var actualProject = await projectRepositoryTestDouble.GetProjectOnlyByNameAsync(project1Name);
+            Assert.AreEqual(description, actualProject.Description);
+            Assert.IsTrue(actualProject.IsClosed);
         }
 
         [TestMethod]

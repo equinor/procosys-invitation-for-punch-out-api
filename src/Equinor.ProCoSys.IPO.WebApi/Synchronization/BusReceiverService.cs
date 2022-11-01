@@ -183,6 +183,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(projectEvent.Plant);
             _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
+
+            var project =  _projectRepository.GetProjectOnlyByNameAsync(projectEvent.ProjectName).GetAwaiter().GetResult();
+            if (project != null)
+            {
+                project.Description = projectEvent.Description;
+                project.IsClosed = projectEvent.IsClosed;
+            }
         }
 
         private async Task ProcessIpoEvent(string messageJson)
