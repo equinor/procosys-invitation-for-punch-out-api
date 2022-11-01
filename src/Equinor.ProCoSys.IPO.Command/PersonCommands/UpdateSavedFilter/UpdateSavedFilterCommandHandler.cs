@@ -38,7 +38,6 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
             {
                 var project = await _projectRepository.GetByIdAsync(savedFilter.ProjectId);
 
-                //var currentDefaultFilter = person.GetDefaultFilter(savedFilter.Project.Name); //JSOI
                 var currentDefaultFilter = person.GetDefaultFilter(project);
                 if (currentDefaultFilter != null)
                 {

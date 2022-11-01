@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
         public static string GenerateMeetingTitle(Invitation invitation, IProjectRepository projectRepository)
         {
-            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult();
             return $"Invitation for punch-out, IPO-{invitation.Id}, Project: {project.Name}"; 
         }
 
@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
         private static string GenerateMcPkgTable(Invitation invitation, string baseUrl, IProjectRepository projectRepository)
         {
-            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult();
 
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr>" +
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
         private static string GenerateCommPkgTable(Invitation invitation, string baseUrl, IProjectRepository projectRepository)
         {
-            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult(); //TODO: JSOI: Not happy with this solution...
+            var project = projectRepository.GetByIdAsync(invitation.ProjectId).GetAwaiter().GetResult();
 
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr style='font-weight:bold;'>" +

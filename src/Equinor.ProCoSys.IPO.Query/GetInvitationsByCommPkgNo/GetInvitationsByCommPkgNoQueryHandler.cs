@@ -23,15 +23,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
         {
             var projectFromRequest = await _context.QuerySet<Project>()
                 .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); 
-            //JSOI: TODO Handle projectFromRequest is null???
+            
             var invitations =
                 await (from i in _context.QuerySet<Invitation>()
                        from comm in _context.QuerySet<CommPkg>().Where(c => i.Id == EF.Property<int>(c, "InvitationId"))
                                        .DefaultIfEmpty()
                        from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
                            .DefaultIfEmpty()
-                           //where i.Project.Name == request.ProjectName &&
-                            where i.ProjectId == projectFromRequest.Id &&
+                            where projectFromRequest != null && i.ProjectId == projectFromRequest.Id &&
                           (comm.CommPkgNo == request.CommPkgNo ||
                            mc.CommPkgNo == request.CommPkgNo)
                        select new InvitationForMainDto(

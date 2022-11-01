@@ -37,7 +37,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
             // Arrange
             _project.SetProtectedIdForTesting(_projectId);
             _projectRepositoryMock = new Mock<IProjectRepository>();
-            //TODO: JSOI Is this needed?
             _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
 
             _person = new Person(_currentUserOid, "Current", "User", "", "");
