@@ -9,30 +9,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Invitations_Plant_ProjectName",
-                table: "Invitations");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Invitations_ProjectName",
-                table: "Invitations");
-
-            migrationBuilder.DropColumn(
-                name: "ProjectName",
-                table: "SavedFilters");
-
-            migrationBuilder.DropColumn(
-                name: "ProjectName",
-                table: "McPkgs");
-
-            migrationBuilder.DropColumn(
-                name: "ProjectName",
-                table: "Invitations");
-
-            migrationBuilder.DropColumn(
-                name: "ProjectName",
-                table: "CommPkgs");
-
             migrationBuilder.AddColumn<int>(
                 name: "ProjectId",
                 table: "SavedFilters",
@@ -134,6 +110,53 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                 column: "Plant")
                 .Annotation("SqlServer:Include", new[] { "Name", "IsClosed", "CreatedAtUtc", "ModifiedAtUtc" });
 
+
+
+
+            migrationBuilder.Sql(@"
+insert into projects(name, plant, description, isclosed, createdatutc, createdbyid)
+select distinct projectname, plant, 'Empty', 'false', SYSDATETIME(), (select id from persons where username = 'JSOI') FROM
+(
+select projectname, Plant from Invitations
+union					  
+select projectname, plant  from McPkgs
+union					  
+select projectname, plant  from CommPkgs
+union					  
+select projectname, plant  from SavedFilters
+) as pp
+
+
+-- Update ProjectId in CommPkgs
+update CommPkgs 
+set CommPkgs.ProjectId = p.Id
+from CommPkgs c
+inner join Projects p
+on p.Name = c.ProjectName and p.Plant = c.Plant
+
+-- Update ProjectId in McPkgs
+update McPkgs 
+set McPkgs.ProjectId = p.Id
+from McPkgs m
+inner join Projects p
+on p.Name = m.ProjectName and p.Plant = m.Plant
+
+-- Update ProjectId in Invitations
+update Invitations 
+set Invitations.ProjectId = p.Id
+from Invitations i
+inner join Projects p
+on p.Name = i.ProjectName and p.Plant = i.Plant
+
+-- Update ProjectId in SavedFilters  !!! Not tested!!! 0 rows in local database
+update SavedFilters 
+set SavedFilters.ProjectId = p.Id
+from SavedFilters sf
+inner join Projects p
+on p.Name = sf.ProjectName and p.Plant = sf.Plant
+"
+            );
+
             migrationBuilder.AddForeignKey(
                 name: "FK_CommPkgs_Projects_ProjectId",
                 table: "CommPkgs",
@@ -161,6 +184,31 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                 column: "ProjectId",
                 principalTable: "Projects",
                 principalColumn: "Id");
+
+
+            migrationBuilder.DropIndex(
+                name: "IX_Invitations_Plant_ProjectName",
+                table: "Invitations");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Invitations_ProjectName",
+                table: "Invitations");
+
+            migrationBuilder.DropColumn(
+                name: "ProjectName",
+                table: "SavedFilters");
+
+            migrationBuilder.DropColumn(
+                name: "ProjectName",
+                table: "McPkgs");
+
+            migrationBuilder.DropColumn(
+                name: "ProjectName",
+                table: "Invitations");
+
+            migrationBuilder.DropColumn(
+                name: "ProjectName",
+                table: "CommPkgs");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
