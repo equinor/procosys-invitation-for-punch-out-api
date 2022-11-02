@@ -697,7 +697,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnInvitation_WhenProjectIsClosed()
         {
-            //TODO: JSOI This test should not pass, but it does...
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);

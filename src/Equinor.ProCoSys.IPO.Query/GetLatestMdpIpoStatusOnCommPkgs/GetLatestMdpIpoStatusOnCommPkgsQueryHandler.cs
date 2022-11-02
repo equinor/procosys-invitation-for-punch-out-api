@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,13 +24,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
         public async Task<Result<List<CommPkgsWithMdpIposDto>>> Handle(GetLatestMdpIpoStatusOnCommPkgsQuery request,
             CancellationToken cancellationToken)
         {
-            var projectFromRequest = await _context.QuerySet<Project>()
+            var project = await _context.QuerySet<Project>()
                 .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken);
-            //TODO: JSOI Possible nullpointer exception
+            
+            if (project is null)
+            {
+                throw new ArgumentNullException(nameof(project));
+            }
+
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
                 from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
                     .DefaultIfEmpty()
-                     where i.ProjectId == projectFromRequest.Id &&
+                     where i.ProjectId == project.Id &&
                            i.Type == DisciplineType.MDP &&
                            i.Status != IpoStatus.Canceled &&
                            request.CommPkgNos.Contains(c.CommPkgNo)

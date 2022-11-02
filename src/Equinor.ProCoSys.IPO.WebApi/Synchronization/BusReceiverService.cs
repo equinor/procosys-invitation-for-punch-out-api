@@ -272,7 +272,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                //TODO: JSOI Possible nullpointer exception
+
+                if (project is null)
+                {
+                    throw new ArgumentNullException(nameof(project));
+                }
+
                 await _mcPkgApiService.ClearM01DatesAsync(
                     ipoEvent.Plant,
                     null,
@@ -291,7 +296,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                //TODO: JSOI Possible nullpointer exception
+                if (project is null)
+                {
+                    throw new ArgumentNullException(nameof(project));
+                }
 
                 await _mcPkgApiService.SetM01DatesAsync(
                     ipoEvent.Plant,
@@ -313,7 +321,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 try
                 {
                     var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                    //TODO: JSOI Possible nullpointer exception
+                    
+                    if (project is null)
+                    {
+                        throw new ArgumentNullException(nameof(project));
+                    }
 
                     await _mcPkgApiService.ClearM01DatesAsync(
                         ipoEvent.Plant,
@@ -334,7 +346,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                //TODO: JSOI Possible nullpointer exception
+                
+                if (project is null)
+                {
+                    throw new ArgumentNullException(nameof(project));
+                }
 
                 await _mcPkgApiService.SetM02DatesAsync(
                     ipoEvent.Plant,
@@ -354,7 +370,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                //TODO: JSOI Possible nullpointer exception
+                
+                if (project is null)
+                {
+                    throw new ArgumentNullException(nameof(project));
+                }
 
                 await _mcPkgApiService.ClearM02DatesAsync(
                     ipoEvent.Plant,
