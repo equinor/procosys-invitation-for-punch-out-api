@@ -34,6 +34,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Participant _personParticipantSupplier;
         private Participant _personParticipantOperation;
         private Participant _functionalRoleParticipantContractor;
+        private Participant _personParticipantClosedProject;
+        private Participant _personParticipantNonClosedProject;
 
         private Invitation _acceptedInvitationWithOperationPerson;
         private Invitation _invitationWithPersonParticipantContractor;
@@ -41,9 +43,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Invitation _cancelledInvitation;
         private Invitation _invitationWithPersonParticipantConstructionCompany;
         private Invitation _invitationWithFunctionalRoleParticipantContractor;
+        private Invitation _invitationForClosedProject;
+        private Invitation _invitationForNotClosedProject;
         private string _functionalRoleCode = "FR1";
-        private const string _projectName = "TestProject";
+        private const string _closedProjectInvitationTitle = "InvitationTitleForClosedProject";
+        private const string _notClosedProjectInvitationTitle = "InvitationTitleForNOTClosedProject";
+        private const string _closedProjectInvitationDescription = "InvitationDescriptionForClosedProject";
+        private const string _notClosedProjectInvitationDescription = "InvitationDescriptionForNOTClosedProject"; 
         private Project _testProject;
+        private Project _testProjectClosed;
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -53,7 +61,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             _person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
 
-            _testProject = new Project("TestPlant", "TestProject", "Description for TestProject");
+            _testProject = new Project(TestPlant, "TestProject", "Description for TestProject");
+            _testProjectClosed = new Project(TestPlant, "TestProject", "Description for TestProject"){IsClosed = true};
+            _testProject.SetProtectedIdForTesting(1);
+            _testProjectClosed.SetProtectedIdForTesting(2);
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -129,6 +140,30 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     _testProject,
                     "TestInvitation6",
                     "TestDescription6",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                    new List<CommPkg>());
+
+                _invitationForClosedProject = new Invitation(
+                    TestPlant,
+                    _testProjectClosed,
+                    _closedProjectInvitationTitle,
+                    _closedProjectInvitationDescription,
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2") },
+                    new List<CommPkg>());
+
+                _invitationForNotClosedProject = new Invitation(
+                    TestPlant,
+                    _testProject,
+                    _notClosedProjectInvitationTitle,
+                    _notClosedProjectInvitationDescription,
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
@@ -240,6 +275,32 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     7);
                 _personParticipantOperation.SetProtectedIdForTesting(7);
 
+                _personParticipantClosedProject = new Participant(
+                    TestPlant,
+                    Organization.Operation,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _currentUserOid,
+                    7);
+                _personParticipantClosedProject.SetProtectedIdForTesting(8);
+
+                _personParticipantNonClosedProject = new Participant(
+                    TestPlant,
+                    Organization.Operation,
+                    IpoParticipantType.Person,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    _currentUserOid,
+                    7);
+                _personParticipantNonClosedProject.SetProtectedIdForTesting(9);
+
                 _invitationWithPersonParticipantContractor.AddParticipant(_personParticipantContractor);
                 _invitationWithPersonParticipantContractor.AddParticipant(_personParticipantSupplier);
                 _invitationWithFunctionalRoleParticipantConstructionCompany.AddParticipant(_functionalRoleParticipantConstructionCompany);
@@ -247,6 +308,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 _invitationWithPersonParticipantConstructionCompany.AddParticipant(_personParticipantConstructionCompany);
                 _invitationWithFunctionalRoleParticipantContractor.AddParticipant(_functionalRoleParticipantContractor);
                 _acceptedInvitationWithOperationPerson.AddParticipant(_personParticipantOperation);
+                _invitationForClosedProject.AddParticipant(_personParticipantClosedProject);
+                _invitationForNotClosedProject.AddParticipant(_personParticipantNonClosedProject);
 
                 _invitationWithPersonParticipantConstructionCompany.CompleteIpo(
                     helperPerson,
@@ -273,12 +336,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 _cancelledInvitation.CancelIpo(_person);
 
+                context.Projects.Add(_testProject);
+                context.Projects.Add(_testProjectClosed);
                 context.Invitations.Add(_invitationWithPersonParticipantContractor);
                 context.Invitations.Add(_invitationWithFunctionalRoleParticipantConstructionCompany);
                 context.Invitations.Add(_cancelledInvitation);
                 context.Invitations.Add(_invitationWithPersonParticipantConstructionCompany);
                 context.Invitations.Add(_invitationWithFunctionalRoleParticipantContractor);
                 context.Invitations.Add(_acceptedInvitationWithOperationPerson);
+                context.Invitations.Add(_invitationForClosedProject);
+                context.Invitations.Add(_invitationForNotClosedProject);
 
                 context.SaveChangesAsync().Wait();
             }
@@ -306,7 +373,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(5, result.Data.Items.Count());
+                Assert.AreEqual(6, result.Data.Items.Count());
                 var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.ElementAt(0);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
                         outstandingInvitationWithPersonParticipantContractor.InvitationId);
@@ -362,7 +429,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(3, result.Data.Items.Count());
+                Assert.AreEqual(4, result.Data.Items.Count());
                 var firstOutstandingInvitation = result.Data.Items.ElementAt(0);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id, firstOutstandingInvitation.InvitationId);
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Description, firstOutstandingInvitation.Description);
@@ -393,11 +460,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var acceptedInvitationWithOperation =
                     context.Invitations.Single(i => i.Id == _acceptedInvitationWithOperationPerson.Id);
 
+                var notClosedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForNotClosedProject.Id);
+
+                var closedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForClosedProject.Id); 
+                
                 context.Remove(invitationWithPersonParticipant);
                 context.Remove(invitationWithFunctionalRoleParticipant);
                 context.Remove(invitationWithPersonParticipantContractor);
                 context.Remove(invitationWithFunctionalRoleParticipantContractor);
                 context.Remove(acceptedInvitationWithOperation);
+                context.Remove(notClosedProjectInvitation);
+                context.Remove(closedProjectInvitation);
 
                 context.SaveChangesAsync().Wait();
             }
@@ -437,12 +512,20 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var acceptedInvitationWithOperation =
                     context.Invitations.Single(i => i.Id == _acceptedInvitationWithOperationPerson.Id);
 
+                var notClosedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForNotClosedProject.Id);
+                
+                var closedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForClosedProject.Id);
+
                 context.Remove(invitationWithPersonParticipant);
                 context.Remove(invitationWithFunctionalRoleParticipant);
                 context.Remove(cancelledInvitation);
                 context.Remove(invitationWithPersonParticipantContractor);
                 context.Remove(invitationWithFunctionalRoleParticipantContractor);
                 context.Remove(acceptedInvitationWithOperation);
+                context.Remove(notClosedProjectInvitation);
+                context.Remove(closedProjectInvitation);
 
                 context.SaveChangesAsync().Wait();
 
@@ -470,9 +553,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 var invitationWithFunctionalRoleParticipantContractor =
                     context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantContractor.Id);
 
+                var notClosedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForNotClosedProject.Id);
+
+                var closedProjectInvitation =
+                    context.Invitations.Single(i => i.Id == _invitationForClosedProject.Id);
+
                 context.Remove(invitationWithFunctionalRoleParticipant);
                 context.Remove(cancelledInvitation);
                 context.Remove(invitationWithFunctionalRoleParticipantContractor);
+                context.Remove(notClosedProjectInvitation);
+                context.Remove(closedProjectInvitation);
 
                 context.SaveChangesAsync().Wait();
 
@@ -507,7 +598,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(4, result.Data.Items.Count());
+                Assert.AreEqual(5, result.Data.Items.Count());
                 var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.First();
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
                     outstandingInvitationWithPersonParticipantContractor.InvitationId);
@@ -555,7 +646,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                     _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 var result = await dut.Handle(_query, default);
 
-                Assert.AreEqual(4, result.Data.Items.Count());
+                Assert.AreEqual(5, result.Data.Items.Count());
                 var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.First();
                 Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
                     outstandingInvitationWithPersonParticipantContractor.InvitationId);
@@ -600,6 +691,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 Assert.AreEqual(0, result.Data.Items.Count());
                 Assert.AreEqual(ResultType.Ok, result.ResultType);              
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldNotReturnInvitation_WhenProjectIsClosed()
+        {
+            //TODO: JSOI This test should not pass, but it does...
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+                var result = await dut.Handle(_query, default);
+
+                var isClosedProjectInvitationInResultSet = result.Data.Items.Any(x => x.Description.Equals(_closedProjectInvitationDescription));
+                Assert.IsFalse(isClosedProjectInvitationInResultSet);
+                Assert.AreEqual(6, result.Data.Items.Count());
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldReturnInvitation_WhenProjectIsNotClosed()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+                var result = await dut.Handle(_query, default);
+
+                var isNotClosedProjectInvitationInResultSet = result.Data.Items.Any(x => x.Description.Equals(_notClosedProjectInvitationDescription));
+                Assert.IsTrue(isNotClosedProjectInvitationInResultSet);
             }
         }
     }
