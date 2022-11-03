@@ -110,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             try
             {
-                invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation);
+                invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
@@ -400,7 +400,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<Guid> CreateOutlookMeeting(
             CreateInvitationCommand request,
             IReadOnlyCollection<BuilderParticipant> meetingParticipants,
-            Invitation invitation)
+            Invitation invitation,
+            string projectName)
         {
             foreach (var meetingParticipant in meetingParticipants)
             {
@@ -414,13 +415,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
 
                 meetingBuilder
-                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, _projectRepository), request.Location)
+                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, projectName), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(meetingParticipants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, _projectRepository));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
             });
             return meeting.Id;
         }
