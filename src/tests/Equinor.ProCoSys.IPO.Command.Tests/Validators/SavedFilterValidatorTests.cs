@@ -105,6 +105,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         }
 
         [TestMethod]
+        public async Task ExistsAnotherWithSameTitleForPersonInProjectAsync_NonExistingProject_ShouldReturnFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                       _currentUserProvider))
+            {
+                var savedFilter = await context.SavedFilters.FindAsync(2);
+                savedFilter.ProjectId = 123123213;
+                await context.SaveChangesAsync();
+
+                _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
+                var result = await _dut.ExistsAnotherWithSameTitleForPersonInProjectAsync(2, "xxx", default);
+
+                Assert.IsFalse(result);
+            }
+        }
+
+        [TestMethod]
         public async Task ExistsAsync_UnknownSavedFilter_ShouldReturnFalse()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
