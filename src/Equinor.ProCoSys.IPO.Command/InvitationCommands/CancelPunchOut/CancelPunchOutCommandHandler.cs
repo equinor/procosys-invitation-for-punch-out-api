@@ -60,16 +60,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
                 if (e.Code.ToString().ToUpperInvariant() == "FORBIDDEN")
                 {
                     _logger.LogError(e, $"Unable to cancel outlook meeting for IPO.");
-                    return;
                 }
                 else
                 {
-                    throw e;
+                    throw;
                 }
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
     }

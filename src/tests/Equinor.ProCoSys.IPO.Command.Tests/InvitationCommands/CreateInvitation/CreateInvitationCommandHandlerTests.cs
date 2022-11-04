@@ -498,7 +498,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _meetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
                 .Throws(new Exception("Something failed"));
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
+            await Assert.ThrowsExceptionAsync<IpoSendMailException>(() =>
                 _dut.Handle(_command, default));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
