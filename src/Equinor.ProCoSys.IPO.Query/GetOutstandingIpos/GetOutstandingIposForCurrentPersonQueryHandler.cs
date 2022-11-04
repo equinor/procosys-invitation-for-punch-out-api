@@ -108,7 +108,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                              i.Id,
                              i.Description,
                              i.Status,
-
                              ParticipantId = p.Id,
                              p.AzureOid,
                              p.FunctionalRoleCode,

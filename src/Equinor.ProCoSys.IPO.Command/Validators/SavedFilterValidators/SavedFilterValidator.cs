@@ -34,9 +34,10 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      && s.ProjectId == project.Id
+                      && project != null && s.ProjectId == project.Id
                 select s).AnyAsync(cancellationToken);
         }
+
         public async Task<bool> ExistsAnotherWithSameTitleForPersonInProjectAsync(int savedFilterId, string title,
             CancellationToken cancellationToken)
         {
