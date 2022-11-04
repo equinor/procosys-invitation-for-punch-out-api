@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
@@ -30,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
-            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.ProjectId == project.Id && cp.CommPkgNo == commPkgNo).ToList();
+            var commPkgsToUpdate = _context.CommPkgs.Where(cp => project != null && cp.ProjectId == project.Id && cp.CommPkgNo == commPkgNo).ToList();
 
             commPkgsToUpdate.ForEach(cp => cp.Description = description);
         }

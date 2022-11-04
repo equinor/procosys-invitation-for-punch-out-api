@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
             
-            var project = await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName) ?? await AddProjectAsync(request, cancellationToken);
+            var project = await GetOrCreateProjectAsync(request, cancellationToken);
 
             if (request.CommPkgScope.Count > 0)
             {
@@ -122,9 +122,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
         }
 
+        private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) => await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName) ?? await AddProjectAsync(request, cancellationToken);
+
         private async Task<Project> AddProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            Project project;
             var proCoSysProject = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName);
             if (proCoSysProject is null)
             {
@@ -132,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"Could not find ProCoSys project called {request.ProjectName} in plant {_plantProvider.Plant}");
             }
 
-            project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description);
+            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description);
             project.IsClosed = proCoSysProject.IsClosed;
 
             _projectRepository.Add(project);

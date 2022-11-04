@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             {
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsForNonClosedProjects(cancellationToken);
+                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsForNonClosedProjectsAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<InvitationDto>();
 
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             }
         }
 
-        private async Task<List<InvitationDto>> GetNonCanceledInvitationsForNonClosedProjects(CancellationToken cancellationToken)
+        private async Task<List<InvitationDto>> GetNonCanceledInvitationsForNonClosedProjectsAsync(CancellationToken cancellationToken)
         {
             var nonCancelledInvitationsFlat =
                   await (from i in _context.QuerySet<Invitation>()

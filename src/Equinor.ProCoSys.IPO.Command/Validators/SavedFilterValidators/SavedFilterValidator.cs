@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
                 join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
                 where p.Oid == currentUserOid
                       && s.Title == title
-                      && s.ProjectId == projectForSavedFilter.Id
+                      && projectForSavedFilter != null && s.ProjectId == projectForSavedFilter.Id
                       && s.Id != savedFilterId
                 select s).AnyAsync(cancellationToken);
         }

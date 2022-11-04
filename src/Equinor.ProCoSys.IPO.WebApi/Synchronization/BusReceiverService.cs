@@ -89,7 +89,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessMcPkgEvent(string messageJson)
         {
             var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
+            if (mcPkgEvent == null ||
+                string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo) ||
                 (string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld) != (string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNoOld))))
@@ -126,7 +127,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
+            if (commPkgEvent == null || 
+                string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
                 string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo) ||
                 string.IsNullOrWhiteSpace(commPkgEvent.ProjectName))
             {
@@ -169,7 +171,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessProjectEvent(string messageJson)
         {
             var projectEvent = JsonSerializer.Deserialize<ProjectTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(projectEvent.Plant) || string.IsNullOrWhiteSpace(projectEvent.ProjectName))
+
+            if (projectEvent == null || 
+                string.IsNullOrWhiteSpace(projectEvent.Plant) || 
+                string.IsNullOrWhiteSpace(projectEvent.ProjectName))
             {
                 throw new Exception($"Unable to deserialize JSON to ProjectEvent {messageJson}");
             }
@@ -198,7 +203,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _bearerTokenSetter.SetBearerToken(bearerToken, false);
 
             var ipoEvent = JsonSerializer.Deserialize<IpoTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(ipoEvent.InvitationGuid))
+            if (ipoEvent == null || string.IsNullOrWhiteSpace(ipoEvent.InvitationGuid))
             {
                 throw new Exception($"Unable to deserialize JSON to IpoEvent {messageJson}");
             }
@@ -248,7 +253,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessLibraryEvent(string messageJson)
         {
             var libraryEvent = JsonSerializer.Deserialize<LibraryTopic>(messageJson);
-            if (string.IsNullOrWhiteSpace(libraryEvent.Plant))
+            if (libraryEvent == null || string.IsNullOrWhiteSpace(libraryEvent.Plant))
             {
                 throw new Exception($"Unable to deserialize JSON to LibraryEvent {messageJson}");
             }

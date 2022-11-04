@@ -52,18 +52,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return participants;
         }
 
-        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person) 
-            => IsValidEmail(person.Email) ? 
-                new ParticipantIdentifier(person.Email) : 
-                new ParticipantIdentifier(new Guid(person.AzureOid));
-
-        private static ParticipantType GetParticipantType(bool required) 
-            => required ? ParticipantType.Required : ParticipantType.Optional;
-
-        private static bool IsValidEmail(string email)
-            => new EmailAddressAttribute().IsValid(email);
-
-        public static string GenerateMeetingTitle(Invitation invitation, string projectName) => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {projectName}";
+        public static string GenerateMeetingTitle(Invitation invitation, string projectName) 
+            => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {projectName}";
 
         public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName)
         {
@@ -134,5 +124,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             table += $"</table>";
             return table;
         }
+        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person)
+            => IsValidEmail(person.Email) ?
+                new ParticipantIdentifier(person.Email) :
+                new ParticipantIdentifier(new Guid(person.AzureOid));
+
+        private static ParticipantType GetParticipantType(bool required)
+            => required ? ParticipantType.Required : ParticipantType.Optional;
+
+        private static bool IsValidEmail(string email)
+            => new EmailAddressAttribute().IsValid(email);
     }
 }
