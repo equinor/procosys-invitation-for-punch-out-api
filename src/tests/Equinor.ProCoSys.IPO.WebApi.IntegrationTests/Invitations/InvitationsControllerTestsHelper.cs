@@ -437,7 +437,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             IEnumerable<string> mcPkgScope,
             IEnumerable<string> commPkgScope,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
-            string expectedMessageOnBadRequest = null)
+            string expectedMessageOnBadRequest = null,
+            string expectedMessageOnInternalServerError = null)
         {
             var bodyPayload = new 
             {
@@ -458,6 +459,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var response = await TestFactory.Instance.GetHttpClient(userType, plant).PostAsync(Route, content);
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
+            await TestsHelper.AssertInternalServerErrorAsync(response, expectedStatusCode, expectedMessageOnInternalServerError);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {

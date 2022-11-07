@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
@@ -21,41 +21,32 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
         public async Task<Result<List<InvitationForMainDto>>> Handle(GetInvitationsByCommPkgNoQuery request,
             CancellationToken cancellationToken)
         {
-            var invitations = await
-                (from invitation in _context.QuerySet<Invitation>()
-                    .Include(i => i.CommPkgs)
-                    .Include(i => i.McPkgs)
-                    .Include(i => i.Participants)
-                    .Where(i => i.ProjectName == request.ProjectName 
-                                && (i.McPkgs.Any(mcPkg => mcPkg.CommPkgNo == request.CommPkgNo)
-                                || i.CommPkgs.Any(commPkg => commPkg.CommPkgNo == request.CommPkgNo)))
-                 select invitation).ToListAsync(cancellationToken);
+            var projectFromRequest = await _context.QuerySet<Project>()
+                .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); 
+            
+            var invitations =
+                await (from i in _context.QuerySet<Invitation>()
+                       from comm in _context.QuerySet<CommPkg>().Where(c => i.Id == EF.Property<int>(c, "InvitationId"))
+                                       .DefaultIfEmpty()
+                       from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
+                           .DefaultIfEmpty()
+                            where projectFromRequest != null && i.ProjectId == projectFromRequest.Id &&
+                          (comm.CommPkgNo == request.CommPkgNo ||
+                           mc.CommPkgNo == request.CommPkgNo)
+                       select new InvitationForMainDto(
+                                           i.Id,
+                                           i.Title,
+                                           i.Description,
+                                           i.Type,
+                                           i.Status,
+                                           i.CompletedAtUtc,
+                                           i.AcceptedAtUtc,
+                                           i.StartTimeUtc,
+                                           i.RowVersion.ConvertToString()))
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
 
-            var invitationForMainDtos = new List<InvitationForMainDto>();
-
-            foreach (var invitation in invitations)
-            {
-                var invitationForMainDto = ConvertToInvitationForMainDto(invitation);
-                invitationForMainDtos.Add(invitationForMainDto);
-            }
-
-            return new SuccessResult<List<InvitationForMainDto>>(invitationForMainDtos);
-        }
-
-        private static InvitationForMainDto ConvertToInvitationForMainDto(Invitation invitation)
-        {
-            var invitationForMainDto = new InvitationForMainDto(
-                invitation.Id,
-                invitation.Title,
-                invitation.Description,
-                invitation.Type,
-                invitation.Status,
-                invitation.CompletedAtUtc,
-                invitation.AcceptedAtUtc,
-                invitation.StartTimeUtc,
-                invitation.RowVersion.ConvertToString());
-
-            return invitationForMainDto;
+            return new SuccessResult<List<InvitationForMainDto>>(invitations);
         }
     }
 }

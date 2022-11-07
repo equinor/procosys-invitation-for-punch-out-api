@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Fusion.Integration.Http.Errors;
 using Fusion.Integration.Meeting;
@@ -93,8 +94,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                             && (currentUserIsCreator 
                                 || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList()));
 
+            var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
+            if (project is null)
+            {
+                _logger.LogWarning($"Cannot find project with id {invitation.ProjectId} on invitation {invitation.Title}");
+            }
+
             var invitationResult = new InvitationDto(
-                invitation.ProjectName,
+                project?.Name ?? "Project name not found",
                 invitation.Title,
                 invitation.Description,
                 invitation.Location,

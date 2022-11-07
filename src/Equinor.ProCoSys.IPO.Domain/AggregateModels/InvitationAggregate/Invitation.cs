@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Domain.Time;
@@ -30,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public Invitation(
             string plant,
-            string projectName,
+            Project project,
             string title,
             string description,
             DisciplineType type,
@@ -44,9 +45,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             mcPkgs ??= new List<McPkg>();
             commPkgs ??= new List<CommPkg>();
 
-            if (string.IsNullOrEmpty(projectName))
+            if (project is null)
             {
-                throw new ArgumentNullException(nameof(projectName));
+                throw new ArgumentNullException(nameof(project));
             }
 
             if (string.IsNullOrEmpty(title))
@@ -54,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentNullException(nameof(title));
             }
 
-            ProjectName = projectName;
+            ProjectId = project.Id;
             Title = title;
             Description = description;
 
@@ -69,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public Guid ObjectGuid { get; set; }
-        public string ProjectName { get; private set; }
+        public int ProjectId { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public DisciplineType Type { get; set; }
@@ -453,8 +454,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ModifiedById = modifiedBy.Id;
         }
 
-        public void MoveToProject(string toProject) => ProjectName = toProject;
-        
+        public void MoveToProject(Project toProject)
+        {
+            if (toProject is null)
+            {
+                throw new ArgumentNullException(nameof(toProject));
+            }
+
+            ProjectId = toProject.Id;
+        }
+
         private void AddCommPkg(CommPkg commPkg)
         {
             if (commPkg == null)

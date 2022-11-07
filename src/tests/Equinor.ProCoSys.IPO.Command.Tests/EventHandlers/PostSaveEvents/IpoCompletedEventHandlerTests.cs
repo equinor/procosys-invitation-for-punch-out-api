@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
@@ -59,11 +60,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             // Arrange
             var objectGuid = Guid.NewGuid();
             var plant = "TestPlant";
+            var project = new Project("TestPlant", "project", "Description of project");
             var commpkgs = new List<CommPkg>
             {
-                new CommPkg(plant, "project", "commpkgno", "description", "status", "system|subsystem")
+                new CommPkg(plant, project, "commpkgno", "description", "status", "system|subsystem")
             };
-            var invitation = new Invitation(plant, "project", "title", "description", DisciplineType.MDP, DateTime.Now,
+            var invitation = new Invitation(plant, project, "title", "description", DisciplineType.MDP, DateTime.Now,
                 DateTime.Now, "location", null, commpkgs);
             invitation.AddParticipant(new Participant(plant, Organization.ConstructionCompany,
                 IpoParticipantType.Person, "code", "firstname", "lastname", "username", "email", Guid.NewGuid(), 1));
