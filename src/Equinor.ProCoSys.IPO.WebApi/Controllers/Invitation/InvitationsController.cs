@@ -13,6 +13,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillProjects;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
@@ -502,6 +503,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id)
         {
             var result = await _mediator.Send(new GetCommentsQuery(id));
+            return this.FromResult(result);
+        }
+
+        [Authorize(Roles = Permissions.IPO_ADMIN)]
+        [HttpPut("FillProjects")]
+        public async Task<ActionResult<IEnumerable<string>>> FillProjects(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            bool dryRun = true)
+        {
+            var result = await _mediator.Send(new FillProjectsCommand(dryRun));
             return this.FromResult(result);
         }
 
