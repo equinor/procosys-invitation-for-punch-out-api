@@ -397,7 +397,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             catch (Exception ex)
             {
-                throw new IpoSendMailException($"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.", ex);
+                _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.");
+                throw new IpoSendMailException();
             }
             return meeting.Id;
         }

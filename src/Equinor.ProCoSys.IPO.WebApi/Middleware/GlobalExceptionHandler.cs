@@ -74,9 +74,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 _logger.LogDebug(message);
                 await context.Response.WriteAsync(message);
             }
-            catch (IpoSendMailException mex)
+            catch (IpoSendMailException)
             {
-                _logger.LogError(mex, "An exception occurred when sending email");
+                _logger.LogError("An exception occurred when sending email");
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/text";
                 await context.Response.WriteAsync("Something went wrong when sending email!");
