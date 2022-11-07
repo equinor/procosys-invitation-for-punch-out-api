@@ -30,5 +30,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             Assert.AreEqual(expectedStatusCode, response.StatusCode);
         }
+
+        public static async Task AssertInternalServerErrorAsync(
+            HttpResponseMessage response, 
+            HttpStatusCode expectedStatusCode, 
+            string expectedMessageOnInternalServerError)
+        {
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"server error details: {jsonString}");
+                Assert.AreEqual(expectedMessageOnInternalServerError, jsonString);
+            }
+
+            Assert.AreEqual(expectedStatusCode, response.StatusCode);
+        }
     }
 }

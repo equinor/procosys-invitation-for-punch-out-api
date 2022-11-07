@@ -115,10 +115,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch (Exception e)
+            catch
             {
                 await transaction.RollbackAsync(cancellationToken);
-                throw new Exception($"Error: User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.", e);
+                throw;
             }
         }
 
@@ -412,19 +412,29 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
 
-            var meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
-            {
-                var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
+            GeneralMeeting meeting;
 
-                meetingBuilder
-                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, projectName), request.Location)
-                    .StartsOn(request.StartTime, request.EndTime)
-                    .WithTimeZone("UTC")
-                    .WithParticipants(meetingParticipants)
-                    .WithClassification(MeetingClassification.Open)
-                    .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
-            });
+            try
+            {
+                meeting = await _meetingClient.CreateMeetingAsync(meetingBuilder =>
+                {
+                    var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
+
+                    meetingBuilder
+                        .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, projectName), request.Location)
+                        .StartsOn(request.StartTime, request.EndTime)
+                        .WithTimeZone("UTC")
+                        .WithParticipants(meetingParticipants)
+                        .WithClassification(MeetingClassification.Open)
+                        .EnableOutlookIntegration()
+                        .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.");
+                throw new IpoSendMailException();
+            }
             return meeting.Id;
         }
     }
