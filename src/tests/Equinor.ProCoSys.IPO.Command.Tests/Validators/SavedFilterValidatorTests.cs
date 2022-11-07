@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common;
+using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -20,20 +23,24 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private SavedFilter _savedFilter1;
         private SavedFilter _savedFilter2;
 
-        private readonly string _title = "title";
-        private readonly string _projectName = "projectName";
+        private const string _title = "title";
+        private const int _projectId = 320;
+        private const string _projectName = "projectName";
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher,
                 _currentUserProvider))
             {
+                _project.SetProtectedIdForTesting(_projectId);
+
                 _personOid = new Guid();
 
                 var person = AddPerson(context, _personOid, "Current", "User", "", "");
-                _savedFilter1 = new SavedFilter(TestPlant, _projectName, _title, "criteria");
-                _savedFilter2 = new SavedFilter(TestPlant, _projectName, _title, "C");
-
+                _savedFilter1 = new SavedFilter(TestPlant, _project, _title, "criteria");
+                _savedFilter2 = new SavedFilter(TestPlant, _project, _title, "C");
+                context.Projects.Add(_project);
                 person.AddSavedFilter(_savedFilter1);
                 person.AddSavedFilter(_savedFilter2);
                 context.SaveChangesAsync().Wait();
@@ -70,7 +77,20 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
-         
+
+        [TestMethod]
+        public async Task ExistsWithSameTitleForPersonInProjectAsync_NonExistingProject_ShouldReturnFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                       _currentUserProvider))
+            {
+                _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
+                var result = await _dut.ExistsWithSameTitleForPersonInProjectAsync(_title, "NonExistingProject", default);
+
+                Assert.IsFalse(result);
+            }
+        }
+
         [TestMethod]
         public async Task ExistsAnotherWithSameTitleForPersonInProjectAsync_NewTitle_ShouldReturnFalse()
         {
@@ -94,6 +114,23 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 var result = await _dut.ExistsAnotherWithSameTitleForPersonInProjectAsync(_savedFilter2.Id, _title, default);
 
                 Assert.IsTrue(result);
+            }
+        }
+
+        [TestMethod]
+        public async Task ExistsAnotherWithSameTitleForPersonInProjectAsync_NonExistingProject_ShouldReturnFalse()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                       _currentUserProvider))
+            {
+                var savedFilter = await context.SavedFilters.FindAsync(2);
+                savedFilter.ProjectId = 123123213;
+                await context.SaveChangesAsync();
+
+                _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
+                var result = await _dut.ExistsAnotherWithSameTitleForPersonInProjectAsync(2, "xxx", default);
+
+                Assert.IsFalse(result);
             }
         }
 

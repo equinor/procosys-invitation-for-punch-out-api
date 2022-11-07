@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -21,18 +22,20 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
+            var project = new Project(TestPlant, "TestProject", $"Description of TestProject");
+
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitation = new Invitation(
                     TestPlant,
-                    "TestProject",
+                    project,
                     "TestInvitation",
                     "TestDescriptioN",
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, "TestProject", "commno", "mcno", "d", "1|2")},
+                    new List<McPkg> {new McPkg(TestPlant, project, "commno", "mcno", "d", "1|2")},
                     null);
                 var attachmentA = new Attachment(TestPlant, "fileA.txt");
                 var attachmentB = new Attachment(TestPlant, "fileB.txt");

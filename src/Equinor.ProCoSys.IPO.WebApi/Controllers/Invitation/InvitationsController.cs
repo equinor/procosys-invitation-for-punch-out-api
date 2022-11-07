@@ -117,8 +117,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
-            string plant,
+            string plant,           
             [FromRoute] string commPkgNo,
+            [Required]
             [FromQuery] string projectName)
         {
             var result = await _mediator.Send(new GetInvitationsByCommPkgNoQuery(commPkgNo, projectName));
@@ -501,6 +502,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromRoute] int id)
         {
             var result = await _mediator.Send(new GetCommentsQuery(id));
+            return this.FromResult(result);
+        }
+
+        [Obsolete]
+        [Authorize(Roles = Permissions.IPO_ADMIN)]
+        [HttpPut("FillProjects")]
+        public async Task<ActionResult<IEnumerable<string>>> FillProjects(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            bool dryRun = true)
+        {
+            var result = await _mediator.Send(
+                new Command.InvitationCommands.FillProjects.FillProjectsCommand(dryRun));
             return this.FromResult(result);
         }
 

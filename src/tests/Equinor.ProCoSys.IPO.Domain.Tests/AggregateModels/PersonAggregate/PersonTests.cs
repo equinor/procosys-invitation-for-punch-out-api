@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
@@ -13,12 +14,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         private const string ProjectName = "Project name";
         private Person _dut;
         private SavedFilter _savedDefaultFilter;
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
 
         [TestInitialize]
         public void Setup()
         {
             _dut = new Person(Oid, "FirstName", "LastName", "UserName", "EmailAddress");
-            _savedDefaultFilter = new SavedFilter(TestPlant, ProjectName, "title", "criteria")
+            _savedDefaultFilter = new SavedFilter(TestPlant, _project, "title", "criteria")
             {
                 DefaultFilter = true
             };
@@ -39,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         [TestMethod]
         public void CreateSavedFilter_ShouldSaveFilter()
         {
-            var savedFilter = new SavedFilter(TestPlant, ProjectName, "titleNew", "criteria")
+            var savedFilter = new SavedFilter(TestPlant, _project, "titleNew", "criteria")
             {
                 DefaultFilter = true
             };
@@ -58,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         {
             var dut = new Person(Oid, "firstName", "lastName", "", "");
 
-            var savedFilter = new SavedFilter(TestPlant, ProjectName, "title", "criteria")
+            var savedFilter = new SavedFilter(TestPlant, _project, "title", "criteria")
             {
                 DefaultFilter = true
             };
@@ -66,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
             dut.AddSavedFilter(savedFilter);
 
             // Act
-            var result = dut.GetDefaultFilter(ProjectName);
+            var result = dut.GetDefaultFilter(_project);
 
             // Arrange
             Assert.AreEqual(savedFilter, result);
@@ -74,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
 
         public void DeleteSavedFilter_ShouldSaveFilter()
         {
-            var savedFilter = new SavedFilter(TestPlant, ProjectName, "title", "criteria")
+            var savedFilter = new SavedFilter(TestPlant, _project, "title", "criteria")
             {
                 DefaultFilter = true
             };

@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -38,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IPermissionCache> _permissionCacheMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<ILogger<EditInvitationCommandHandler>> _loggerMock;
 
         private EditInvitationCommand _command;
@@ -47,6 +49,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
+        private const int _projectId = 320;
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
         private const string _title = "Test title";
         private const string _newTitle = "Test title 2";
         private const string _description = "Test description";
@@ -107,6 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         [TestInitialize]
         public void Setup()
         {
+            _project.SetProtectedIdForTesting(_projectId);
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock
                 .Setup(x => x.Plant)
@@ -248,13 +253,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
-                new McPkg(_plant, _projectName, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
             };
             //create invitation
             _dpInvitation = new Invitation(
                     _plant,
-                    _projectName,
+                    _project,
                     _title,
                     _description,
                     _typeDp,
@@ -267,13 +272,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var commPkgs = new List<CommPkg>
             {
-                new CommPkg(_plant, _projectName, _commPkgNo, "d", "ok", _systemPathWithSection),
-                new CommPkg(_plant, _projectName, _commPkgNo, "d2", "ok", _systemPathWithSection)
+                new CommPkg(_plant, _project, _commPkgNo, "d", "ok", _systemPathWithSection),
+                new CommPkg(_plant, _project, _commPkgNo, "d2", "ok", _systemPathWithSection)
             };
             //create invitation
             _mdpInvitation = new Invitation(
                     _plant,
-                    _projectName,
+                    _project,
                     _title,
                     _description,
                     _typeMdp,
@@ -320,6 +325,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 .Setup(x => x.GetByIdAsync(_mdpInvitationId))
                 .Returns(Task.FromResult(_mdpInvitation));
 
+            _projectRepositoryMock = new Mock<IProjectRepository>();
+            _projectRepositoryMock.Setup(x => x.GetProjectOnlyByNameAsync(_projectName)).Returns(Task.FromResult(_project));
+            _projectRepositoryMock.Setup(x => x.GetByIdAsync(_projectId)).Returns(Task.FromResult(_project));
+
             _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
             _meetingOptionsMock.Setup(x => x.CurrentValue)
                 .Returns(new MeetingOptions { PcsBaseUrl = _plant });
@@ -351,6 +360,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _personRepositoryMock.Object,
                 _currentUserProviderMock.Object,
                 _permissionCacheMock.Object,
+                _projectRepositoryMock.Object,
                 _loggerMock.Object);
         }
 

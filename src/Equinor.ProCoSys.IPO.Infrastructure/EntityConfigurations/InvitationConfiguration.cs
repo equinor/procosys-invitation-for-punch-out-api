@@ -1,5 +1,6 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,9 +16,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.ConfigureModificationAudit();
             builder.ConfigureConcurrencyToken();
 
-            builder.Property(x => x.ProjectName)
-                .HasMaxLength(Invitation.ProjectNameMaxLength)
-                .IsRequired();
+            builder.HasOne<Project>()
+                .WithMany()
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Property(x => x.Type)
                 .IsRequired();
@@ -88,6 +91,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .WithMany()
                 .HasForeignKey(x => x.AcceptedBy)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder
+                .HasIndex(i => i.Plant)
+                .HasFilter("[Status] <> 3")
+                .IncludeProperties(i => new { i.Description, i.Status });
+      
         }
     }
 }
