@@ -63,6 +63,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         public async Task ProcessMessageAsync(PcsTopic pcsTopic, string messageJson, CancellationToken cancellationToken)
         {
+            var deserializedMessage = JsonSerializer.Deserialize<Dictionary<string, object>>(messageJson);
+            /***
+             * Filter out deleted events for now, but should be handled properly #96688(pres issue)
+             */
+            if (deserializedMessage != null && IsDeleteEvent(deserializedMessage))
+            {
+                deserializedMessage.TryGetValue("ProCoSysGuid", out var guid);
+                TrackDeleteEvent(pcsTopic, guid);
+                return;
+            }
+
             _currentUserSetter.SetCurrentUserOid(_ipoApiOid);
 
             switch (pcsTopic)
@@ -85,6 +96,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
+
+        private static bool IsDeleteEvent(Dictionary<string, object> deserialize)
+            => deserialize.Contains(new KeyValuePair<string, object>("Behavior", "delete"));
 
         private void ProcessMcPkgEvent(string messageJson)
         {
@@ -249,6 +263,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 await ClearM01DatesAndBlankExternalReferenceAsync(ipoEvent, invitation);
             }
         }
+
+        private void TrackDeleteEvent(PcsTopic topic, object guid) =>
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                    {"Event Delete", topic.ToString()},
+                    {"ProCoSysGuid", guid?.ToString()}
+                });
 
         private void ProcessLibraryEvent(string messageJson)
         {
