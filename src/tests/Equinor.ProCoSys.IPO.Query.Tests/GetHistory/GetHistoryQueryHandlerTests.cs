@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetHistory;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -24,13 +25,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
+            var project1 = new Project(TestPlant, "TestProject", $"Description of TestProject");
+            var project2 = new Project(TestPlant, "project", $"Description of project");
+
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var mcScope = new List<McPkg> {new McPkg(TestPlant, "TestProject", "commno", "mcno", "d", "1|2")};
+                var mcScope = new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2")};
 
                 _invitationWithNoHistory = new Invitation(
                     TestPlant,
-                    "project",
+                    project2,
                     "title",
                     "description",
                     DisciplineType.DP,
@@ -42,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 
                 _invitationWithHistory = new Invitation(
                     TestPlant,
-                    "project",
+                    project2,
                     "title 2",
                     "description",
                     DisciplineType.DP,

@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -171,12 +172,19 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             var exportInvitations = new List<ExportInvitationDto>();
             foreach (var invitation in invitationsWithIncludes)
             {
+                var project = await _context.QuerySet<Project>()
+                    .SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
+                if (project is null)
+                {
+                    throw new ArgumentNullException(nameof(project));
+                }
+
                 var organizer = await GetPersonNameAsync(invitation.CreatedById);
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
                 var participants = invitationWithIncludes.Participants.ToList();
                 var exportInvitationDto = new ExportInvitationDto(
                     invitation.Id,
-                    invitation.ProjectName,
+                    project.Name,
                     invitation.Status,
                     invitation.Title,
                     invitation.Description,

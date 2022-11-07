@@ -52,21 +52,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return participants;
         }
 
-        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person) 
-            => IsValidEmail(person.Email) ? 
-                new ParticipantIdentifier(person.Email) : 
-                new ParticipantIdentifier(new Guid(person.AzureOid));
+        public static string GenerateMeetingTitle(Invitation invitation, string projectName) 
+            => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {projectName}";
 
-        private static ParticipantType GetParticipantType(bool required) 
-            => required ? ParticipantType.Required : ParticipantType.Optional;
-
-        private static bool IsValidEmail(string email)
-            => new EmailAddressAttribute().IsValid(email);
-
-        public static string GenerateMeetingTitle(Invitation invitation) 
-            => $"Invitation for punch-out, IPO-{invitation.Id}, Project: {invitation.ProjectName}";
-
-        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer)
+        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
@@ -79,12 +68,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
             if (invitation.McPkgs.Count > 0)
             {
-                meetingDescription += GenerateMcPkgTable(invitation, baseUrl);
+                meetingDescription += GenerateMcPkgTable(invitation, baseUrl, projectName);
             }
 
             if (invitation.CommPkgs.Count > 0)
             {
-                meetingDescription += GenerateCommPkgTable(invitation, baseUrl);
+                meetingDescription += GenerateCommPkgTable(invitation, baseUrl, projectName);
             }
 
             meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
@@ -93,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return meetingDescription;
         }
 
-        private static string GenerateMcPkgTable(Invitation invitation, string baseUrl)
+        private static string GenerateMcPkgTable(Invitation invitation, string baseUrl, string projectName)
         {
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr>" +
@@ -106,16 +95,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             {
                 table +=
                     "<tr>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#McPkg|?projectName={invitation.ProjectName}&mcpkgno={mcPkg.McPkgNo}'>{mcPkg.McPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#McPkg|?projectName={projectName}&mcpkgno={mcPkg.McPkgNo}'>{mcPkg.McPkgNo}</a></td>" +
                     $"<td style='border: 1px solid black;'>{mcPkg.Description}</td>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={mcPkg.CommPkgNo}'>{mcPkg.CommPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={projectName}&commpkgno={mcPkg.CommPkgNo}'>{mcPkg.CommPkgNo}</a></td>" +
                     "</tr>";
             }
             table += $"</table>";
             return table;
         }
 
-        private static string GenerateCommPkgTable(Invitation invitation, string baseUrl)
+        private static string GenerateCommPkgTable(Invitation invitation, string baseUrl, string projectName)
         {
             var table = "<table style='border-collapse:collapse;'>" +
                                   "<tr style='font-weight:bold;'>" +
@@ -127,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             {
                 table +=
                     "<tr>" +
-                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={invitation.ProjectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></td>" +
+                    $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={projectName}&commpkgno={commPkg.CommPkgNo}'>{commPkg.CommPkgNo}</a></td>" +
                     $"<td style='border: 1px solid black;'>{commPkg.Description}</td>" +
                     "</tr>";
             }
@@ -135,5 +124,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             table += $"</table>";
             return table;
         }
+        private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person)
+            => IsValidEmail(person.Email) ?
+                new ParticipantIdentifier(person.Email) :
+                new ParticipantIdentifier(new Guid(person.AzureOid));
+
+        private static ParticipantType GetParticipantType(bool required)
+            => required ? ParticipantType.Required : ParticipantType.Optional;
+
+        private static bool IsValidEmail(string email)
+            => new EmailAddressAttribute().IsValid(email);
     }
 }

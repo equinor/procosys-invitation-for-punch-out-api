@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -17,9 +18,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
     public class UnitOfWorkTests
     {
         private const string Plant = "PCS$TESTPLANT";
+        private readonly Project project = new(Plant, "Project", "Description of Project");
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         private readonly DateTime _currentTime = new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc);
-        private McPkg _mcPkg = new McPkg(Plant, "project", "commno", "mcno", "d", "1|2");
+        private McPkg _mcPkg;
+
         private DbContextOptions<IPOContext> _dbContextOptions;
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IEventDispatcher> _eventDispatcherMock;
@@ -29,6 +32,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         [TestInitialize]
         public void Setup()
         {
+            _mcPkg = new McPkg(Plant, project, "commno", "mcno", "d", "1|2");
+
             _dbContextOptions = new DbContextOptionsBuilder<IPOContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
@@ -57,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
-            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP,
+            var newInvitation = new Invitation(Plant, project, "Title", "Desc", DisciplineType.DP,
                 _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
             dut.Invitations.Add(newInvitation);
 
@@ -82,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
 
-            var newInvitation = new Invitation(Plant, "Project", "Title", "Desc", DisciplineType.DP,
+            var newInvitation = new Invitation(Plant, project, "Title", "Desc", DisciplineType.DP,
                 _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
             dut.Invitations.Add(newInvitation);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -38,6 +39,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private Attachment _attachment;
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
+        private const int ProjectId = 132;
+        private static readonly Project project = new(TestPlant, ProjectName, $"Description of {ProjectName} project");
         private const string Title = "Title A";
         private const string Title2 = "Title B";
         private const string Description = "Description A";
@@ -47,15 +50,16 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestInitialize]
         public void Setup()
         {
+            project.SetProtectedIdForTesting(ProjectId);
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            _mcPkg1 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc1", "MC D", System);
-            _mcPkg2 = new McPkg(TestPlant, ProjectName, "Comm1", "Mc2", "MC D 2", System);
-            _commPkg1 = new CommPkg(TestPlant, ProjectName, "Comm1", "Comm D", "OK", "1|2");
-            _commPkg2 = new CommPkg(TestPlant, ProjectName, "Comm2", "Comm D 2", "OK", "1|2");
+            _mcPkg1 = new McPkg(TestPlant, project, "Comm1", "Mc1", "MC D", System);
+            _mcPkg2 = new McPkg(TestPlant, project, "Comm1", "Mc2", "MC D 2", System);
+            _commPkg1 = new CommPkg(TestPlant, project, "Comm1", "Comm D", "OK", "1|2");
+            _commPkg2 = new CommPkg(TestPlant, project, "Comm2", "Comm D 2", "OK", "1|2");
 
             _dutDpIpo = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.DP,
@@ -67,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutMdpIpo = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -79,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutWithCompletedStatus = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -91,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutWithAcceptedStatus = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -103,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutWithCanceledStatus = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -115,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutWithSignedParticipant = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -215,7 +219,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void Constructor_ShouldSetProperties()
         {
             Assert.AreEqual(TestPlant, _dutDpIpo.Plant);
-            Assert.AreEqual(ProjectName, _dutDpIpo.ProjectName);
+            Assert.AreEqual(ProjectId, _dutDpIpo.ProjectId);
             Assert.AreEqual(Title, _dutDpIpo.Title);
             Assert.AreEqual(Description, _dutDpIpo.Description);
             Assert.AreEqual(DisciplineType.DP, _dutDpIpo.Type);
@@ -228,7 +232,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             var dutDpIpo = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.DP,
@@ -245,7 +249,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             var dutMdpIpo = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title2,
                 Description,
                 DisciplineType.MDP,
@@ -262,7 +266,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentNullException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     null,
                     Description,
                     DisciplineType.MDP,
@@ -294,7 +298,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     Title,
                     Description,
                     DisciplineType.MDP,
@@ -310,7 +314,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     Title,
                     Description,
                     DisciplineType.MDP,
@@ -326,7 +330,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     Title,
                     Description,
                     DisciplineType.MDP,
@@ -342,7 +346,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     Title,
                     Description,
                     DisciplineType.DP,
@@ -358,7 +362,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentException>(() =>
                 new Invitation(
                     TestPlant,
-                    ProjectName,
+                    project,
                     Title,
                     Description,
                     DisciplineType.DP,
@@ -627,7 +631,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddMcPkgScope()
         {
-            var newMcPkg = new McPkg(TestPlant, ProjectName, "Comm2", "Mc3", "MC D", System);
+            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System);
 
             Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
 
@@ -647,7 +651,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddUniqueMcPkgs()
         {
-            var newMcPkg = new McPkg(TestPlant, ProjectName, "Comm2", "Mc3", "MC D", System);
+            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System);
 
             Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
 
@@ -667,7 +671,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddCommPkgScope()
         {
-            var newCommPkg = new CommPkg(TestPlant, ProjectName, "Comm3", "D", "OK", System);
+            var newCommPkg = new CommPkg(TestPlant, project, "Comm3", "D", "OK", System);
 
             Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
 
@@ -687,7 +691,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddUniqueCommPkgs()
         {
-            var newCommPkg = new CommPkg(TestPlant, ProjectName, "Comm3", "D", "OK", System);
+            var newCommPkg = new CommPkg(TestPlant, project, "Comm3", "D", "OK", System);
 
             Assert.AreEqual(2, _dutMdpIpo.CommPkgs.Count);
 
@@ -1183,7 +1187,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             var dut = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.MDP,
@@ -1206,7 +1210,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             var dut = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.MDP,
@@ -1229,7 +1233,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             var dut = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.MDP,
@@ -1252,7 +1256,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             var dut = new Invitation(
                 TestPlant,
-                ProjectName,
+                project,
                 Title,
                 Description,
                 DisciplineType.MDP,

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using MediatR;
 using ServiceResult;
 
@@ -13,15 +14,18 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonRepository _personRepository;
+        private readonly IProjectRepository _projectRepository;
 
         public UpdateSavedFilterCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider,
-            IPersonRepository personRepository)
+            IPersonRepository personRepository,
+            IProjectRepository projectRepository)
         {
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personRepository = personRepository;
+            _projectRepository = projectRepository;
         }
 
         public async Task<Result<string>> Handle(UpdateSavedFilterCommand request, CancellationToken cancellationToken)
@@ -32,7 +36,9 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
 
             if (request.DefaultFilter == true)
             {
-                var currentDefaultFilter = person.GetDefaultFilter(savedFilter.ProjectName);
+                var project = await _projectRepository.GetByIdAsync(savedFilter.ProjectId);
+
+                var currentDefaultFilter = person.GetDefaultFilter(project);
                 if (currentDefaultFilter != null)
                 {
                     currentDefaultFilter.DefaultFilter = false;

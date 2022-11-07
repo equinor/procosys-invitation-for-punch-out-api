@@ -1,5 +1,6 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
@@ -17,16 +18,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public CommPkg(
             string plant,
-            string projectName,
+            Project project,
             string commPkgNo,
             string description,
             string status,
             string system)
             : base(plant)
         {
-            if (string.IsNullOrEmpty(projectName))
+            if (project is null)
             {
-                throw new ArgumentNullException(nameof(projectName));
+                throw new ArgumentNullException(nameof(project));
             }
             if (string.IsNullOrEmpty(commPkgNo))
             {
@@ -40,20 +41,21 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException($"{(nameof(system))} is not valid. Must be at least three characters and include '|'");
             }
-            ProjectName = projectName;
             CommPkgNo = commPkgNo;
             Description = description;
             Status = status;
             System = system;
+            ProjectId = project.Id;
         }
 
-        public string ProjectName { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
         public string Status { get; private set; }
         public string System { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
+        public int ProjectId { get; private set; }
+
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;
@@ -64,7 +66,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CreatedById = createdBy.Id;
         }
 
-        public void MoveToProject(string toProject) => ProjectName = toProject;
+        public void MoveToProject(Project toProject)
+        {
+            if (toProject is null)
+            {
+                throw new ArgumentNullException(nameof(toProject));
+            }
+
+            ProjectId = toProject.Id;
+        }
+
         public string SystemSubString => System.Substring(0, System.LastIndexOf('|'));
     }
 }
