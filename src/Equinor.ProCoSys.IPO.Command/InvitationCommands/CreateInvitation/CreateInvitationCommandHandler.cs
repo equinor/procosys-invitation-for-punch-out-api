@@ -8,10 +8,12 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -36,6 +38,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
         private readonly IPersonRepository _personRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IProjectApiService _projectApiService;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -49,6 +53,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IOptionsMonitor<MeetingOptions> meetingOptions,
             IPersonRepository personRepository,
             ICurrentUserProvider currentUserProvider,
+            IProjectRepository projectRepository,
+            IProjectApiService projectApiService,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -62,6 +68,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _meetingOptions = meetingOptions;
             _personRepository = personRepository;
             _currentUserProvider = currentUserProvider;
+            _projectRepository = projectRepository;
+            _projectApiService = projectApiService;
             _logger = logger;
         }
 
@@ -71,6 +79,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var meetingParticipants = new List<BuilderParticipant>();
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
+            
+            var project = await GetOrCreateProjectAsync(request, cancellationToken);
 
             if (request.CommPkgScope.Count > 0)
             {
@@ -84,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             var invitation = new Invitation(
                 _plantProvider.Plant,
-                request.ProjectName,
+                project,
                 request.Title,
                 request.Description,
                 request.Type,
@@ -100,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             try
             {
-                invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation);
+                invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
@@ -110,6 +120,26 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 await transaction.RollbackAsync(cancellationToken);
                 throw new Exception($"Error: User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.", e);
             }
+        }
+
+        private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 
+            => await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName) ?? await AddProjectAsync(request, cancellationToken);
+
+        private async Task<Project> AddProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
+        {
+            var proCoSysProject = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName);
+            if (proCoSysProject is null)
+            {
+                throw new IpoValidationException(
+                    $"Could not find ProCoSys project called {request.ProjectName} in plant {_plantProvider.Plant}");
+            }
+
+            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description);
+            project.IsClosed = proCoSysProject.IsClosed;
+
+            _projectRepository.Add(project);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return project;
         }
 
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
@@ -327,9 +357,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
+            var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
             return commPkgDetailsList.Select(c => new CommPkg(
                 _plantProvider.Plant,
-                projectName,
+                project,
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
@@ -356,9 +388,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 }
             }
 
+            var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
             return mcPkgDetailsList.Select(mc => new McPkg(
                     _plantProvider.Plant,
-                    projectName,
+                    project,
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
@@ -368,7 +402,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<Guid> CreateOutlookMeeting(
             CreateInvitationCommand request,
             IReadOnlyCollection<BuilderParticipant> meetingParticipants,
-            Invitation invitation)
+            Invitation invitation,
+            string projectName)
         {
             foreach (var meetingParticipant in meetingParticipants)
             {
@@ -382,13 +417,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
 
                 meetingBuilder
-                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation), request.Location)
+                    .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, projectName), request.Location)
                     .StartsOn(request.StartTime, request.EndTime)
                     .WithTimeZone("UTC")
                     .WithParticipants(meetingParticipants)
                     .WithClassification(MeetingClassification.Open)
                     .EnableOutlookIntegration()
-                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
+                    .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
             });
             return meeting.Id;
         }

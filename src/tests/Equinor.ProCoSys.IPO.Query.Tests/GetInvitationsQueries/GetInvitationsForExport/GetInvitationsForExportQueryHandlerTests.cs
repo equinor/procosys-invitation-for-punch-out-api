@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
@@ -47,12 +48,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
         const string _system = "1|2";
+        private const int _projectId1 = 320;
+        private const int _projectId2 = 640; 
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context =
                 new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project1.SetProtectedIdForTesting(_projectId1);
+                _project2.SetProtectedIdForTesting(_projectId2);
                 const string description = "Description";
 
                 var functionalRoleParticipant1 = new Participant(
@@ -165,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 var commPkg = new CommPkg(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _commPkgNo,
                     description,
                     "OK",
@@ -173,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _commPkgNo,
                     _mcPkgNo,
                     description,
@@ -181,7 +188,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _commPkgNo2,
                     _mcPkgNo,
                     description,
@@ -191,7 +198,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 _invitation1 = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project1,
                     _title1,
                     "Description",
                     DisciplineType.DP,
@@ -210,7 +217,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 _invitation2 = new Invitation(
                     TestPlant,
-                    _projectName2,
+                    _project2,
                     _title1,
                     "Description",
                     DisciplineType.MDP,
@@ -237,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 _invitation3 = new Invitation(
                     TestPlant,
-                    _projectName2,
+                    _project2,
                     _title2,
                     "Description",
                     DisciplineType.DP,
@@ -249,6 +256,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
 
                 _invitation3.AddParticipant(personParticipant3);
                 _invitation3.AddParticipant(personParticipant4);
+
+                context.Projects.Add(_project1);
+                context.Projects.Add(_project2);
 
                 context.Invitations.Add(_invitation1);
                 var history1 = new History(TestPlant, "D1", _invitation1.ObjectGuid, EventType.IpoCreated);
@@ -805,7 +815,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         private void AssertInvitation(Invitation invitation, ExportInvitationDto invitationDto)
         {
             Assert.AreEqual(0, invitationDto.CommPkgs.Count());
-            Assert.AreEqual(invitation.ProjectName, invitationDto.ProjectName);
+            Assert.AreEqual(GetProjectById(invitation.ProjectId).Name, invitationDto.ProjectName);
             Assert.AreEqual(invitation.Title, invitationDto.Title);
             Assert.AreEqual(invitation.Description, invitationDto.Description);
             Assert.AreEqual(invitation.Id, invitationDto.Id);

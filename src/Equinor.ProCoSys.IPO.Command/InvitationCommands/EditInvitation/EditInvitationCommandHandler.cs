@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -37,6 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IPersonRepository _personRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
+        private readonly IProjectRepository _projectRepository;
         private readonly ILogger<EditInvitationCommandHandler> _logger;
 
 
@@ -53,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IPersonRepository personRepository,
             ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache,
+            IProjectRepository projectRepository,
             ILogger<EditInvitationCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -67,6 +70,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _personRepository = personRepository;
             _currentUserProvider = currentUserProvider;
             _permissionCache = permissionCache;
+            _projectRepository = projectRepository;
             _logger = logger;
         }
 
@@ -74,9 +78,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         {
             var meetingParticipants = new List<BuilderParticipant>();
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
+            var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
-            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, invitation.ProjectName);
-            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, invitation.ProjectName);
+            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name);
+            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
 
             invitation.EditIpo(
@@ -102,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     builder.UpdateMeetingDate(request.StartTime, request.EndTime);
                     builder.UpdateTimeZone("UTC");
                     builder.UpdateParticipants(meetingParticipants);
-                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer));
+                    builder.UpdateInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, project.Name));
                 });
             }
             catch (Exception e)
@@ -143,9 +148,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     }
                 }
 
+                var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
                 return mcPkgsFromMain.Select(mc => new McPkg(
                     _plantProvider.Plant,
-                    projectName,
+                    project,
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
@@ -177,9 +184,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     }
                 }
 
+                var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+
                 return commPkgsFromMain.Select(c => new CommPkg(
                     _plantProvider.Plant,
-                    projectName,
+                    project,
                     c.CommPkgNo,
                     c.Description,
                     c.CommStatus,

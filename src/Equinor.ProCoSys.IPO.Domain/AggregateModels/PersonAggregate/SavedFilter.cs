@@ -1,4 +1,5 @@
 ﻿using System;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Time;
 
@@ -13,12 +14,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         {
         }
 
-        public SavedFilter(string plant, string projectName, string title, string criteria)
+        public SavedFilter(string plant, Project project, string title, string criteria)
             : base(plant)
         {
-            if (string.IsNullOrEmpty(projectName))
+            if (project is null)
             {
-                throw new ArgumentNullException(nameof(projectName));
+                throw new ArgumentNullException(nameof(project));
             }
             if (string.IsNullOrEmpty(title))
             {
@@ -28,12 +29,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             {
                 throw new ArgumentNullException(nameof(criteria));
             }
-            ProjectName = projectName;
+            ProjectId = project.Id;
             Title = title;
             Criteria = criteria;
         }
 
-        public string ProjectName { get; set; }
+        public int ProjectId { get; set; }
         public string Title { get; set; }
         public string Criteria { get; set; }
         public bool DefaultFilter { get; set; }

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
@@ -45,43 +46,44 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             var ipoIdStartWith = GetIpoIdStartWith(filter.IpoIdStartsWith);
 
             var queryable = from invitation in context.QuerySet<Invitation>()
-                where projectNames.Contains(invitation.ProjectName) &&
+                join project in context.QuerySet<Project>() on invitation.ProjectId equals project.Id
+                where projectNames.Contains(project.Name) && invitation.ProjectId == project.Id &&
                       (!filter.PunchOutDates.Any() ||
-                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
-                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
-                            invitation.StartTimeUtc >= startOfThisWeekUtc && invitation.StartTimeUtc < startOfNextWeekUtc) ||
-                           (filter.PunchOutDates.Contains(PunchOutDateFilterType.NextWeek) &&
-                            invitation.StartTimeUtc >= startOfNextWeekUtc && invitation.StartTimeUtc < startOfTwoWeeksUtc)) &&
+                       (filter.PunchOutDates.Contains(PunchOutDateFilterType.Overdue) && invitation.StartTimeUtc < utcNow) ||
+                       (filter.PunchOutDates.Contains(PunchOutDateFilterType.ThisWeek) &&
+                        invitation.StartTimeUtc >= startOfThisWeekUtc && invitation.StartTimeUtc < startOfNextWeekUtc) ||
+                       (filter.PunchOutDates.Contains(PunchOutDateFilterType.NextWeek) &&
+                        invitation.StartTimeUtc >= startOfNextWeekUtc && invitation.StartTimeUtc < startOfTwoWeeksUtc)) &&
                       (!filter.IpoStatuses.Any() ||
-                            (filter.IpoStatuses.Contains(IpoStatus.Planned) && invitation.Status == IpoStatus.Planned) ||
-                            (filter.IpoStatuses.Contains(IpoStatus.Completed) && invitation.Status == IpoStatus.Completed) ||
-                            (filter.IpoStatuses.Contains(IpoStatus.Accepted) && invitation.Status == IpoStatus.Accepted) ||
-                            (filter.IpoStatuses.Contains(IpoStatus.Canceled) && invitation.Status == IpoStatus.Canceled)) &&
+                       (filter.IpoStatuses.Contains(IpoStatus.Planned) && invitation.Status == IpoStatus.Planned) ||
+                       (filter.IpoStatuses.Contains(IpoStatus.Completed) && invitation.Status == IpoStatus.Completed) ||
+                       (filter.IpoStatuses.Contains(IpoStatus.Accepted) && invitation.Status == IpoStatus.Accepted) ||
+                       (filter.IpoStatuses.Contains(IpoStatus.Canceled) && invitation.Status == IpoStatus.Canceled)) &&
                       (string.IsNullOrEmpty(filter.IpoIdStartsWith) ||
-                            invitation.Id.ToString().StartsWith(ipoIdStartWith)) &&
+                       invitation.Id.ToString().StartsWith(ipoIdStartWith)) &&
                       (string.IsNullOrEmpty(filter.CommPkgNoStartsWith) ||
-                            invitation.CommPkgs.Any(c => c.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper())) ||
-                            invitation.McPkgs.Any(mc => mc.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper()))) &&
+                       invitation.CommPkgs.Any(c => c.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper())) ||
+                       invitation.McPkgs.Any(mc => mc.CommPkgNo.ToUpper().StartsWith(filter.CommPkgNoStartsWith.ToUpper()))) &&
                       (string.IsNullOrEmpty(filter.McPkgNoStartsWith) ||
-                            invitation.McPkgs.Any(mc => mc.McPkgNo.ToUpper().StartsWith(filter.McPkgNoStartsWith.ToUpper()))) &&
+                       invitation.McPkgs.Any(mc => mc.McPkgNo.ToUpper().StartsWith(filter.McPkgNoStartsWith.ToUpper()))) &&
                       (string.IsNullOrEmpty(filter.TitleStartsWith) ||
-                            invitation.Title.ToUpper().StartsWith(filter.TitleStartsWith.ToUpper())) &&
+                       invitation.Title.ToUpper().StartsWith(filter.TitleStartsWith.ToUpper())) &&
                       (filter.PersonOid == null ||
-                            invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
+                       invitation.Participants.Any(p => p.AzureOid == filter.PersonOid)) &&
                       (filter.FunctionalRoleCode == null ||
-                            invitation.Participants.Any(p => p.FunctionalRoleCode.ToUpper() == filter.FunctionalRoleCode.ToUpper())) &&
+                       invitation.Participants.Any(p => p.FunctionalRoleCode.ToUpper() == filter.FunctionalRoleCode.ToUpper())) &&
                       (filter.PunchOutDateFromUtc == null ||
-                            invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
+                       invitation.StartTimeUtc >= filter.PunchOutDateFromUtc) &&
                       (filter.PunchOutDateToUtc == null ||
-                            invitation.EndTimeUtc <= filter.PunchOutDateToUtc) &&
+                       invitation.EndTimeUtc <= filter.PunchOutDateToUtc) &&
                       (filter.LastChangedAtFromUtc == null ||
-                            (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) >= filter.LastChangedAtFromUtc) &&
+                       (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) >= filter.LastChangedAtFromUtc) &&
                       (filter.LastChangedAtToUtc == null ||
-                            (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
+                       (invitation.ModifiedAtUtc ?? invitation.CreatedAtUtc) <= filter.LastChangedAtToUtc)
                 select new InvitationForQueryDto
                 {
                     Id = invitation.Id,
-                    ProjectName = invitation.ProjectName,
+                    ProjectName = project.Name,
                     Title = invitation.Title,
                     Description = invitation.Description,
                     Status = invitation.Status,

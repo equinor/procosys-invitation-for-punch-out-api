@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     {
         private const int PersonId = 5;
         private const int SavedFilterId = 51;
-        private string _projectName = "ProjectName";
+        private const string _projectName = "ProjectName";
+        private readonly Project project = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
         private Guid Oid = new Guid("11111111-1111-2222-2222-333333333333");
         private List<Person> _persons;
         private Mock<DbSet<Person>> _dbPersonSetMock;
@@ -38,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 "email@test.com");
             _person.SetProtectedIdForTesting(PersonId);
 
-            _savedFilter = new SavedFilter(TestPlant, _projectName, "title", "criteria");
+            _savedFilter = new SavedFilter(TestPlant, project, "title", "criteria");
             _savedFilter.SetProtectedIdForTesting(SavedFilterId);
             _person.AddSavedFilter(_savedFilter);
 

@@ -1,4 +1,5 @@
 ﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -22,8 +23,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasMaxLength(SavedFilter.CriteriaLengthMax)
                 .IsRequired();
 
-            builder.Property(x => x.ProjectName)
-                .IsRequired();
+            builder.HasOne<Project>()
+                .WithMany()
+                .HasForeignKey(x => x.ProjectId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

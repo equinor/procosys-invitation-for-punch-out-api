@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             {
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitations(cancellationToken);
+                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsForNonClosedProjectsAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<InvitationDto>();
 
@@ -95,18 +96,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             }
         }
 
-        private async Task<List<InvitationDto>> GetNonCanceledInvitations(CancellationToken cancellationToken)
+        private async Task<List<InvitationDto>> GetNonCanceledInvitationsForNonClosedProjectsAsync(CancellationToken cancellationToken)
         {
             var nonCancelledInvitationsFlat =
                   await (from i in _context.QuerySet<Invitation>()
                          join p in _context.QuerySet<Participant>() on i.Id equals EF.Property<int>(p, "InvitationId")
-                         where i.Status != IpoStatus.Canceled
+                         join pro in _context.QuerySet<Project>() on i.ProjectId equals pro.Id
+                         where i.Status != IpoStatus.Canceled && pro.IsClosed == false
                          select new
                          {
                              i.Id,
                              i.Description,
                              i.Status,
-
                              ParticipantId = p.Id,
                              p.AzureOid,
                              p.FunctionalRoleCode,

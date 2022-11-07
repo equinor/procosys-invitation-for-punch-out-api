@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
@@ -24,18 +25,22 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private int _mdpInvitationId2;
         private const string _commPkgNo1 = "CommPkgNo";
         private const string _commPkgNo2 = "CommPkgNo2";
+        private const int _projectId = 320;
         private const string _projectName = "Project1";
         private const string _system = "1|2";
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                _project.SetProtectedIdForTesting(_projectId);
+
                 var meetingId = new Guid("11111111-2222-2222-2222-333333333333");
 
                 var commPkg1 = new CommPkg(
                     TestPlant,
-                    _projectName,
+                    _project,
                     _commPkgNo1,
                     "Description",
                     "OK",
@@ -43,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
 
                 var commPkg2 = new CommPkg(
                     TestPlant,
-                    _projectName,
+                    _project,
                     _commPkgNo2,
                     "Description",
                     "OK",
@@ -51,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project,
                     "MDP with mc pkgs",
                     "Description1",
                     DisciplineType.MDP,
@@ -66,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
 
                 _mdpInvitation1 = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project,
                     "MDP Title",
                     "Description2",
                     DisciplineType.MDP,
@@ -81,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
 
                 _mdpInvitation2 = new Invitation(
                     TestPlant,
-                    _projectName,
+                    _project,
                     "MDP Title 2",
                     "Description3",
                     DisciplineType.MDP,
@@ -100,6 +105,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
                 TimeService.SetProvider(timeProvider);
 
+                context.Projects.Add(_project);
                 context.Invitations.Add(_mdpInvitation1);
                 context.Invitations.Add(_mdpInvitation2);
                 context.SaveChangesAsync().Wait();
