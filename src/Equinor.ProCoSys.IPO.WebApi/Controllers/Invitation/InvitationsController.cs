@@ -13,7 +13,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillProjects;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
@@ -515,7 +514,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             string plant,
             bool dryRun = true)
         {
-            var result = await _mediator.Send(new FillProjectsCommand(dryRun));
+            var result = await _mediator.Send(
+                new Command.InvitationCommands.FillProjects.FillProjectsCommand(dryRun));
             return this.FromResult(result);
         }
 
