@@ -505,6 +505,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [Obsolete]
         [Authorize(Roles = Permissions.IPO_ADMIN)]
         [HttpPut("FillProjects")]
         public async Task<ActionResult<IEnumerable<string>>> FillProjects(
