@@ -505,6 +505,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             return this.FromResult(result);
         }
 
+        [Obsolete]
+        [Authorize(Roles = Permissions.IPO_ADMIN)]
+        [HttpPut("FillProjects")]
+        public async Task<ActionResult<IEnumerable<string>>> FillProjects(
+            [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
+            [Required]
+            [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
+            string plant,
+            bool dryRun = true)
+        {
+            var result = await _mediator.Send(
+                new Command.InvitationCommands.FillProjects.FillProjectsCommand(dryRun));
+            return this.FromResult(result);
+        }
+
         #region Helpers
         private IList<ParticipantsForCommand> ConvertParticipantsForCreateCommands(IEnumerable<CreateParticipantDto> dto)
             => dto?.Select(p =>
