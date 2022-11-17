@@ -9,5 +9,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Client
         Task<T> TryQueryAndDeserializeAsync<T>(string url);
         Task<T> QueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null);
         Task PutAsync(string url, HttpContent content);
+        Task PostAsync(string url, HttpContent content);
     }
 }

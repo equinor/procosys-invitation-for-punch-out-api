@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.Infrastructure.Caching;
 using Microsoft.Extensions.Options;
@@ -14,14 +15,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
         private readonly ICacheManager _cacheManager;
         private readonly IPermissionApiService _permissionApiService;
         private readonly IOptionsMonitor<CacheOptions> _options;
+        private readonly IMeApiService _meApiService;
 
         public PermissionCache(
             ICacheManager cacheManager,
             IPermissionApiService permissionApiService,
+            IMeApiService meApiService,
             IOptionsMonitor<CacheOptions> options)
         {
             _cacheManager = cacheManager;
             _permissionApiService = permissionApiService;
+            _meApiService = meApiService;
             _options = options;
         }
 
@@ -53,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
         private async Task<IList<ProCoSysProject>> GetAllProjectsForUserAsync(string plantId, Guid userOid)
             => await _cacheManager.GetOrCreate(
                 ProjectsCacheKey(plantId, userOid),
-                async () => await _permissionApiService.GetAllOpenProjectsAsync(plantId),
+                async () => await GetAllOpenProjectsAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
 
@@ -73,6 +77,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
                 throw new Exception("Illegal userOid for cache");
             }
             return $"PERMISSIONS_{userOid.ToString().ToUpper()}_{plantId}";
+        }
+
+        private async Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
+        {
+            // trace users use of plant each time getting projects
+            // this will serve the purpose since we want to log once a day pr user pr plant, and preservation client ALWAYS get projects at startup
+            await _meApiService.TracePlantAsync(plantId);
+            return await _permissionApiService.GetAllOpenProjectsAsync(plantId);
         }
     }
 }

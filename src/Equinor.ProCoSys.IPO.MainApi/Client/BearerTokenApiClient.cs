@@ -81,7 +81,22 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError($"Request was unsuccessful and took {stopWatch.Elapsed.TotalSeconds}s.");
+                _logger.LogError($"Putting to '{url}' was unsuccessful and took {stopWatch.Elapsed.TotalMilliseconds}ms. Status: {response.StatusCode}");
+                throw new Exception();
+            }
+        }
+
+        public async Task PostAsync(string url, HttpContent content)
+        {
+            var httpClient = await CreateHttpClientAsync();
+
+            var stopWatch = Stopwatch.StartNew();
+            var response = await httpClient.PostAsync(url, content);
+            stopWatch.Stop();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Posting to '{url}' was unsuccessful and took {stopWatch.Elapsed.TotalMilliseconds}ms. Status: {response.StatusCode}");
                 throw new Exception();
             }
         }
