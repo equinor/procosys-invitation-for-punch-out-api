@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Caches
         private async Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
         {
             // trace users use of plant each time getting projects
-            // this will serve the purpose since we want to log once a day pr user pr plant, and preservation client ALWAYS get projects at startup
+            // this will serve the purpose since we want to log once a day pr user pr plant, and IPO client ALWAYS get projects at startup
             await _meApiService.TracePlantAsync(plantId);
             return await _permissionApiService.GetAllOpenProjectsAsync(plantId);
         }
