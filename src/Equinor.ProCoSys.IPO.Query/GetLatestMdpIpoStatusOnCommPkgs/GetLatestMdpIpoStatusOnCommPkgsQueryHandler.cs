@@ -29,7 +29,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             
             if (project is null)
             {
-                throw new ArgumentNullException(nameof(project));
+                var emptyList = new List<CommPkgsWithMdpIposDto>();
+                return new SuccessResult<List<CommPkgsWithMdpIposDto>>(emptyList);
             }
 
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
