@@ -175,7 +175,19 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
             {
                 var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
 
-                var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string>{"Unknown"}, _projectName), default);
+                var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "Unknown" }, _projectName), default);
+                Assert.AreEqual(0, result.Data.Count);
+            }
+        }
+
+        [TestMethod]
+        public async Task HandleGetInvitationsByCommPkgNoQuery_ShouldReturnEmptyListOfInvitations_IfUnknwonProject()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
+
+                var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { _commPkgNo2 }, "Unknown"), default);
                 Assert.AreEqual(0, result.Data.Count);
             }
         }
