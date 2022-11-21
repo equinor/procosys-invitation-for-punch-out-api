@@ -114,46 +114,46 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
 
             migrationBuilder.Sql(@"
-insert into projects(name, plant, description, isclosed, createdatutc, createdbyid)
-select distinct projectname, plant, 'Empty', 'false', SYSDATETIME(), (select id from persons where username = 'JSOI') FROM
-(
-select projectname, Plant from Invitations
-union					  
-select projectname, plant  from McPkgs
-union					  
-select projectname, plant  from CommPkgs
-union					  
-select projectname, plant  from SavedFilters
-) as pp
+    EXEC('insert into projects(name, plant, description, isclosed, createdatutc, createdbyid)
+    select distinct projectname, plant, ''Empty'', ''false'', SYSDATETIME(), (select id from persons where username = ''JSOI'') FROM
+    (
+    select projectname, Plant from Invitations
+    union					  
+    select projectname, plant  from McPkgs
+    union					  
+    select projectname, plant  from CommPkgs
+    union					  
+    select projectname, plant  from SavedFilters
+    ) as pp
+	')
 
+    EXEC('update CommPkgs 
+    set CommPkgs.ProjectId = p.Id
+    from CommPkgs c
+    inner join Projects p
+    on p.Name = c.ProjectName and p.Plant = c.Plant
+	')
 
--- Update ProjectId in CommPkgs
-update CommPkgs 
-set CommPkgs.ProjectId = p.Id
-from CommPkgs c
-inner join Projects p
-on p.Name = c.ProjectName and p.Plant = c.Plant
+    EXEC('update McPkgs 
+    set McPkgs.ProjectId = p.Id
+    from McPkgs m
+    inner join Projects p
+    on p.Name = m.ProjectName and p.Plant = m.Plant
+	')
 
--- Update ProjectId in McPkgs
-update McPkgs 
-set McPkgs.ProjectId = p.Id
-from McPkgs m
-inner join Projects p
-on p.Name = m.ProjectName and p.Plant = m.Plant
+    EXEC('update Invitations 
+    set Invitations.ProjectId = p.Id
+    from Invitations i
+    inner join Projects p
+    on p.Name = i.ProjectName and p.Plant = i.Plant
+	')
 
--- Update ProjectId in Invitations
-update Invitations 
-set Invitations.ProjectId = p.Id
-from Invitations i
-inner join Projects p
-on p.Name = i.ProjectName and p.Plant = i.Plant
-
--- Update ProjectId in SavedFilters  !!! Not tested!!! 0 rows in local database
-update SavedFilters 
-set SavedFilters.ProjectId = p.Id
-from SavedFilters sf
-inner join Projects p
-on p.Name = sf.ProjectName and p.Plant = sf.Plant
+    EXEC('update SavedFilters 
+    set SavedFilters.ProjectId = p.Id
+    from SavedFilters sf
+    inner join Projects p
+    on p.Name = sf.ProjectName and p.Plant = sf.Plant
+	')
 "
             );
 
