@@ -456,5 +456,31 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
         }
+
+       
+        [TestMethod]
+        public async Task HandleDeleteTopic_ShouldIgnoreMessage()
+        {
+            // Arrange
+            const string Delete = "delete";
+            var guid = new Guid();
+            var message =
+                $"{{\"Plant\" : \"SomePlant\",\"ProCoSysGuid\" : \"{guid}\",\"TagNo\" : \"someTagNo\",\"Behavior\" : \"{Delete}\",\"RegisterCode\" : \"SomeRegister\"}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Tag, message, new CancellationToken(false));
+
+            // Assert
+            _telemetryClient.Verify(tc => tc.TrackEvent("IPO Bus Receiver",
+                new Dictionary<string, string>
+                {
+                    {"Event Delete", PcsTopic.Tag.ToString()},
+                    {"ProCoSysGuid", guid.ToString()}
+                }), Times.Once());
+
+            //ProcessMessageAsync should return before setting user
+            _currentUserSetter.VerifyNoOtherCalls();
+        }
+     
     }
 }

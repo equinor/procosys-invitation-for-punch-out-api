@@ -97,8 +97,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        private static bool IsDeleteEvent(Dictionary<string, object> deserialize)
-            => deserialize.Contains(new KeyValuePair<string, object>("Behavior", "delete"));
+        private static bool IsDeleteEvent(Dictionary<string, object> deserialize) =>
+            deserialize.Any(kv => kv.Key == "Behavior"
+                                  && kv.Value.ToString() == "delete");
 
         private void ProcessMcPkgEvent(string messageJson)
         {
