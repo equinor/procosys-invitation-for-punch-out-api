@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
@@ -9,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
     {
         public GetLatestMdpIpoStatusOnCommPkgsQuery(IList<string> commPkgNos, string projectName)
         {
-            CommPkgNos = commPkgNos;
+            CommPkgNos = commPkgNos.Where(c => !string.IsNullOrEmpty(c)).ToList();
             ProjectName = projectName;
         }
 
