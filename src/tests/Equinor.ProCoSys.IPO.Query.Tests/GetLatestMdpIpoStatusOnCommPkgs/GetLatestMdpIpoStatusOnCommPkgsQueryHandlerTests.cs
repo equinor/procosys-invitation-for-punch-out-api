@@ -54,6 +54,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     "OK",
                     _system);
 
+                var mcPkg = new McPkg(
+                    TestPlant,
+                    _project,
+                    _commPkgNo2,
+                    "McPkgNo",
+                    "Description",
+                    _system);
+
                 _mdpInvitation = new Invitation(
                     TestPlant,
                     _project,
@@ -99,6 +107,21 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     MeetingId = meetingId
                 };
 
+                var dpInvitation = new Invitation(
+                    TestPlant,
+                    _project,
+                    "DP Title",
+                    "Description4",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { mcPkg },
+                    null)
+                {
+                    MeetingId = meetingId
+                };
+
                 context.Invitations.Add(_mdpInvitation);
                 context.SaveChangesAsync().Wait();
 
@@ -108,6 +131,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 context.Projects.Add(_project);
                 context.Invitations.Add(_mdpInvitation1);
                 context.Invitations.Add(_mdpInvitation2);
+                context.Invitations.Add(dpInvitation);
                 context.SaveChangesAsync().Wait();
                 _mdpInvitationId1 = _mdpInvitation1.Id;
                 _mdpInvitationId2 = _mdpInvitation2.Id;
@@ -176,6 +200,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
 
                 var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "Unknown" }, _projectName), default);
+                Assert.AreEqual(0, result.Data.Count);
+            }
+        }
+
+        [TestMethod]
+        public async Task HandleGetInvitationsByCommPkgNoQuery_ShouldReturnEmptyListOfInvitations_IfCommPkgNo_IsNull()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
+
+                var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { null }, _projectName), default);
                 Assert.AreEqual(0, result.Data.Count);
             }
         }
