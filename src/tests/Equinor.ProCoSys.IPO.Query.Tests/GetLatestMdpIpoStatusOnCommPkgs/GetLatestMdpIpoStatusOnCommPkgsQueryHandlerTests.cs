@@ -18,45 +18,48 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
     [TestClass]
     public class GetLatestMdpIpoStatusOnCommPkgsQueryHandlerTests : ReadOnlyTestsBase
     {
-        private Invitation _mdpInvitation;
-        private Invitation _mdpInvitation1;
-        private Invitation _mdpInvitation2;
         private int _mdpInvitationId1;
         private int _mdpInvitationId2;
         private const string _commPkgNo1 = "CommPkgNo";
         private const string _commPkgNo2 = "CommPkgNo2";
-        private const int _projectId = 320;
         private const string _projectName = "Project1";
-        private const string _system = "1|2";
-        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _project.SetProtectedIdForTesting(_projectId);
+                var project = new Project(TestPlant, _projectName, $"Description of {_projectName}");
+                project.SetProtectedIdForTesting(320);
 
                 var meetingId = new Guid("11111111-2222-2222-2222-333333333333");
-
+                var system = "1|2";
                 var commPkg1 = new CommPkg(
                     TestPlant,
-                    _project,
+                    project,
                     _commPkgNo1,
                     "Description",
                     "OK",
-                    _system);
+                    system);
 
                 var commPkg2 = new CommPkg(
                     TestPlant,
-                    _project,
+                    project,
                     _commPkgNo2,
                     "Description",
                     "OK",
-                    _system);
+                    system);
 
-                _mdpInvitation = new Invitation(
+                var mcPkg = new McPkg(
                     TestPlant,
-                    _project,
+                    project,
+                    _commPkgNo2,
+                    "McPkgNo",
+                    "Description",
+                    system);
+
+                var mdpInvitation = new Invitation(
+                    TestPlant,
+                    project,
                     "MDP with mc pkgs",
                     "Description1",
                     DisciplineType.MDP,
@@ -69,9 +72,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     MeetingId = meetingId
                 };
 
-                _mdpInvitation1 = new Invitation(
+                var mdpInvitation1 = new Invitation(
                     TestPlant,
-                    _project,
+                    project,
                     "MDP Title",
                     "Description2",
                     DisciplineType.MDP,
@@ -84,9 +87,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     MeetingId = meetingId
                 };
 
-                _mdpInvitation2 = new Invitation(
+                var mdpInvitation2 = new Invitation(
                     TestPlant,
-                    _project,
+                    project,
                     "MDP Title 2",
                     "Description3",
                     DisciplineType.MDP,
@@ -99,18 +102,34 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     MeetingId = meetingId
                 };
 
-                context.Invitations.Add(_mdpInvitation);
+                var dpInvitation = new Invitation(
+                    TestPlant,
+                    project,
+                    "DP Title",
+                    "Description4",
+                    DisciplineType.DP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { mcPkg },
+                    null)
+                {
+                    MeetingId = meetingId
+                };
+
+                context.Invitations.Add(mdpInvitation);
                 context.SaveChangesAsync().Wait();
 
                 var timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 2, 0, 0, 0, DateTimeKind.Utc));
                 TimeService.SetProvider(timeProvider);
 
-                context.Projects.Add(_project);
-                context.Invitations.Add(_mdpInvitation1);
-                context.Invitations.Add(_mdpInvitation2);
+                context.Projects.Add(project);
+                context.Invitations.Add(mdpInvitation1);
+                context.Invitations.Add(mdpInvitation2);
+                context.Invitations.Add(dpInvitation);
                 context.SaveChangesAsync().Wait();
-                _mdpInvitationId1 = _mdpInvitation1.Id;
-                _mdpInvitationId2 = _mdpInvitation2.Id;
+                _mdpInvitationId1 = mdpInvitation1.Id;
+                _mdpInvitationId2 = mdpInvitation2.Id;
             }
         }
 
@@ -176,6 +195,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                 var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
 
                 var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "Unknown" }, _projectName), default);
+                Assert.AreEqual(0, result.Data.Count);
+            }
+        }
+
+        [TestMethod]
+        public async Task HandleGetInvitationsByCommPkgNoQuery_ShouldReturnEmptyListOfInvitations_IfCommPkgNo_IsNull()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
+
+                var result = await dut.Handle(new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { null }, _projectName), default);
                 Assert.AreEqual(0, result.Data.Count);
             }
         }
