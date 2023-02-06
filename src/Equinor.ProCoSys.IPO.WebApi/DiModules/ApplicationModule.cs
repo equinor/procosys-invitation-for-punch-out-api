@@ -59,7 +59,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddDbContext<IPOContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("IPOContext"));
+                var connectionString = configuration.GetConnectionString("IPOContext");
+                options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
             services.AddHttpContextAccessor();
