@@ -209,7 +209,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.Remove(descriptor);
             }
 
-            services.AddDbContext<IPOContext>(options => options.UseSqlServer(_connectionString));
+            services.AddDbContext<IPOContext>(options 
+                => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
         }
 
         private void CreateSeededTestDatabase(IServiceCollection services)
@@ -247,7 +248,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private IPOContext DatabaseContext(IServiceCollection services)
         {
-            services.AddDbContext<IPOContext>(options => options.UseSqlServer(_connectionString));
+            services.AddDbContext<IPOContext>(options 
+                => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             var sp = services.BuildServiceProvider();
             _disposables.Add(sp);
