@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.Auth;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public class MainApiCommPkgService : ICommPkgApiService
     {
-        private readonly IBearerTokenApiClient _foreignApiClient;
+        private readonly IMainApiClient _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
         public MainApiCommPkgService(
-            IBearerTokenApiClient foreignApiClient,
+            IMainApiClient apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _foreignApiClient = foreignApiClient;
+            _apiClient = apiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _apiVersion = options.CurrentValue.ApiVersion;
         }
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                       $"&currentPage={currentPage}" +
                       $"&api-version={_apiVersion}";
 
-            var commPkgSearchResult = await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
+            var commPkgSearchResult = await _apiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
 
             return commPkgSearchResult;
         }
@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                 url += $"&commPkgNos={commPkgNo}";
             }
 
-            var commPkgs = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysCommPkg>>(url);
+            var commPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysCommPkg>>(url);
 
             return commPkgs;
         }

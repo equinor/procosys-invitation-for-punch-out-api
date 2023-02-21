@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.Auth;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 {
     public class MainApiPersonService : IPersonApiService
     {
-        private readonly IBearerTokenApiClient _foreignApiClient;
+        private readonly IMainApiClient _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
         public MainApiPersonService(
-            IBearerTokenApiClient foreignApiClient,
+            IMainApiClient apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _foreignApiClient = foreignApiClient;
+            _apiClient = apiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _apiVersion = options.CurrentValue.ApiVersion;
         }
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&numberOfRows={numberOfRows}" +
                       $"&api-version={_apiVersion}";
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsWithPrivilegesAsync(
@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&privilegeTypes={privilege}";
             }
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&azureOids={oid}";
             }
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
         }
 
         public async Task<ProCoSysPerson> GetPersonByOidWithPrivilegesAsync(
@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&privilegeTypes={privilege}";
             }
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
         }
 
         public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(
@@ -98,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&functionalRoleCode={WebUtility.UrlEncode(functionalRoleCode)}" +
                       $"&api-version={_apiVersion}";
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
         }
 
     }

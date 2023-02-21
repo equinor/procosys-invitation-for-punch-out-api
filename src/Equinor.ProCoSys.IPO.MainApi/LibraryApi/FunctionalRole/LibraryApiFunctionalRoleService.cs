@@ -10,14 +10,14 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
 {
     public class LibraryApiFunctionalRoleService : IFunctionalRoleApiService
     {
-        private readonly IBearerTokenApiClient _foreignApiClient;
+        private readonly ILibraryApiClient _apiClient;
         private readonly Uri _baseAddress;
 
         public LibraryApiFunctionalRoleService(
-            IBearerTokenApiClient foreignApiClient,
+            ILibraryApiClient apiClient,
             IOptionsMonitor<LibraryApiOptions> options)
         {
-            _foreignApiClient = foreignApiClient;
+            _apiClient = apiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
 
@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
             var extraHeaders =
                 new List<KeyValuePair<string, string>> {new KeyValuePair<string, string>("x-plant", plant)};
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
         }
 
         public async Task<IList<ProCoSysFunctionalRole>> GetFunctionalRolesByCodeAsync(
@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
             var extraHeaders =
                 new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("x-plant", plant) };
 
-            return await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
         }
     }
 }

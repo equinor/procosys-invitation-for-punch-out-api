@@ -1,5 +1,5 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Auth;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Misc
 {

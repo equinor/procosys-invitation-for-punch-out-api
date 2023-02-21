@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MainApi\Plant\" />
+  </ItemGroup>
+
 </Project>

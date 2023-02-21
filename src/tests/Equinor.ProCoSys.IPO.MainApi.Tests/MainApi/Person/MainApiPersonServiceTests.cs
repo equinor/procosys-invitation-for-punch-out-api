@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
     public class MainApiPersonServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _foreignApiClient;
+        private Mock<IMainApiClient> _foreignApiClient;
         private MainApiPersonService _dut;
         private ProCoSysPerson _proCoSysPerson1;
         private ProCoSysPerson _proCoSysPerson2;
@@ -35,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IBearerTokenApiClient>();
+            _foreignApiClient = new Mock<IMainApiClient>();
 
             _proCoSysPerson1 = new ProCoSysPerson {
                 AzureOid = "12345678-1234-123456789123",

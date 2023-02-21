@@ -35,6 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Equinor.ProCoSys.Auth\Equinor.ProCoSys.Auth.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Command\Equinor.ProCoSys.IPO.Command.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />

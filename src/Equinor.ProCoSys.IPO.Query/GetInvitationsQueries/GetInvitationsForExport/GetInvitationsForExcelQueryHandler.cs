@@ -8,10 +8,12 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.Auth.Time;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Caches;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
 {

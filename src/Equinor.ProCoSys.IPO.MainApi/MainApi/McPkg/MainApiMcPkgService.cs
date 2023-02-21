@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.Auth;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -12,15 +12,15 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
     public class MainApiMcPkgService : IMcPkgApiService
     {
-        private readonly IBearerTokenApiClient _foreignApiClient;
+        private readonly IMainApiClient _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
         public MainApiMcPkgService(
-            IBearerTokenApiClient foreignApiClient,
+            IMainApiClient apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _foreignApiClient = foreignApiClient;
+            _apiClient = apiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _apiVersion = options.CurrentValue.ApiVersion;
         }
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgs = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
+            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
 
             return mcPkgs;
         }
@@ -54,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             {
                 url += $"&mcPkgNos={mcPkgNo}";
             }
-            var mcPkgs = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
+            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
 
             return mcPkgs;
         }
@@ -78,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _foreignApiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content);
         }
 
         public async Task ClearM01DatesAsync(
@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _foreignApiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content);
         }
 
         public async Task SetM02DatesAsync(
@@ -138,7 +138,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _foreignApiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content);
         }
 
         public async Task ClearM02DatesAsync(
@@ -159,7 +159,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _foreignApiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content);
         }
     }
 }

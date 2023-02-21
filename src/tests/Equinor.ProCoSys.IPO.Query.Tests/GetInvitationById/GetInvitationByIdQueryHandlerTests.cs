@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -33,7 +35,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
-        private Mock<IPermissionCache> _permissionCacheMock;
         private Mock<ILogger<GetInvitationByIdQueryHandler>> _loggerMock;
 
         private string _functionalRoleCode1 = "FrCode1";

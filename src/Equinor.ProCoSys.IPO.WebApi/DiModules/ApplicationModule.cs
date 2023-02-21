@@ -10,26 +10,20 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Domain.Time;
 using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.IPO.Email.Settings;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.Infrastructure.Caching;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
-using Equinor.ProCoSys.IPO.WebApi.Caches;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
@@ -40,6 +34,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Equinor.ProCoSys.Auth.Time;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Auth.Permission;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -98,11 +96,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
 
-            services.AddScoped<Authenticator>();
-            services.AddScoped<IBearerTokenProvider>(x => x.GetRequiredService<Authenticator>());
-            services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<Authenticator>());
-            services.AddScoped<IApplicationAuthenticator>(x => x.GetRequiredService<Authenticator>());
-            services.AddScoped<IBearerTokenApiClient, BearerTokenApiClient>();
+            services.AddScoped<LibraryApiAuthenticator>();
+            services.AddScoped<ILibraryApiTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
+            services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
+            services.AddScoped<IBearerTokenSetterForAll, BearerTokenSetterForAll>();
+            services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IPlantApiService, MainApiPlantService>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
             services.AddScoped<IPermissionApiService, MainApiPermissionService>();

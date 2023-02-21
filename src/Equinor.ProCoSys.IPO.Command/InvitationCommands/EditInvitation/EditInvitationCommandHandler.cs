@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -40,7 +42,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IPermissionCache _permissionCache;
         private readonly IProjectRepository _projectRepository;
         private readonly ILogger<EditInvitationCommandHandler> _logger;
-
 
         public EditInvitationCommandHandler(
             IInvitationRepository invitationRepository,

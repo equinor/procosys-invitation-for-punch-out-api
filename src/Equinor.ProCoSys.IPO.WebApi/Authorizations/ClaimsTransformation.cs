@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 

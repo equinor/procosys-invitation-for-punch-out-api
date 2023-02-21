@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
         public async Task InvokeAsync(
             HttpContext context,
             IHttpContextAccessor httpContextAccessor,
-            IBearerTokenSetter bearerTokenSetter,
+            IBearerTokenSetterForAll bearerTokenSetterForAll,
             ILogger<CurrentBearerTokenMiddleware> logger)
         {
             logger.LogInformation($"----- {GetType().Name} start");
@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             if (tokens != null && tokens.Length > 1)
             {
                 var token = tokens[1];
-                bearerTokenSetter.SetBearerToken(token);
+                bearerTokenSetterForAll.SetBearerToken(token);
             }
 
             logger.LogInformation($"----- {GetType().Name} complete");

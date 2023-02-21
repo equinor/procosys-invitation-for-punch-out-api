@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
+using Equinor.ProCoSys.Auth.Permission;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {

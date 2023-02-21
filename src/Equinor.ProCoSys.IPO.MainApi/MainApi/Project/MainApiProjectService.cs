@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
+using Equinor.ProCoSys.Auth;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
@@ -11,13 +11,13 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
-        private readonly IBearerTokenApiClient _foreignApiClient;
+        private readonly IMainApiClient _apiClient;
 
         public MainApiProjectService(
-            IBearerTokenApiClient foreignApiClient,
+            IMainApiClient apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _foreignApiClient = foreignApiClient;
+            _apiClient = apiClient;
             _apiVersion = options.CurrentValue.ApiVersion;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
                 $"&projectName={WebUtility.UrlEncode(name)}" +
                 $"&api-version={_apiVersion}";
 
-            return await _foreignApiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
+            return await _apiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
         }
 
         public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant)
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
                       $"&api-version={_apiVersion}" +
                       "&includeSubProjectsOnly=true";
 
-            var projects = await _foreignApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
+            var projects = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
 
             return projects;
         }

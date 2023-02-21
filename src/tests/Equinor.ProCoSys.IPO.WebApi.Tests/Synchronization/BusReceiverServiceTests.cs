@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
@@ -31,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<ITelemetryClient> _telemetryClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
-        private Mock<IApplicationAuthenticator> _applicationAuthenticator;
+        private Mock<IMainApiTokenProvider> _mainApiTokenProvider;
         private Mock<IBearerTokenSetter> _bearerTokenSetter;
         private Mock<IProjectRepository> _projectRepository;
 
@@ -88,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
-            _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
+            _mainApiTokenProvider = new Mock<IMainApiTokenProvider>();
             _bearerTokenSetter = new Mock<IBearerTokenSetter>();
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån", _mcPkgsOn1, null);
@@ -111,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _telemetryClient.Object,
                                           _readOnlyContext.Object,
                                           _mcPkgApiService.Object,
-                                          _applicationAuthenticator.Object,
+                                          _mainApiTokenProvider.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
                                           _bearerTokenSetter.Object,
@@ -264,7 +263,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _telemetryClient.Object,
                 _readOnlyContext.Object,
                 _mcPkgApiService.Object,
-                _applicationAuthenticator.Object,
+                _mainApiTokenProvider.Object,
                 _options.Object,
                 _currentUserSetter.Object,
                 _bearerTokenSetter.Object,

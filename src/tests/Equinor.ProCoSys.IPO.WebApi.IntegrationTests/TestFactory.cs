@@ -6,16 +6,13 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
@@ -29,7 +26,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using ProCoSysProject = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission.ProCoSysProject;
+using Equinor.ProCoSys.Auth.Permission;
+using Equinor.ProCoSys.Auth;
+using ProCoSysProject = Equinor.ProCoSys.Auth.Permission.ProCoSysProject;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {

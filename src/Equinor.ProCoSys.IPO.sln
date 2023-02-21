@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29403.142
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi", "Equinor.ProCoSys.IPO.WebApi\Equinor.ProCoSys.IPO.WebApi.csproj", "{41238CAE-6367-4F5C-B20D-D99B12FEF49B}"
 EndProject
@@ -42,7 +42,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.BlobSt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi.IntegrationTests", "tests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests\Equinor.ProCoSys.IPO.WebApi.IntegrationTests.csproj", "{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.IPO.Email", "Equinor.ProCoSys.IPO.Email\Equinor.ProCoSys.IPO.Email.csproj", "{E320F7F9-3E39-4621-8445-30748F91C008}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Email", "Equinor.ProCoSys.IPO.Email\Equinor.ProCoSys.IPO.Email.csproj", "{E320F7F9-3E39-4621-8445-30748F91C008}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.Auth", "Equinor.ProCoSys.Auth\Equinor.ProCoSys.Auth.csproj", "{575C1713-AB8E-4116-B2F8-D8C5D465D985}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.Auth.Tests", "tests\Equinor.ProCoSys.Auth.Tests\Equinor.ProCoSys.Auth.Tests.csproj", "{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +118,14 @@ Global
 		{E320F7F9-3E39-4621-8445-30748F91C008}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E320F7F9-3E39-4621-8445-30748F91C008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E320F7F9-3E39-4621-8445-30748F91C008}.Release|Any CPU.Build.0 = Release|Any CPU
+		{575C1713-AB8E-4116-B2F8-D8C5D465D985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{575C1713-AB8E-4116-B2F8-D8C5D465D985}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{575C1713-AB8E-4116-B2F8-D8C5D465D985}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{575C1713-AB8E-4116-B2F8-D8C5D465D985}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,6 +139,7 @@ Global
 		{3628443D-47B4-4D7A-AB08-3E0F613E5015} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 		{AF5AC8E5-6A5F-4560-86BC-7E35FE1F01F3} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 		{7C50DD9A-B0D8-489C-B288-7F2A8A9F44D7} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
+		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31} = {DFB50BC5-5201-42FD-A049-CF0259AA7AE8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C79730D0-E4C2-474A-9D04-1C07256B6DF3}

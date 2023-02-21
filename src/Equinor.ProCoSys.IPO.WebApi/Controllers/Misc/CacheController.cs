@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionApiService _permissionApiService;
 
-        public CacheController(IPlantCache plantCache, IPermissionCache permissionCache, ICurrentUserProvider currentUserProvider, IPermissionApiService permissionApiService)
+        public CacheController(
+            IPlantCache plantCache,
+            IPermissionCache permissionCache,
+            ICurrentUserProvider currentUserProvider,
+            IPermissionApiService permissionApiService)
         {
             _plantCache = plantCache;
             _permissionCache = permissionCache;
