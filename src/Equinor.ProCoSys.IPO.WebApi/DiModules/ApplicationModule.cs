@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
-            services.Configure<AuthenticatorOptions>(configuration.GetSection("Authenticator"));
+            services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
 
@@ -96,6 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
 
+            services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
             services.AddScoped<LibraryApiAuthenticator>();
             services.AddScoped<ILibraryApiTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());

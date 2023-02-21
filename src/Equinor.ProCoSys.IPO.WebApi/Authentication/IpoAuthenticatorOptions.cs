@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 {
-    public class AuthenticatorOptions
+    public class IpoAuthenticatorOptions
     {
         public string Instance { get; set; }
 

@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
@@ -73,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         };
 
         private Invitation _invitation1, _invitation2, _invitation3, _invitation4;
-        private Mock<IOptionsSnapshot<AuthenticatorOptions>> _options;
+        private Mock<IOptionsSnapshot<IpoAuthenticatorOptions>> _options;
 
         [TestInitialize]
         public void Setup()
@@ -98,8 +99,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitation4 = new Invitation(plant, project1, "El invitasjån4", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån4", _mcPkgsOn4, null);
 
-            _options = new Mock<IOptionsSnapshot<AuthenticatorOptions>>();
-            _options.Setup(s => s.Value).Returns(new AuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
+            _options = new Mock<IOptionsSnapshot<IpoAuthenticatorOptions>>();
+            _options.Setup(s => s.Value).Returns(new IpoAuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
             _currentUserSetter = new Mock<ICurrentUserSetter>();
 
             _projectRepository.Setup(x => x.GetByIdAsync(project1Id)).Returns(Task.FromResult(project1));

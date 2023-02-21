@@ -149,15 +149,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 options.EnableForHttps = true;
             });
 
-            services.AddPcsAuthIntegration(options => options
-                .UseInstance(Configuration["Authenticator:Instance"])
-                .UseClientId(Configuration["Authenticator:IpoApiClientId"])
-                .UseObjectId(Configuration["Authenticator:IpoApiObjectId"])
-                .UseSecret(Configuration["Authenticator:IpoApiSecret"])
-                .UseMainApiScope(Configuration["Authenticator:MainApiScope"])
-                .UseMainApiVersion(Configuration["MainApi:ApiVersion"])
-                .UseMainApiBaseAddress(Configuration["MainApi:BaseAddress"])
-                );
+            services.AddPcsAuthIntegration();
 
             services.AddFusionIntegration(options =>
             {

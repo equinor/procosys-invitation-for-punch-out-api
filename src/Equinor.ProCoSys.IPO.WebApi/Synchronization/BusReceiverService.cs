@@ -16,6 +16,7 @@ using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -43,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
             IMainApiTokenProvider mainApiTokenProvider,
-            IOptionsSnapshot<AuthenticatorOptions> options,
+            IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
             IBearerTokenSetter bearerTokenSetter,
             IProjectRepository projectRepository)

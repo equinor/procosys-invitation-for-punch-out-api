@@ -3,14 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 
 namespace Equinor.ProCoSys.Auth
 {
     public abstract class ApiAuthenticator : IBearerTokenSetter
     {
-        protected readonly IOptionsMonitor<AuthenticatorOptions> _options;
+        protected readonly IAuthenticatorOptions _options;
         protected readonly ILogger<ApiAuthenticator> _logger;
         protected bool _canUseOnBehalfOf;
         protected readonly string _secretInfo;
@@ -19,12 +18,12 @@ namespace Equinor.ProCoSys.Auth
         private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
         private readonly ConcurrentDictionary<string, string> _appTokens = new ConcurrentDictionary<string, string>();
 
-        public ApiAuthenticator(IOptionsMonitor<AuthenticatorOptions> options, ILogger<ApiAuthenticator> logger)
+        public ApiAuthenticator(IAuthenticatorOptions options, ILogger<ApiAuthenticator> logger)
         {
             _options = options;
             _logger = logger;
-            var apiSecret = _options.CurrentValue.IpoApiSecret;
-            _secretInfo = $"{apiSecret.Substring(0, 2)}***{apiSecret.Substring(apiSecret.Length - 1, 1)}";
+            var secret = _options.Secret;
+            _secretInfo = $"{secret.Substring(0, 2)}***{secret.Substring(secret.Length - 1, 1)}";
         }
 
         public void SetBearerToken(string token, bool isUserToken = true)
@@ -73,11 +72,11 @@ namespace Equinor.ProCoSys.Auth
 
         private IConfidentialClientApplication CreateConfidentialClient()
         {
-            _logger.LogInformation($"Getting client using {_secretInfo} for {_options.CurrentValue.IpoApiClientId}");
+            _logger.LogInformation($"Getting client using {_secretInfo} for {_options.ClientId}");
             return ConfidentialClientApplicationBuilder
-                .Create(_options.CurrentValue.IpoApiClientId)
-                .WithClientSecret(_options.CurrentValue.IpoApiSecret)
-                .WithAuthority(new Uri(_options.CurrentValue.Instance))
+                .Create(_options.ClientId)
+                .WithClientSecret(_options.Secret)
+                .WithAuthority(new Uri(_options.Instance))
                 .Build();
         }
     }
