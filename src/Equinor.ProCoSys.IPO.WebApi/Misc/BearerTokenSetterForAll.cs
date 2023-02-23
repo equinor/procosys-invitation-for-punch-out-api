@@ -10,11 +10,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
         public BearerTokenSetterForAll(IEnumerable<IBearerTokenSetter> bearerTokenSetters)
             => _bearerTokenSetters = bearerTokenSetters;
 
-        public void SetBearerToken(string token, bool isUserToken = true)
+        public void SetBearerToken(string token)
         {
             foreach (var bearerTokenSetter in _bearerTokenSetters)
             {
-                bearerTokenSetter.SetBearerToken(token, isUserToken);
+                bearerTokenSetter.SetBearerToken(token);
             }
         }
     }

@@ -2,6 +2,6 @@
 {
     public interface IBearerTokenSetterForAll
     {
-        void SetBearerToken(string token, bool isUserToken = true);
+        void SetBearerToken(string token);
     }
 }

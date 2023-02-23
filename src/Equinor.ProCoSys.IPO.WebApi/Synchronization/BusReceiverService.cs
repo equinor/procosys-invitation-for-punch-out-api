@@ -215,8 +215,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task ProcessIpoEvent(string messageJson)
         {
-            var bearerToken = await _mainApiTokenProvider.GetBearerTokenForMainApiForApplicationAsync();
-            _bearerTokenSetter.SetBearerToken(bearerToken, false);
+            _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
+            //var bearerToken = await _mainApiTokenProvider.GetBearerTokenAsync();
+            //_bearerTokenSetter.SetBearerToken(bearerToken, false);
 
             var ipoEvent = JsonSerializer.Deserialize<IpoTopic>(messageJson);
             if (ipoEvent == null || string.IsNullOrWhiteSpace(ipoEvent.InvitationGuid))

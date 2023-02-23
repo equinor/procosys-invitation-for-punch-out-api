@@ -240,6 +240,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
             app.UseRouting();
 
+            // order of adding middelwares are crusial
             app.UseCurrentPlant();
             app.UseCurrentBearerToken();
             app.UseAuthentication();

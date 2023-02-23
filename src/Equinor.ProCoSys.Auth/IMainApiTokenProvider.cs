@@ -1,10 +1,6 @@
-﻿using System.Threading.Tasks;
-
-namespace Equinor.ProCoSys.Auth
+﻿namespace Equinor.ProCoSys.Auth
 {
-    public interface IMainApiTokenProvider
+    public interface IMainApiTokenProvider : IBearerTokenProvider, IApiAuthenticator
     {
-        ValueTask<string> GetBearerTokenForMainApiOnBehalfOfCurrentUserAsync();
-        ValueTask<string> GetBearerTokenForMainApiForApplicationAsync();
     }
 }

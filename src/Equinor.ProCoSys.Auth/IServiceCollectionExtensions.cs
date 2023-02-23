@@ -9,6 +9,8 @@ namespace Equinor.ProCoSys.Auth
             services.AddScoped<MainApiAuthenticator>();
             services.AddScoped<IMainApiTokenProvider>(x => x.GetRequiredService<MainApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<MainApiAuthenticator>());
+            //services.AddScoped<IBearerTokenProvider>(x => x.GetRequiredService<MainApiAuthenticator>());
+            //services.AddScoped<IApiAuthenticator>(x => x.GetRequiredService<MainApiAuthenticator>());
             services.AddScoped<IMainApiClient, MainApiClient>();
 
             return services;

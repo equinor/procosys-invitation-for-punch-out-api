@@ -9,65 +9,82 @@ namespace Equinor.ProCoSys.Auth
 {
     public abstract class ApiAuthenticator : IBearerTokenSetter
     {
-        protected readonly IAuthenticatorOptions _options;
         protected readonly ILogger<ApiAuthenticator> _logger;
-        protected bool _canUseOnBehalfOf;
-        protected readonly string _secretInfo;
 
+        private readonly IAuthenticatorOptions _options;
+        private readonly string _secretInfo;
+        private readonly string _apiScope;
         private string _requestToken;
         private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
         private readonly ConcurrentDictionary<string, string> _appTokens = new ConcurrentDictionary<string, string>();
 
-        public ApiAuthenticator(IAuthenticatorOptions options, ILogger<ApiAuthenticator> logger)
+        public ApiAuthenticator(string apiScopeKey, IAuthenticatorOptions options, ILogger<ApiAuthenticator> logger)
         {
+            var hashForDebug = this.GetHashCode();
+
+            if (!options.Scopes.TryGetValue(apiScopeKey, out _apiScope))
+            {
+                throw new ArgumentException($"List of scopes dont have key {apiScopeKey}");
+            }
             _options = options;
             _logger = logger;
             var secret = _options.Secret;
             _secretInfo = $"{secret.Substring(0, 2)}***{secret.Substring(secret.Length - 1, 1)}";
         }
 
-        public void SetBearerToken(string token, bool isUserToken = true)
+        public AuthenticationType AuthenticationType { get; set; }
+
+        public void SetBearerToken(string token) => _requestToken = token;
+
+        public async ValueTask<string> GetBearerTokenAsync()
         {
-            _requestToken = token ?? throw new ArgumentNullException(nameof(token));
-            _canUseOnBehalfOf = isUserToken;
+            switch (AuthenticationType)
+            {
+                case AuthenticationType.OnBehalfOf:
+                    return await GetBearerTokenOnBehalfOfCurrentUserAsync();
+                case AuthenticationType.AsApplication:
+                    return await GetBearerTokenForApplicationAsync();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        protected async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUser(string apiScope)
+        private async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUserAsync()
         {
-            if (_canUseOnBehalfOf)
+            if (!_oboTokens.ContainsKey(_apiScope))
             {
-                if (!_oboTokens.ContainsKey(apiScope))
+                if (string.IsNullOrEmpty(_requestToken))
                 {
-                    var app = CreateConfidentialClient();
-
-                    var tokenResult = await app
-                        .AcquireTokenOnBehalfOf(new List<string> { apiScope },
-                            new UserAssertion(_requestToken))
-                        .ExecuteAsync();
-
-                    _oboTokens.TryAdd(apiScope, tokenResult.AccessToken);
+                    throw new ArgumentNullException(nameof(_requestToken));
                 }
 
-                return _oboTokens[apiScope];
+                var app = CreateConfidentialClient();
+
+                var tokenResult = await app
+                    .AcquireTokenOnBehalfOf(new List<string> { _apiScope },
+                        new UserAssertion(_requestToken))
+                    .ExecuteAsync();
+
+                _oboTokens.TryAdd(_apiScope, tokenResult.AccessToken);
             }
 
-            return _requestToken;
+            return _oboTokens[_apiScope];
         }
 
-        protected async ValueTask<string> GetBearerTokenForApplicationAsync(string apiScope)
+        private async ValueTask<string> GetBearerTokenForApplicationAsync()
         {
-            if (!_appTokens.ContainsKey(apiScope))
+            if (!_appTokens.ContainsKey(_apiScope))
             {
                 var app = CreateConfidentialClient();
 
                 var tokenResult = await app
-                    .AcquireTokenForClient(new List<string> { apiScope })
+                    .AcquireTokenForClient(new List<string> { _apiScope })
                     .ExecuteAsync();
 
-                _appTokens.TryAdd(apiScope, tokenResult.AccessToken);
+                _appTokens.TryAdd(_apiScope, tokenResult.AccessToken);
             }
 
-            return _appTokens[apiScope];
+            return _appTokens[_apiScope];
         }
 
         private IConfidentialClientApplication CreateConfidentialClient()
