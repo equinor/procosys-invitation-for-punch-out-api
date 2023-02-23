@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Equinor.ProCoSys.Auth.Permission
 {
     public interface IPlantApiService
     {
-        Task<List<ProCoSysPlant>> GetAllPlantsAsync();
+        Task<List<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid azureOid);
     }
 }

@@ -122,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             }
 
             // Need to change what the mock returns each time since the factory share the same registered mocks
-            SetupPlantMock(testUser.ProCoSysPlants);
+            SetupPlantMock(testUser);
             
             SetupPermissionMock(plant, 
                 testUser.ProCoSysPermissions,
@@ -268,9 +268,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             return $"Server=(LocalDB)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=true;AttachDbFileName={dbPath}";
         }
 
-        private void SetupPlantMock(List<ProCoSysPlant> plants)
-            => _plantApiServiceMock.Setup(p => p.GetAllPlantsAsync()).Returns(Task.FromResult(plants));
-        
+        private void SetupPlantMock(ITestUser testUser)
+        {
+            if (testUser.Profile != null)
+            {
+                _plantApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                    .Returns(Task.FromResult(testUser.ProCoSysPlants));
+            }
+        }
+
         private void SetupPermissionMock(
             string plant,
             IList<string> proCoSysPermissions,
