@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.Auth.Authentication
 {
     public abstract class ApiAuthenticator : IBearerTokenSetter
     {

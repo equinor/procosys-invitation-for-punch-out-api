@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Authentication;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authentication

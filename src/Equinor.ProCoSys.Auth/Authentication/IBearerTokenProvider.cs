@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.Auth.Authentication
 {
     public interface IBearerTokenProvider
     {

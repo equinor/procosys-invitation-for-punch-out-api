@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Permission

@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.Auth
+﻿namespace Equinor.ProCoSys.Auth.Client
 {
     public class MainApiOptions
     {

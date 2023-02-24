@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.Auth.Authentication
 {
     public class MainApiAuthenticator : ApiAuthenticator, IMainApiTokenProvider
     {

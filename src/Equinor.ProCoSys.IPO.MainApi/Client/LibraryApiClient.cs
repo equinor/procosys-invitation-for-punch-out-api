@@ -1,5 +1,5 @@
 ﻿using System.Net.Http;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client

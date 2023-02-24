@@ -6,9 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.Auth.Client
 {
     public abstract class BearerTokenApiClient
     {

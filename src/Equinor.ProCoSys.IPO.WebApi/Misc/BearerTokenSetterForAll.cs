@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Authentication;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Misc
 {

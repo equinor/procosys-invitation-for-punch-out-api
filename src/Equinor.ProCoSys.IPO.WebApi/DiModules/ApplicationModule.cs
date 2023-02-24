@@ -38,6 +38,8 @@ using Equinor.ProCoSys.Auth.Time;
 using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Permission;
+using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Auth.Client;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -100,8 +102,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<LibraryApiAuthenticator>();
             services.AddScoped<ILibraryApiTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            //services.AddScoped<IBearerTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            //services.AddScoped<IApiAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetterForAll, BearerTokenSetterForAll>();
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IPlantApiService, MainApiPlantService>();

@@ -15,8 +15,8 @@ using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.Auth.Authentication;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {

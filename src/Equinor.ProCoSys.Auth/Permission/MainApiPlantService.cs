@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Permission
