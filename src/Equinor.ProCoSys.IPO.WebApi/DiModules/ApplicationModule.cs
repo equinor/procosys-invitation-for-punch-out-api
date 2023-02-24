@@ -37,7 +37,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Equinor.ProCoSys.Auth.Time;
 using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 
@@ -47,6 +46,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
     {
         public static void AddApplicationModules(this IServiceCollection services, IConfiguration configuration)
         {
+            // todo can this be moved
             TimeService.SetProvider(new SystemTimeProvider());
 
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
@@ -75,8 +75,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Scoped - Created once per client request (connection)
             services.AddScoped<ITelemetryClient, ApplicationInsightsTelemetryClient>();
-            services.AddScoped<IPlantCache, PlantCache>();
-            services.AddScoped<IPermissionCache, PermissionCache>();
+            // todo can this be moved
             services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
             services.AddScoped<IClaimsPrincipalProvider, ClaimsPrincipalProvider>();
             services.AddScoped<CurrentUserProvider>();
@@ -104,9 +103,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetterForAll, BearerTokenSetterForAll>();
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
-            services.AddScoped<IPlantApiService, MainApiPlantService>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
-            services.AddScoped<IPermissionApiService, MainApiPermissionService>();
             services.AddScoped<IBlobStorage, AzureBlobService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
@@ -121,7 +118,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IExcelConverter, ExcelConverter>();
 
             // Singleton - Created the first time they are requested
-            services.AddSingleton<ICacheManager, CacheManager>();
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
             services.AddSingleton<IEmailService, EmailService>();
         }

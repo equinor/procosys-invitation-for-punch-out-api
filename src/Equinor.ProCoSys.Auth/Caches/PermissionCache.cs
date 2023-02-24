@@ -10,17 +10,53 @@ namespace Equinor.ProCoSys.Auth.Caches
     public class PermissionCache : IPermissionCache
     {
         private readonly ICacheManager _cacheManager;
+        private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionApiService _permissionApiService;
         private readonly IOptionsMonitor<CacheOptions> _options;
 
         public PermissionCache(
             ICacheManager cacheManager,
+            ICurrentUserProvider currentUserProvider,
             IPermissionApiService permissionApiService,
             IOptionsMonitor<CacheOptions> options)
         {
             _cacheManager = cacheManager;
+            _currentUserProvider = currentUserProvider;
             _permissionApiService = permissionApiService;
             _options = options;
+        }
+
+        public async Task<IList<string>> GetPlantIdsWithAccessForUserAsync(Guid userOid)
+        {
+            var allPlants = await GetAllPlantsForUserAsync(userOid);
+            return allPlants?.Where(p => p.HasAccess).Select(p => p.Id).ToList();
+        }
+
+        public async Task<bool> HasUserAccessToPlantAsync(string plantId, Guid userOid)
+        {
+            var plantIds = await GetPlantIdsWithAccessForUserAsync(userOid);
+            return plantIds.Contains(plantId);
+        }
+
+        public async Task<bool> HasCurrentUserAccessToPlantAsync(string plantId)
+        {
+            var userOid = _currentUserProvider.GetCurrentUserOid();
+
+            return await HasUserAccessToPlantAsync(plantId, userOid);
+        }
+
+        public async Task<bool> IsAValidPlantAsync(string plantId)
+        {
+            var userOid = _currentUserProvider.GetCurrentUserOid();
+            var allPlants = await GetAllPlantsForUserAsync(userOid);
+            return allPlants != null && allPlants.Any(p => p.Id == plantId);
+        }
+
+        public async Task<string> GetPlantTitleAsync(string plantId)
+        {
+            var userOid = _currentUserProvider.GetCurrentUserOid();
+            var allPlants = await GetAllPlantsForUserAsync(userOid);
+            return allPlants?.Where(p => p.Id == plantId).SingleOrDefault()?.Title;
         }
 
         public async Task<IList<string>> GetPermissionsForUserAsync(string plantId, Guid userOid)
@@ -51,6 +87,7 @@ namespace Equinor.ProCoSys.Auth.Caches
 
         public void ClearAll(string plantId, Guid userOid)
         {
+            _cacheManager.Remove(PlantsCacheKey(userOid));
             _cacheManager.Remove(ProjectsCacheKey(plantId, userOid));
             _cacheManager.Remove(PermissionsCacheKey(plantId, userOid));
             _cacheManager.Remove(ContentRestrictionsCacheKey(plantId, userOid));
@@ -62,6 +99,20 @@ namespace Equinor.ProCoSys.Auth.Caches
                 async () => await GetAllOpenProjectsAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
+
+        private async Task<IList<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid userOid)
+            => await _cacheManager.GetOrCreate(
+                PlantsCacheKey(userOid),
+                async () =>
+                {
+                    var plants = await _permissionApiService.GetAllPlantsForUserAsync(userOid);
+                    return plants;
+                },
+                CacheDuration.Minutes,
+                _options.CurrentValue.PlantCacheMinutes);
+
+        private string PlantsCacheKey(Guid userOid)
+            => $"PLANTS_{userOid.ToString().ToUpper()}";
 
         private string ProjectsCacheKey(string plantId, Guid userOid)
         {

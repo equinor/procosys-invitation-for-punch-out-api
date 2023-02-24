@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.Auth.Permission;
 using Microsoft.Extensions.Options;
@@ -11,10 +14,12 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
     [TestClass]
     public class MainApiPermissionServiceTests
     {
+        private readonly Guid _azureOid = Guid.NewGuid();
         private const string _plant = "PCS$TESTPLANT";
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _mainApiClient;
         private MainApiPermissionService _dut;
+        private Mock<IMainApiTokenProvider> _mainApiTokenProvider;
 
         [TestInitialize]
         public void Setup()
@@ -25,7 +30,68 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             _mainApiClient = new Mock<IMainApiClient>();
 
-            _dut = new MainApiPermissionService(_mainApiClient.Object, _mainApiOptions.Object);
+            _mainApiTokenProvider = new Mock<IMainApiTokenProvider>();
+            _dut = new MainApiPermissionService(_mainApiTokenProvider.Object, _mainApiClient.Object, _mainApiOptions.Object);
+        }
+
+        [TestMethod]
+        public async Task GetAllPlants_ShouldReturnCorrectNumberOfPlants()
+        {
+            // Arange
+            _mainApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysPlant>
+                {
+                    new ProCoSysPlant { Id = "PCS$ASGARD", Title = "Åsgard" },
+                    new ProCoSysPlant { Id = "PCS$ASGARD_A", Title = "ÅsgardA" },
+                    new ProCoSysPlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" },
+                }));
+
+            // Act
+            var result = await _dut.GetAllPlantsForUserAsync(_azureOid);
+
+            // Assert
+            Assert.AreEqual(3, result.Count);
+        }
+
+        [TestMethod]
+        public async Task GetAllPlants_ShouldSetsCorrectProperties()
+        {
+            // Arange
+            var proCoSysPlant = new ProCoSysPlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" };
+            _mainApiClient
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysPlant>
+                {
+                    proCoSysPlant,
+                }));
+            // Act
+            var result = await _dut.GetAllPlantsForUserAsync(_azureOid);
+
+            // Assert
+            var plant = result.Single();
+            Assert.AreEqual(proCoSysPlant.Id, plant.Id);
+            Assert.AreEqual(proCoSysPlant.Title, plant.Title);
+        }
+
+        [TestMethod]
+        public async Task GetAllPlants_ShouldSetApplicationAuthentication()
+        {
+            // Act
+            await _dut.GetAllPlantsForUserAsync(_azureOid);
+
+            // Assert
+            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.AsApplication);
+        }
+
+        [TestMethod]
+        public async Task GetAllPlants_ShouldResetToOnBehalfOfAuthentication()
+        {
+            // Act
+            await _dut.GetAllPlantsForUserAsync(_azureOid);
+
+            // Assert
+            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.OnBehalfOf);
         }
 
         [TestMethod]

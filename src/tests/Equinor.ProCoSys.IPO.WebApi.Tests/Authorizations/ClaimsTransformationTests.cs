@@ -27,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         private readonly string Project2_Plant1 = "Pro2";
         private readonly string Project1_Plant2 = "Pro3";
         private Mock<IPlantProvider> _plantProviderMock;
-        private Mock<IPlantCache> _plantCacheMock;
 
         [TestInitialize]
         public void Setup()
@@ -35,11 +34,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(p => p.Plant).Returns(Plant1);
 
-            _plantCacheMock = new Mock<IPlantCache>();
-            _plantCacheMock.Setup(p => p.HasUserAccessToPlantAsync(Plant1, Oid)).Returns(Task.FromResult(true));
-            _plantCacheMock.Setup(p => p.HasUserAccessToPlantAsync(Plant2, Oid)).Returns(Task.FromResult(true));
-
             var permissionCacheMock = new Mock<IPermissionCache>();
+            permissionCacheMock.Setup(p => p.HasUserAccessToPlantAsync(Plant1, Oid)).Returns(Task.FromResult(true));
+            permissionCacheMock.Setup(p => p.HasUserAccessToPlantAsync(Plant2, Oid)).Returns(Task.FromResult(true));
             permissionCacheMock.Setup(p => p.GetPermissionsForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant1, Permission2_Plant1}));
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant1, Oid))
@@ -59,7 +56,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             
             _dut = new ClaimsTransformation(
                 _plantProviderMock.Object,
-                _plantCacheMock.Object,
                 permissionCacheMock.Object,
                 loggerMock.Object);
         }

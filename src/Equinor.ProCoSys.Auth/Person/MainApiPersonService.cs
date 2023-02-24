@@ -1,42 +1,40 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 
-namespace Equinor.ProCoSys.Auth.Permission
+namespace Equinor.ProCoSys.Auth.Person
 {
-    public class MainApiPlantService : IPlantApiService
+    public class MainApiPersonService : IPersonApiService
     {
         private readonly IMainApiTokenProvider _mainApiTokenProvider;
-        private readonly string _apiVersion;
         private readonly Uri _baseAddress;
+        private readonly string _apiVersion;
         private readonly IMainApiClient _mainApiClient;
 
-        public MainApiPlantService(
+        public MainApiPersonService(
             IMainApiTokenProvider mainApiTokenProvider,
             IMainApiClient mainApiClient,
-            IOptionsMonitor<MainApiOptions> options)
+            IOptionsSnapshot<MainApiOptions> options)
         {
             _mainApiTokenProvider = mainApiTokenProvider;
             _mainApiClient = mainApiClient;
-            _apiVersion = options.CurrentValue.ApiVersion;
-            _baseAddress = new Uri(options.CurrentValue.BaseAddress);
+            _baseAddress = new Uri(options.Value.BaseAddress);
+            _apiVersion = options.Value.ApiVersion;
         }
 
-        public async Task<List<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid azureOid)
+        public async Task<ProCoSysPerson> TryGetPersonByOidAsync(Guid azureOid)
         {
-            var url = $"{_baseAddress}Plants/ForUser" +
+            var url = $"{_baseAddress}Person" +
                       $"?azureOid={azureOid:D}" +
-                      "&includePlantsWithoutAccess=true" +
                       $"&api-version={_apiVersion}";
 
             var oldAuthType = _mainApiTokenProvider.AuthenticationType;
             _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
             try
             {
-                return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
+                return await _mainApiClient.TryQueryAndDeserializeAsync<ProCoSysPerson>(url);
             }
             finally
             {

@@ -15,24 +15,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
     [Route("Cache")]
     public class CacheController : ControllerBase
     {
-        private readonly IPlantCache _plantCache;
         private readonly IPermissionCache _permissionCache;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionApiService _permissionApiService;
-        private readonly IPlantApiService _plantApiService;
 
         public CacheController(
-            IPlantCache plantCache,
             IPermissionCache permissionCache,
             ICurrentUserProvider currentUserProvider,
-            IPermissionApiService permissionApiService,
-            IPlantApiService plantApiService)
+            IPermissionApiService permissionApiService)
         {
-            _plantCache = plantCache;
             _permissionCache = permissionCache;
             _currentUserProvider = currentUserProvider;
             _permissionApiService = permissionApiService;
-            _plantApiService = plantApiService;
         }
 
         [Authorize]
@@ -44,7 +38,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             string plant)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            _plantCache.Clear(currentUserOid);
             _permissionCache.ClearAll(plant, currentUserOid);
         }
 
@@ -88,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
         public async Task<IList<string>> GetPlantsFromCache()
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var plants = await _plantCache.GetPlantIdsWithAccessForUserAsync(currentUserOid);
+            var plants = await _permissionCache.GetPlantIdsWithAccessForUserAsync(currentUserOid);
             return plants;
         }
 
@@ -97,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
         public async Task<IList<ProCoSysPlant>> GetPlantsFromMain()
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var plants = await _plantApiService.GetAllPlantsForUserAsync(currentUserOid);
+            var plants = await _permissionApiService.GetAllPlantsForUserAsync(currentUserOid);
             return plants;
         }
     }

@@ -15,18 +15,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
         public static string ProjectPrefix = "PCS_Project##";
 
         private readonly IPlantProvider _plantProvider;
-        private readonly IPlantCache _plantCache;
         private readonly IPermissionCache _permissionCache;
         private readonly ILogger<ClaimsTransformation> _logger;
 
         public ClaimsTransformation(
             IPlantProvider plantProvider,
-            IPlantCache plantCache,
             IPermissionCache permissionCache,
             ILogger<ClaimsTransformation> logger)
         {
             _plantProvider = plantProvider;
-            _plantCache = plantCache;
             _permissionCache = permissionCache;
             _logger = logger;
         }
@@ -49,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return principal;
             }
 
-            if (!await _plantCache.HasUserAccessToPlantAsync(plantId, userOid.Value))
+            if (!await _permissionCache.HasUserAccessToPlantAsync(plantId, userOid.Value))
             {
                 _logger.LogInformation($"----- {GetType().Name} early exit, not a valid plant for user");
                 return principal;

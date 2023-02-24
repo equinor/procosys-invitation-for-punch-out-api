@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 
@@ -11,22 +12,44 @@ namespace Equinor.ProCoSys.Auth.Permission
 {
     public class MainApiPermissionService : IPermissionApiService
     {
+        private readonly IMainApiTokenProvider _mainApiTokenProvider;
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
         private readonly string _clientFriendlyName;
         private readonly IMainApiClient _mainApiClient;
 
         public MainApiPermissionService(
+            IMainApiTokenProvider mainApiTokenProvider,
             IMainApiClient mainApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
+            _mainApiTokenProvider = mainApiTokenProvider;
             _mainApiClient = mainApiClient;
             _apiVersion = options.CurrentValue.ApiVersion;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _clientFriendlyName = options.CurrentValue.ClientFriendlyName;
         }
-        
-        public async Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
+
+        public async Task<List<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid azureOid)
+        {
+            var url = $"{_baseAddress}Plants/ForUser" +
+                      $"?azureOid={azureOid:D}" +
+                      "&includePlantsWithoutAccess=true" +
+                      $"&api-version={_apiVersion}";
+
+            var oldAuthType = _mainApiTokenProvider.AuthenticationType;
+            _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
+            try
+            {
+                return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
+            }
+            finally
+            {
+                _mainApiTokenProvider.AuthenticationType = oldAuthType;
+            }
+        }
+
+        public async Task<List<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
         {
             // trace users use of plant each time getting projects
             // this will serve the purpose since we want to log once a day pr user pr plant, and ProCoSys clients as Preservation and IPO ALWAYS get projects at startup
@@ -41,7 +64,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url) ?? new List<ProCoSysProject>();
         }
 
-        public async Task<IList<string>> GetPermissionsAsync(string plantId)
+        public async Task<List<string>> GetPermissionsAsync(string plantId)
         {
             var url = $"{_baseAddress}Permissions" +
                       $"?plantId={plantId}" +
@@ -50,7 +73,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             return await _mainApiClient.QueryAndDeserializeAsync<List<string>>(url) ?? new List<string>();
         }
 
-        public async Task<IList<string>> GetContentRestrictionsAsync(string plantId)
+        public async Task<List<string>> GetContentRestrictionsAsync(string plantId)
         {
             var url = $"{_baseAddress}ContentRestrictions" +
                       $"?plantId={plantId}" +

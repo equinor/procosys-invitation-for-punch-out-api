@@ -49,7 +49,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private readonly List<Action> _teardownList = new List<Action>();
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
-        private readonly Mock<IPlantApiService> _plantApiServiceMock = new Mock<IPlantApiService>();
         private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
@@ -121,12 +120,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     .Returns(Guid.Parse(testUser.Profile.Oid));
             }
 
-            // Need to change what the mock returns each time since the factory share the same registered mocks
-            SetupPlantMock(testUser);
-            
-            SetupPermissionMock(plant, 
-                testUser.ProCoSysPermissions,
-                testUser.ProCoSysProjects);
+            SetupPermissionMock(plant, testUser);
             
             UpdatePlantInHeader(testUser.HttpClient, plant);
             
@@ -173,7 +167,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
                 // Add mocks to all external resources here
-                services.AddScoped(serviceProvider => _plantApiServiceMock.Object);
                 services.AddScoped(serviceProvider => _permissionApiServiceMock.Object);
                 services.AddScoped(serviceProvider => FusionMeetingClientMock.Object);
                 services.AddScoped(serviceProvider => MeetingOptionsMock.Object);
@@ -268,25 +261,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             return $"Server=(LocalDB)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=true;AttachDbFileName={dbPath}";
         }
 
-        private void SetupPlantMock(ITestUser testUser)
+        private void SetupPermissionMock(string plant, ITestUser testUser)
         {
             if (testUser.Profile != null)
             {
-                _plantApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
                     .Returns(Task.FromResult(testUser.ProCoSysPlants));
             }
-        }
-
-        private void SetupPermissionMock(
-            string plant,
-            IList<string> proCoSysPermissions,
-            IList<ProCoSysProject> proCoSysProjects)
-        {
             _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(plant))
-                .Returns(Task.FromResult(proCoSysPermissions));
+                .Returns(Task.FromResult(testUser.ProCoSysPermissions));
                         
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsAsync(plant))
-                .Returns(Task.FromResult(proCoSysProjects));
+                .Returns(Task.FromResult(testUser.ProCoSysProjects));
         }
 
         private void SetupTestUsers()

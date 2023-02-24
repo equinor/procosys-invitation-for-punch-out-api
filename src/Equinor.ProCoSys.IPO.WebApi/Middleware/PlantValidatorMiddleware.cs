@@ -17,14 +17,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
         public async Task InvokeAsync(
             HttpContext context,
             IPlantProvider plantProvider,
-            IPlantCache plantCache,
+            IPermissionCache permissionCache,
             ILogger<PlantValidatorMiddleware> logger)
         {
             logger.LogInformation($"----- {GetType().Name} start");
             var plantId = plantProvider.Plant;
             if (context.User.Identity.IsAuthenticated && plantId != null)
             {
-                if (!await plantCache.IsAValidPlantAsync(plantId))
+                if (!await permissionCache.IsAValidPlantAsync(plantId))
                 {
                     var errors = new Dictionary<string, string[]>
                     {
