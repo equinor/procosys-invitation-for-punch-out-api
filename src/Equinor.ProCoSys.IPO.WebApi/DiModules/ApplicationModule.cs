@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IPlantCache, PlantCache>();
             services.AddScoped<IPermissionCache, PermissionCache>();
             services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
-            services.AddScoped<IClaimsProvider, ClaimsProvider>();
+            services.AddScoped<IClaimsPrincipalProvider, ClaimsPrincipalProvider>();
             services.AddScoped<CurrentUserProvider>();
             services.AddScoped<ICurrentUserProvider>(x => x.GetRequiredService<CurrentUserProvider>());
             services.AddScoped<ICurrentUserSetter>(x => x.GetRequiredService<CurrentUserProvider>());
