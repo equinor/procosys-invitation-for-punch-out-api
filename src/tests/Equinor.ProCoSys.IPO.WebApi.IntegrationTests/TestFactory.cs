@@ -12,7 +12,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
@@ -29,6 +28,10 @@ using Moq;
 using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.Auth.Misc;
 using ProCoSysProject = Equinor.ProCoSys.Auth.Permission.ProCoSysProject;
+using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
+using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
+using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
+using Equinor.ProCoSys.Auth.Person;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -49,13 +52,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private readonly List<Action> _teardownList = new List<Action>();
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
+        private readonly Mock<IAuthPersonApiService> _authPersonApiServiceMock = new Mock<IAuthPersonApiService>();
         private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
         public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
-        public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
+        public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
@@ -112,14 +116,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         {
             var testUser = _testUsers[userType];
             
-            if (testUser.Profile != null)
-            {
-                Instance
-                    .CurrentUserProviderMock
-                    .Setup(x => x.GetCurrentUserOid())
-                    .Returns(Guid.Parse(testUser.Profile.Oid));
-            }
-
             SetupPermissionMock(plant, testUser);
             
             UpdatePlantInHeader(testUser.HttpClient, plant);
@@ -167,18 +163,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
                 // Add mocks to all external resources here
-                services.AddScoped(serviceProvider => _permissionApiServiceMock.Object);
-                services.AddScoped(serviceProvider => FusionMeetingClientMock.Object);
-                services.AddScoped(serviceProvider => MeetingOptionsMock.Object);
-                services.AddScoped(serviceProvider => CommPkgApiServiceMock.Object);
-                services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
-                services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
-                services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
-                services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
-                services.AddScoped(serviceProvider => BlobStorageMock.Object);
-                services.AddScoped(serviceProvider => PcsBusSenderMock.Object);
-                services.AddScoped(serviceProvider => MeApiServiceMock.Object);
-                services.AddScoped(serviceProvider => EmailServiceMock.Object);
+                services.AddScoped(_ => _authPersonApiServiceMock.Object);
+                services.AddScoped(_ => _permissionApiServiceMock.Object);
+                services.AddScoped(_ => FusionMeetingClientMock.Object);
+                services.AddScoped(_ => MeetingOptionsMock.Object);
+                services.AddScoped(_ => CommPkgApiServiceMock.Object);
+                services.AddScoped(_ => McPkgApiServiceMock.Object);
+                services.AddScoped(_ => MainPersonApiServiceMock.Object);
+                services.AddScoped(_ => FunctionalRoleApiServiceMock.Object);
+                services.AddScoped(_ => ProjectApiServiceMock.Object);
+                services.AddScoped(_ => BlobStorageMock.Object);
+                services.AddScoped(_ => PcsBusSenderMock.Object);
+                services.AddScoped(_ => MeApiServiceMock.Object);
+                services.AddScoped(_ => EmailServiceMock.Object);
             });
 
             builder.ConfigureServices(services =>
@@ -265,9 +262,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         {
             if (testUser.Profile != null)
             {
-                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
-                    .Returns(Task.FromResult(testUser.ProCoSysPlants));
+                Instance
+                    .CurrentUserProviderMock.Setup(x => x.GetCurrentUserOid())
+                    .Returns(Guid.Parse(testUser.Profile.Oid));
             }
+
             _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(plant))
                 .Returns(Task.FromResult(testUser.ProCoSysPermissions));
                         
@@ -311,6 +310,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath));
             });
 
+
+            SetupProCoSysServiceMocks();
+
+            CreateAuthenticatedHttpClients(webHostBuilder);
+        }
+
+        private void CreateAuthenticatedHttpClients(WebApplicationFactory<Startup> webHostBuilder)
+        {
             foreach (var testUser in _testUsers.Values)
             {
                 testUser.HttpClient = webHostBuilder.CreateClient();
@@ -319,6 +326,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 {
                     AuthenticateUser(testUser);
                 }
+            }
+        }
+
+        private void SetupProCoSysServiceMocks()
+        {
+            foreach (var testUser in _testUsers.Values.Where(t => t.Profile != null))
+            {
+                if (testUser.AuthProCoSysPerson != null)
+                {
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    .Returns(Task.FromResult(testUser.AuthProCoSysPerson));
+                }
+                else
+                {
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                        .Returns(Task.FromResult((AuthProCoSysPerson)null));
+                }
+                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                    .Returns(Task.FromResult(testUser.ProCoSysPlants));
             }
         }
 
@@ -332,6 +358,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Harry",
                             LastName = "Hacker", 
+                            UserName = "HH",
                             Oid = HackerOid,
                             Email = "harry.hacker@pcs.pcs"
                         },
@@ -356,6 +383,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Vidar",
                             LastName = " Viewer",
+                            UserName = "VV",
                             Oid = ViewerOid,
                             Email = "vidar.viewer@pcs.pcs"
                         },
@@ -384,7 +412,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Sigurd",
                             LastName = "Signer",
-                            UserName = "SigurdUserName",
+                            UserName = "SS",
                             Oid = SignerOid,
                             Email = "sigurd.signer@pcs.pcs"
                         },
@@ -414,7 +442,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Pernilla",
                             LastName = "Planner",
-                            UserName = "PernillaUserName",
+                            UserName = "PP",
                             Oid = PlannerOid,
                             Email = "pernilla.planner@pcs.pcs"
                         },
@@ -448,7 +476,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Conte",
                             LastName = "Contractor",
-                            UserName = "ContractorUserName",
+                            UserName = "CC",
                             Oid = ContractorOid,
                             Email = "conte.contractor@pcs.pcs"  
                         },
@@ -479,11 +507,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                           FirstName = "Andrea",
                             LastName = "Admin",
-                            UserName = "AndreaAdminUserName",
+                            UserName = "AA",
                             Oid = AdminOid,
                             Email = "andrea.admin@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
+                ProCoSysPlants = commonProCoSysPlants,
                     ProCoSysPermissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
@@ -514,7 +542,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Bill",
                             LastName = "Shankly",
-                            UserName = "ShanklyCreator",
+                            UserName = "BS",
                             Oid = CreatorOid,
                             Email = "bill.shankly@pcs.pcs"
                         },

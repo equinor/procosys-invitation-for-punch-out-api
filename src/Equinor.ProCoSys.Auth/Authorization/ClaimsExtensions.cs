@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
+namespace Equinor.ProCoSys.Auth.Authorization
 {
     public static class ClaimsExtensions
     {

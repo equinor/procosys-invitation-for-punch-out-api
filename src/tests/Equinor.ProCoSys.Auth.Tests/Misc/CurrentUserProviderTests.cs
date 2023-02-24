@@ -1,8 +1,8 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
+using Equinor.ProCoSys.Auth.Misc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
+namespace Equinor.ProCoSys.Auth.Tests.Misc
 {
     [TestClass]
     public class CurrentUserProviderTests

@@ -45,8 +45,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return false;
             }
 
-
-
             if (request is IInvitationCommandRequest invitationCommandRequest)
             {
                 if (!await HasCurrentUserAccessToProjectAsync(invitationCommandRequest.InvitationId, userOid))

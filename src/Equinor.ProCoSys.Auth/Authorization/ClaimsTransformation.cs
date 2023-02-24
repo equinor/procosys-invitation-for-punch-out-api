@@ -3,26 +3,31 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Auth.Misc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
+namespace Equinor.ProCoSys.Auth.Authorization
 {
     public class ClaimsTransformation : IClaimsTransformation
     {
         public static string ClaimsIssuer = "ProCoSys";
         public static string ProjectPrefix = "PCS_Project##";
+        public static string ContentRestrictionPrefix = "PCS_ContentRestriction##";
+        public static string NoRestrictions = "%";
 
+        private readonly IPersonCache _personCache;
         private readonly IPlantProvider _plantProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly ILogger<ClaimsTransformation> _logger;
 
         public ClaimsTransformation(
+            IPersonCache personCache,
             IPlantProvider plantProvider,
             IPermissionCache permissionCache,
             ILogger<ClaimsTransformation> logger)
         {
+            _personCache = personCache;
             _plantProvider = plantProvider;
             _permissionCache = permissionCache;
             _logger = logger;
@@ -35,6 +40,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
             if (!userOid.HasValue)
             {
                 _logger.LogInformation($"----- {GetType().Name} early exit, not authenticated yet");
+                return principal;
+            }
+
+            if (!await _personCache.ExistsAsync(userOid.Value))
+            {
+                _logger.LogInformation($"----- {GetType().Name} early exit, {userOid} don't exists in ProCoSys");
                 return principal;
             }
 
@@ -52,17 +63,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 return principal;
             }
 
-
             var claimsIdentity = GetOrCreateClaimsIdentityForThisIssuer(principal);
 
             await AddRoleForAllPermissionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
             await AddUserDataClaimForAllOpenProjectsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
+            await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
 
             _logger.LogInformation($"----- {GetType().Name} completed");
             return principal;
         }
 
         public static string GetProjectClaimValue(string projectName) => $"{ProjectPrefix}{projectName}";
+
+        public static string GetContentRestrictionClaimValue(string contentRestriction) => $"{ContentRestrictionPrefix}{contentRestriction}";
 
         private ClaimsIdentity GetOrCreateClaimsIdentityForThisIssuer(ClaimsPrincipal principal)
         {
@@ -97,6 +110,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
         {
             var projectNames = await _permissionCache.GetProjectsForUserAsync(plantId, userOid);
             projectNames?.ToList().ForEach(projectName => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetProjectClaimValue(projectName))));
+        }
+
+        private async Task AddUserDataClaimForAllContentRestrictionsToIdentityAsync(ClaimsIdentity claimsIdentity, string plantId, Guid userOid)
+        {
+            var contentRestrictions = await _permissionCache.GetContentRestrictionsForUserAsync(plantId, userOid);
+            contentRestrictions?.ToList().ForEach(
+                contentRestriction => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetContentRestrictionClaimValue(contentRestriction))));
         }
 
         private static Claim CreateClaim(string claimType, string claimValue)

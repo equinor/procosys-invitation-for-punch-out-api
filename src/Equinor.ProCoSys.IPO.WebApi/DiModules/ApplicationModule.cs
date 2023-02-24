@@ -30,7 +30,6 @@ using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -63,17 +62,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Hosted services
 
-            //services.AddHostedService<PcsBusReceiver>(br => new PcsBusReceiver(configuration, br, br.GetService<ILogger<PcsBusReceiver>>()));
-
             // Transient - Created each time it is requested from the service container
 
             // Scoped - Created once per client request (connection)
             services.AddScoped<ITelemetryClient, ApplicationInsightsTelemetryClient>();
-            // todo can this be moved
-            services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
-            services.AddScoped<PlantProvider>();
-            services.AddScoped<IPlantProvider>(x => x.GetRequiredService<PlantProvider>());
-            services.AddScoped<IPlantSetter>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<IAccessValidator, AccessValidator>();
             services.AddScoped<IProjectAccessChecker, ProjectAccessChecker>();
             services.AddScoped<IProjectChecker, ProjectChecker>();

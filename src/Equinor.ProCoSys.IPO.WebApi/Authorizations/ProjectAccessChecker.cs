@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
+using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations

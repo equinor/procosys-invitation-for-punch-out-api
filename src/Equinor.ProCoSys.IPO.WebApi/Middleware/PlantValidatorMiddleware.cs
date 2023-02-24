@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

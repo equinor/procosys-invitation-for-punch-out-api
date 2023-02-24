@@ -1,4 +1,4 @@
-﻿using Equinor.ProCoSys.IPO.Domain;
+﻿using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Seeding
 {
@@ -7,6 +7,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Seeding
         public SeedingPlantProvider(string plant) => Plant = plant;
 
         public string Plant { get; }
+
+        public bool IsCrossPlantQuery => throw new System.NotImplementedException();
 
         public void SetTemporaryPlant(string plant) => throw new System.NotImplementedException();
         public void ReleaseTemporaryPlant() => throw new System.NotImplementedException();

@@ -157,13 +157,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
                 .FusionMeetingClientMock

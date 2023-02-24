@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
-using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using Equinor.ProCoSys.Auth.Authorization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
+namespace Equinor.ProCoSys.Auth.Tests.Authorization
 {
     [TestClass]
     public class ClaimsExtensionTests

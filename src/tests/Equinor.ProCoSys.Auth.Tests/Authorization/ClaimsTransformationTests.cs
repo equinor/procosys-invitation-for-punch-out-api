@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using Equinor.ProCoSys.Auth.Misc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
+namespace Equinor.ProCoSys.Auth.Tests.Authorization
 {
     [TestClass]
     public class ClaimsTransformationTests
@@ -26,11 +26,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         private readonly string Project1_Plant1 = "Pro1";
         private readonly string Project2_Plant1 = "Pro2";
         private readonly string Project1_Plant2 = "Pro3";
+        private readonly string Restriction1_Plant1 = "Res1";
+        private readonly string Restriction2_Plant1 = "Res2";
+        private readonly string Restriction1_Plant2 = "Res3";
+        private Mock<IPersonCache> _personCacheMock;
         private Mock<IPlantProvider> _plantProviderMock;
 
         [TestInitialize]
         public void Setup()
         {
+            _personCacheMock = new Mock<IPersonCache>();
+            _personCacheMock.Setup(p => p.ExistsAsync(Oid)).Returns(Task.FromResult(true));
+
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(p => p.Plant).Returns(Plant1);
 
@@ -41,11 +48,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant1, Permission2_Plant1}));
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant1, Project2_Plant1}));
+            permissionCacheMock.Setup(p => p.GetContentRestrictionsForUserAsync(Plant1, Oid))
+                .Returns(Task.FromResult<IList<string>>(new List<string> {Restriction1_Plant1, Restriction2_Plant1}));
 
             permissionCacheMock.Setup(p => p.GetPermissionsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant2}));
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant2}));
+            permissionCacheMock.Setup(p => p.GetContentRestrictionsForUserAsync(Plant2, Oid))
+                .Returns(Task.FromResult<IList<string>>(new List<string> {Restriction1_Plant2}));
 
             var loggerMock = new Mock<ILogger<ClaimsTransformation>>();
 
@@ -55,6 +66,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             _principalWithOid.AddIdentity(claimsIdentity);
             
             _dut = new ClaimsTransformation(
+                _personCacheMock.Object,
                 _plantProviderMock.Object,
                 permissionCacheMock.Object,
                 loggerMock.Object);
@@ -95,12 +107,42 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         }
 
         [TestMethod]
+        public async Task TransformAsync_ShouldAddUserDataClaimsForContentRestriction()
+        {
+            var result = await _dut.TransformAsync(_principalWithOid);
+
+            AssertContentRestrictionForPlant1(result.Claims);
+        }
+
+        [TestMethod]
+        public async Task TransformAsync_Twice_ShouldNotDuplicateUserDataClaimsForContentRestriction()
+        {
+            await _dut.TransformAsync(_principalWithOid);
+            var result = await _dut.TransformAsync(_principalWithOid);
+
+            AssertContentRestrictionForPlant1(result.Claims);
+        }
+
+        [TestMethod]
         public async Task TransformAsync_ShouldNotAddAnyClaims_ForPrincipalWithoutOid()
         {
             var result = await _dut.TransformAsync(new ClaimsPrincipal());
 
             Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
             Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
+        }
+
+        [TestMethod]
+        public async Task TransformAsync_ShouldNotAddAnyClaims_WhenPersonNotFoundInProCoSys()
+        {
+            _personCacheMock.Setup(p => p.ExistsAsync(Oid)).Returns(Task.FromResult(false));
+
+            var result = await _dut.TransformAsync(new ClaimsPrincipal());
+
+            Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
         }
 
         [TestMethod]
@@ -112,6 +154,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 
             Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
             Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
         }
         
         [TestMethod]
@@ -120,6 +163,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             var result = await _dut.TransformAsync(_principalWithOid);
             AssertRoleClaimsForPlant1(result.Claims);
             AssertProjectClaimsForPlant1(result.Claims);
+            AssertContentRestrictionForPlant1(result.Claims);
 
             _plantProviderMock.SetupGet(p => p.Plant).Returns(Plant2);
             result = await _dut.TransformAsync(_principalWithOid);
@@ -131,6 +175,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             claims = GetProjectClaims(result.Claims);
             Assert.AreEqual(1, claims.Count);
             Assert.IsNotNull(claims.SingleOrDefault(r => r.Value == ClaimsTransformation.GetProjectClaimValue(Project1_Plant2)));
+
+            claims = GetContentRestrictionClaims(result.Claims);
+            Assert.AreEqual(1, claims.Count);
+            Assert.IsNotNull(claims.SingleOrDefault(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction1_Plant2)));
         }
 
         private void AssertRoleClaimsForPlant1(IEnumerable<Claim> claims)
@@ -148,6 +196,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
             Assert.IsTrue(projectClaims.Any(r => r.Value == ClaimsTransformation.GetProjectClaimValue(Project1_Plant1)));
             Assert.IsTrue(projectClaims.Any(r => r.Value == ClaimsTransformation.GetProjectClaimValue(Project2_Plant1)));
         }
+
+        private void AssertContentRestrictionForPlant1(IEnumerable<Claim> claims)
+        {
+            var contentRestrictionClaims = GetContentRestrictionClaims(claims);
+            Assert.AreEqual(2, contentRestrictionClaims.Count);
+            Assert.IsTrue(contentRestrictionClaims.Any(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction1_Plant1)));
+            Assert.IsTrue(contentRestrictionClaims.Any(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction2_Plant1)));
+        }
+
+        private static List<Claim> GetContentRestrictionClaims(IEnumerable<Claim> claims)
+            => claims
+                .Where(c => c.Type == ClaimTypes.UserData &&
+                            c.Value.StartsWith(ClaimsTransformation.ContentRestrictionPrefix))
+                .ToList();
 
         private static List<Claim> GetRoleClaims(IEnumerable<Claim> claims)
             => claims.Where(c => c.Type == ClaimTypes.Role).ToList();
