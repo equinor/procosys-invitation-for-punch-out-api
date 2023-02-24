@@ -9,12 +9,12 @@ namespace Equinor.ProCoSys.Auth.Caches
     {
         private readonly ICacheManager _cacheManager;
         private readonly IPersonApiService _personApiService;
-        private readonly IOptionsSnapshot<CacheOptions> _options;
+        private readonly IOptionsMonitor<CacheOptions> _options;
 
         public PersonCache(
             ICacheManager cacheManager, 
             IPersonApiService personApiService,
-            IOptionsSnapshot<CacheOptions> options)
+            IOptionsMonitor<CacheOptions> options)
         {
             _cacheManager = cacheManager;
             _personApiService = personApiService;
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.Auth.Caches
                     return person;
                 },
                 CacheDuration.Minutes,
-                _options.Value.PersonCacheMinutes);
+                _options.CurrentValue.PersonCacheMinutes);
 
         public async Task<bool> ExistsAsync(Guid userOid)
         {

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Equinor.ProCoSys.Auth.Tests.Caching
+namespace Equinor.ProCoSys.Auth.Tests.Caches
 {
     [TestClass]
     public class PermissionCacheTests

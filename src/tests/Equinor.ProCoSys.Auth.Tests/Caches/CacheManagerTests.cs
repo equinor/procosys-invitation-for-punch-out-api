@@ -4,7 +4,7 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Time;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Equinor.ProCoSys.Auth.Tests.Caching
+namespace Equinor.ProCoSys.Auth.Tests.Caches
 {
     [TestClass]
     public class CacheManagerTests
