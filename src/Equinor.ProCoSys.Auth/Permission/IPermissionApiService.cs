@@ -7,5 +7,6 @@ namespace Equinor.ProCoSys.Auth.Permission
     {
         Task<IList<string>> GetPermissionsAsync(string plantId);
         Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId);
+        Task<IList<string>> GetContentRestrictionsAsync(string plantId);
     }
 }
