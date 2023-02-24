@@ -16,12 +16,12 @@ namespace Equinor.ProCoSys.Auth.Person
         public MainApiPersonService(
             IMainApiTokenProvider mainApiTokenProvider,
             IMainApiClient mainApiClient,
-            IOptionsSnapshot<MainApiOptions> options)
+            IOptionsMonitor<MainApiOptions> options)
         {
             _mainApiTokenProvider = mainApiTokenProvider;
             _mainApiClient = mainApiClient;
-            _baseAddress = new Uri(options.Value.BaseAddress);
-            _apiVersion = options.Value.ApiVersion;
+            _baseAddress = new Uri(options.CurrentValue.BaseAddress);
+            _apiVersion = options.CurrentValue.ApiVersion;
         }
 
         public async Task<ProCoSysPerson> TryGetPersonByOidAsync(Guid azureOid)
