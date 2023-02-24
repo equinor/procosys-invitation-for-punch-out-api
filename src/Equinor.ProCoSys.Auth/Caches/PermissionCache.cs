@@ -42,10 +42,18 @@ namespace Equinor.ProCoSys.Auth.Caches
             return allProjects != null && allProjects.Any(p => p.Name == projectName);
         }
 
+        public async Task<IList<string>> GetContentRestrictionsForUserAsync(string plantId, Guid userOid)
+            => await _cacheManager.GetOrCreate(
+                ContentRestrictionsCacheKey(plantId, userOid),
+                async () => await _permissionApiService.GetContentRestrictionsAsync(plantId),
+                CacheDuration.Minutes,
+                _options.CurrentValue.PermissionCacheMinutes);
+
         public void ClearAll(string plantId, Guid userOid)
         {
             _cacheManager.Remove(ProjectsCacheKey(plantId, userOid));
             _cacheManager.Remove(PermissionsCacheKey(plantId, userOid));
+            _cacheManager.Remove(ContentRestrictionsCacheKey(plantId, userOid));
         }
 
         private async Task<IList<ProCoSysProject>> GetAllProjectsForUserAsync(string plantId, Guid userOid)
@@ -71,6 +79,15 @@ namespace Equinor.ProCoSys.Auth.Caches
                 throw new Exception("Illegal userOid for cache");
             }
             return $"PERMISSIONS_{userOid.ToString().ToUpper()}_{plantId}";
+        }
+
+        private static string ContentRestrictionsCacheKey(string plantId, Guid userOid)
+        {
+            if (userOid == Guid.Empty)
+            {
+                throw new Exception("Illegal userOid for cache");
+            }
+            return $"CONTENTRESTRICTIONS_{userOid.ToString().ToUpper()}_{plantId}";
         }
 
         private async Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)

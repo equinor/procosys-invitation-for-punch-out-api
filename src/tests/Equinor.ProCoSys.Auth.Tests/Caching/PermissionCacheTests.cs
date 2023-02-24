@@ -23,6 +23,8 @@ namespace Equinor.ProCoSys.Auth.Tests.Caching
         private readonly string Project1WithAccess = "P1";
         private readonly string Project2WithAccess = "P2";
         private readonly string ProjectWithoutAccess = "P3";
+        private readonly string Restriction1 = "R1";
+        private readonly string Restriction2 = "R2";
 
         [TestInitialize]
         public void Setup()
@@ -32,13 +34,15 @@ namespace Equinor.ProCoSys.Auth.Tests.Caching
             _permissionApiServiceMock = new Mock<IPermissionApiService>();
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsAsync(TestPlant))
                 .Returns(Task.FromResult<IList<ProCoSysProject>>(new List<ProCoSysProject>
-            {
-                new ProCoSysProject {Name = Project1WithAccess, HasAccess = true},
-                new ProCoSysProject {Name = Project2WithAccess, HasAccess = true},
-                new ProCoSysProject {Name = ProjectWithoutAccess}
-            }));
+                {
+                    new ProCoSysProject {Name = Project1WithAccess, HasAccess = true},
+                    new ProCoSysProject {Name = Project2WithAccess, HasAccess = true},
+                    new ProCoSysProject {Name = ProjectWithoutAccess}
+                }));
             _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(TestPlant))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1, Permission2}));
+            _permissionApiServiceMock.Setup(p => p.GetContentRestrictionsAsync(TestPlant))
+                .Returns(Task.FromResult<IList<string>>(new List<string> { Restriction1, Restriction2 }));
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
             optionsMock
@@ -100,12 +104,40 @@ namespace Equinor.ProCoSys.Auth.Tests.Caching
         }
 
         [TestMethod]
+        public async Task GetContentRestrictionsForUserAsync_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
+        {
+            // Act
+            var result = await _dut.GetContentRestrictionsForUserAsync(TestPlant, Oid);
+
+            // Assert
+            AssertRestrictions(result);
+            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(TestPlant), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task GetContentRestrictionsForUserAsync_ShouldReturnPermissionsFromCacheSecondTime()
+        {
+            await _dut.GetContentRestrictionsForUserAsync(TestPlant, Oid);
+            // Act
+            var result = await _dut.GetContentRestrictionsForUserAsync(TestPlant, Oid);
+
+            // Assert
+            AssertRestrictions(result);
+            // since GetContentRestrictionsForUserAsync has been called twice, but GetContentRestrictionsAsync has been called once, the second Get uses cache
+            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(TestPlant), Times.Once);
+        }
+
+        [TestMethod]
         public async Task GetPermissionsForUser_ShouldThrowExceptionWhenOidIsEmpty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetPermissionsForUserAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
         public async Task GetProjectsForUserAsync_ShouldThrowExceptionWhenOidIsEmpty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetProjectsForUserAsync(TestPlant, Guid.Empty));
+
+        [TestMethod]
+        public async Task GetContentRestrictionsForUserAsync_ShouldThrowExceptionWhenOidIsEmpty()
+            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetContentRestrictionsForUserAsync(TestPlant, Guid.Empty));
 
         [TestMethod]
         public void ClearAll_ShouldClearAllPermissionCaches()
@@ -116,11 +148,12 @@ namespace Equinor.ProCoSys.Auth.Tests.Caching
                 cacheManagerMock.Object,
                 _permissionApiServiceMock.Object,
                 new Mock<IOptionsMonitor<CacheOptions>>().Object);
+            
             // Act
             dut.ClearAll(TestPlant, Oid);
 
             // Assert
-            cacheManagerMock.Verify(c => c.Remove(It.IsAny<string>()), Times.Exactly(2));
+            cacheManagerMock.Verify(c => c.Remove(It.IsAny<string>()), Times.Exactly(3));
         }
 
         private void AssertPermissions(IList<string> result)
@@ -135,6 +168,13 @@ namespace Equinor.ProCoSys.Auth.Tests.Caching
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(Project1WithAccess, result.First());
             Assert.AreEqual(Project2WithAccess, result.Last());
+        }
+
+        private void AssertRestrictions(IList<string> result)
+        {
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(Restriction1, result.First());
+            Assert.AreEqual(Restriction2, result.Last());
         }
     }
 }
