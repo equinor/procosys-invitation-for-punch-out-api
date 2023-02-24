@@ -34,8 +34,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Equinor.ProCoSys.Auth.Time;
-using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
@@ -46,9 +44,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
     {
         public static void AddApplicationModules(this IServiceCollection services, IConfiguration configuration)
         {
-            // todo can this be moved
-            TimeService.SetProvider(new SystemTimeProvider());
-
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
@@ -72,15 +67,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Transient - Created each time it is requested from the service container
 
-
             // Scoped - Created once per client request (connection)
             services.AddScoped<ITelemetryClient, ApplicationInsightsTelemetryClient>();
             // todo can this be moved
             services.AddScoped<IClaimsTransformation, ClaimsTransformation>();
-            services.AddScoped<IClaimsPrincipalProvider, ClaimsPrincipalProvider>();
-            services.AddScoped<CurrentUserProvider>();
-            services.AddScoped<ICurrentUserProvider>(x => x.GetRequiredService<CurrentUserProvider>());
-            services.AddScoped<ICurrentUserSetter>(x => x.GetRequiredService<CurrentUserProvider>());
             services.AddScoped<PlantProvider>();
             services.AddScoped<IPlantProvider>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<IPlantSetter>(x => x.GetRequiredService<PlantProvider>());
@@ -101,7 +91,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<LibraryApiAuthenticator>();
             services.AddScoped<ILibraryApiTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            services.AddScoped<IBearerTokenSetterForAll, BearerTokenSetterForAll>();
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
             services.AddScoped<IBlobStorage, AzureBlobService>();
