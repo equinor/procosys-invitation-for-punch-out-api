@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Misc
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public interface ICurrentUserSetter
     {

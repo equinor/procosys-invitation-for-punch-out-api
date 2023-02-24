@@ -20,8 +20,6 @@ namespace Equinor.ProCoSys.Auth.Authentication
 
         public ApiAuthenticator(string apiScopeKey, IAuthenticatorOptions options, ILogger<ApiAuthenticator> logger)
         {
-            var hashForDebug = this.GetHashCode();
-
             if (!options.Scopes.TryGetValue(apiScopeKey, out _apiScope))
             {
                 throw new ArgumentException($"List of scopes dont have key {apiScopeKey}");

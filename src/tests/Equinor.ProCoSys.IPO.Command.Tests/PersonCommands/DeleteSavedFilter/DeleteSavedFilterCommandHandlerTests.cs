@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

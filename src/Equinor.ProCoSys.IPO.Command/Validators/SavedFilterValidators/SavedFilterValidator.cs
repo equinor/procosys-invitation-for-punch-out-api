@@ -5,7 +5,7 @@ using System.Threading;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
 {

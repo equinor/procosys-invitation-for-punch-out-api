@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Misc
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public interface IClaimsPrincipalProvider
     {

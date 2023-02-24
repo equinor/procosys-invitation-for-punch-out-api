@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
+using Equinor.ProCoSys.Auth.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

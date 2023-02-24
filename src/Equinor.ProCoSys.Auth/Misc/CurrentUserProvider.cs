@@ -1,7 +1,6 @@
 ﻿using System;
-using Equinor.ProCoSys.Auth;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Misc
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public class CurrentUserProvider : ICurrentUserProvider, ICurrentUserSetter
     {

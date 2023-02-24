@@ -35,7 +35,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Equinor.ProCoSys.Auth.Time;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;

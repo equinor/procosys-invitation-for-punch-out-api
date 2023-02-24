@@ -1,4 +1,4 @@
-﻿using Equinor.ProCoSys.Auth;
+﻿using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Microsoft.EntityFrameworkCore;

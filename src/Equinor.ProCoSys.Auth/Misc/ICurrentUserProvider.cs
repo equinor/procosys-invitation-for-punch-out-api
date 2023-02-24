@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Equinor.ProCoSys.Auth
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public interface ICurrentUserProvider
     {

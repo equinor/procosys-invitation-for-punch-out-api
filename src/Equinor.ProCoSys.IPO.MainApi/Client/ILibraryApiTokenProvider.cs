@@ -1,5 +1,4 @@
-﻿using Equinor.ProCoSys.Auth;
-using Equinor.ProCoSys.Auth.Authentication;
+﻿using Equinor.ProCoSys.Auth.Authentication;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 {

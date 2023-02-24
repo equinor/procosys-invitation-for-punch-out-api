@@ -1,4 +1,4 @@
-﻿namespace Equinor.ProCoSys.IPO.WebApi.Misc
+﻿namespace Equinor.ProCoSys.Auth.Authentication
 {
     public interface IBearerTokenSetterForAll
     {

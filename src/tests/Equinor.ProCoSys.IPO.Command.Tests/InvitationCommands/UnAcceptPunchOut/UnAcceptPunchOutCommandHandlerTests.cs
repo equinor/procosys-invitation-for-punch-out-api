@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;

@@ -27,7 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using Equinor.ProCoSys.Auth.Permission;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using ProCoSysProject = Equinor.ProCoSys.Auth.Permission.ProCoSysProject;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.Auth.Authentication;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Misc
+namespace Equinor.ProCoSys.Auth.Authentication
 {
     public class BearerTokenSetterForAll : IBearerTokenSetterForAll
     {

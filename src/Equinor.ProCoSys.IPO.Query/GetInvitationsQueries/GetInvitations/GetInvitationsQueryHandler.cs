@@ -10,7 +10,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {

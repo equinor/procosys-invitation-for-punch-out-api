@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Permission;
 using Microsoft.Extensions.Options;
 

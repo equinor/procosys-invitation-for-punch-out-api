@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Misc
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public class ClaimsPrincipalProvider : IClaimsPrincipalProvider
     {

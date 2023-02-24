@@ -14,7 +14,7 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 
 namespace Equinor.ProCoSys.IPO.Test.Common

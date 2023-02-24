@@ -12,7 +12,7 @@ using Equinor.ProCoSys.Auth.Time;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
-using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
