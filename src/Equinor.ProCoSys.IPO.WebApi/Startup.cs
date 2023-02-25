@@ -244,6 +244,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             app.UseCurrentBearerToken();
             app.UseAuthentication();
             app.UseCurrentUser();
+            app.UsePersonValidator();
             app.UsePlantValidator();
             app.UseVerifyOidInDb();
             app.UseAuthorization();

@@ -10,7 +10,6 @@ using Moq;
 
 namespace Equinor.ProCoSys.Auth.Tests
 {
-    // todo move to Equinor.ProCoSys.Auth.Tests project
     [TestClass]
     public class MainApiClientTests
     {

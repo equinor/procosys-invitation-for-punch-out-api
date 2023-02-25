@@ -30,7 +30,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IMainApiTokenProvider _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
-        private readonly IBearerTokenSetter _bearerTokenSetter;
         private readonly IProjectRepository _projectRepository;
         private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
@@ -46,7 +45,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IMainApiTokenProvider mainApiTokenProvider,
             IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
-            IBearerTokenSetter bearerTokenSetter,
             IProjectRepository projectRepository)
         {
             _invitationRepository = invitationRepository;
@@ -57,7 +55,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _mcPkgApiService = mcPkgApiService;
             _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
-            _bearerTokenSetter = bearerTokenSetter;
             _projectRepository = projectRepository;
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }

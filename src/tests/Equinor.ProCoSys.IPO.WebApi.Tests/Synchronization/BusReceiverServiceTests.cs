@@ -32,7 +32,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
         private Mock<IMainApiTokenProvider> _mainApiTokenProvider;
-        private Mock<IBearerTokenSetter> _bearerTokenSetter;
         private Mock<IProjectRepository> _projectRepository;
 
         private const string plant = "PCS$HEIMDAL";
@@ -89,7 +88,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _mainApiTokenProvider = new Mock<IMainApiTokenProvider>();
-            _bearerTokenSetter = new Mock<IBearerTokenSetter>();
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån", _mcPkgsOn1, null);
             _invitation2 = new Invitation(plant, project1, "El invitasjån2", description, DisciplineType.MDP, DateTime.Now,
@@ -114,7 +112,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _mainApiTokenProvider.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
-                                          _bearerTokenSetter.Object,
                                           _projectRepository.Object);
 
             var list = new List<Invitation> {_invitation1, _invitation2, _invitation3, _invitation4};
@@ -267,7 +264,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _mainApiTokenProvider.Object,
                 _options.Object,
                 _currentUserSetter.Object,
-                _bearerTokenSetter.Object,
                 projectRepositoryTestDouble);
 
             await dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));

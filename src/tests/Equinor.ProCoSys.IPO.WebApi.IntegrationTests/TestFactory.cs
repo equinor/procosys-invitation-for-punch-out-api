@@ -31,7 +31,6 @@ using ProCoSysProject = Equinor.ProCoSys.Auth.Permission.ProCoSysProject;
 using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
-using Equinor.ProCoSys.Auth.Person;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -296,7 +295,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddViewerUser(commonProCoSysPlants, commonProCoSysProjects);
     
-            AddHackerUser(commonProCoSysProjects);
+            AddHackerUser();
 
             AddContractorUser(commonProCoSysPlants, commonProCoSysProjects);
 
@@ -349,7 +348,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         }
 
         // Authenticated client without any permissions
-        private void AddHackerUser(List<ProCoSysProject> commonProCoSysProjects)
+        private void AddHackerUser()
             => _testUsers.Add(UserType.Hacker,
                 new TestUser
                 {
@@ -364,11 +363,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         },
                     ProCoSysPlants = new List<ProCoSysPlant>
                     {
-                        new ProCoSysPlant {Id = PlantWithAccess},
-                        new ProCoSysPlant {Id = PlantWithoutAccess}
+                        new ProCoSysPlant {Id = PlantWithAccess, HasAccess = false},
+                        new ProCoSysPlant {Id = PlantWithoutAccess, HasAccess = false}
                     },
                     ProCoSysPermissions = new List<string>(),
-                    ProCoSysProjects = commonProCoSysProjects
+                    ProCoSysProjects = new List<ProCoSysProject>()
                 });
 
         // Authenticated client with necessary permissions to VIEW invitations

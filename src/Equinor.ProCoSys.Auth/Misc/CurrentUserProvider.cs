@@ -16,6 +16,8 @@ namespace Equinor.ProCoSys.Auth.Misc
             throw new Exception("Unable to determine current user");
         }
 
+        public bool HasCurrentUser() => _currentUserOid.HasValue;
+
         public void SetCurrentUserOid(Guid oid) => _currentUserOid = oid;
     }
 }

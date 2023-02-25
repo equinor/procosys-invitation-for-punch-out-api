@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
+namespace Equinor.ProCoSys.Auth.Misc
 {
     public static class HttpContextExtension
     {
@@ -26,6 +26,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             _logger.LogInformation(json);
 
             await context.Response.WriteAsync(json);
+        }
+
+        public static async Task WriteForbidden(this HttpContext context, ILogger logger)
+        {
+            logger.LogWarning("Unauthorized");
+            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            context.Response.ContentType = "application/text";
+            await context.Response.WriteAsync("Unauthorized!");
         }
     }
 }
