@@ -9,6 +9,9 @@ namespace Equinor.ProCoSys.Auth.Authentication
         string ClientId { get; }
         string Secret { get; }
         Guid ObjectId { get; }
+
+        bool DisableProjectUserDataClaims { get; }
+        bool DisableRestrictionRoleUserDataClaims { get; }
         
         IDictionary<string, string> Scopes { get; }
     }

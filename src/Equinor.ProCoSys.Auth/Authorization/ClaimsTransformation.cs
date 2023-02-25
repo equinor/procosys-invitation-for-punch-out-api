@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
 using Microsoft.AspNetCore.Authentication;
@@ -20,17 +21,20 @@ namespace Equinor.ProCoSys.Auth.Authorization
         private readonly IPlantProvider _plantProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly ILogger<ClaimsTransformation> _logger;
+        private readonly IAuthenticatorOptions _authenticatorOptions;
 
         public ClaimsTransformation(
             IPersonCache personCache,
             IPlantProvider plantProvider,
             IPermissionCache permissionCache,
-            ILogger<ClaimsTransformation> logger)
+            ILogger<ClaimsTransformation> logger,
+            IAuthenticatorOptions authenticatorOptions)
         {
             _personCache = personCache;
             _plantProvider = plantProvider;
             _permissionCache = permissionCache;
             _logger = logger;
+            _authenticatorOptions = authenticatorOptions;
         }
 
         public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
@@ -66,8 +70,14 @@ namespace Equinor.ProCoSys.Auth.Authorization
             var claimsIdentity = GetOrCreateClaimsIdentityForThisIssuer(principal);
 
             await AddRoleForAllPermissionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
-            await AddUserDataClaimForAllOpenProjectsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
-            await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
+            if (!_authenticatorOptions.DisableProjectUserDataClaims)
+            {
+                await AddUserDataClaimForAllOpenProjectsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
+            }
+            if (!_authenticatorOptions.DisableRestrictionRoleUserDataClaims)
+            { 
+                await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
+            }
 
             _logger.LogInformation($"----- {GetType().Name} completed");
             return principal;

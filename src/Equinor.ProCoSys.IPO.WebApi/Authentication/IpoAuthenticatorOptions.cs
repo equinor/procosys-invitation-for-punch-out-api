@@ -10,6 +10,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         public string IpoApiSecret { get; set; }
         public Guid IpoApiObjectId { get; set; }
 
+        public bool DisableProjectUserDataClaims { get; set; }
+        public bool DisableRestrictionRoleUserDataClaims { get; set; }
+
         public string MainApiScope { get; set; }
 
         public string LibraryApiScope { get; set; }

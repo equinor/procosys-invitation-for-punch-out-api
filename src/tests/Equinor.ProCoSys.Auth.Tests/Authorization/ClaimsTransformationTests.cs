@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
@@ -31,6 +32,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
         private readonly string Restriction1_Plant2 = "Res3";
         private Mock<IPersonCache> _personCacheMock;
         private Mock<IPlantProvider> _plantProviderMock;
+        private Mock<IAuthenticatorOptions> _authenticatorOptionsMock;
 
         [TestInitialize]
         public void Setup()
@@ -64,12 +66,15 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             var claimsIdentity = new ClaimsIdentity();
             claimsIdentity.AddClaim(new Claim(ClaimsExtensions.Oid, Oid.ToString()));
             _principalWithOid.AddIdentity(claimsIdentity);
-            
+
+            _authenticatorOptionsMock = new Mock<IAuthenticatorOptions>();
+
             _dut = new ClaimsTransformation(
                 _personCacheMock.Object,
                 _plantProviderMock.Object,
                 permissionCacheMock.Object,
-                loggerMock.Object);
+                loggerMock.Object,
+                _authenticatorOptionsMock.Object);
         }
 
         [TestMethod]
@@ -98,6 +103,20 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
         }
 
         [TestMethod]
+        public async Task TransformAsync_ShouldNotAddUserDataClaimsForProjects_WhenDisabled()
+        {
+            // Arrange
+            _authenticatorOptionsMock.Setup(a => a.DisableProjectUserDataClaims).Returns(true);
+
+            // Act
+            var result = await _dut.TransformAsync(_principalWithOid);
+
+            // Assert
+            var projectClaims = GetProjectClaims(result.Claims);
+            Assert.AreEqual(0, projectClaims.Count);
+        }
+
+        [TestMethod]
         public async Task TransformAsync_Twice_ShouldNotDuplicateUserDataClaimsForProjects()
         {
             await _dut.TransformAsync(_principalWithOid);
@@ -112,6 +131,19 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             var result = await _dut.TransformAsync(_principalWithOid);
 
             AssertContentRestrictionForPlant1(result.Claims);
+        }
+
+        [TestMethod]
+        public async Task TransformAsync_ShouldNotAddUserDataClaimsForContentRestriction_WhenDisabled()
+        {
+            // Arrange
+            _authenticatorOptionsMock.Setup(a => a.DisableRestrictionRoleUserDataClaims).Returns(true);
+
+            // Act
+            var result = await _dut.TransformAsync(_principalWithOid);
+
+            var contentRestrictionClaims = GetContentRestrictionClaims(result.Claims);
+            Assert.AreEqual(0, contentRestrictionClaims.Count);
         }
 
         [TestMethod]

@@ -26,6 +26,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 
         public Guid ObjectId => _options.CurrentValue.IpoApiObjectId;
 
+        public bool DisableRestrictionRoleUserDataClaims
+            => _options.CurrentValue.DisableRestrictionRoleUserDataClaims;
+
+        public bool DisableProjectUserDataClaims
+            => _options.CurrentValue.DisableProjectUserDataClaims;
+
         public IDictionary<string, string> Scopes => _scopes;
     }
 }
