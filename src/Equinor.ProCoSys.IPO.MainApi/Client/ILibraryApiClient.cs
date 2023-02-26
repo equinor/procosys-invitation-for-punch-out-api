@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Equinor.ProCoSys.Auth.Client;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 {
-    public interface ILibraryApiClient
+    public interface ILibraryApiClient : IApiClient
     {
-        Task<T> TryQueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null);
-        Task<T> QueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null);
     }
 }

@@ -4,7 +4,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
 {
     /// <summary>
     /// Loop through all classes implementing the IBearerTokenSetter interface and
-    /// set given bearerToken on each
+    /// set given bearerToken on each. Typical set in Middleware in each request
     /// </summary>
     public class BearerTokenSetterForAll : IBearerTokenSetterForAll
     {

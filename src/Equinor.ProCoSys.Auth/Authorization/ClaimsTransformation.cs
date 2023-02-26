@@ -11,13 +11,13 @@ using Microsoft.Extensions.Logging;
 namespace Equinor.ProCoSys.Auth.Authorization
 {
     /// <summary>
-    /// Implement IClaimsTransformation to extend the ClaimsPrincipal with claims to be used during authorization
+    /// Implement IClaimsTransformation to extend the ClaimsPrincipal with claims to be used during authorization.
     /// Claims added only for authenticated and existing users, for requests handling a valid plant for user
     /// These types of claims are added:
-    ///  * ClaimTypes.Role claim for each permission found in IPermissionCache
-    ///  * ClaimTypes.UserData claim for each project user has access too. Claim name start with ProjectPrefix
-    ///  * ClaimTypes.UserData claim for each restriction role for user. Claim name start with RestrictionRolePrefix
-    ///         Restriction role = "%" means "User has no restriction roles"
+    ///  * ClaimTypes.Role claim for each user permission
+    ///  * ClaimTypes.UserData claim for each project user has access to. These claim name start with ProjectPrefix
+    ///  * ClaimTypes.UserData claim for each restriction role for user. These claim name start with RestrictionRolePrefix
+    ///         (Restriction role = "%" means "User has no restriction roles")
     /// </summary>
     public class ClaimsTransformation : IClaimsTransformation
     {

@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
 {
     /// <summary>
     /// Abstract class to be used for acquire a token to authentice a HttpClient to access a 
-    /// foreign API. The authentication can be done in two ways:
+    /// foreign API. The authentication can be done in two ways via AuthenticationType:
     ///  * on behalf of logged on user using the OAuth 2.0 On-Behalf-Of flow
     ///  * as the client itself (in the name of no user) using the client credentials flow
     /// </summary>
@@ -21,8 +21,17 @@ namespace Equinor.ProCoSys.Auth.Authentication
         private readonly string _secretInfo;
         private readonly string _apiScope;
         private string _bearerTokenFromRequest;
-        private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
-        private readonly ConcurrentDictionary<string, string> _appTokens = new ConcurrentDictionary<string, string>();
+
+        /// <summary>
+        /// cache created OnBehalfOf tokens during this request
+        /// </summary>
+        private readonly ConcurrentDictionary<string, string> _oboTokenCache
+            = new ConcurrentDictionary<string, string>();
+        /// <summary>
+        /// cache created application client tokens during this request
+        /// </summary>
+        private readonly ConcurrentDictionary<string, string> _appTokenCache
+            = new ConcurrentDictionary<string, string>();
 
         public ApiAuthenticator(string apiScopeKey, IAuthenticatorOptions options, ILogger<ApiAuthenticator> logger)
         {
@@ -57,7 +66,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
 
         private async ValueTask<string> GetBearerTokenOnBehalfOfCurrentUserAsync()
         {
-            if (!_oboTokens.ContainsKey(_apiScope))
+            if (!_oboTokenCache.ContainsKey(_apiScope))
             {
                 if (string.IsNullOrEmpty(_bearerTokenFromRequest))
                 {
@@ -71,15 +80,15 @@ namespace Equinor.ProCoSys.Auth.Authentication
                         new UserAssertion(_bearerTokenFromRequest))
                     .ExecuteAsync();
 
-                _oboTokens.TryAdd(_apiScope, tokenResult.AccessToken);
+                _oboTokenCache.TryAdd(_apiScope, tokenResult.AccessToken);
             }
 
-            return _oboTokens[_apiScope];
+            return _oboTokenCache[_apiScope];
         }
 
         private async ValueTask<string> GetBearerTokenForApplicationAsync()
         {
-            if (!_appTokens.ContainsKey(_apiScope))
+            if (!_appTokenCache.ContainsKey(_apiScope))
             {
                 var app = CreateConfidentialClient();
 
@@ -87,10 +96,10 @@ namespace Equinor.ProCoSys.Auth.Authentication
                     .AcquireTokenForClient(new List<string> { _apiScope })
                     .ExecuteAsync();
 
-                _appTokens.TryAdd(_apiScope, tokenResult.AccessToken);
+                _appTokenCache.TryAdd(_apiScope, tokenResult.AccessToken);
             }
 
-            return _appTokens[_apiScope];
+            return _appTokenCache[_apiScope];
         }
 
         private IConfidentialClientApplication CreateConfidentialClient()

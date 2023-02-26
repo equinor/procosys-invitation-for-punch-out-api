@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         }
 
         /// <summary>
-        /// Gets persons from Main API with the privilege IPO SIGN
+        /// Gets persons from Main Api with the privilege IPO SIGN
         /// </summary>
         /// <param name="plant"></param>
         /// <param name="searchString">Search string (start of first name, last name, or username)</param>
