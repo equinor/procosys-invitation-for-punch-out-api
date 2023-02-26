@@ -69,7 +69,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
                 }));
             _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(Plant1IdWithAccess))
                 .Returns(Task.FromResult(new List<string> {Permission1, Permission2}));
-            _permissionApiServiceMock.Setup(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess))
+            _permissionApiServiceMock.Setup(p => p.GetRestrictionRolesForCurrentUserAsync(Plant1IdWithAccess))
                 .Returns(Task.FromResult(new List<string> { Restriction1, Restriction2 }));
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
@@ -320,27 +320,27 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsForUserAsync_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
+        public async Task GetRestrictionRolesForUserAsync_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
         {
             // Act
-            var result = await _dut.GetContentRestrictionsForUserAsync(Plant1IdWithAccess, _currentUserOid);
+            var result = await _dut.GetRestrictionRolesForUserAsync(Plant1IdWithAccess, _currentUserOid);
 
             // Assert
             AssertRestrictions(result);
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetRestrictionRolesForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsForUserAsync_ShouldReturnPermissionsFromCacheSecondTime()
+        public async Task GetRestrictionRolesForUserAsync_ShouldReturnPermissionsFromCacheSecondTime()
         {
-            await _dut.GetContentRestrictionsForUserAsync(Plant1IdWithAccess, _currentUserOid);
+            await _dut.GetRestrictionRolesForUserAsync(Plant1IdWithAccess, _currentUserOid);
             // Act
-            var result = await _dut.GetContentRestrictionsForUserAsync(Plant1IdWithAccess, _currentUserOid);
+            var result = await _dut.GetRestrictionRolesForUserAsync(Plant1IdWithAccess, _currentUserOid);
 
             // Assert
             AssertRestrictions(result);
-            // since GetContentRestrictionsForUserAsync has been called twice, but GetContentRestrictionsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
+            // since GetRestrictionRolesForUserAsync has been called twice, but GetRestrictionRolesAsync has been called once, the second Get uses cache
+            _permissionApiServiceMock.Verify(p => p.GetRestrictionRolesForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -352,8 +352,8 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetProjectsForUserAsync(Plant1IdWithAccess, Guid.Empty));
 
         [TestMethod]
-        public async Task GetContentRestrictionsForUserAsync_ShouldThrowExceptionWhenOidIsEmpty()
-            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetContentRestrictionsForUserAsync(Plant1IdWithAccess, Guid.Empty));
+        public async Task GetRestrictionRolesForUserAsync_ShouldThrowExceptionWhenOidIsEmpty()
+            => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetRestrictionRolesForUserAsync(Plant1IdWithAccess, Guid.Empty));
 
         [TestMethod]
         public void ClearAll_ShouldClearAllPermissionCaches()

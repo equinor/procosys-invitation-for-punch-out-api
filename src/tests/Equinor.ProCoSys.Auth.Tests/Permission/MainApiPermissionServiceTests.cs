@@ -171,38 +171,38 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsAsync_ShouldReturnThreePermissions_OnValidPlant()
+        public async Task GetRestrictionRolesAsync_ShouldReturnThreePermissions_OnValidPlant()
         {
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string> { "A", "B", "C" }));
             // Act
-            var result = await _dut.GetContentRestrictionsForCurrentUserAsync(_plant);
+            var result = await _dut.GetRestrictionRolesForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(3, result.Count);
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsAsync_ShouldReturnNoPermissions_OnValidPlant()
+        public async Task GetRestrictionRolesAsync_ShouldReturnNoPermissions_OnValidPlant()
         {
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string>()));
             // Act
-            var result = await _dut.GetContentRestrictionsForCurrentUserAsync(_plant);
+            var result = await _dut.GetRestrictionRolesForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(0, result.Count);
         }
 
         [TestMethod]
-        public async Task GetContentRestrictionsAsync_ShouldReturnNoPermissions_OnInValidPlant()
+        public async Task GetRestrictionRolesAsync_ShouldReturnNoPermissions_OnInValidPlant()
         {
             // Act
-            var result = await _dut.GetContentRestrictionsForCurrentUserAsync("INVALIDPLANT");
+            var result = await _dut.GetRestrictionRolesForCurrentUserAsync("INVALIDPLANT");
 
             // Assert
             Assert.AreEqual(0, result.Count);

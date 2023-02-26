@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.Auth.Caches
     ///  * list of plants where user has access
     ///  * list of projects where user has access
     ///  * list of permissions (TAG/WRITE, TAG/READ, etc) for user
-    ///  * list of content restrictions, i.e restriction roles for user
+    ///  * list of restriction roles for user
     /// The cache expiration time is controlled by CacheOptions. Default expiration time is 20 minutes
     /// </summary>
     public class PermissionCache : IPermissionCache
@@ -88,10 +88,10 @@ namespace Equinor.ProCoSys.Auth.Caches
             return allProjects != null && allProjects.Any(p => p.Name == projectName);
         }
 
-        public async Task<IList<string>> GetContentRestrictionsForUserAsync(string plantId, Guid userOid)
+        public async Task<IList<string>> GetRestrictionRolesForUserAsync(string plantId, Guid userOid)
             => await _cacheManager.GetOrCreate(
-                ContentRestrictionsCacheKey(plantId, userOid),
-                async () => await _permissionApiService.GetContentRestrictionsForCurrentUserAsync(plantId),
+                RestrictionRolesCacheKey(plantId, userOid),
+                async () => await _permissionApiService.GetRestrictionRolesForCurrentUserAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
 
@@ -100,7 +100,7 @@ namespace Equinor.ProCoSys.Auth.Caches
             _cacheManager.Remove(PlantsCacheKey(userOid));
             _cacheManager.Remove(ProjectsCacheKey(plantId, userOid));
             _cacheManager.Remove(PermissionsCacheKey(plantId, userOid));
-            _cacheManager.Remove(ContentRestrictionsCacheKey(plantId, userOid));
+            _cacheManager.Remove(RestrictionRolesCacheKey(plantId, userOid));
         }
 
         private async Task<IList<AccessableProject>> GetAllProjectsForUserAsync(string plantId, Guid userOid)
@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.Auth.Caches
             return $"PERMISSIONS_{userOid.ToString().ToUpper()}_{plantId}";
         }
 
-        private static string ContentRestrictionsCacheKey(string plantId, Guid userOid)
+        private static string RestrictionRolesCacheKey(string plantId, Guid userOid)
         {
             if (userOid == Guid.Empty)
             {

@@ -50,14 +50,14 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant1, Permission2_Plant1}));
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant1, Project2_Plant1}));
-            permissionCacheMock.Setup(p => p.GetContentRestrictionsForUserAsync(Plant1, Oid))
+            permissionCacheMock.Setup(p => p.GetRestrictionRolesForUserAsync(Plant1, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Restriction1_Plant1, Restriction2_Plant1}));
 
             permissionCacheMock.Setup(p => p.GetPermissionsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Permission1_Plant2}));
             permissionCacheMock.Setup(p => p.GetProjectsForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Project1_Plant2}));
-            permissionCacheMock.Setup(p => p.GetContentRestrictionsForUserAsync(Plant2, Oid))
+            permissionCacheMock.Setup(p => p.GetRestrictionRolesForUserAsync(Plant2, Oid))
                 .Returns(Task.FromResult<IList<string>>(new List<string> {Restriction1_Plant2}));
 
             var loggerMock = new Mock<ILogger<ClaimsTransformation>>();
@@ -126,15 +126,15 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
         }
 
         [TestMethod]
-        public async Task TransformAsync_ShouldAddUserDataClaimsForContentRestriction()
+        public async Task TransformAsync_ShouldAddUserDataClaimsForRestrictionRole()
         {
             var result = await _dut.TransformAsync(_principalWithOid);
 
-            AssertContentRestrictionForPlant1(result.Claims);
+            AssertRestrictionRoleForPlant1(result.Claims);
         }
 
         [TestMethod]
-        public async Task TransformAsync_ShouldNotAddUserDataClaimsForContentRestriction_WhenDisabled()
+        public async Task TransformAsync_ShouldNotAddUserDataClaimsForRestrictionRole_WhenDisabled()
         {
             // Arrange
             _authenticatorOptionsMock.Setup(a => a.DisableRestrictionRoleUserDataClaims).Returns(true);
@@ -142,17 +142,17 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             // Act
             var result = await _dut.TransformAsync(_principalWithOid);
 
-            var contentRestrictionClaims = GetContentRestrictionClaims(result.Claims);
-            Assert.AreEqual(0, contentRestrictionClaims.Count);
+            var restrictionRoleClaims = GetRestrictionRoleClaims(result.Claims);
+            Assert.AreEqual(0, restrictionRoleClaims.Count);
         }
 
         [TestMethod]
-        public async Task TransformAsync_Twice_ShouldNotDuplicateUserDataClaimsForContentRestriction()
+        public async Task TransformAsync_Twice_ShouldNotDuplicateUserDataClaimsForRestrictionRole()
         {
             await _dut.TransformAsync(_principalWithOid);
             var result = await _dut.TransformAsync(_principalWithOid);
 
-            AssertContentRestrictionForPlant1(result.Claims);
+            AssertRestrictionRoleForPlant1(result.Claims);
         }
 
         [TestMethod]
@@ -162,7 +162,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
 
             Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
             Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
-            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetRestrictionRoleClaims(result.Claims).Count);
         }
 
         [TestMethod]
@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
 
             Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
             Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
-            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetRestrictionRoleClaims(result.Claims).Count);
         }
 
         [TestMethod]
@@ -186,7 +186,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
 
             Assert.AreEqual(0, GetProjectClaims(result.Claims).Count);
             Assert.AreEqual(0, GetRoleClaims(result.Claims).Count);
-            Assert.AreEqual(0, GetContentRestrictionClaims(result.Claims).Count);
+            Assert.AreEqual(0, GetRestrictionRoleClaims(result.Claims).Count);
         }
         
         [TestMethod]
@@ -195,7 +195,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             var result = await _dut.TransformAsync(_principalWithOid);
             AssertRoleClaimsForPlant1(result.Claims);
             AssertProjectClaimsForPlant1(result.Claims);
-            AssertContentRestrictionForPlant1(result.Claims);
+            AssertRestrictionRoleForPlant1(result.Claims);
 
             _plantProviderMock.SetupGet(p => p.Plant).Returns(Plant2);
             result = await _dut.TransformAsync(_principalWithOid);
@@ -208,9 +208,9 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             Assert.AreEqual(1, claims.Count);
             Assert.IsNotNull(claims.SingleOrDefault(r => r.Value == ClaimsTransformation.GetProjectClaimValue(Project1_Plant2)));
 
-            claims = GetContentRestrictionClaims(result.Claims);
+            claims = GetRestrictionRoleClaims(result.Claims);
             Assert.AreEqual(1, claims.Count);
-            Assert.IsNotNull(claims.SingleOrDefault(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction1_Plant2)));
+            Assert.IsNotNull(claims.SingleOrDefault(r => r.Value == ClaimsTransformation.GetRestrictionRoleClaimValue(Restriction1_Plant2)));
         }
 
         private void AssertRoleClaimsForPlant1(IEnumerable<Claim> claims)
@@ -229,19 +229,19 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
             Assert.IsTrue(projectClaims.Any(r => r.Value == ClaimsTransformation.GetProjectClaimValue(Project2_Plant1)));
         }
 
-        private void AssertContentRestrictionForPlant1(IEnumerable<Claim> claims)
+        private void AssertRestrictionRoleForPlant1(IEnumerable<Claim> claims)
         {
-            var contentRestrictionClaims = GetContentRestrictionClaims(claims);
-            Assert.AreEqual(2, contentRestrictionClaims.Count);
-            Assert.IsTrue(contentRestrictionClaims.Any(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction1_Plant1)));
-            Assert.IsTrue(contentRestrictionClaims.Any(r => r.Value == ClaimsTransformation.GetContentRestrictionClaimValue(Restriction2_Plant1)));
+            var restrictionRoleClaims = GetRestrictionRoleClaims(claims);
+            Assert.AreEqual(2, restrictionRoleClaims.Count);
+            Assert.IsTrue(restrictionRoleClaims.Any(r => r.Value == ClaimsTransformation.GetRestrictionRoleClaimValue(Restriction1_Plant1)));
+            Assert.IsTrue(restrictionRoleClaims.Any(r => r.Value == ClaimsTransformation.GetRestrictionRoleClaimValue(Restriction2_Plant1)));
         }
 
-        private static List<Claim> GetContentRestrictionClaims(IEnumerable<Claim> claims)
+        private static List<Claim> GetRestrictionRoleClaims(IEnumerable<Claim> claims)
             => claims
                 .Where(c => c.Type == ClaimTypes.UserData &&
                             c.Value.StartsWith(ClaimsTransformation.
-                                ContentRestrictionPrefix))
+                                RestrictionRolePrefix))
                 .ToList();
 
         private static List<Claim> GetRoleClaims(IEnumerable<Claim> claims)

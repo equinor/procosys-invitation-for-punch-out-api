@@ -16,14 +16,14 @@ namespace Equinor.ProCoSys.Auth.Authorization
     /// These types of claims are added:
     ///  * ClaimTypes.Role claim for each permission found in IPermissionCache
     ///  * ClaimTypes.UserData claim for each project user has access too. Claim name start with ProjectPrefix
-    ///  * ClaimTypes.UserData claim for each restriction role for user. Claim name start with ContentRestrictionPrefix
+    ///  * ClaimTypes.UserData claim for each restriction role for user. Claim name start with RestrictionRolePrefix
     ///         Restriction role = "%" means "User has no restriction roles"
     /// </summary>
     public class ClaimsTransformation : IClaimsTransformation
     {
         public static string ClaimsIssuer = "ProCoSys";
         public static string ProjectPrefix = "PCS_Project##";
-        public static string ContentRestrictionPrefix = "PCS_ContentRestriction##";
+        public static string RestrictionRolePrefix = "PCS_RestrictionRole##";
         public static string NoRestrictions = "%";
 
         private readonly IPersonCache _personCache;
@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.Auth.Authorization
             }
             if (!_authenticatorOptions.DisableRestrictionRoleUserDataClaims)
             { 
-                await AddUserDataClaimForAllContentRestrictionsToIdentityAsync(claimsIdentity, plantId, userOid.Value);
+                await AddUserDataClaimForAllRestrictionRolesToIdentityAsync(claimsIdentity, plantId, userOid.Value);
             }
 
             _logger.LogInformation($"----- {GetType().Name} completed");
@@ -95,7 +95,7 @@ namespace Equinor.ProCoSys.Auth.Authorization
 
         public static string GetProjectClaimValue(string projectName) => $"{ProjectPrefix}{projectName}";
 
-        public static string GetContentRestrictionClaimValue(string contentRestriction) => $"{ContentRestrictionPrefix}{contentRestriction}";
+        public static string GetRestrictionRoleClaimValue(string restrictionRole) => $"{RestrictionRolePrefix}{restrictionRole}";
 
         private ClaimsIdentity GetOrCreateClaimsIdentityForThisIssuer(ClaimsPrincipal principal)
         {
@@ -132,11 +132,11 @@ namespace Equinor.ProCoSys.Auth.Authorization
             projectNames?.ToList().ForEach(projectName => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetProjectClaimValue(projectName))));
         }
 
-        private async Task AddUserDataClaimForAllContentRestrictionsToIdentityAsync(ClaimsIdentity claimsIdentity, string plantId, Guid userOid)
+        private async Task AddUserDataClaimForAllRestrictionRolesToIdentityAsync(ClaimsIdentity claimsIdentity, string plantId, Guid userOid)
         {
-            var contentRestrictions = await _permissionCache.GetContentRestrictionsForUserAsync(plantId, userOid);
-            contentRestrictions?.ToList().ForEach(
-                contentRestriction => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetContentRestrictionClaimValue(contentRestriction))));
+            var restrictions = await _permissionCache.GetRestrictionRolesForUserAsync(plantId, userOid);
+            restrictions?.ToList().ForEach(
+                r => claimsIdentity.AddClaim(CreateClaim(ClaimTypes.UserData, GetRestrictionRoleClaimValue(r))));
         }
 
         private static Claim CreateClaim(string claimType, string claimValue)

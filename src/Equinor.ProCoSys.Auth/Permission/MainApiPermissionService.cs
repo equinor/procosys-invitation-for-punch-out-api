@@ -73,9 +73,9 @@ namespace Equinor.ProCoSys.Auth.Permission
             return await _mainApiClient.QueryAndDeserializeAsync<List<string>>(url) ?? new List<string>();
         }
 
-        public async Task<List<string>> GetContentRestrictionsForCurrentUserAsync(string plantId)
+        public async Task<List<string>> GetRestrictionRolesForCurrentUserAsync(string plantId)
         {
-            var url = $"{_baseAddress}ContentRestrictions" +
+            var url = $"{_baseAddress}RestrictionRoles" +
                       $"?plantId={plantId}" +
                       $"&api-version={_apiVersion}";
 
