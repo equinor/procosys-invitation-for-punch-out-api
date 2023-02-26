@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             _clientFriendlyName = options.CurrentValue.ClientFriendlyName;
         }
 
-        public async Task<List<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid azureOid)
+        public async Task<List<AccessablePlant>> GetAllPlantsForUserAsync(Guid azureOid)
         {
             var url = $"{_baseAddress}Plants/ForUser" +
                       $"?azureOid={azureOid:D}" +
@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
             try
             {
-                return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysPlant>>(url);
+                return await _mainApiClient.QueryAndDeserializeAsync<List<AccessablePlant>>(url);
             }
             finally
             {
@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             }
         }
 
-        public async Task<List<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
+        public async Task<List<AccessableProject>> GetAllOpenProjectsForCurrentUserAsync(string plantId)
         {
             // trace users use of plant each time getting projects
             // this will serve the purpose since we want to log once a day pr user pr plant, and ProCoSys clients as Preservation and IPO ALWAYS get projects at startup
@@ -61,10 +61,10 @@ namespace Equinor.ProCoSys.Auth.Permission
                       "&includeProjectsWithoutAccess=true" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url) ?? new List<ProCoSysProject>();
+            return await _mainApiClient.QueryAndDeserializeAsync<List<AccessableProject>>(url) ?? new List<AccessableProject>();
         }
 
-        public async Task<List<string>> GetPermissionsAsync(string plantId)
+        public async Task<List<string>> GetPermissionsForCurrentUserAsync(string plantId)
         {
             var url = $"{_baseAddress}Permissions" +
                       $"?plantId={plantId}" +
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.Auth.Permission
             return await _mainApiClient.QueryAndDeserializeAsync<List<string>>(url) ?? new List<string>();
         }
 
-        public async Task<List<string>> GetContentRestrictionsAsync(string plantId)
+        public async Task<List<string>> GetContentRestrictionsForCurrentUserAsync(string plantId)
         {
             var url = $"{_baseAddress}ContentRestrictions" +
                       $"?plantId={plantId}" +

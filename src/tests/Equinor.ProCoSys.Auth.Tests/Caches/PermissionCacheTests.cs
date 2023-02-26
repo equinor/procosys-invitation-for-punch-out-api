@@ -40,36 +40,36 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             _permissionApiServiceMock = new Mock<IPermissionApiService>();
             _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(_currentUserOid)).Returns(Task.FromResult(
-                new List<ProCoSysPlant>
+                new List<AccessablePlant>
                 {
-                    new ProCoSysPlant
+                    new AccessablePlant
                     {
                         Id = Plant1IdWithAccess,
                         Title = Plant1TitleWithAccess,
                         HasAccess = true
                     },
-                    new ProCoSysPlant
+                    new AccessablePlant
                     {
                         Id = Plant2IdWithAccess,
                         Title = Plant2TitleWithAccess,
                         HasAccess = true
                     },
-                    new ProCoSysPlant
+                    new AccessablePlant
                     {
                         Id = PlantIdWithoutAccess,
                         Title = PlantTitleWithoutAccess
                     }
                 }));
-            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsAsync(Plant1IdWithAccess))
-                .Returns(Task.FromResult(new List<ProCoSysProject>
+            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(Plant1IdWithAccess))
+                .Returns(Task.FromResult(new List<AccessableProject>
                 {
-                    new ProCoSysProject {Name = Project1WithAccess, HasAccess = true},
-                    new ProCoSysProject {Name = Project2WithAccess, HasAccess = true},
-                    new ProCoSysProject {Name = ProjectWithoutAccess}
+                    new AccessableProject {Name = Project1WithAccess, HasAccess = true},
+                    new AccessableProject {Name = Project2WithAccess, HasAccess = true},
+                    new AccessableProject {Name = ProjectWithoutAccess}
                 }));
-            _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(Plant1IdWithAccess))
+            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(Plant1IdWithAccess))
                 .Returns(Task.FromResult(new List<string> {Permission1, Permission2}));
-            _permissionApiServiceMock.Setup(p => p.GetContentRestrictionsAsync(Plant1IdWithAccess))
+            _permissionApiServiceMock.Setup(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess))
                 .Returns(Task.FromResult(new List<string> { Restriction1, Restriction2 }));
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
@@ -279,7 +279,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             // Assert
             AssertPermissions(result);
-            _permissionApiServiceMock.Verify(p => p.GetPermissionsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetPermissionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -292,7 +292,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
             // Assert
             AssertPermissions(result);
             // since GetPermissionsForUserAsync has been called twice, but GetPermissionsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetPermissionsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetPermissionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -303,7 +303,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             // Assert
             AssertProjects(result);
-            _permissionApiServiceMock.Verify(p => p.GetAllOpenProjectsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetAllOpenProjectsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -316,7 +316,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
             // Assert
             AssertProjects(result);
             // since GetProjectsForUserAsync has been called twice, but GetProjectsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetAllOpenProjectsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetAllOpenProjectsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -327,7 +327,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             // Assert
             AssertRestrictions(result);
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]
@@ -340,7 +340,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
             // Assert
             AssertRestrictions(result);
             // since GetContentRestrictionsForUserAsync has been called twice, but GetContentRestrictionsAsync has been called once, the second Get uses cache
-            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsAsync(Plant1IdWithAccess), Times.Once);
+            _permissionApiServiceMock.Verify(p => p.GetContentRestrictionsForCurrentUserAsync(Plant1IdWithAccess), Times.Once);
         }
 
         [TestMethod]

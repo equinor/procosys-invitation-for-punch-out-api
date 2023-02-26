@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 {
+    /// <summary>
+    /// "Mapping" between application options read by IOptionsMonitor to generic IAuthenticatorOptions
+    /// Needed because keys for configuration differ from application to application
+    /// </summary>
     public class AuthenticatorOptions : IAuthenticatorOptions
     {
         protected readonly IOptionsMonitor<IpoAuthenticatorOptions> _options;
@@ -14,8 +19,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         public AuthenticatorOptions(IOptionsMonitor<IpoAuthenticatorOptions> options)
         {
             _options = options;
-            _scopes.Add("MainApiScope", _options.CurrentValue.MainApiScope);
-            _scopes.Add("LibraryApiScope", _options.CurrentValue.LibraryApiScope);
+            _scopes.Add(MainApiAuthenticator.MainApiScopeKey, _options.CurrentValue.MainApiScope);
+            _scopes.Add(LibraryApiAuthenticator.LibraryApiScopeKey, _options.CurrentValue.LibraryApiScope);
         }
 
         public string Instance => _options.CurrentValue.Instance;

@@ -3,7 +3,7 @@
 namespace Equinor.ProCoSys.Auth.Permission
 {
     [DebuggerDisplay("{Title} {Id} {HasAccess}")]
-    public class ProCoSysPlant
+    public class AccessablePlant
     {
         public string Id { get; set; }
         public string Title { get; set; }

@@ -1,5 +1,8 @@
 ﻿namespace Equinor.ProCoSys.Auth.Misc
 {
+    /// <summary>
+    /// Set and get current plant in application. Normally set in Middleware for each request
+    /// </summary>
     public class PlantProvider : IPlantProvider, IPlantSetter
     {
         public string Plant { get; private set; }

@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Seeding
             public Guid? TryGetCurrentUserOid() => s_seederUser.Oid;
             public bool IsCurrentUserAuthenticated() => false;
             public ClaimsPrincipal GetCurrentUser() => new ClaimsPrincipal();
-            public bool HasCurrentUser() => throw new NotImplementedException();
+            public bool HasCurrentUser => throw new NotImplementedException();
         }
     }
 }

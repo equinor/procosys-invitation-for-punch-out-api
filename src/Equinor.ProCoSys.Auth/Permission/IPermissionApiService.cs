@@ -6,9 +6,9 @@ namespace Equinor.ProCoSys.Auth.Permission
 {
     public interface IPermissionApiService
     {
-        Task<List<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid azureOid);
-        Task<List<string>> GetPermissionsAsync(string plantId);
-        Task<List<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId);
-        Task<List<string>> GetContentRestrictionsAsync(string plantId);
+        Task<List<AccessablePlant>> GetAllPlantsForUserAsync(Guid azureOid);
+        Task<List<string>> GetPermissionsForCurrentUserAsync(string plantId);
+        Task<List<AccessableProject>> GetAllOpenProjectsForCurrentUserAsync(string plantId);
+        Task<List<string>> GetContentRestrictionsForCurrentUserAsync(string plantId);
     }
 }

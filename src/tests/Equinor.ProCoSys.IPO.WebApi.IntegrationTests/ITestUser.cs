@@ -9,9 +9,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
     {
         TestProfile Profile { get; set; }
         ProCoSysPerson AuthProCoSysPerson { get; }
-        List<ProCoSysPlant> ProCoSysPlants { get; set; }
-        List<ProCoSysProject> ProCoSysProjects { get; set; }
-        List<string> ProCoSysPermissions { get; set; }
+        List<AccessablePlant> AccessablePlants { get; set; }
+        List<AccessableProject> AccessableProjects { get; set; }
+        List<string> Permissions { get; set; }
         HttpClient HttpClient { get; set; }
     }
 }

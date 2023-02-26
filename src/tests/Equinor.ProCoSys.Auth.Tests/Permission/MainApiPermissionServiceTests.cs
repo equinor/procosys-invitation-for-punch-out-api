@@ -39,12 +39,12 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         {
             // Arange
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysPlant>
+                .Setup(x => x.QueryAndDeserializeAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<AccessablePlant>
                 {
-                    new ProCoSysPlant { Id = "PCS$ASGARD", Title = "Åsgard" },
-                    new ProCoSysPlant { Id = "PCS$ASGARD_A", Title = "ÅsgardA" },
-                    new ProCoSysPlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" },
+                    new AccessablePlant { Id = "PCS$ASGARD", Title = "Åsgard" },
+                    new AccessablePlant { Id = "PCS$ASGARD_A", Title = "ÅsgardA" },
+                    new AccessablePlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" },
                 }));
 
             // Act
@@ -58,10 +58,10 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         public async Task GetAllPlants_ShouldSetsCorrectProperties()
         {
             // Arange
-            var proCoSysPlant = new ProCoSysPlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" };
+            var proCoSysPlant = new AccessablePlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" };
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPlant>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysPlant>
+                .Setup(x => x.QueryAndDeserializeAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<AccessablePlant>
                 {
                     proCoSysPlant,
                 }));
@@ -102,7 +102,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string>{ "A", "B", "C" }));
             // Act
-            var result = await _dut.GetPermissionsAsync(_plant);
+            var result = await _dut.GetPermissionsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null) )
                 .Returns(Task.FromResult(new List<string>()));
             // Act
-            var result = await _dut.GetPermissionsAsync(_plant);
+            var result = await _dut.GetPermissionsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(0, result.Count);
@@ -126,7 +126,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         public async Task GetPermissions_ShouldReturnNoPermissions_OnInvalidPlant()
         {
             // Act
-            var result = await _dut.GetPermissionsAsync("INVALIDPLANT");
+            var result = await _dut.GetPermissionsForCurrentUserAsync("INVALIDPLANT");
 
             // Assert
             Assert.AreEqual(0, result.Count);
@@ -137,10 +137,10 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysProject>{ new ProCoSysProject(), new ProCoSysProject() }));
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<AccessableProject>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<AccessableProject>{ new AccessableProject(), new AccessableProject() }));
             // Act
-            var result = await _dut.GetAllOpenProjectsAsync(_plant);
+            var result = await _dut.GetAllOpenProjectsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(2, result.Count);
@@ -151,10 +151,10 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysProject>()));
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<AccessableProject>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<AccessableProject>()));
             // Act
-            var result = await _dut.GetAllOpenProjectsAsync(_plant);
+            var result = await _dut.GetAllOpenProjectsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(0, result.Count);
@@ -164,7 +164,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         public async Task GetAllOpenProjectsAsync_ShouldReturnNoProjects_OnInvalidPlant()
         {
             // Act
-            var result = await _dut.GetAllOpenProjectsAsync("INVALIDPLANT");
+            var result = await _dut.GetAllOpenProjectsForCurrentUserAsync("INVALIDPLANT");
 
             // Assert
             Assert.AreEqual(0, result.Count);
@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string> { "A", "B", "C" }));
             // Act
-            var result = await _dut.GetContentRestrictionsAsync(_plant);
+            var result = await _dut.GetContentRestrictionsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -192,7 +192,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<string>()));
             // Act
-            var result = await _dut.GetContentRestrictionsAsync(_plant);
+            var result = await _dut.GetContentRestrictionsForCurrentUserAsync(_plant);
 
             // Assert
             Assert.AreEqual(0, result.Count);
@@ -202,7 +202,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         public async Task GetContentRestrictionsAsync_ShouldReturnNoPermissions_OnInValidPlant()
         {
             // Act
-            var result = await _dut.GetContentRestrictionsAsync("INVALIDPLANT");
+            var result = await _dut.GetContentRestrictionsForCurrentUserAsync("INVALIDPLANT");
 
             // Assert
             Assert.AreEqual(0, result.Count);

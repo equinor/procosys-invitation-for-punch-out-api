@@ -7,6 +7,12 @@ using Microsoft.Identity.Client;
 
 namespace Equinor.ProCoSys.Auth.Authentication
 {
+    /// <summary>
+    /// Abstract class to be used for acquire a token to authentice a HttpClient to access a 
+    /// foraign API. The authentication can be done in two ways:
+    ///  * on behalf of logged on user using the OAuth 2.0 On-Behalf-Of flow
+    ///  * as the client itself (in the name of no user) using the client credentials flow
+    /// </summary>
     public abstract class ApiAuthenticator : IBearerTokenSetter
     {
         protected readonly ILogger<ApiAuthenticator> _logger;
@@ -14,7 +20,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
         private readonly IAuthenticatorOptions _options;
         private readonly string _secretInfo;
         private readonly string _apiScope;
-        private string _requestToken;
+        private string _bearerTokenFromRequest;
         private readonly ConcurrentDictionary<string, string> _oboTokens = new ConcurrentDictionary<string, string>();
         private readonly ConcurrentDictionary<string, string> _appTokens = new ConcurrentDictionary<string, string>();
 
@@ -22,7 +28,9 @@ namespace Equinor.ProCoSys.Auth.Authentication
         {
             if (!options.Scopes.TryGetValue(apiScopeKey, out _apiScope))
             {
-                throw new ArgumentException($"List of scopes dont have key {apiScopeKey}");
+                throw new ArgumentException(
+                    $"List of scopes in {nameof(IAuthenticatorOptions)} dont have key {apiScopeKey}. " + 
+                    $"Check {nameof(IAuthenticatorOptions)} implementation when filling {nameof(options.Scopes)} from the application config");
             }
             _options = options;
             _logger = logger;
@@ -32,7 +40,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
 
         public AuthenticationType AuthenticationType { get; set; }
 
-        public void SetBearerToken(string token) => _requestToken = token;
+        public void SetBearerToken(string bearerToken) => _bearerTokenFromRequest = bearerToken;
 
         public async ValueTask<string> GetBearerTokenAsync()
         {
@@ -51,16 +59,16 @@ namespace Equinor.ProCoSys.Auth.Authentication
         {
             if (!_oboTokens.ContainsKey(_apiScope))
             {
-                if (string.IsNullOrEmpty(_requestToken))
+                if (string.IsNullOrEmpty(_bearerTokenFromRequest))
                 {
-                    throw new ArgumentNullException(nameof(_requestToken));
+                    throw new ArgumentNullException(nameof(_bearerTokenFromRequest));
                 }
 
                 var app = CreateConfidentialClient();
 
                 var tokenResult = await app
                     .AcquireTokenOnBehalfOf(new List<string> { _apiScope },
-                        new UserAssertion(_requestToken))
+                        new UserAssertion(_bearerTokenFromRequest))
                     .ExecuteAsync();
 
                 _oboTokens.TryAdd(_apiScope, tokenResult.AccessToken);

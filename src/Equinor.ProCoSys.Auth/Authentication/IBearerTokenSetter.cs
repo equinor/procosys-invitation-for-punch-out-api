@@ -2,6 +2,6 @@
 {
     public interface IBearerTokenSetter
     {
-        void SetBearerToken(string token);
+        void SetBearerToken(string bearerToken);
     }
 }

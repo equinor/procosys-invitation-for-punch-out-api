@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.Auth.Caches
         public async Task<IList<string>> GetPermissionsForUserAsync(string plantId, Guid userOid)
             => await _cacheManager.GetOrCreate(
                 PermissionsCacheKey(plantId, userOid),
-                async () => await _permissionApiService.GetPermissionsAsync(plantId),
+                async () => await _permissionApiService.GetPermissionsForCurrentUserAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
 
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.Auth.Caches
         public async Task<IList<string>> GetContentRestrictionsForUserAsync(string plantId, Guid userOid)
             => await _cacheManager.GetOrCreate(
                 ContentRestrictionsCacheKey(plantId, userOid),
-                async () => await _permissionApiService.GetContentRestrictionsAsync(plantId),
+                async () => await _permissionApiService.GetContentRestrictionsForCurrentUserAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
 
@@ -94,14 +94,14 @@ namespace Equinor.ProCoSys.Auth.Caches
             _cacheManager.Remove(ContentRestrictionsCacheKey(plantId, userOid));
         }
 
-        private async Task<IList<ProCoSysProject>> GetAllProjectsForUserAsync(string plantId, Guid userOid)
+        private async Task<IList<AccessableProject>> GetAllProjectsForUserAsync(string plantId, Guid userOid)
             => await _cacheManager.GetOrCreate(
                 ProjectsCacheKey(plantId, userOid),
                 async () => await GetAllOpenProjectsAsync(plantId),
                 CacheDuration.Minutes,
                 _options.CurrentValue.PermissionCacheMinutes);
 
-        private async Task<IList<ProCoSysPlant>> GetAllPlantsForUserAsync(Guid userOid)
+        private async Task<IList<AccessablePlant>> GetAllPlantsForUserAsync(Guid userOid)
             => await _cacheManager.GetOrCreate(
                 PlantsCacheKey(userOid),
                 async () =>
@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.Auth.Caches
             return $"CONTENTRESTRICTIONS_{userOid.ToString().ToUpper()}_{plantId}";
         }
 
-        private async Task<IList<ProCoSysProject>> GetAllOpenProjectsAsync(string plantId)
-            => await _permissionApiService.GetAllOpenProjectsAsync(plantId);
+        private async Task<IList<AccessableProject>> GetAllOpenProjectsAsync(string plantId)
+            => await _permissionApiService.GetAllOpenProjectsForCurrentUserAsync(plantId);
     }
 }

@@ -240,7 +240,8 @@ namespace Equinor.ProCoSys.Auth.Tests.Authorization
         private static List<Claim> GetContentRestrictionClaims(IEnumerable<Claim> claims)
             => claims
                 .Where(c => c.Type == ClaimTypes.UserData &&
-                            c.Value.StartsWith(ClaimsTransformation.ContentRestrictionPrefix))
+                            c.Value.StartsWith(ClaimsTransformation.
+                                ContentRestrictionPrefix))
                 .ToList();
 
         private static List<Claim> GetRoleClaims(IEnumerable<Claim> claims)
