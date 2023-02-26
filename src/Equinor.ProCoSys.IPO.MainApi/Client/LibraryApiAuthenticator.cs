@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Client
     /// Authenticator to access Library Api. Important that the implementation of IAuthenticatorOptions
     /// fill options.Scopes with value for key LibraryApiScopeKey
     /// </summary>
-    public class LibraryApiAuthenticator : ApiAuthenticator, ILibraryApiTokenProvider
+    public class LibraryApiAuthenticator : ApiAuthenticator, ILibraryApiTokenAuthenticator
     {
         public static string LibraryApiScopeKey = "LibraryApiScope";
 

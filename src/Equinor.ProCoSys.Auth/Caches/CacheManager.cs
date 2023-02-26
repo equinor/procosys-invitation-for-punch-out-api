@@ -6,6 +6,11 @@ using Microsoft.Extensions.Internal;
 
 namespace Equinor.ProCoSys.Auth.Caches
 {
+    /// <summary>
+    /// Genmeric cache manager to cache something using a key. Uses MemoryCache
+    /// (Caveats with MemoryCache: in a multiple server/pod instance infrastructure, the cache will be 
+    /// built in each instance)
+    /// </summary>
     public class CacheManager : ICacheManager
     {
         private readonly IMemoryCache _cache;

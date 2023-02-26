@@ -11,6 +11,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.Auth.Client
 {
+    /// <summary>
+    /// Abstract class to create an authenticated HttpClient to access a foreign API
+    /// The class is made abstract to force creating an implementation of a IBearerTokenProvider
+    /// which is implemented to use a particular configuration for the particular foreign API
+    /// </summary>
     public abstract class BearerTokenApiClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -102,7 +107,6 @@ namespace Equinor.ProCoSys.Auth.Client
             var result = JsonSerializer.Deserialize<T>(jsonResult, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             return result;
         }
-
 
         public async ValueTask<HttpClient> CreateHttpClientAsync(List<KeyValuePair<string, string>> extraHeaders = null)
         {

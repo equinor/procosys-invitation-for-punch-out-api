@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
 {
     /// <summary>
     /// Abstract class to be used for acquire a token to authentice a HttpClient to access a 
-    /// foraign API. The authentication can be done in two ways:
+    /// foreign API. The authentication can be done in two ways:
     ///  * on behalf of logged on user using the OAuth 2.0 On-Behalf-Of flow
     ///  * as the client itself (in the name of no user) using the client credentials flow
     /// </summary>

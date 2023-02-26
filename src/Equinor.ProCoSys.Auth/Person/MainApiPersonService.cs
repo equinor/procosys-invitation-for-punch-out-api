@@ -8,17 +8,17 @@ namespace Equinor.ProCoSys.Auth.Person
 {
     public class MainApiPersonService : IPersonApiService
     {
-        private readonly IMainApiTokenProvider _mainApiTokenProvider;
+        private readonly IMainApiAuthenticator _mainApiAuthenticator;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
         private readonly IMainApiClient _mainApiClient;
 
         public MainApiPersonService(
-            IMainApiTokenProvider mainApiTokenProvider,
+            IMainApiAuthenticator mainApiAuthenticator,
             IMainApiClient mainApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _mainApiTokenProvider = mainApiTokenProvider;
+            _mainApiAuthenticator = mainApiAuthenticator;
             _mainApiClient = mainApiClient;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
             _apiVersion = options.CurrentValue.ApiVersion;
@@ -30,15 +30,15 @@ namespace Equinor.ProCoSys.Auth.Person
                       $"?azureOid={azureOid:D}" +
                       $"&api-version={_apiVersion}";
 
-            var oldAuthType = _mainApiTokenProvider.AuthenticationType;
-            _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
+            var oldAuthType = _mainApiAuthenticator.AuthenticationType;
+            _mainApiAuthenticator.AuthenticationType = AuthenticationType.AsApplication;
             try
             {
                 return await _mainApiClient.TryQueryAndDeserializeAsync<ProCoSysPerson>(url);
             }
             finally
             {
-                _mainApiTokenProvider.AuthenticationType = oldAuthType;
+                _mainApiAuthenticator.AuthenticationType = oldAuthType;
             }
         }
     }

@@ -49,6 +49,7 @@ namespace Equinor.ProCoSys.Auth.Authorization
         public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             _logger.LogInformation($"----- {GetType().Name} start");
+            // Can't use CurrentUserProvider here. Middleware setting current user not called yet. 
             var userOid = principal.Claims.TryGetOid();
             if (!userOid.HasValue)
             {

@@ -8,6 +8,15 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Caches
 {
+    /// <summary>
+    /// Cache permissions for an user in a plant
+    /// Caches:
+    ///  * list of plants where user has access
+    ///  * list of projects where user has access
+    ///  * list of permissions (TAG/WRITE, TAG/READ, etc) for user
+    ///  * list of content restrictions, i.e restriction roles for user
+    /// The cache expiration time is controlled by CacheOptions. Default expiration time is 20 minutes
+    /// </summary>
     public class PermissionCache : IPermissionCache
     {
         private readonly ICacheManager _cacheManager;
@@ -46,14 +55,14 @@ namespace Equinor.ProCoSys.Auth.Caches
             return await HasUserAccessToPlantAsync(plantId, userOid);
         }
 
-        public async Task<bool> IsAValidPlantAsync(string plantId)
+        public async Task<bool> IsAValidPlantForCurrentUserAsync(string plantId)
         {
             var userOid = _currentUserProvider.GetCurrentUserOid();
             var allPlants = await GetAllPlantsForUserAsync(userOid);
             return allPlants != null && allPlants.Any(p => p.Id == plantId);
         }
 
-        public async Task<string> GetPlantTitleAsync(string plantId)
+        public async Task<string> GetPlantTitleForCurrentUserAsync(string plantId)
         {
             var userOid = _currentUserProvider.GetCurrentUserOid();
             var allPlants = await GetAllPlantsForUserAsync(userOid);
@@ -73,7 +82,7 @@ namespace Equinor.ProCoSys.Auth.Caches
             return allProjects?.Where(p => p.HasAccess).Select(p => p.Name).ToList();
         }
 
-        public async Task<bool> IsAValidProjectAsync(string plantId, Guid userOid, string projectName)
+        public async Task<bool> IsAValidProjectForUserAsync(string plantId, Guid userOid, string projectName)
         {
             var allProjects = await GetAllProjectsForUserAsync(plantId, userOid);
             return allProjects != null && allProjects.Any(p => p.Name == projectName);

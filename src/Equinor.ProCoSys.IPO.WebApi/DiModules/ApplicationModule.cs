@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
             services.AddScoped<LibraryApiAuthenticator>();
-            services.AddScoped<ILibraryApiTokenProvider>(x => x.GetRequiredService<LibraryApiAuthenticator>());
+            services.AddScoped<ILibraryApiTokenAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();

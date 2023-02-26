@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _mainApiClient;
         private MainApiPermissionService _dut;
-        private Mock<IMainApiTokenProvider> _mainApiTokenProvider;
+        private Mock<IMainApiAuthenticator> _mainApiTokenProvider;
 
         [TestInitialize]
         public void Setup()
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             _mainApiClient = new Mock<IMainApiClient>();
 
-            _mainApiTokenProvider = new Mock<IMainApiTokenProvider>();
+            _mainApiTokenProvider = new Mock<IMainApiAuthenticator>();
             _dut = new MainApiPermissionService(_mainApiTokenProvider.Object, _mainApiClient.Object, _mainApiOptions.Object);
         }
 

@@ -4,12 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 {
+    /// Implementation of the abstract BearerTokenApiClient to access Library Api
+    /// The implementation of IMainApiAuthenticator refer to the correct scope for Library Api
     public class LibraryApiClient : BearerTokenApiClient, ILibraryApiClient
     {
         public LibraryApiClient(
             IHttpClientFactory httpClientFactory,
-            ILibraryApiTokenProvider libraryApiTokenProvider,
-            ILogger<LibraryApiClient> logger) : base(httpClientFactory, libraryApiTokenProvider, logger)
+            ILibraryApiTokenAuthenticator libraryApiAuthenticator,
+            ILogger<LibraryApiClient> logger) : base(httpClientFactory, libraryApiAuthenticator, logger)
         {
         }
     }

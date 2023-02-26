@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.Auth
             services.AddScoped<IPlantProvider>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<IPlantSetter>(x => x.GetRequiredService<PlantProvider>());
             services.AddScoped<MainApiAuthenticator>();
-            services.AddScoped<IMainApiTokenProvider>(x => x.GetRequiredService<MainApiAuthenticator>());
+            services.AddScoped<IMainApiAuthenticator>(x => x.GetRequiredService<MainApiAuthenticator>());
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<MainApiAuthenticator>());
             services.AddScoped<IMainApiClient, MainApiClient>();
             services.AddScoped<IPersonApiService, MainApiPersonService>();

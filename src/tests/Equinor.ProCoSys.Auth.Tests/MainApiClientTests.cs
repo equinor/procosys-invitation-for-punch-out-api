@@ -13,13 +13,13 @@ namespace Equinor.ProCoSys.Auth.Tests
     [TestClass]
     public class MainApiClientTests
     {
-        private Mock<IMainApiTokenProvider> _bearerTokenProvider;
+        private Mock<IMainApiAuthenticator> _bearerTokenProvider;
         private Mock<ILogger<MainApiClient>> _logger;
 
         [TestInitialize]
         public void Setup()
         {
-            _bearerTokenProvider = new Mock<IMainApiTokenProvider>();
+            _bearerTokenProvider = new Mock<IMainApiAuthenticator>();
             _logger = new Mock<ILogger<MainApiClient>>();
         }
 

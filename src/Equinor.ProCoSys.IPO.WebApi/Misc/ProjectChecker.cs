@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
             var plant = _plantProvider.Plant;
             var userOid = _currentUserProvider.GetCurrentUserOid();
 
-            if (request is IProjectRequest projectRequest && projectRequest.ProjectName != null && !await _permissionCache.IsAValidProjectAsync(plant, userOid, projectRequest.ProjectName))
+            if (request is IProjectRequest projectRequest && projectRequest.ProjectName != null && !await _permissionCache.IsAValidProjectForUserAsync(plant, userOid, projectRequest.ProjectName))
             {
                 throw new InValidProjectException($"Project '{projectRequest.ProjectName}' is not a valid project in '{plant}'");
             }

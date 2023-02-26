@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
         private readonly IMcPkgApiService _mcPkgApiService;
-        private readonly IMainApiTokenProvider _mainApiTokenProvider;
+        private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IProjectRepository _projectRepository;
         private readonly Guid _ipoApiOid;
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
-            IMainApiTokenProvider mainApiTokenProvider,
+            IMainApiAuthenticator mainApiTokenProvider,
             IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
             IProjectRepository projectRepository)

@@ -6,7 +6,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
     /// Authenticator to access Main Api. Important that the implementation of IAuthenticatorOptions
     /// fill options.Scopes with value for key MainApiScopeKey
     /// </summary>
-    public class MainApiAuthenticator : ApiAuthenticator, IMainApiTokenProvider
+    public class MainApiAuthenticator : ApiAuthenticator, IMainApiAuthenticator
     {
         public static string MainApiScopeKey = "MainApiScope";
 

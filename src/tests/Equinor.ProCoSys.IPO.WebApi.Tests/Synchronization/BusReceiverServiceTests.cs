@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<ITelemetryClient> _telemetryClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
-        private Mock<IMainApiTokenProvider> _mainApiTokenProvider;
+        private Mock<IMainApiAuthenticator> _mainApiAuthenticator;
         private Mock<IProjectRepository> _projectRepository;
 
         private const string plant = "PCS$HEIMDAL";
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
-            _mainApiTokenProvider = new Mock<IMainApiTokenProvider>();
+            _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån", _mcPkgsOn1, null);
             _invitation2 = new Invitation(plant, project1, "El invitasjån2", description, DisciplineType.MDP, DateTime.Now,
@@ -109,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _telemetryClient.Object,
                                           _readOnlyContext.Object,
                                           _mcPkgApiService.Object,
-                                          _mainApiTokenProvider.Object,
+                                          _mainApiAuthenticator.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
                                           _projectRepository.Object);
@@ -261,7 +261,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _telemetryClient.Object,
                 _readOnlyContext.Object,
                 _mcPkgApiService.Object,
-                _mainApiTokenProvider.Object,
+                _mainApiAuthenticator.Object,
                 _options.Object,
                 _currentUserSetter.Object,
                 projectRepositoryTestDouble);

@@ -113,7 +113,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasCurrentUserAccessToPlant_ShouldReturnTrue_WhenKnownPlant()
+        public async Task HasCurrentUserAccessToPlantAsync_ShouldReturnTrue_WhenKnownPlant()
         {
             // Act
             var result = await _dut.HasCurrentUserAccessToPlantAsync(Plant2IdWithAccess);
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasCurrentUserAccessToPlant_ShouldReturnFalse_WhenUnknownPlant()
+        public async Task HasCurrentUserAccessToPlantAsync_ShouldReturnFalse_WhenUnknownPlant()
         {
             // Act
             var result = await _dut.HasCurrentUserAccessToPlantAsync("XYZ");
@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasCurrentUserAccessToPlant_ShouldReturnPlantIdsFromPlantApiServiceFirstTime()
+        public async Task HasCurrentUserAccessToPlantAsync_ShouldReturnPlantIdsFromPlantApiServiceFirstTime()
         {
             // Act
             await _dut.HasCurrentUserAccessToPlantAsync(Plant2IdWithAccess);
@@ -143,7 +143,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasCurrentUserAccessToPlant_ShouldReturnPlantsFromCacheSecondTime()
+        public async Task HasCurrentUserAccessToPlantAsync_ShouldReturnPlantsFromCacheSecondTime()
         {
             await _dut.HasCurrentUserAccessToPlantAsync("XYZ");
             // Act
@@ -154,7 +154,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasUserAccessToPlant_ShouldReturnTrue_WhenKnownPlant()
+        public async Task HasUserAccessToPlantAsync_ShouldReturnTrue_WhenKnownPlant()
         {
             // Act
             var result = await _dut.HasUserAccessToPlantAsync(Plant2IdWithAccess, _currentUserOid);
@@ -164,7 +164,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasUserAccessToPlant_ShouldReturnFalse_WhenUnknownPlant()
+        public async Task HasUserAccessToPlantAsync_ShouldReturnFalse_WhenUnknownPlant()
         {
             // Act
             var result = await _dut.HasUserAccessToPlantAsync("XYZ", _currentUserOid);
@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasUserAccessToPlant_ShouldReturnPlantIdsFromPlantApiServiceFirstTime()
+        public async Task HasUserAccessToPlantAsync_ShouldReturnPlantIdsFromPlantApiServiceFirstTime()
         {
             // Act
             await _dut.HasUserAccessToPlantAsync(Plant2IdWithAccess, _currentUserOid);
@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task HasUserAccessToPlant_ShouldReturnPlantsFromCache()
+        public async Task HasUserAccessToPlantAsync_ShouldReturnPlantsFromCache()
         {
             await _dut.HasUserAccessToPlantAsync("ABC", _currentUserOid);
             // Act
@@ -195,60 +195,60 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task IsAValidPlant_ShouldReturnTrue_WhenKnownPlantWithAccess()
+        public async Task IsAValidPlantForCurrentUserAsync_ShouldReturnTrue_WhenKnownPlantWithAccess()
         {
             // Act
-            var result = await _dut.IsAValidPlantAsync(Plant2IdWithAccess);
+            var result = await _dut.IsAValidPlantForCurrentUserAsync(Plant2IdWithAccess);
 
             // Assert
             Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public async Task IsAValidPlant_ShouldReturnTrue_WhenKnownPlantWithoutAccess()
+        public async Task IsAValidPlantForCurrentUserAsync_ShouldReturnTrue_WhenKnownPlantWithoutAccess()
         {
             // Act
-            var result = await _dut.IsAValidPlantAsync(PlantIdWithoutAccess);
+            var result = await _dut.IsAValidPlantForCurrentUserAsync(PlantIdWithoutAccess);
 
             // Assert
             Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public async Task IsAValidPlant_ShouldReturnFalse_WhenUnknownPlant()
+        public async Task IsAValidPlantForCurrentUserAsync_ShouldReturnFalse_WhenUnknownPlant()
         {
             // Act
-            var result = await _dut.IsAValidPlantAsync("XYZ");
+            var result = await _dut.IsAValidPlantForCurrentUserAsync("XYZ");
 
             // Assert
             Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task GetPlantTitleAsync_ShouldReturnPlant_WhenKnownPlantWithAccess()
+        public async Task GetPlantTitleForCurrentUserAsync_ShouldReturnPlant_WhenKnownPlantWithAccess()
         {
             // Act
-            var result = await _dut.GetPlantTitleAsync(Plant2IdWithAccess);
+            var result = await _dut.GetPlantTitleForCurrentUserAsync(Plant2IdWithAccess);
 
             // Assert
             Assert.AreEqual(Plant2TitleWithAccess, result);
         }
 
         [TestMethod]
-        public async Task GetPlantTitleAsync_ShouldReturnPlant_WhenKnownPlantWithoutAccess()
+        public async Task GetPlantTitleForCurrentUserAsync_ShouldReturnPlant_WhenKnownPlantWithoutAccess()
         {
             // Act
-            var result = await _dut.GetPlantTitleAsync(PlantIdWithoutAccess);
+            var result = await _dut.GetPlantTitleForCurrentUserAsync(PlantIdWithoutAccess);
 
             // Assert
             Assert.AreEqual(PlantTitleWithoutAccess, result);
         }
 
         [TestMethod]
-        public async Task GetPlantTitleAsync_ShouldReturnNull_WhenUnknownPlant()
+        public async Task GetPlantTitleForCurrentUserAsync_ShouldReturnNull_WhenUnknownPlant()
         {
             // Act
-            var result = await _dut.GetPlantTitleAsync("XYZ");
+            var result = await _dut.GetPlantTitleForCurrentUserAsync("XYZ");
 
             // Assert
             Assert.IsNull(result);
@@ -272,7 +272,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUser_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
+        public async Task GetPermissionsForUserAsync_ShouldReturnPermissionsFromPermissionApiServiceFirstTime()
         {
             // Act
             var result = await _dut.GetPermissionsForUserAsync(Plant1IdWithAccess, _currentUserOid);
@@ -283,7 +283,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUser_ShouldReturnPermissionsFromCacheSecondTime()
+        public async Task GetPermissionsForUserAsync_ShouldReturnPermissionsFromCacheSecondTime()
         {
             await _dut.GetPermissionsForUserAsync(Plant1IdWithAccess, _currentUserOid);
             // Act
@@ -344,7 +344,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
         }
 
         [TestMethod]
-        public async Task GetPermissionsForUser_ShouldThrowExceptionWhenOidIsEmpty()
+        public async Task GetPermissionsForUserAsync_ShouldThrowExceptionWhenOidIsEmpty()
             => await Assert.ThrowsExceptionAsync<Exception>(() => _dut.GetPermissionsForUserAsync(Plant1IdWithAccess, Guid.Empty));
 
         [TestMethod]

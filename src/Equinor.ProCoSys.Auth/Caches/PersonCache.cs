@@ -5,6 +5,10 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Caches
 {
+    /// <summary>
+    /// Cache person information
+    /// The cache expiration time is controlled by CacheOptions. Default expiration time is 1440 minutes (24h)
+    /// </summary>
     public class PersonCache : IPersonCache
     {
         private readonly ICacheManager _cacheManager;
