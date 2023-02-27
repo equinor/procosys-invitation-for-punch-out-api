@@ -10,6 +10,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 {
+    /// <summary>
+    /// Validates if current user has access to perform a request of type IProjectRequest, 
+    /// IInvitationCommandRequest or IInvitationQueryRequest.
+    /// It validates if user has access to the project of the request 
+    /// </summary>
     public class AccessValidator : IAccessValidator
     {
         private readonly ICurrentUserProvider _currentUserProvider;

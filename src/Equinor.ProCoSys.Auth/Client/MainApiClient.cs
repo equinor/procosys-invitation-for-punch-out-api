@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Equinor.ProCoSys.Auth.Client
 {
     /// <summary>
-    /// Implementation of the abstract BearerTokenApiClient to access Main Api
+    /// Implementation of the abstract BearerTokenApiClient to access Main Api.
     /// The implementation of IMainApiAuthenticator refer to the correct scope for Main Api
     /// </summary>
     public class MainApiClient : BearerTokenApiClient, IMainApiClient

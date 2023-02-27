@@ -2,6 +2,10 @@
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authentication
 {
+    /// <summary>
+    /// Options for Authentication. Read from application configuration via IOptionsMonitor.
+    /// "Mapped" to the generic IAuthenticatorOptions
+    /// </summary>
     public class IpoAuthenticatorOptions
     {
         public string Instance { get; set; }

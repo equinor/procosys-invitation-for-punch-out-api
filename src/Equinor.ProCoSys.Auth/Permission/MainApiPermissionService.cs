@@ -10,6 +10,9 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Permission
 {
+    /// <summary>
+    /// Service to get permissions for an user. Permissions are read from Main, using  Main Api
+    /// </summary>
     public class MainApiPermissionService : IPermissionApiService
     {
         private readonly IMainApiAuthenticator _mainApiAuthenticator;
@@ -37,6 +40,8 @@ namespace Equinor.ProCoSys.Auth.Permission
                       "&includePlantsWithoutAccess=true" +
                       $"&api-version={_apiVersion}";
 
+            // Authenticate as application. The Plants/ForUser endpoint in Main Api requires
+            // a special role "User.Read.All", which the Azure application registration has
             var oldAuthType = _mainApiAuthenticator.AuthenticationType;
             _mainApiAuthenticator.AuthenticationType = AuthenticationType.AsApplication;
             try

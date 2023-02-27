@@ -6,6 +6,9 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.Auth.Person
 {
+    /// <summary>
+    /// Service to get Person info from Main, using Main Api
+    /// </summary>
     public class MainApiPersonService : IPersonApiService
     {
         private readonly IMainApiAuthenticator _mainApiAuthenticator;
@@ -30,6 +33,8 @@ namespace Equinor.ProCoSys.Auth.Person
                       $"?azureOid={azureOid:D}" +
                       $"&api-version={_apiVersion}";
 
+            // Authenticate as application. The Person endpoint in Main Api requires
+            // a special role "User.Read.All", which the Azure application registration has
             var oldAuthType = _mainApiAuthenticator.AuthenticationType;
             _mainApiAuthenticator.AuthenticationType = AuthenticationType.AsApplication;
             try
