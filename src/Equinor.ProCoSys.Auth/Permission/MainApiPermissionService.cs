@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.Auth.Permission
 
         public async Task<List<string>> GetRestrictionRolesForCurrentUserAsync(string plantId)
         {
-            var url = $"{_baseAddress}RestrictionRoles" +
+            var url = $"{_baseAddress}ContentRestrictions" +
                       $"?plantId={plantId}" +
                       $"&api-version={_apiVersion}";
 
