@@ -87,7 +87,8 @@ stages:
     parameters:
       deploymentName: 'docker_build_and_push_master_only'
       dependsOn: ''
-      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      # condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: always()
       envGroup: '${{ variables.envGroupName }}'
       arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
       buildCommand: buildAndPush
@@ -109,7 +110,8 @@ stages:
 - stage: dev
   displayName: 'Deploy to Dev'
   dependsOn: 'build'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  #condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: succeeded()
   variables:
     env: 'dev'
     envName: 'non-prod'
