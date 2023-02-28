@@ -35,7 +35,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         }
        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.LogTo(System.Console.WriteLine);
+        {
+            if (DebugOptions.DebugInDevelopment)
+            {
+                optionsBuilder.LogTo(System.Console.WriteLine);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
