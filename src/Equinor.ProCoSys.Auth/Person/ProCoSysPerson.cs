@@ -1,5 +1,8 @@
-﻿namespace Equinor.ProCoSys.Auth.Person
+﻿using System.Diagnostics;
+
+namespace Equinor.ProCoSys.Auth.Person
 {
+    [DebuggerDisplay("{FirstName} {LastName} {AzureOid}")]
     public class ProCoSysPerson
     {
         public string AzureOid { get; set; }

@@ -344,6 +344,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
                     .Returns(Task.FromResult(testUser.AccessablePlants));
             }
+
+            // Need to mock getting info for current application from Main. This to satisfy VerifyIpoApiClientExists middelware
+            var config = new ConfigurationBuilder().AddJsonFile(_configPath).Build();
+            var ipoApiObjectId = config["Authenticator:IpoApiObjectId"];
+            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId)))
+                .Returns(Task.FromResult(new AuthProCoSysPerson
+                {
+                    AzureOid = ipoApiObjectId,
+                    FirstName = "Ipo",
+                    LastName = "API",
+                    Email = "ipo@pcs.net",
+                    UserName = "IA"
+                }));
         }
 
         // Authenticated client without any permissions
