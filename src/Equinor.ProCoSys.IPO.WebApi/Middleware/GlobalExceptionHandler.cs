@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.Exceptions;
-using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

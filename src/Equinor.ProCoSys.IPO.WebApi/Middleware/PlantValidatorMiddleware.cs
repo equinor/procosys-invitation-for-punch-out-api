@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
-using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
         {
             logger.LogInformation($"----- {GetType().Name} start");
             var plantId = plantProvider.Plant;
-            if (context.User.Identity.IsAuthenticated && plantId != null)
+            if (context.User.Identity != null && context.User.Identity.IsAuthenticated && plantId != null)
             {
                 if (!await permissionCache.IsAValidPlantForCurrentUserAsync(plantId))
                 {

@@ -25,13 +25,14 @@ namespace Equinor.ProCoSys.Auth.Authorization
 
         public static string TryGetGivenName(this IEnumerable<Claim> claims)
         {
-            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.GivenName);
+            var claimsList = claims.ToList();
+            var claim = claimsList.SingleOrDefault(c => c.Type == ClaimTypes.GivenName);
             if (claim != null)
             {
                 return claim.Value;
             }
 
-            claim = claims.SingleOrDefault(c => c.Type == Name);
+            claim = claimsList.SingleOrDefault(c => c.Type == Name);
             if (claim != null)
             {
                 var length = claim.Value.Length;
@@ -52,13 +53,14 @@ namespace Equinor.ProCoSys.Auth.Authorization
 
         public static string TryGetSurName(this IEnumerable<Claim> claims)
         {
-            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Surname);
+            var claimsList = claims.ToList();
+            var claim = claimsList.SingleOrDefault(c => c.Type == ClaimTypes.Surname);
             if (claim != null)
             {
                 return claim.Value;
             }
 
-            claim = claims.SingleOrDefault(c => c.Type == Name);
+            claim = claimsList.SingleOrDefault(c => c.Type == Name);
             if (claim != null && !string.IsNullOrWhiteSpace(claim.Value))
             {
                 var split = claim.Value.Split(' ');
@@ -73,9 +75,10 @@ namespace Equinor.ProCoSys.Auth.Authorization
 
         public static string TryGetUserName(this IEnumerable<Claim> claims)
         {
-            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
-                        ?? claims.SingleOrDefault(c => c.Type == ClaimTypes.Name)
-                        ?? claims.SingleOrDefault(c => c.Type == UniqueName);
+            var claimsList = claims.ToList();
+            var claim = claimsList.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
+                        ?? claimsList.SingleOrDefault(c => c.Type == ClaimTypes.Name)
+                        ?? claimsList.SingleOrDefault(c => c.Type == UniqueName);
             var claimValue = claim?.Value;
             // Note: MailAddress.TryCreate(...) throws exception on null or empty string
             if (!string.IsNullOrWhiteSpace(claimValue) && MailAddress.TryCreate(claimValue, out var email))
@@ -87,9 +90,10 @@ namespace Equinor.ProCoSys.Auth.Authorization
 
         public static string TryGetEmail(this IEnumerable<Claim> claims)
         {
-            var claim = claims.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
-                        ?? claims.SingleOrDefault(c => c.Type == ClaimTypes.Name)
-                        ?? claims.SingleOrDefault(c => c.Type == UniqueName);
+            var claimsList = claims.ToList();
+            var claim = claimsList.SingleOrDefault(c => c.Type == ClaimTypes.Upn)
+                        ?? claimsList.SingleOrDefault(c => c.Type == ClaimTypes.Name)
+                        ?? claimsList.SingleOrDefault(c => c.Type == UniqueName);
             var claimValue = claim?.Value;
             // Note: MailAddress.TryCreate(...) throws exception on null or empty string
             if (!string.IsNullOrWhiteSpace(claimValue) && MailAddress.TryCreate(claimValue, out var email))

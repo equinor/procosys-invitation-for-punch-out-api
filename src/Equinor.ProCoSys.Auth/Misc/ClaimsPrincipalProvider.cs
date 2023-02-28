@@ -8,10 +8,10 @@ namespace Equinor.ProCoSys.Auth.Misc
     /// </summary>
     public class ClaimsPrincipalProvider : IClaimsPrincipalProvider
     {
-        private readonly ClaimsPrincipal principal;
+        private readonly ClaimsPrincipal _principal;
 
-        public ClaimsPrincipalProvider(IHttpContextAccessor accessor) => principal = accessor?.HttpContext?.User ?? new ClaimsPrincipal();
+        public ClaimsPrincipalProvider(IHttpContextAccessor accessor) => _principal = accessor?.HttpContext?.User ?? new ClaimsPrincipal();
 
-        public ClaimsPrincipal GetCurrentClaimsPrincipal() => principal;
+        public ClaimsPrincipal GetCurrentClaimsPrincipal() => _principal;
     }
 }

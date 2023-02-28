@@ -26,6 +26,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi
 {
@@ -55,6 +56,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
             }
             if (_environment.IsDevelopment())
             {
+                DebugOptions.DebugInDevelopment = Configuration.GetValue<bool>("DebugInDevelopment");
+
                 if (Configuration.GetValue<bool>("SeedDummyData"))
                 {
                     services.AddHostedService<Seeder>();
@@ -203,6 +206,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             {
                 services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
             }
+            services.AddHostedService<VerifyIpoApiClientExists>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
