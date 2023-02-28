@@ -197,7 +197,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
                     //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
                     //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE
-                    .WithReadFromDeadLetterQueue(Configuration.GetValue<bool>("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
+                    .WithReadFromDeadLetterQueue(Configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
                 var topics = Configuration["ServiceBus:TopicNames"];
                 services.AddTopicClients(Configuration.GetConnectionString("ServiceBus"), topics);
