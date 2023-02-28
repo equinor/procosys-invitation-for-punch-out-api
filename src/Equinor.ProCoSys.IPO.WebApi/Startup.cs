@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             }
             if (_environment.IsDevelopment())
             {
-                DebugOptions.DebugInDevelopment = Configuration.GetValue<bool>("DebugInDevelopment");
+                DebugOptions.DebugEntityFrameworkInDevelopment = Configuration.GetValue<bool>("DebugEntityFrameworkInDevelopment");
 
                 if (Configuration.GetValue<bool>("SeedDummyData"))
                 {

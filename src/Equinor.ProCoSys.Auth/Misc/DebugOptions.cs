@@ -2,6 +2,6 @@
 {
     public static class DebugOptions
     {
-        public static bool DebugInDevelopment { get; set; }
+        public static bool DebugEntityFrameworkInDevelopment { get; set; }
     }
 }
