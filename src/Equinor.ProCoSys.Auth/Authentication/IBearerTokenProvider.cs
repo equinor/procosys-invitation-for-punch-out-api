@@ -5,5 +5,6 @@ namespace Equinor.ProCoSys.Auth.Authentication
     public interface IBearerTokenProvider
     {
         ValueTask<string> GetBearerTokenAsync();
+        AuthenticationType AuthenticationType { get; set; }
     }
 }

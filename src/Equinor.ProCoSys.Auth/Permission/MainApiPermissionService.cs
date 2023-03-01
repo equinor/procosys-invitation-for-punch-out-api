@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 
@@ -15,18 +14,15 @@ namespace Equinor.ProCoSys.Auth.Permission
     /// </summary>
     public class MainApiPermissionService : IPermissionApiService
     {
-        private readonly IMainApiAuthenticator _mainApiAuthenticator;
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
         private readonly string _clientFriendlyName;
         private readonly IMainApiClient _mainApiClient;
 
         public MainApiPermissionService(
-            IMainApiAuthenticator mainApiAuthenticator,
             IMainApiClient mainApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
-            _mainApiAuthenticator = mainApiAuthenticator;
             _mainApiClient = mainApiClient;
             _apiVersion = options.CurrentValue.ApiVersion;
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
@@ -40,18 +36,7 @@ namespace Equinor.ProCoSys.Auth.Permission
                       "&includePlantsWithoutAccess=true" +
                       $"&api-version={_apiVersion}";
 
-            // Authenticate as application. The Plants/ForUser endpoint in Main Api requires
-            // a special role "User.Read.All", which the Azure application registration has
-            var oldAuthType = _mainApiAuthenticator.AuthenticationType;
-            _mainApiAuthenticator.AuthenticationType = AuthenticationType.AsApplication;
-            try
-            {
-                return await _mainApiClient.QueryAndDeserializeAsync<List<AccessablePlant>>(url);
-            }
-            finally
-            {
-                _mainApiAuthenticator.AuthenticationType = oldAuthType;
-            }
+            return await _mainApiClient.QueryAndDeserializeAsApplicationAsync<List<AccessablePlant>>(url);
         }
 
         public async Task<List<AccessableProject>> GetAllOpenProjectsForCurrentUserAsync(string plantId)

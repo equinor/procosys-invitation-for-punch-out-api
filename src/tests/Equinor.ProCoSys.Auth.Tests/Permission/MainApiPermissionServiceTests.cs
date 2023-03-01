@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.Auth.Permission;
 using Microsoft.Extensions.Options;
@@ -19,7 +18,6 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _mainApiClient;
         private MainApiPermissionService _dut;
-        private Mock<IMainApiAuthenticator> _mainApiTokenProvider;
 
         [TestInitialize]
         public void Setup()
@@ -30,8 +28,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             _mainApiClient = new Mock<IMainApiClient>();
 
-            _mainApiTokenProvider = new Mock<IMainApiAuthenticator>();
-            _dut = new MainApiPermissionService(_mainApiTokenProvider.Object, _mainApiClient.Object, _mainApiOptions.Object);
+            _dut = new MainApiPermissionService(_mainApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
@@ -39,7 +36,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
         {
             // Arange
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsApplicationAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<AccessablePlant>
                 {
                     new AccessablePlant { Id = "PCS$ASGARD", Title = "Åsgard" },
@@ -60,7 +57,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arange
             var proCoSysPlant = new AccessablePlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" };
             _mainApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsApplicationAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<AccessablePlant>
                 {
                     proCoSysPlant,
@@ -72,26 +69,6 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             var plant = result.Single();
             Assert.AreEqual(proCoSysPlant.Id, plant.Id);
             Assert.AreEqual(proCoSysPlant.Title, plant.Title);
-        }
-
-        [TestMethod]
-        public async Task GetAllPlants_ShouldSetApplicationAuthentication()
-        {
-            // Act
-            await _dut.GetAllPlantsForUserAsync(_azureOid);
-
-            // Assert
-            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.AsApplication);
-        }
-
-        [TestMethod]
-        public async Task GetAllPlants_ShouldResetToOnBehalfOfAuthentication()
-        {
-            // Act
-            await _dut.GetAllPlantsForUserAsync(_azureOid);
-
-            // Assert
-            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.OnBehalfOf);
         }
 
         [TestMethod]

@@ -36,8 +36,14 @@ namespace Equinor.ProCoSys.Auth.Client
         public async Task<T> TryQueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null)
             => await QueryAndDeserializeAsync<T>(url, true, extraHeaders);
 
-        public async Task<T> QueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders=null)
+        public async Task<T> QueryAndDeserializeAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null)
             => await QueryAndDeserializeAsync<T>(url, false, extraHeaders);
+
+        public async Task<T> TryQueryAndDeserializeAsApplicationAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null)
+            => await QueryAndDeserializeAsApplicationAsync<T>(url, true, extraHeaders);
+
+        public async Task<T> QueryAndDeserializeAsApplicationAsync<T>(string url, List<KeyValuePair<string, string>> extraHeaders = null)
+            => await QueryAndDeserializeAsApplicationAsync<T>(url, false, extraHeaders);
 
         public async Task PutAsync(string url, HttpContent content)
         {
@@ -66,6 +72,20 @@ namespace Equinor.ProCoSys.Auth.Client
             {
                 _logger.LogError($"Posting to '{url}' was unsuccessful and took {stopWatch.Elapsed.TotalMilliseconds}ms. Status: {response.StatusCode}");
                 throw new Exception();
+            }
+        }
+
+        private async Task<T> QueryAndDeserializeAsApplicationAsync<T>(string url, bool tryGet, List<KeyValuePair<string, string>> extraHeaders)
+        {
+            var oldAuthType = _bearerTokenProvider.AuthenticationType;
+            _bearerTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
+            try
+            {
+                return await QueryAndDeserializeAsync<T>(url, tryGet, extraHeaders);
+            }
+            finally
+            {
+                _bearerTokenProvider.AuthenticationType = oldAuthType;
             }
         }
 

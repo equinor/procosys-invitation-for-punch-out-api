@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.Auth.Person;
 using Microsoft.Extensions.Options;
@@ -16,7 +15,6 @@ namespace Equinor.ProCoSys.Auth.Tests.Person
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _mainApiClient;
         private MainApiPersonService _dut;
-        private Mock<IMainApiAuthenticator> _mainApiTokenProvider;
 
         [TestInitialize]
         public void Setup()
@@ -27,8 +25,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Person
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             _mainApiClient = new Mock<IMainApiClient>();
 
-            _mainApiTokenProvider = new Mock<IMainApiAuthenticator>();
-            _dut = new MainApiPersonService(_mainApiTokenProvider.Object, _mainApiClient.Object, _mainApiOptions.Object);
+            _dut = new MainApiPersonService(_mainApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
@@ -37,7 +34,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Person
             // Arange
             var person = new ProCoSysPerson { FirstName = "Lars", LastName = "Monsen" };
             _mainApiClient
-                .Setup(x => x.TryQueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsApplicationAsync<ProCoSysPerson>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(person));
 
             // Act
@@ -47,26 +44,6 @@ namespace Equinor.ProCoSys.Auth.Tests.Person
             Assert.IsNotNull(result);
             Assert.AreEqual(person.FirstName, result.FirstName);
             Assert.AreEqual(person.LastName, result.LastName);
-        }
-
-        [TestMethod]
-        public async Task TryGetPersonByOidAsync_ShouldSetApplicationAuthentication()
-        {
-            // Act
-            await _dut.TryGetPersonByOidAsync(_azureOid);
-
-            // Assert
-            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.AsApplication);
-        }
-
-        [TestMethod]
-        public async Task TryGetPersonByOidAsync_ShouldResetToOnBehalfOfAuthentication()
-        {
-            // Act
-            await _dut.TryGetPersonByOidAsync(_azureOid);
-
-            // Assert
-            _mainApiTokenProvider.VerifySet(a => a.AuthenticationType = AuthenticationType.OnBehalfOf);
         }
     }
 }
