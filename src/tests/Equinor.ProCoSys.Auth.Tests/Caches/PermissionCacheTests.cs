@@ -39,38 +39,39 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)));
 
             _permissionApiServiceMock = new Mock<IPermissionApiService>();
-            _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(_currentUserOid)).Returns(Task.FromResult(
+            _permissionApiServiceMock.Setup(p => 
+                p.GetAllPlantsForUserAsync(_currentUserOid)).ReturnsAsync(
                 new List<AccessablePlant>
                 {
-                    new AccessablePlant
+                    new()
                     {
                         Id = Plant1IdWithAccess,
                         Title = Plant1TitleWithAccess,
                         HasAccess = true
                     },
-                    new AccessablePlant
+                    new()
                     {
                         Id = Plant2IdWithAccess,
                         Title = Plant2TitleWithAccess,
                         HasAccess = true
                     },
-                    new AccessablePlant
+                    new()
                     {
                         Id = PlantIdWithoutAccess,
                         Title = PlantTitleWithoutAccess
                     }
-                }));
+                });
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(Plant1IdWithAccess))
-                .Returns(Task.FromResult(new List<AccessableProject>
+                .ReturnsAsync(new List<AccessableProject>
                 {
-                    new AccessableProject {Name = Project1WithAccess, HasAccess = true},
-                    new AccessableProject {Name = Project2WithAccess, HasAccess = true},
-                    new AccessableProject {Name = ProjectWithoutAccess}
-                }));
+                    new() {Name = Project1WithAccess, HasAccess = true},
+                    new() {Name = Project2WithAccess, HasAccess = true},
+                    new() {Name = ProjectWithoutAccess}
+                });
             _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(Plant1IdWithAccess))
-                .Returns(Task.FromResult(new List<string> {Permission1, Permission2}));
+                .ReturnsAsync(new List<string> {Permission1, Permission2});
             _permissionApiServiceMock.Setup(p => p.GetRestrictionRolesForCurrentUserAsync(Plant1IdWithAccess))
-                .Returns(Task.FromResult(new List<string> { Restriction1, Restriction2 }));
+                .ReturnsAsync(new List<string> { Restriction1, Restriction2 });
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
             optionsMock

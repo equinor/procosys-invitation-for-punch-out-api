@@ -9,7 +9,7 @@ using Moq;
 namespace Equinor.ProCoSys.Auth.Tests.Person
 {
     [TestClass]
-    public class MainApiPersionServiceTests
+    public class MainApiPersonServiceTests
     {
         private readonly Guid _azureOid = Guid.NewGuid();
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
@@ -35,7 +35,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Person
             var person = new ProCoSysPerson { FirstName = "Lars", LastName = "Monsen" };
             _mainApiClient
                 .Setup(x => x.TryQueryAndDeserializeAsApplicationAsync<ProCoSysPerson>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(person));
+                .ReturnsAsync(person);
 
             // Act
             var result = await _dut.TryGetPersonByOidAsync(_azureOid);

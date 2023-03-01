@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
     {
         private PersonCache _dut;
         private ProCoSysPerson _person;
-        private readonly Guid _currentUserOid = new Guid("{3BFB54C7-91E2-422E-833F-951AD07FE37F}");
+        private readonly Guid _currentUserOid = new("{3BFB54C7-91E2-422E-833F-951AD07FE37F}");
         private Mock<IPersonApiService> _personApiServiceMock;
 
         [TestInitialize]
@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             _personApiServiceMock = new Mock<IPersonApiService>();
             _person = new ProCoSysPerson { FirstName = "Erling", LastName = "Braut Haaland"};
-            _personApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(_currentUserOid)).Returns(Task.FromResult(_person));
+            _personApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(_currentUserOid)).ReturnsAsync(_person);
 
             var optionsMock = new Mock<IOptionsMonitor<CacheOptions>>();
             optionsMock

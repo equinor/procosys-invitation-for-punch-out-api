@@ -37,12 +37,12 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arange
             _mainApiClient
                 .Setup(x => x.QueryAndDeserializeAsApplicationAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<AccessablePlant>
+                .ReturnsAsync(new List<AccessablePlant>
                 {
-                    new AccessablePlant { Id = "PCS$ASGARD", Title = "Åsgard" },
-                    new AccessablePlant { Id = "PCS$ASGARD_A", Title = "ÅsgardA" },
-                    new AccessablePlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" },
-                }));
+                    new() { Id = "PCS$ASGARD", Title = "Åsgard" },
+                    new() { Id = "PCS$ASGARD_A", Title = "ÅsgardA" },
+                    new() { Id = "PCS$ASGARD_B", Title = "ÅsgardB" },
+                });
 
             // Act
             var result = await _dut.GetAllPlantsForUserAsync(_azureOid);
@@ -58,10 +58,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             var proCoSysPlant = new AccessablePlant { Id = "PCS$ASGARD_B", Title = "ÅsgardB" };
             _mainApiClient
                 .Setup(x => x.QueryAndDeserializeAsApplicationAsync<List<AccessablePlant>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<AccessablePlant>
-                {
-                    proCoSysPlant,
-                }));
+                .ReturnsAsync(new List<AccessablePlant> { proCoSysPlant });
             // Act
             var result = await _dut.GetAllPlantsForUserAsync(_azureOid);
 
@@ -77,7 +74,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<string>{ "A", "B", "C" }));
+                .ReturnsAsync(new List<string>{ "A", "B", "C" });
             // Act
             var result = await _dut.GetPermissionsForCurrentUserAsync(_plant);
 
@@ -91,7 +88,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null) )
-                .Returns(Task.FromResult(new List<string>()));
+                .ReturnsAsync(new List<string>());
             // Act
             var result = await _dut.GetPermissionsForCurrentUserAsync(_plant);
 
@@ -115,7 +112,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<AccessableProject>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<AccessableProject>{ new AccessableProject(), new AccessableProject() }));
+                .ReturnsAsync(new List<AccessableProject>{ new AccessableProject(), new AccessableProject() });
             // Act
             var result = await _dut.GetAllOpenProjectsForCurrentUserAsync(_plant);
 
@@ -129,7 +126,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<AccessableProject>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<AccessableProject>()));
+                .ReturnsAsync(new List<AccessableProject>());
             // Act
             var result = await _dut.GetAllOpenProjectsForCurrentUserAsync(_plant);
 
@@ -153,7 +150,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<string> { "A", "B", "C" }));
+                .ReturnsAsync(new List<string> { "A", "B", "C" });
             // Act
             var result = await _dut.GetRestrictionRolesForCurrentUserAsync(_plant);
 
@@ -167,7 +164,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Permission
             // Arrange
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<string>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<string>()));
+                .ReturnsAsync(new List<string>());
             // Act
             var result = await _dut.GetRestrictionRolesForCurrentUserAsync(_plant);
 
