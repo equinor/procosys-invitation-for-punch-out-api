@@ -534,7 +534,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             editParticipants.Person = editInvitedPersonDto;
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                         TestFactory.PlantWithAccess,
                         editInvitedPersonDto.AzureOid.ToString(),
@@ -867,12 +867,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 RowVersion = editInvitationDto.UpdatedParticipants.Last().Person.RowVersion
             };
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
-                    _contractor.AsProCoSysPerson().AzureOid,
+                    _contractor.AsMainProCoSysPerson().AzureOid,
                     participants.First().FunctionalRole.Code))
-                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
             await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(
@@ -973,12 +973,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 RowVersion = editInvitationDto.UpdatedParticipants.Last().Person.RowVersion
             };
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
-                    _contractor.AsProCoSysPerson().AzureOid,
+                    _contractor.AsMainProCoSysPerson().AzureOid,
                     participants.First().FunctionalRole.Code))
-                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
             await InvitationsControllerTestsHelper.UpdateNoteOnParticipantAsync(
@@ -1045,12 +1045,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             var (invitationToCancelId, cancelPunchOutDto) = await CreateValidCancelPunchOutDtoAsync(_participants);
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                         TestFactory.PlantWithAccess,
-                        _contractor.AsProCoSysPerson().AzureOid,
+                        _contractor.AsMainProCoSysPerson().AzureOid,
                         "FRCA"))
-                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
             var newRowVersion = await InvitationsControllerTestsHelper.CancelPunchOutAsync(

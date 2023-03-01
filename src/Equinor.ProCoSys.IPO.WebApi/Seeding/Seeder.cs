@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -61,6 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Seeding
             public Guid? TryGetCurrentUserOid() => s_seederUser.Oid;
             public bool IsCurrentUserAuthenticated() => false;
             public ClaimsPrincipal GetCurrentUser() => new ClaimsPrincipal();
+            public bool HasCurrentUser => throw new NotImplementedException();
         }
     }
 }

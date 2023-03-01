@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -34,7 +35,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         }
        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.LogTo(System.Console.WriteLine);
+        {
+            if (DebugOptions.DebugEntityFrameworkInDevelopment)
+            {
+                optionsBuilder.LogTo(System.Console.WriteLine);
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

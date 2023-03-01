@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +15,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
     [Route("Cache")]
     public class CacheController : ControllerBase
     {
-        private readonly IPlantCache _plantCache;
         private readonly IPermissionCache _permissionCache;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionApiService _permissionApiService;
 
-        public CacheController(IPlantCache plantCache, IPermissionCache permissionCache, ICurrentUserProvider currentUserProvider, IPermissionApiService permissionApiService)
+        public CacheController(
+            IPermissionCache permissionCache,
+            ICurrentUserProvider currentUserProvider,
+            IPermissionApiService permissionApiService)
         {
-            _plantCache = plantCache;
             _permissionCache = permissionCache;
             _currentUserProvider = currentUserProvider;
             _permissionApiService = permissionApiService;
@@ -36,7 +38,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             string plant)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            _plantCache.Clear(currentUserOid);
             _permissionCache.ClearAll(plant, currentUserOid);
         }
 
@@ -59,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
             [Required]
             string plant)
         {
-            var permissions = await _permissionApiService.GetPermissionsAsync(plant);
+            var permissions = await _permissionApiService.GetPermissionsForCurrentUserAsync(plant);
             return permissions;
         }
 
@@ -77,10 +78,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
 
         [Authorize]
         [HttpGet("PlantsFromCache")]
-        public async Task<IList<string>> GetPlants()
+        public async Task<IList<string>> GetPlantsFromCache()
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-            var plants = await _plantCache.GetPlantWithAccessForUserAsync(currentUserOid);
+            var plants = await _permissionCache.GetPlantIdsWithAccessForUserAsync(currentUserOid);
+            return plants;
+        }
+
+        [Authorize]
+        [HttpGet("AllPlantsFromMain")]
+        public async Task<IList<AccessablePlant>> GetPlantsFromMain()
+        {
+            var currentUserOid = _currentUserProvider.GetCurrentUserOid();
+            var plants = await _permissionApiService.GetAllPlantsForUserAsync(currentUserOid);
             return plants;
         }
     }

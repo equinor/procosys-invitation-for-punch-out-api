@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus;
@@ -31,8 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<ITelemetryClient> _telemetryClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
-        private Mock<IApplicationAuthenticator> _applicationAuthenticator;
-        private Mock<IBearerTokenSetter> _bearerTokenSetter;
+        private Mock<IMainApiAuthenticator> _mainApiAuthenticator;
         private Mock<IProjectRepository> _projectRepository;
 
         private const string plant = "PCS$HEIMDAL";
@@ -74,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         };
 
         private Invitation _invitation1, _invitation2, _invitation3, _invitation4;
-        private Mock<IOptionsSnapshot<AuthenticatorOptions>> _options;
+        private Mock<IOptionsSnapshot<IpoAuthenticatorOptions>> _options;
 
         [TestInitialize]
         public void Setup()
@@ -88,8 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
-            _applicationAuthenticator = new Mock<IApplicationAuthenticator>();
-            _bearerTokenSetter = new Mock<IBearerTokenSetter>();
+            _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån", _mcPkgsOn1, null);
             _invitation2 = new Invitation(plant, project1, "El invitasjån2", description, DisciplineType.MDP, DateTime.Now,
@@ -99,8 +97,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitation4 = new Invitation(plant, project1, "El invitasjån4", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån4", _mcPkgsOn4, null);
 
-            _options = new Mock<IOptionsSnapshot<AuthenticatorOptions>>();
-            _options.Setup(s => s.Value).Returns(new AuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
+            _options = new Mock<IOptionsSnapshot<IpoAuthenticatorOptions>>();
+            _options.Setup(s => s.Value).Returns(new IpoAuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
             _currentUserSetter = new Mock<ICurrentUserSetter>();
 
             _projectRepository.Setup(x => x.GetByIdAsync(project1Id)).Returns(Task.FromResult(project1));
@@ -111,10 +109,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _telemetryClient.Object,
                                           _readOnlyContext.Object,
                                           _mcPkgApiService.Object,
-                                          _applicationAuthenticator.Object,
+                                          _mainApiAuthenticator.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
-                                          _bearerTokenSetter.Object,
                                           _projectRepository.Object);
 
             var list = new List<Invitation> {_invitation1, _invitation2, _invitation3, _invitation4};
@@ -264,10 +261,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _telemetryClient.Object,
                 _readOnlyContext.Object,
                 _mcPkgApiService.Object,
-                _applicationAuthenticator.Object,
+                _mainApiAuthenticator.Object,
                 _options.Object,
                 _currentUserSetter.Object,
-                _bearerTokenSetter.Object,
                 projectRepositoryTestDouble);
 
             await dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));

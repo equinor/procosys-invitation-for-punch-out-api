@@ -18,7 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
+    <Folder Include="MainApi\Plant\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Equinor.ProCoSys.IPO.ForeignApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 
 </Project>

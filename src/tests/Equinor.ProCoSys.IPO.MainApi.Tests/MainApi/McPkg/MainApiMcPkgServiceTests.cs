@@ -2,8 +2,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
     public class MainApiMcPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _foreignApiClient;
+        private Mock<IMainApiClient> _foreignApiClient;
         private MainApiMcPkgService _dut;
         private ProCoSysMcPkg _proCoSysMcPkg1;
         private ProCoSysMcPkg _proCoSysMcPkg2;
@@ -31,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IBearerTokenApiClient>();
+            _foreignApiClient = new Mock<IMainApiClient>();
 
             _proCoSysMcPkg1 = new ProCoSysMcPkg
             {

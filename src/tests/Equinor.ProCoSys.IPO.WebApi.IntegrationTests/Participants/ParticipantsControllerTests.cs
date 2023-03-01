@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             // Assert
             Assert.AreEqual(1, signerPersons.Count);
             var additionalSignerPerson = signerPersons.First();
-            Assert.AreEqual("SigurdUserName", additionalSignerPerson.UserName);
+            Assert.AreEqual("SS", additionalSignerPerson.UserName);
             Assert.AreEqual("Sigurd", additionalSignerPerson.FirstName);
             Assert.AreEqual("Signer", additionalSignerPerson.LastName);
         }

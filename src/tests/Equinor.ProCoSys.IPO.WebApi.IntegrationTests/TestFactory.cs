@@ -6,16 +6,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
@@ -29,7 +25,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using ProCoSysProject = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Permission.ProCoSysProject;
+using Equinor.ProCoSys.Auth.Permission;
+using Equinor.ProCoSys.Auth.Misc;
+using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
+using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
+using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -50,14 +50,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private readonly List<Action> _teardownList = new List<Action>();
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
-        private readonly Mock<IPlantApiService> _plantApiServiceMock = new Mock<IPlantApiService>();
+        private readonly Mock<IAuthPersonApiService> _authPersonApiServiceMock = new Mock<IAuthPersonApiService>();
         private readonly Mock<IPermissionApiService> _permissionApiServiceMock = new Mock<IPermissionApiService>();
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
         public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
-        public readonly Mock<IPersonApiService> PersonApiServiceMock = new Mock<IPersonApiService>();
+        public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
         public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
@@ -114,20 +114,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         {
             var testUser = _testUsers[userType];
             
-            if (testUser.Profile != null)
-            {
-                Instance
-                    .CurrentUserProviderMock
-                    .Setup(x => x.GetCurrentUserOid())
-                    .Returns(Guid.Parse(testUser.Profile.Oid));
-            }
-
-            // Need to change what the mock returns each time since the factory share the same registered mocks
-            SetupPlantMock(testUser.ProCoSysPlants);
-            
-            SetupPermissionMock(plant, 
-                testUser.ProCoSysPermissions,
-                testUser.ProCoSysProjects);
+            SetupPermissionMock(plant, testUser);
             
             UpdatePlantInHeader(testUser.HttpClient, plant);
             
@@ -174,19 +161,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
                 // Add mocks to all external resources here
-                services.AddScoped(serviceProvider => _plantApiServiceMock.Object);
-                services.AddScoped(serviceProvider => _permissionApiServiceMock.Object);
-                services.AddScoped(serviceProvider => FusionMeetingClientMock.Object);
-                services.AddScoped(serviceProvider => MeetingOptionsMock.Object);
-                services.AddScoped(serviceProvider => CommPkgApiServiceMock.Object);
-                services.AddScoped(serviceProvider => McPkgApiServiceMock.Object);
-                services.AddScoped(serviceProvider => PersonApiServiceMock.Object);
-                services.AddScoped(serviceProvider => FunctionalRoleApiServiceMock.Object);
-                services.AddScoped(serviceProvider => ProjectApiServiceMock.Object);
-                services.AddScoped(serviceProvider => BlobStorageMock.Object);
-                services.AddScoped(serviceProvider => PcsBusSenderMock.Object);
-                services.AddScoped(serviceProvider => MeApiServiceMock.Object);
-                services.AddScoped(serviceProvider => EmailServiceMock.Object);
+                services.AddScoped(_ => _authPersonApiServiceMock.Object);
+                services.AddScoped(_ => _permissionApiServiceMock.Object);
+                services.AddScoped(_ => FusionMeetingClientMock.Object);
+                services.AddScoped(_ => MeetingOptionsMock.Object);
+                services.AddScoped(_ => CommPkgApiServiceMock.Object);
+                services.AddScoped(_ => McPkgApiServiceMock.Object);
+                services.AddScoped(_ => MainPersonApiServiceMock.Object);
+                services.AddScoped(_ => FunctionalRoleApiServiceMock.Object);
+                services.AddScoped(_ => ProjectApiServiceMock.Object);
+                services.AddScoped(_ => BlobStorageMock.Object);
+                services.AddScoped(_ => PcsBusSenderMock.Object);
+                services.AddScoped(_ => MeApiServiceMock.Object);
+                services.AddScoped(_ => EmailServiceMock.Object);
             });
 
             builder.ConfigureServices(services =>
@@ -269,50 +256,51 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             return $"Server=(LocalDB)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=true;AttachDbFileName={dbPath}";
         }
 
-        private void SetupPlantMock(List<ProCoSysPlant> plants)
-            => _plantApiServiceMock.Setup(p => p.GetAllPlantsAsync()).Returns(Task.FromResult(plants));
-        
-        private void SetupPermissionMock(
-            string plant,
-            IList<string> proCoSysPermissions,
-            IList<ProCoSysProject> proCoSysProjects)
+        private void SetupPermissionMock(string plant, ITestUser testUser)
         {
-            _permissionApiServiceMock.Setup(p => p.GetPermissionsAsync(plant))
-                .Returns(Task.FromResult(proCoSysPermissions));
+            if (testUser.Profile != null)
+            {
+                Instance
+                    .CurrentUserProviderMock.Setup(x => x.GetCurrentUserOid())
+                    .Returns(Guid.Parse(testUser.Profile.Oid));
+            }
+
+            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant))
+                .Returns(Task.FromResult(testUser.Permissions));
                         
-            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsAsync(plant))
-                .Returns(Task.FromResult(proCoSysProjects));
+            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant))
+                .Returns(Task.FromResult(testUser.AccessableProjects));
         }
 
         private void SetupTestUsers()
         {
-            var commonProCoSysPlants = new List<ProCoSysPlant>
+            var accessablePlants = new List<AccessablePlant>
             {
-                new ProCoSysPlant {Id = PlantWithAccess, HasAccess = true},
-                new ProCoSysPlant {Id = PlantWithoutAccess}
+                new AccessablePlant {Id = PlantWithAccess, HasAccess = true},
+                new AccessablePlant {Id = PlantWithoutAccess}
             };
 
-            var commonProCoSysProjects = new List<ProCoSysProject>
+            var accessableProjects = new List<AccessableProject>
             {
-                new ProCoSysProject {Name = ProjectWithAccess, HasAccess = true},
-                new ProCoSysProject {Name = ProjectWithoutAccess}
+                new AccessableProject {Name = ProjectWithAccess, HasAccess = true},
+                new AccessableProject {Name = ProjectWithoutAccess}
             };
 
             AddAnonymousUser();
 
-            AddSignerUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddSignerUser(accessablePlants, accessableProjects);
             
-            AddPlannerUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddPlannerUser(accessablePlants, accessableProjects);
 
-            AddViewerUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddViewerUser(accessablePlants, accessableProjects);
     
-            AddHackerUser(commonProCoSysProjects);
+            AddHackerUser();
 
-            AddContractorUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddContractorUser(accessablePlants, accessableProjects);
 
-            AddAdminUser(commonProCoSysPlants, commonProCoSysProjects);
+            AddAdminUser(accessablePlants, accessableProjects);
 
-            AddCreatorUser(commonProCoSysPlants, commonProCoSysProjects); 
+            AddCreatorUser(accessablePlants, accessableProjects); 
 
             var webHostBuilder = WithWebHostBuilder(builder =>
             {
@@ -320,6 +308,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath));
             });
 
+
+            SetupProCoSysServiceMocks();
+
+            CreateAuthenticatedHttpClients(webHostBuilder);
+        }
+
+        private void CreateAuthenticatedHttpClients(WebApplicationFactory<Startup> webHostBuilder)
+        {
             foreach (var testUser in _testUsers.Values)
             {
                 testUser.HttpClient = webHostBuilder.CreateClient();
@@ -331,8 +327,40 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             }
         }
 
+        private void SetupProCoSysServiceMocks()
+        {
+            foreach (var testUser in _testUsers.Values.Where(t => t.Profile != null))
+            {
+                if (testUser.AuthProCoSysPerson != null)
+                {
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    .Returns(Task.FromResult(testUser.AuthProCoSysPerson));
+                }
+                else
+                {
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                        .Returns(Task.FromResult((AuthProCoSysPerson)null));
+                }
+                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                    .Returns(Task.FromResult(testUser.AccessablePlants));
+            }
+
+            // Need to mock getting info for current application from Main. This to satisfy VerifyIpoApiClientExists middelware
+            var config = new ConfigurationBuilder().AddJsonFile(_configPath).Build();
+            var ipoApiObjectId = config["Authenticator:IpoApiObjectId"];
+            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId)))
+                .Returns(Task.FromResult(new AuthProCoSysPerson
+                {
+                    AzureOid = ipoApiObjectId,
+                    FirstName = "Ipo",
+                    LastName = "API",
+                    Email = "ipo@pcs.net",
+                    UserName = "IA"
+                }));
+        }
+
         // Authenticated client without any permissions
-        private void AddHackerUser(List<ProCoSysProject> commonProCoSysProjects)
+        private void AddHackerUser()
             => _testUsers.Add(UserType.Hacker,
                 new TestUser
                 {
@@ -341,22 +369,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Harry",
                             LastName = "Hacker", 
+                            UserName = "HH",
                             Oid = HackerOid,
                             Email = "harry.hacker@pcs.pcs"
                         },
-                    ProCoSysPlants = new List<ProCoSysPlant>
+                    AccessablePlants = new List<AccessablePlant>
                     {
-                        new ProCoSysPlant {Id = PlantWithAccess},
-                        new ProCoSysPlant {Id = PlantWithoutAccess}
+                        new AccessablePlant {Id = PlantWithAccess, HasAccess = false},
+                        new AccessablePlant {Id = PlantWithoutAccess, HasAccess = false}
                     },
-                    ProCoSysPermissions = new List<string>(),
-                    ProCoSysProjects = commonProCoSysProjects
+                    Permissions = new List<string>(),
+                    AccessableProjects = new List<AccessableProject>()
                 });
 
         // Authenticated client with necessary permissions to VIEW invitations
         private void AddViewerUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Viewer,
                 new TestUser
                 {
@@ -365,11 +394,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Vidar",
                             LastName = " Viewer",
+                            UserName = "VV",
                             Oid = ViewerOid,
                             Email = "vidar.viewer@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                    AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -378,13 +408,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
 
         // Authenticated user with necessary permissions to SIGN invitations (including completing and accepting)
         private void AddSignerUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Signer,
                 new TestUser
                 {
@@ -393,12 +423,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Sigurd",
                             LastName = "Signer",
-                            UserName = "SigurdUserName",
+                            UserName = "SS",
                             Oid = SignerOid,
                             Email = "sigurd.signer@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                    AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -408,13 +438,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
 
         // Authenticated user with necessary permissions to CREATE, UPDATE AND CANCEL invitations
         private void AddPlannerUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Planner,
                 new TestUser
                 {
@@ -423,12 +453,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Pernilla",
                             LastName = "Planner",
-                            UserName = "PernillaUserName",
+                            UserName = "PP",
                             Oid = PlannerOid,
                             Email = "pernilla.planner@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                    AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -443,12 +473,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
 
         private void AddContractorUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Contractor,
                 new TestUser
                 {
@@ -457,12 +487,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Conte",
                             LastName = "Contractor",
-                            UserName = "ContractorUserName",
+                            UserName = "CC",
                             Oid = ContractorOid,
                             Email = "conte.contractor@pcs.pcs"  
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                    AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -473,13 +503,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_WRITE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
                 
         // Authenticated user with all IPO permissions
         private void AddAdminUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Admin,
             new TestUser
                 {
@@ -488,12 +518,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                           FirstName = "Andrea",
                             LastName = "Admin",
-                            UserName = "AndreaAdminUserName",
+                            UserName = "AA",
                             Oid = AdminOid,
                             Email = "andrea.admin@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -509,12 +539,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_VOIDUNVOID,
                         Permissions.IPO_ADMIN,
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
 
         private void AddCreatorUser(
-            List<ProCoSysPlant> commonProCoSysPlants,
-            List<ProCoSysProject> commonProCoSysProjects)
+            List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Creator,
                 new TestUser
                 {
@@ -523,12 +553,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         {
                             FirstName = "Bill",
                             LastName = "Shankly",
-                            UserName = "ShanklyCreator",
+                            UserName = "BS",
                             Oid = CreatorOid,
                             Email = "bill.shankly@pcs.pcs"
                         },
-                    ProCoSysPlants = commonProCoSysPlants,
-                    ProCoSysPermissions = new List<string>
+                    AccessablePlants = accessablePlants,
+                    Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -543,7 +573,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID
                     },
-                    ProCoSysProjects = commonProCoSysProjects
+                    AccessableProjects = accessableProjects
                 });
 
         private void AddAnonymousUser() => _testUsers.Add(UserType.Anonymous, new TestUser());

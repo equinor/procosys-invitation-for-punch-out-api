@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
 
             _signerPersons = new List<ProCoSysPerson>
             {
-                TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile.AsProCoSysPerson()
+                TestFactory.Instance.GetTestUserForUserType(UserType.Signer).Profile.AsMainProCoSysPerson()
             };
 
             _proCoSysPersons = new List<ProCoSysPerson>
@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
             };
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonsAsync(
                     TestFactory.PlantWithAccess,
                     "p",
@@ -91,7 +91,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 .Returns(Task.FromResult(_proCoSysPersons));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonsWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     "SignersSearchString",
@@ -101,13 +101,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
 
             var viewer = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer).Profile;
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     viewer.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(viewer.AsProCoSysPerson()));
+                .Returns(Task.FromResult(viewer.AsMainProCoSysPerson()));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock

@@ -8,14 +8,15 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -27,9 +28,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
         private readonly IMcPkgApiService _mcPkgApiService;
-        private readonly IApplicationAuthenticator _authenticator;
+        private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
-        private readonly IBearerTokenSetter _bearerTokenSetter;
         private readonly IProjectRepository _projectRepository;
         private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
@@ -42,10 +42,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
-            IApplicationAuthenticator authenticator,
-            IOptionsSnapshot<AuthenticatorOptions> options,
+            IMainApiAuthenticator mainApiTokenProvider,
+            IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
-            IBearerTokenSetter bearerTokenSetter,
             IProjectRepository projectRepository)
         {
             _invitationRepository = invitationRepository;
@@ -54,9 +53,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient = telemetryClient;
             _context = context;
             _mcPkgApiService = mcPkgApiService;
-            _authenticator = authenticator;
+            _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
-            _bearerTokenSetter = bearerTokenSetter;
             _projectRepository = projectRepository;
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }
@@ -74,6 +72,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 return;
             }
 
+            _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
             _currentUserSetter.SetCurrentUserOid(_ipoApiOid);
 
             switch (pcsTopic)
@@ -214,9 +213,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task ProcessIpoEvent(string messageJson)
         {
-            var bearerToken = await _authenticator.GetBearerTokenForApplicationAsync();
-            _bearerTokenSetter.SetBearerToken(bearerToken, false);
-
             var ipoEvent = JsonSerializer.Deserialize<IpoTopic>(messageJson);
             if (ipoEvent == null || string.IsNullOrWhiteSpace(ipoEvent.InvitationGuid))
             {

@@ -1,5 +1,5 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.Auth.Time;
 
 namespace Equinor.ProCoSys.IPO.Test.Common
 {

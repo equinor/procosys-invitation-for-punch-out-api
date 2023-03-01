@@ -3,6 +3,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
+using AuthPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -20,11 +21,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             => new CreateInvitedPersonDto
             {
                 AzureOid = Guid.Parse(Oid),
-                Email= Email,
+                Email = Email,
                 Required = required
             };
 
-        public ProCoSysPerson AsProCoSysPerson() =>
+        public ProCoSysPerson AsMainProCoSysPerson() =>
             new ProCoSysPerson
             {
                 AzureOid = Oid,
@@ -32,6 +33,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 FirstName = FirstName,
                 LastName = LastName,
                 UserName = UserName
+            };
+
+        public AuthPerson AsAuthProCoSysPerson() =>
+            new AuthPerson
+            {
+                AzureOid = Oid ?? throw new ArgumentException($"Bad test setup. {nameof(Oid)} needed"),
+                Email = Email ?? throw new ArgumentException($"Bad test setup. {nameof(Email)} needed"),
+                FirstName = FirstName ?? throw new ArgumentException($"Bad test setup. {nameof(FirstName)} needed"),
+                LastName = LastName ?? throw new ArgumentException($"Bad test setup. {nameof(LastName)} needed"),
+                UserName = UserName ?? throw new ArgumentException($"Bad test setup. {nameof(UserName)} needed")
             };
 
         public override string ToString() => $"{FullName} {Oid}";

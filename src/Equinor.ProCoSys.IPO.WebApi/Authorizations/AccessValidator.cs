@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query;
@@ -9,6 +10,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 {
+    /// <summary>
+    /// Validates if current user has access to perform a request of type IProjectRequest, 
+    /// IInvitationCommandRequest or IInvitationQueryRequest.
+    /// It validates if user has access to the project of the request 
+    /// </summary>
     public class AccessValidator : IAccessValidator
     {
         private readonly ICurrentUserProvider _currentUserProvider;
@@ -43,8 +49,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                 _logger.LogWarning($"Current user {userOid} don't have access to project {projectRequest.ProjectName}");
                 return false;
             }
-
-
 
             if (request is IInvitationCommandRequest invitationCommandRequest)
             {

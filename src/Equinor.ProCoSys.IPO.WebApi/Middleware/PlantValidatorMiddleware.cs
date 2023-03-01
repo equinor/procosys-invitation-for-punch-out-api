@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Plant;
-using Equinor.ProCoSys.IPO.WebApi.Controllers.Misc;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Auth.Misc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -17,14 +16,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
         public async Task InvokeAsync(
             HttpContext context,
             IPlantProvider plantProvider,
-            IPlantCache plantCache,
+            IPermissionCache permissionCache,
             ILogger<PlantValidatorMiddleware> logger)
         {
             logger.LogInformation($"----- {GetType().Name} start");
             var plantId = plantProvider.Plant;
-            if (context.User.Identity.IsAuthenticated && plantId != null)
+            if (context.User.Identity != null && context.User.Identity.IsAuthenticated && plantId != null)
             {
-                if (!await plantCache.IsAValidPlantAsync(plantId))
+                if (!await permissionCache.IsAValidPlantForCurrentUserAsync(plantId))
                 {
                     var errors = new Dictionary<string, string[]>
                     {

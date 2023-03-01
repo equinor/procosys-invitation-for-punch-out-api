@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
     public class MainApiCommPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _foreignApiClient;
+        private Mock<IMainApiClient> _foreignApiClient;
         private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
         private MainApiCommPkgService _dut;
 
@@ -30,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IBearerTokenApiClient>();
+            _foreignApiClient = new Mock<IMainApiClient>();
 
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {

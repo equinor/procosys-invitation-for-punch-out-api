@@ -12,10 +12,10 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
 {
     [TestClass]
-    public class MainApiFunctionalRoleServiceTests
+    public class LibraryApiFunctionalRoleServiceTests
     {
-        private Mock<IOptionsMonitor<LibraryApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _foreignApiClient;
+        private Mock<IOptionsMonitor<LibraryApiOptions>> _libraryApiOptions;
+        private Mock<ILibraryApiClient> _foreignApiClient;
         private LibraryApiFunctionalRoleService _dut;
         private ProCoSysFunctionalRole _proCoSysFunctionalRole1;
         private ProCoSysFunctionalRole _proCoSysFunctionalRole2;
@@ -28,12 +28,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
         [TestInitialize]
         public void Setup()
         {
-            _mainApiOptions = new Mock<IOptionsMonitor<LibraryApiOptions>>();
-            _mainApiOptions
+            _libraryApiOptions = new Mock<IOptionsMonitor<LibraryApiOptions>>();
+            _libraryApiOptions
                 .Setup(x => x.CurrentValue)
                 .Returns(new LibraryApiOptions { BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IBearerTokenApiClient>();
+            _foreignApiClient = new Mock<ILibraryApiClient>();
 
             _proCoSysFunctionalRole1 = new ProCoSysFunctionalRole
             {
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), _extraHeaders))
                 .Returns(Task.FromResult(new List<ProCoSysFunctionalRole> { _proCoSysFunctionalRole1, _proCoSysFunctionalRole2 }));
 
-            _dut = new LibraryApiFunctionalRoleService(_foreignApiClient.Object, _mainApiOptions.Object);
+            _dut = new LibraryApiFunctionalRoleService(_foreignApiClient.Object, _libraryApiOptions.Object);
         }
 
         [TestMethod]

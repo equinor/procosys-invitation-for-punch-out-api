@@ -233,43 +233,43 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Returns(Task.FromResult(pcsFunctionalRoles2));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_sigurdSigner.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     _contractor.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_contractor.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     _pernillaPlanner.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_pernillaPlanner.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_pernillaPlanner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                     TestFactory.PlantWithAccess,
                     _andreaAdmin.Oid,
                     "IPO",
                     It.IsAny<List<string>>()))
-                .Returns(Task.FromResult(_andreaAdmin.AsProCoSysPerson()));
+                .Returns(Task.FromResult(_andreaAdmin.AsMainProCoSysPerson()));
 
             TestFactory.Instance
-                .PersonApiServiceMock
+                .MainPersonApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),

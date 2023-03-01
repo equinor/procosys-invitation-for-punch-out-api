@@ -25,6 +25,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi
 {
@@ -54,6 +56,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
             }
             if (_environment.IsDevelopment())
             {
+                DebugOptions.DebugEntityFrameworkInDevelopment = Configuration.GetValue<bool>("DebugEntityFrameworkInDevelopment");
+
                 if (Configuration.GetValue<bool>("SeedDummyData"))
                 {
                     services.AddHostedService<Seeder>();
@@ -148,6 +152,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 options.EnableForHttps = true;
             });
 
+            services.AddPcsAuthIntegration();
+
             services.AddFusionIntegration(options =>
             {
                 options.UseServiceInformation("PCS IPO", _environment.EnvironmentName); // Environment identifier
@@ -191,16 +197,16 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
                     //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
                     //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE
-                    .WithReadFromDeadLetterQueue(Configuration.GetValue<bool>("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
+                    .WithReadFromDeadLetterQueue(Configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
-                services.AddTopicClients(
-                    Configuration.GetConnectionString("ServiceBus"),
-                    Configuration["ServiceBus:TopicNames"]);
+                var topics = Configuration["ServiceBus:TopicNames"];
+                services.AddTopicClients(Configuration.GetConnectionString("ServiceBus"), topics);
             }
             else
             {
                 services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
             }
+            services.AddHostedService<VerifyApplicationExistsAsPerson>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -237,10 +243,12 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
             app.UseRouting();
 
+            // order of adding middelwares are crucial. Some depend that other has been run in advance
             app.UseCurrentPlant();
             app.UseCurrentBearerToken();
             app.UseAuthentication();
             app.UseCurrentUser();
+            app.UsePersonValidator();
             app.UsePlantValidator();
             app.UseVerifyOidInDb();
             app.UseAuthorization();

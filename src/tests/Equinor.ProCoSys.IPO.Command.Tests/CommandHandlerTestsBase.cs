@@ -1,9 +1,10 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.Time;
+using Equinor.ProCoSys.Auth.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Equinor.ProCoSys.Auth.Misc;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests
 {

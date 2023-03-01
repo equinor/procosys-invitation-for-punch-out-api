@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.ForeignApi.Client;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi;
+using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
     public class MainApiProjectServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IBearerTokenApiClient> _mainApiClient;
+        private Mock<IMainApiClient> _mainApiClient;
         private ProCoSysProject _proCoSysProject1;
         private ProCoSysProject _proCoSysProject2;
         private MainApiProjectService _dut;
@@ -33,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
             _mainApiOptions
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions {ApiVersion = "4.0", BaseAddress = "http://example.com"});
-            _mainApiClient = new Mock<IBearerTokenApiClient>();
+            _mainApiClient = new Mock<IMainApiClient>();
 
             _proCoSysProject1 = new ProCoSysProject {Id = 1, Name = _project1Name, Description = _project1Description};
             _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = Project2Name, Description = Project2Description};
@@ -50,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.TryQueryAndDeserializeAsync<ProCoSysProject>(It.IsAny<string>()))
+                .SetupSequence(x => x.TryQueryAndDeserializeAsync<ProCoSysProject>(It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>()))
                 .Returns(Task.FromResult(_proCoSysProject1));
 
             // Act
