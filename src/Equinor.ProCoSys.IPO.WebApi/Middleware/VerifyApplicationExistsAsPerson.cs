@@ -12,16 +12,20 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 {
-    public class VerifyIpoApiClientExists : IHostedService
+    /// <summary>
+    /// Ensure that IpoApiObjectId (i.e the application) exists as Person.
+    /// Needed when application modifies data, setting ModifiedById for changed records
+    /// </summary>
+    public class VerifyApplicationExistsAsPerson : IHostedService
     {
         private readonly IServiceScopeFactory _serviceProvider;
         private readonly IOptionsMonitor<IpoAuthenticatorOptions> _options;
-        private readonly ILogger<VerifyIpoApiClientExists> _logger;
+        private readonly ILogger<VerifyApplicationExistsAsPerson> _logger;
 
-        public VerifyIpoApiClientExists(
+        public VerifyApplicationExistsAsPerson(
             IServiceScopeFactory serviceProvider,
             IOptionsMonitor<IpoAuthenticatorOptions> options, 
-            ILogger<VerifyIpoApiClientExists> logger)
+            ILogger<VerifyApplicationExistsAsPerson> logger)
         {
             _serviceProvider = serviceProvider;
             _options = options;

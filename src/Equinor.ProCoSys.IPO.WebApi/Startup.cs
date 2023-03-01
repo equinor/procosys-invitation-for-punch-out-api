@@ -206,7 +206,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             {
                 services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
             }
-            services.AddHostedService<VerifyIpoApiClientExists>();
+            services.AddHostedService<VerifyApplicationExistsAsPerson>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
