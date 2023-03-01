@@ -32,8 +32,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Query.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi.Tests", "tests\Equinor.ProCoSys.IPO.WebApi.Tests\Equinor.ProCoSys.IPO.WebApi.Tests.csproj", "{065C9A62-0885-4238-8893-B10BE15E5201}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.ForeignApi", "Equinor.ProCoSys.IPO.MainApi\Equinor.ProCoSys.IPO.ForeignApi.csproj", "{CFF1281F-84A3-4A73-B32E-ED6A666C187F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.ForeignApi.Tests", "tests\Equinor.ProCoSys.IPO.MainApi.Tests\Equinor.ProCoSys.IPO.ForeignApi.Tests.csproj", "{3628443D-47B4-4D7A-AB08-3E0F613E5015}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Test.Common", "tests\Equinor.ProCoSys.IPO.Test.Common\Equinor.ProCoSys.IPO.Test.Common.csproj", "{AF5AC8E5-6A5F-4560-86BC-7E35FE1F01F3}"
@@ -44,9 +42,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.WebApi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.Email", "Equinor.ProCoSys.IPO.Email\Equinor.ProCoSys.IPO.Email.csproj", "{E320F7F9-3E39-4621-8445-30748F91C008}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.Auth", "Equinor.ProCoSys.Auth\Equinor.ProCoSys.Auth.csproj", "{575C1713-AB8E-4116-B2F8-D8C5D465D985}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.Auth", "Equinor.ProCoSys.Auth\Equinor.ProCoSys.Auth.csproj", "{575C1713-AB8E-4116-B2F8-D8C5D465D985}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Equinor.ProCoSys.Auth.Tests", "tests\Equinor.ProCoSys.Auth.Tests\Equinor.ProCoSys.Auth.Tests.csproj", "{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.Auth.Tests", "tests\Equinor.ProCoSys.Auth.Tests\Equinor.ProCoSys.Auth.Tests.csproj", "{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Equinor.ProCoSys.IPO.ForeignApi", "Equinor.ProCoSys.IPO.ForeignApi\Equinor.ProCoSys.IPO.ForeignApi.csproj", "{23543495-0F03-40E3-9C8F-8E8038532764}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,10 +94,6 @@ Global
 		{065C9A62-0885-4238-8893-B10BE15E5201}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{065C9A62-0885-4238-8893-B10BE15E5201}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{065C9A62-0885-4238-8893-B10BE15E5201}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CFF1281F-84A3-4A73-B32E-ED6A666C187F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFF1281F-84A3-4A73-B32E-ED6A666C187F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CFF1281F-84A3-4A73-B32E-ED6A666C187F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CFF1281F-84A3-4A73-B32E-ED6A666C187F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3628443D-47B4-4D7A-AB08-3E0F613E5015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3628443D-47B4-4D7A-AB08-3E0F613E5015}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3628443D-47B4-4D7A-AB08-3E0F613E5015}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -126,6 +122,10 @@ Global
 		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9052B5E8-3DDB-49DA-9AD3-155F5E067A31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23543495-0F03-40E3-9C8F-8E8038532764}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23543495-0F03-40E3-9C8F-8E8038532764}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23543495-0F03-40E3-9C8F-8E8038532764}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23543495-0F03-40E3-9C8F-8E8038532764}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
