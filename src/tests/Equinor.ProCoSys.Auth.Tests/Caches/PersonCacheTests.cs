@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.Auth.Tests.Caches
 
             // Assert
             AssertPerson(result);
-            // since GetAsyncAsync has been called twice, but GetAllPersonsAsync has been called once, the second Get uses cache
+            // since GetAsync has been called twice, but TryGetPersonByOidAsync has been called once, the second Get uses cache
             _personApiServiceMock.Verify(p => p.TryGetPersonByOidAsync(_currentUserOid), Times.Once);
         }
 
