@@ -45,6 +45,7 @@ namespace Equinor.ProCoSys.Auth.Authentication
             _logger = logger;
             var secret = _options.Secret;
             _secretInfo = $"{secret.Substring(0, 2)}***{secret.Substring(secret.Length - 1, 1)}";
+            AuthenticationType = AuthenticationType.OnBehalfOf;
         }
 
         public AuthenticationType AuthenticationType { get; set; }

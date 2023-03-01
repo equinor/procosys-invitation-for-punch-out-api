@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using MediatR;
 using ServiceResult;
 
