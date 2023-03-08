@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         public async Task Handle_ReturnsCorrectAttachment()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var blobStorageMock = new Mock<IBlobStorage>();
+            var blobStorageMock = new Mock<IAzureBlobService>();
             var query = new GetAttachmentByIdQuery(1, 2);
 
             var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
         public async Task Handle_ReturnsNotFound_IfAttachmentIsNotFound()
         {
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var blobStorageMock = new Mock<IBlobStorage>();
+            var blobStorageMock = new Mock<IAzureBlobService>();
             var query = new GetAttachmentByIdQuery(1, 3);
 
             var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);

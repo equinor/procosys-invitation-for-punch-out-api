@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Misc;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPlantProvider> _plantProviderMock;
-        private Mock<IBlobStorage> _blobStorageMock;
+        private Mock<IAzureBlobService> _blobStorageMock;
         private IOptionsMonitor<BlobStorageOptions> _monitorMock;
         private UploadAttachmentCommandHandler _dut;
 
@@ -54,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
             _plantProviderMock
                 .Setup(x => x.Plant)
                 .Returns(_plant);
-            _blobStorageMock = new Mock<IBlobStorage>();
+            _blobStorageMock = new Mock<IAzureBlobService>();
             var blobStorageOptions = new BlobStorageOptions()
             {
                 BlobContainer = "TestContainer"
@@ -77,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(2, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), false, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), false, default), Times.Once);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Invalid, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<bool>(), default), Times.Never);
+            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<bool>(), default), Times.Never);
         }
 
         [TestMethod]
@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<Stream>(), true, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), true, default), Times.Once);
         }
     }
 }

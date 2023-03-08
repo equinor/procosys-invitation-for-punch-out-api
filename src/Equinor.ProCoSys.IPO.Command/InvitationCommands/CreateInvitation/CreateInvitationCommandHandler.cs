@@ -18,7 +18,7 @@ using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.Extensions.Options;
 using ServiceResult;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {

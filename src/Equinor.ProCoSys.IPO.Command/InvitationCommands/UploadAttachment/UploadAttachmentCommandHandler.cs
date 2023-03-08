@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Misc;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
@@ -17,14 +17,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
-        private readonly IBlobStorage _blobStorage;
+        private readonly IAzureBlobService _blobStorage;
         private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
 
         public UploadAttachmentCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             IPlantProvider plantProvider,
-            IBlobStorage blobStorage,
+            IAzureBlobService blobStorage,
             IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
         {
             _invitationRepository = invitationRepository;
@@ -50,9 +50,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
                 invitation.AddAttachment(attachment);
             }
 
-            var fullBlobPath = Path.Combine(_blobStorageOptions.CurrentValue.BlobContainer, attachment.BlobPath).Replace("\\", "/");
-
-            await _blobStorage.UploadAsync(fullBlobPath, request.Content, request.OverWriteIfExists, cancellationToken);
+            var fullBlobPath = attachment.GetFullBlobPath();
+            await _blobStorage.UploadAsync(_blobStorageOptions.CurrentValue.BlobContainer, fullBlobPath, request.Content, request.OverWriteIfExists, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<int>(attachment.Id);
         }

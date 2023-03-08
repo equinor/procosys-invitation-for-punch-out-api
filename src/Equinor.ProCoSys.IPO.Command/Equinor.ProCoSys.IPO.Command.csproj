@@ -14,19 +14,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="2.1.15" />
-    <PackageReference Include="FluentValidation" Version="11.2.2" />
+    <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.0" />
+    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="3.8.5" />
+    <PackageReference Include="FluentValidation" Version="11.5.1" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="6.0.2" />
-    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
-    <ProjectReference Include="..\Equinor.ProCoSys.IPO.Email\Equinor.ProCoSys.IPO.Email.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.ForeignApi\Equinor.ProCoSys.IPO.ForeignApi.csproj" />
   </ItemGroup>
 

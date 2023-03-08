@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.Auth.Time;
+using Equinor.ProCoSys.Common.Time;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {

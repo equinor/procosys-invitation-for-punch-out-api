@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Microsoft.Extensions.Options;

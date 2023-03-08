@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
@@ -15,13 +15,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
     {
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IBlobStorage _blobStorage;
+        private readonly IAzureBlobService _blobStorage;
         private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
 
         public DeleteAttachmentCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            IBlobStorage blobStorage,
+            IAzureBlobService blobStorage,
             IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
         {
             _invitationRepository = invitationRepository;
@@ -37,9 +37,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment
             var attachment = invitation.Attachments.Single(a => a.Id == request.AttachmentId);
             attachment.SetRowVersion(request.RowVersion);
 
-            var fullBlobPath = Path.Combine(_blobStorageOptions.CurrentValue.BlobContainer, attachment.BlobPath).Replace("\\", "/");
-
-            await _blobStorage.DeleteAsync(fullBlobPath, cancellationToken);
+            var fullBlobPath = attachment.GetFullBlobPath();
+            await _blobStorage.DeleteAsync(_blobStorageOptions.CurrentValue.BlobContainer, fullBlobPath, cancellationToken);
 
             invitation.RemoveAttachment(attachment);
             _invitationRepository.RemoveAttachment(attachment);

@@ -36,7 +36,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 {
