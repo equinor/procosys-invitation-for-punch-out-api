@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
             var attachment = new Attachment("PCS$TESTPLANT", "testfile.txt");
             var blobStorageMock = new Mock<IAzureBlobService>();
             blobStorageMock.Setup(x => x.GetDownloadSasUri(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>(), It.IsAny<DateTimeOffset>()))
-                .Returns((string cont, string path, DateTimeOffset start, DateTimeOffset end) => new Uri($"{cont}/{path}?{start.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}&{end.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}"));
+                .Returns((string container, string path, DateTimeOffset start, DateTimeOffset end) => new Uri($"{container}/{path}?{start.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}&{end.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}"));
             var blobStorageOptions = new BlobStorageOptions
             {
                 BlobClockSkewMinutes = 5,
