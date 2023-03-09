@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;

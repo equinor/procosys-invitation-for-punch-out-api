@@ -4,9 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Email;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -26,10 +25,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using Equinor.ProCoSys.Auth.Permission;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
+using Equinor.ProCoSys.Common.Email;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -60,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
         public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
-        public readonly Mock<IBlobStorage> BlobStorageMock = new Mock<IBlobStorage>();
+        public readonly Mock<IAzureBlobService> BlobStorageMock = new Mock<IAzureBlobService>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();

@@ -22,7 +22,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 {

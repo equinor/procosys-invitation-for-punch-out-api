@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
@@ -116,7 +116,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                 _invitationRowVersion,
                 _participantRowVersion);
 
-            _dut = new UnAcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
+            _dut = new UnAcceptPunchOutCommandHandler(
+                _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _plantProviderMock.Object,

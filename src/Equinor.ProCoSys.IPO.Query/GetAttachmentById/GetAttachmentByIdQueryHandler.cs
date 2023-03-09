@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -15,10 +15,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
     public class GetAttachmentByIdQueryHandler : IRequestHandler<GetAttachmentByIdQuery, Result<AttachmentDto>>
     {
         private readonly IReadOnlyContext _context;
-        private readonly IBlobStorage _blobStorage;
+        private readonly IAzureBlobService _blobStorage;
         private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
 
-        public GetAttachmentByIdQueryHandler(IReadOnlyContext context, IBlobStorage blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
+        public GetAttachmentByIdQueryHandler(IReadOnlyContext context, IAzureBlobService blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
         {
             _context = context;
             _blobStorage = blobStorage;

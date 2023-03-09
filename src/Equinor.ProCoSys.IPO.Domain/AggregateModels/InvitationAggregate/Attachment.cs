@@ -1,5 +1,6 @@
 ﻿using System;
-using Equinor.ProCoSys.Auth.Time;
+using System.IO;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 
@@ -26,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             FileName = fileName;
         }
 
-        public string BlobPath => string.Join('/', Plant.Substring(4), BlobStorageId.ToString(), FileName);
         public Guid BlobStorageId { get; }
         public string FileName { get; protected set; }
         public DateTime CreatedAtUtc { get; private set; }
@@ -36,6 +36,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public DateTime UploadedAtUtc => ModifiedAtUtc ?? CreatedAtUtc;
         public int UploadedById => ModifiedById ?? CreatedById;
 
+        public string GetFullBlobPath()
+            => Path.Combine(Plant.Substring(4), BlobStorageId.ToString(), FileName).Replace("\\", "/");
 
         public void SetCreated(Person createdBy)
         {

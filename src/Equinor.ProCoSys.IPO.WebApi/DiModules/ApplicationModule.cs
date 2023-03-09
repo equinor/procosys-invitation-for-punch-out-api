@@ -1,4 +1,4 @@
-﻿using Equinor.ProCoSys.IPO.BlobStorage;
+﻿using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -10,8 +10,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events;
-using Equinor.ProCoSys.IPO.Email;
-using Equinor.ProCoSys.IPO.Email.Settings;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -27,15 +25,16 @@ using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
-using Equinor.ProCoSys.IPO.WebApi.Telemetry;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Client;
+using Equinor.ProCoSys.Common.Caches;
+using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.Common.Telemetry;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -85,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
-            services.AddScoped<IBlobStorage, AzureBlobService>();
+            services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();

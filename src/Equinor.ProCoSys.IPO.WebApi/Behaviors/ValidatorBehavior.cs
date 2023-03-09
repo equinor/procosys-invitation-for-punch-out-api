@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
+using Equinor.ProCoSys.Common.Misc;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Behaviors
             _logger = logger;
         }
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var typeName = request.GetGenericTypeName();
 

@@ -6,7 +6,6 @@ COPY Equinor.ProCoSys.IPO.Command/*.csproj ./Equinor.ProCoSys.IPO.Command/
 COPY Equinor.ProCoSys.IPO.Domain/*.csproj ./Equinor.ProCoSys.IPO.Domain/
 COPY Equinor.ProCoSys.IPO.Infrastructure/*.csproj ./Equinor.ProCoSys.IPO.Infrastructure/
 COPY Equinor.ProCoSys.IPO.ForeignApi/*.csproj ./Equinor.ProCoSys.IPO.ForeignApi/
-COPY Equinor.ProCoSys.IPO.BlobStorage/*.csproj ./Equinor.ProCoSys.IPO.BlobStorage/
 COPY Equinor.ProCoSys.IPO.Query/*.csproj ./Equinor.ProCoSys.IPO.Query/
 COPY Equinor.ProCoSys.IPO.WebApi/*.csproj ./Equinor.ProCoSys.IPO.WebApi/
 COPY tests/Equinor.ProCoSys.IPO.WebApi.Tests/*.csproj ./tests/Equinor.ProCoSys.IPO.WebApi.Tests/

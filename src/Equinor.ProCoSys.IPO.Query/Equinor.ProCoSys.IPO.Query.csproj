@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.1" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="6.0.2" />
-    <PackageReference Include="MediatR" Version="10.0.1" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Equinor.ProCoSys.IPO.BlobStorage\Equinor.ProCoSys.IPO.BlobStorage.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Domain\Equinor.ProCoSys.IPO.Domain.csproj" />
     <ProjectReference Include="..\Equinor.ProCoSys.IPO.Infrastructure\Equinor.ProCoSys.IPO.Infrastructure.csproj" />
   </ItemGroup>

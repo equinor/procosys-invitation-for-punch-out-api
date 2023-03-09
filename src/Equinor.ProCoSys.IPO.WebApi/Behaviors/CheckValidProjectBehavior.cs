@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Behaviors
             _projectChecker = projectChecker;
         }
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var typeName = request.GetGenericTypeName();
 

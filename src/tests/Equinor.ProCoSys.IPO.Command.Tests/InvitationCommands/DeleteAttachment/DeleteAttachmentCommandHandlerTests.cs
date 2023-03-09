@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.BlobStorage;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeleteAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
         private Attachment _attachment;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IBlobStorage> _blobStorageMock;
+        private Mock<IAzureBlobService> _blobStorageMock;
         private IOptionsMonitor<BlobStorageOptions> _monitorMock;
         private DeleteAttachmentCommandHandler _dut;
         private DeleteAttachmentCommand _command;
@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
-            _blobStorageMock = new Mock<IBlobStorage>();
+            _blobStorageMock = new Mock<IAzureBlobService>();
             var blobStorageOptions = new BlobStorageOptions()
             {
                 BlobContainer = "TestContainer"
@@ -77,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
             var result = await _dut.Handle(_command, default);
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
-            _blobStorageMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), default), Times.Once);
+            _blobStorageMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), default), Times.Once);
         }
 
         [TestMethod]

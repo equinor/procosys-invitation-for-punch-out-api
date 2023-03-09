@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.DIModules;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Seeding;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
@@ -26,7 +25,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 using Equinor.ProCoSys.Auth;
-using Equinor.ProCoSys.Auth.Misc;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Swagger;
 
 namespace Equinor.ProCoSys.IPO.WebApi
 {

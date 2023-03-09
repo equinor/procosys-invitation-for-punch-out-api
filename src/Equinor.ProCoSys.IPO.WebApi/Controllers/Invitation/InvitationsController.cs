@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
