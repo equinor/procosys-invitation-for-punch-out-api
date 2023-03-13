@@ -102,7 +102,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private void ProcessMcPkgEvent(string messageJson)
         {
-            var mcPkgEvent = JsonSerializer.Deserialize<McPkgTopic>(messageJson);
+            var mcPkgEvent = JsonSerializer.Deserialize<McPkgTmpTopic>(messageJson);
             if (mcPkgEvent == null ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) ||
@@ -140,7 +140,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private void ProcessCommPkgEvent(string messageJson)
         {
-            var commPkgEvent = JsonSerializer.Deserialize<CommPkgTopic>(messageJson);
+            var commPkgEvent = JsonSerializer.Deserialize<CommPkgTmpTopic>(messageJson);
             if (commPkgEvent == null || 
                 string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
                 string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo) ||
@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private void ProcessProjectEvent(string messageJson)
         {
-            var projectEvent = JsonSerializer.Deserialize<ProjectTopic>(messageJson);
+            var projectEvent = JsonSerializer.Deserialize<ProjectTmpTopic>(messageJson);
 
             if (projectEvent == null || 
                 string.IsNullOrWhiteSpace(projectEvent.Plant) || 
@@ -271,7 +271,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private void ProcessLibraryEvent(string messageJson)
         {
-            var libraryEvent = JsonSerializer.Deserialize<LibraryTopic>(messageJson);
+            var libraryEvent = JsonSerializer.Deserialize<LibraryTmpTopic>(messageJson);
             if (libraryEvent == null || string.IsNullOrWhiteSpace(libraryEvent.Plant))
             {
                 throw new Exception($"Unable to deserialize JSON to LibraryEvent {messageJson}");
