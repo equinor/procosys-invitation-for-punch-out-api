@@ -2,10 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Threading;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
 {

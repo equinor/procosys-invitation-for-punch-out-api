@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
@@ -47,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
-            _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
+            _timeProvider = new ManualTimeProvider(_currentTime);
             TimeService.SetProvider(_timeProvider);
         }
 

@@ -35,6 +35,7 @@ using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.Common.Caches;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories

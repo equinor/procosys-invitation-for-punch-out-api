@@ -2,6 +2,7 @@
 {
     public interface IDomainMarker
     {
-        // Marker interface for assembly
+        // Marker interface for assembly. Must be placed where EF models are
+
     }
 }

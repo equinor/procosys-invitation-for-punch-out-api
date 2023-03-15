@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
 {

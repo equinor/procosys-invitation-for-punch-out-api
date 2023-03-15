@@ -1,6 +1,5 @@
-﻿using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.Events;
+﻿using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 

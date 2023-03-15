@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Microsoft.EntityFrameworkCore;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 {
