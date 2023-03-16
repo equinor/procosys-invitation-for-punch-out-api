@@ -17,6 +17,7 @@ using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {

@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
 {

@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.Events;
+using Equinor.ProCoSys.Common;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers
@@ -17,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers
 
         public async Task DispatchPreSaveAsync(IEnumerable<EntityBase> entities, CancellationToken cancellationToken = default)
         {
-            var allEntities  = ConvertToList(entities);
+            var allEntities = ConvertToList(entities);
 
             var events = allEntities
                 .SelectMany(x => x.PreSaveDomainEvents)

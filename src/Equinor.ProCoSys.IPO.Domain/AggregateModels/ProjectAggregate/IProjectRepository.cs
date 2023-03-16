@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods
 {

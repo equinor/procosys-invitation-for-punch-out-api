@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
+﻿using Equinor.ProCoSys.Common;
+
+namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public interface IInvitationRepository : IRepository<Invitation>
     {
