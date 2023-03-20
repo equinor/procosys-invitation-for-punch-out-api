@@ -7,7 +7,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.96.0" />
+    <None Remove="Excel\CarlitoFont\Carlito-Bold.ttf" />
+    <None Remove="Excel\CarlitoFont\Carlito-BoldItalic.ttf" />
+    <None Remove="Excel\CarlitoFont\Carlito-Italic.ttf" />
+    <None Remove="Excel\CarlitoFont\Carlito-Regular.ttf" />
+    <None Remove="Excel\CarlitoFont\SIL Open Font License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Excel\CarlitoFont\Carlito-Bold.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Excel\CarlitoFont\Carlito-BoldItalic.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Excel\CarlitoFont\Carlito-Italic.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Excel\CarlitoFont\Carlito-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Excel\CarlitoFont\SIL Open Font License.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.100.3" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
     <PackageReference Include="Fusion.Integration" Version="6.10.2" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="6.0.2" />
