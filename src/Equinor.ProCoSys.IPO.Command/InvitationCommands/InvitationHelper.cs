@@ -125,27 +125,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             table += $"</table>";
             return table;
         }
-
         private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person)
-        {
-            if (IsValidGuid(person.AzureOid))
-            {
-                return new ParticipantIdentifier(new Guid(person.AzureOid));
-            }
-            if (IsValidEmail(person.Email))
-            {
-                return new ParticipantIdentifier(person.Email);
-            }
-
-            throw new IpoValidationException(
-                "Person does not have valid Oid [" + person.AzureOid + "] or Email [" + person.Email + "]");
-        }
+            => IsValidEmail(person.Email) ?
+                new ParticipantIdentifier(person.Email) :
+                new ParticipantIdentifier(new Guid(person.AzureOid));
 
         private static ParticipantType GetParticipantType(bool required)
             => required ? ParticipantType.Required : ParticipantType.Optional;
-
-        private static bool IsValidGuid(string guid)
-            => Guid.TryParse(guid, out _);
 
         private static bool IsValidEmail(string email)
             => new EmailAddressAttribute().IsValid(email);
