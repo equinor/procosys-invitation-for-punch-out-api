@@ -442,6 +442,24 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         }
 
         [TestMethod]
+        public async Task Handle_ShouldReturnCorrectItems_WhenUserIsInFunctionalRoles()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+                IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
+                _meApiServiceMock
+                    .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                    .Returns(Task.FromResult(listOfFunctionalRoleCodes));
+
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(6, result.Data.Items.Count());
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            }
+        }
+
+        [TestMethod]
         public async Task Handle_ShouldReturnOkResult_WhenNoUnCancelledIpoExists()
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

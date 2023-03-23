@@ -178,8 +178,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                     && p.Type == IpoParticipantType.FunctionalRole)
                     .Select(p => p.FunctionalRoleCode).ToList();
 
-            return currentUsersFunctionalRoleCodes.Select(functionalRoleCode
-                => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode)).FirstOrDefault();
+            return currentUsersFunctionalRoleCodes.Any(functionalRoleCode
+                => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode));
         }
     }
 }
