@@ -36,6 +36,7 @@ using Equinor.ProCoSys.Common.Caches;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Auth.Authorization;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -75,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IReadOnlyContext, IPOContext>();
             services.AddScoped<IBusReceiverService, BusReceiverService>();
             services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<ILocalPersonRepository, LocalPersonRepository>();
             services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();

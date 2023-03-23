@@ -14,14 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.1" />
-    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="3.8.5" />
+    <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.2" />
+    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="3.8.6" />
     <PackageReference Include="FluentValidation" Version="11.5.1" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="6.0.2" />
     <PackageReference Include="MediatR" Version="12.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
-    <PackageReference Include="System.Text.Json" Version="6.0.6" />
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
   </ItemGroup>
 
   <ItemGroup>

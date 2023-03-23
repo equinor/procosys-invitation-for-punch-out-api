@@ -2,13 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using ClosedXML.Excel;
+using ClosedXML.Graphics;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
+        public ExcelConverter()
+        {
+            using (var fallbackFontStream = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("Equinor.ProCoSys.IPO.WebApi.Excel.CarlitoFont.Carlito-Regular.ttf"))
+            {
+                LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateWithFontsAndSystemFonts(fallbackFontStream);
+            }
+        }
+
         public static class FrontSheetRows
         {
             public static int MainHeading = 1;
@@ -101,7 +112,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
             if (date != DateTime.MinValue)
             {
-                cell.SetValue(date).SetDataType(XLDataType.DateTime);
+                cell.SetValue(date);
             }
 
             var format = "yyyy-mm-dd";
@@ -135,10 +146,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             {
                 row = sheet.Row(++rowIdx);
 
-                row.Cell(HistorySheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
-                row.Cell(HistorySheetColumns.Description).SetValue(history.Description).SetDataType(XLDataType.Text);
+                row.Cell(HistorySheetColumns.IpoNo).SetValue(invitation.Id);
+                row.Cell(HistorySheetColumns.Description).SetValue(history.Description);
                 AddDateCell(row, HistorySheetColumns.Date, history.CreatedAtUtc);
-                row.Cell(HistorySheetColumns.User).SetValue(history.CreatedBy).SetDataType(XLDataType.Text);
+                row.Cell(HistorySheetColumns.User).SetValue(history.CreatedBy);
             }
 
             const int minWidth = 10;
@@ -170,18 +181,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 {
                     row = severalParticipantsSheet.Row(++rowIdx);
 
-                    row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
-                    row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization)
-                        .SetDataType(XLDataType.Text);
-                    row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type).SetDataType(XLDataType.Text);
-                    row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant)
-                        .SetDataType(XLDataType.Text);
-                    row.Cell(ParticipantsSheetColumns.Attended).SetValue(participant.Attended)
-                        .SetDataType(XLDataType.Boolean);
-                    row.Cell(ParticipantsSheetColumns.Note).SetValue(participant.Note)
-                        .SetDataType(XLDataType.Text);
-                    row.Cell(ParticipantsSheetColumns.SignedBy).SetValue(participant.SignedBy)
-                        .SetDataType(XLDataType.Text);
+                    row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id);
+                    row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization);
+                    row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type);
+                    row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant);
+                    row.Cell(ParticipantsSheetColumns.Attended).SetValue(participant.Attended);
+                    row.Cell(ParticipantsSheetColumns.Note).SetValue(participant.Note);
+                    row.Cell(ParticipantsSheetColumns.SignedBy).SetValue(participant.SignedBy);
                     if (participant.SignedAtUtc.HasValue)
                     {
                         AddDateCell(row, ParticipantsSheetColumns.SignedAtUtc, participant.SignedAtUtc.Value, false);
@@ -227,23 +233,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             {
                 row = sheet.Row(++rowIdx);
 
-                row.Cell(InvitationSheetColumns.IpoNo).SetValue(invitation.Id).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.ProjectName).SetValue(invitation.ProjectName).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.Status).SetValue(invitation.Status).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.Title).SetValue(invitation.Title).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.Description).SetValue(invitation.Description).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.Location).SetValue(invitation.Location).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.Type).SetValue(invitation.Type).SetDataType(XLDataType.Text);
+                row.Cell(InvitationSheetColumns.IpoNo).SetValue(invitation.Id);
+                row.Cell(InvitationSheetColumns.ProjectName).SetValue(invitation.ProjectName);
+                row.Cell(InvitationSheetColumns.Status).SetValue(invitation.Status.ToString());
+                row.Cell(InvitationSheetColumns.Title).SetValue(invitation.Title);
+                row.Cell(InvitationSheetColumns.Description).SetValue(invitation.Description);
+                row.Cell(InvitationSheetColumns.Location).SetValue(invitation.Location);
+                row.Cell(InvitationSheetColumns.Type).SetValue(invitation.Type);
                 AddDateCell(row, InvitationSheetColumns.StartTimeUtc, invitation.StartTimeUtc, false);
                 AddDateCell(row, InvitationSheetColumns.EndTimeUtc, invitation.EndTimeUtc, false);
                 row.Cell(InvitationSheetColumns.McPkgs)
-                    .SetValue(string.Join(", ", invitation.McPkgs))
-                    .SetDataType(XLDataType.Text);
+                    .SetValue(string.Join(", ", invitation.McPkgs));
                 row.Cell(InvitationSheetColumns.CommPkgs)
-                    .SetValue(string.Join(", ", invitation.CommPkgs))
-                    .SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.ContractorRep).SetValue(invitation.ContractorRep).SetDataType(XLDataType.Text);
-                row.Cell(InvitationSheetColumns.ConstructionCompanyRep).SetValue(invitation.ConstructionCompanyRep).SetDataType(XLDataType.Text);
+                    .SetValue(string.Join(", ", invitation.CommPkgs));
+                row.Cell(InvitationSheetColumns.ContractorRep).SetValue(invitation.ContractorRep);
+                row.Cell(InvitationSheetColumns.ConstructionCompanyRep).SetValue(invitation.ConstructionCompanyRep);
                 if (invitation.CompletedAtUtc.HasValue)
                 {
                     AddDateCell(row, InvitationSheetColumns.CompletedAtUtc, invitation.CompletedAtUtc.Value.Date);
@@ -252,7 +256,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 {
                     AddDateCell(row, InvitationSheetColumns.AcceptedAtUtc, invitation.AcceptedAtUtc.Value.Date);
                 }
-                row.Cell(InvitationSheetColumns.CreatedBy).SetValue(invitation.CreatedBy).SetDataType(XLDataType.Text);
+                row.Cell(InvitationSheetColumns.CreatedBy).SetValue(invitation.CreatedBy);
                 AddDateCell(row, InvitationSheetColumns.CreatedAtUtc, invitation.CreatedAtUtc, false);
             }
 
@@ -294,14 +298,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
         private void AddUsedFilter(IXLRow row, string label, string value, bool bold = false)
         {
-            row.Cell(1).SetValue(label).SetDataType(XLDataType.Text);
-            row.Cell(2).SetValue(value).SetDataType(XLDataType.Text);
+            row.Cell(1).SetValue(label);
+            row.Cell(2).SetValue(value);
             row.Style.Font.SetBold(bold);
         }
 
         private void AddUsedFilter(IXLRow row, string label, DateTime? date, bool bold = false)
         {
-            row.Cell(1).SetValue(label).SetDataType(XLDataType.Text);
+            row.Cell(1).SetValue(label);
             if (date.HasValue)
             {
                 AddDateCell(row, 2, date.Value.Date);
