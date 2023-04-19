@@ -27,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected const string Criteria = "Fcriteria";
         protected SavedFilter _savedFilter;
         protected readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
-        protected readonly Guid _exportUserOid = new Guid("12345678-1234-1234-1234-123456789124");
         protected DbContextOptions<IPOContext> _dbContextOptions;
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;
@@ -47,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
-
+            
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiService = _personApiServiceMock.Object;
 
@@ -76,7 +75,6 @@ namespace Equinor.ProCoSys.IPO.Test.Common
                 if (context.Persons.SingleOrDefault(p => p.Oid == _currentUserOid) == null)
                 {
                     var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
-                    var personForExportTests = AddPerson(context, _exportUserOid, "firstname", "lastname", "testusername", "test@test.com", 10);
                     AddSavedFiltersToPerson(context, person);
                     AddProject(context, Project);
                 }
@@ -93,15 +91,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             return context.Projects.Single(x => x.Id == projectId);
         }
 
-        protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email, int? id = null)
+        protected Person AddPerson(IPOContext context, Guid oid, string firstName, string lastName, string userName, string email)
         {
             var person = new Person(oid, firstName, lastName, userName, email);
-
-            if (id != null)
-            {
-                person.SetProtectedIdForTesting((int)id);
-            }
-
             context.Persons.Add(person);
             context.SaveChangesAsync().Wait();
             return person;

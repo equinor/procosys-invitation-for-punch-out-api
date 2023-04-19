@@ -39,6 +39,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
 
+        public string GetFullName() => $"{FirstName} {LastName}";
+
         public void SetModified(Person modifiedBy)
         {
             ModifiedAtUtc = TimeService.UtcNow;

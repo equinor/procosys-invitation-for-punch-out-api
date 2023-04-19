@@ -24,7 +24,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly DateTime _utcNow;
-        private readonly List<int> _signerIds = new();
 
         public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, ICurrentUserProvider currentUserProvider, IPermissionCache permissionCache)
         {
@@ -103,10 +102,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}")).ToList();
         }
 
-        private IList<ExportParticipantDto> AddParticipantsForSingleInvitation(
-            Invitation invitationWithIncludes)
-        {
-            var participants = invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
+        private IList<ExportParticipantDto> CreateParticipantsDtoForInvitation(Invitation invitationWithIncludes)
+            => invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
                 participant.Id,
                 participant.Organization.ToString(),
                 participant.Type.ToString(),
@@ -119,36 +116,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 null,
                 participant.SignedBy)).ToList();
 
-            foreach (var participant in participants)
-            {
-                if (participant.SignedById.HasValue)
-                {
-                    _signerIds.Add(participant.SignedById.Value);
-                }
-            }
 
-            return participants;
-        }
-
-        private async Task AddSignedByUserNamesAsync(List<ExportInvitationDto> exportInvitations)
+        private async Task FillSignedByAsync(List<ExportInvitationDto> exportInvitations)
         {
-            var ids = _signerIds.Distinct().ToList();
+            var allParticipantDtos = exportInvitations.SelectMany(p => p.Participants).ToList();
 
-            var signingPersons = await GetPersonsListByIdsAsync(ids);
+            var participantIds = allParticipantDtos
+                .Where(p => p.SignedById.HasValue)
+                .Select(p => p.SignedById.Value)
+                .Distinct().ToList();
 
-            if(signingPersons.Any())
+            if (participantIds.Any())
             {
-                foreach (var invitation in exportInvitations)
+                var participantPersons = await GetPersonsByIdsAsync(participantIds);
+                allParticipantDtos.ForEach(p =>
                 {
-                    invitation.Participants.ForEach(p =>
+                    if (p.SignedById.HasValue)
                     {
-                        if (p.SignedById.HasValue)
-                        {
-                            p.SignedBy = signingPersons.Find(x => x.Id == p.SignedById.Value)?.UserName;
-                        }
-                    });
-                }
-            }            
+                        p.SignedBy = participantPersons.Single(x => x.Id == p.SignedById.Value).UserName;
+                    }
+                });
+            }
         }
 
         private async Task<UsedFilterDto> CreateUsedFilterDtoAsync(string projectName, Filter filter)
@@ -183,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                           select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
         }
 
-        private async Task<List<Person>> GetPersonsListByIdsAsync(List<int> personIds) =>
+        private async Task<List<Person>> GetPersonsByIdsAsync(List<int> personIds) =>
             await (from p in _context.QuerySet<Person>()
                    where personIds.Contains(p.Id)
                    select p).ToListAsync();
@@ -192,20 +180,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             IList<Invitation> invitationsWithIncludes)
         {
             var organizerIds = invitationsWithIncludes.Select(i => i.CreatedById).Distinct().ToList();
-            var organizers = await GetPersonsListByIdsAsync(organizerIds);
+            var organizers = await GetPersonsByIdsAsync(organizerIds);
 
             var exportInvitations = new List<ExportInvitationDto>();
             foreach (var invitation in invitationsWithIncludes)
             {
                 var project = await _context.QuerySet<Project>()
                     .SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
-             
+
                 if (project is null)
                 {
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                var organizer = organizers.Find(x => x.Id == invitation.CreatedById);
+                var organizer = organizers.Single(x => x.Id == invitation.CreatedById);
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
                 var participants = invitationWithIncludes.Participants.ToList();
                 var exportInvitationDto = new ExportInvitationDto(
@@ -225,12 +213,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     invitation.CompletedAtUtc,
                     invitation.AcceptedAtUtc,
                     invitation.CreatedAtUtc,
-                    $"{organizer?.FirstName} {organizer?.LastName}"
+                    organizer.GetFullName()
                 );
-                exportInvitationDto.Participants.AddRange(AddParticipantsForSingleInvitation(invitation));
+                exportInvitationDto.Participants.AddRange(CreateParticipantsDtoForInvitation(invitation));
                 exportInvitations.Add(exportInvitationDto);
             }
-            await AddSignedByUserNamesAsync(exportInvitations);
+            await FillSignedByAsync(exportInvitations);
 
             return exportInvitations.ToList();
         }
