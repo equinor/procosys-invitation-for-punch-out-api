@@ -102,7 +102,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     $"{dto.CreatedBy.FirstName} {dto.CreatedBy.LastName}")).ToList();
         }
 
-        private IList<ExportParticipantDto> CreateParticipantsDtoForInvitation(Invitation invitationWithIncludes)
+        private IList<ExportParticipantDto> CreateParticipantDtosForInvitation(Invitation invitationWithIncludes)
             => invitationWithIncludes.Participants.Select(participant => new ExportParticipantDto(
                 participant.Id,
                 participant.Organization.ToString(),
@@ -215,7 +215,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                     invitation.CreatedAtUtc,
                     organizer.GetFullName()
                 );
-                exportInvitationDto.Participants.AddRange(CreateParticipantsDtoForInvitation(invitation));
+                exportInvitationDto.Participants.AddRange(CreateParticipantDtosForInvitation(invitation));
                 exportInvitations.Add(exportInvitationDto);
             }
             await FillSignedByAsync(exportInvitations);

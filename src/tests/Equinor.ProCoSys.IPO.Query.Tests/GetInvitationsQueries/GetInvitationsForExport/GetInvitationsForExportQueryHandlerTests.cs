@@ -52,7 +52,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             {
                 context.Projects.Add(_project1);
                 context.Projects.Add(_project2);
-                context.SaveChangesAsync().Wait();
 
                 const string description = "Description";
 
