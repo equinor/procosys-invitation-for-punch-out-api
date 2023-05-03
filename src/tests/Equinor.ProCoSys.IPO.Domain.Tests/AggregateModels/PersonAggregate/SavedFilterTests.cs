@@ -16,13 +16,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         private const string Criteria = "criteria";
         private bool DefaultFilterValue = true;
         private SavedFilter _dut;
+        private SavedFilter _dutWithNullProject;
         private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
 
         [TestInitialize]
         public void Setup()
         {
             _project.SetProtectedIdForTesting(ProjectId);
-            _dut = new SavedFilter(TestPlant, _project, Title, Criteria) {DefaultFilter = DefaultFilterValue};
+            _dut = new SavedFilter(TestPlant, _project, Title, Criteria) { DefaultFilter = DefaultFilterValue };
+            _dutWithNullProject = new SavedFilter(TestPlant, null, Title, Criteria) { DefaultFilter = DefaultFilterValue };
         }
 
         [TestMethod]
@@ -35,7 +37,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
             Assert.AreEqual(DefaultFilterValue, _dut.DefaultFilter);
         }
 
-
+        [TestMethod]
+        public void Constructor_SetsPropertiesWithNullProject()
+        {
+            Assert.AreEqual(TestPlant, _dutWithNullProject.Plant);
+            Assert.IsFalse(_dutWithNullProject.ProjectId.HasValue);
+            Assert.AreEqual(Title, _dutWithNullProject.Title);
+            Assert.AreEqual(Criteria, _dutWithNullProject.Criteria);
+            Assert.AreEqual(DefaultFilterValue, _dutWithNullProject.DefaultFilter);
+        }
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenTitleNotGiven() =>

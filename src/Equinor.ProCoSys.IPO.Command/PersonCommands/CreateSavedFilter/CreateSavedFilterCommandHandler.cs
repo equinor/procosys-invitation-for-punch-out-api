@@ -71,10 +71,6 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
 
         public async Task<string> GetProjectFromMainAsync(string projectName)
         {
-            if (projectName == null)
-            {
-                return null;
-            }
             try
             {
                 var project = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, projectName);
