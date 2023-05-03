@@ -10,6 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
     public class CreateSavedFilterCommandValidatorTests
     {
         private CreateSavedFilterCommand _command;
+        private CreateSavedFilterCommand _commandWithNoProject;
         private CreateSavedFilterCommandValidator _dut;
         private Mock<ISavedFilterValidator> _savedFilterValidatorMock;
 
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
             _savedFilterValidatorMock = new Mock<ISavedFilterValidator>();
 
             _command = new CreateSavedFilterCommand(_projectName, _title, "Criteria", false);
+            _commandWithNoProject = new CreateSavedFilterCommand(null, _title, "Criteria", false);
             _dut = new CreateSavedFilterCommandValidator(_savedFilterValidatorMock.Object);
         }
 
@@ -36,9 +38,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
         [TestMethod]
         public async Task Validate_ShouldFail_WhenSavedFilterWithSameTitleForPersonAlreadyExistsInProject()
         {
-            _savedFilterValidatorMock.Setup(r => r.ExistsWithSameTitleForPersonInProjectAsync(_title, _projectName, default)).Returns(Task.FromResult(true));
+            _savedFilterValidatorMock.Setup(r => r.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(_title, _projectName, default)).Returns(Task.FromResult(true));
 
             var result = await _dut.ValidateAsync(_command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("A saved filter with this title already exists!"));
+        }
+
+        [TestMethod]
+        public async Task Validate_ShouldFail_WhenSavedFilterWithSameTitleForPersonAlreadyExistsWithNoProject()
+        {
+            _savedFilterValidatorMock.Setup(r => r.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(_title, null, default)).Returns(Task.FromResult(true));
+
+            var result = await _dut.ValidateAsync(_commandWithNoProject);
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);

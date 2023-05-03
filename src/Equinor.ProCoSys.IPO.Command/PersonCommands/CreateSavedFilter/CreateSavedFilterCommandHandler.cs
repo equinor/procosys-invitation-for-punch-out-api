@@ -40,10 +40,14 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
             var person = await _personRepository.GetWithSavedFiltersByOidAsync(currentUserOid);
+            Project project = null;
 
-            var projectName = await GetProjectFromMainAsync(request.ProjectName);
-            var project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
-
+            if (request.ProjectName != null)
+            {
+                var projectName = await GetProjectFromMainAsync(request.ProjectName);
+                project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
+            }
+            
             if (request.DefaultFilter)
             {
                 var currentDefaultFilter = person.GetDefaultFilter(project);
@@ -67,6 +71,10 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
 
         public async Task<string> GetProjectFromMainAsync(string projectName)
         {
+            if (projectName == null)
+            {
+                return null;
+            }
             try
             {
                 var project = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, projectName);

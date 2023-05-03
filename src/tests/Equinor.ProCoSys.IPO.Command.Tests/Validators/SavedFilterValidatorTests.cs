@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 _currentUserProvider))
             {
                 _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
-                var result = await _dut.ExistsWithSameTitleForPersonInProjectAsync("xxx", _projectName, default);
+                var result = await _dut.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync("xxx", _projectName, default);
 
                 Assert.IsFalse(result);
             }
@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 _currentUserProvider))
             {
                 _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
-                var result = await _dut.ExistsWithSameTitleForPersonInProjectAsync(_title, _projectName, default);
+                var result = await _dut.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(_title, _projectName, default);
 
                 Assert.IsTrue(result);
             }
@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                        _currentUserProvider))
             {
                 _dut = new SavedFilterValidator(context, _currentUserProviderMock.Object);
-                var result = await _dut.ExistsWithSameTitleForPersonInProjectAsync(_title, "NonExistingProject", default);
+                var result = await _dut.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(_title, "NonExistingProject", default);
 
                 Assert.IsFalse(result);
             }

@@ -29,21 +29,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         public void Constructor_SetsProperties()
         {
             Assert.AreEqual(TestPlant, _dut.Plant);
-            Assert.AreEqual(ProjectId, _dut.ProjectId);
+            Assert.AreEqual(ProjectId, _dut.ProjectId.Value);
             Assert.AreEqual(Title, _dut.Title);
             Assert.AreEqual(Criteria, _dut.Criteria);
             Assert.AreEqual(DefaultFilterValue, _dut.DefaultFilter);
         }
 
 
-        [TestMethod]
-        public void Constructor_ShouldThrowException_WhenProjectNameNotGiven() =>
-            Assert.ThrowsException<ArgumentNullException>(() =>
-                new SavedFilter(TestPlant, null, Title, Criteria)
-                {
-                    DefaultFilter = DefaultFilterValue
-                }
-            );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenTitleNotGiven() =>
