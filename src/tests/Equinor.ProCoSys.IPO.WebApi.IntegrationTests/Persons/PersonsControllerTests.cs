@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
@@ -9,47 +10,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
     public class PersonsControllerTests : PersonsControllerTestsBase
     {
         [TestMethod]
-        public async Task CreateSavedFilter_AsViewer_ShouldSaveFilter()
-        {
-            // Act
-            var title = Guid.NewGuid().ToString();
-            var criteria = Guid.NewGuid().ToString();
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                title,
-                criteria,
-                true);
+        public async Task CreateSavedFilterInProject_AsViewer_ShouldSaveFilter()
+            => await CreateSavedFilterAndAssert(KnownTestData.ProjectName);
 
-            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
-                UserType.Viewer,
-                TestFactory.PlantWithAccess,
-                null);
-
-            
-            var savedFilter = savedFilters.Find(sf => sf.Id == id);
-
-            // Assert
-            Assert.IsTrue(id > 0);
-            Assert.IsTrue(savedFilters.Count > 0);
-            Assert.IsNotNull(savedFilter);
-            Assert.AreEqual(title, savedFilter.Title);
-            Assert.AreEqual(criteria, savedFilter.Criteria);
-        }
+        [TestMethod]
+        public async Task CreateSavedFilterWithoutProject_AsViewer_ShouldSaveFilter()
+            => await CreateSavedFilterAndAssert(null);
 
         [TestMethod]
         public async Task GetSavedFiltersInProject_AsViewer_ShouldGetFilters()
         {
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var projectName = KnownTestData.ProjectName;
+            var id1 = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                projectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true);
 
-            await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var id2 = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                projectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true);
@@ -58,20 +41,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                null);
+                projectName);
 
             // Assert
-            var savedFilter = savedFilters.Single(sf => sf.Id == id);
             Assert.IsTrue(savedFilters.Count >= 2);
-            Assert.IsNotNull(savedFilter);
+            Assert.IsNotNull(savedFilters.SingleOrDefault(sf => sf.Id == id1));
+            Assert.IsNotNull(savedFilters.SingleOrDefault(sf => sf.Id == id2));
         }
 
         [TestMethod]
         public async Task UpdateSavedFilter_AsViewer_ShouldUpdateFilter()
         {
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var projectName = KnownTestData.ProjectName;
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                projectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true);
@@ -79,12 +64,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                null);
+                projectName);
 
             var savedFilter = savedFilters.Single(sf => sf.Id == id);
 
             var newTitle = Guid.NewGuid().ToString();
             var newCriteria = Guid.NewGuid().ToString();
+            
             // Act
             await PersonsControllerTestsHelper.UpdateSavedFilterAsync(
                 UserType.Viewer,
@@ -99,9 +85,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             var updatedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
-                null);
+                projectName);
 
-            var updatedFilter = updatedFilters.Single(sf => sf.Id == id);
+            var updatedFilter = updatedFilters.SingleOrDefault(sf => sf.Id == id);
 
             Assert.IsNotNull(updatedFilter);
             Assert.AreNotEqual(updatedFilter.RowVersion, savedFilter.RowVersion);
@@ -112,9 +98,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         [TestMethod]
         public async Task DeleteSavedFilter_AsViewer_ShouldDeleteFilter()
         {
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                KnownTestData.ProjectName,
                 "test title 2",
                 "criteria",
                 true);
@@ -139,6 +126,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
                 TestFactory.PlantWithAccess,
                 TestFactory.ProjectWithAccess);
             Assert.IsFalse(savedFilters.Exists(f => f.Id == id));
+        }
+
+        private static async Task CreateSavedFilterAndAssert(string projectName)
+        {
+            // Act
+            var title = Guid.NewGuid().ToString();
+            var criteria = Guid.NewGuid().ToString();
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                projectName,
+                title,
+                criteria,
+                true);
+
+            var savedFilters = await PersonsControllerTestsHelper.GetSavedFiltersInProjectAsync(
+                UserType.Viewer,
+                TestFactory.PlantWithAccess,
+                projectName);
+
+            var savedFilter = savedFilters.Find(sf => sf.Id == id);
+
+            // Assert
+            Assert.IsTrue(id > 0);
+            Assert.IsTrue(savedFilters.Count > 0);
+            Assert.IsNotNull(savedFilter);
+            Assert.AreEqual(title, savedFilter.Title);
+            Assert.AreEqual(criteria, savedFilter.Criteria);
         }
     }
 }

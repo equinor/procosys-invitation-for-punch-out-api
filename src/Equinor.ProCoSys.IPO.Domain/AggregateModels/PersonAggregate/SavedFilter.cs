@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             {
                 throw new ArgumentNullException(nameof(criteria));
             }
-            if(project != null)
+            if (project != null)
             {
                 ProjectId = project.Id;
             }            
