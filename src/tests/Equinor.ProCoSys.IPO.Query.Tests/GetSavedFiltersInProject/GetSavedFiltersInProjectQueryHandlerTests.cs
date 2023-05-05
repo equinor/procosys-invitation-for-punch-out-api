@@ -13,6 +13,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
     public class GetSavedFiltersInProjectQueryHandlerTests : ReadOnlyTestsBase
     {
         private GetSavedFiltersInProjectQuery _query;
+        private GetSavedFiltersInProjectQuery _queryWithNullProject;
 
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _query = new GetSavedFiltersInProjectQuery(ProjectName);
+                _queryWithNullProject = new GetSavedFiltersInProjectQuery(null);
             }
         }
 
@@ -30,6 +32,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
                 _currentUserProvider);
             var dut = new GetSavedFiltersInProjectQueryHandler(context, _currentUserProvider);
             var result = await dut.Handle(_query, default);
+
+            Assert.AreEqual(ResultType.Ok, result.ResultType);
+        }
+
+        [TestMethod]
+        public async Task HandleGetSavedFiltersWithNullProjectQuery_ShouldReturnOkResult()
+        {
+            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher,
+                _currentUserProvider);
+            var dut = new GetSavedFiltersInProjectQueryHandler(context, _currentUserProvider);
+            var result = await dut.Handle(_queryWithNullProject, default);
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
         }

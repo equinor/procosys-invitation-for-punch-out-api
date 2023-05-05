@@ -12,9 +12,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
     {
         private const string Route = "Persons";
 
-        public static async Task<int> CreateSavedFilterAsync(
+        public static async Task<int> CreateSavedFilterInProjectAsync(
             UserType userType,
             string plant,
+            string projectName,
             string title,
             string criteria,
             bool defaultFilter,
@@ -23,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         {
             var bodyPayload = new
             {
-                projectName = KnownTestData.ProjectName,
+                projectName,
                 title,
                 criteria,
                 defaultFilter
@@ -51,8 +52,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var project = projectName ?? KnownTestData.ProjectName;
-            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/SavedFilters?projectName={project}");
+            var response = await TestFactory.Instance.GetHttpClient(userType, plant).GetAsync($"{Route}/SavedFilters?projectName={projectName}");
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
 

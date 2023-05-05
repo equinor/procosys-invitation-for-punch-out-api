@@ -56,6 +56,23 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         }
 
         [TestMethod]
+        public void CreateSavedFilterWithoutProject_ShouldSaveFilter()
+        {
+            var savedFilter = new SavedFilter(TestPlant, null, "titleNew", "criteria")
+            {
+                DefaultFilter = true
+            };
+
+            _dut.AddSavedFilter(savedFilter);
+
+            // Act
+            var result = _dut.SavedFilters.ToList().Last();
+
+            // Arrange
+            Assert.AreEqual(savedFilter, result);
+        }
+
+        [TestMethod]
         public void GetDefaultFilter_ShouldGetDefaultFilterWhenExists()
         {
             var dut = new Person(Oid, "firstName", "lastName", "", "");

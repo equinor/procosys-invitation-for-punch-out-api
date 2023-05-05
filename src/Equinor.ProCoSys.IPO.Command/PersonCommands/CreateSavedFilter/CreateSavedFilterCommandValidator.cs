@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
                 .WithMessage(command => $"A saved filter with this title already exists! Title={command.Title}");
 
             async Task<bool> NotExistsASavedFilterWithSameTitleForPersonOnProject(string title, string projectName, CancellationToken cancellationToken)
-                => !await savedFilterValidator.ExistsWithSameTitleForPersonInProjectAsync(title, projectName, cancellationToken);
+                => !await savedFilterValidator.ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(title, projectName, cancellationToken);
         }
     }
 }

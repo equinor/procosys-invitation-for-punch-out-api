@@ -11,9 +11,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         #region CreateSavedFilter
         [TestMethod]
         public async Task CreateSavedFilter_AsAnonymous_ShouldReturnUnauthorized()
-            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            => await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
+                KnownTestData.ProjectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true,
@@ -21,9 +22,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
         [TestMethod]
         public async Task CreateSavedFilter_AsHacker_ShouldReturnBadRequest_WhenUnknownPlant()
-            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            => await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Hacker,
                 TestFactory.UnknownPlant,
+                KnownTestData.ProjectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true,
@@ -32,9 +34,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 
         [TestMethod]
         public async Task CreateSavedFilter_AsHacker_ShouldReturnForbidden_WhenPermissionMissing()
-            => await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            => await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
+                KnownTestData.ProjectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true,
@@ -122,9 +125,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         [TestMethod]
         public async Task UpdateSavedFilter_AsViewer_ShouldReturnConflict_WhenWrongRowVersion()
         {
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                KnownTestData.ProjectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true);
@@ -174,9 +178,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         [TestMethod]
         public async Task DeleteSavedFilter_AsViewer_ShouldReturnConflict_WhenWrongRowVersion()
         {
-            var id = await PersonsControllerTestsHelper.CreateSavedFilterAsync(
+            var id = await PersonsControllerTestsHelper.CreateSavedFilterInProjectAsync(
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
+                KnownTestData.ProjectName,
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 true);

@@ -33,6 +33,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
                 where p.Oid == currentUserOid 
                 select p).SingleAsync(cancellationToken);
 
+            if (request.ProjectName == null)
+            {
+                var savedFilterDtosWithNoProjectCriteria = person.SavedFilters.Where(sf => sf.ProjectId == null)
+                .Select(savedFilter => new SavedFilterDto(
+                    savedFilter.Id,
+                    savedFilter.Title,
+                    savedFilter.Criteria,
+                    savedFilter.DefaultFilter,
+                    savedFilter.CreatedAtUtc,
+                    savedFilter.RowVersion.ConvertToString())).ToList();
+
+                return new SuccessResult<List<SavedFilterDto>>(savedFilterDtosWithNoProjectCriteria);
+            }
+
             var projectFromRequest = await (from pro in _context.QuerySet<Project>() 
                 where pro.Name.Equals(request.ProjectName)
                 select pro).SingleOrDefaultAsync(cancellationToken);

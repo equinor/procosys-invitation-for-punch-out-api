@@ -34,12 +34,20 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
             var person = await _personRepository.GetWithSavedFiltersByOidAsync(currentUserOid);
             var savedFilter = person.SavedFilters.Single(sf => sf.Id == request.SavedFilterId);
+            SavedFilter currentDefaultFilter = null;
 
             if (request.DefaultFilter == true)
             {
-                var project = await _projectRepository.GetByIdAsync(savedFilter.ProjectId);
+                if (savedFilter.ProjectId != null)
+                {
+                    var project = await _projectRepository.GetByIdAsync(savedFilter.ProjectId.Value);
+                    currentDefaultFilter = person.GetDefaultFilter(project);
+                }
+                else
+                {
+                    currentDefaultFilter = person.GetDefaultFilter(null);
+                }
 
-                var currentDefaultFilter = person.GetDefaultFilter(project);
                 if (currentDefaultFilter != null)
                 {
                     currentDefaultFilter.DefaultFilter = false;

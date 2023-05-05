@@ -18,10 +18,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         public SavedFilter(string plant, Project project, string title, string criteria)
             : base(plant)
         {
-            if (project is null)
-            {
-                throw new ArgumentNullException(nameof(project));
-            }
             if (string.IsNullOrEmpty(title))
             {
                 throw new ArgumentNullException(nameof(title));
@@ -30,12 +26,15 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
             {
                 throw new ArgumentNullException(nameof(criteria));
             }
-            ProjectId = project.Id;
+            if (project != null)
+            {
+                ProjectId = project.Id;
+            }            
             Title = title;
             Criteria = criteria;
         }
 
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
         public string Title { get; set; }
         public string Criteria { get; set; }
         public bool DefaultFilter { get; set; }

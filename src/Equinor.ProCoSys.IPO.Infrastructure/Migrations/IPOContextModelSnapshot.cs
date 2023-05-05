@@ -17,10 +17,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "7.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
                 {
@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -68,9 +68,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasIndex("ObjectGuid")
                         .HasDatabaseName("IX_History_ObjectGuid_ASC");
 
-                    b.ToTable("History");
-
-                    b.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled','AttendedStatusUpdated','NoteUpdated')");
+                    b.ToTable("History", t =>
+                        {
+                            t.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled','AttendedStatusUpdated','NoteUpdated')");
+                        });
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Attachment", b =>
@@ -79,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid>("BlobStorageId")
                         .HasColumnType("uniqueidentifier");
@@ -123,54 +124,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.ToTable("Attachments");
                 });
 
-            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("CommentText")
-                        .IsRequired()
-                        .HasMaxLength(4096)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InvitationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Plant")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("InvitationId");
-
-                    b.ToTable("Comments");
-                });
-
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.CommPkg", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CommPkgNo")
                         .IsRequired()
@@ -226,13 +186,54 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.ToTable("CommPkgs");
                 });
 
+            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CommentText")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InvitationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Plant")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("InvitationId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("AcceptedAtUtc")
                         .HasColumnType("datetime2");
@@ -328,7 +329,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CommPkgNo")
                         .IsRequired()
@@ -391,7 +392,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Attended")
                         .HasColumnType("bit");
@@ -481,7 +482,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -533,7 +534,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -563,7 +564,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("RowVersion")
@@ -595,7 +596,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -675,21 +676,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Comment", b =>
-                {
-                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("InvitationId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.CommPkg", b =>
                 {
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
@@ -707,6 +693,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Comment", b =>
+                {
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("InvitationId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });
@@ -817,8 +818,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", b =>

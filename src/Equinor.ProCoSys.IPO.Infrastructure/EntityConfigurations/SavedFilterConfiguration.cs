@@ -26,7 +26,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.HasOne<Project>()
                 .WithMany()
                 .HasForeignKey(x => x.ProjectId)
-                .IsRequired()
                 .OnDelete(DeleteBehavior.NoAction);
         }
     }

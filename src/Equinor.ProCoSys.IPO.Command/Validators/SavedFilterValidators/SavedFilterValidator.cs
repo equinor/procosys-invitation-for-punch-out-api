@@ -22,21 +22,31 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             _currentUserProvider = currentUserProvider;
         }
 
-        public async Task<bool> ExistsWithSameTitleForPersonInProjectAsync(
+        public async Task<bool> ExistsWithSameTitleForPersonInProjectOrAcrossAllProjectsAsync(
             string title,
             string projectName,
             CancellationToken cancellationToken)
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
+            if (projectName == null)
+            {
+                return await (from s in _context.QuerySet<SavedFilter>()
+                              join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
+                              where p.Oid == currentUserOid
+                                    && s.Title == title
+                                    && s.ProjectId == null
+                              select s).AnyAsync(cancellationToken);
+            }
+
             var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Name.Equals(projectName), cancellationToken);
 
             return await (from s in _context.QuerySet<SavedFilter>()
-                join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                where p.Oid == currentUserOid
-                      && s.Title == title
-                      && project != null && s.ProjectId == project.Id
-                select s).AnyAsync(cancellationToken);
+                          join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
+                          where p.Oid == currentUserOid
+                                && s.Title == title
+                                && project != null && s.ProjectId == project.Id
+                          select s).AnyAsync(cancellationToken);
         }
 
         public async Task<bool> ExistsAnotherWithSameTitleForPersonInProjectAsync(int savedFilterId, string title,
@@ -44,23 +54,38 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
             var projectForSavedFilter = await (from s in _context.QuerySet<SavedFilter>()
-                    join p in _context.QuerySet<Project>() on s.ProjectId equals p.Id
-                    where s.Id == savedFilterId
-                    select p)
+                                               join p in _context.QuerySet<Project>() on s.ProjectId equals p.Id
+                                               where s.Id == savedFilterId
+                                               select p)
                 .SingleOrDefaultAsync(cancellationToken);
 
-            return await (from s in _context.QuerySet<SavedFilter>()
-                join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                where p.Oid == currentUserOid
-                      && s.Title == title
-                      && projectForSavedFilter != null && s.ProjectId == projectForSavedFilter.Id
-                      && s.Id != savedFilterId
-                select s).AnyAsync(cancellationToken);
+            if (projectForSavedFilter != null)
+            {
+                return await (from s in _context.QuerySet<SavedFilter>()
+                              join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
+                              where p.Oid == currentUserOid
+                                    && s.Title == title
+                                    && s.ProjectId == projectForSavedFilter.Id
+                                    && s.Id != savedFilterId
+                              select s).AnyAsync(cancellationToken);
+            }
+            else
+            {
+                return await (from s in _context.QuerySet<SavedFilter>()
+                              join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
+                              where p.Oid == currentUserOid
+                                    && s.Title == title
+                                    && s.ProjectId == null
+                                    && s.Id != savedFilterId
+                              select s).AnyAsync(cancellationToken);
+            }
+
+
         }
 
         public async Task<bool> ExistsAsync(int savedFilterId, CancellationToken cancellationToken) =>
             await (from sf in _context.QuerySet<SavedFilter>()
-                where sf.Id == savedFilterId
-                select sf).AnyAsync(cancellationToken);
+                   where sf.Id == savedFilterId
+                   select sf).AnyAsync(cancellationToken);
     }
 }
