@@ -237,7 +237,26 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
+            _plantSetter.Verify(p => p.SetPlant(plant), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingLibraryTopic_ForOtherThanFunctionRole_ShouldProcessWithoutFailureAndWithoutUpdatingTheParticipants()
+        {
+            var otherlibrarytype = "X";
+            var message = $"{{\"Plant\" : \"{plant}\", \"Code\" : \"{functionalRoleCodeNew}\", \"Description\" : \"{description}\", \"IsVoided\" : false, \"Type\" : \"{otherlibrarytype}\"}}";
+
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(It.IsAny<Guid>()), Times.Never);
+
+            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+
+            _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
+            _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _plantSetter.Verify(p => p.SetPlant(plant), Times.Never);
             _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Never);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
