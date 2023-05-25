@@ -278,16 +278,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 throw new Exception($"Unable to deserialize JSON to LibraryEvent {messageJson}");
             }
 
-            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+            if (libraryEvent.Type == FunctionalRoleLibraryType && libraryEvent.CodeOld != null)
+            {
+                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
                     {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
                     {PcsServiceBusTelemetryConstants.Plant, libraryEvent.Plant[4..]},
                 });
-            _plantSetter.SetPlant(libraryEvent.Plant);
 
-            if (libraryEvent.Type == FunctionalRoleLibraryType && libraryEvent.CodeOld != null)
-            {
+                _plantSetter.SetPlant(libraryEvent.Plant);
                 _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
             }
         }
