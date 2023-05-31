@@ -285,7 +285,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 _mcPkgScope,
                 null,
                 HttpStatusCode.InternalServerError,
-                expectedMessageOnInternalServerError: "Something went wrong when sending email!"
+                expectedMessageOnInternalServerError: "It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists."
             );
         }
 

@@ -41,6 +41,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectApiService _projectApiService;
+        private readonly Email.ISmtpService _smtpService;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -56,6 +57,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
             IProjectApiService projectApiService,
+            Email.ISmtpService smtpClient,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -71,6 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
             _projectApiService = projectApiService;
+            _smtpService = smtpClient;
             _logger = logger;
         }
 
@@ -112,11 +115,28 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             try
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
+            }
+            catch
+            {
+                try
+                {
+                    _logger.LogWarning($"Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {_currentUserProvider.GetCurrentUserOid()} and ivitation id {invitation.Id}.");
+                    var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+                    await _smtpService.SendSmtpWithInviteAsync(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl);
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} using backup solution of sending ics attachment through SMTP.");
+                    throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
+                }
+            }
+            try { 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
                 throw;
@@ -433,7 +453,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.");
+                _logger.LogWarning(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} when using meeting API.");
                 throw new IpoSendMailException();
             }
             return meeting.Id;

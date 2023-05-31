@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.Email;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 {
@@ -43,6 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IProjectApiService> _projectApiServiceMock;
+        private Mock<ISmtpService> _smtpServiceMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _functionalRoleWithMultipleEmailsCode = "FR2";
@@ -178,6 +180,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
                 .Returns(Task.FromResult(_proCoSysProject2));
 
+            _smtpServiceMock = new Mock<ISmtpService>();
+
             _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _unitOfWorkMock.Setup(x => x.BeginTransaction(It.IsAny<CancellationToken>()))
@@ -285,6 +289,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 _projectRepositoryMock.Object,
                 _projectApiServiceMock.Object,
+                _smtpServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
@@ -541,16 +546,34 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
-        public async Task HandleCreateInvitationCommand_ShouldRollbackIfFusionApiFails()
+        public async Task HandleCreateInvitationCommand_ShouldRollbackIfFusionApiAndICSFails()
         {
             _meetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Throws(new Exception("Something failed"));
+                .Throws(new Exception("Could not send invitation through meeting API"));
+
+            _smtpServiceMock
+                .Setup(x => x.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>()))
+                .Throws(new Exception("Could not send invitation as ics through SMTP"));
+
             await Assert.ThrowsExceptionAsync<IpoSendMailException>(() =>
                 _dut.Handle(_command, default));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [TestMethod]
+        public async Task HandleCreateInvitationCommand_ShouldCreateICSIfFusionApiFails()
+        {
+            _meetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Throws(new Exception("Could not send invitation through meeting API"));
+
+            await _dut.Handle(_command, default);
+            _smtpServiceMock.Verify(t => t.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>()), Times.Once);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()));
+        }
+
 
         [TestMethod]
         public async Task HandleCreateInvitationCommand_ShouldNotFailWhenAFunctionalRoleHasMultipleEmailsInEmailField()
@@ -657,6 +680,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
+                _smtpServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(
@@ -697,6 +721,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
+                _smtpServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(
