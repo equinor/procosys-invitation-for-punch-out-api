@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
 {
-    public class IpoCompletedEvent : INotification
+    public class IpoCompletedEvent : IPostSaveDomainEvent
     {
         public IpoCompletedEvent(
             string plant,

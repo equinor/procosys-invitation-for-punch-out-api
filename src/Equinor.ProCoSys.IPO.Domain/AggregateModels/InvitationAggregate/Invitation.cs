@@ -67,7 +67,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             EndTimeUtc = endTimeUtc;
             Location = location;
             ObjectGuid = Guid.NewGuid();
-            AddPreSaveDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
+            AddDomainEvent(new IpoCreatedEvent(plant, ObjectGuid));
         }
 
         public Guid ObjectGuid { get; set; }
@@ -107,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Add(attachment);
-            AddPreSaveDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, attachment.FileName));
+            AddDomainEvent(new AttachmentUploadedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void RemoveAttachment(Attachment attachment)
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _attachments.Remove(attachment);
-            AddPreSaveDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
+            AddDomainEvent(new AttachmentRemovedEvent(Plant, ObjectGuid, attachment.FileName));
         }
 
         public void AddParticipant(Participant participant)
@@ -191,7 +191,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             participant.Note = note;
             participant.SetRowVersion(participantRowVersion);
-            AddPreSaveDomainEvent(new NoteUpdatedEvent(Plant, ObjectGuid, note));
+            AddDomainEvent(new NoteUpdatedEvent(Plant, ObjectGuid, note));
         }
         
         public void UpdateAttendedStatus(
@@ -206,7 +206,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.Attended = attended;
             participant.IsAttendedTouched = true;
             participant.SetRowVersion(participantRowVersion);
-            AddPreSaveDomainEvent(new AttendedStatusUpdatedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new AttendedStatusUpdatedEvent(Plant, ObjectGuid));
         }
 
         public void CompleteIpo(Participant participant, string participantRowVersion, Person completedBy, DateTime completedAtUtc)
@@ -227,7 +227,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedBy = completedBy.Id;
             CompletedAtUtc = completedAtUtc;
-            AddPreSaveDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoCompletedEvent(Plant, ObjectGuid));
 
             var emails = GetCompleterEmails();
 
@@ -258,7 +258,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedAtUtc = null;
             CompletedBy = null;
-            AddPreSaveDomainEvent(new IpoUnCompletedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoUnCompletedEvent(Plant, ObjectGuid));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnCompletedEvent(Plant, ObjectGuid));
         }
 
@@ -280,7 +280,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedBy = acceptedBy.Id;
             AcceptedAtUtc = acceptedAtUtc;
-            AddPreSaveDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoAcceptedEvent(Plant, ObjectGuid));
             AddPostSaveDomainEvent(new Events.PostSave.IpoAcceptedEvent(Plant, ObjectGuid));
         }
 
@@ -302,7 +302,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedAtUtc = null;
             AcceptedBy = null;
-            AddPreSaveDomainEvent(new IpoUnAcceptedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoUnAcceptedEvent(Plant, ObjectGuid));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnAcceptedEvent(Plant, ObjectGuid));
         }
 
@@ -321,7 +321,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SignedBy = signedBy.Id;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
-            AddPreSaveDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoSignedEvent(Plant, ObjectGuid));
         }
 
         public void UnSignIpo(Participant participant, string participantRowVersion)
@@ -339,7 +339,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SignedBy = null;
             participant.SignedAtUtc = null;
             participant.SetRowVersion(participantRowVersion);
-            AddPreSaveDomainEvent(new IpoUnSignedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoUnSignedEvent(Plant, ObjectGuid));
         }
 
         public void EditIpo(
@@ -377,7 +377,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             StartTimeUtc = startTime;
             EndTimeUtc = endTime;
             Location = location;
-            AddPreSaveDomainEvent(new IpoEditedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoEditedEvent(Plant, ObjectGuid));
         }
 
         public void AddComment(Comment comment)
@@ -393,7 +393,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Add(comment);
-            AddPreSaveDomainEvent(new CommentAddedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new CommentAddedEvent(Plant, ObjectGuid));
         }
 
         public void RemoveComment(Comment comment)
@@ -409,7 +409,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Remove(comment);
-            AddPreSaveDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
+            AddDomainEvent(new CommentRemovedEvent(Plant, ObjectGuid));
         }
 
         public void CancelIpo(Person caller)
@@ -432,7 +432,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPostSaveDomainEvent(new Events.PostSave.IpoCanceledEvent(Plant, ObjectGuid, Status));
 
             Status = IpoStatus.Canceled;
-            AddPreSaveDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));
+            AddDomainEvent(new IpoCanceledEvent(Plant, ObjectGuid));
         }
 
         public void SetCreated(Person createdBy)

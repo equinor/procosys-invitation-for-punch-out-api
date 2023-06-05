@@ -1,10 +1,10 @@
 ﻿using System;
+using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
 {
-    public class IpoCanceledEvent : INotification
+    public class IpoCanceledEvent : IPostSaveDomainEvent
     {
         public IpoCanceledEvent(
             string plant,

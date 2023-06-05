@@ -1,14 +1,14 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class AttachmentRemovedEvent : INotification
+    public class AttachmentRemovedEvent : DomainEvent
     {
         public AttachmentRemovedEvent(
             string plant,
             Guid objectGuid,
-            string attachmentTitle)
+            string attachmentTitle) : base("Attachment removed")
         {
             Plant = plant;
             ObjectGuid = objectGuid;

@@ -1,9 +1,9 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
 {
-    public class IpoUnAcceptedEvent : INotification
+    public class IpoUnAcceptedEvent : IPostSaveDomainEvent
     {
         public IpoUnAcceptedEvent(
             string plant,

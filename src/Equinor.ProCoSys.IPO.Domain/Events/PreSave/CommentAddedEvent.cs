@@ -1,13 +1,13 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class CommentAddedEvent : INotification
+    public class CommentAddedEvent : DomainEvent
     {
         public CommentAddedEvent(
             string plant,
-            Guid objectGuid)
+            Guid objectGuid) : base("Comment added")
         {
             Plant = plant;
             ObjectGuid = objectGuid;
