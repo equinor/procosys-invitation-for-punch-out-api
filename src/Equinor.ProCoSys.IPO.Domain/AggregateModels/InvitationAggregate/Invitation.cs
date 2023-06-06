@@ -67,6 +67,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             EndTimeUtc = endTimeUtc;
             Location = location;
             Guid = Guid.NewGuid();
+            ObjectGuid = Guid;
             AddDomainEvent(new IpoCreatedEvent(plant, Guid));
         }
 
