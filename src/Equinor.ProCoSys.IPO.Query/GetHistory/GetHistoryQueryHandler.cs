@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
                             createdBy.FirstName,
                             createdBy.LastName,
                             createdBy.UserName,
-                            createdBy.Oid,
+                            createdBy.Guid,
                             createdBy.Email,
                             createdBy.RowVersion.ConvertToString()),
                         h.EventType)

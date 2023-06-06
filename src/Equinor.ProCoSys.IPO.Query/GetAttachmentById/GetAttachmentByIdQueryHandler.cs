@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                         uploadedBy.FirstName,
                         uploadedBy.LastName,
                         uploadedBy.UserName,
-                        uploadedBy.Oid,
+                        uploadedBy.Guid,
                         uploadedBy.Email,
                         uploadedBy.RowVersion.ConvertToString()),
                     attachment.RowVersion.ConvertToString()));

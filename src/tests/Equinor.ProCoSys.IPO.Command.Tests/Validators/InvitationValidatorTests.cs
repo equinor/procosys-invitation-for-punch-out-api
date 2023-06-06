@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant2);
                 invitationWithCurrentUserAsParticipants.AddParticipant(participant3);
 
-                var currentPerson = context.Persons.SingleAsync(p => p.Oid == _currentUserOid).Result;
+                var currentPerson = context.Persons.SingleAsync(p => p.Guid == _currentUserOid).Result;
 
                 invitationWithCurrentUserAsParticipants.CompleteIpo(
                     participant1,
@@ -368,7 +368,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     // ensure current user exists in db
                     using (var context2 = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, tempcurrentUserProvider))
                     {
-                        if (context2.Persons.SingleOrDefault(p => p.Oid == tempUserOid) == null)
+                        if (context2.Persons.SingleOrDefault(p => p.Guid == tempUserOid) == null)
                         {
                             AddPerson(context2, tempUserOid, "Another", "User", "au", "au@pcs.pcs");
                         }

@@ -47,6 +47,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             McPkgNo = mcPkgNo;
         }
 
+        // private setters needed for Entity Framework
         public int ProjectId { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }

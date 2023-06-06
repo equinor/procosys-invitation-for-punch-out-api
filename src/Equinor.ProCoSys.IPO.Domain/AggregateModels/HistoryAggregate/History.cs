@@ -28,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
             EventType = eventType;
         }
 
+        // private setters needed for Entity Framework
         public string Description { get; private set; }
         public int CreatedById { get; private set; }
         public Guid ObjectGuid { get; private set; }

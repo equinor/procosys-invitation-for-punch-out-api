@@ -167,7 +167,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             }
 
             return await (from p in _context.QuerySet<Person>()
-                          where p.Oid == personOid.Value
+                          where p.Guid == personOid.Value
                           select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
         }
 

@@ -378,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             {
                 var invitation = context.Invitations.Include(inv => inv.Participants).Single(inv => inv.Id == _invitation2.Id);
                 var participant = invitation.Participants.Single(p => p.Id == _participantId1);
-                invitation.CompleteIpo(participant, participant.RowVersion.ConvertToString(), context.Persons.Single(p => p.Oid == _currentUserProvider.GetCurrentUserOid()), DateTime.Now);
+                invitation.CompleteIpo(participant, participant.RowVersion.ConvertToString(), context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()), DateTime.Now);
                 context.SaveChangesAsync().Wait();
             }
 
@@ -394,7 +394,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 Assert.AreEqual(1, data.Participants.Where(p => p.SignedAtUtc != null).ToList().Count);
                 var participant = data.Participants.Where(p => p.SignedBy != null).ToList();
                 Assert.AreEqual(1, participant.Count);
-                Assert.AreEqual(context.Persons.Single(p => p.Oid == _currentUserProvider.GetCurrentUserOid()).UserName, participant.First().SignedBy);
+                Assert.AreEqual(context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()).UserName, participant.First().SignedBy);
             }
         }
 
