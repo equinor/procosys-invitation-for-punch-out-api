@@ -7,15 +7,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public AttachmentRemovedEvent(
             string plant,
-            Guid objectGuid,
+            Guid sourceGuid,
             string attachmentTitle) : base("Attachment removed")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             AttachmentTitle = attachmentTitle;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public string AttachmentTitle { get; }
     }
 }

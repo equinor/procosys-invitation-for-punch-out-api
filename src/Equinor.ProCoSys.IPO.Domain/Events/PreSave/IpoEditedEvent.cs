@@ -7,12 +7,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public IpoEditedEvent(
             string plant,
-            Guid objectGuid) : base("IPO edited")
+            Guid sourceGuid) : base("IPO edited")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

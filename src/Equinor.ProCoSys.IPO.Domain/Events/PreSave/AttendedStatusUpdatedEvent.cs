@@ -7,12 +7,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public AttendedStatusUpdatedEvent(
             string plant,
-            Guid objectGuid) : base("Note updated")
+            Guid sourceGuid) : base("Note updated")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

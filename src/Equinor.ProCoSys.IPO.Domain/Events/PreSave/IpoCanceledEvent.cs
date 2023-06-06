@@ -7,12 +7,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public IpoCanceledEvent(
             string plant,
-            Guid objectGuid) : base("IPO canceled")
+            Guid sourceGuid) : base("IPO canceled")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

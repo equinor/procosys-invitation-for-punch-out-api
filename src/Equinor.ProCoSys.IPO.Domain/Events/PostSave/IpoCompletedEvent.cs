@@ -8,19 +8,19 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
     {
         public IpoCompletedEvent(
             string plant,
-            Guid objectGuid,
+            Guid sourceGuid,
             int id,
             string title,
             List<string> emails)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             Id = id;
             Title = title;
             Emails = emails;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public int Id { get; }
         public string Title { get; }
         public List<string> Emails { get; }

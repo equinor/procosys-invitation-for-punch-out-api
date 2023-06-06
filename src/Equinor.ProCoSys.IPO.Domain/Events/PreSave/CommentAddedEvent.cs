@@ -7,12 +7,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public CommentAddedEvent(
             string plant,
-            Guid objectGuid) : base("Comment added")
+            Guid sourceGuid) : base("Comment added")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

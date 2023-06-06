@@ -8,15 +8,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave
     {
         public IpoCanceledEvent(
             string plant,
-            Guid objectGuid,
+            Guid sourceGuid,
             IpoStatus status)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             Status = status;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public IpoStatus Status { get; }
     }
 }

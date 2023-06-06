@@ -30,9 +30,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         public async Task Handle_ShouldSendBusTopic()
         {
             // Arrange
-            var objectGuid = Guid.NewGuid();
+            var sourceGuid = Guid.NewGuid();
             const string Plant = "TestPlant";
-            var ipoUnAcceptedEvent = new IpoUnAcceptedEvent(Plant, objectGuid);
+            var ipoUnAcceptedEvent = new IpoUnAcceptedEvent(Plant, sourceGuid);
 
             // Act
             await _dut.Handle(ipoUnAcceptedEvent, default);

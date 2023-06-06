@@ -230,7 +230,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(ipoEvent.Plant);
             var invitation = _context.QuerySet<Invitation>().Include(i => i.McPkgs).Include(i => i.CommPkgs)
-                .SingleOrDefault(i => i.ObjectGuid == Guid.Parse(ipoEvent.InvitationGuid));
+                .SingleOrDefault(i => i.Guid == Guid.Parse(ipoEvent.InvitationGuid));
             if (invitation == null)
             {
                 throw new Exception($"Invitation {ipoEvent.InvitationGuid} not found");
@@ -335,7 +335,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
             catch (Exception e)
             {
-                throw new Exception($"Error: Could not set M-01 dates for {invitation.ObjectGuid}", e);
+                throw new Exception($"Error: Could not set M-01 dates for {invitation.Guid}", e);
             }
         }
 
@@ -361,7 +361,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Error: Could not clear M-01 dates for {invitation.ObjectGuid}", e);
+                    throw new Exception($"Error: Could not clear M-01 dates for {invitation.Guid}", e);
                 }
             }
         }

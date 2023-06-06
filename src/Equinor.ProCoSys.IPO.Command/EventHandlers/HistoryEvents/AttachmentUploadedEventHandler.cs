@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
         {
             var eventType = EventType.AttachmentUploaded;
             var description = $"{eventType.GetDescription()} - '{notification.FileName}'";
-            var history = new History(notification.Plant, description, notification.ObjectGuid, eventType);
+            var history = new History(notification.Plant, description, notification.SourceGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;
         }

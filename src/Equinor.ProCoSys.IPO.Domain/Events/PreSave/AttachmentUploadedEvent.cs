@@ -7,15 +7,15 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
     {
         public AttachmentUploadedEvent(
             string plant,
-            Guid objectGuid,
+            Guid sourceGuid,
             string fileName) : base("Attachment uploaded")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             FileName = fileName;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public string FileName { get; }
     }
 }

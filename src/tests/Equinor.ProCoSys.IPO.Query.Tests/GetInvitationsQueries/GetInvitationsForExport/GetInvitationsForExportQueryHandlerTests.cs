@@ -242,15 +242,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 _invitation3.AddParticipant(personParticipant4);
 
                 context.Invitations.Add(_invitation1);
-                var history1 = new History(TestPlant, "D1", _invitation1.ObjectGuid, EventType.IpoCreated);
+                var history1 = new History(TestPlant, "D1", _invitation1.Guid, EventType.IpoCreated);
                 context.History.Add(history1);
 
                 context.Invitations.Add(_invitation2);
-                var history2 = new History(TestPlant, "D2", _invitation2.ObjectGuid, EventType.IpoCreated);
+                var history2 = new History(TestPlant, "D2", _invitation2.Guid, EventType.IpoCreated);
                 context.History.Add(history2);
 
                 context.Invitations.Add(_invitation3);
-                var history3 = new History(TestPlant, "D3", _invitation3.ObjectGuid, EventType.IpoCreated);
+                var history3 = new History(TestPlant, "D3", _invitation3.Guid, EventType.IpoCreated);
                 context.History.Add(history3);
                 
                 context.SaveChangesAsync().Wait();
