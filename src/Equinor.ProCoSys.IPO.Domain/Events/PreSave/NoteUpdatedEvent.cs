@@ -1,21 +1,21 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class NoteUpdatedEvent : INotification
+    public class NoteUpdatedEvent : DomainEvent
     {
         public NoteUpdatedEvent(
             string plant,
-            Guid objectGuid,
-            string note)
+            Guid sourceGuid,
+            string note) : base("Note updated")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             Note = note;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public string Note { get; }
     }
 }

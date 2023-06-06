@@ -61,11 +61,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
 
             var history = new List<History>
             {
-                new History(_plant, "description", _invitation.ObjectGuid, EventType.IpoCanceled)
+                new History(_plant, "description", _invitation.Guid, EventType.IpoCanceled)
             };
             _historyRepositoryMock = new Mock<IHistoryRepository>();
             _historyRepositoryMock
-                .Setup(x => x.GetHistoryByObjectGuid(_invitation.ObjectGuid))
+                .Setup(x => x.GetHistoryBySourceGuid(_invitation.Guid))
                 .Returns(history);
 
             _invitation.CancelIpo(currentPerson);

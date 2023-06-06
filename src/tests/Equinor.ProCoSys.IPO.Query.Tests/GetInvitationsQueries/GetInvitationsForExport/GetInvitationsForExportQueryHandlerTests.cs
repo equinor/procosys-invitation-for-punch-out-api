@@ -242,15 +242,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 _invitation3.AddParticipant(personParticipant4);
 
                 context.Invitations.Add(_invitation1);
-                var history1 = new History(TestPlant, "D1", _invitation1.ObjectGuid, EventType.IpoCreated);
+                var history1 = new History(TestPlant, "D1", _invitation1.Guid, EventType.IpoCreated);
                 context.History.Add(history1);
 
                 context.Invitations.Add(_invitation2);
-                var history2 = new History(TestPlant, "D2", _invitation2.ObjectGuid, EventType.IpoCreated);
+                var history2 = new History(TestPlant, "D2", _invitation2.Guid, EventType.IpoCreated);
                 context.History.Add(history2);
 
                 context.Invitations.Add(_invitation3);
-                var history3 = new History(TestPlant, "D3", _invitation3.ObjectGuid, EventType.IpoCreated);
+                var history3 = new History(TestPlant, "D3", _invitation3.Guid, EventType.IpoCreated);
                 context.History.Add(history3);
                 
                 context.SaveChangesAsync().Wait();
@@ -378,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             {
                 var invitation = context.Invitations.Include(inv => inv.Participants).Single(inv => inv.Id == _invitation2.Id);
                 var participant = invitation.Participants.Single(p => p.Id == _participantId1);
-                invitation.CompleteIpo(participant, participant.RowVersion.ConvertToString(), context.Persons.Single(p => p.Oid == _currentUserProvider.GetCurrentUserOid()), DateTime.Now);
+                invitation.CompleteIpo(participant, participant.RowVersion.ConvertToString(), context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()), DateTime.Now);
                 context.SaveChangesAsync().Wait();
             }
 
@@ -394,7 +394,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 Assert.AreEqual(1, data.Participants.Where(p => p.SignedAtUtc != null).ToList().Count);
                 var participant = data.Participants.Where(p => p.SignedBy != null).ToList();
                 Assert.AreEqual(1, participant.Count);
-                Assert.AreEqual(context.Persons.Single(p => p.Oid == _currentUserProvider.GetCurrentUserOid()).UserName, participant.First().SignedBy);
+                Assert.AreEqual(context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()).UserName, participant.First().SignedBy);
             }
         }
 

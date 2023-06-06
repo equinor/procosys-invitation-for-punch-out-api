@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             {
                 return await (from s in _context.QuerySet<SavedFilter>()
                               join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                              where p.Oid == currentUserOid
+                              where p.Guid == currentUserOid
                                     && s.Title == title
                                     && s.ProjectId == null
                               select s).AnyAsync(cancellationToken);
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
 
             return await (from s in _context.QuerySet<SavedFilter>()
                           join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                          where p.Oid == currentUserOid
+                          where p.Guid == currentUserOid
                                 && s.Title == title
                                 && project != null && s.ProjectId == project.Id
                           select s).AnyAsync(cancellationToken);
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             {
                 return await (from s in _context.QuerySet<SavedFilter>()
                               join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                              where p.Oid == currentUserOid
+                              where p.Guid == currentUserOid
                                     && s.Title == title
                                     && s.ProjectId == projectForSavedFilter.Id
                                     && s.Id != savedFilterId
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators
             {
                 return await (from s in _context.QuerySet<SavedFilter>()
                               join p in _context.QuerySet<Person>() on EF.Property<int>(s, "PersonId") equals p.Id
-                              where p.Oid == currentUserOid
+                              where p.Guid == currentUserOid
                                     && s.Title == title
                                     && s.ProjectId == null
                                     && s.Id != savedFilterId

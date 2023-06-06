@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
         public Task Handle(CommentAddedEvent notification, CancellationToken cancellationToken)
         {
             const EventType eventType = EventType.CommentAdded;
-            var history = new History(notification.Plant, eventType.GetDescription(), notification.ObjectGuid, eventType);
+            var history = new History(notification.Plant, eventType.GetDescription(), notification.SourceGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;
         }

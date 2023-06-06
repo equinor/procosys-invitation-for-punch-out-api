@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
                         x.FirstName,
                         x.LastName,
                         x.UserName,
-                        x.Oid,
+                        x.Guid,
                         x.Email,
                         x.RowVersion.ConvertToString()))
                 .ToDictionary(x => x.Id);

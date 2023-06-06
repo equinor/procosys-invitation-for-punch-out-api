@@ -32,9 +32,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
             }
 
             var invitationHistory = await (from h in _context.QuerySet<History>()
-                    join i in _context.QuerySet<Invitation>() on h.ObjectGuid equals i.ObjectGuid
+                    join i in _context.QuerySet<Invitation>() on h.SourceGuid equals i.Guid
                     join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
-                    where i.ObjectGuid == h.ObjectGuid
+                    where i.Guid == h.SourceGuid
                     where i.Id == request.InvitationId
                     select new HistoryDto(
                         h.Id,
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
                             createdBy.FirstName,
                             createdBy.LastName,
                             createdBy.UserName,
-                            createdBy.Oid,
+                            createdBy.Guid,
                             createdBy.Email,
                             createdBy.RowVersion.ConvertToString()),
                         h.EventType)

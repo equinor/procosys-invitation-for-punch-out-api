@@ -12,10 +12,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.ConfigureModificationAudit();
             builder.ConfigureConcurrencyToken();
 
-            builder.Property(x => x.Oid)
+            builder.Property(x => x.Guid)
                 .IsRequired();
 
-            builder.HasIndex(x => x.Oid)
+            builder.HasIndex(x => x.Guid)
                 .IsUnique();
 
             builder.Property(x => x.Email)

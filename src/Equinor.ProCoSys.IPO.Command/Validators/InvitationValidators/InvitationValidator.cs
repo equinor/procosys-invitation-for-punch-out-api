@@ -502,7 +502,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
             var currentUserId = await (from person in _context.QuerySet<Person>()
-                    where person.Oid == currentUserOid
+                    where person.Guid == currentUserOid
                     select person.Id)
                 .SingleAsync(cancellationToken);
 

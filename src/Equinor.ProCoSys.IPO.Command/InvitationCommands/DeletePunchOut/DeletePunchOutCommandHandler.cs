@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
         public async Task<Result<Unit>> Handle(DeletePunchOutCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            var historyForInvitation = _historyRepository.GetHistoryByObjectGuid(invitation.ObjectGuid);
+            var historyForInvitation = _historyRepository.GetHistoryBySourceGuid(invitation.Guid);
             foreach (var history in historyForInvitation)
             {
                 _historyRepository.Remove(history);

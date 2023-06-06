@@ -8,7 +8,7 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
 {
-    public class Person : EntityBase, IAggregateRoot, IModificationAuditable
+    public class Person : EntityBase, IAggregateRoot, IModificationAuditable, IHaveGuid
     {
         public const int FirstNameLengthMax = 128;
         public const int LastNameLengthMax = 128;
@@ -21,17 +21,18 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate
         {
         }
 
-        public Person(Guid oid, string firstName, string lastName, string userName, string email) : base()
+        public Person(Guid guid, string firstName, string lastName, string userName, string email) : base()
         {
-            Oid = oid;
+            Guid = guid;
             FirstName = firstName;
             LastName = lastName;
             UserName = userName;
             Email = email;
         }
 
+        // private setters needed for Entity Framework
         public IReadOnlyCollection<SavedFilter> SavedFilters => _savedFilters.AsReadOnly();
-        public Guid Oid { get; private set; }
+        public Guid Guid { get; private set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }

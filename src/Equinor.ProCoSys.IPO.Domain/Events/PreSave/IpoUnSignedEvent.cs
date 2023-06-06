@@ -1,18 +1,18 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoUnSignedEvent : INotification
+    public class IpoUnSignedEvent : DomainEvent
     {
         public IpoUnSignedEvent(
             string plant,
-            Guid objectGuid)
+            Guid sourceGuid) : base("IPO unsigned")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

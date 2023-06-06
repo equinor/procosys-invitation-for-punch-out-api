@@ -307,7 +307,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "Canceled";
             
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
@@ -327,7 +327,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "UnCompleted";
 
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
@@ -347,7 +347,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "Canceled2";
 
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
@@ -367,7 +367,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "Completed";
 
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
@@ -388,7 +388,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "Accepted";
 
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
@@ -409,7 +409,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var status = 1;
             var ipoEvent = "UnAccepted";
 
-            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.ObjectGuid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
             await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));

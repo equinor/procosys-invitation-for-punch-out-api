@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             // ensure current user exists in db
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                if (context.Persons.SingleOrDefault(p => p.Oid == _currentUserOid) == null)
+                if (context.Persons.SingleOrDefault(p => p.Guid == _currentUserOid) == null)
                 {
                     var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
                     AddSavedFiltersToPerson(context, person);

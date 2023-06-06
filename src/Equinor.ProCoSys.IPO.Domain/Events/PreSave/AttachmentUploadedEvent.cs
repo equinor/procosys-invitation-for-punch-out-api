@@ -1,21 +1,21 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class AttachmentUploadedEvent : INotification
+    public class AttachmentUploadedEvent : DomainEvent
     {
         public AttachmentUploadedEvent(
             string plant,
-            Guid objectGuid,
-            string fileName)
+            Guid sourceGuid,
+            string fileName) : base("Attachment uploaded")
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             FileName = fileName;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public string FileName { get; }
     }
 }

@@ -61,12 +61,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
+                    b.Property<Guid>("SourceGuid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("ObjectGuid")
-                        .HasDatabaseName("IX_History_ObjectGuid_ASC");
+                    b.HasIndex("SourceGuid")
+                        .HasDatabaseName("IX_History_SourceGuid_ASC");
 
                     b.ToTable("History", t =>
                         {
@@ -259,6 +262,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<DateTime>("EndTimeUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Location")
                         .HasMaxLength(250)
@@ -494,6 +500,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -504,9 +513,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -520,10 +526,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModifiedById");
-
-                    b.HasIndex("Oid")
+                    b.HasIndex("Guid")
                         .IsUnique();
+
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Persons");
                 });

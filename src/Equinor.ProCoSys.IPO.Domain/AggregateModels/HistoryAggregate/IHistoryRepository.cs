@@ -6,6 +6,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
 {
     public interface IHistoryRepository : IRepository<History>
     {
-        IList<History> GetHistoryByObjectGuid(Guid guid);
+        IList<History> GetHistoryBySourceGuid(Guid sourceGuid);
     }
 }
