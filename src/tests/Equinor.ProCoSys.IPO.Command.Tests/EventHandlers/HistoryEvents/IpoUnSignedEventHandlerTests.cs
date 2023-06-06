@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(objectGuid, _historyAdded.ObjectGuid);
+            Assert.AreEqual(objectGuid, _historyAdded.SourceGuid);
             Assert.IsNotNull(_historyAdded.Description);
             Assert.AreEqual(EventType.IpoUnsigned, _historyAdded.EventType);
             Assert.AreEqual("IPO", _historyAdded.ObjectType);

@@ -13,6 +13,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         }
 
         public IList<History> GetHistoryByObjectGuid(Guid guid) 
-            => _context.History.Where(h => h.ObjectGuid == guid).ToList();
+            => _context.History.Where(h => h.SourceGuid == guid).ToList();
     }
 }

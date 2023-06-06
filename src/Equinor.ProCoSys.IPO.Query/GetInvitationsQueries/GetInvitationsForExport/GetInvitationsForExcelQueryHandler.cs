@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             CancellationToken cancellationToken)
         {
             var history = await (from h in _context.QuerySet<History>()
-                                 join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
+                                 join invitation in _context.QuerySet<Invitation>() on h.SourceGuid equals invitation.ObjectGuid
                                  join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
                                  where invitation.Id == invitationId
                                  select new

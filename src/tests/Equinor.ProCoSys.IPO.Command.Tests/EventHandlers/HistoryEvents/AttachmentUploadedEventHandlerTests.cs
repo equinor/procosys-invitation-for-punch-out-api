@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(objectGuid, _historyAdded.ObjectGuid);
+            Assert.AreEqual(objectGuid, _historyAdded.SourceGuid);
             Assert.IsNotNull(_historyAdded.Description);
             Assert.IsTrue(_historyAdded.Description.Contains(fileName));
             Assert.AreEqual(EventType.AttachmentUploaded, _historyAdded.EventType);
