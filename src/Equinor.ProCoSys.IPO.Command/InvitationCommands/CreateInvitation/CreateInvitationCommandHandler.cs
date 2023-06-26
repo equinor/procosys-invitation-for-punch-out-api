@@ -422,7 +422,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     var baseUrl = InvitationHelper.GetBaseUrl(_meetingOptions.CurrentValue.PcsBaseUrl, _plantProvider.Plant);
 
                     meetingBuilder
-                        .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(invitation, projectName), request.Location)
+                        .StandaloneMeeting(InvitationHelper.GenerateMeetingTitle(
+                            invitation,
+                            projectName,
+                            request.Type,
+                            request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
+                            request.Location)
                         .StartsOn(request.StartTime, request.EndTime)
                         .WithTimeZone("UTC")
                         .WithParticipants(meetingParticipants)
