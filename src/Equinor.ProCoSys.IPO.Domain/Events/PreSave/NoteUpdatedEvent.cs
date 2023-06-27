@@ -3,12 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class NoteUpdatedEvent : DomainEvent
+    public class NoteUpdatedEvent : IDomainEvent
     {
-        public NoteUpdatedEvent(
-            string plant,
-            Guid sourceGuid,
-            string note) : base("Note updated")
+        public NoteUpdatedEvent(string plant, Guid sourceGuid, string note)
         {
             Plant = plant;
             SourceGuid = sourceGuid;
