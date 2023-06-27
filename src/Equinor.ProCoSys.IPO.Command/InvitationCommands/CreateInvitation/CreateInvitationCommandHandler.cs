@@ -434,6 +434,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         .WithClassification(MeetingClassification.Open)
                         .EnableOutlookIntegration()
                         .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
+
+                    if (request.IsOnline)
+                    {
+                        meetingBuilder.EnableTeamsMeeting();
+                    }
                 });
             }
             catch (Exception ex)

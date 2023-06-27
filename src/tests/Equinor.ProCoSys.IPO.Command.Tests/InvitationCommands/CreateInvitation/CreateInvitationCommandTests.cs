@@ -51,7 +51,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type, 
                 _participants, 
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             Assert.AreEqual(_participants, dut.Participants);
             Assert.AreEqual(_title, dut.Title);
