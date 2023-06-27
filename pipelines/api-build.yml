@@ -9,6 +9,7 @@ resources:
   - repository: templates
     type: github
     name: equinor/procosys-infra
+    ref: 182-fixpods-memory-and-cpu
     endpoint: 'equinor'
 
 # Global variables for the pipeline
