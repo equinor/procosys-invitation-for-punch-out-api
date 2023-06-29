@@ -348,6 +348,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 throw new IpoValidationException("Could not find all comm pkgs in scope.");
             }
 
+            if (commPkgDetailsList.Any(c => c.OperationHandoverStatus == "Accepted"))
+            {
+                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope.");
+            }
+
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
             if (initialCommPkg != null)
             {
@@ -377,6 +382,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             if (mcPkgDetailsList.Count != mcPkgScope.Count)
             {
                 throw new IpoValidationException("Could not find all mc pkgs in scope.");
+            }
+
+            if (mcPkgDetailsList.Any(mc => mc.OperationHandoverStatus == "Accepted"))
+            {
+                throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope.");
             }
 
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();

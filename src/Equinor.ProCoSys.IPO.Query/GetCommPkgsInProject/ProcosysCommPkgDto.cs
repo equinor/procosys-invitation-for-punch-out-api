@@ -7,13 +7,15 @@
             string commPkgNo,
             string description,
             string status,
-            string system)
+            string system,
+            string operationHandoverStatus)
         {
             Id = id;
             CommPkgNo = commPkgNo;
             Description = description;
             Status = status;
             System = system;
+            OperationHandoverStatus = operationHandoverStatus;
         }
 
         public long Id { get; }
@@ -21,5 +23,6 @@
         public string Description { get; }
         public string Status { get; }
         public string System { get; }
+        public string OperationHandoverStatus { get;}
     }
 }
