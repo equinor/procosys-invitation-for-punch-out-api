@@ -3,11 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class CommentRemovedEvent : DomainEvent
+    public class CommentRemovedEvent : IDomainEvent
     {
-        public CommentRemovedEvent(
-            string plant,
-            Guid sourceGuid) : base("Comment removed")
+        public CommentRemovedEvent(string plant, Guid sourceGuid)
         {
             Plant = plant;
             SourceGuid = sourceGuid;

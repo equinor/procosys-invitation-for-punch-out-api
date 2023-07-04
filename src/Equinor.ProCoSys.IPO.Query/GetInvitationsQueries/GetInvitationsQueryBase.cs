@@ -28,7 +28,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
             if (projectName == null)
             {
-                projectNames.AddRange(permissionCache.GetProjectsForUserAsync(plantProvider.Plant, currentUserProvider.GetCurrentUserOid()).GetAwaiter().GetResult());
+                var currentUserOid = currentUserProvider.GetCurrentUserOid();
+                var accessableProjects = permissionCache.GetProjectsForUserAsync(plantProvider.Plant, currentUserOid).GetAwaiter().GetResult();
+                var accessableProjectNames = accessableProjects.Select(p => p.Name);
+                projectNames.AddRange(accessableProjectNames);
             }
             else
             {
