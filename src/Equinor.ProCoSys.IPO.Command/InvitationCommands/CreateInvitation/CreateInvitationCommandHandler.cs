@@ -350,7 +350,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (commPkgDetailsList.Any(c => c.OperationHandoverStatus == "Accepted"))
             {
-                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope.");
+                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                    + string.Join(",", commPkgDetailsList
+                        .Where(c => c.OperationHandoverStatus == "Accepted")
+                        .Select(c => c.CommPkgNo)
+                        .ToList()));
             }
 
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
@@ -386,7 +390,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (mcPkgDetailsList.Any(mc => mc.OperationHandoverStatus == "Accepted"))
             {
-                throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope.");
+                throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: "
+                    + string.Join(",", mcPkgDetailsList
+                    .Where(mc => mc.OperationHandoverStatus == "Accepted")
+                    .Select(mc => mc.McPkgNo)
+                    .ToList()));
             }
 
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
