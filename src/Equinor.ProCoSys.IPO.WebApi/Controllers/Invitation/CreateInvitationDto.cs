@@ -17,6 +17,5 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         public IEnumerable<string> McPkgScope { get; set; }
         public IEnumerable<string> CommPkgScope { get; set; }
         public bool IsOnline { get; set; } = false;
-
     }
 }
