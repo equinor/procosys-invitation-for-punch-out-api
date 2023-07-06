@@ -134,5 +134,51 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             }
             _context.Invitations.Remove(invitation);
         }
+
+        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            var invitations = _context.Invitations
+                .Include(i => i.McPkgs)
+                .Include(i => i.CommPkgs)
+                .Where(i => i.ProjectId == project.Id
+                            && (i.CommPkgs.Any(x => commPkgNos.Any(y => y == x.CommPkgNo))
+                            || i.McPkgs.Any(x => mcPkgs.Any(y => y.Item1 == x.McPkgNo && y.Item2 == x.CommPkgNo))))
+                .ToList();
+
+            foreach (var invitation in invitations)
+            {
+                if (invitation.Type == DisciplineType.MDP)
+                {
+                    UpdateRfocStatusForMDP(invitation, commPkgNos);
+                }
+                else
+                {
+                    UpdateRfocStatusForDP(invitation, mcPkgs);
+                }
+            }
+        }
+
+        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos)
+        {
+            invitation.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo)).ToList()
+                .ForEach(c => c.RfocAccepted = true);
+            if (invitation.CommPkgs.All(c => c.RfocAccepted))
+            {
+                invitation.ScopeHandedOver();
+            }
+        }
+
+        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs)
+        {
+            invitation.McPkgs.Where(mc => mcPkgs.Contains(new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo))).ToList()
+                .ForEach(mc => mc.RfocAccepted = true);
+            if (invitation.McPkgs.All(c => c.RfocAccepted))
+            {
+                invitation.ScopeHandedOver();
+            }
+        }
+
     }
 }

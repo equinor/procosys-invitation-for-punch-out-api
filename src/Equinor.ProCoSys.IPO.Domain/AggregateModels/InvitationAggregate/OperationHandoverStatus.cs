@@ -1,11 +1,10 @@
 ﻿namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
-    public enum IpoStatus
+    public enum OperationHandoverStatus
     {
-        Planned,
-        Completed,
+        None,
+        Sent,
         Accepted,
-        Canceled,
-        ScopeHandedOver
+        Rejected
     }
 }
