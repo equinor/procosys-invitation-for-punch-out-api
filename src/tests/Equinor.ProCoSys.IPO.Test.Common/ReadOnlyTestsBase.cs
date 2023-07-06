@@ -14,6 +14,7 @@ using Moq;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Auth.Permission;
 
 namespace Equinor.ProCoSys.IPO.Test.Common
 {
@@ -59,7 +60,11 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
             _permissionCacheMock = new Mock<IPermissionCache>();
             _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, _currentUserOid))
-                .Returns(Task.FromResult(new List<string> { "Project1", "Project2" } as IList<string>));
+                .Returns(Task.FromResult(new List<AccessableProject>
+                {
+                    new() {Name = "Project1"}, 
+                    new() {Name = "Project2"}
+                } as IList<AccessableProject>));
             _permissionCache = _permissionCacheMock.Object;
 
             _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));

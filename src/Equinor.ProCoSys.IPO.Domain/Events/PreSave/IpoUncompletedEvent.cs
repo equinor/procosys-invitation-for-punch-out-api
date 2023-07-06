@@ -3,11 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoUnCompletedEvent : DomainEvent
+    public class IpoUnCompletedEvent : IDomainEvent
     {
-        public IpoUnCompletedEvent(
-            string plant,
-            Guid sourceGuid) : base("IPO uncompleted")
+        public IpoUnCompletedEvent(string plant, Guid sourceGuid)
         {
             Plant = plant;
             SourceGuid = sourceGuid;
