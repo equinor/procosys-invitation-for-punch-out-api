@@ -3,11 +3,11 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class ScopeHandedOverEvent : DomainEvent
+    public class ScopeHandedOverEvent : IDomainEvent
     {
         public ScopeHandedOverEvent(
             string plant,
-            Guid sourceGuid) : base("Scope handed over")
+            Guid sourceGuid)
         {
             Plant = plant;
             SourceGuid = sourceGuid;
