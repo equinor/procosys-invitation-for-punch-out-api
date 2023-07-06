@@ -424,7 +424,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
@@ -518,7 +519,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                commPkgScope);
+                commPkgScope,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
