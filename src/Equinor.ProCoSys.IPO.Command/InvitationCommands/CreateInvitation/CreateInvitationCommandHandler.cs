@@ -352,7 +352,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
                     + string.Join(",", commPkgDetailsList
-                        .Where(c => c.OperationHandoverStatus == "Accepted")
+                        .Where(c => c.OperationHandoverStatus == "ACCEPTED")
                         .Select(c => c.CommPkgNo)
                         .ToList()));
             }
@@ -392,7 +392,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: "
                     + string.Join(",", mcPkgDetailsList
-                    .Where(mc => mc.OperationHandoverStatus == "Accepted")
+                    .Where(mc => mc.OperationHandoverStatus == "ACCEPTED")
                     .Select(mc => mc.McPkgNo)
                     .ToList()));
             }
