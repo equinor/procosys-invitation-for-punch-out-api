@@ -51,7 +51,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type, 
                 _participants, 
                 _mcPkgScope,
-                null);
+                null,
+                true);
 
             Assert.AreEqual(_participants, dut.Participants);
             Assert.AreEqual(_title, dut.Title);
@@ -61,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.AreEqual(new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc), dut.EndTime);
             Assert.AreEqual(2, dut.Participants.Count());
             Assert.AreEqual(_participants.First(), dut.Participants.First());
+            Assert.IsTrue(dut.IsOnline);
         }
     }
 }

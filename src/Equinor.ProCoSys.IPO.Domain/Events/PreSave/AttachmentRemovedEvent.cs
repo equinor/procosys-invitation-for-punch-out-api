@@ -3,12 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class AttachmentRemovedEvent : DomainEvent
+    public class AttachmentRemovedEvent : IDomainEvent
     {
-        public AttachmentRemovedEvent(
-            string plant,
-            Guid sourceGuid,
-            string attachmentTitle) : base("Attachment removed")
+        public AttachmentRemovedEvent(string plant, Guid sourceGuid, string attachmentTitle)
         {
             Plant = plant;
             SourceGuid = sourceGuid;

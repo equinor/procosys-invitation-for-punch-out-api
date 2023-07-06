@@ -3,11 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoAcceptedEvent : DomainEvent
+    public class IpoAcceptedEvent : IDomainEvent
     {
-        public IpoAcceptedEvent(
-            string plant,
-            Guid sourceGuid) : base("IPO accepted")
+        public IpoAcceptedEvent(string plant, Guid sourceGuid)
         {
             Plant = plant;
             SourceGuid = sourceGuid;

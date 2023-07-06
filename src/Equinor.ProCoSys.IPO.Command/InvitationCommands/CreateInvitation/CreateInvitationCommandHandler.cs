@@ -348,9 +348,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 throw new IpoValidationException("Could not find all comm pkgs in scope.");
             }
 
-            if (commPkgDetailsList.Any(c => c.OperationHandoverStatus == "Accepted"))
+            if (commPkgDetailsList.Any(c => c.OperationHandoverStatus == "ACCEPTED"))
             {
-                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope.");
+                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                    + string.Join(",", commPkgDetailsList
+                        .Where(c => c.OperationHandoverStatus == "ACCEPTED")
+                        .Select(c => c.CommPkgNo)
+                        .ToList()));
             }
 
             var initialCommPkg = commPkgDetailsList.FirstOrDefault();
@@ -384,9 +388,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 throw new IpoValidationException("Could not find all mc pkgs in scope.");
             }
 
-            if (mcPkgDetailsList.Any(mc => mc.OperationHandoverStatus == "Accepted"))
+            if (mcPkgDetailsList.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
             {
-                throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope.");
+                throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: "
+                    + string.Join(",", mcPkgDetailsList
+                    .Where(mc => mc.OperationHandoverStatus == "ACCEPTED")
+                    .Select(mc => mc.McPkgNo)
+                    .ToList()));
             }
 
             var initialMcPkg = mcPkgDetailsList.FirstOrDefault();
@@ -444,6 +452,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         .WithClassification(MeetingClassification.Open)
                         .EnableOutlookIntegration()
                         .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
+
+                    if (request.IsOnline)
+                    {
+                        meetingBuilder.EnableTeamsMeeting();
+                    }
                 });
             }
             catch (Exception ex)

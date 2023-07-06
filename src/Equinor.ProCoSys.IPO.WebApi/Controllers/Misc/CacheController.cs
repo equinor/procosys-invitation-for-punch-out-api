@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Permission;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Misc
 
         [Authorize]
         [HttpGet("ProjectsFromCache")]
-        public async Task<IList<string>> GetProjects(
+        public async Task<IList<AccessableProject>> GetProjects(
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant)

@@ -3,12 +3,9 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class AttachmentUploadedEvent : DomainEvent
+    public class AttachmentUploadedEvent : IDomainEvent
     {
-        public AttachmentUploadedEvent(
-            string plant,
-            Guid sourceGuid,
-            string fileName) : base("Attachment uploaded")
+        public AttachmentUploadedEvent(string plant, Guid sourceGuid, string fileName)
         {
             Plant = plant;
             SourceGuid = sourceGuid;

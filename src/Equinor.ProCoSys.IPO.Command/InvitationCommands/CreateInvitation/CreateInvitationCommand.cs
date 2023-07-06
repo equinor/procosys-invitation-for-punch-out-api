@@ -10,8 +10,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
     public class CreateInvitationCommand : IRequest<Result<int>>, IProjectRequest
     {
-        public CreateInvitationCommand(
-            string title,
+        public CreateInvitationCommand(string title,
             string description,
             string location,
             DateTime startTime,
@@ -20,7 +19,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             DisciplineType type,
             IList<ParticipantsForCommand> participants,
             IEnumerable<string> mcPkgScope,
-            IEnumerable<string> commPkgScope)
+            IEnumerable<string> commPkgScope,
+            bool isOnline)
         {
             McPkgScope = mcPkgScope != null ? mcPkgScope.ToList() : new List<string>();
             CommPkgScope = commPkgScope != null ? commPkgScope.ToList() : new List<string>();
@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ProjectName = projectName;
             Type = type;
             Title = title;
+            IsOnline = isOnline;
         }
 
         public string Description { get; }
@@ -44,5 +45,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         public string Title { get; }
         public DisciplineType Type { get; }
         public string ProjectName { get; }
+        public bool IsOnline { get; }
     }
 }

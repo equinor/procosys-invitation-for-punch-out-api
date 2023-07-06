@@ -57,7 +57,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope);
+                _commPkgScope,
+                false);
 
             _dut = new CreateInvitationCommandValidator(_invitationValidatorMock.Object);
         }
@@ -83,7 +84,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 null,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -103,7 +105,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -123,7 +126,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -143,7 +147,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -163,7 +168,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -183,7 +189,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -203,7 +210,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -223,7 +231,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -243,7 +252,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -263,7 +273,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                _commPkgScope));
+                _commPkgScope,
+                false));
 
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
@@ -356,7 +367,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 participants,
                 null,
-                _commPkgScope);
+                _commPkgScope,
+                false);
 
 
             var result = _dut.Validate(command);
@@ -404,7 +416,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 participants,
                 null,
-                _commPkgScope);
+                _commPkgScope,
+                false);
 
 
             var result = _dut.Validate(command);
