@@ -139,6 +139,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     throw new IpoValidationException("Could not find all mc pkgs in scope.");
                 }
 
+                if (mcPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
+                {
+                    throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: " 
+                        + string.Join(",", mcPkgsFromMain
+                         .Where(mc => mc.OperationHandoverStatus == "ACCEPTED")
+                         .Select(mc => mc.McPkgNo)
+                         .ToList()));
+                }
+
                 var initialMcPkg = mcPkgsFromMain.FirstOrDefault();
                 if (initialMcPkg != null)
                 {
@@ -173,6 +182,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 if (commPkgsFromMain.Count != commPkgNos.Count)
                 {
                     throw new IpoValidationException("Could not find all comm pkgs in scope.");
+                }
+
+                if (commPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
+                {
+                    throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                        + string.Join(",", commPkgsFromMain
+                        .Where(c => c.OperationHandoverStatus == "ACCEPTED")
+                        .Select(c => c.CommPkgNo)
+                        .ToList()));
                 }
 
                 var initialCommPkg = commPkgsFromMain.FirstOrDefault();

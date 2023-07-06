@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -38,7 +39,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo1",
                 Description = "Description1",
                 DisciplineCode = "A",
-                System = "1|2"
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(2021, 10, 10),
+                M02 = null
             };
             _proCoSysMcPkg2 = new ProCoSysMcPkg
             {
@@ -46,7 +50,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo2",
                 Description = "Description2",
                 DisciplineCode = "A",
-                System = "1|2"
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(),
+                M02 = null
             };
             _proCoSysMcPkg3 = new ProCoSysMcPkg
             {
@@ -54,7 +61,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 McPkgNo = "McNo3",
                 Description = "Description3",
                 DisciplineCode = "B",
-                System = "1|2"
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(),
+                M02 = null
             };
 
             _foreignApiClient
@@ -103,6 +113,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("Description1", mcPkg.Description);
             Assert.AreEqual("A", mcPkg.DisciplineCode);
             Assert.AreEqual("1|2", mcPkg.System);
+            Assert.AreEqual("Accepted", mcPkg.OperationHandoverStatus);
+            Assert.AreEqual(new DateTime(2021, 10, 10), mcPkg.M01);
+            Assert.IsNull(mcPkg.M02);
         }
 
         [TestMethod]
