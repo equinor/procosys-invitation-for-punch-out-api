@@ -23,7 +23,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNot
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;
 using Equinor.ProCoSys.IPO.Query.GetComments;
@@ -164,7 +163,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                     dto.Type,
                     participants,
                     dto.McPkgScope,
-                    dto.CommPkgScope));
+                    dto.CommPkgScope,
+                    dto.IsOnline));
             return this.FromResult(result);
         }
 

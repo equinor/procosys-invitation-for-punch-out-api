@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
         public static string GenerateMeetingTitle(Invitation invitation, string projectName, DisciplineType type, IList<string> scope)
         {
-            var ipoPart = $"IPO - {invitation.Id}";
+            var ipoPart = $"IPO-{invitation.Id}";
             var projectPart = $"Project: {projectName}";
             var scopePart = $"{type}: {string.Join(",", scope)}";
             return $"{ipoPart}. {projectPart}. {scopePart}";

@@ -94,7 +94,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 DisciplineType.DP,
                 null,
                 null,
-                null);
+                null,
+                false);
             
             // act
             var result = await _dut.ValidateAsync(command);
@@ -117,7 +118,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 DisciplineType.DP,
                 null,
                 null,
-                null);
+                null, false);
             
             // act
             var result = await _dut.ValidateAsync(command);
