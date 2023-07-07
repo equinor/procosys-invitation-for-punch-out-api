@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
                 .GetMcPkgsByCommPkgNoAndProjectNameAsync(
                    _plantProvider.Plant, request.ProjectName,
                    request.CommPkgNo)
-                   ?? new List<ProCoSysMcPkg>();
+                   ?? new List<ProCoSysMcPkgOnCommPkg>();
 
             var mcPkgDtos = mainApiMcPkgs
                 .Select(mcPkg => new ProCoSysMcPkgDto(
@@ -40,7 +40,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
                     mcPkg.System,
                     mcPkg.OperationHandoverStatus,
                     mcPkg.M01,
-                    mcPkg.M02)).ToList();
+                    mcPkg.M02,
+                    mcPkg.Status)).ToList();
 
             return new SuccessResult<List<ProCoSysMcPkgDto>>(mcPkgDtos);
         }
