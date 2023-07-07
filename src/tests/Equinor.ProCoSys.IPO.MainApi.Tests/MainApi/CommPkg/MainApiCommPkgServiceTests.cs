@@ -34,9 +34,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkgSearch>
+                Items = new List<ProCoSysSearchCommPkg>
                         {
-                            new ProCoSysCommPkgSearch
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 111111111,
                                 CommPkgNo = "CommNo1",
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 System = "1|2",
                                 OperationHandoverStatus = "Accepted"
                             },
-                            new ProCoSysCommPkgSearch
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 222222222,
                                 CommPkgNo = "CommNo2",
@@ -54,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 System = "1|2",
                                 OperationHandoverStatus = "Sent"
                             },
-                            new ProCoSysCommPkgSearch
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 333333333,
                                 CommPkgNo = "CommNo3",
@@ -95,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             var emptyPage = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkgSearch>()
+                Items = new List<ProCoSysSearchCommPkg>()
             };
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
@@ -119,9 +119,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             var searchWithOneItem = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkgSearch>
+                Items = new List<ProCoSysSearchCommPkg>
                 {
-                    new ProCoSysCommPkgSearch
+                    new ProCoSysSearchCommPkg
                     {
                         Id = 111111111,
                         CommPkgNo = "CommNo1",

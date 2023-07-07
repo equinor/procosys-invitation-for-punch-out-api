@@ -24,9 +24,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
         [TestInitialize]
         public void TestInitialize()
         {
-            var commPkgs = new List<ProCoSysCommPkgSearch>
+            var commPkgs = new List<ProCoSysSearchCommPkg>
             {
-                new ProCoSysCommPkgSearch
+                new ProCoSysSearchCommPkg
                 {
                     CommPkgNo = CommPkgNo1,
                     CommStatus = "OK",
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     Id = 1,
                     System = System
                 },
-                new ProCoSysCommPkgSearch
+                new ProCoSysSearchCommPkg
                 {
                     CommPkgNo = CommPkgNo2,
                     CommStatus = "OS",
