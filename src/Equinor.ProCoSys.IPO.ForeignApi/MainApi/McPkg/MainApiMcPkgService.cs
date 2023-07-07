@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
+        public async Task<IList<ProCoSysMcPkgOnCommPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
             string plant, 
             string projectName,
             string commPkgNo)
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
+            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(url);
 
             return mcPkgs;
         }
