@@ -4,15 +4,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
     public class ProCoSysMcPkgDto
     {
-        public ProCoSysMcPkgDto(
-            long id,
+        public ProCoSysMcPkgDto(long id,
             string mcPkgNo,
             string description,
             string disciplineCode,
             string system,
             string operationHandoverStatus,
             DateTime? m01,
-            DateTime? m02)
+            DateTime? m02,
+            string status)
         {
             Id = id;
             McPkgNo = mcPkgNo;
@@ -22,6 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
             OperationHandoverStatus = operationHandoverStatus;
             M01 = m01;
             M02 = m02;
+            Status = status;
         }
 
         public long Id { get; }
@@ -32,5 +33,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
         public string OperationHandoverStatus { get; }
         public DateTime? M01 { get; }
         public DateTime? M02 { get; }
+        public string Status { get; }
     }
 }

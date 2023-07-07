@@ -19,14 +19,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 
         private ProCoSysCommPkgSearchResult _commPkgSearchResult;
         private IList<ProCoSysProject> _projects;
-        private IList<ProCoSysMcPkg> _mcPkgs;
+        private IList<ProCoSysMcPkgOnCommPkg> _mcPkgs;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            var commPkgs = new List<ProCoSysCommPkg>
+            var commPkgs = new List<ProCoSysCommPkgSearch>
             {
-                new ProCoSysCommPkg
+                new ProCoSysCommPkgSearch
                 {
                     CommPkgNo = CommPkgNo1,
                     CommStatus = "OK",
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     Id = 1,
                     System = System
                 },
-                new ProCoSysCommPkg
+                new ProCoSysCommPkgSearch
                 {
                     CommPkgNo = CommPkgNo2,
                     CommStatus = "OS",
@@ -52,9 +52,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 new ProCoSysProject {Id = 2, Name = ProjectName2, Description = "Project2Description"}
             };
 
-            _mcPkgs = new List<ProCoSysMcPkg>
+            _mcPkgs = new List<ProCoSysMcPkgOnCommPkg>
             {
-                new ProCoSysMcPkg
+                new ProCoSysMcPkgOnCommPkg
                 {
                     Id = 1,
                     CommPkgNo = CommPkgNo1,
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     DisciplineCode = "A",
                     System = System
                 },
-                new ProCoSysMcPkg
+                new ProCoSysMcPkgOnCommPkg
                 {
                     Id = 2,
                     CommPkgNo = CommPkgNo2,

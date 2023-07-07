@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
     public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBase
     {
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
-        private IList<ProCoSysCommPkg> _mainApiCommPkgs;
+        private IList<ProCoSysCommPkgSearch> _mainApiCommPkgs;
         private GetCommPkgsInProjectQuery _query;
 
         private readonly string _projectName = "Pname";
@@ -29,17 +29,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
-                _mainApiCommPkgs = new List<ProCoSysCommPkg>
+                _mainApiCommPkgs = new List<ProCoSysCommPkgSearch>
                 {
-                    new ProCoSysCommPkg
+                    new ProCoSysCommPkgSearch
                     {
                         Id = 1, CommPkgNo = "CommPkgNo1", Description = "Desc1", CommStatus = "PB"
                     },
-                    new ProCoSysCommPkg
+                    new ProCoSysCommPkgSearch
                     {
                         Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK"
                     },
-                    new ProCoSysCommPkg
+                    new ProCoSysCommPkgSearch
                     {
                         Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"
                     }
@@ -107,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             }
         }
 
-        private void AssertCommPkgData(ProCoSysCommPkg PCSCommPkg, ProCoSysCommPkgDto commPkgDto)
+        private void AssertCommPkgData(ProCoSysCommPkgSearch PCSCommPkg, ProCoSysCommPkgDto commPkgDto)
         {
             Assert.AreEqual(PCSCommPkg.Id, commPkgDto.Id);
             Assert.AreEqual(PCSCommPkg.CommPkgNo, commPkgDto.CommPkgNo);
