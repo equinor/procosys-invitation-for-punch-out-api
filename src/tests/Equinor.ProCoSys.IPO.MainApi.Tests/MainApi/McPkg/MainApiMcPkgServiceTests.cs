@@ -17,6 +17,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _foreignApiClient;
         private MainApiMcPkgService _dut;
+        private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg1;
+        private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg2;
+        private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg3;
         private ProCoSysMcPkg _proCoSysMcPkg1;
         private ProCoSysMcPkg _proCoSysMcPkg2;
         private ProCoSysMcPkg _proCoSysMcPkg3;
@@ -32,6 +35,43 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
             _foreignApiClient = new Mock<IMainApiClient>();
+
+            _proCoSysMcPkgOnCommPkg1 = new ProCoSysMcPkgOnCommPkg
+            {
+                Id = 111111111,
+                McPkgNo = "McNo1",
+                Description = "Description1",
+                DisciplineCode = "A",
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(2021, 10, 10),
+                M02 = null,
+                Status = "OK"
+            };
+            _proCoSysMcPkgOnCommPkg2 = new ProCoSysMcPkgOnCommPkg
+            {
+                Id = 222222222,
+                McPkgNo = "McNo2",
+                Description = "Description2",
+                DisciplineCode = "A",
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(),
+                M02 = null,
+                Status = "PA"
+            };
+            _proCoSysMcPkgOnCommPkg3 = new ProCoSysMcPkgOnCommPkg
+            {
+                Id = 333333333,
+                McPkgNo = "McNo3",
+                Description = "Description3",
+                DisciplineCode = "B",
+                System = "1|2",
+                OperationHandoverStatus = "Accepted",
+                M01 = new DateTime(),
+                M02 = null,
+                Status = "PB"
+            };
 
             _proCoSysMcPkg1 = new ProCoSysMcPkg
             {
@@ -68,6 +108,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             };
 
             _foreignApiClient
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysMcPkgOnCommPkg> { _proCoSysMcPkgOnCommPkg1, _proCoSysMcPkgOnCommPkg2, _proCoSysMcPkgOnCommPkg3 }));
+
+            _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg> { _proCoSysMcPkg1, _proCoSysMcPkg2, _proCoSysMcPkg3 }));
 
@@ -92,8 +136,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysMcPkg>()));
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), null))
+                .Returns(Task.FromResult(new List<ProCoSysMcPkgOnCommPkg>()));
 
             var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project1", "A");
 
