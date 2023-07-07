@@ -54,11 +54,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             }
 
             var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+
+            if (certificateMcPkgsModel == null)
+            {
+                var error = $"Certificate {request.ProCoSysGuid} McPkg scope not found";
+                _logger.LogError(error);
+                return new NotFoundResult<Unit>(error);
+            }
+
             var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
 
-            if (certificateMcPkgsModel == null && certificateCommPkgsModel == null)
+            if (certificateCommPkgsModel == null)
             {
-                var error = $"Certificate {request.ProCoSysGuid} not found";
+                var error = $"Certificate {request.ProCoSysGuid} CommPkg scope not found";
                 _logger.LogError(error);
                 return new NotFoundResult<Unit>(error);
             }

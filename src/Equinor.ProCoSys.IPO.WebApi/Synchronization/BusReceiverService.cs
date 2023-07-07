@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IProjectRepository _projectRepository;
+        private readonly ICertificateEventProcessorService _certificateEventProcessorService;
         private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
         private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
@@ -46,7 +47,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IMainApiAuthenticator mainApiTokenProvider,
             IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
-            IProjectRepository projectRepository)
+            IProjectRepository projectRepository,
+            ICertificateEventProcessorService certificateEventProcessorService)
         {
             _invitationRepository = invitationRepository;
             _plantSetter = plantSetter;
@@ -57,6 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
             _projectRepository = projectRepository;
+            _certificateEventProcessorService = certificateEventProcessorService;
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }
 
@@ -92,6 +95,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     break;
                 case PcsTopic.Library:
                     ProcessLibraryEvent(messageJson);
+                    break;
+                case PcsTopic.Certificate:
+                    await _certificateEventProcessorService.ProcessCertificateEventAsync(messageJson);
                     break;
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);

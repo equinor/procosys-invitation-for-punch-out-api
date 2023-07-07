@@ -67,15 +67,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     certificateEvent.CertificateType,
                     certificateEvent.ProCoSysGuid));
 
-                LogAutoTransferResult(certificateEvent, result);
+                LogRfocAcceptedResult(certificateEvent, result);
             }
         }
 
-        private void LogAutoTransferResult(CertificateTopic certificateEvent, Result<Unit> result)
+        private void LogRfocAcceptedResult(CertificateTopic certificateEvent, Result<Unit> result)
         {
             var resultOk = result.ResultType == ResultType.Ok;
 
-            _logger.LogInformation(resultOk ? "Autotransfer tags complete." : "Autotransfer tags functions failed.");
+            _logger.LogInformation(resultOk ? "RfocAccepted handling complete." : "RfocAccepted handling functions failed.");
 
             var telemetryDictionary = new Dictionary<string, string>
             {
