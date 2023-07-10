@@ -179,6 +179,5 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 invitation.ScopeHandedOver();
             }
         }
-
     }
 }

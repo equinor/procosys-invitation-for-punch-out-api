@@ -7,6 +7,7 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {

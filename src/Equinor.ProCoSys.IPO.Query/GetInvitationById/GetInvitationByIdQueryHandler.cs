@@ -209,10 +209,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 string.Equals(p.Person.Mail, email, StringComparison.CurrentCultureIgnoreCase))?.Type;
 
         private static IEnumerable<CommPkgScopeDto> ConvertToCommPkgDto(IEnumerable<CommPkg> commPkgs)
-            => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status, commPkg.System));
+            => commPkgs.Select(commPkg => new CommPkgScopeDto(commPkg.CommPkgNo, commPkg.Description, commPkg.Status, commPkg.System, commPkg.RfocAccepted));
 
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs) 
-            => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo, mcPkg.System));
+            => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo, mcPkg.System, mcPkg.RfocAccepted));
 
         private async Task<IEnumerable<ParticipantDto>> ConvertToParticipantDtoAsync(IReadOnlyCollection<Participant> participants, IpoStatus ipoStatus)
         {

@@ -34,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IReadOnlyContext> _readOnlyContext;
         private Mock<IMainApiAuthenticator> _mainApiAuthenticator;
         private Mock<IProjectRepository> _projectRepository;
+        private Mock<ICertificateEventProcessorService> _certificationEventProcessorService;
 
         private const string plant = "PCS$HEIMDAL";
         private static readonly Project project1 = new(plant, project1Name, $"Description of {project1Name} project");
@@ -89,6 +90,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _mcPkgApiService = new Mock<IMcPkgApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
+            _certificationEventProcessorService = new Mock<ICertificateEventProcessorService>();
+
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
                 DateTime.Now.AddHours(1), "El låkasjån", _mcPkgsOn1, null);
             _invitation2 = new Invitation(plant, project1, "El invitasjån2", description, DisciplineType.MDP, DateTime.Now,
@@ -113,7 +116,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _mainApiAuthenticator.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
-                                          _projectRepository.Object);
+                                          _projectRepository.Object,
+                                          _certificationEventProcessorService.Object);
 
             var list = new List<Invitation> {_invitation1, _invitation2, _invitation3, _invitation4};
             _readOnlyContext.Setup(r => r.QuerySet<Invitation>()).Returns(list.AsQueryable());
@@ -284,7 +288,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _mainApiAuthenticator.Object,
                 _options.Object,
                 _currentUserSetter.Object,
-                projectRepositoryTestDouble);
+                projectRepositoryTestDouble,
+                _certificationEventProcessorService.Object);
 
             await dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
 
@@ -497,6 +502,33 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             //ProcessMessageAsync should return before setting user
             _currentUserSetter.VerifyNoOtherCalls();
         }
-     
+
+        [TestMethod]
+        public async Task HandleCertificateTopic_ShouldCall_CertificateEventProcessorService()
+        {
+            // Arrange
+            var message =
+                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\"}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Certificate, message, default);
+
+            // Assert
+            _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task HandleCertificateTopic_ShouldNotCall_CertificateEventProcessorService()
+        {
+            // Arrange
+            var message =
+                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\", \"Behavior\" :\"delete\"}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopic.Certificate, message, default);
+
+            // Assert
+            _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Never);
+        }
     }
 }

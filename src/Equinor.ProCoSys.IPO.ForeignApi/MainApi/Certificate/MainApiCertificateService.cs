@@ -27,7 +27,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate
                       $"&proCoSysGuid={proCoSysGuid.ToString("N")}" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url);
+            var tmp = await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url);
+            return tmp;
         }
 
         public async Task<PCSCertificateCommPkgsModel> TryGetCertificateCommPkgsAsync(string plant, Guid proCoSysGuid)

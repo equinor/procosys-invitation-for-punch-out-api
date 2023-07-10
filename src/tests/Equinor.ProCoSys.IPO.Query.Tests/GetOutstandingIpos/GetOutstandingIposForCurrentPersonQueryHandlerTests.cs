@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
@@ -655,6 +654,54 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
                 invitationWithFunctionalRoleParticipantConstructionCompany.AcceptIpo(_personParticipantConstructionCompany,
                     _personParticipantContractor.RowVersion.ConvertToString(), _person, DateTime.Now);
+
+                context.SaveChangesAsync().Wait();
+            }
+
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+                    _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+                var result = await dut.Handle(_query, default);
+
+                Assert.AreEqual(5, result.Data.Items.Count());
+                var outstandingInvitationWithPersonParticipantContractor = result.Data.Items.First();
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Id,
+                    outstandingInvitationWithPersonParticipantContractor.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantContractor.Description,
+                    outstandingInvitationWithPersonParticipantContractor.Description);
+
+                var outstandingInvitation = result.Data.Items.ElementAt(1);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id,
+                    outstandingInvitation.InvitationId);
+                Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description,
+                    outstandingInvitation.Description);
+
+                var outstandingInvitationWithFunctionalRoleParticipantContractor = result.Data.Items.ElementAt(2);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Id,
+                    outstandingInvitationWithFunctionalRoleParticipantContractor.InvitationId);
+                Assert.AreEqual(_invitationWithFunctionalRoleParticipantContractor.Description,
+                    outstandingInvitationWithFunctionalRoleParticipantContractor.Description);
+
+                var outstandingAcceptedInvitationWithOperation = result.Data.Items.ElementAt(3);
+                Assert.AreEqual(_acceptedInvitationWithOperationPerson.Id,
+                    outstandingAcceptedInvitationWithOperation.InvitationId);
+                Assert.AreEqual(_acceptedInvitationWithOperationPerson.Description,
+                    outstandingAcceptedInvitationWithOperation.Description);
+
+                _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldNotReturnIpoForConstructionCompanyFunctionalRole_AfterIpoScopeHasBeenHandedOver()
+        {
+            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var invitationWithFunctionalRoleParticipantConstructionCompany =
+                    context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
+
+                invitationWithFunctionalRoleParticipantConstructionCompany.ScopeHandedOver();
 
                 context.SaveChangesAsync().Wait();
             }

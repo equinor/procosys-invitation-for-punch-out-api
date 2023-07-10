@@ -1269,5 +1269,78 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.ThrowsException<ArgumentNullException>(() => dut.CancelIpo(null));
         }
         #endregion
+
+        #region ScopeHandedOver
+        [TestMethod]
+        public void ScopeHandedOver_SetsStatusToScopeHandedOver()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+
+            var dut = new Invitation(
+                TestPlant,
+                project,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            dut.SetCreated(_currentPerson);
+            dut.ScopeHandedOver();
+            Assert.AreEqual(dut.Status, IpoStatus.ScopeHandedOver);
+            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count);
+        }
+
+        [TestMethod]
+        public void ScopeHandedOver_IpoIsCanceled_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+
+            var dut = new Invitation(
+                TestPlant,
+                project,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            dut.SetCreated(_currentPerson);
+            dut.CancelIpo(_currentPerson);
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+        }
+
+        [TestMethod]
+        public void ScopeHandedOver_IpoIsAccepted_ThrowsException()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                project,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            dut.SetCreated(creator);
+
+            dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+            dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+        }
+        #endregion
     }
 }
