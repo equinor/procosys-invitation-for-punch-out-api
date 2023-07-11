@@ -74,11 +74,11 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
             };
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             _dut = new MainApiCertificateService(_foreignApiClient.Object, _mainApiOptions.Object);
@@ -88,29 +88,29 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task GetCertificateMcPkgsAsync_ShouldReturnCorrectNumberOfMcPkgs()
         {
             // Act
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateMcPkgsAsync(_plant, new Guid());
 
             // Assert
             Assert.AreEqual(3, result.McPkgs.Count());
         }
 
         [TestMethod]
-        public async Task GetCertificateMcPkgsAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetCertificateMcPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateMcPkgsAsync(_plant, new Guid());
 
-            Assert.AreEqual(0, result.McPkgs.Count());
+            Assert.IsNull(result);
         }
 
         [TestMethod]
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateMcPkgsAsync(_plant, new Guid());
 
             // Assert
             var mcPkg = result.McPkgs.First();
@@ -123,29 +123,29 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task GetCertificateCommPkgsAsync_ShouldReturnCorrectNumberOfCommPkgs()
         {
             // Act
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateCommPkgsAsync(_plant, new Guid());
 
             // Assert
             Assert.AreEqual(3, result.CommPkgs.Count());
         }
 
         [TestMethod]
-        public async Task GetCertificateCommPkgsAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
+        public async Task GetCertificateCommPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
                 .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<PCSCertificateCommPkgsModel>(null));
 
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateCommPkgsAsync(_plant, new Guid());
 
-            Assert.AreEqual(0, result.CommPkgs.Count());
+            Assert.IsNull(result);
         }
 
         [TestMethod]
         public async Task GetCertificateCommPkgsAsync_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.GetCertificateCommPkgsAsync(_plant, new Guid());
 
             // Assert
             var commPkg = result.CommPkgs.First();

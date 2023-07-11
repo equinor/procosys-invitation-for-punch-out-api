@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateMcPkgsModel = await _certificateApiService.GetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
 
             if (certificateMcPkgsModel == null)
             {
@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new NotFoundResult<Unit>(error);
             }
 
-            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateCommPkgsModel = await _certificateApiService.GetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
 
             if (certificateCommPkgsModel == null)
             {
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             if (!certificateMcPkgsModel.CertificateIsAccepted && !certificateCommPkgsModel.CertificateIsAccepted)
             {
-                _logger.LogInformation($"Early exit in RfocAccepted handling. Certificate {request.CertificateNo} of type {request.CertificateType} in project {request.ProjectName} is not Accepted");
+                _logger.LogInformation($"Early exit in RfocAccepted handling. Certificate with guid {request.ProCoSysGuid} in project {request.ProjectName} is not Accepted");
                 return new SuccessResult<Unit>(Unit.Value);
             }
 

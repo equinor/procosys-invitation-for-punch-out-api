@@ -340,7 +340,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new Exception($"Unsign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
-
+            
             participant.SignedBy = null;
             participant.SignedAtUtc = null;
             participant.SetRowVersion(participantRowVersion);
@@ -455,7 +455,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPostSaveDomainEvent(new Events.PostSave.ScopeHandedOverEvent(Plant, Guid, Status));
 
             Status = IpoStatus.ScopeHandedOver;
-            AddDomainEvent(new IpoCanceledEvent(Plant, Guid));
+            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
         }
 
         public void SetCreated(Person createdBy)

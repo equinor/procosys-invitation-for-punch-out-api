@@ -63,8 +63,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             {
                 var result = await _mediator.Send(new UpdateRfocAcceptedCommand(
                     certificateEvent.ProjectName,
-                    certificateEvent.CertificateNo,
-                    certificateEvent.CertificateType,
                     certificateEvent.ProCoSysGuid));
 
                 LogRfocAcceptedResult(certificateEvent, result);
