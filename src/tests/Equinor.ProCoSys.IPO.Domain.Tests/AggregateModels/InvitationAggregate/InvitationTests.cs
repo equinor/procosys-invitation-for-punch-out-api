@@ -1295,7 +1295,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void ScopeHandedOver_IpoIsCanceled_ThrowsException()
+        public void ScopeHandedOver_ThrowsException_WhenIpoIsCanceled()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
 
@@ -1317,7 +1317,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void ScopeHandedOver_IpoIsAccepted_ThrowsException()
+        public void ScopeHandedOver_ThrowsException_WhenIpoIsAccepted()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
