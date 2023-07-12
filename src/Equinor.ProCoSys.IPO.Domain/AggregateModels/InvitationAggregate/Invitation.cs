@@ -434,6 +434,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"{nameof(Invitation)} {Id} is accepted");
             }
 
+            AddPostSaveDomainEvent(new Events.PostSave.IpoCanceledEvent(Plant, Guid, Status));
             Status = IpoStatus.Canceled;
             AddDomainEvent(new IpoCanceledEvent(Plant, Guid));
         }
@@ -448,6 +449,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             if (Status == IpoStatus.Accepted)
             {
                 throw new Exception($"{nameof(Invitation)} {Id} is accepted");
+            }
+
+            if (Status == IpoStatus.ScopeHandedOver)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} already has scope handed over");
             }
 
             Status = IpoStatus.ScopeHandedOver;

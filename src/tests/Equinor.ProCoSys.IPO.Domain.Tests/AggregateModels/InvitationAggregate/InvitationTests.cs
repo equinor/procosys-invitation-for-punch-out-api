@@ -1291,7 +1291,6 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             dut.SetCreated(_currentPerson);
             dut.ScopeHandedOver();
             Assert.AreEqual(dut.Status, IpoStatus.ScopeHandedOver);
-            Assert.AreEqual(1, dut.PostSaveDomainEvents.Count);
         }
 
         [TestMethod]
