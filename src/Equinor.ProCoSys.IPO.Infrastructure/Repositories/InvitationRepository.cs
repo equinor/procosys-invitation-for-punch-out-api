@@ -152,32 +152,28 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 if (invitation.Type == DisciplineType.MDP)
                 {
                     UpdateRfocStatusForMDP(invitation, commPkgNos);
+                    if (invitation.CommPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
                 }
                 else
                 {
                     UpdateRfocStatusForDP(invitation, mcPkgs);
+                    if (invitation.McPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
                 }
             }
         }
 
-        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos)
-        {
+        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos) =>
             invitation.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo)).ToList()
                 .ForEach(c => c.RfocAccepted = true);
-            if (invitation.CommPkgs.All(c => c.RfocAccepted))
-            {
-                invitation.ScopeHandedOver();
-            }
-        }
 
-        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs)
-        {
+        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs) =>
             invitation.McPkgs.Where(mc => mcPkgs.Contains(new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo))).ToList()
                 .ForEach(mc => mc.RfocAccepted = true);
-            if (invitation.McPkgs.All(c => c.RfocAccepted))
-            {
-                invitation.ScopeHandedOver();
-            }
-        }
     }
 }
