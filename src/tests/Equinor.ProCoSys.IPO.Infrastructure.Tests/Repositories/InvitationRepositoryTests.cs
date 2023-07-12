@@ -536,7 +536,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldNotUpdateInvitationStatus()
+        public void UpdateRfocStatuses_ShouldNotUpdateInvitationStatus_WhenInvitationScopeIsPartlyHandedOver()
         {
             // Arrange & Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
@@ -552,7 +552,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldUpdateInvitationStatus()
+        public void UpdateRfocStatuses_ShouldUpdateInvitationStatus_WhenEntireInvitationScopeIsHandedOver()
         {
             // Arrange & Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);

@@ -518,7 +518,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
-        public async Task HandleCertificateTopic_ShouldNotCall_CertificateEventProcessorService()
+        public async Task HandleCertificateTopic_ShouldNotCallCertificateEventProcessorService_WhenMessageHasDeleteBehavior()
         {
             // Arrange
             var message =
