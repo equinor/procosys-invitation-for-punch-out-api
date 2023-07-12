@@ -37,15 +37,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         public async Task ProcessCertificateEventAsync(string messageJson)
         {
             var certificateEvent = JsonSerializer.Deserialize<CertificateTopic>(messageJson);
-            if (certificateEvent != null && certificateEvent.Behavior == "delete")
+
+            if (certificateEvent == null)
+            {
+                throw new ArgumentNullException($"Deserialized JSON is null {messageJson}");
+            }
+
+            if (certificateEvent.Behavior == "delete")
             {
                 TrackUnsupportedDeleteEvent(PcsTopic.Certificate, certificateEvent.ProCoSysGuid);
                 return;
             }
 
-            if (certificateEvent != null && (
-                certificateEvent.Plant.IsEmpty() ||
-                certificateEvent.CertificateNo.IsEmpty()))
+            if (certificateEvent.Plant.IsEmpty() ||
+                certificateEvent.CertificateNo.IsEmpty())
             {
                 throw new ArgumentNullException($"Deserialized JSON is not a valid CertificateEvent {messageJson}");
             }
