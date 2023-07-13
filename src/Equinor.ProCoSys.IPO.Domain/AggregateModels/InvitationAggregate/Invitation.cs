@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -439,7 +438,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new IpoCanceledEvent(Plant, Guid));
         }
 
-        public void ScopeHandedOver()
+        public void ScopeHandedOver() // Todo: check that this is done by system and not person?
         {
             if (Status == IpoStatus.Canceled)
             {
