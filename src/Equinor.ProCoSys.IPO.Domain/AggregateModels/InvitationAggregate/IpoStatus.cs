@@ -5,6 +5,7 @@
         Planned,
         Completed,
         Accepted,
-        Canceled
+        Canceled,
+        ScopeHandedOver
     }
 }

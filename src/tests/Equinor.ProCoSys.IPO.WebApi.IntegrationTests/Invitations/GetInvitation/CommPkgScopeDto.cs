@@ -6,5 +6,6 @@
         public string Description { get; set; }
         public string Status { get; set; }
         public string System { get; set; }
+        public bool RfocAccepted { get; }
     }
 }

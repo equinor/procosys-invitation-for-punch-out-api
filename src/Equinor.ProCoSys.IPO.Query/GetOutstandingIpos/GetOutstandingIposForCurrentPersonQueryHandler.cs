@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             {
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsForNonClosedProjectsAsync(cancellationToken);
+                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsWithoutHandedOverScopeForNonClosedProjectsAsync(cancellationToken);
 
                 var currentUsersOutstandingInvitations = new List<InvitationDto>();
 
@@ -97,13 +97,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             }
         }
 
-        private async Task<List<InvitationDto>> GetNonCanceledInvitationsForNonClosedProjectsAsync(CancellationToken cancellationToken)
+        private async Task<List<InvitationDto>> GetNonCanceledInvitationsWithoutHandedOverScopeForNonClosedProjectsAsync(
+            CancellationToken cancellationToken)
         {
-            var nonCancelledInvitationsFlat =
+            var filteredInvitationsFlat =
                   await (from i in _context.QuerySet<Invitation>()
                          join p in _context.QuerySet<Participant>() on i.Id equals EF.Property<int>(p, "InvitationId")
                          join pro in _context.QuerySet<Project>() on i.ProjectId equals pro.Id
-                         where i.Status != IpoStatus.Canceled && pro.IsClosed == false
+                         where i.Status != IpoStatus.Canceled && i.Status != IpoStatus.ScopeHandedOver && pro.IsClosed == false
                          select new
                          {
                              i.Id,
@@ -119,20 +120,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                              p.SignedBy
                          }).ToListAsync(cancellationToken);
 
-            var nonCancelledInvitationsGrouped = nonCancelledInvitationsFlat.GroupBy(i => new
+            var filteredInvitationsGrouped = filteredInvitationsFlat.GroupBy(i => new
             {
                 i.Id,
                 i.Description,
                 i.Status
             });
 
-            var nonCancelledInvitationsList = new List<InvitationDto>();
+            var filteredInvitationsList = new List<InvitationDto>();
 
-            foreach (var group in nonCancelledInvitationsGrouped)
+            foreach (var group in filteredInvitationsGrouped)
             {
-                var invitation = group.Key;
-
-                nonCancelledInvitationsList.Add(
+                filteredInvitationsList.Add(
                     new InvitationDto()
                     {
                         Id = group.Key.Id,
@@ -152,7 +151,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                     });
             }
 
-            return nonCancelledInvitationsList;
+            return filteredInvitationsList;
         }
 
         private static bool UserWasInvitedAsPersonParticipant(InvitationDto invitation, Guid currentUserOid)

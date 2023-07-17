@@ -45,6 +45,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             System = system;
             Description = description;
             McPkgNo = mcPkgNo;
+            RfocAccepted = false;
         }
 
         // private setters needed for Entity Framework
@@ -53,6 +54,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string Description { get; set; }
         public string McPkgNo { get; private set; }
         public string System { get; private set; }
+        public bool RfocAccepted { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)

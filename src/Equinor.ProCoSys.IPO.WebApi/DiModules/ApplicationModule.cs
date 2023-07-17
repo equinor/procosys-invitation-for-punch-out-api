@@ -37,6 +37,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Auth.Authorization;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -75,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IUnitOfWork>(x => x.GetRequiredService<IPOContext>());
             services.AddScoped<IReadOnlyContext, IPOContext>();
             services.AddScoped<IBusReceiverService, BusReceiverService>();
+            services.AddScoped<ICertificateEventProcessorService, CertificateEventProcessorService>();
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<ILocalPersonRepository, LocalPersonRepository>();
             services.AddScoped<IInvitationRepository, InvitationRepository>();
@@ -88,6 +90,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
+            services.AddScoped<ICertificateApiService, MainApiCertificateService>();
             services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
             services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
