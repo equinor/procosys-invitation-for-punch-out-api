@@ -114,7 +114,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 canEdit,
                 invitation.RowVersion.ConvertToString(), 
                 canCancel,
-                canDelete)
+                canDelete,
+                meeting?.IsOnlineMeeting)
             {
                 Participants = await ConvertToParticipantDtoAsync(invitation.Participants, invitation.Status),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
