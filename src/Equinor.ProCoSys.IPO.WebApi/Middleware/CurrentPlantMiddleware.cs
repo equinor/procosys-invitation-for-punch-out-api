@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             IPlantSetter plantSetter,
             ILogger<CurrentPlantMiddleware> logger)
         {
-            logger.LogInformation($"----- {GetType().Name} start");
+            logger.LogDebug("----- {MiddlewareName} start", GetType().Name);
             var headers = httpContextAccessor?.HttpContext?.Request.Headers;
             if (headers == null)
             {
@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 plantSetter.SetPlant(plant);
             }
 
-            logger.LogInformation($"----- {GetType().Name} complete");
+            logger.LogDebug("----- {MiddlewareName} complete", GetType().Name);
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }
