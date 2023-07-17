@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             IMediator mediator,
             ILogger<VerifyOidInDbMiddleware> logger)
         {
-            logger.LogInformation($"----- {GetType().Name} start");
+            logger.LogDebug("----- {MiddlewareName} start", GetType().Name);
             if (httpContextAccessor.HttpContext != null)
             {
                 var httpContextUser = httpContextAccessor.HttpContext.User;
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 }
             }
 
-            logger.LogInformation($"----- {GetType().Name} complete");
+            logger.LogDebug("----- {MiddlewareName} complete", GetType().Name);
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }

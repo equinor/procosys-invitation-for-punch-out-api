@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             IPersonCache personCache,
             ILogger<PersonValidatorMiddleware> logger)
         {
-            logger.LogInformation($"----- {GetType().Name} start");
+            logger.LogDebug("----- {MiddlewareName} start", GetType().Name);
             if (currentUserProvider.HasCurrentUser)
             {
                 var oid = currentUserProvider.GetCurrentUserOid();
@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 }
             }
 
-            logger.LogInformation($"----- {GetType().Name} complete");
+            logger.LogDebug("----- {MiddlewareName} complete", GetType().Name);
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }
