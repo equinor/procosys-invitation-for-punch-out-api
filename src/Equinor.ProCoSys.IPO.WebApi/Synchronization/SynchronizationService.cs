@@ -8,6 +8,8 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -27,8 +29,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IClaimsTransformation _claimsTransformation;
         private readonly IMainApiAuthenticator _mainApiAuthenticator;
         private readonly IPermissionCache _permissionCache;
-        private ISettingRepository _settingRepository;
-        private string _machine;
+        private readonly ISettingRepository _settingRepository;
+        private readonly string _machine;
 
         public SynchronizationService(
             ILogger<SynchronizationService> logger,
@@ -90,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
                     var startTime = TimeService.UtcNow;
                     
-                    var result = await _mediator.Send(new FillPCSGuidsCommand(saveChanges?.Value == "true"));
+                    var result = await _mediator.Send(new FillRfocStatusesCommand(saveChanges?.Value == "true"));
 
                     var endTime = TimeService.UtcNow;
 

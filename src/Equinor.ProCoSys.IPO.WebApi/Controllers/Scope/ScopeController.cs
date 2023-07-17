@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.Query.GetProjectsInPlant;
@@ -41,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
             [FromQuery] int currentPage = 0)
         {
             var result = await _mediator.Send(new GetCommPkgsInProjectQuery(projectName, startsWithCommPkgNo, itemsPerPage, currentPage));
+            var test = await _mediator.Send(new UpdateRfocAcceptedCommand("M.O218C.IM.X.1911", new Guid("00ad0940-9af7-eb50-e063-2810000a8d13")));
             return this.FromResult(result);
 
         }

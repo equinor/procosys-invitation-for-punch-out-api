@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
             finally
             {
-               _timer.Start(); 
+               //_timer.Start(); 
             }
         }
 
