@@ -23,6 +23,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
                 .MustAsync((command, cancellationToken) => BeANonCanceledInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     "Invitation is canceled, and thus cannot be signed!")
+                .MustAsync((command, cancellationToken) => InvitationDoesntHaveStatusScopeHandedOver(command.InvitationId, cancellationToken))
+                .WithMessage(command =>
+                    "Invitation has status ScopeHandedOver, and thus cannot be signed!")
                 .Must(command => HaveAValidRowVersion(command.ParticipantRowVersion))
                 .WithMessage(command =>
                     $"Participant row version is not valid! ParticipantRowVersion={command.ParticipantRowVersion}")
@@ -41,6 +44,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 
             async Task<bool> BeANonCanceledInvitation(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
+
+            async Task<bool> InvitationDoesntHaveStatusScopeHandedOver(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.ScopeHandedOver, cancellationToken);
 
             async Task<bool> BeASigningParticipantOnIpo(int invitationId, int participantId, CancellationToken cancellationToken)
                 => await invitationValidator.SignerExistsAsync(invitationId, participantId, cancellationToken);
