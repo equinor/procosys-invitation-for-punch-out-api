@@ -18,7 +18,8 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.LoggingEvents
         public Task Handle(IpoNotSetToHandedOverEvent notification, CancellationToken cancellationToken)
         {
             var eventType = EventType.IpoNotHandedOver;
-            _logger.LogInformation($"{eventType.GetDescription()}. Plant: [{notification.Plant}], Guid [{notification.SourceGuid}], Current status: [{notification.Status}].");
+            _logger.LogInformation($"{eventType.GetDescription()}. Plant: [{notification.Plant}], " +
+                                   $"Guid [{notification.SourceGuid}], Current status: [{notification.Status}].");
             return Task.CompletedTask;
         }
     }

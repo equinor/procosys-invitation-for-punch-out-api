@@ -33,7 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.LoggingEvents
             var guid = new Guid();
             var status = IpoStatus.Accepted;
             Func<object, Type, bool> state = (v, t) => v.ToString()
-                .CompareTo($"{EventType.IpoNotHandedOver.GetDescription()}. Plant: [{plant}], Guid [{guid}], Current status: [{status}].") == 0;
+                .CompareTo($"{EventType.IpoNotHandedOver.GetDescription()}. Plant: [{plant}], Guid [{guid}], " +
+                           $"Current status: [{status}].") == 0;
 
             // Act
             _dut.Handle(new IpoNotSetToHandedOverEvent(plant, guid, status), default);
