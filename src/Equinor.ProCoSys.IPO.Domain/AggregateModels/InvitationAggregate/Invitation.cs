@@ -323,6 +323,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new Exception($"Sign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
 
+            if (Status == IpoStatus.ScopeHandedOver)
+            {
+                throw new Exception($"Sign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
+            }
+
             participant.SignedBy = signedBy.Id;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
@@ -441,19 +446,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public void ScopeHandedOver()
         {
-            if (Status == IpoStatus.Canceled)
+            if (Status is IpoStatus.Canceled or IpoStatus.Accepted or IpoStatus.ScopeHandedOver)
             {
-                throw new Exception($"{nameof(Invitation)} {Id} is canceled");
-            }
-
-            if (Status == IpoStatus.Accepted)
-            {
-                throw new Exception($"{nameof(Invitation)} {Id} is accepted");
-            }
-
-            if (Status == IpoStatus.ScopeHandedOver)
-            {
-                throw new Exception($"{nameof(Invitation)} {Id} already has scope handed over");
+                AddDomainEvent(new IpoNotSetToHandedOverEvent(Plant, Guid, Status));
+                return;
             }
 
             Status = IpoStatus.ScopeHandedOver;

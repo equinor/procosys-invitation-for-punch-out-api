@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
 using Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject;
 using Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject;
 using Equinor.ProCoSys.IPO.Query.GetProjectsInPlant;

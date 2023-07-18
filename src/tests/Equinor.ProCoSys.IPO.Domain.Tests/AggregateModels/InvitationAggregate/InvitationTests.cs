@@ -1294,7 +1294,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void ScopeHandedOver_ThrowsException_WhenIpoIsCanceled()
+        public void ScopeHandedOver_DomainEvent_WhenIpoIsCanceled()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
 
@@ -1312,11 +1312,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);
-            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+            dut.ScopeHandedOver();
+            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
         }
 
         [TestMethod]
-        public void ScopeHandedOver_ThrowsException_WhenIpoIsAccepted()
+        public void ScopeHandedOver_DomainEvent_WhenIpoIsAccepted()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -1337,8 +1338,36 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
             dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+            dut.ScopeHandedOver();
 
-            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
+        }
+
+        [TestMethod]
+        public void ScopeHandedOver_DomainEvent_WhenIpoIsHandedOver()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                project,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            dut.SetCreated(creator);
+
+            dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+            dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
+            dut.ScopeHandedOver();
+
+            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
         }
         #endregion
     }
