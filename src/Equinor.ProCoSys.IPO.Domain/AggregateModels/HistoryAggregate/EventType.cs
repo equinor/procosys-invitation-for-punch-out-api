@@ -30,8 +30,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         CommentRemoved,
         [Description("IPO canceled")]
         IpoCanceled,
-        [Description("IPO could not be set to ScopeHandedOver")]
-        IpoNotHandedOver,
         [Description("Attended status updated")]
         AttendedStatusUpdated,
         [Description("Note updated")]

@@ -1294,7 +1294,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         }
 
         [TestMethod]
-        public void ScopeHandedOver_DomainEvent_WhenIpoIsCanceled()
+        public void ScopeHandedOver_ThrowsException_WhenIpoIsCanceled()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
 
@@ -1312,12 +1312,11 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);
-            dut.ScopeHandedOver();
-            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
         }
 
         [TestMethod]
-        public void ScopeHandedOver_DomainEvent_WhenIpoIsAccepted()
+        public void ScopeHandedOver_ThrowsException_WhenIpoIsAccepted()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -1338,13 +1337,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
             dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
-            dut.ScopeHandedOver();
 
-            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
         }
 
         [TestMethod]
-        public void ScopeHandedOver_DomainEvent_WhenIpoIsHandedOver()
+        public void ScopeHandedOver_ThrowsException_WhenStatusIsScopeHandedOver()
         {
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
             var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
@@ -1363,11 +1361,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             dut.SetCreated(creator);
 
-            dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
-            dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
             dut.ScopeHandedOver();
 
-            Assert.AreEqual(1, dut.DomainEvents.Count(e => e is IpoNotSetToHandedOverEvent));
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
         }
         #endregion
     }
