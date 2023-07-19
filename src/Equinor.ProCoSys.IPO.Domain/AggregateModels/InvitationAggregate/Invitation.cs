@@ -7,7 +7,6 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -318,7 +317,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentNullException(nameof(participant));
             }
 
-            if (Status == IpoStatus.Canceled)
+            if (Status is IpoStatus.Canceled or IpoStatus.ScopeHandedOver)
             {
                 throw new Exception($"Sign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
@@ -441,23 +440,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public void ScopeHandedOver()
         {
-            if (Status == IpoStatus.Canceled)
+            if (Status == IpoStatus.Canceled || Status is IpoStatus.Accepted or IpoStatus.ScopeHandedOver)
             {
-                throw new Exception($"{nameof(Invitation)} {Id} is canceled");
-            }
-
-            if (Status == IpoStatus.Accepted)
-            {
-                throw new Exception($"{nameof(Invitation)} {Id} is accepted");
-            }
-
-            if (Status == IpoStatus.ScopeHandedOver)
-            {
-                throw new Exception($"{nameof(Invitation)} {Id} already has scope handed over");
+                throw new Exception($"{nameof(Invitation)} {Id} is {Status}. Cannot set status to {IpoStatus.ScopeHandedOver}");
             }
 
             Status = IpoStatus.ScopeHandedOver;
-            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
         }
 
         public void SetCreated(Person createdBy)

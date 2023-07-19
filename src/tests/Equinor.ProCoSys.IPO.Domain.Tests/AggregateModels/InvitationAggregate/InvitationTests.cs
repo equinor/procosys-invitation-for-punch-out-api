@@ -1340,6 +1340,31 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
         }
+
+        [TestMethod]
+        public void ScopeHandedOver_ThrowsException_WhenStatusIsScopeHandedOver()
+        {
+            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+
+            var dut = new Invitation(
+                TestPlant,
+                project,
+                Title,
+                Description,
+                DisciplineType.MDP,
+                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
+                null,
+                null,
+                new List<CommPkg> { _commPkg1 });
+
+            dut.SetCreated(creator);
+
+            dut.ScopeHandedOver();
+
+            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+        }
         #endregion
     }
 }

@@ -124,7 +124,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _mcPkgApiServiceMock.Object,
                 _permissionCacheMock.Object);
         }
 
