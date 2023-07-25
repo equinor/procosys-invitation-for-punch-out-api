@@ -265,22 +265,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
          => invitation.Participants.Any(p =>
                 p.AzureOid == currentUserOid
                 && p.FunctionalRoleCode == null
-                && ((!p.SignedAtUtc.HasValue
-                && p.Organization != Organization.Supplier //Lik
-                && p.Organization != Organization.External//Lik
-                && p.SortKey != 1)
-                || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed)));
+                && ((!p.SignedAtUtc.HasValue//Felles
+                && p.Organization != Organization.Supplier //Felles
+                && p.Organization != Organization.External//Felles
+                && p.SortKey != 1) || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed)));//Felles
 
         private static bool UserWasInvitedAsPersonInFunctionalRole(InvitationDto invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
         {
             var functionalRoleParticipantCodesOnInvitation =
                 invitation.Participants.Where(p => ((
-                    !p.SignedAtUtc.HasValue//Lik
-                    && p.Organization != Organization.Supplier//Lik
-                    && p.Organization != Organization.External//Lik
-                    && p.SortKey != 1)
-                    || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed))
-                    && p.FunctionalRoleCode != null
+                    !p.SignedAtUtc.HasValue//Felles
+                    && p.Organization != Organization.Supplier//Felles
+                    && p.Organization != Organization.External//Felles
+                    && p.SortKey != 1) || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed)) //Felles
+                                                   && p.FunctionalRoleCode != null 
                     && p.Type == IpoParticipantType.FunctionalRole)
                     .Select(p => p.FunctionalRoleCode).ToList();
 
