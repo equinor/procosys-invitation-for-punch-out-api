@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Email
             client.SendAsync(message, token);
         }
 
-        private String CreateInviteString(MailMessage message, Invitation invitation, string projectName)
+        private String CreateInviteString(MailMessage message, Invitation invitation)
         {
             StringBuilder str = new StringBuilder();
             str.AppendLine("BEGIN:VCALENDAR");
@@ -97,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.Command.Email
             AlternateView avBody = AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
             message.AlternateViews.Add(avBody);
 
-            String inviteString = CreateInviteString(message, invitation, projectName);
+            String inviteString = CreateInviteString(message, invitation);
             Attachment attachment = CreateInviteAttachment(inviteString);
             message.Attachments.Add(attachment);
 

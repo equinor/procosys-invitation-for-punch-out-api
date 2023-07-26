@@ -81,6 +81,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
             meetingDescription += $"</br><p>Best regards, {organizer.FirstName} {organizer.LastName}</p>";
 
+            meetingDescription += string.Format(
+                @"
+                <p>##########################################################################################<br/>
+                NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
+                a fallback solution was used to send this invite.<br/>
+                This has the concequence that all updates to the invite has to be done through the provided link above<br/>
+                instead of directly in your Outlook calendar item.<br/>
+                #############################################################################################<br/>
+                ",
+                "<br/>");
+
             if (isFake)
             {
                 meetingDescription += string.Format(
