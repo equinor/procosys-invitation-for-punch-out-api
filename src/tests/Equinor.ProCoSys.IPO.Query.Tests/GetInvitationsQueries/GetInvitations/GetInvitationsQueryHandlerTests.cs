@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -430,6 +429,26 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 
                 var result = await dut.Handle(query, default);
                 AssertCount(result.Data, 2);
+            }
+        }
+
+        [TestMethod]
+        public async Task Handler_ShouldFilterOnStatusScopeHandedOver()
+        {
+            var filter = new Filter { IpoStatuses = new List<IpoStatus> { IpoStatus.ScopeHandedOver } };
+
+            using (var context =
+                   new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            {
+                var inv = context.Invitations.First(i => i.Status == IpoStatus.Planned);
+                inv.ScopeHandedOver();
+                context.SaveChangesAsync().Wait();
+
+                var query = new GetInvitationsQuery(_projectName, null, filter);
+                var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider);
+
+                var result = await dut.Handle(query, default);
+                AssertCount(result.Data, 1);
             }
         }
 

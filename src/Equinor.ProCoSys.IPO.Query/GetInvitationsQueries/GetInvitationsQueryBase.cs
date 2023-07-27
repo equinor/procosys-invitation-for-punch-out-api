@@ -61,6 +61,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                         invitation.StartTimeUtc >= startOfNextWeekUtc && invitation.StartTimeUtc < startOfTwoWeeksUtc)) &&
                       (!filter.IpoStatuses.Any() ||
                        (filter.IpoStatuses.Contains(IpoStatus.Planned) && invitation.Status == IpoStatus.Planned) ||
+                       (filter.IpoStatuses.Contains(IpoStatus.ScopeHandedOver) && invitation.Status == IpoStatus.ScopeHandedOver) ||
                        (filter.IpoStatuses.Contains(IpoStatus.Completed) && invitation.Status == IpoStatus.Completed) ||
                        (filter.IpoStatuses.Contains(IpoStatus.Accepted) && invitation.Status == IpoStatus.Accepted) ||
                        (filter.IpoStatuses.Contains(IpoStatus.Canceled) && invitation.Status == IpoStatus.Canceled)) &&
