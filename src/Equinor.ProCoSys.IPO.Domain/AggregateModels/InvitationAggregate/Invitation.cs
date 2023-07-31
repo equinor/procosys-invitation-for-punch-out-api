@@ -440,7 +440,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public void ScopeHandedOver()
         {
-            if (Status is IpoStatus.Canceled or IpoStatus.Accepted or IpoStatus.ScopeHandedOver)
+            if (Status is IpoStatus.Canceled or IpoStatus.ScopeHandedOver)
             {
                 throw new Exception($"{nameof(Invitation)} {Id} is {Status}. Cannot set status to {IpoStatus.ScopeHandedOver}");
             }

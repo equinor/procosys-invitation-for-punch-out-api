@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
             var allProjects = await _projectRepository.GetAllAsync();
-            var invitations = await _invitationRepository.GetAllAsync();
+            var invitations = _invitationRepository.GetInvitationsForSynchronization();
 
             var mcPkgsUpdatedCount = 0;
             var commPkgsUpdatedCount = 0;
