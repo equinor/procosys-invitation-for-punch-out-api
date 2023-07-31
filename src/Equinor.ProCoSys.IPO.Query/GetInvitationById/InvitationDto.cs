@@ -6,8 +6,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 {
     public class InvitationDto
     {
-        public InvitationDto(
-            string projectName,
+        public InvitationDto(string projectName,
             string title,
             string description,
             string location,
@@ -19,7 +18,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             bool canEdit,
             string rowVersion,
             bool canCancel,
-            bool canDelete)
+            bool canDelete,
+            bool? isOnline)
         {
             ProjectName = projectName;
             Title = title;
@@ -33,6 +33,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             CanEdit = canEdit;
             CanCancel = canCancel;
             CanDelete = canDelete;
+            IsOnline = isOnline;
             RowVersion = rowVersion;
         }
 
@@ -48,6 +49,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         public bool CanEdit { get; }
         public bool CanCancel { get; }
         public bool CanDelete { get; }
+        public bool? IsOnline { get; }
         public string RowVersion { get; }
         public IEnumerable<ParticipantDto> Participants { get; set; }
         public IEnumerable<McPkgScopeDto> McPkgScope { get; set; }

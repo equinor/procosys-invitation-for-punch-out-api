@@ -139,12 +139,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
             var invitations = _context.Invitations
                 .Include(i => i.McPkgs)
                 .Include(i => i.CommPkgs)
-                .Where(i => i.ProjectId == project.Id
+                .ToList()
+                .Where(i => i.ProjectId == project.Id && i.Status is IpoStatus.Completed or IpoStatus.Planned
                             && (i.CommPkgs.Any(x => commPkgNos.Any(y => y == x.CommPkgNo))
-                            || i.McPkgs.Any(x => mcPkgs.Any(y => y.Item1 == x.McPkgNo && y.Item2 == x.CommPkgNo))))
+                                || i.McPkgs.Any(x => mcPkgs.Any(y => y.Item1 == x.McPkgNo && y.Item2 == x.CommPkgNo))))
                 .ToList();
 
             foreach (var invitation in invitations)

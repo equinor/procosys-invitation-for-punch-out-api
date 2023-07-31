@@ -5,7 +5,6 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using ServiceResult;
 
@@ -17,22 +16,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IPermissionCache _permissionCache;
 
-        public UnCompletePunchOutCommandHandler(
-            IPlantProvider plantProvider,
+        public UnCompletePunchOutCommandHandler(IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserProvider currentUserProvider, 
-            IMcPkgApiService mcPkgApiService,
+            ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
-            _mcPkgApiService = mcPkgApiService;
             _permissionCache = permissionCache;
         }
 

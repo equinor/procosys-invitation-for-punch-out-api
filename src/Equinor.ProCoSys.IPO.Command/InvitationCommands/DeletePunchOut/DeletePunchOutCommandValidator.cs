@@ -19,9 +19,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
                 .MustAsync((command, cancellationToken) => BeAnExistingInvitation(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"Invitation with this ID does not exist! Id={command.InvitationId}")
-                .MustAsync((command, cancellationToken) => InvitationIsCanceled(command.InvitationId, cancellationToken))
+                .MustAsync((command, cancellationToken) => InvitationIsCanceledOrScopeHandedOver(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
-                    $"IPO is not canceled! Id={command.InvitationId}")
+                    $"IPO is not canceled or has scope handed over! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) => CurrentUserIsCreatorOrOfInvitationOrAdmin(command.InvitationId, cancellationToken))
                 .WithMessage(command =>
                     $"Current user is not the creator of the invitation and not ipo admin! Id={command.InvitationId}")
@@ -35,8 +35,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
             async Task<bool> CurrentUserIsCreatorOrOfInvitationOrAdmin(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.CurrentUserIsAllowedToDeleteIpoAsync(invitationId, cancellationToken);
 
-            async Task<bool> InvitationIsCanceled(int invitationId, CancellationToken cancellationToken)
-                => await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
+            async Task<bool> InvitationIsCanceledOrScopeHandedOver(int invitationId, CancellationToken cancellationToken) =>
+                await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken) 
+                || await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.ScopeHandedOver, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)
                 => rowVersionValidator.IsValid(rowVersion);

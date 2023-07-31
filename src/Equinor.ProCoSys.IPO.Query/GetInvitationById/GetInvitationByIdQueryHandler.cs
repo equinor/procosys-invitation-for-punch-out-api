@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) || 
                            meeting.Organizer.Id == _currentUserProvider.GetCurrentUserOid());
             var currentUserIsCreator = _currentUserProvider.GetCurrentUserOid() == createdBy.Guid;
-            var canDelete = invitation.Status == IpoStatus.Canceled && currentUserIsCreator;
+            var canDelete = invitation.Status is IpoStatus.Canceled or IpoStatus.ScopeHandedOver && currentUserIsCreator;
             var canCancel = invitation.Status is IpoStatus.Completed or IpoStatus.Planned
                             && (currentUserIsCreator 
                                 || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList()));
@@ -114,7 +114,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 canEdit,
                 invitation.RowVersion.ConvertToString(), 
                 canCancel,
-                canDelete)
+                canDelete,
+                meeting?.IsOnlineMeeting)
             {
                 Participants = await ConvertToParticipantDtoAsync(invitation.Participants, invitation.Status),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
