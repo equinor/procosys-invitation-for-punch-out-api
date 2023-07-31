@@ -61,9 +61,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
                 _logger.LogInformation($"FillRfocStatuses: Project updated: {project.Name}");
             }
 
-            if (request.SaveChanges && (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0))
+            if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
             {
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                if (request.SaveChanges)
+                {
+                    await _unitOfWork.SaveChangesAsync(cancellationToken);
+                }
                 _logger.LogInformation($"McPkgs updated with RfocAccepted: {mcPkgsUpdatedCount}");
                 _logger.LogInformation($"CommPkgs updated with RfocAccepted: {commPkgsUpdatedCount}");
                 _logger.LogInformation($"Invitations set to ScopeHandedOver: {invitationsSetToScopeHandedOverCount}");
