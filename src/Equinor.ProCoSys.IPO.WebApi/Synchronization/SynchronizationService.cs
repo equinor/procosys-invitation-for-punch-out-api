@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
                     var startTime = TimeService.UtcNow;
                     
-                    var result = await _mediator.Send(new FillRfocStatusesCommand(saveChanges?.Value == "true"));
+                    await _mediator.Send(new FillRfocStatusesCommand(saveChanges?.Value == "true"));
 
                     var endTime = TimeService.UtcNow;
 

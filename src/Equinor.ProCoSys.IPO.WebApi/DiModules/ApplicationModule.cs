@@ -9,7 +9,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -37,6 +36,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Auth.Authorization;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
@@ -52,6 +52,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
+            services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
 
             services.AddDbContext<IPOContext>(options =>
             {
@@ -59,10 +60,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
-            services.AddHttpContextAccessor();
-            services.AddHttpClient();
 
             // Hosted services
+            services.AddHostedService<TimedSynchronization>();
+
+            services.AddHttpContextAccessor();
+            services.AddHttpClient();
 
             // Transient - Created each time it is requested from the service container
 
@@ -82,7 +85,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<ISettingRepository, SettingRepository>();
 
+            services.AddScoped<ISynchronizationService, SynchronizationService>();
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
             services.AddScoped<LibraryApiAuthenticator>();
             services.AddScoped<ILibraryApiAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());

@@ -44,20 +44,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             // and new status (ScopeHandedOver) on invitation
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
-            var allProjects = await _projectRepository.GetAllAsync();
+            var projects = await _projectRepository.GetAllAsync();
             var invitations = _invitationRepository.GetInvitationsForSynchronization();
 
             var mcPkgsUpdatedCount = 0;
             var commPkgsUpdatedCount = 0;
             var invitationsSetToScopeHandedOverCount = 0;
 
-            foreach (var project in allProjects)
+            foreach (var project in projects)
             {
                 var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
 
-                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project, mcPkgsUpdatedCount);
-                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project, commPkgsUpdatedCount);
-                invitationsSetToScopeHandedOverCount += HandleInvitationStatus(invitationsInProject, invitationsSetToScopeHandedOverCount);
+                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
+                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
+                invitationsSetToScopeHandedOverCount += HandleInvitationStatus(invitationsInProject);
                 _logger.LogInformation($"FillRfocStatuses: Project updated: {project.Name}");
             }
 
@@ -75,25 +75,35 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project, int count)
+        private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project)
         {
+            var count = 0;
+
             var mcPkgsInProject = invitations.Where(i => i.Type == DisciplineType.DP)
                 .SelectMany(i => i.McPkgs)
                 .ToList();
 
-            var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
-
-            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
-
-            foreach (var pcsMcPkg in pcsMcPkgs)
+            if (mcPkgsInProject.Any())
             {
-                if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED")
+                var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
+                var mcPkgNosChunks = mcPkgNosInProject.Chunk(80);
+                var pcsMcPkgs = new List<ProCoSysMcPkg>();
+                foreach (var chunk in mcPkgNosChunks)
                 {
-                    var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
-                    foreach (var mcPkg in mcPkgsToUpdate)
+                    var response = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, chunk);
+                    pcsMcPkgs.AddRange(response);
+                }
+
+                foreach (var pcsMcPkg in pcsMcPkgs)
+                {
+                    if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED")
                     {
-                        mcPkg.RfocAccepted = true;
-                        count++;
+                        var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
+                        foreach (var mcPkg in mcPkgsToUpdate)
+                        {
+                            mcPkg.RfocAccepted = true;
+                            count++;
+                        }
                     }
                 }
             }
@@ -101,25 +111,35 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             return count;
         }
 
-        private async Task<int> HandleCommPkgsAsync(List<Invitation> invitations, Project project, int count)
+        private async Task<int> HandleCommPkgsAsync(List<Invitation> invitations, Project project)
         {
+            var count = 0;
+
             var commPkgsInProject = invitations.Where(i => i.Type == DisciplineType.MDP)
                 .SelectMany(i => i.CommPkgs)
                 .ToList();
 
-            var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
-
-            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject);
-
-            foreach (var pcsCommPkg in pcsCommPkgs)
+            if (commPkgsInProject.Any())
             {
-                if (pcsCommPkg.OperationHandoverStatus == "ACCEPTED")
+                var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
+                var mcPkgNosChunks = commPkgNosInProject.Chunk(80);
+                var pcsCommPkgs = new List<ProCoSysCommPkg>();
+                foreach (var chunk in mcPkgNosChunks)
                 {
-                    var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == pcsCommPkg.CommPkgNo).ToList();
-                    foreach (var commPkg in commPkgsToUpdate)
+                    var response = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, chunk);
+                    pcsCommPkgs.AddRange(response);
+                }
+
+                foreach (var pcsCommPkg in pcsCommPkgs)
+                {
+                    if (pcsCommPkg.OperationHandoverStatus == "ACCEPTED")
                     {
-                        commPkg.RfocAccepted = true;
-                        count++;
+                        var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == pcsCommPkg.CommPkgNo).ToList();
+                        foreach (var commPkg in commPkgsToUpdate)
+                        {
+                            commPkg.RfocAccepted = true;
+                            count++;
+                        }
                     }
                 }
             }
@@ -127,8 +147,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             return count;
         }
 
-        private static int HandleInvitationStatus(List<Invitation> invitations, int count)
+        private static int HandleInvitationStatus(List<Invitation> invitations)
         {
+            var count = 0;
+
             foreach (var invitation in invitations)
             {
                 if (invitation.Type == DisciplineType.DP)
