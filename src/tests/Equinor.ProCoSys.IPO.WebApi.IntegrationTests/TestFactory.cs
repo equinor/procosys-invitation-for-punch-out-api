@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -30,6 +31,7 @@ using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 using Equinor.ProCoSys.Common.Email;
+using Microsoft.Data.SqlClient;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -113,11 +115,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public HttpClient GetHttpClient(UserType userType, string plant)
         {
             var testUser = _testUsers[userType];
-            
+
             SetupPermissionMock(plant, testUser);
-            
+
             UpdatePlantInHeader(testUser.HttpClient, plant);
-            
+
             return testUser.HttpClient;
         }
 
@@ -135,7 +137,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 testUser.Value.HttpClient.Dispose();
             }
-            
+
             foreach (var disposable in _disposables)
             {
                 try { disposable.Dispose(); } catch { /* Ignore */ }
@@ -179,9 +181,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             builder.ConfigureServices(services =>
             {
                 ReplaceRealDbContextWithTestDbContext(services);
-                
+
+                ReplaceRealDbConnectionWithTestDbConnection(services);
+
                 CreateSeededTestDatabase(services);
-                
+
                 EnsureTestDatabaseDeletedAtTeardown(services);
             });
         }
@@ -196,8 +200,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.Remove(descriptor);
             }
 
-            services.AddDbContext<IPOContext>(options 
+            services.AddDbContext<IPOContext>(options
                 => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
+        }
+
+        private void ReplaceRealDbConnectionWithTestDbConnection(IServiceCollection services)
+        {
+            var descriptor = services.SingleOrDefault
+                (d => d.ServiceType == typeof(IDbConnection));
+
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
+
+            services.AddTransient<IDbConnection>((sp) => new SqlConnection(_connectionString));
+
         }
 
         private void CreateSeededTestDatabase(IServiceCollection services)
@@ -235,7 +253,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private IPOContext DatabaseContext(IServiceCollection services)
         {
-            services.AddDbContext<IPOContext>(options 
+            services.AddDbContext<IPOContext>(options
                 => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
             var sp = services.BuildServiceProvider();
@@ -251,7 +269,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         {
             var dbName = "IntegrationTestsIPODb";
             var dbPath = Path.Combine(projectDir, $"{dbName}.mdf");
-            
+
             // Set Initial Catalog to be able to delete database!
             return $"Server=(LocalDB)\\MSSQLLocalDB;Initial Catalog={dbName};Integrated Security=true;AttachDbFileName={dbPath}";
         }
@@ -267,7 +285,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant))
                 .Returns(Task.FromResult(testUser.Permissions));
-                        
+
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant))
                 .Returns(Task.FromResult(testUser.AccessableProjects));
         }
@@ -289,18 +307,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             AddAnonymousUser();
 
             AddSignerUser(accessablePlants, accessableProjects);
-            
+
             AddPlannerUser(accessablePlants, accessableProjects);
 
             AddViewerUser(accessablePlants, accessableProjects);
-    
+
             AddHackerUser();
 
             AddContractorUser(accessablePlants, accessableProjects);
 
             AddAdminUser(accessablePlants, accessableProjects);
 
-            AddCreatorUser(accessablePlants, accessableProjects); 
+            AddCreatorUser(accessablePlants, accessableProjects);
 
             var webHostBuilder = WithWebHostBuilder(builder =>
             {
@@ -368,7 +386,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         new TestProfile
                         {
                             FirstName = "Harry",
-                            LastName = "Hacker", 
+                            LastName = "Hacker",
                             UserName = "HH",
                             Oid = HackerOid,
                             Email = "harry.hacker@pcs.pcs"
@@ -489,7 +507,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                             LastName = "Contractor",
                             UserName = "CC",
                             Oid = ContractorOid,
-                            Email = "conte.contractor@pcs.pcs"  
+                            Email = "conte.contractor@pcs.pcs"
                         },
                     AccessablePlants = accessablePlants,
                     Permissions = new List<string>
@@ -505,25 +523,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     },
                     AccessableProjects = accessableProjects
                 });
-                
+
         // Authenticated user with all IPO permissions
         private void AddAdminUser(
             List<AccessablePlant> accessablePlants,
             List<AccessableProject> accessableProjects)
             => _testUsers.Add(UserType.Admin,
             new TestUser
-                {
-                    Profile =
+            {
+                Profile =
                         new TestProfile
                         {
-                          FirstName = "Andrea",
+                            FirstName = "Andrea",
                             LastName = "Admin",
                             UserName = "AA",
                             Oid = AdminOid,
                             Email = "andrea.admin@pcs.pcs"
                         },
                 AccessablePlants = accessablePlants,
-                    Permissions = new List<string>
+                Permissions = new List<string>
                     {
                         Permissions.COMMPKG_READ,
                         Permissions.MCPKG_READ,
@@ -539,8 +557,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_VOIDUNVOID,
                         Permissions.IPO_ADMIN,
                     },
-                    AccessableProjects = accessableProjects
-                });
+                AccessableProjects = accessableProjects
+            });
 
         private void AddCreatorUser(
             List<AccessablePlant> accessablePlants,

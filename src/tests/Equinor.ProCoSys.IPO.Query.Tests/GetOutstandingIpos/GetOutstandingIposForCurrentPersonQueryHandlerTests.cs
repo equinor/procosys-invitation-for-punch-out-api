@@ -8,6 +8,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
@@ -21,7 +22,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
     [TestClass]
-    public class GetOutstandingIposForCurrentUserQueryHandlerTests : ReadOnlyTestsBaseInMemory
+    public class GetOutstandingIposForCurrentUserQueryHandlerTests : ReadOnlyTestsBaseSqlLiteInMemory
     {
         private Mock<IMeApiService> _meApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -70,6 +71,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _testProjectClosed.SetProtectedIdForTesting(2);
 
             using var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+
             IList<string> pcsFunctionalRoleCodes = new List<string> { _functionalRoleCode };
 
             _meApiServiceMock = new Mock<IMeApiService>();
@@ -357,8 +359,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnOkResult()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
@@ -367,8 +370,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
             Assert.AreEqual(6, result.Data.Items.Count());
@@ -422,8 +426,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsNotInAnyFunctionalRoles()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> emptyListOfFunctionalRoleCodes = new List<string>();
             _meApiServiceMock
                 .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
@@ -444,8 +449,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsInFunctionalRoles()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
             _meApiServiceMock
                 .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
@@ -492,7 +498,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             context.SaveChangesAsync().Wait();
 
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
             var result = await dut.Handle(_query, default);
@@ -542,7 +549,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
             Assert.AreEqual(0, existingUncancelledInvitations);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
             await dut.Handle(_query, default);
@@ -578,7 +586,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             var existingUncancelledInvitations = context.Invitations.Count(i => i.Status != IpoStatus.Canceled);
             Assert.AreEqual(3, existingUncancelledInvitations);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
             await dut.Handle(_query, default);
@@ -597,8 +606,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 _personParticipantConstructionCompany.RowVersion.ConvertToString(), _person, DateTime.Now);
 
             context.SaveChangesAsync().Wait();
-
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
@@ -648,7 +657,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             context.SaveChangesAsync().Wait();
 
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
@@ -698,7 +708,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             context.SaveChangesAsync().Wait();
 
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider,
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
                 
             // Act
@@ -746,8 +757,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
-               
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProviderMock.Object,
+
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProviderMock.Object,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
 
             var result = await dut.Handle(_query, default);
@@ -759,8 +771,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnInvitation_WhenProjectIsClosed()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
             var isClosedProjectInvitationInResultSet = result.Data.Items.Any(x => x.Description.Equals(_closedProjectInvitationDescription));
@@ -771,8 +784,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnInvitation_WhenProjectIsNotClosed()
         {
-            await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(context, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            //await using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            var repository = new OutstandingIPOsRawSqlRepository(_sqlLiteConnection);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
             var isNotClosedProjectInvitationInResultSet = result.Data.Items.Any(x => x.Description.Equals(_notClosedProjectInvitationDescription));

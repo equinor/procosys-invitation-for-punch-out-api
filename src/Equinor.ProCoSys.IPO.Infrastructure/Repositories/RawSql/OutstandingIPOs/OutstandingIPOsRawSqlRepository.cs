@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs
 {
     public class OutstandingIPOsRawSqlRepository : RawSqlRepositoryBase, IOutstandingIPOsRawSqlRepository
     {
-        public OutstandingIPOsRawSqlRepository(IConfiguration configuration) : base(configuration)
+        //public OutstandingIPOsRawSqlRepository(IConfiguration configuration) : base(configuration)
+        //{
+
+        //}
+        public OutstandingIPOsRawSqlRepository(IDbConnection dbConnection) : base(dbConnection)
         {
 
         }

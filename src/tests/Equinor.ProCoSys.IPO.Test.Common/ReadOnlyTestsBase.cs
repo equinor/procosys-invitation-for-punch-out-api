@@ -22,21 +22,15 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
     public abstract class ReadOnlyTestsBaseInMemory : ReadOnlyTestsBase
     {
-        //TODO: Implement
         protected override DbContextOptions<IPOContext> CreateDbContextOptions()
         {
             return new DbContextOptionsBuilder<IPOContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
         }
-
-        public override void Dispose()
-        {
-            //Nothing to dispose
-        }
     }
 
-    public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase
+    public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase, IDisposable
     {
         protected SqliteConnection _sqlLiteConnection;
 
@@ -50,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
                 .Options;
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
             if (_sqlLiteConnection != null)
             {
@@ -59,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         }
     }
 
-    public abstract class ReadOnlyTestsBase : IDisposable
+    public abstract class ReadOnlyTestsBase
     {
         protected const string TestPlant = "PCS$PlantA";
         protected readonly Project Project = new(TestPlant, ProjectName, $"Description of {ProjectName} project");
@@ -116,6 +110,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             // ensure current user exists in db
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
+                context.Database.EnsureCreated();
+
                 if (context.Persons.SingleOrDefault(p => p.Guid == _currentUserOid) == null)
                 {
                     var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
@@ -161,7 +157,5 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             context.SaveChangesAsync().Wait();
             return project;
         }
-
-        public abstract void Dispose();
     }
 }

@@ -38,6 +38,10 @@ using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -53,11 +57,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
 
+            var connectionString = configuration.GetConnectionString("IPOContext");
+
             services.AddDbContext<IPOContext>(options =>
             {
-                var connectionString = configuration.GetConnectionString("IPOContext");
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
+
+            //Used by Dapper repositories
+            services.AddTransient<IDbConnection>((sp) => new SqlConnection(connectionString));
 
             services.AddHttpContextAccessor();
             services.AddHttpClient();
@@ -82,6 +90,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IInvitationRepository, InvitationRepository>();
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IOutstandingIPOsRawSqlRepository, OutstandingIPOsRawSqlRepository>();
 
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
             services.AddScoped<LibraryApiAuthenticator>();
