@@ -13,7 +13,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
 {
     [TestClass]
-    public class InvitationHelperTests : ReadOnlyTestsBase
+    public class InvitationHelperTests : ReadOnlyTestsBaseInMemory
     {
         private int _invitationId;
         private const string _projectName = "Project1";

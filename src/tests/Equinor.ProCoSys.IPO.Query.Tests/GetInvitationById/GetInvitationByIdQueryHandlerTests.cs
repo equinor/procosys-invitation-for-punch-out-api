@@ -24,7 +24,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 {
     [TestClass]
-    public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _mdpInvitation;
         private Invitation _dpInvitation;

@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,7 +21,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
     [TestClass]
-    public class GetOutstandingIposForCurrentUserQueryHandlerTests : ReadOnlyTestsBase
+    public class GetOutstandingIposForCurrentUserQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<IMeApiService> _meApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -54,11 +55,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Project _testProjectClosed;
 
 
-        IPOContext CreateInMemoryContext()
-        {
-            var _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-        }
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -354,6 +350,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             context.Invitations.Add(_invitationForNotClosedProject);
 
             context.SaveChangesAsync().Wait();
+
+
         }
 
         [TestMethod]

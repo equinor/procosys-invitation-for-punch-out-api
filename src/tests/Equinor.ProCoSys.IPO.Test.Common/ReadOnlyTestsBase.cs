@@ -15,10 +15,51 @@ using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Auth.Permission;
+using Microsoft.Data.Sqlite;
 
 namespace Equinor.ProCoSys.IPO.Test.Common
 {
-    public abstract class ReadOnlyTestsBase
+
+    public abstract class ReadOnlyTestsBaseInMemory : ReadOnlyTestsBase
+    {
+        //TODO: Implement
+        protected override DbContextOptions<IPOContext> CreateDbContextOptions()
+        {
+            return new DbContextOptionsBuilder<IPOContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+        }
+
+        public override void Dispose()
+        {
+            //Nothing to dispose
+        }
+    }
+
+    public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase
+    {
+        protected SqliteConnection _sqlLiteConnection;
+
+        protected override DbContextOptions<IPOContext> CreateDbContextOptions()
+        {
+            _sqlLiteConnection = new SqliteConnection("Filename=:memory:");
+            _sqlLiteConnection.Open();
+
+            return new DbContextOptionsBuilder<IPOContext>()
+                .UseSqlite(_sqlLiteConnection)
+                .Options;
+        }
+
+        public override void Dispose()
+        {
+            if (_sqlLiteConnection != null)
+            {
+                _sqlLiteConnection.Dispose();
+            }
+        }
+    }
+
+    public abstract class ReadOnlyTestsBase : IDisposable
     {
         protected const string TestPlant = "PCS$PlantA";
         protected readonly Project Project = new(TestPlant, ProjectName, $"Description of {ProjectName} project");
@@ -70,9 +111,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _timeProvider = new ManualTimeProvider(new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc));
             TimeService.SetProvider(_timeProvider);
 
-            _dbContextOptions = new DbContextOptionsBuilder<IPOContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
+            _dbContextOptions = CreateDbContextOptions();
 
             // ensure current user exists in db
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -87,6 +126,8 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
             SetupNewDatabase(_dbContextOptions);
         }
+
+        protected abstract DbContextOptions<IPOContext> CreateDbContextOptions();
 
         protected abstract void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions);
 
@@ -120,5 +161,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             context.SaveChangesAsync().Wait();
             return project;
         }
+
+        public abstract void Dispose();
     }
 }

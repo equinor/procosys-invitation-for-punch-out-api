@@ -17,7 +17,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsForExport
 {
     [TestClass]
-    public class GetInvitationsForExportQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationsForExportQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _invitation1;
         private Invitation _invitation2;

@@ -19,7 +19,7 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 {
     [TestClass]
-    public class InvitationValidatorTests : ReadOnlyTestsBase
+    public class InvitationValidatorTests : ReadOnlyTestsBaseInMemory
     {
         #region Setup
         private static readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
