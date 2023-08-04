@@ -53,6 +53,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         private Project _testProject;
         private Project _testProjectClosed;
 
+
+        IPOContext CreateInMemoryContext()
+        {
+            var _connection = new SqliteConnection("Filename=:memory:");
+            _connection.Open();
+        }
+
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();

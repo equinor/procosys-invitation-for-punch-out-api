@@ -16,13 +16,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
             _configuration = configuration;
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>((string queryString, DynamicParameters parameters) query, string objectId)
+        public async Task<IEnumerable<T>> QueryAsync<T>(string queryString, object parameters)
         {
             var connectionString = _configuration.GetConnectionString("IPOContext");
 
             using (IDbConnection connection = new SqlConnection(connectionString))
             {
-                return await connection.QueryAsync<T>(query.queryString, query.parameters);
+                return await connection.QueryAsync<T>(queryString, parameters);
             }
         }
     }
