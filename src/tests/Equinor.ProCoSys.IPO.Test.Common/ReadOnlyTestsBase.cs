@@ -115,8 +115,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
                 if (context.Persons.SingleOrDefault(p => p.Guid == _currentUserOid) == null)
                 {
                     var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
-                    AddSavedFiltersToPerson(context, person);
                     AddProject(context, Project);
+                    AddSavedFiltersToPerson(context, person);
+                   
                 }
             }
 
@@ -147,6 +148,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             var filter2 = new SavedFilter(TestPlant, Project, "filter2", Criteria);
             person.AddSavedFilter(_savedFilter);
             person.AddSavedFilter(filter2);
+            //context.Projects.Add(Project);
             context.SaveChangesAsync().Wait();
             return person;
         }

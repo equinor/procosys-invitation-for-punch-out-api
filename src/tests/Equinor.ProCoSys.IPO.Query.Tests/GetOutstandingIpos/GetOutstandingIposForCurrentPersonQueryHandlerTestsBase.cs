@@ -23,7 +23,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
     [TestClass]
-    public class GetOutstandingIposForCurrentUserQueryHandlerTests : GetOutstandingIposForCurrentPersonQueryHandlerTestsBase
+    public class GetOutstandingIposForCurrentUserQueryHandlerTests : ReadOnlyTestsBaseSqlLiteInMemory
     {
         private Mock<IMeApiService> _meApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
