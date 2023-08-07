@@ -117,18 +117,18 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             SetupInvitationForNotClosedProject(context);
 
-            context.SaveChangesAsync().Wait();
+            SetRequiredProperties(context,
+                _invitationWithPersonParticipantContractor,
+                _invitationWithFunctionalRoleParticipantConstructionCompany,
+                _cancelledInvitation,
+                _invitationWithPersonParticipantConstructionCompany,
+                _invitationWithFunctionalRoleParticipantContractor,
+                _acceptedInvitationWithOperationPerson,
+                _invitationForClosedProject,
+                _invitationForNotClosedProject
+            );
 
-            //SetRequiredProperties(context,
-            //    _invitationWithPersonParticipantContractor,
-            //    _invitationWithFunctionalRoleParticipantConstructionCompany,
-            //    _cancelledInvitation,
-            //    _invitationWithPersonParticipantConstructionCompany,
-            //    _invitationWithFunctionalRoleParticipantContractor,
-            //    _acceptedInvitationWithOperationPerson,
-            //    _invitationForClosedProject,
-            //    _invitationForNotClosedProject
-            //);
+            context.SaveChangesAsync().Wait();
         }
 
         private void SetupInvitationContractor(IPOContext context)
@@ -448,7 +448,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 invitation.AddAttachment(attachment);
 
                 invitation.SetCreated(_person);
-
+                invitation.SetRowVersion("abc");
             }
         }
     }
