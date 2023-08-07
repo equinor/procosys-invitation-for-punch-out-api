@@ -44,33 +44,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             // and new status (ScopeHandedOver) on invitation
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
-            var projects = await _projectRepository.GetAllAsync();
-            var invitations = _invitationRepository.GetInvitationsForSynchronization();
+            //var projects = await _projectRepository.GetAllAsync();
+            //var invitations = _invitationRepository.GetInvitationsForSynchronization();
 
-            var mcPkgsUpdatedCount = 0;
-            var commPkgsUpdatedCount = 0;
-            var invitationsSetToScopeHandedOverCount = 0;
+            //var mcPkgsUpdatedCount = 0;
+            //var commPkgsUpdatedCount = 0;
+            //var invitationsSetToScopeHandedOverCount = 0;
 
-            foreach (var project in projects)
-            {
-                var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
+            //foreach (var project in projects)
+            //{
+            //    var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
 
-                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
-                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
-                invitationsSetToScopeHandedOverCount += HandleInvitationStatus(invitationsInProject);
-                _logger.LogInformation($"FillRfocStatuses: Project updated: {project.Name}");
-            }
+            //    mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
+            //    commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
+            //    invitationsSetToScopeHandedOverCount += HandleInvitationStatus(invitationsInProject);
+            //    _logger.LogInformation($"FillRfocStatuses: Project updated: {project.Name}");
+            //}
 
-            if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
-            {
-                if (request.SaveChanges)
-                {
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-                }
-                _logger.LogInformation($"McPkgs updated with RfocAccepted: {mcPkgsUpdatedCount}");
-                _logger.LogInformation($"CommPkgs updated with RfocAccepted: {commPkgsUpdatedCount}");
-                _logger.LogInformation($"Invitations set to ScopeHandedOver: {invitationsSetToScopeHandedOverCount}");
-            }
+            //if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
+            //{
+            //    if (request.SaveChanges)
+            //    {
+            //        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            //    }
+            //    _logger.LogInformation($"McPkgs updated with RfocAccepted: {mcPkgsUpdatedCount}");
+            //    _logger.LogInformation($"CommPkgs updated with RfocAccepted: {commPkgsUpdatedCount}");
+            //    _logger.LogInformation($"Invitations set to ScopeHandedOver: {invitationsSetToScopeHandedOverCount}");
+            //}
 
             return new SuccessResult<Unit>(Unit.Value);
         }
