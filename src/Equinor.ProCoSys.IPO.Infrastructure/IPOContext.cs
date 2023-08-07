@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -61,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<Attachment> Attachments { get; set; }
         public virtual DbSet<SavedFilter> SavedFilters { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<Setting> Setting { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
