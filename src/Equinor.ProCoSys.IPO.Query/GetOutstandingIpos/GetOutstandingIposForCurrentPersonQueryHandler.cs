@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,26 +44,16 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             {
                 var plantId = _plantProvider.Plant;
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
-                IList<string> currentUsersFunctionalRoleCodes = default;
 
-                var allInvitations = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByAzureOid(plantId, currentUserOid);
-
-                var invitationsWithFunctionalRowsExists =
-                    await _outstandingIpOsRawSqlRepository.ExistsAnyOutstandingIPOsWithFunctionalRoleCodes(plantId);
-
-                if (invitationsWithFunctionalRowsExists)
-                {
-                    currentUsersFunctionalRoleCodes =
+                var invivationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByAzureOid(plantId, currentUserOid);
+                
+                var currentUsersFunctionalRoleCodes =
                         await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
-                    if (currentUsersFunctionalRoleCodes != null && currentUsersFunctionalRoleCodes.Count > 0)
-                    {
-                        var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
-                        allInvitations = allInvitations.Concat(invitationsByFunctionalRole).ToList();
-                    }
-                }
+                  var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
+                  var allInvitations = invivationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
 
-                var filteredInvitationsGrouped = allInvitations.GroupBy(i => new
+                  var filteredInvitationsGrouped = allInvitations.GroupBy(i => new
                 {
                     i.Id,
                     i.Description,
