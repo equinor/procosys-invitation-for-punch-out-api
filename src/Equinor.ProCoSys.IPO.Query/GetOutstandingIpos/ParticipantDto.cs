@@ -3,7 +3,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 {
-    public class InvitationParticipantDto
+    public class ParticipantDto
     {
         public Guid? AzureOid { get; set; }
 

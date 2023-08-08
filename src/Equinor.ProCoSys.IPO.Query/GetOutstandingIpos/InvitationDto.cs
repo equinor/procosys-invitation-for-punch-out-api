@@ -3,7 +3,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 {
-    public class InvitationDto2
+    public class InvitationDto
     {
         public int Id { get; set; }
 
@@ -11,6 +11,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 
         public IpoStatus Status { get; set; }
 
-        public List<InvitationParticipantDto> Participants { get; set; }
+        public List<ParticipantDto> Participants { get; set; }
     }
 }

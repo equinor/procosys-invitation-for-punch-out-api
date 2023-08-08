@@ -55,9 +55,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                     currentUsersFunctionalRoleCodes =
                         await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
-                    var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
-
-                    allInvitations = allInvitations.Concat(invitationsByFunctionalRole).ToList();
+                    if (currentUsersFunctionalRoleCodes != null && currentUsersFunctionalRoleCodes.Count > 0)
+                    {
+                        var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
+                        allInvitations = allInvitations.Concat(invitationsByFunctionalRole).ToList();
+                    }
                 }
 
                 var filteredInvitationsGrouped = allInvitations.GroupBy(i => new
@@ -67,17 +69,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                     i.Status
                 });
 
-                var filteredInvitationsList = new List<InvitationDto2>();
+                var filteredInvitationsList = new List<InvitationDto>();
 
                 foreach (var group in filteredInvitationsGrouped)
                 {
                     filteredInvitationsList.Add(
-                        new InvitationDto2()
+                        new InvitationDto()
                         {
                             Id = group.Key.Id,
                             Description = group.Key.Description,
                             Status = group.Key.Status,
-                            Participants = group.Select(p => new InvitationParticipantDto()
+                            Participants = group.Select(p => new ParticipantDto()
                             {
                                 AzureOid = p.AzureOid,
                                 FunctionalRoleCode = p.FunctionalRoleCode,
@@ -98,7 +100,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
             }
         }
 
-        private OutstandingIposResultDto ToOutstandingIposResultDto(List<InvitationDto2> currentUsersOutstandingInvitations,
+        private OutstandingIposResultDto ToOutstandingIposResultDto(List<InvitationDto> currentUsersOutstandingInvitations,
             Guid currentUserOid, IList<string> currentUsersFunctionalRoleCodes)
         {
             var outstandingInvitations = new OutstandingIposResultDto(currentUsersOutstandingInvitations.Select(invitation =>
