@@ -2,7 +2,6 @@
 {
     public static class OutstandingIPOsQuery
     {
-
         private static string CreateBaseQuery()
         {
             var query = @$"

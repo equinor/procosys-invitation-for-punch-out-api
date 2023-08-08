@@ -1,18 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Data;
 using System.Threading.Tasks;
-using Dapper;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
 {
     public class RawSqlRepositoryBase
     {
-        private readonly IDbConnection _dbConnection;
-        public RawSqlRepositoryBase(IDbConnection dbConnection)
+        private readonly string _dbConnectionString;
+
+        public RawSqlRepositoryBase(IConfiguration configuration)
         {
-            _dbConnection = dbConnection;
+            _dbConnectionString = configuration.GetConnectionString("IPOContext");
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string queryString, DynamicParameters parameters) => await _dbConnection.QueryAsync<T>(queryString, parameters);
+        protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> getData)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_dbConnectionString))
+                {
+                    await connection.OpenAsync();
+                    return await getData(connection);
+                }
+            }
+            catch (TimeoutException ex)
+            {
+                throw new Exception($"{GetType().FullName} Query timed out. See inner exception for details", ex);
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception($"{GetType().FullName} SqlException. See inner exception for details.", ex);
+            }
+        }
     }
 }

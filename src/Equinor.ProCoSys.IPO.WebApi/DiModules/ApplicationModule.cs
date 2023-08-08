@@ -1,18 +1,25 @@
-﻿using Equinor.ProCoSys.BlobStorage;
+﻿using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Auth.Authorization;
+using Equinor.ProCoSys.Auth.Client;
+using Equinor.ProCoSys.BlobStorage;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Caches;
+using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
@@ -20,6 +27,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
@@ -30,18 +38,6 @@ using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Equinor.ProCoSys.Auth.Authentication;
-using Equinor.ProCoSys.Auth.Client;
-using Equinor.ProCoSys.Common.Caches;
-using Equinor.ProCoSys.Common.Email;
-using Equinor.ProCoSys.Common.Telemetry;
-using Equinor.ProCoSys.Common;
-using Equinor.ProCoSys.Auth.Authorization;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -63,9 +59,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             {
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
-
-            //Used by Dapper repositories
-            services.AddTransient<IDbConnection>((sp) => new SqlConnection(connectionString));
 
             services.AddHttpContextAccessor();
             services.AddHttpClient();
