@@ -1152,6 +1152,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             => Assert.ThrowsException<Exception>(()
                 => _dutWithCanceledStatus.UnSignIpo(
                     _functionalRoleParticipant,
+                    _currentPerson,
                     _functionalRoleParticipant.RowVersion.ConvertToString()));
 
         [TestMethod]
@@ -1162,6 +1163,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             _dutWithSignedParticipant.UnSignIpo(
                 _personParticipant2,
+                _currentPerson,
                 _personParticipant2.RowVersion.ConvertToString());
 
             Assert.IsNull(participant.SignedBy);
@@ -1173,6 +1175,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             _dutWithSignedParticipant.UnSignIpo(
                 _personParticipant2,
+                _currentPerson,
                 _personParticipant2.RowVersion.ConvertToString());
 
             Assert.IsInstanceOfType(_dutWithSignedParticipant.DomainEvents.Last(), typeof(IpoUnSignedEvent));
