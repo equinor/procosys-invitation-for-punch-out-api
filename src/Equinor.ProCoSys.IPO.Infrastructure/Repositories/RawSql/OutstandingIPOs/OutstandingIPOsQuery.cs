@@ -3,14 +3,10 @@
     public static class OutstandingIPOsQuery
     {
 
-        private static string CreateBaseQuery(bool forCheckIfExists)
+        private static string CreateBaseQuery()
         {
-            var selectList = forCheckIfExists
-                ? "SELECT COUNT([i].[Id]) as cnt "
-                : "SELECT [i].[Id], [i].[Description], [i].[Status], [p].[Id] AS [ParticipantId], [p].[AzureOid], [p].[FunctionalRoleCode], [p].[Organization], [p].[SignedAtUtc], [p].[SortKey], [p].[Type] ";
-
             var query = @$"
-                {selectList}
+                SELECT [i].[Id], [i].[Description], [i].[Status], [p].[Id] AS [ParticipantId], [p].[AzureOid], [p].[FunctionalRoleCode], [p].[Organization], [p].[SignedAtUtc], [p].[SortKey], [p].[Type] 
                 FROM [Invitations] AS [i]
 
                 INNER JOIN (
@@ -33,21 +29,14 @@
 
         public static string CreateAzureOidQuery()
         {
-            var query = CreateBaseQuery(false);
+            var query = CreateBaseQuery();
             query += $" AND [p].[AzureOid] = @azureOid AND [p].[FunctionalRoleCode] IS NULL ORDER BY [i].[Id]";
-            return query;
-        }
-
-        public static string CreateExistsFunctionalRoleQuery()
-        {
-            var query = CreateBaseQuery(true);
-            query += $" AND [p].[Type] = 1 AND [p].[FunctionalRoleCode] is not null";
             return query;
         }
 
         public static string CreateFunctionalRoleQuery()
         {
-            var query = CreateBaseQuery(false);
+            var query = CreateBaseQuery();
             query += $" AND [p].[Type] = 1 AND [p].[FunctionalRoleCode] IN @functionalRoleCodes ORDER BY [i].[Id]";
             return query;
         }

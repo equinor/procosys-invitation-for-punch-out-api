@@ -14,7 +14,5 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
         }
 
         public async Task<IEnumerable<T>> QueryAsync<T>(string queryString, DynamicParameters parameters) => await _dbConnection.QueryAsync<T>(queryString, parameters);
-
-        public async Task<T> ExecuteScalarAsync<T>(string queryString, DynamicParameters parameters) => await _dbConnection.ExecuteScalarAsync<T>(queryString, parameters);
     }
 }

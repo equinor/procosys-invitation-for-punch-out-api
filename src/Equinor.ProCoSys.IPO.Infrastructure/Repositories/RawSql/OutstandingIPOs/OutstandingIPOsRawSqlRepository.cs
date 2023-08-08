@@ -24,17 +24,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPO
             return result;
         }
 
-        public async Task<bool> ExistsAnyOutstandingIPOsWithFunctionalRoleCodes(string plant)
-        {
-            var query = OutstandingIPOsQuery.CreateExistsFunctionalRoleQuery();
-            var parameters = new DynamicParameters();
-            parameters.Add("@plant", plant);
-
-            var result = await ExecuteScalarAsync<int>(query, parameters);
-
-            return result != null && result > 0;
-        }
-
         public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)
         {
             if (functionalRoleCodes == null)
