@@ -18,9 +18,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 {
     public class IPOContext : DbContext, IUnitOfWork, IReadOnlyContext
     {
-        private readonly IPlantProvider _plantProvider;
-        private readonly IEventDispatcher _eventDispatcher;
-        private readonly ICurrentUserProvider _currentUserProvider;
+        protected readonly IPlantProvider _plantProvider;
+        protected readonly IEventDispatcher _eventDispatcher;
+        protected readonly ICurrentUserProvider _currentUserProvider;
 
         public IPOContext(
             DbContextOptions<IPOContext> options,
@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public void Commit() => base.Database.CommitTransaction();
 
-        private void UpdateConcurrencyToken()
+        protected virtual void UpdateConcurrencyToken()
         {
             var modifiedEntries = ChangeTracker
                 .Entries<EntityBase>()

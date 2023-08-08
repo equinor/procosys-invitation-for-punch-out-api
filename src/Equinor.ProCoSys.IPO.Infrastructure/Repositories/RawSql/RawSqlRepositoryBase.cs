@@ -7,28 +7,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
 {
     public class RawSqlRepositoryBase
     {
-        //private readonly IConfiguration _configuration;
-
-        //public RawSqlRepositoryBase(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
-
         private readonly IDbConnection _dbConnection;
         public RawSqlRepositoryBase(IDbConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
 
-        public async Task<IEnumerable<T>> QueryAsync<T>(string queryString, object parameters)
-        {
-            //var connectionString = _configuration.GetConnectionString("IPOContext");
+        public async Task<IEnumerable<T>> QueryAsync<T>(string queryString, DynamicParameters parameters) => await _dbConnection.QueryAsync<T>(queryString, parameters);
 
-            //using (IDbConnection connection = new SqlConnection(connectionString))
-            //{
-
-            //}
-            return await _dbConnection.QueryAsync<T>(queryString, parameters);
-        }
+        public async Task<T> ExecuteScalarAsync<T>(string queryString, DynamicParameters parameters) => await _dbConnection.ExecuteScalarAsync<T>(queryString, parameters);
     }
 }

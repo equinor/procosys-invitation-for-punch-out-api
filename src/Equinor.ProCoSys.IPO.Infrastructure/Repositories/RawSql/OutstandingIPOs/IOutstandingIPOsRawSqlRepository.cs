@@ -8,4 +8,5 @@ public interface IOutstandingIPOsRawSqlRepository
 {
     Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByAzureOid(string plant, Guid azureOid);
     Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes);
+    Task<bool> ExistsAnyOutstandingIPOsWithFunctionalRoleCodes(string plant);
 }

@@ -8,17 +8,14 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using ServiceResult;
+using Polly;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
@@ -57,21 +54,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         protected Project _testProjectClosed;
 
 
-
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
 
-            using var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
 
             _query = new GetOutstandingIposForCurrentPersonQuery();
             _person = context.Persons.FirstOrDefault();
-            //_person = new Person(_currentUserOid, "test@email.com", "FirstName", "LastName", "UserName");
-            //_person.SetProtectedIdForTesting(2);
-           
-            //context.Persons.Add(_person);
-
-            //context.SaveChangesAsync().Wait();
 
             _testProject = new Project(TestPlant, "TestProject", "Description for TestProject");
             _testProject.SetProtectedIdForTesting(1);
@@ -89,7 +79,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
                 .Returns(Task.FromResult(pcsFunctionalRoleCodes));
 
-            var helperPerson = new Participant(
+            context.SaveChangesAsync().Wait();
+        }
+
+        private Participant CreateHelperPerson()
+        {
+            return new Participant(
                 TestPlant,
                 Organization.Contractor,
                 IpoParticipantType.Person,
@@ -100,7 +95,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 _currentUserOid,
                 0);
+        }
 
+        protected void AddAllInvitations(DbContextOptions<IPOContext> dbContextOptions)
+        {
+            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+
+            var helperPerson = CreateHelperPerson();
 
             SetupInvitationContractor(context);
 
@@ -117,16 +118,29 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             SetupInvitationForNotClosedProject(context);
 
-            SetRequiredProperties(context,
-                _invitationWithPersonParticipantContractor,
-                _invitationWithFunctionalRoleParticipantConstructionCompany,
-                _cancelledInvitation,
-                _invitationWithPersonParticipantConstructionCompany,
-                _invitationWithFunctionalRoleParticipantContractor,
-                _acceptedInvitationWithOperationPerson,
-                _invitationForClosedProject,
-                _invitationForNotClosedProject
-            );
+            context.SaveChangesAsync().Wait();
+        }
+
+        protected void AddAInvitationsWithoutFunctionalRoles(DbContextOptions<IPOContext> dbContextOptions)
+        {
+            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+
+            var helperPerson = CreateHelperPerson();
+
+            SetupInvitationContractor(context);
+
+            //SetupInvitationFunctionalRoleConstructionCompany(context, helperPerson);
+
+            //SetupInvitationCancelled(context);
+
+            SetupInvitationWithParticipantConstructionCompany(context, helperPerson);
+            //SetupInvitationFunctionalRoleContractor(context);
+
+            SetupInvitationWithOperationPerson(context, helperPerson);
+
+            //SetupInvitationForClosedProject(context);
+
+            //SetupInvitationForNotClosedProject(context);
 
             context.SaveChangesAsync().Wait();
         }
@@ -145,7 +159,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
 
-            _invitationWithPersonParticipantContractor.SetCreated(_person);
+            SetRequiredProperties(context, _invitationWithPersonParticipantContractor);
             context.Invitations.Add(_invitationWithPersonParticipantContractor);
 
             _personParticipantContractor = new Participant(
@@ -194,6 +208,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
 
+            SetRequiredProperties(context, _invitationWithFunctionalRoleParticipantConstructionCompany);
+
             context.Invitations.Add(_invitationWithFunctionalRoleParticipantConstructionCompany);
 
             _invitationWithFunctionalRoleParticipantConstructionCompany.CompleteIpo(
@@ -216,7 +232,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             _functionalRoleParticipantConstructionCompany.SetProtectedIdForTesting(1);
 
-            _invitationWithFunctionalRoleParticipantConstructionCompany.SetCreated(_person);
             _invitationWithFunctionalRoleParticipantConstructionCompany.AddParticipant(_functionalRoleParticipantConstructionCompany);
         }
 
@@ -233,6 +248,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
+
+            SetRequiredProperties(context, _cancelledInvitation);
 
             context.Invitations.Add(_cancelledInvitation);
 
@@ -268,6 +285,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
 
+            SetRequiredProperties(context, _invitationWithFunctionalRoleParticipantContractor);
             context.Invitations.Add(_invitationWithFunctionalRoleParticipantContractor);
 
             _functionalRoleParticipantContractor = new Participant(
@@ -299,6 +317,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
+
+            SetRequiredProperties(context, _invitationWithPersonParticipantConstructionCompany);
 
             context.Invitations.Add(_invitationWithPersonParticipantConstructionCompany);
 
@@ -338,6 +358,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
+
+            SetRequiredProperties(context, _acceptedInvitationWithOperationPerson);
 
             context.Invitations.Add(_acceptedInvitationWithOperationPerson);
 
@@ -382,6 +404,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2") },
                 null);
 
+            SetRequiredProperties(context, _invitationForClosedProject);
+
             context.Invitations.Add(_invitationForClosedProject);
 
             _personParticipantClosedProject = new Participant(
@@ -413,6 +437,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
                 null);
+
+            SetRequiredProperties(context, _invitationForNotClosedProject);
 
             context.Invitations.Add(_invitationForNotClosedProject);
 
@@ -448,8 +474,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 invitation.AddAttachment(attachment);
 
                 invitation.SetCreated(_person);
-                invitation.SetRowVersion("abc");
             }
+        }
+
+        protected async Task AcceptIpo(IPOContextSqlLite context, Invitation invitation, Participant personParticipantConstructionCompany, Person acceptedBy, DateTime acceptedAt)
+        {
+            var rowsModified = context.Database.ExecuteSql($"UPDATE Invitations SET [Status] = 2, AcceptedBy = {acceptedBy.Id}, AcceptedAtUtc = {acceptedAt.ToString("yyyy-MM-dd HH:mm:ss.fff")} WHERE Id = {invitation.Id}");
+
         }
     }
 }
