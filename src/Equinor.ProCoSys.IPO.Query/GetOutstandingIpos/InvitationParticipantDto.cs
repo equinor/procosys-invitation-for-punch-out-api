@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 
         public Organization Organization { get; set; }
 
-
         public int? SignedBy { get; set; }
     }
 }
