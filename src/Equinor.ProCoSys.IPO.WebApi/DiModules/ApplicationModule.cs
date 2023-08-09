@@ -60,6 +60,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
+            services.AddTransient<IDapperSqlConnectionProvider, DapperSqlConnectionProvider>();
+
             services.AddHttpContextAccessor();
             services.AddHttpClient();
 

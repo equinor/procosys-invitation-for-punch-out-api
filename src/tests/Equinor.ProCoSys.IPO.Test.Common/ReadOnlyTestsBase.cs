@@ -16,6 +16,7 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Auth.Permission;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Equinor.ProCoSys.IPO.Test.Common
 {
@@ -28,27 +29,34 @@ namespace Equinor.ProCoSys.IPO.Test.Common
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
         }
+
+        protected override IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions) => new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
     }
 
     public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase, IDisposable
     {
         protected SqliteConnection _sqlLiteConnection;
 
+        protected  DapperSqlLiteConnectionProvider _dapperSqlLiteConnectionProvider;
+
         protected override DbContextOptions<IPOContext> CreateDbContextOptions()
         {
             _sqlLiteConnection = new SqliteConnection("Filename=:memory:");
             _sqlLiteConnection.Open();
+            _dapperSqlLiteConnectionProvider = new DapperSqlLiteConnectionProvider(_sqlLiteConnection);
 
             return new DbContextOptionsBuilder<IPOContext>()
                 .UseSqlite(_sqlLiteConnection)
                 .Options;
         }
 
+        protected override IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions) => new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+
         public void Dispose()
         {
             if (_sqlLiteConnection != null)
             {
-                _sqlLiteConnection.Dispose();
+                //_sqlLiteConnection.Dispose();
             }
         }
     }
@@ -108,16 +116,15 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _dbContextOptions = CreateDbContextOptions();
 
             // ensure current user exists in db
-            using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+            using (var context = CreateDbContext(_dbContextOptions))// new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                context.Database.EnsureCreated();
+               var createResult = context.Database.EnsureCreated();
 
                 if (context.Persons.SingleOrDefault(p => p.Guid == _currentUserOid) == null)
                 {
                     var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
                     AddProject(context, Project);
                     AddSavedFiltersToPerson(context, person);
-                   
                 }
             }
 
@@ -126,11 +133,13 @@ namespace Equinor.ProCoSys.IPO.Test.Common
 
         protected abstract DbContextOptions<IPOContext> CreateDbContextOptions();
 
+        protected abstract IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions);
+
         protected abstract void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions);
 
         protected Project GetProjectById(int projectId)
         {
-            using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            using var context = CreateDbContext(_dbContextOptions);//  new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             return context.Projects.Single(x => x.Id == projectId);
         }
 

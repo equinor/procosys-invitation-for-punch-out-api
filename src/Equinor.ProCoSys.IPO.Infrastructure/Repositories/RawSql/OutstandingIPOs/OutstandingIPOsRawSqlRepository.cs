@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
-using Microsoft.Extensions.Configuration;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs
 {
     public class OutstandingIPOsRawSqlRepository : RawSqlRepositoryBase, IOutstandingIPOsRawSqlRepository
     {
-        public OutstandingIPOsRawSqlRepository(IConfiguration configuration) : base(configuration)
+        public OutstandingIPOsRawSqlRepository(IDapperSqlConnectionProvider dapperSqlConnectionProvider) : base(dapperSqlConnectionProvider)
         {
           
         }
@@ -26,8 +25,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPO
                 var result = await c.QueryAsync<OutstandingIpoDto>(query, parameters);
                 return result;
             });
-
-          
         }
 
         public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)

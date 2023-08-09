@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
 
-            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            using var context = CreateDbContext(dbContextOptions);// new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
 
             _query = new GetOutstandingIposForCurrentPersonQuery();
             _person = context.Persons.FirstOrDefault();
@@ -128,19 +129,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var helperPerson = CreateHelperPerson();
 
             SetupInvitationContractor(context);
-
-            //SetupInvitationFunctionalRoleConstructionCompany(context, helperPerson);
-
-            //SetupInvitationCancelled(context);
-
             SetupInvitationWithParticipantConstructionCompany(context, helperPerson);
-            //SetupInvitationFunctionalRoleContractor(context);
-
             SetupInvitationWithOperationPerson(context, helperPerson);
-
-            //SetupInvitationForClosedProject(context);
-
-            //SetupInvitationForNotClosedProject(context);
 
             context.SaveChangesAsync().Wait();
         }

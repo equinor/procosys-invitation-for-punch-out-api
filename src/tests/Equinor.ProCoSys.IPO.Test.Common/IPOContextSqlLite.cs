@@ -17,6 +17,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             : base(options, plantProvider, eventDispatcher, currentUserProvider)
         {
             SqlMapper.AddTypeHandler(typeof(Guid), GuidTypeHandler.Default);
+            this.Database.EnsureCreated();
         }
 
         protected override void UpdateConcurrencyToken()
