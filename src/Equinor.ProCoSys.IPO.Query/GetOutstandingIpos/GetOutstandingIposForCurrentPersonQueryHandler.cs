@@ -44,13 +44,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 var plantId = _plantProvider.Plant;
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var invivationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByAzureOid(plantId, currentUserOid);
+                var invitationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByAzureOid(plantId, currentUserOid);
                 
                 var currentUsersFunctionalRoleCodes =
                         await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
                   var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
-                  var allInvitations = invivationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
+                  var allInvitations = invitationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
 
                   var filteredInvitationsGrouped = allInvitations.GroupBy(i => new
                 {
