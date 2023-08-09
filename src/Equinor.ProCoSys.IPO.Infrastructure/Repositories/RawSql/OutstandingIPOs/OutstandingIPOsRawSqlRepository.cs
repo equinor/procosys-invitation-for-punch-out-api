@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPO
 {
     public class OutstandingIPOsRawSqlRepository : RawSqlRepositoryBase, IOutstandingIPOsRawSqlRepository
     {
-        public OutstandingIPOsRawSqlRepository(IDapperSqlConnectionProvider dapperSqlConnectionProvider) : base(dapperSqlConnectionProvider)
+        public OutstandingIPOsRawSqlRepository(IPOContext context) : base(context)
         {
           
         }

@@ -2,21 +2,24 @@
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
 {
     public class RawSqlRepositoryBase
     {
-        private readonly IDapperSqlConnectionProvider _dapperSqlConnectionProvider;
+        private readonly IPOContext _context;
 
-        public RawSqlRepositoryBase(IDapperSqlConnectionProvider dapperSqlConnectionProvider) => _dapperSqlConnectionProvider = dapperSqlConnectionProvider;
+        public RawSqlRepositoryBase(IPOContext context) => _context = context;
 
-        protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> getData)
+        protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> queryFunc)
         {
+            var connection = _context.Database.GetDbConnection();
+            var connectionWasClosed = connection.State != ConnectionState.Open;
+
             try
             {
-                var connection = _dapperSqlConnectionProvider.GetConnection();
-                return await getData(connection);
+                return await queryFunc(connection);
             }
             catch (TimeoutException ex)
             {
@@ -25,6 +28,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
             catch (SqlException ex)
             {
                 throw new Exception($"{GetType().FullName} SqlException. See inner exception for details.", ex);
+            }
+            finally
+            {
+                //If we open it, we have to close it.
+                if (connectionWasClosed)
+                {
+                    await _context.Database.CloseConnectionAsync();
+                }
             }
         }
     }

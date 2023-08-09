@@ -53,14 +53,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
 
-            var connectionString = configuration.GetConnectionString("IPOContext");
-
             services.AddDbContext<IPOContext>(options =>
             {
+                var connectionString = configuration.GetConnectionString("IPOContext");
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
-
-            services.AddTransient<IDapperSqlConnectionProvider, DapperSqlConnectionProvider>();
 
             services.AddHttpContextAccessor();
             services.AddHttpClient();

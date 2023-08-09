@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Auth.Permission;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Common;
-using Equinor.ProCoSys.Auth.Permission;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Equinor.ProCoSys.IPO.Test.Common
 {
@@ -33,32 +32,19 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected override IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions) => new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
     }
 
-    public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase, IDisposable
+    public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase
     {
-        protected SqliteConnection _sqlLiteConnection;
-
-        protected  DapperSqlLiteConnectionProvider _dapperSqlLiteConnectionProvider;
-
         protected override DbContextOptions<IPOContext> CreateDbContextOptions()
         {
-            _sqlLiteConnection = new SqliteConnection("Filename=:memory:");
-            _sqlLiteConnection.Open();
-            _dapperSqlLiteConnectionProvider = new DapperSqlLiteConnectionProvider(_sqlLiteConnection);
+            var sqlLiteConnection = new SqliteConnection("Filename=:memory:");
+            sqlLiteConnection.Open();
 
             return new DbContextOptionsBuilder<IPOContext>()
-                .UseSqlite(_sqlLiteConnection)
+                .UseSqlite(sqlLiteConnection)
                 .Options;
         }
 
         protected override IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions) => new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-
-        public void Dispose()
-        {
-            if (_sqlLiteConnection != null)
-            {
-                //_sqlLiteConnection.Dispose();
-            }
-        }
     }
 
     public abstract class ReadOnlyTestsBase

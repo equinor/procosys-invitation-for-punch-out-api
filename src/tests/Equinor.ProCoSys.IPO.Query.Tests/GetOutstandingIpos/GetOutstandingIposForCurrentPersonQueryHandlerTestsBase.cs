@@ -12,11 +12,9 @@ using Equinor.ProCoSys.IPO.Query.GetOutstandingIpos;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Polly;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 {
@@ -105,33 +103,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var helperPerson = CreateHelperPerson();
 
             SetupInvitationContractor(context);
-
             SetupInvitationFunctionalRoleConstructionCompany(context, helperPerson);
-
             SetupInvitationCancelled(context);
-
             SetupInvitationWithParticipantConstructionCompany(context, helperPerson);
             SetupInvitationFunctionalRoleContractor(context);
-
             SetupInvitationWithOperationPerson(context, helperPerson);
-
             SetupInvitationForClosedProject(context);
-
             SetupInvitationForNotClosedProject(context);
-
-            context.SaveChangesAsync().Wait();
-        }
-
-        protected void AddAInvitationsWithoutFunctionalRoles(DbContextOptions<IPOContext> dbContextOptions)
-        {
-            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
-
-            var helperPerson = CreateHelperPerson();
-
-            SetupInvitationContractor(context);
-            SetupInvitationWithParticipantConstructionCompany(context, helperPerson);
-            SetupInvitationWithOperationPerson(context, helperPerson);
-
             context.SaveChangesAsync().Wait();
         }
 
@@ -467,10 +445,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             }
         }
 
-        protected async Task AcceptIpo(IPOContextSqlLite context, Invitation invitation, Participant personParticipantConstructionCompany, Person acceptedBy, DateTime acceptedAt)
+        protected async Task AcceptIpo(IPOContext context, Invitation invitation, Participant personParticipantConstructionCompany, Person acceptedBy, DateTime acceptedAt)
         {
             var rowsModified = context.Database.ExecuteSql($"UPDATE Invitations SET [Status] = 2, AcceptedBy = {acceptedBy.Id}, AcceptedAtUtc = {acceptedAt.ToString("yyyy-MM-dd HH:mm:ss.fff")} WHERE Id = {invitation.Id}");
-
         }
     }
 }
