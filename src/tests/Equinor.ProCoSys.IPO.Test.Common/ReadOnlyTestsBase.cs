@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected override IPOContext CreateDbContext(DbContextOptions<IPOContext> dbContextOptions) => new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
     }
 
-    //Used when unit tests are covering logic where queryies are executed through Dapper. Dapper can not connect to EF Core In Memory Db 
+    //Used when unit tests are covering logic where queryies are executed through Dapper. Dapper can not connect to EF Core In Memory Db. 
     public abstract class ReadOnlyTestsBaseSqlLiteInMemory : ReadOnlyTestsBase
     {
         protected override DbContextOptions<IPOContext> CreateDbContextOptions()
