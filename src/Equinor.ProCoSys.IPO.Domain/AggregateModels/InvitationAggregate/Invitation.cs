@@ -446,6 +446,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             Status = IpoStatus.ScopeHandedOver;
+            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
         }
 
         public void SetCreated(Person createdBy)
