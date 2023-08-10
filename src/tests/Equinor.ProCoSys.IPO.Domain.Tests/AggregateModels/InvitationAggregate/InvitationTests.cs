@@ -1367,6 +1367,14 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
             Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
         }
+
+        [TestMethod]
+        public void AcceptIpo_ShouldAddScopeHandedOverDomainEvent()
+        {
+            _dutWithCompletedStatus.ScopeHandedOver();
+
+            Assert.IsInstanceOfType(_dutWithCompletedStatus.DomainEvents.Last(), typeof(ScopeHandedOverEvent));
+        }
         #endregion
     }
 }
