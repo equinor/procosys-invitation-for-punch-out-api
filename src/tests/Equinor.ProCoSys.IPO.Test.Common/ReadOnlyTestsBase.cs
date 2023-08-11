@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected const string FilterName = "Fname";
         protected const string Criteria = "Fcriteria";
         protected SavedFilter _savedFilter;
-        protected readonly Guid _currentUserOid = new Guid("760ec3f5-5da3-4d46-a8d5-9e7011971366"); // new Guid("12345678-1234-1234-1234-123456789123"); //
+        protected readonly Guid CurrentUserOid = new Guid("760ec3f5-5da3-4d46-a8d5-9e7011971366"); // new Guid("12345678-1234-1234-1234-123456789123"); //
         protected DbContextOptions<IPOContext> _dbContextOptions;
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;
@@ -81,14 +81,14 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _personApiService = _personApiServiceMock.Object;
 
             var currentUserProviderMock = new Mock<ICurrentUserProvider>();
-            currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(_currentUserOid);
+            currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Returns(CurrentUserOid);
             _currentUserProvider = currentUserProviderMock.Object;
 
             var eventDispatcher = new Mock<IEventDispatcher>();
             _eventDispatcher = eventDispatcher.Object;
 
             _permissionCacheMock = new Mock<IPermissionCache>();
-            _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, _currentUserOid))
+            _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, CurrentUserOid))
                 .Returns(Task.FromResult(new List<AccessableProject>
                 {
                     new() {Name = "Project1"}, 
@@ -106,9 +106,9 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             {
                var createResult = context.Database.EnsureCreated();
 
-                if (context.Persons.SingleOrDefault(p => p.Guid == _currentUserOid) == null)
+                if (context.Persons.SingleOrDefault(p => p.Guid == CurrentUserOid) == null)
                 {
-                    var person = AddPerson(context, _currentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
+                    var person = AddPerson(context, CurrentUserOid, "Ole", "Lukkøye", "ol", "ol@pcs.pcs");
                     AddProject(context, Project);
                     AddSavedFiltersToPerson(context, person);
                 }

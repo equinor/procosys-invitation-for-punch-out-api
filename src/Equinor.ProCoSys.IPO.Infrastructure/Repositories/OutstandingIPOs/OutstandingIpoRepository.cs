@@ -4,46 +4,36 @@ using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 
-namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs
+namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
+
+public class OutstandingIpoRepository : DapperRepositoryBase, IOutstandingIpoRepository
 {
-    public class OutstandingIpoRepository : DapperRepositoryBase, IOutstandingIpoRepository
+    public OutstandingIpoRepository(IPOContext context) : base(context) { }
+
+    public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByAzureOid(string plant, Guid azureOid)
     {
-        public OutstandingIpoRepository(IPOContext context) : base(context)
-        {
+        var query = OutstandingIpoQuery.CreateQueryFilteredByAzureOid();
 
+        var parameters = new DynamicParameters();
+        parameters.Add("@plant", plant);
+        parameters.Add("@azureOid", azureOid, DbType.Guid);
+
+        return await QueryAsync<OutstandingIpoDto>(query, parameters);
+    }
+
+    public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)
+    {
+        if (functionalRoleCodes == null)
+        {
+            throw new ArgumentNullException(nameof(functionalRoleCodes));
         }
 
-        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByAzureOid(string plant, Guid azureOid)
-        {
-            var query = OutstandingIpoQuery.CreateQueryFilteredByAzureOid();
-            var parameters = new DynamicParameters();
-            parameters.Add("@plant", plant);
-            parameters.Add("@azureOid", azureOid, DbType.Guid);
+        var query = OutstandingIpoQuery.CreateQueryFilteredByFunctionalRole();
 
-            return await WithConnection(async c =>
-            {
-                var result = await c.QueryAsync<OutstandingIpoDto>(query, parameters);
-                return result;
-            });
-        }
+        var parameters = new DynamicParameters();
+        parameters.Add("@plant", plant);
+        parameters.Add("@functionalRoleCodes", functionalRoleCodes);
 
-        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)
-        {
-            if (functionalRoleCodes == null)
-            {
-                throw new ArgumentNullException(nameof(functionalRoleCodes));
-            }
-
-            var query = OutstandingIpoQuery.CreateQueryFilteredByFunctionalRole();
-            var parameters = new DynamicParameters();
-            parameters.Add("@plant", plant);
-            parameters.Add("@functionalRoleCodes", functionalRoleCodes);
-
-            return await WithConnection(async c =>
-            {
-                var result = await c.QueryAsync<OutstandingIpoDto>(query, parameters);
-                return result;
-            });
-        }
+        return await QueryAsync<OutstandingIpoDto>(query, parameters);
     }
 }

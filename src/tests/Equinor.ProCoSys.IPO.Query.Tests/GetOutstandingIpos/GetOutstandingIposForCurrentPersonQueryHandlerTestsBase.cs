@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             _loggerMock = new Mock<ILogger<GetOutstandingIposForCurrentPersonQueryHandler>>();
 
-            using var context = CreateDbContext(dbContextOptions);// new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            using var context = CreateDbContext(dbContextOptions);
 
             _query = new GetOutstandingIposForCurrentPersonQuery();
             _person = context.Persons.FirstOrDefault();
@@ -92,13 +92,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 0);
         }
 
-        protected void AddAllInvitations(DbContextOptions<IPOContext> dbContextOptions)
+        protected async Task AddAllInvitations(DbContextOptions<IPOContext> dbContextOptions)
         {
-            using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+            await using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
 
             var helperPerson = CreateHelperPerson();
 
@@ -110,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             SetupInvitationWithOperationPerson(context, helperPerson);
             SetupInvitationForClosedProject(context);
             SetupInvitationForNotClosedProject(context);
-            context.SaveChangesAsync().Wait();
+            await context.SaveChangesAsync();
         }
 
         private void SetupInvitationContractor(IPOContext context)
@@ -139,7 +139,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 0);
 
             _personParticipantContractor.SetProtectedIdForTesting(2);
@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 6);
             _personParticipantSupplier.SetProtectedIdForTesting(6);
 
@@ -232,7 +232,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 3);
             _personParticipant2.SetProtectedIdForTesting(3);
 
@@ -299,7 +299,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 1);
 
             _personParticipantConstructionCompany.SetProtectedIdForTesting(5);
@@ -351,7 +351,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 7);
             _personParticipantOperation.SetProtectedIdForTesting(7);
 
@@ -385,7 +385,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 7);
             _personParticipantClosedProject.SetProtectedIdForTesting(8);
 
@@ -419,7 +419,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 null,
                 null,
                 null,
-                _currentUserOid,
+                CurrentUserOid,
                 7);
 
             _personParticipantNonClosedProject.SetProtectedIdForTesting(9);

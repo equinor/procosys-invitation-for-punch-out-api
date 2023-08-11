@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     "LastName",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var personParticipant2 = new Participant(
@@ -112,7 +112,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     "LastName3",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var personParticipant4 = new Participant(

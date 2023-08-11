@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnOkResult()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsNotInAnyFunctionalRoles()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
@@ -113,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsInFunctionalRoles()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
@@ -160,7 +160,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnIpoForConstructionCompanyPerson_AfterIpoHasBeenAccepted()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
 
@@ -214,7 +214,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             var rowVersion = "AAAAAAAAAAA=";
 
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
             var invitationWithFrCC =
@@ -270,7 +270,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             // Arrange
 
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             await using var context = CreateDbContext(_dbContextOptions);
             var invitationWithFrCC =
@@ -325,7 +325,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnEmptyList_WhenUserNotExists()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
@@ -343,7 +343,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnInvitation_WhenProjectIsClosed()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -357,7 +357,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnInvitation_WhenProjectIsNotClosed()
         {
-            AddAllInvitations(_dbContextOptions);
+            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
