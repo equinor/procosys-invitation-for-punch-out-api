@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
@@ -14,14 +14,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 {
     public class GetOutstandingIposForCurrentPersonQueryHandler : IRequestHandler<GetOutstandingIposForCurrentPersonQuery, Result<OutstandingIposResultDto>>
     {
-        private readonly IOutstandingIPOsRawSqlRepository _outstandingIpOsRawSqlRepository;
+        private readonly IOutstandingIpoRepository _outstandingIpOsRawSqlRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IMeApiService _meApiService;
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetOutstandingIposForCurrentPersonQueryHandler> _logger;
 
         public GetOutstandingIposForCurrentPersonQueryHandler(
-            IOutstandingIPOsRawSqlRepository outstandingIpOsRawSqlRepository,
+            IOutstandingIpoRepository outstandingIpOsRawSqlRepository,
             ICurrentUserProvider currentUserProvider,
             IMeApiService meApiService,
             IPlantProvider plantProvider,
@@ -44,42 +44,43 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 var plantId = _plantProvider.Plant;
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var invitationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByAzureOid(plantId, currentUserOid);
-                
+                var invitationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByAzureOid(plantId, currentUserOid);
+
                 var currentUsersFunctionalRoleCodes =
                         await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
-                  var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIPOsByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
-                  var allInvitations = invitationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
+                var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
+                var allInvitations = invitationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
 
-                  var filteredInvitationsGrouped = allInvitations.GroupBy(i => new
+                var invitationsGrouped = allInvitations.GroupBy(i => new
                 {
                     i.Id,
-                    i.Description,
-                    i.Status
-                });
+                    i.Description
+                }).ToList();
 
-                var filteredInvitationsList = new List<InvitationDto>();
-
-                foreach (var group in filteredInvitationsGrouped)
-                {
-                    filteredInvitationsList.Add(
-                        new InvitationDto()
+                var ipoDetails = invitationsGrouped.Select(group =>
+                    {
+                        var participants = group.Select(p => new ParticipantDto()
                         {
-                            Id = group.Key.Id,
-                            Description = group.Key.Description,
-                            Status = group.Key.Status,
-                            Participants = group.Select(p => new ParticipantDto()
-                            {
-                                AzureOid = p.AzureOid,
-                                FunctionalRoleCode = p.FunctionalRoleCode,
-                                Organization = p.Organization,
-                                SignedBy = p.SignedBy
-                            }).ToList()
+                            AzureOid = p.AzureOid,
+                            FunctionalRoleCode = p.FunctionalRoleCode,
+                            Organization = p.Organization,
+                            SignedBy = p.SignedBy
                         });
-                }
 
-                return new SuccessResult<OutstandingIposResultDto>(ToOutstandingIposResultDto(filteredInvitationsList.OrderBy(i => i.Id).ToList(), currentUserOid, currentUsersFunctionalRoleCodes));
+                        return new OutstandingIpoDetailsDto()
+                        {
+                            InvitationId = group.Key.Id,
+                            Description = group.Key.Description,
+                            Organization = participants.First(p =>
+                                p.SignedBy == null &&
+                                (p.AzureOid == currentUserOid ||
+                                 currentUsersFunctionalRoleCodes != null && currentUsersFunctionalRoleCodes.Contains(p.FunctionalRoleCode))).Organization
+                        };
+                    }
+                ).OrderBy(i => i.InvitationId);
+
+                return new SuccessResult<OutstandingIposResultDto>(new OutstandingIposResultDto(ipoDetails));
             }
             catch (Exception ex)
             {
@@ -88,25 +89,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 return new SuccessResult<OutstandingIposResultDto>(new OutstandingIposResultDto(
                         new List<OutstandingIpoDetailsDto>()));
             }
-        }
-
-        private OutstandingIposResultDto ToOutstandingIposResultDto(List<InvitationDto> currentUsersOutstandingInvitations,
-            Guid currentUserOid, IList<string> currentUsersFunctionalRoleCodes)
-        {
-            var outstandingInvitations = new OutstandingIposResultDto(currentUsersOutstandingInvitations.Select(invitation =>
-            {
-                var organization = invitation.Participants.First(p =>
-                    p.SignedBy == null &&
-                    (p.AzureOid == currentUserOid ||
-                     currentUsersFunctionalRoleCodes != null && currentUsersFunctionalRoleCodes.Contains(p.FunctionalRoleCode))).Organization;
-                return new OutstandingIpoDetailsDto
-                {
-                    InvitationId = invitation.Id,
-                    Description = invitation.Description,
-                    Organization = organization
-                };
-            }));
-            return outstandingInvitations;
         }
     }
 }

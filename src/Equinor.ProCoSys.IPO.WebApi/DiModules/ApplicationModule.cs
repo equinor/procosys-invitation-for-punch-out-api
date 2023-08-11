@@ -28,7 +28,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IHistoryRepository, HistoryRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ISettingRepository, SettingRepository>();
-            services.AddScoped<IOutstandingIPOsRawSqlRepository, OutstandingIPOsRawSqlRepository>();
+            services.AddScoped<IOutstandingIpoRepository, OutstandingIpoRepository>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();

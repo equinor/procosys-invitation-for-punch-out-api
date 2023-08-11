@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql
+namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
-    public class RawSqlRepositoryBase
+    public class DapperRepositoryBase
     {
         private readonly IPOContext _context;
 
-        public RawSqlRepositoryBase(IPOContext context) => _context = context;
+        public DapperRepositoryBase(IPOContext context) => _context = context;
 
         protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> queryFunc)
         {

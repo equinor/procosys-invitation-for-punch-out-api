@@ -1,6 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs
+﻿namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs
 {
-    public static class OutstandingIPOsQuery
+    public static class OutstandingIpoQuery
     {
         private static string CreateBaseQuery()
         {
@@ -30,21 +30,21 @@
             return query;
         }
 
-        public static string CreateAzureOidQuery()
+        public static string CreateQueryFilteredByAzureOid()
         {
             var query = CreateBaseQuery();
             query += @$"
-                        AND p.AzureOid = @azureOid AND p.FunctionalRoleCode IS NULL
-                        ORDER BY i.Id";
+                        AND p.AzureOid = @azureOid
+                        AND p.FunctionalRoleCode IS NULL";
             return query;
         }
 
-        public static string CreateFunctionalRoleQuery()
+        public static string CreateQueryFilteredByFunctionalRole()
         {
             var query = CreateBaseQuery();
             query += @$" 
-                        AND p.[Type] = 1 AND p.FunctionalRoleCode IN @functionalRoleCodes
-                        ORDER BY i.Id";
+                        AND p.[Type] = 1
+                        AND p.FunctionalRoleCode IN @functionalRoleCodes";
             return query;
         }
     }

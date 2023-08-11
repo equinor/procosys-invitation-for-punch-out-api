@@ -4,18 +4,18 @@ using System.Data;
 using System.Threading.Tasks;
 using Dapper;
 
-namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPOs
+namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs
 {
-    public class OutstandingIPOsRawSqlRepository : RawSqlRepositoryBase, IOutstandingIPOsRawSqlRepository
+    public class OutstandingIpoRepository : DapperRepositoryBase, IOutstandingIpoRepository
     {
-        public OutstandingIPOsRawSqlRepository(IPOContext context) : base(context)
+        public OutstandingIpoRepository(IPOContext context) : base(context)
         {
-          
+
         }
 
-        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByAzureOid(string plant, Guid azureOid)
+        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByAzureOid(string plant, Guid azureOid)
         {
-            var query = OutstandingIPOsQuery.CreateAzureOidQuery();
+            var query = OutstandingIpoQuery.CreateQueryFilteredByAzureOid();
             var parameters = new DynamicParameters();
             parameters.Add("@plant", plant);
             parameters.Add("@azureOid", azureOid, DbType.Guid);
@@ -27,14 +27,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.RawSql.OutstandingIPO
             });
         }
 
-        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIPOsByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)
+        public async Task<IEnumerable<OutstandingIpoDto>> GetOutstandingIposByFunctionalRoleCodes(string plant, IList<string> functionalRoleCodes)
         {
             if (functionalRoleCodes == null)
             {
                 throw new ArgumentNullException(nameof(functionalRoleCodes));
             }
 
-            var query = OutstandingIPOsQuery.CreateFunctionalRoleQuery();
+            var query = OutstandingIpoQuery.CreateQueryFilteredByFunctionalRole();
             var parameters = new DynamicParameters();
             parameters.Add("@plant", plant);
             parameters.Add("@functionalRoleCodes", functionalRoleCodes);
