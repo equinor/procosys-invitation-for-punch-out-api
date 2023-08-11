@@ -73,9 +73,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                             InvitationId = group.Key.Id,
                             Description = group.Key.Description,
                             Organization = participants.First(p =>
-                                p.SignedBy == null &&
-                                (p.AzureOid == currentUserOid ||
-                                 currentUsersFunctionalRoleCodes != null && currentUsersFunctionalRoleCodes.Contains(p.FunctionalRoleCode))).Organization
+                                p.SignedBy == null
+                             ).Organization
                         };
                     }
                 ).OrderBy(i => i.InvitationId);

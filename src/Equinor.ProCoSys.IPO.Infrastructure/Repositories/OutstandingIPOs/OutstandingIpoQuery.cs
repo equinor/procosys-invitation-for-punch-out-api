@@ -14,6 +14,7 @@
                     p.FunctionalRoleCode,
                     p.Organization,
                     p.SignedAtUtc,
+                    p.SignedBy,
                     p.SortKey,
                     p.Type 
                 FROM Invitations AS i
