@@ -182,8 +182,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 ReplaceRealDbContextWithTestDbContext(services);
 
-                ReplaceRealDbConnectionWithTestDbConnection(services);
-
                 CreateSeededTestDatabase(services);
 
                 EnsureTestDatabaseDeletedAtTeardown(services);
@@ -202,20 +200,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             services.AddDbContext<IPOContext>(options
                 => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-        }
-
-        private void ReplaceRealDbConnectionWithTestDbConnection(IServiceCollection services)
-        {
-            var descriptor = services.SingleOrDefault
-                (d => d.ServiceType == typeof(IDbConnection));
-
-            if (descriptor != null)
-            {
-                services.Remove(descriptor);
-            }
-
-            services.AddTransient<IDbConnection>((sp) => new SqlConnection(_connectionString));
-
         }
 
         private void CreateSeededTestDatabase(IServiceCollection services)
