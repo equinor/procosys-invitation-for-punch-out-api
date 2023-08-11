@@ -18,8 +18,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnOkResult()
         {
-            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+            
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
@@ -30,9 +31,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems()
         {
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
@@ -88,9 +89,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsNotInAnyFunctionalRoles()
         {
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> emptyListOfFunctionalRoleCodes = new List<string>();
@@ -113,9 +114,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnCorrectItems_WhenUserIsInFunctionalRoles()
         {
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
@@ -133,6 +134,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         public async Task Handle_ShouldReturnOkResult_WhenNoUnCancelledIpoExists()
         {
             await using var context = CreateDbContext(_dbContextOptions);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -148,6 +150,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         public async Task Handle_ShouldCheckForPersonsFunctionalRoles_WhenNoInvitationsExist()
         {
             await using var context = CreateDbContext(_dbContextOptions);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -160,9 +163,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnIpoForConstructionCompanyPerson_AfterIpoHasBeenAccepted()
         {
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
 
             var invitationWithPersonCC =
                 context.Invitations.Single(i => i.Id == _invitationWithPersonParticipantConstructionCompany.Id);
@@ -214,9 +216,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             var rowVersion = "AAAAAAAAAAA=";
 
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var invitationWithFrCC =
                 context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
 
@@ -268,11 +270,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnIpoForConstructionCompanyFunctionalRole_AfterIpoScopeHasBeenHandedOver()
         {
-            // Arrange
-
-            await AddAllInvitations(_dbContextOptions);
-
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var invitationWithFrCC =
                 context.Invitations.Single(i => i.Id == _invitationWithFunctionalRoleParticipantConstructionCompany.Id);
 
@@ -325,11 +325,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnEmptyList_WhenUserNotExists()
         {
-            await AddAllInvitations(_dbContextOptions);
+            await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
-            await using var context = CreateDbContext(_dbContextOptions);
+        
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProviderMock.Object,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -343,8 +344,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldNotReturnInvitation_WhenProjectIsClosed()
         {
-            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
@@ -357,14 +359,37 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         [TestMethod]
         public async Task Handle_ShouldReturnInvitation_WhenProjectIsNotClosed()
         {
-            await AddAllInvitations(_dbContextOptions);
             await using var context = CreateDbContext(_dbContextOptions);
+            await AddAllInvitations(context);
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
 
             var isNotClosedProjectInvitationInResultSet = result.Data.Items.Any(x => x.Description.Equals(_notClosedProjectInvitationDescription));
             Assert.IsTrue(isNotClosedProjectInvitationInResultSet);
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldOnlyReturnOneInvitation_WhenUserIsInvitedThroughBothAzureOidAndFunctionalRoles()
+        {
+            await using var context = CreateDbContext(_dbContextOptions);
+            await AddInvitationInvitedThroughBothAzureOidAndFunctionalRole(context);
+
+           
+            var repository = new OutstandingIpoRepository(context);
+            var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
+            IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
+            _meApiServiceMock
+                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                .Returns(Task.FromResult(listOfFunctionalRoleCodes));
+
+            var result = await dut.Handle(_query, default);
+
+            var returnedInvitation = result.Data.Items.First();
+            Assert.AreEqual(_invitationWithBothAzureOidAndFunctionalRoleParticipantContractor.Id, returnedInvitation.InvitationId);
+            Assert.AreEqual(1, result.Data.Items.Count());
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
         }
     }
 }

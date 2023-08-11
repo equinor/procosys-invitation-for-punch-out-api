@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
         protected const string FilterName = "Fname";
         protected const string Criteria = "Fcriteria";
         protected SavedFilter _savedFilter;
-        protected readonly Guid CurrentUserOid = new Guid("760ec3f5-5da3-4d46-a8d5-9e7011971366"); // new Guid("12345678-1234-1234-1234-123456789123"); //
+        protected readonly Guid CurrentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         protected DbContextOptions<IPOContext> _dbContextOptions;
         protected Mock<IPlantProvider> _plantProviderMock;
         protected IPlantProvider _plantProvider;

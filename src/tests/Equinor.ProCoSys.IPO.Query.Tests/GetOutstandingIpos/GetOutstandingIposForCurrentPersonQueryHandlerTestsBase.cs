@@ -42,6 +42,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         protected Invitation _cancelledInvitation;
         protected Invitation _invitationWithPersonParticipantConstructionCompany;
         protected Invitation _invitationWithFunctionalRoleParticipantContractor;
+        protected Invitation _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor;
         protected Invitation _invitationForClosedProject;
         protected Invitation _invitationForNotClosedProject;
         protected string _functionalRoleCode = "FR1";
@@ -96,9 +97,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 0);
         }
 
-        protected async Task AddAllInvitations(DbContextOptions<IPOContext> dbContextOptions)
-        {
-            await using var context = new IPOContextSqlLite(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
+        protected async Task AddAllInvitations(IPOContext context){
 
             var helperPerson = CreateHelperPerson();
 
@@ -425,6 +424,59 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _personParticipantNonClosedProject.SetProtectedIdForTesting(9);
 
             _invitationForNotClosedProject.AddParticipant(_personParticipantNonClosedProject);
+        }
+
+        protected async Task AddInvitationInvitedThroughBothAzureOidAndFunctionalRole(IPOContext context)
+        {
+            var helperPerson = CreateHelperPerson();
+
+            _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor = new Invitation(
+                TestPlant,
+                _testProject,
+                "TestInvitation5",
+                "TestDescription5",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                null);
+
+            SetRequiredProperties(context, _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor);
+            context.Invitations.Add(_invitationWithBothAzureOidAndFunctionalRoleParticipantContractor);
+
+            _personParticipantContractor = new Participant(
+                TestPlant,
+                Organization.Contractor,
+                IpoParticipantType.Person,
+                null,
+                null,
+                null,
+                null,
+                null,
+                CurrentUserOid,
+                0);
+
+            _personParticipantContractor.SetProtectedIdForTesting(2);
+
+            _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor.AddParticipant(_personParticipantContractor);
+
+            _functionalRoleParticipantContractor = new Participant(
+                TestPlant,
+                Organization.Contractor,
+                IpoParticipantType.FunctionalRole,
+                _functionalRoleCode,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0);
+            _functionalRoleParticipantContractor.SetProtectedIdForTesting(4);
+
+            _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor.AddParticipant(_functionalRoleParticipantContractor);
+
+            await context.SaveChangesAsync();
         }
 
         private void SetRequiredProperties(IPOContext ipoContext, params Invitation[] invitations)
