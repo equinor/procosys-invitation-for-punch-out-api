@@ -512,7 +512,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_mcPkg.ProjectId),
                 new List<string>(),
-                new List<Tuple<string, string>> { Tuple.Create(_mcPkg.McPkgNo, _mcPkg.CommPkgNo)});
+                new List<Tuple<string, string>> { Tuple.Create(_mcPkg.McPkgNo, _mcPkg.CommPkgNo)}, TODO);
             // Assert
             Assert.IsTrue(_mcPkg.RfocAccepted);
         }
@@ -528,7 +528,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
-                new List<Tuple<string, string>>());
+                new List<Tuple<string, string>>(), TODO);
 
             // Assert
             Assert.IsTrue(_commPkg.RfocAccepted);
@@ -545,7 +545,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> {_commPkg.CommPkgNo},
-                new List<Tuple<string, string>>());
+                new List<Tuple<string, string>>(), TODO);
 
             // Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
@@ -561,7 +561,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
-                new List<Tuple<string, string>>());
+                new List<Tuple<string, string>>(), TODO);
 
             // Assert
             Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);

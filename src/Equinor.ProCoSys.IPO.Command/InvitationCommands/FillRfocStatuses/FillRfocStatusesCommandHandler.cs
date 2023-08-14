@@ -102,6 +102,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
                         foreach (var mcPkg in mcPkgsToUpdate)
                         {
                             mcPkg.RfocAccepted = true;
+                            mcPkg.RfocAcceptedCertificateGuid = certificateGuid;
                             count++;
                         }
                     }
@@ -126,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
                 var pcsCommPkgs = new List<ProCoSysCommPkg>();
                 foreach (var chunk in mcPkgNosChunks)
                 {
-                    var response = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, chunk);
+                    var response = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, chunk); // TODO: ta imot endring fra WebApi med RfocCertificateNo
                     pcsCommPkgs.AddRange(response);
                 }
 
@@ -138,6 +139,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
                         foreach (var commPkg in commPkgsToUpdate)
                         {
                             commPkg.RfocAccepted = true;
+                            commPkg.RfocAcceptedCertificateGuid = certificateGuid;
                             count++;
                         }
                     }

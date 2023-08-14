@@ -15,7 +15,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         void RemoveInvitation(Invitation invitation);
         void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description);
         void MoveMcPkg(string projectName, string fromCommPkgNo, string toCommPkgNo, string fromMcPkgNo, string toMcPkgNo, string description);
-        void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs);
+        void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs,
+            Guid certificateGuid);
+        void UpdateRfocStatuses(string projectName, Guid certificateGuid);
         IList<Invitation> GetInvitationsForSynchronization();
     }
 }

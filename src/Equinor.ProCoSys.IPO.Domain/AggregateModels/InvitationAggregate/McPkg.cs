@@ -55,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string McPkgNo { get; private set; }
         public string System { get; private set; }
         public bool RfocAccepted { get; set; }
+        public Guid RfocAcceptedCertificateGuid { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)

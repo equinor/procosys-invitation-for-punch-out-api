@@ -89,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             var commPkgNos = certificateCommPkgsModel.CommPkgs.Select(c => c.CommPkgNo).ToList();
             var mcPkgs = certificateMcPkgsModel.McPkgs.Select(mc =>new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo)).ToList();
-            _invitationRepository.UpdateRfocStatuses(project.Name, commPkgNos, mcPkgs);
+            _invitationRepository.UpdateRfocStatuses(project.Name, commPkgNos, mcPkgs, request.ProCoSysGuid);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             

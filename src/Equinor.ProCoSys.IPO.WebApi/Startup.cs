@@ -189,12 +189,12 @@ namespace Equinor.ProCoSys.IPO.WebApi
                     .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
                     .WithLeaderElector(leaderElectorUrl)
                     .WithRenewLeaseInterval(int.Parse(Configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
-                    .WithSubscription(PcsTopic.Ipo, "ipo_ipo")
-                    .WithSubscription(PcsTopic.Project, "ipo_project")
-                    .WithSubscription(PcsTopic.CommPkg, "ipo_commpkg")
-                    .WithSubscription(PcsTopic.McPkg, "ipo_mcpkg")
-                    .WithSubscription(PcsTopic.Library, "ipo_library")
-                    .WithSubscription(PcsTopic.Certificate, "ipo_certificate")
+                    .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
+                    .WithSubscription(PcsTopicConstants.Project, "ipo_project")
+                    .WithSubscription(PcsTopicConstants.CommPkg, "ipo_commpkg")
+                    .WithSubscription(PcsTopicConstants.McPkg, "ipo_mcpkg")
+                    .WithSubscription(PcsTopicConstants.Library, "ipo_library")
+                    .WithSubscription(PcsTopicConstants.Certificate, "ipo_certificate")
                     //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
                     //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
                     //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE

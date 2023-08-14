@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public int ProjectId { get; private set; }
         public bool RfocAccepted { get; set; }
-
+        public Guid RfocAcceptedCertificateGuid { get; set; }
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;

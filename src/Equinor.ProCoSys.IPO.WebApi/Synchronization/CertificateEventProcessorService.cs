@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Enums;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
@@ -46,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             if (certificateEvent.Behavior == "delete")
             {
-                TrackUnsupportedDeleteEvent(PcsTopic.Certificate, certificateEvent.ProCoSysGuid);
+                TrackUnsupportedDeleteEvent(PcsTopicConstants.Certificate, certificateEvent.ProCoSysGuid);
                 return;
             }
 
@@ -160,11 +161,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     {nameof(certificateTopic.ProjectName), NormalizeProjectName(certificateTopic.ProjectName)}
                 });
 
-        private void TrackUnsupportedDeleteEvent(PcsTopic topic, Guid guid) =>
+        private void TrackUnsupportedDeleteEvent(string topic, Guid guid) =>
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {"Event Delete", topic.ToString()},
+                    {"Event Delete", topic},
                     {"ProCoSysGuid", guid.ToString()},
                     {"Supported", "false"}
                 });

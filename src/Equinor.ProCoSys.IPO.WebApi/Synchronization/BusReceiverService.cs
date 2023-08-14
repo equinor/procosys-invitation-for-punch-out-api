@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }
 
-        public async Task ProcessMessageAsync(PcsTopic pcsTopic, string messageJson, CancellationToken cancellationToken)
+        public async Task ProcessMessageAsync(string pcsTopic, string messageJson, CancellationToken cancellationToken)
         {
             var deserializedMessage = JsonSerializer.Deserialize<Dictionary<string, object>>(messageJson);
             /***
@@ -81,22 +81,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             switch (pcsTopic)
             {
-                case PcsTopic.Ipo:
+                case PcsTopicConstants.Ipo:
                     await ProcessIpoEvent(messageJson);
                     break;
-                case PcsTopic.Project:
+                case PcsTopicConstants.Project:
                     ProcessProjectEvent(messageJson);
                     break;
-                case PcsTopic.CommPkg:
+                case PcsTopicConstants.CommPkg:
                     ProcessCommPkgEvent(messageJson);
                     break;
-                case PcsTopic.McPkg:
+                case PcsTopicConstants.McPkg:
                     ProcessMcPkgEvent(messageJson);
                     break;
-                case PcsTopic.Library:
+                case PcsTopicConstants.Library:
                     ProcessLibraryEvent(messageJson);
                     break;
-                case PcsTopic.Certificate:
+                case PcsTopicConstants.Certificate:
                     await _certificateEventProcessorService.ProcessCertificateEventAsync(messageJson);
                     break;
             }
@@ -268,11 +268,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
         }
 
-        private void TrackDeleteEvent(PcsTopic topic, object guid) =>
+        private void TrackDeleteEvent(string topic, object guid) =>
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {"Event Delete", topic.ToString()},
+                    {"Event Delete", topic},
                     {"ProCoSysGuid", guid?.ToString()}
                 });
 

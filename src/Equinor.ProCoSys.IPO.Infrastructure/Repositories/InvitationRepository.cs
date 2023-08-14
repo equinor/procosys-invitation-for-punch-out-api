@@ -142,7 +142,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
-        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
+        public void UpdateRfocStatuses(string projectName, Guid certificateGuid)
+        {
+
+        }
+
+        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos,
+            IList<Tuple<string, string>> mcPkgs, Guid certificateGuid)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
@@ -164,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             {
                 if (invitation.Type == DisciplineType.MDP)
                 {
-                    UpdateRfocStatusForMDP(invitation, commPkgNos);
+                    UpdateRfocStatusForMDP(invitation, commPkgNos, certificateGuid);
                     if (invitation.CommPkgs.All(c => c.RfocAccepted))
                     {
                         invitation.ScopeHandedOver();
@@ -172,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 }
                 else
                 {
-                    UpdateRfocStatusForDP(invitation, mcPkgs);
+                    UpdateRfocStatusForDP(invitation, mcPkgs, certificateGuid);
                     if (invitation.McPkgs.All(c => c.RfocAccepted))
                     {
                         invitation.ScopeHandedOver();
@@ -181,12 +187,20 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             }
         }
 
-        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos) =>
+        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos, Guid certificateGuid) =>
             invitation.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo)).ToList()
-                .ForEach(c => c.RfocAccepted = true);
+                .ForEach(c =>
+                {
+                    c.RfocAccepted = true;
+                    c.RfocAcceptedCertificateGuid = certificateGuid;
+                });
 
-        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs) =>
+        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs, Guid certificateGuid) =>
             invitation.McPkgs.Where(mc => mcPkgs.Contains(new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo))).ToList()
-                .ForEach(mc => mc.RfocAccepted = true);
+                .ForEach(mc =>
+                {
+                    mc.RfocAccepted = true;
+                    mc.RfocAcceptedCertificateGuid = certificateGuid;
+                });
     }
 }
