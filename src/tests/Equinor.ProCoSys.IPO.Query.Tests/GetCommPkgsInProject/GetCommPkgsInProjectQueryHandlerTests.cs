@@ -13,7 +13,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
 {
     [TestClass]
-    public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBase
+    public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
         private IList<ProCoSysSearchCommPkg> _mainApiCommPkgs;

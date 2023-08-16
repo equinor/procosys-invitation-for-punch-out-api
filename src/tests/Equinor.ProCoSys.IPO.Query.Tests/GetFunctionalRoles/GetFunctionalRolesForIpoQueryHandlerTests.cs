@@ -14,7 +14,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
 {
     [TestClass]
-    public class GetFunctionalRolesForIpoQueryHandlerTests : ReadOnlyTestsBase
+    public class GetFunctionalRolesForIpoQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private IList<ProCoSysFunctionalRole> _libraryApiFunctionalRoles;

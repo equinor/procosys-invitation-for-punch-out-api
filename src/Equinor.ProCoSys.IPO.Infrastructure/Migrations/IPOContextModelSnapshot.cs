@@ -322,12 +322,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.HasIndex("Plant")
-                        .HasFilter("[Status] <> 3");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Description", "Status" });
-
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("Plant", "ProjectId", "Status")
+                        .HasFilter("[Status] <> 3 AND [Status] <> 4");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant", "ProjectId", "Status"), new[] { "Description" });
 
                     b.ToTable("Invitations");
                 });
@@ -481,9 +481,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("SignedBy");
 
-                    b.HasIndex("InvitationId", "Plant");
+                    b.HasIndex("InvitationId", "Plant", "AzureOid");
 
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant"), new[] { "AzureOid", "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant", "AzureOid"), new[] { "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
 
                     b.ToTable("Participants");
                 });
@@ -660,6 +660,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasDatabaseName("IX_Projects_Plant_ASC");
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Name", "IsClosed", "CreatedAtUtc", "ModifiedAtUtc" });
+
+                    b.HasIndex("Plant", "IsClosed");
 
                     b.ToTable("Projects");
                 });

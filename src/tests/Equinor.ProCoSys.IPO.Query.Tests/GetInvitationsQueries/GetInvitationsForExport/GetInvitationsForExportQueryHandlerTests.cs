@@ -17,7 +17,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsForExport
 {
     [TestClass]
-    public class GetInvitationsForExportQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationsForExportQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _invitation1;
         private Invitation _invitation2;
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     "LastName",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var personParticipant2 = new Participant(
@@ -112,7 +112,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     "LastName3",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var personParticipant4 = new Participant(
