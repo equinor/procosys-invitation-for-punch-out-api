@@ -10,16 +10,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         public static string GetDescription(this EventType eventType, Participant participant)
         {
             string user = $"{participant.FirstName} {participant.LastName}";
-            string functionRole = participant.FunctionalRoleCode;
+            string functionalRole = participant.FunctionalRoleCode;
             string organization = participant.Organization.GetDescription();
 
-            if (string.IsNullOrEmpty(functionRole))
+            if (string.IsNullOrEmpty(functionalRole))
             {
                 return $"{eventType.GetDescription()} by {user} for {organization}";
             }
             else
             {
-                return $"{eventType.GetDescription()} by {user} on behalf of {functionRole} for {organization}";
+                return $"{eventType.GetDescription()} by {user} on behalf of {functionalRole} for {organization}";
             }
         }
 

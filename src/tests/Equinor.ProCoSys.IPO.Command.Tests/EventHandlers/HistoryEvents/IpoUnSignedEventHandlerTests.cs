@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
             var participant = new Participant("TestPlant",
-                                    Domain.AggregateModels.InvitationAggregate.Organization.ConstructionCompany,
+                                    Organization.ConstructionCompany,
                                     IpoParticipantType.Person,
                                     null,
                                     "Rob",
@@ -53,15 +53,17 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
 
             var person = new Person(sourceGuid, "Rob", "Hubbard", "robhubbard", "a@b.com");
 
-            _dut.Handle(new IpoUnSignedEvent(plant, sourceGuid, participant, person), default);
+            using (_dut.Handle(new IpoUnSignedEvent(plant, sourceGuid, participant, person), default))
+            {
 
-            // Assert
-            Assert.IsNotNull(_historyAdded);
-            Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
-            Assert.IsNotNull(_historyAdded.Description);
-            Assert.AreEqual(EventType.IpoUnsigned, _historyAdded.EventType);
-            Assert.AreEqual("IPO", _historyAdded.ObjectType);
+                // Assert
+                Assert.IsNotNull(_historyAdded);
+                Assert.AreEqual(plant, _historyAdded.Plant);
+                Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
+                Assert.IsNotNull(_historyAdded.Description);
+                Assert.AreEqual(EventType.IpoUnsigned, _historyAdded.EventType);
+                Assert.AreEqual("IPO", _historyAdded.ObjectType);
+            }
         }
     }
 }

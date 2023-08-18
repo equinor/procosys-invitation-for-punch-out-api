@@ -36,29 +36,29 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             // Arrange
             Assert.IsNull(_historyAdded);
 
-            // Act
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
-            var participant = new Participant("TestPlant", 
-                                    Domain.AggregateModels.InvitationAggregate.Organization.ConstructionCompany, 
-                                    IpoParticipantType.Person, 
-                                    null,
-                                    "Rob", 
-                                    "Hubbard",
-                                    "robhubbard",
-                                    "a@b.com", 
-                                    sourceGuid, 
-                                    0);
+            var participant = new Participant("TestPlant",
+                                                Domain.AggregateModels.InvitationAggregate.Organization.ConstructionCompany,
+                                                IpoParticipantType.Person,
+                                                null,
+                                                "Rob",
+                                                "Hubbard",
+                                                "robhubbard",
+                                                "a@b.com",
+                                                sourceGuid,
+                                                0);
 
-            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default);
-
-            // Assert
-            Assert.IsNotNull(_historyAdded);
-            Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
-            Assert.IsNotNull(_historyAdded.Description);
-            Assert.AreEqual(EventType.AttendedStatusUpdated, _historyAdded.EventType);
-            Assert.AreEqual("IPO", _historyAdded.ObjectType);
+            // Act
+            using (_dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default)) {
+                // Assert
+                Assert.IsNotNull(_historyAdded);
+                Assert.AreEqual(plant, _historyAdded.Plant);
+                Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
+                Assert.IsNotNull(_historyAdded.Description);
+                Assert.AreEqual(EventType.AttendedStatusUpdated, _historyAdded.EventType);
+                Assert.AreEqual("IPO", _historyAdded.ObjectType);
+            }
         }
     }
 }

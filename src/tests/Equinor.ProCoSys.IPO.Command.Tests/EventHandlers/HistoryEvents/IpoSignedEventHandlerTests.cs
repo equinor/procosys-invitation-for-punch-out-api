@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
             var participant = new Participant("TestPlant",
-                                    Domain.AggregateModels.InvitationAggregate.Organization.ConstructionCompany,
+                                    Organization.ConstructionCompany,
                                     IpoParticipantType.Person,
                                     null,
                                     "Rob",
