@@ -6,6 +6,7 @@ using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
 using Equinor.ProCoSys.PcsServiceBus;
+using Equinor.ProCoSys.PcsServiceBus.Enums;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -64,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task HandleRfocAcceptedIfRelevantAsync(CertificateTopic certificateEvent)
         {
-            if (certificateEvent.CertificateType == "RFOC")
+            if (certificateEvent.CertificateStatus == CertificateStatus.Accepted && certificateEvent.CertificateType == "RFOC")
             {
                 var result = await _mediator.Send(new UpdateRfocAcceptedCommand(
                     certificateEvent.ProjectName,
