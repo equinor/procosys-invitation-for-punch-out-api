@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations
                 .Include(i => i.McPkgs)
                 .Include(i => i.CommPkgs)
-                .Where(i => i.Status == IpoStatus.Planned || i.Status == IpoStatus.Completed || i.Status == IpoStatus.Accepted)
+                .Where(i => i.Status == IpoStatus.ScopeHandedOver)
                 .ToList();
 
         public void UpdateProjectOnInvitations(string projectName, string description)

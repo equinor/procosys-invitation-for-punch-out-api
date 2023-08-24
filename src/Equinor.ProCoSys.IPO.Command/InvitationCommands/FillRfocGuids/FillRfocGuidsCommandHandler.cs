@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,24 +12,27 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
 
-namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
+namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
 {
-    public class FillRfocStatusesCommandHandler : IRequestHandler<FillRfocStatusesCommand, Result<Unit>>
+    public class FillRfocGuidsCommandHandler : IRequestHandler<FillRfocGuidsCommand, Result<Unit>>
     {
         private readonly IInvitationRepository _invitationRepository;
+        //private readonly ICertificateRepository _certificateRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<FillRfocStatusesCommandHandler> _logger;
+        private readonly ILogger<FillRfocGuidsCommandHandler> _logger;
 
-        public FillRfocStatusesCommandHandler(
+        public FillRfocGuidsCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ILogger<FillRfocStatusesCommandHandler> logger,
+            ILogger<FillRfocGuidsCommandHandler> logger,
             IProjectRepository projectRepository,
             IMcPkgApiService mcPkgApiService,
-            ICommPkgApiService commPkgApiService)
+            ICommPkgApiService commPkgApiService
+            //ICertificateRepository certificateRepository
+            )
         {
             _invitationRepository = invitationRepository;
             _logger = logger;
@@ -36,41 +40,38 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
             _projectRepository = projectRepository;
             _mcPkgApiService = mcPkgApiService;
             _commPkgApiService = commPkgApiService;
+            //_certificateRepository = certificateRepository;
         }
 
-        public async Task<Result<Unit>> Handle(FillRfocStatusesCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(FillRfocGuidsCommand request, CancellationToken cancellationToken)
         {
-            // THIS CODE WAS WRITTEN TO RUN A ONETIME TRANSFORMATION WHEN WE INTRODUCED RfocAccepted on McPkgs and CommPkgs,
-            // and new status (ScopeHandedOver) on invitation
+            // THIS CODE WAS WRITTEN TO RUN A ONETIME TRANSFORMATION WHEN WE INTRODUCED RfocGuid on McPkgs and CommPkgs
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
-            //var projects = await _projectRepository.GetAllAsync();
-            //var invitations = _invitationRepository.GetInvitationsForSynchronization();
+            var projects = await _projectRepository.GetAllAsync();
+            var invitations = _invitationRepository.GetInvitationsForSynchronization();
 
-            //var mcPkgsUpdatedCount = 0;
-            //var commPkgsUpdatedCount = 0;
-            //var invitationsSetToScopeHandedOverCount = 0;
+            var mcPkgsUpdatedCount = 0;
+            var commPkgsUpdatedCount = 0;
 
-            //foreach (var project in projects)
-            //{
-            //    var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
+            foreach (var project in projects)
+            {
+                var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
 
-            //    mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
-            //    commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
-            //    invitationsSetToScopeHandedOverCount += HandleInvitationStatus(invitationsInProject);
-            //    _logger.LogInformation($"FillRfocStatuses: Project updated: {project.Name}");
-            //}
+                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
+                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
+                _logger.LogInformation($"FillRfocGuids: Project updated: {project.Name}");
+            }
 
-            //if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
-            //{
-            //    if (request.SaveChanges)
-            //    {
-            //        await _unitOfWork.SaveChangesAsync(cancellationToken);
-            //    }
-            //    _logger.LogInformation($"McPkgs updated with RfocAccepted: {mcPkgsUpdatedCount}");
-            //    _logger.LogInformation($"CommPkgs updated with RfocAccepted: {commPkgsUpdatedCount}");
-            //    _logger.LogInformation($"Invitations set to ScopeHandedOver: {invitationsSetToScopeHandedOverCount}");
-            //}
+            if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
+            {
+                if (request.SaveChanges)
+                {
+                    await _unitOfWork.SaveChangesAsync(cancellationToken);
+                }
+                _logger.LogInformation($"McPkgs updated with RfocGuid: {mcPkgsUpdatedCount}");
+                _logger.LogInformation($"CommPkgs updated with RfocGuid: {commPkgsUpdatedCount}");
+            }
 
             return new SuccessResult<Unit>(Unit.Value);
         }
@@ -96,12 +97,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
 
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {
-                    if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED")
+                    if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED" && pcsMcPkg.RfocGuid != null)
                     {
                         var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
                         foreach (var mcPkg in mcPkgsToUpdate)
                         {
-                            mcPkg.RfocAccepted = true;
+                            var certificate = new Certificate(project.Plant, project, (Guid) pcsMcPkg.RfocGuid);
+                            //var relationship = new CertificateScope(project.Plant, mcPkg, null); //TODO
+                            //_certificateRepository.Add(certificate);
                             count++;
                         }
                     }
@@ -132,41 +135,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses
 
                 foreach (var pcsCommPkg in pcsCommPkgs)
                 {
-                    if (pcsCommPkg.OperationHandoverStatus == "ACCEPTED")
+                    if (pcsCommPkg.OperationHandoverStatus == "ACCEPTED" && pcsCommPkg.RfocGuid != null)
                     {
                         var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == pcsCommPkg.CommPkgNo).ToList();
                         foreach (var commPkg in commPkgsToUpdate)
                         {
-                            commPkg.RfocAccepted = true;
+                            var certificate = new Certificate(project.Plant, project, (Guid)pcsCommPkg.RfocGuid);
+                            //certificate.add
+                            //var relationship = new CertificateScope(project.Plant, null, commPkg); //TODO
+                            //_certificateRepository.Add(certificate);
                             count++;
                         }
-                    }
-                }
-            }
-
-            return count;
-        }
-
-        private static int HandleInvitationStatus(List<Invitation> invitations)
-        {
-            var count = 0;
-
-            foreach (var invitation in invitations)
-            {
-                if (invitation.Type == DisciplineType.DP)
-                {
-                    if (invitation.McPkgs.All(m => m.RfocAccepted))
-                    {
-                        invitation.ScopeHandedOver();
-                        count++;
-                    }
-                }
-                else
-                {
-                    if (invitation.CommPkgs.All(c => c.RfocAccepted))
-                    {
-                        invitation.ScopeHandedOver();
-                        count++;
                     }
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
@@ -11,6 +12,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public const int CommPkgNoMaxLength = 30;
         public const int SystemMaxLength = 40;
+        private readonly List<Certificate> _certificateScope = new List<Certificate>();
+
 
         protected CommPkg()
             : base(null)
@@ -59,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         public int ProjectId { get; private set; }
         public bool RfocAccepted { get; set; }
-
+        public IReadOnlyCollection<Certificate> CertificateScopes => _certificateScope.AsReadOnly();
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;

@@ -22,6 +22,36 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CertificateCommPkg", b =>
+                {
+                    b.Property<int>("CertificateCommPkgsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CertificateScopesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CertificateCommPkgsId", "CertificateScopesId");
+
+                    b.HasIndex("CertificateScopesId");
+
+                    b.ToTable("CertificateCommPkg");
+                });
+
+            modelBuilder.Entity("CertificateMcPkg", b =>
+                {
+                    b.Property<int>("CertificateMcPkgsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CertificateScopesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CertificateMcPkgsId", "CertificateScopesId");
+
+                    b.HasIndex("CertificateScopesId");
+
+                    b.ToTable("CertificateMcPkg");
+                });
+
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
                 {
                     b.Property<int>("Id")
@@ -125,6 +155,47 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasIndex("InvitationId");
 
                     b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Certificate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedById")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PcsGuid")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Plant")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("Plant", "ProjectId", "PcsGuid");
+
+                    b.ToTable("Certificates");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.CommPkg", b =>
@@ -694,6 +765,36 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.ToTable("Setting");
                 });
 
+            modelBuilder.Entity("CertificateCommPkg", b =>
+                {
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.CommPkg", null)
+                        .WithMany()
+                        .HasForeignKey("CertificateCommPkgsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Certificate", null)
+                        .WithMany()
+                        .HasForeignKey("CertificateScopesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CertificateMcPkg", b =>
+                {
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.McPkg", null)
+                        .WithMany()
+                        .HasForeignKey("CertificateMcPkgsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Certificate", null)
+                        .WithMany()
+                        .HasForeignKey("CertificateScopesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
                 {
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
@@ -714,6 +815,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", null)
                         .WithMany("Attachments")
                         .HasForeignKey("InvitationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Certificate", b =>
+                {
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
                 });

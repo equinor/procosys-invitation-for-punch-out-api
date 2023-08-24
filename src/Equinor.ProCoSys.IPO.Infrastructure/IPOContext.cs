@@ -63,6 +63,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<SavedFilter> SavedFilters { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Setting> Setting { get; set; }
+        public virtual DbSet<Certificate> Certificates { get; set; }
+        //public virtual DbSet<CertificateScope> CertificateScopes { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
