@@ -1,4 +1,4 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;

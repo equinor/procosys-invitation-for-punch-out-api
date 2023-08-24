@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Compile Remove="EntityConfigurations\CertificateScopeConfiguration.cs" />
-    <Compile Remove="Repositories\CertificateRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -13,7 +14,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public const int CommPkgNoMaxLength = 30;
         public const int SystemMaxLength = 40;
         private readonly List<Certificate> _certificateScope = new List<Certificate>();
-
 
         protected CommPkg()
             : base(null)

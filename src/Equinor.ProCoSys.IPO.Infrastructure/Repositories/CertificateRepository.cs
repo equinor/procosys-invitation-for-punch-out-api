@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
@@ -12,10 +12,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         {
         }
 
-        public IList<Certificate> GetCertificateByGuid(Guid certificateGuid) 
-            => _context.Certificates.Where(c => c.PcsGuid == certificateGuid).ToList();
-
-        public IList<Certificate> GetMcPkgIdsByCertificateGuid(Guid certificateGuid)
-            => _context.Certificates.Where(c => c.PcsGuid == certificateGuid).ToList();
+        public Task<Certificate> GetCertificateByGuid(Guid certificateGuid) 
+            => Set.SingleOrDefaultAsync(c => c.PcsGuid == certificateGuid);
     }
 }

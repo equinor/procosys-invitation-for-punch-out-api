@@ -5,7 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
-//using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {

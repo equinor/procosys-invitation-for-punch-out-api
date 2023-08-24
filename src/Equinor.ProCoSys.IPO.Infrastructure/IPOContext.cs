@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -64,7 +65,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Setting> Setting { get; set; }
         public virtual DbSet<Certificate> Certificates { get; set; }
-        //public virtual DbSet<CertificateScope> CertificateScopes { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {

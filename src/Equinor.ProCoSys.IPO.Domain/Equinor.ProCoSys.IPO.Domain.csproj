@@ -5,12 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="AggregateModels\CertificateAggregate\**" />
-    <EmbeddedResource Remove="AggregateModels\CertificateAggregate\**" />
-    <None Remove="AggregateModels\CertificateAggregate\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Equinor.ProCoSys.Common" Version="1.0.15" />
     <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />

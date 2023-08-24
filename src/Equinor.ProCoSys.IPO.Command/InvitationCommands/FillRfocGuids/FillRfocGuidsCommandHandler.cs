@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -17,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
     public class FillRfocGuidsCommandHandler : IRequestHandler<FillRfocGuidsCommand, Result<Unit>>
     {
         private readonly IInvitationRepository _invitationRepository;
-        //private readonly ICertificateRepository _certificateRepository;
+        private readonly ICertificateRepository _certificateRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly ICommPkgApiService _commPkgApiService;
@@ -30,9 +31,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             ILogger<FillRfocGuidsCommandHandler> logger,
             IProjectRepository projectRepository,
             IMcPkgApiService mcPkgApiService,
-            ICommPkgApiService commPkgApiService
-            //ICertificateRepository certificateRepository
-            )
+            ICommPkgApiService commPkgApiService,
+            ICertificateRepository certificateRepository)
         {
             _invitationRepository = invitationRepository;
             _logger = logger;
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             _projectRepository = projectRepository;
             _mcPkgApiService = mcPkgApiService;
             _commPkgApiService = commPkgApiService;
-            //_certificateRepository = certificateRepository;
+            _certificateRepository = certificateRepository;
         }
 
         public async Task<Result<Unit>> Handle(FillRfocGuidsCommand request, CancellationToken cancellationToken)
@@ -58,8 +58,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             {
                 var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
 
-                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project);
-                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project);
+                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project, cancellationToken);
+                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project, cancellationToken);
                 _logger.LogInformation($"FillRfocGuids: Project updated: {project.Name}");
             }
 
@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project)
+        private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project, CancellationToken token)
         {
             var count = 0;
 
@@ -102,9 +102,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
                         var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
                         foreach (var mcPkg in mcPkgsToUpdate)
                         {
-                            var certificate = new Certificate(project.Plant, project, (Guid) pcsMcPkg.RfocGuid);
-                            //var relationship = new CertificateScope(project.Plant, mcPkg, null); //TODO
-                            //_certificateRepository.Add(certificate);
+                            var certificate = await GetOrCreateCertificateAsync((Guid)pcsMcPkg.RfocGuid, project, token);
+                            certificate.AddMcPkgRelation(mcPkg);
                             count++;
                         }
                     }
@@ -114,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             return count;
         }
 
-        private async Task<int> HandleCommPkgsAsync(List<Invitation> invitations, Project project)
+        private async Task<int> HandleCommPkgsAsync(List<Invitation> invitations, Project project, CancellationToken token)
         {
             var count = 0;
 
@@ -140,10 +139,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
                         var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == pcsCommPkg.CommPkgNo).ToList();
                         foreach (var commPkg in commPkgsToUpdate)
                         {
-                            var certificate = new Certificate(project.Plant, project, (Guid)pcsCommPkg.RfocGuid);
-                            //certificate.add
-                            //var relationship = new CertificateScope(project.Plant, null, commPkg); //TODO
-                            //_certificateRepository.Add(certificate);
+                            var certificate = await GetOrCreateCertificateAsync((Guid)pcsCommPkg.RfocGuid, project, token);
+                            certificate.AddCommPkgRelation(commPkg);
                             count++;
                         }
                     }
@@ -151,6 +148,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             }
 
             return count;
+        }
+
+        private async Task<Certificate> GetOrCreateCertificateAsync(Guid certificateGuid, Project project, CancellationToken cancellationToken)
+            => await _certificateRepository.GetCertificateByGuid(certificateGuid) ?? await AddCertificateAsync(certificateGuid, project, cancellationToken);
+
+        private async Task<Certificate> AddCertificateAsync(Guid certificateGuid, Project project, CancellationToken cancellationToken)
+        {
+            var certificate = new Certificate(project.Plant, project, certificateGuid);
+            _certificateRepository.Add(certificate);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return certificate;
         }
     }
 }
