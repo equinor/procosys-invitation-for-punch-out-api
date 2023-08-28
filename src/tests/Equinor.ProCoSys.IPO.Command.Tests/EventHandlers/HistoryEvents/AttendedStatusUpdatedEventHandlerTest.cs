@@ -50,15 +50,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
                                                 0);
 
             // Act
-            using (_dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default)) {
-                // Assert
-                Assert.IsNotNull(_historyAdded);
-                Assert.AreEqual(plant, _historyAdded.Plant);
-                Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
-                Assert.IsNotNull(_historyAdded.Description);
-                Assert.AreEqual(EventType.AttendedStatusUpdated, _historyAdded.EventType);
-                Assert.AreEqual("IPO", _historyAdded.ObjectType);
-            }
+            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default);
+            // Assert
+            Assert.IsNotNull(_historyAdded);
+            Assert.AreEqual(plant, _historyAdded.Plant);
+            Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
+            Assert.IsNotNull(_historyAdded.Description);
+            Assert.AreEqual(EventType.AttendedStatusUpdated, _historyAdded.EventType);
+            Assert.AreEqual("IPO", _historyAdded.ObjectType);
         }
     }
 }
