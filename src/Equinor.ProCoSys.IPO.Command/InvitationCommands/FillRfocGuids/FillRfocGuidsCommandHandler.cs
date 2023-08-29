@@ -125,24 +125,21 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             {
                 var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
                 var mcPkgNosChunks = commPkgNosInProject.Chunk(80);
-                var pcsCommPkgs = new List<ProCoSysCommPkg>();
+                var pcsCommPkgRfocRelations = new List<ProCoSysRfocOnCommPkg>();
                 foreach (var chunk in mcPkgNosChunks)
                 {
-                    var response = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, chunk);
-                    pcsCommPkgs.AddRange(response);
+                    var response = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, chunk);
+                    pcsCommPkgRfocRelations.AddRange(response);
                 }
 
-                foreach (var pcsCommPkg in pcsCommPkgs)
+                foreach (var relation in pcsCommPkgRfocRelations)
                 {
-                    if (pcsCommPkg.OperationHandoverStatus == "ACCEPTED" && pcsCommPkg.RfocGuid != null)
+                    var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == relation.CommPkgNo).ToList();
+                    foreach (var commPkg in commPkgsToUpdate)
                     {
-                        var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == pcsCommPkg.CommPkgNo).ToList();
-                        foreach (var commPkg in commPkgsToUpdate)
-                        {
-                            var certificate = await GetOrCreateCertificateAsync((Guid)pcsCommPkg.RfocGuid, project, token);
-                            certificate.AddCommPkgRelation(commPkg);
-                            count++;
-                        }
+                        var certificate = await GetOrCreateCertificateAsync(relation.RfocGuid, project, token);
+                        certificate.AddCommPkgRelation(commPkg);
+                        count++;
                     }
                 }
             }

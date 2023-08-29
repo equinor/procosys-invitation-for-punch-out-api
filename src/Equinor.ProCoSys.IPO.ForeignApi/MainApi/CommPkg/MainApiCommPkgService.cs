@@ -62,5 +62,24 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 
             return commPkgs;
         }
+
+        public async Task<IList<ProCoSysRfocOnCommPkg>> GetRfocGuidsByCommPkgNosAsync(
+            string plant,
+            string projectName,
+            IList<string> commPkgNos)
+        {
+            var url = $"{_baseAddress}CommPkg/RfocByCommPkgNos" +
+                      $"?plantId={plant}" +
+                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                      $"&api-version={_apiVersion}";
+            foreach (var commPkgNo in commPkgNos)
+            {
+                url += $"&commPkgNos={commPkgNo}";
+            }
+
+            var rfocs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysRfocOnCommPkg>>(url);
+
+            return rfocs;
+        }
     }
 }
