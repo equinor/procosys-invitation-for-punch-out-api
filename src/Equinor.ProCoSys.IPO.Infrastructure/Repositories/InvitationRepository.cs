@@ -142,6 +142,30 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
+        public CommPkg GetCommPkg(string projectName, string commPkgNo)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            return _context.CommPkgs.SingleOrDefault(c => c.CommPkgNo == commPkgNo && c.ProjectId == project.Id);
+        }
+
+        public McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            return _context.McPkgs.SingleOrDefault(mc => mc.McPkgNo == mcPkgNo && mc.CommPkgNo == commPkgNo && mc.ProjectId == project.Id);
+        }
+
         public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
