@@ -9,7 +9,6 @@ using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocStatuses;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;
@@ -94,7 +93,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     var startTime = TimeService.UtcNow;
                     
                     // await _mediator.Send(new FillRfocStatusesCommand(saveChanges?.Value == "true"));
-                    // await _mediator.Send(new FillRfocGuidsCommand(saveChanges?.Value == "true"));
+                    await _mediator.Send(new FillRfocGuidsCommand(saveChanges?.Value == "true"));
 
                     var endTime = TimeService.UtcNow;
 
