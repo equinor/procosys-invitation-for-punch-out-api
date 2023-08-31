@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasIndex("SourceGuid")
                         .HasDatabaseName("IX_History_SourceGuid_ASC");
 
-                    b.ToTable("History", null, t =>
+                    b.ToTable("History", t =>
                         {
                             t.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled','AttendedStatusUpdated','NoteUpdated','ScopeHandedOver')");
                         });
@@ -124,7 +124,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("InvitationId");
 
-                    b.ToTable("Attachments", (string)null);
+                    b.ToTable("Attachments");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.CommPkg", b =>
@@ -189,7 +189,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant", "InvitationId"), new[] { "CommPkgNo" });
 
-                    b.ToTable("CommPkgs", (string)null);
+                    b.ToTable("CommPkgs");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Comment", b =>
@@ -230,7 +230,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("InvitationId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation", b =>
@@ -322,14 +322,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.HasIndex("Plant")
-                        .HasFilter("[Status] <> 3");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Description", "Status" });
-
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Invitations", (string)null);
+                    b.HasIndex("Plant", "ProjectId", "Status")
+                        .HasFilter("[Status] <> 3 AND [Status] <> 4");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant", "ProjectId", "Status"), new[] { "Description" });
+
+                    b.ToTable("Invitations");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.McPkg", b =>
@@ -395,7 +395,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant", "InvitationId"), new[] { "CommPkgNo" });
 
-                    b.ToTable("McPkgs", (string)null);
+                    b.ToTable("McPkgs");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Participant", b =>
@@ -481,11 +481,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("SignedBy");
 
-                    b.HasIndex("InvitationId", "Plant");
+                    b.HasIndex("InvitationId", "Plant", "AzureOid");
 
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant"), new[] { "AzureOid", "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
-
-                    b.ToTable("Participants", (string)null);
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant", "AzureOid"), new[] { "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
+                    
+                    b.ToTable("Participants");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", b =>
@@ -537,7 +537,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.ToTable("Persons", (string)null);
+                    b.ToTable("Persons");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.SavedFilter", b =>
@@ -599,7 +599,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("SavedFilters", (string)null);
+                    b.ToTable("SavedFilters");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", b =>
@@ -661,7 +661,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Name", "IsClosed", "CreatedAtUtc", "ModifiedAtUtc" });
 
-                    b.ToTable("Projects", (string)null);
+                    b.HasIndex("Plant", "IsClosed");
+
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate.Setting", b =>
@@ -689,7 +691,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Setting", (string)null);
+                    b.ToTable("Setting");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>
