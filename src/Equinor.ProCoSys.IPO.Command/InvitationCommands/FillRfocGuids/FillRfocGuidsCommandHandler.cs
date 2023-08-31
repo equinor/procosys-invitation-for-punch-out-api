@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
 
         public async Task<Result<Unit>> Handle(FillRfocGuidsCommand request, CancellationToken cancellationToken)
         {
-            // THIS CODE WAS WRITTEN TO RUN A ONETIME TRANSFORMATION WHEN WE INTRODUCED RfocGuid on McPkgs and CommPkgs
+            // THIS CODE WAS WRITTEN TO RUN A ONETIME TRANSFORMATION WHEN WE INTRODUCED Certificate table
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
             var projects = await _projectRepository.GetAllAsync();

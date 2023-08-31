@@ -64,11 +64,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
                 throw new ArgumentException($"Can't relate item in {commPkg.Plant} to item in {Plant}");
             }
 
-            if (commPkg.ProjectId != ProjectId)
-            {
-                throw new ArgumentException($"Can't relate item in project {commPkg.ProjectId} to item in project {ProjectId}");
-            }
-
             _certificateCommPkgScope.Add(commPkg);
         }
 
@@ -82,11 +77,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
             if (mcPkg.Plant != Plant)
             {
                 throw new ArgumentException($"Can't relate item in {mcPkg.Plant} to item in {Plant}");
-            }
-
-            if (mcPkg.ProjectId != ProjectId)
-            {
-                throw new ArgumentException($"Can't relate item in project {mcPkg.ProjectId} to item in project {ProjectId}");
             }
 
             _certificateMcPkgScope.Add(mcPkg);
