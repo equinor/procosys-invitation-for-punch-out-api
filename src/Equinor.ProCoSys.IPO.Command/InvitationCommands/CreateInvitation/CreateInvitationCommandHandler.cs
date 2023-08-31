@@ -80,7 +80,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var meetingParticipants = new List<BuilderParticipant>();
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
-            
+            _logger.LogInformation("Started create invitation.");
+            foreach (var p in request.Participants)
+            {
+                _logger.LogInformation("Person with oid [" + p.InvitedPerson.AzureOid + "] invited.");
+            }
+
             var project = await GetOrCreateProjectAsync(request, cancellationToken);
 
             if (request.CommPkgScope.Count > 0)
@@ -107,6 +112,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _invitationRepository.Add(invitation);
 
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
+        
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             try
@@ -230,11 +236,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForCommand> personParticipantsWithOids)
         {
+            _logger.LogInformation("Adding PersonParticipantsWithOids: " + personParticipantsWithOids.Count);
+
             var personsAdded = new List<ParticipantsForCommand>();
             foreach (var participant in personParticipantsWithOids)
             {
                 if (InvitationHelper.ParticipantIsSigningParticipant(participant))
                 {
+                    _logger.LogInformation("Following participant is signer: " + participant.InvitedPerson.AzureOid);
+
                     meetingParticipants = await AddSigner(
                         invitation,
                         meetingParticipants,
@@ -289,6 +299,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 invitedSigner.AzureOid.ToString(),
                 _objectName,
                 _signerPrivileges);
+            _logger.LogInformation("Got person from main api: " + person?.AzureOid);
+
             if (person != null)
             {
                 invitation.AddParticipant(new Participant(
@@ -424,6 +436,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             Invitation invitation,
             string projectName)
         {
+            _logger.LogInformation("Number of meeting participants: " + meetingParticipants.Count);
             foreach (var meetingParticipant in meetingParticipants)
             {
                 _logger.LogInformation($"Adding {meetingParticipant.Person.AzureUniqueId} - {meetingParticipant.Person.Mail} to invitation {invitation.Id}");
