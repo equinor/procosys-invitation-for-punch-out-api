@@ -11,6 +11,7 @@ resources:
     name: equinor/procosys-infra
     endpoint: 'equinor'
 
+
 # Global variables for the pipeline
 variables:
  - template: templates/variables/ipo-variables.yml@templates
