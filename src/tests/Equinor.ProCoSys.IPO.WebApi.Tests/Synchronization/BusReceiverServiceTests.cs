@@ -497,7 +497,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 {
                     {"Event Delete", PcsTopic.Tag.ToString()},
                     {"ProCoSysGuid", guid.ToString()}
-                }), Times.Once());
+                }, null), Times.Once());
 
             //ProcessMessageAsync should return before setting user
             _currentUserSetter.VerifyNoOtherCalls();
