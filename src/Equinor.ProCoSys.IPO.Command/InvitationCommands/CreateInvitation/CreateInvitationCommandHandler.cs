@@ -83,7 +83,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _logger.LogInformation("Started create invitation.");
             foreach (var p in request.Participants)
             {
-                _logger.LogInformation("Person with oid [" + p.InvitedPerson.AzureOid + "] invited.");
+                if (p.InvitedPerson != null)
+                {
+                    _logger.LogInformation("Person with oid [" + p.InvitedPerson.AzureOid + "] invited.");
+                }
+                if (p.InvitedFunctionalRole != null)
+                {
+                    _logger.LogInformation("FR [" + p.InvitedFunctionalRole.Code + "] invited.");
+                }
+                if (p.InvitedExternalEmail != null)
+                {
+                    _logger.LogInformation("External email [" + p.InvitedExternalEmail.Email + "] invited.");
+                }
             }
 
             var project = await GetOrCreateProjectAsync(request, cancellationToken);
