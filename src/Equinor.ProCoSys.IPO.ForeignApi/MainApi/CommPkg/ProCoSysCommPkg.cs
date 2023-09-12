@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
@@ -10,7 +9,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
         public string Description { get; set; }
         public string CommStatus { get; set; }
         public string OperationHandoverStatus { get; set; }
-        public Guid? RfocGuid { get; set; }
         public string System { get; set; }
         public string Section
             => System.Count(s => s == '|') == 2
