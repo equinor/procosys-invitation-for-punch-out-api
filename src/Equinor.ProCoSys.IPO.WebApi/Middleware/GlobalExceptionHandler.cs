@@ -69,9 +69,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Conflict;
                 context.Response.ContentType = "application/text";
-                const string message = "Data store operation failed. Data may have been modified or deleted since entities were loaded.";
-                _logger.LogDebug(message);
-                await context.Response.WriteAsync(message);
+                const string Message = "Data store operation failed. Data may have been modified or deleted since entities were loaded.";
+                _logger.LogWarning(Message);
+                await context.Response.WriteAsync(Message);
             }
             catch (IpoSendMailException e)
             {

@@ -1,21 +1,18 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class AttachmentRemovedEvent : INotification
+    public class AttachmentRemovedEvent : IDomainEvent
     {
-        public AttachmentRemovedEvent(
-            string plant,
-            Guid objectGuid,
-            string attachmentTitle)
+        public AttachmentRemovedEvent(string plant, Guid sourceGuid, string attachmentTitle)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
             AttachmentTitle = attachmentTitle;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
         public string AttachmentTitle { get; }
     }
 }

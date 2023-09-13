@@ -15,7 +15,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 {
     [TestClass]
-    public class GetHistoryQueryHandlerTests : ReadOnlyTestsBase
+    public class GetHistoryQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _invitationWithHistory;
         private Invitation _invitationWithNoHistory;
@@ -59,8 +59,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
                 context.Invitations.Add(_invitationWithNoHistory);
                 context.Invitations.Add(_invitationWithHistory);
 
-                _historyCompleteIpo = new History(TestPlant, "D", _invitationWithHistory.ObjectGuid, EventType.IpoCompleted);
-                _historyAcceptIpo = new History(TestPlant, "D1", _invitationWithHistory.ObjectGuid, EventType.IpoAccepted);
+                _historyCompleteIpo = new History(TestPlant, "D", _invitationWithHistory.Guid, EventType.IpoCompleted);
+                _historyAcceptIpo = new History(TestPlant, "D1", _invitationWithHistory.Guid, EventType.IpoAccepted);
 
                 context.History.Add(_historyCompleteIpo);
                 context.History.Add(_historyAcceptIpo);

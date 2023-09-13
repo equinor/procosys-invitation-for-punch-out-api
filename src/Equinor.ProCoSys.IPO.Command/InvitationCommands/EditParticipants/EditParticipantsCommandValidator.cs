@@ -34,6 +34,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                     NotBeCancelled(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"IPO cannot be cancelled when editing as admin! Id={command.InvitationId}")
                 .MustAsync((command, cancellationToken) =>
+                    NotHaveScopeHandedOver(command.InvitationId, cancellationToken))
+                .WithMessage(command => $"IPO cannot have status ScopeHandedOver when editing as admin! Id={command.InvitationId}")
+                .MustAsync((command, cancellationToken) =>
                     SignedParticipantsCannotBeAltered(command.UpdatedParticipants, command.InvitationId,
                         cancellationToken))
                 .WithMessage(command =>
@@ -62,6 +65,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
             async Task<bool> NotBeCancelled(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
+
+            async Task<bool> NotHaveScopeHandedOver(int invitationId, CancellationToken cancellationToken)
+                => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.ScopeHandedOver, cancellationToken);
 
             async Task<bool> ParticipantToBeUpdatedMustExist(ParticipantsForCommand participant, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantWithIdExistsAsync(participant, invitationId, cancellationToken);

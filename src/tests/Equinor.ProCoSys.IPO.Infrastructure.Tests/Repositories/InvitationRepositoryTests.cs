@@ -501,5 +501,70 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             // Assert
             Assert.AreEqual(newDescription, _mcPkg.Description);
         }
+
+        [TestMethod]
+        public void UpdateRfocStatuses_ShouldUpdateMcPkgs()
+        {
+            // Arrange & Assert
+            Assert.IsFalse(_mcPkg.RfocAccepted);
+
+            // Act
+            _dut.UpdateRfocStatuses(
+                GetProjectName(_mcPkg.ProjectId),
+                new List<string>(),
+                new List<Tuple<string, string>> { Tuple.Create(_mcPkg.McPkgNo, _mcPkg.CommPkgNo)});
+            // Assert
+            Assert.IsTrue(_mcPkg.RfocAccepted);
+        }
+
+        [TestMethod]
+        public void UpdateRfocStatuses_ShouldUpdateCommPkgs()
+        {
+            // Arrange & Assert
+            Assert.IsFalse(_commPkg.RfocAccepted);
+            Assert.IsFalse(_commPkg2.RfocAccepted);
+
+            // Act
+            _dut.UpdateRfocStatuses(
+                GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<Tuple<string, string>>());
+
+            // Assert
+            Assert.IsTrue(_commPkg.RfocAccepted);
+            Assert.IsTrue(_commPkg2.RfocAccepted);
+        }
+
+        [TestMethod]
+        public void UpdateRfocStatuses_ShouldNotUpdateInvitationStatus_WhenInvitationScopeIsPartlyHandedOver()
+        {
+            // Arrange & Assert
+            Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+
+            // Act
+            _dut.UpdateRfocStatuses(
+                GetProjectName(_commPkg.ProjectId),
+                new List<string> {_commPkg.CommPkgNo},
+                new List<Tuple<string, string>>());
+
+            // Assert
+            Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+        }
+
+        [TestMethod]
+        public void UpdateRfocStatuses_ShouldUpdateInvitationStatus_WhenEntireInvitationScopeIsHandedOver()
+        {
+            // Arrange & Assert
+            Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+
+            // Act
+            _dut.UpdateRfocStatuses(
+                GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<Tuple<string, string>>());
+
+            // Assert
+            Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+        }
     }
 }

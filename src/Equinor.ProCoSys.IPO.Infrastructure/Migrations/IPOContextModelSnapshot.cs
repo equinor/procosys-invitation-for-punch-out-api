@@ -61,16 +61,19 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
+                    b.Property<Guid>("SourceGuid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
 
-                    b.HasIndex("ObjectGuid")
-                        .HasDatabaseName("IX_History_ObjectGuid_ASC");
+                    b.HasIndex("SourceGuid")
+                        .HasDatabaseName("IX_History_SourceGuid_ASC");
 
                     b.ToTable("History", t =>
                         {
-                            t.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled','AttendedStatusUpdated','NoteUpdated')");
+                            t.HasCheckConstraint("constraint_history_check_valid_event_type", "EventType in ('IpoCompleted','IpoAccepted','IpoSigned','IpoUnsigned','IpoUncompleted','IpoUnaccepted','IpoCreated','IpoEdited','AttachmentUploaded','AttachmentRemoved','CommentAdded','CommentRemoved','IpoCanceled','AttendedStatusUpdated','NoteUpdated','ScopeHandedOver')");
                         });
                 });
 
@@ -157,6 +160,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("RfocAccepted")
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -260,6 +266,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<DateTime>("EndTimeUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Location")
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
@@ -313,12 +322,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("ModifiedById");
 
-                    b.HasIndex("Plant")
-                        .HasFilter("[Status] <> 3");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Description", "Status" });
-
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("Plant", "ProjectId", "Status")
+                        .HasFilter("[Status] <> 3 AND [Status] <> 4");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant", "ProjectId", "Status"), new[] { "Description" });
 
                     b.ToTable("Invitations");
                 });
@@ -360,6 +369,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("RfocAccepted")
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -469,9 +481,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasIndex("SignedBy");
 
-                    b.HasIndex("InvitationId", "Plant");
+                    b.HasIndex("InvitationId", "Plant", "AzureOid");
 
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant"), new[] { "AzureOid", "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InvitationId", "Plant", "AzureOid"), new[] { "FunctionalRoleCode", "Organization", "SignedAtUtc", "SortKey", "Type", "SignedBy" });
 
                     b.ToTable("Participants");
                 });
@@ -494,6 +506,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -504,9 +519,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("Oid")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -520,10 +532,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModifiedById");
-
-                    b.HasIndex("Oid")
+                    b.HasIndex("Guid")
                         .IsUnique();
+
+                    b.HasIndex("ModifiedById");
 
                     b.ToTable("Persons");
                 });
@@ -649,7 +661,37 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Plant"), new[] { "Name", "IsClosed", "CreatedAtUtc", "ModifiedAtUtc" });
 
+                    b.HasIndex("Plant", "IsClosed");
+
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate.Setting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Setting");
                 });
 
             modelBuilder.Entity("Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate.History", b =>

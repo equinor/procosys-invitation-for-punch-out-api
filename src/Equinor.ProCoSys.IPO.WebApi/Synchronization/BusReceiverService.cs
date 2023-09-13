@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IProjectRepository _projectRepository;
+        private readonly ICertificateEventProcessorService _certificateEventProcessorService;
         private readonly Guid _ipoApiOid;
         private const string IpoBusReceiverTelemetryEvent = "IPO Bus Receiver";
         private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
@@ -46,7 +47,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IMainApiAuthenticator mainApiTokenProvider,
             IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
-            IProjectRepository projectRepository)
+            IProjectRepository projectRepository,
+            ICertificateEventProcessorService certificateEventProcessorService)
         {
             _invitationRepository = invitationRepository;
             _plantSetter = plantSetter;
@@ -57,6 +59,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
             _projectRepository = projectRepository;
+            _certificateEventProcessorService = certificateEventProcessorService;
             _ipoApiOid =  options.Value.IpoApiObjectId;
         }
 
@@ -92,6 +95,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     break;
                 case PcsTopic.Library:
                     ProcessLibraryEvent(messageJson);
+                    break;
+                case PcsTopic.Certificate:
+                    await _certificateEventProcessorService.ProcessCertificateEventAsync(messageJson);
                     break;
             }
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -230,7 +236,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(ipoEvent.Plant);
             var invitation = _context.QuerySet<Invitation>().Include(i => i.McPkgs).Include(i => i.CommPkgs)
-                .SingleOrDefault(i => i.ObjectGuid == Guid.Parse(ipoEvent.InvitationGuid));
+                .SingleOrDefault(i => i.Guid == Guid.Parse(ipoEvent.InvitationGuid));
             if (invitation == null)
             {
                 throw new Exception($"Invitation {ipoEvent.InvitationGuid} not found");
@@ -278,16 +284,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 throw new Exception($"Unable to deserialize JSON to LibraryEvent {messageJson}");
             }
 
-            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+            if (libraryEvent.Type == FunctionalRoleLibraryType && libraryEvent.CodeOld != null)
+            {
+                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
                     {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
                     {PcsServiceBusTelemetryConstants.Plant, libraryEvent.Plant[4..]},
                 });
-            _plantSetter.SetPlant(libraryEvent.Plant);
 
-            if (libraryEvent.Type == FunctionalRoleLibraryType && libraryEvent.CodeOld != null)
-            {
+                _plantSetter.SetPlant(libraryEvent.Plant);
                 _invitationRepository.UpdateFunctionalRoleCodesOnInvitations(libraryEvent.Plant, libraryEvent.CodeOld, libraryEvent.Code);
             }
         }
@@ -335,7 +341,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
             catch (Exception e)
             {
-                throw new Exception($"Error: Could not set M-01 dates for {invitation.ObjectGuid}", e);
+                throw new Exception($"Error: Could not set M-01 dates for {invitation.Guid}", e);
             }
         }
 
@@ -361,7 +367,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"Error: Could not clear M-01 dates for {invitation.ObjectGuid}", e);
+                    throw new Exception($"Error: Could not clear M-01 dates for {invitation.Guid}", e);
                 }
             }
         }

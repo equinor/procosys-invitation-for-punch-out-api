@@ -36,15 +36,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             Assert.IsNull(_historyAdded);
 
             // Act
-            var objectGuid = Guid.NewGuid();
+            var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
             var fileName = "Filename.png";
-            _dut.Handle(new AttachmentUploadedEvent(plant, objectGuid, fileName), default);
+            _dut.Handle(new AttachmentUploadedEvent(plant, sourceGuid, fileName), default);
 
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(objectGuid, _historyAdded.ObjectGuid);
+            Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
             Assert.IsNotNull(_historyAdded.Description);
             Assert.IsTrue(_historyAdded.Description.Contains(fileName));
             Assert.AreEqual(EventType.AttachmentUploaded, _historyAdded.EventType);

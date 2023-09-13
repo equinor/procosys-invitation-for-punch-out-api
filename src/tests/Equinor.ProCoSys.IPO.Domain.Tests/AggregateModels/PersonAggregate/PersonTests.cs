@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            Assert.AreEqual(Oid, _dut.Oid);
+            Assert.AreEqual(Oid, _dut.Guid);
             Assert.AreEqual("FirstName", _dut.FirstName);
             Assert.AreEqual("LastName", _dut.LastName);
             Assert.AreEqual("UserName", _dut.UserName);

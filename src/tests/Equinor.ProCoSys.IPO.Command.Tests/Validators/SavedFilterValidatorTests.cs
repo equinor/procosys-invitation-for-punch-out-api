@@ -14,7 +14,7 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
 {
     [TestClass]
-    public class SavedFilterValidatorTests : ReadOnlyTestsBase
+    public class SavedFilterValidatorTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Guid _personOid;

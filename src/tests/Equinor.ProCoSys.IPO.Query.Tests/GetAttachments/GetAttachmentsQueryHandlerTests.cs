@@ -17,7 +17,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
 {
     [TestClass]
-    public class GetAttachmentsQueryHandlerTests : ReadOnlyTestsBase
+    public class GetAttachmentsQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<IOptionsMonitor<BlobStorageOptions>> _blobStorageOptionsMonitorMock;
 

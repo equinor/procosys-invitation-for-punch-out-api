@@ -1,18 +1,23 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoSignedEvent : INotification
+    public class IpoSignedEvent : IDomainEvent
     {
-        public IpoSignedEvent(
-            string plant,
-            Guid objectGuid)
+        public IpoSignedEvent(string plant, Guid sourceGuid, Participant participant, Person person)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
+            Participant = participant;
+            Person = person;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
+        public Participant Participant { get; }
+        public Person Person { get; }
+
     }
 }

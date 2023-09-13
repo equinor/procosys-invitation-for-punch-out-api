@@ -273,7 +273,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             _dut = new CreateInvitationCommandHandler(
                 _plantProviderMock.Object,
@@ -323,7 +324,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             await _dut.Handle(command, default);
 
@@ -357,7 +359,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 DisciplineType.MDP,
                 _participants,
                 null,
-                commPkgScope);
+                commPkgScope,
+                false);
 
             await _dut.Handle(command, default);
 
@@ -397,11 +400,41 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
             Assert.IsTrue(result.Message.StartsWith("Mc pkg scope must be within a section"));
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfMcScopeIsHandedOver()
+        {
+            var mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithSection, OperationHandoverStatus = "ACCEPTED"};
+            var mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithSection, OperationHandoverStatus = "SENT" };
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
+
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Returns(Task.FromResult(mcPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                _mcPkgScope,
+                null,
+                false);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Mc pkgs with signed RFOC cannot be in scope."));
         }
 
         [TestMethod]
@@ -423,7 +456,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
@@ -456,11 +490,46 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                commPkgScope);
+                commPkgScope,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
             Assert.IsTrue(result.Message.StartsWith("Comm pkg scope must be within a section"));
+        }
+
+        [TestMethod]
+        public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfCommPkgScopeIsHandedOver()
+        {
+            var commPkgDetails1 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, System = _systemPathWithSection, OperationHandoverStatus = "ACCEPTED"};
+            var commPkgDetails2 = new ProCoSysCommPkg { CommPkgNo = _commPkgNo2, Description = "D2", Id = 2, System = _systemPathWithSection, OperationHandoverStatus = "ACCEPTED"};
+            IList<ProCoSysCommPkg> commPkgDetails = new List<ProCoSysCommPkg> { commPkgDetails1, commPkgDetails2 };
+            var commPkgScope = new List<string>
+            {
+                _commPkgNo,
+                _commPkgNo2
+            };
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Returns(Task.FromResult(commPkgDetails));
+
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                _participants,
+                null,
+                commPkgScope,
+                false);
+
+            var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
+                _dut.Handle(command, default));
+            Assert.IsTrue(result.Message.StartsWith("Comm pkgs with signed RFOC cannot be in scope."));
         }
 
         [TestMethod]
@@ -490,7 +559,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 null,
-                commPkgScope);
+                commPkgScope,
+                false);
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
                 _dut.Handle(command, default));
@@ -605,7 +675,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             await _dut.Handle(command, default);
 
@@ -648,7 +719,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             await _dut.Handle(command, default);
 
@@ -693,7 +765,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope2,
-                null);
+                null,
+                false);
 
             await _dut.Handle(command, default);
 
@@ -734,7 +807,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _type,
                 _participants,
                 _mcPkgScope,
-                null);
+                null,
+                false);
 
             await _dut.Handle(command, default);
 

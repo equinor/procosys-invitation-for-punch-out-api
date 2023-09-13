@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
 
@@ -17,20 +14,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 {
     public class GetOutstandingIposForCurrentPersonQueryHandler : IRequestHandler<GetOutstandingIposForCurrentPersonQuery, Result<OutstandingIposResultDto>>
     {
-        private readonly IReadOnlyContext _context;
+        private readonly IOutstandingIpoRepository _outstandingIpOsRawSqlRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IMeApiService _meApiService;
         private readonly IPlantProvider _plantProvider;
         private readonly ILogger<GetOutstandingIposForCurrentPersonQueryHandler> _logger;
 
         public GetOutstandingIposForCurrentPersonQueryHandler(
-            IReadOnlyContext context,
+            IOutstandingIpoRepository outstandingIpOsRawSqlRepository,
             ICurrentUserProvider currentUserProvider,
             IMeApiService meApiService,
             IPlantProvider plantProvider,
             ILogger<GetOutstandingIposForCurrentPersonQueryHandler> logger)
         {
-            _context = context;
+            _outstandingIpOsRawSqlRepository = outstandingIpOsRawSqlRepository;
             _currentUserProvider = currentUserProvider;
             _meApiService = meApiService;
             _plantProvider = plantProvider;
@@ -44,49 +41,45 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
 
             try
             {
+                var plantId = _plantProvider.Plant;
                 currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
-                var nonCancelledInvitationsGrouped = await GetNonCanceledInvitationsForNonClosedProjectsAsync(cancellationToken);
+                var invitationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByAzureOid(plantId, currentUserOid);
 
-                var currentUsersOutstandingInvitations = new List<InvitationDto>();
+                var currentUsersFunctionalRoleCodes =
+                        await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
 
-                var listHasFunctionalRoles =
-                    nonCancelledInvitationsGrouped.Any(i =>
-                        i.Participants.Any(p =>
-                            p.FunctionalRoleCode != null)
-                );
+                var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
+                var allInvitations = invitationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();
 
-                var currentUsersFunctionalRoleCodes = listHasFunctionalRoles
-                    ? await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant)
-                    : new List<string>();
-
-                foreach (var invitation in nonCancelledInvitationsGrouped)
+                var invitationsGrouped = allInvitations.GroupBy(i => new
                 {
-                    if (UserWasInvitedAsPersonParticipant(invitation, currentUserOid))
-                    {
-                        currentUsersOutstandingInvitations.Add(invitation);
-                    }
-                    else if (UserWasInvitedAsPersonInFunctionalRole(invitation, currentUsersFunctionalRoleCodes))
-                    {
-                        currentUsersOutstandingInvitations.Add(invitation);
-                    }
-                }
+                    i.Id,
+                    i.Description
+                }).ToList();
 
-                var outstandingInvitations = new OutstandingIposResultDto(currentUsersOutstandingInvitations.Select(invitation =>
-                       {
-                           var organization = invitation.Participants.First(p =>
-                               p.SignedBy == null &&
-                               (p.AzureOid == currentUserOid ||
-                               currentUsersFunctionalRoleCodes.Contains(p.FunctionalRoleCode))).Organization;
-                           return new OutstandingIpoDetailsDto
-                           {
-                               InvitationId = invitation.Id,
-                               Description = invitation.Description,
-                               Organization = organization
-                           };
-                       }));
+                var ipoDetails = invitationsGrouped.Select(group =>
+                    {
+                        var participants = group.Select(p => new ParticipantDto()
+                        {
+                            AzureOid = p.AzureOid,
+                            FunctionalRoleCode = p.FunctionalRoleCode,
+                            Organization = p.Organization,
+                            SignedBy = p.SignedBy
+                        });
 
-                return new SuccessResult<OutstandingIposResultDto>(outstandingInvitations);
+                        return new OutstandingIpoDetailsDto()
+                        {
+                            InvitationId = group.Key.Id,
+                            Description = group.Key.Description,
+                            Organization = participants.First(p =>
+                                p.SignedBy == null
+                             ).Organization
+                        };
+                    }
+                ).OrderBy(i => i.InvitationId);
+
+                return new SuccessResult<OutstandingIposResultDto>(new OutstandingIposResultDto(ipoDetails));
             }
             catch (Exception ex)
             {
@@ -95,91 +88,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 return new SuccessResult<OutstandingIposResultDto>(new OutstandingIposResultDto(
                         new List<OutstandingIpoDetailsDto>()));
             }
-        }
-
-        private async Task<List<InvitationDto>> GetNonCanceledInvitationsForNonClosedProjectsAsync(CancellationToken cancellationToken)
-        {
-            var nonCancelledInvitationsFlat =
-                  await (from i in _context.QuerySet<Invitation>()
-                         join p in _context.QuerySet<Participant>() on i.Id equals EF.Property<int>(p, "InvitationId")
-                         join pro in _context.QuerySet<Project>() on i.ProjectId equals pro.Id
-                         where i.Status != IpoStatus.Canceled && pro.IsClosed == false
-                         select new
-                         {
-                             i.Id,
-                             i.Description,
-                             i.Status,
-                             ParticipantId = p.Id,
-                             p.AzureOid,
-                             p.FunctionalRoleCode,
-                             p.Organization,
-                             p.SignedAtUtc,
-                             p.SortKey,
-                             p.Type,
-                             p.SignedBy
-                         }).ToListAsync(cancellationToken);
-
-            var nonCancelledInvitationsGrouped = nonCancelledInvitationsFlat.GroupBy(i => new
-            {
-                i.Id,
-                i.Description,
-                i.Status
-            });
-
-            var nonCancelledInvitationsList = new List<InvitationDto>();
-
-            foreach (var group in nonCancelledInvitationsGrouped)
-            {
-                var invitation = group.Key;
-
-                nonCancelledInvitationsList.Add(
-                    new InvitationDto()
-                    {
-                        Id = group.Key.Id,
-                        Description = group.Key.Description,
-                        Status = group.Key.Status,
-                        Participants = group.Select(p => new ParticipantDto()
-                        {
-                            ParticipantId = p.ParticipantId,
-                            AzureOid = p.AzureOid,
-                            FunctionalRoleCode = p.FunctionalRoleCode,
-                            Organization = p.Organization,
-                            SignedAtUtc = p.SignedAtUtc,
-                            SignedBy = p.SignedBy,
-                            SortKey = p.SortKey,
-                            Type = p.Type
-                        }).ToList()
-                    });
-            }
-
-            return nonCancelledInvitationsList;
-        }
-
-        private static bool UserWasInvitedAsPersonParticipant(InvitationDto invitation, Guid currentUserOid)
-         => invitation.Participants.Any(p =>
-                p.AzureOid == currentUserOid
-                && p.FunctionalRoleCode == null
-                && ((!p.SignedAtUtc.HasValue
-                && p.Organization != Organization.Supplier
-                && p.Organization != Organization.External
-                && p.SortKey != 1)
-                || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed)));
-
-        private static bool UserWasInvitedAsPersonInFunctionalRole(InvitationDto invitation, IEnumerable<string> currentUsersFunctionalRoleCodes)
-        {
-            var functionalRoleParticipantCodesOnInvitation =
-                invitation.Participants.Where(p => ((
-                    !p.SignedAtUtc.HasValue
-                    && p.Organization != Organization.Supplier
-                    && p.Organization != Organization.External
-                    && p.SortKey != 1)
-                    || (p.SortKey == 1 && invitation.Status == IpoStatus.Completed))
-                    && p.FunctionalRoleCode != null
-                    && p.Type == IpoParticipantType.FunctionalRole)
-                    .Select(p => p.FunctionalRoleCode).ToList();
-
-            return currentUsersFunctionalRoleCodes.Any(functionalRoleCode
-                => functionalRoleParticipantCodesOnInvitation.Contains(functionalRoleCode));
         }
     }
 }

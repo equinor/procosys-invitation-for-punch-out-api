@@ -7,7 +7,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
     public class GetMcPkgsUnderCommPkgInProjectQuery : IRequest<Result<List<ProCoSysMcPkgDto>>>, IProjectRequest
     {
-        public GetMcPkgsUnderCommPkgInProjectQuery(string projectName, string commPkgNo)
+        public GetMcPkgsUnderCommPkgInProjectQuery(
+            string projectName,
+            string commPkgNo)
         {
             ProjectName = projectName;
             CommPkgNo = commPkgNo;

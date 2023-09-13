@@ -42,10 +42,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         public async Task Handle_ShouldSendBusTopic()
         {
             // Arrange
-            var objectGuid = Guid.NewGuid();
+            var sourceGuid = Guid.NewGuid();
             const string Plant = "TestPlant";
             var emails = new List<string> {"email1@test.com", "email2@test.com"};
-            var ipoCompletedEvent = new IpoCompletedEvent(Plant, objectGuid, 1234, "Invitation title", emails);
+            var ipoCompletedEvent = new IpoCompletedEvent(Plant, sourceGuid, 1234, "Invitation title", emails);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);
@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         public async Task Handle_ShouldSendEmail()
         {
             // Arrange
-            var objectGuid = Guid.NewGuid();
+            var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
             var project = new Project("TestPlant", "project", "Description of project");
             var commpkgs = new List<CommPkg>
@@ -70,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             invitation.AddParticipant(new Participant(plant, Organization.ConstructionCompany,
                 IpoParticipantType.Person, "code", "firstname", "lastname", "username", "email", Guid.NewGuid(), 1));
             var emails = new List<string>() {"email1@test.com", "email2@test.com"};
-            var ipoCompletedEvent = new IpoCompletedEvent(plant, objectGuid, invitation.Id, invitation.Title, emails);
+            var ipoCompletedEvent = new IpoCompletedEvent(plant, sourceGuid, invitation.Id, invitation.Title, emails);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);

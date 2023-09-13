@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             {
                 Plant = notification.Plant,
                 Event = "UnCompleted",
-                InvitationGuid = notification.ObjectGuid
+                InvitationGuid = notification.SourceGuid
             };
 
             await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));

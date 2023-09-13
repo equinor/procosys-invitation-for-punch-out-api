@@ -1,18 +1,20 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class IpoUnAcceptedEvent : INotification
+    public class IpoUnAcceptedEvent : IDomainEvent
     {
-        public IpoUnAcceptedEvent(
-            string plant,
-            Guid objectGuid)
+        public IpoUnAcceptedEvent(string plant, Guid sourceGuid, Participant participant)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
+            Participant = participant;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
+        public Participant Participant { get; }
+
     }
 }

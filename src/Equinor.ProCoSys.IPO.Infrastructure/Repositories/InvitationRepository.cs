@@ -19,6 +19,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         {
         }
 
+        public IList<Invitation> GetInvitationsForSynchronization() =>
+            _context.Invitations
+                .Include(i => i.McPkgs)
+                .Include(i => i.CommPkgs)
+                .Where(i => i.Status == IpoStatus.Planned || i.Status == IpoStatus.Completed || i.Status == IpoStatus.Accepted)
+                .ToList();
+
         public void UpdateProjectOnInvitations(string projectName, string description)
         {
             //Intentionally left blank for now
@@ -134,5 +141,52 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             }
             _context.Invitations.Remove(invitation);
         }
+
+        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            var invitations = _context.Invitations
+                .Include(i => i.McPkgs)
+                .Include(i => i.CommPkgs)
+                .ToList()
+                .Where(i => i.ProjectId == project.Id && i.Status is IpoStatus.Completed or IpoStatus.Planned or IpoStatus.Accepted
+                            && (i.CommPkgs.Any(x => commPkgNos.Any(y => y == x.CommPkgNo))
+                                || i.McPkgs.Any(x => mcPkgs.Any(y => y.Item1 == x.McPkgNo && y.Item2 == x.CommPkgNo))))
+                .ToList();
+
+            foreach (var invitation in invitations)
+            {
+                if (invitation.Type == DisciplineType.MDP)
+                {
+                    UpdateRfocStatusForMDP(invitation, commPkgNos);
+                    if (invitation.CommPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
+                }
+                else
+                {
+                    UpdateRfocStatusForDP(invitation, mcPkgs);
+                    if (invitation.McPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
+                }
+            }
+        }
+
+        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos) =>
+            invitation.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo)).ToList()
+                .ForEach(c => c.RfocAccepted = true);
+
+        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs) =>
+            invitation.McPkgs.Where(mc => mcPkgs.Contains(new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo))).ToList()
+                .ForEach(mc => mc.RfocAccepted = true);
     }
 }

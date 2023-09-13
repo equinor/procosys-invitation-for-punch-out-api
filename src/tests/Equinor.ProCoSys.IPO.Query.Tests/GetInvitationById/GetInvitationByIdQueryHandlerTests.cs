@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -25,7 +24,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 {
     [TestClass]
-    public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationByIdQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _mdpInvitation;
         private Invitation _dpInvitation;
@@ -76,7 +75,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "LastName",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     1);
 
                 var functionalRoleParticipant2 = new Participant(
@@ -188,7 +187,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     "LastName",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     1);
 
                 _dpInvitation.AddParticipant(functionalRoleParticipantForDp);
@@ -273,7 +272,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                         Id = Guid.NewGuid(),
                                         Person = new ApiPersonDetailsV1()
                                         {
-                                            Id = _currentUserOid,
+                                            Id = CurrentUserOid,
                                             Mail = _personEmail1
                                         },
                                         OutlookResponse = "None"
@@ -447,7 +446,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                                 IsDisabled = false,
                                 IsOnlineMeeting = false,
                                 Location = string.Empty,
-                                Organizer = new ApiPersonDetailsV1{Id = _currentUserOid },
+                                Organizer = new ApiPersonDetailsV1{Id = CurrentUserOid },
                                 OutlookMode = string.Empty,
                                 Participants = new List<ApiMeetingParticipant>()
                                 {
@@ -670,7 +669,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     {
                         new ProCoSysPerson
                         {
-                            AzureOid = _currentUserOid.ToString(),
+                            AzureOid = CurrentUserOid.ToString(),
                             Email = "test@email.com",
                             FirstName = "FN",
                             LastName = "LN",
@@ -908,7 +907,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 var invitation = context.Invitations.Single(inv => inv.Id == _mdpInvitationId);
-                invitation.CancelIpo(new Person(_currentUserOid, "Ola", "N", "olan", "email"));
+                invitation.CancelIpo(new Person(CurrentUserOid, "Ola", "N", "olan", "email"));
                 context.SaveChangesAsync().Wait();
             }
 
@@ -916,7 +915,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             {
                 IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
                 _permissionCacheMock
-                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, _currentUserOid))
+                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
                     .Returns(Task.FromResult(ipoAdminPrivilege));
                 
                 var query = new GetInvitationByIdQuery(_mdpInvitation.Id);

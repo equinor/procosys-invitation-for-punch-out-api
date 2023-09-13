@@ -31,6 +31,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasIndex(p => p.Name)
                 .HasDatabaseName("IX_Projects_Name_ASC")
                 .IncludeProperties(p => new { p.Plant });
+
+            //Made specifically for Me/GetOutstandingIPOs
+            builder
+                .HasIndex("Plant", "IsClosed");
         }
     }
 }

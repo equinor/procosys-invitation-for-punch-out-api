@@ -52,7 +52,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         [TestMethod]
         public void GetHistoryByOid_KnownHistory_ShouldGetHistory()
         {
-            var history = _dut.GetHistoryByObjectGuid(_guid1);
+            var history = _dut.GetHistoryBySourceGuid(_guid1);
 
             Assert.AreEqual(2, history.Count);
             Assert.AreEqual(_createHistory1, history.First());

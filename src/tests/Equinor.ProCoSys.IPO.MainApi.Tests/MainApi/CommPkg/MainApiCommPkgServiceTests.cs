@@ -34,31 +34,34 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkg>
+                Items = new List<ProCoSysSearchCommPkg>
                         {
-                            new ProCoSysCommPkg
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 111111111,
                                 CommPkgNo = "CommNo1",
                                 Description = "Description1",
                                 CommStatus = "OK",
-                                System = "1|2"
+                                System = "1|2",
+                                OperationHandoverStatus = "Accepted"
                             },
-                            new ProCoSysCommPkg
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 222222222,
                                 CommPkgNo = "CommNo2",
                                 Description = "Description2",
                                 CommStatus = "PA",
-                                System = "1|2"
+                                System = "1|2",
+                                OperationHandoverStatus = "Sent"
                             },
-                            new ProCoSysCommPkg
+                            new ProCoSysSearchCommPkg
                             {
                                 Id = 333333333,
                                 CommPkgNo = "CommNo3",
                                 Description = "Description3",
                                 CommStatus = "PB",
-                                System = "1|2"
+                                System = "1|2",
+                                OperationHandoverStatus = "Sent"
                             }
                         }
             };
@@ -92,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             var emptyPage = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkg>()
+                Items = new List<ProCoSysSearchCommPkg>()
             };
             _foreignApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
@@ -116,9 +119,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             var searchWithOneItem = new ProCoSysCommPkgSearchResult
             {
                 MaxAvailable = 3,
-                Items = new List<ProCoSysCommPkg>
+                Items = new List<ProCoSysSearchCommPkg>
                 {
-                    new ProCoSysCommPkg
+                    new ProCoSysSearchCommPkg
                     {
                         Id = 111111111,
                         CommPkgNo = "CommNo1",
@@ -163,6 +166,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             Assert.AreEqual("Description1", commPkg.Description);
             Assert.AreEqual("OK", commPkg.CommStatus);
             Assert.AreEqual("1|2", commPkg.System);
+            Assert.AreEqual("Accepted", commPkg.OperationHandoverStatus);
         }
     }
 }

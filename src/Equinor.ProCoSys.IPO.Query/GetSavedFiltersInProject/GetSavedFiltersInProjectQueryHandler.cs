@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
         {
             var currentUserOid = _currentUserProvider.GetCurrentUserOid(); 
             var person = await (from p in _context.QuerySet<Person>().Include(p => p.SavedFilters) 
-                where p.Oid == currentUserOid 
+                where p.Guid == currentUserOid 
                 select p).SingleAsync(cancellationToken);
 
             if (request.ProjectName == null)

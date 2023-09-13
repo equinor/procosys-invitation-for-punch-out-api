@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
         {
             const EventType eventType = EventType.NoteUpdated;
             var description = $"{eventType.GetDescription()} - '{notification.Note}'";
-            var history = new History(notification.Plant, description, notification.ObjectGuid, eventType);
+            var history = new History(notification.Plant, description, notification.SourceGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;
         }

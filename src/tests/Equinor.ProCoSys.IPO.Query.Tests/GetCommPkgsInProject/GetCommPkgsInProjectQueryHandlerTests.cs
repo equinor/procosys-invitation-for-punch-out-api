@@ -13,10 +13,10 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
 {
     [TestClass]
-    public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBase
+    public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
-        private IList<ProCoSysCommPkg> _mainApiCommPkgs;
+        private IList<ProCoSysSearchCommPkg> _mainApiCommPkgs;
         private GetCommPkgsInProjectQuery _query;
 
         private readonly string _projectName = "Pname";
@@ -29,17 +29,17 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
-                _mainApiCommPkgs = new List<ProCoSysCommPkg>
+                _mainApiCommPkgs = new List<ProCoSysSearchCommPkg>
                 {
-                    new ProCoSysCommPkg
+                    new ProCoSysSearchCommPkg
                     {
                         Id = 1, CommPkgNo = "CommPkgNo1", Description = "Desc1", CommStatus = "PB"
                     },
-                    new ProCoSysCommPkg
+                    new ProCoSysSearchCommPkg
                     {
                         Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK"
                     },
-                    new ProCoSysCommPkg
+                    new ProCoSysSearchCommPkg
                     {
                         Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"
                     }
@@ -107,12 +107,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             }
         }
 
-        private void AssertCommPkgData(ProCoSysCommPkg PCSCommPkg, ProCoSysCommPkgDto commPkgDto)
+        private void AssertCommPkgData(ProCoSysSearchCommPkg pcsSearchCommPkg, ProCoSysCommPkgDto commPkgDto)
         {
-            Assert.AreEqual(PCSCommPkg.Id, commPkgDto.Id);
-            Assert.AreEqual(PCSCommPkg.CommPkgNo, commPkgDto.CommPkgNo);
-            Assert.AreEqual(PCSCommPkg.Description, commPkgDto.Description);
-            Assert.AreEqual(PCSCommPkg.CommStatus, commPkgDto.Status);
+            Assert.AreEqual(pcsSearchCommPkg.Id, commPkgDto.Id);
+            Assert.AreEqual(pcsSearchCommPkg.CommPkgNo, commPkgDto.CommPkgNo);
+            Assert.AreEqual(pcsSearchCommPkg.Description, commPkgDto.Description);
+            Assert.AreEqual(pcsSearchCommPkg.CommStatus, commPkgDto.Status);
         }
     }
 }

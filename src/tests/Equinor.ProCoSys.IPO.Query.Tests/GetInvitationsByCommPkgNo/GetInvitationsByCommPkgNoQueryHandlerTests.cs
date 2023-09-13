@@ -15,7 +15,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
 {
     [TestClass]
-    public class GetInvitationsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _dpInvitation;
         private Invitation _mdpInvitation;

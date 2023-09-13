@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,9 +19,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 {
     public class IPOContext : DbContext, IUnitOfWork, IReadOnlyContext
     {
-        private readonly IPlantProvider _plantProvider;
-        private readonly IEventDispatcher _eventDispatcher;
-        private readonly ICurrentUserProvider _currentUserProvider;
+        protected readonly IPlantProvider _plantProvider;
+        protected readonly IEventDispatcher _eventDispatcher;
+        protected readonly ICurrentUserProvider _currentUserProvider;
 
         public IPOContext(
             DbContextOptions<IPOContext> options,
@@ -61,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<Attachment> Attachments { get; set; }
         public virtual DbSet<SavedFilter> SavedFilters { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
+        public virtual DbSet<Setting> Setting { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
@@ -84,14 +86,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await DispatchPreSaveEventsAsync(cancellationToken);
+            await DispatchDomainEventsEventsAsync(cancellationToken);
             await SetAuditDataAsync();
             UpdateConcurrencyToken();
             
             try
             {
                 var result = await base.SaveChangesAsync(cancellationToken);
-                await DispatchPostSaveEventsAsync(cancellationToken);
+                await DispatchPostSaveEventsEventsAsync(cancellationToken);
                 return result;
             }
             catch (DbUpdateConcurrencyException concurrencyException)
@@ -105,7 +107,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public void Commit() => base.Database.CommitTransaction();
 
-        private void UpdateConcurrencyToken()
+        protected virtual void UpdateConcurrencyToken()
         {
             var modifiedEntries = ChangeTracker
                 .Entries<EntityBase>()
@@ -122,22 +124,22 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             }
         }
 
-        private async Task DispatchPreSaveEventsAsync(CancellationToken cancellationToken = default)
+        private async Task DispatchDomainEventsEventsAsync(CancellationToken cancellationToken = default)
         {
             var entities = ChangeTracker
                 .Entries<EntityBase>()
-                .Where(x => x.Entity.PreSaveDomainEvents != null && x.Entity.PreSaveDomainEvents.Any())
+                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
                 .Select(x => x.Entity);
-            await _eventDispatcher.DispatchPreSaveAsync(entities, cancellationToken);
+            await _eventDispatcher.DispatchDomainEventsAsync(entities, cancellationToken);
         }
 
-        private async Task DispatchPostSaveEventsAsync(CancellationToken cancellationToken = default)
+        private async Task DispatchPostSaveEventsEventsAsync(CancellationToken cancellationToken = default)
         {
             var entities = ChangeTracker
                 .Entries<EntityBase>()
                 .Where(x => x.Entity.PostSaveDomainEvents != null && x.Entity.PostSaveDomainEvents.Any())
                 .Select(x => x.Entity);
-            await _eventDispatcher.DispatchPostSaveAsync(entities, cancellationToken);
+            await _eventDispatcher.DispatchPostSaveEventsAsync(entities, cancellationToken);
         }
 
         private async Task SetAuditDataAsync()
@@ -154,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             if (addedEntries.Any() || modifiedEntries.Any())
             {
                 var currentUserOid = _currentUserProvider.GetCurrentUserOid();
-                var currentUser = await Persons.SingleOrDefaultAsync(p => p.Oid == currentUserOid);
+                var currentUser = await Persons.SingleOrDefaultAsync(p => p.Guid == currentUserOid);
 
                 foreach (var entry in addedEntries)
                 {

@@ -12,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetComments
 {
     [TestClass]
-    public class GetCommentsQueryHandlerTests : ReadOnlyTestsBase
+    public class GetCommentsQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

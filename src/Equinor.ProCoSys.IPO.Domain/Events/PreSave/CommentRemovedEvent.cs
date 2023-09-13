@@ -1,18 +1,16 @@
 ﻿using System;
-using MediatR;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
-    public class CommentRemovedEvent : INotification
+    public class CommentRemovedEvent : IDomainEvent
     {
-        public CommentRemovedEvent(
-            string plant,
-            Guid objectGuid)
+        public CommentRemovedEvent(string plant, Guid sourceGuid)
         {
             Plant = plant;
-            ObjectGuid = objectGuid;
+            SourceGuid = sourceGuid;
         }
         public string Plant { get; }
-        public Guid ObjectGuid { get; }
+        public Guid SourceGuid { get; }
     }
 }

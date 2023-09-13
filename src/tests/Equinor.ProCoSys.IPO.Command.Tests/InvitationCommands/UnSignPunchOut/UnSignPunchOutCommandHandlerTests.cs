@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
                 _participantRowVersion);
 
             _dut = new UnSignPunchOutCommandHandler(_invitationRepositoryMock.Object,
-                _unitOfWorkMock.Object);
+                _unitOfWorkMock.Object, _currentUserProviderMock.Object, _personRepositoryMock.Object);
         }
 
         [TestMethod]

@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             CancellationToken cancellationToken)
         {
             var history = await (from h in _context.QuerySet<History>()
-                                 join invitation in _context.QuerySet<Invitation>() on h.ObjectGuid equals invitation.ObjectGuid
+                                 join invitation in _context.QuerySet<Invitation>() on h.SourceGuid equals invitation.Guid
                                  join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
                                  where invitation.Id == invitationId
                                  select new
@@ -167,7 +167,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
             }
 
             return await (from p in _context.QuerySet<Person>()
-                          where p.Oid == personOid.Value
+                          where p.Guid == personOid.Value
                           select $"{p.FirstName} {p.LastName}").SingleOrDefaultAsync();
         }
 

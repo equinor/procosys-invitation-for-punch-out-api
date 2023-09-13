@@ -18,14 +18,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             ICurrentUserSetter currentUserSetter,
             ILogger<CurrentUserMiddleware> logger)
         {
-            logger.LogInformation($"----- {GetType().Name} start");
+            logger.LogDebug("----- {MiddlewareName} start", GetType().Name);
             var oid = httpContextAccessor.HttpContext?.User.Claims.TryGetOid();
             if (oid.HasValue)
             {
                 currentUserSetter.SetCurrentUserOid(oid.Value);
             }
 
-            logger.LogInformation($"----- {GetType().Name} complete");
+            logger.LogDebug("----- {MiddlewareName} complete", GetType().Name);
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }

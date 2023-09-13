@@ -33,6 +33,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         [Description("Attended status updated")]
         AttendedStatusUpdated,
         [Description("Note updated")]
-        NoteUpdated
+        NoteUpdated,
+        [Description("Scope handed over")]
+        ScopeHandedOver
     }
 }

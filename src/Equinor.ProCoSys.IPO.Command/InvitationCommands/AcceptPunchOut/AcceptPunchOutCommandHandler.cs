@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 1 && 
                 p.Organization == Organization.ConstructionCompany && 
-                p.AzureOid == currentUser.Oid);
+                p.AzureOid == currentUser.Guid);
             var acceptedAtUtc = DateTime.UtcNow;
 
             if (participant == null || participant.FunctionalRoleCode != null)

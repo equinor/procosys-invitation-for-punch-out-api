@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             {
                 Plant = notification.Plant,
                 Event = "Canceled",
-                InvitationGuid = notification.ObjectGuid,
+                InvitationGuid = notification.SourceGuid,
                 IpoStatus = notification.Status
             };
             

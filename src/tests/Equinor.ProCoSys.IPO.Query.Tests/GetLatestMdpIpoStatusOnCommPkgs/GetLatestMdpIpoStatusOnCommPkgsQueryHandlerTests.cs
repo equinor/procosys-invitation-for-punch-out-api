@@ -16,7 +16,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
 {
     [TestClass]
-    public class GetLatestMdpIpoStatusOnCommPkgsQueryHandlerTests : ReadOnlyTestsBase
+    public class GetLatestMdpIpoStatusOnCommPkgsQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private int _mdpInvitationId1;
         private int _mdpInvitationId2;

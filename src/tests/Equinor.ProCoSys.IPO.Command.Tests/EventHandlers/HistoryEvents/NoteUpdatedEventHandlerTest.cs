@@ -36,15 +36,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             Assert.IsNull(_historyAdded);
 
             // Act
-            var objectGuid = Guid.NewGuid();
+            var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
             var note = "Updated note";
-            _dut.Handle(new NoteUpdatedEvent(plant, objectGuid, note), default);
+            _dut.Handle(new NoteUpdatedEvent(plant, sourceGuid, note), default);
 
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);
-            Assert.AreEqual(objectGuid, _historyAdded.ObjectGuid);
+            Assert.AreEqual(sourceGuid, _historyAdded.SourceGuid);
             Assert.IsNotNull(_historyAdded.Description);
             Assert.AreEqual(EventType.NoteUpdated, _historyAdded.EventType);
             Assert.AreEqual("IPO", _historyAdded.ObjectType);

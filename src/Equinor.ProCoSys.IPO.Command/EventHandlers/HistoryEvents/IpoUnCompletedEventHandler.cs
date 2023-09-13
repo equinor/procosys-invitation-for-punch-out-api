@@ -17,8 +17,8 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
         public Task Handle(IpoUnCompletedEvent notification, CancellationToken cancellationToken)
         {
             var eventType = EventType.IpoUncompleted;
-            var description = eventType.GetDescription();
-            var history = new History(notification.Plant, description, notification.ObjectGuid, eventType);
+            var description = eventType.GetDescription(notification.Participant);
+            var history = new History(notification.Plant, description, notification.SourceGuid, eventType);
             _historyRepository.Add(history);
             return Task.CompletedTask;
         }
