@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -46,17 +47,25 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             string projectName,
             IList<string> mcPkgNos)
         {
-            var url = $"{_baseAddress}McPkgs/ByMcPkgNos" +
+            var baseUrl = $"{_baseAddress}McPkgs/ByMcPkgNos" +
                       $"?plantId={plant}" +
                       $"&projectName={WebUtility.UrlEncode(projectName)}" +
                       $"&api-version={_apiVersion}";
-            foreach (var mcPkgNo in mcPkgNos)
-            {
-                url += $"&mcPkgNos={mcPkgNo}";
-            }
-            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(url);
+            var mcPkgNosChunks = mcPkgNos.Chunk(80);
+            var pcsMcPkgs = new List<ProCoSysMcPkg>();
 
-            return mcPkgs;
+            foreach (var chunk in mcPkgNosChunks)
+            {
+                var mcPkgNosString = "";
+                foreach (var mcPkgNo in chunk)
+                {
+                    mcPkgNosString += $"&mcPkgNos={mcPkgNo}";
+                }
+                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString);
+                pcsMcPkgs.AddRange(response);
+            }
+                        
+            return pcsMcPkgs;
         }
 
         public async Task SetM01DatesAsync(

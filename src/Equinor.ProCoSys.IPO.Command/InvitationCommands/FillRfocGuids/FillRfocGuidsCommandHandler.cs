@@ -87,14 +87,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (mcPkgsInProject.Any())
             {
                 var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
-                var mcPkgNosChunks = mcPkgNosInProject.Chunk(80);
-                var pcsMcPkgs = new List<ProCoSysMcPkg>();
-                foreach (var chunk in mcPkgNosChunks)
-                {
-                    var response = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, chunk);
-                    pcsMcPkgs.AddRange(response);
-                }
-
+                var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
+              
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {
                     if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED" && pcsMcPkg.RfocGuid != null)
@@ -124,13 +118,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (commPkgsInProject.Any())
             {
                 var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
-                var mcPkgNosChunks = commPkgNosInProject.Chunk(80);
-                var pcsCommPkgRfocRelations = new List<ProCoSysRfocOnCommPkg>();
-                foreach (var chunk in mcPkgNosChunks)
-                {
-                    var response = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, chunk);
-                    pcsCommPkgRfocRelations.AddRange(response);
-                }
+                var pcsCommPkgRfocRelations = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject);
 
                 foreach (var relation in pcsCommPkgRfocRelations)
                 {

@@ -29,7 +29,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
             {
                 throw new ArgumentNullException(nameof(project));
             }
-          
+            if (project.Plant != plant)
+            {
+                throw new ArgumentException($"Plant {plant} should be equal to project plant {project.Plant}");
+            }
+
             ProjectId = project.Id;
             PcsGuid = pcsGuid;
         }
