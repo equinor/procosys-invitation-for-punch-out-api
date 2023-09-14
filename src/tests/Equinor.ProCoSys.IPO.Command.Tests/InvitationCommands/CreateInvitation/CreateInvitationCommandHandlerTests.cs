@@ -623,7 +623,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
             _smtpServiceMock
-                .Setup(x => x.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>()))
+                .Setup(x => x.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()))
                 .Throws(new Exception("Could not send invitation as ics through SMTP"));
 
             await Assert.ThrowsExceptionAsync<IpoSendMailException>(() =>
@@ -640,7 +640,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
             await _dut.Handle(_command, default);
-            _smtpServiceMock.Verify(t => t.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>()), Times.Once);
+            _smtpServiceMock.Verify(t => t.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()), Times.Once);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 

@@ -88,12 +88,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 
             meetingDescription += string.Format(
                 @"
-                <p>##########################################################################################<br/>
+                <p>#########################################################################################################<br/>
                 NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
                 a fallback solution was used to send this invite.<br/>
-                This has the concequence that all updates to the invite has to be done through the provided link above<br/>
+                This has the concequence that all updates to the invite has to be done directly in ProCoSys through the provided link above<br/>
                 instead of directly in your Outlook calendar item.<br/>
-                #############################################################################################<br/>
+                Content updated directly in the Outlook calendar item will NOT be shared between participants.<br/>
+                #########################################################################################################<br/>
                 ",
                 "<br/>");
 

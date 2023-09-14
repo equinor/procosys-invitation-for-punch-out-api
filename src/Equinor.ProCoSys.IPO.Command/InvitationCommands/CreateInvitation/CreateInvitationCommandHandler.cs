@@ -137,9 +137,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 try
                 {
-                    _logger.LogWarning($"Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {_currentUserProvider.GetCurrentUserOid()} and ivitation id {invitation.Id}.");
+                    _logger.LogWarning($"Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {_currentUserProvider.GetCurrentUserOid()} and invitation id {invitation.Id}.");
                     var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
-                    await _smtpService.SendSmtpWithInviteAsync(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl);
+                    await _smtpService.SendSmtpWithInviteAsync(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
                 }
                 catch (Exception ex)
                 {
@@ -148,7 +148,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
                 }
             }
-            try { 
+            try 
+            { 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);

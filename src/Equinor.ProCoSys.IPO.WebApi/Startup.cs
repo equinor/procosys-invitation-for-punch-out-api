@@ -209,18 +209,6 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
             }
             services.AddHostedService<VerifyApplicationExistsAsPerson>();
-
-            Smtp smtp = new Smtp()
-            {
-                Email = Configuration.GetValue<string>("Email:From"),
-                Password = Configuration.GetValue<string>("Email:Password"),
-                EnableSSL = Configuration.GetValue<bool>("Email:EnableSsl"),
-                FakeEmail = Configuration.GetValue<bool>("Email:FakeEmail"),
-                Host = Configuration.GetValue<string>("Email:Server"),
-                Port = Configuration.GetValue<int>("Email:Port")
-            };
-            services.AddSingleton((ISmtpService)new SmtpService(smtp));
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

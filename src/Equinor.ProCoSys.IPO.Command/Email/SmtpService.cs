@@ -10,14 +10,18 @@ using System.Net.Mime;
 using System.Text;
 using Attachment = System.Net.Mail.Attachment;
 using System.Linq;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+using Equinor.ProCoSys.Auth.Authentication;
+using Microsoft.Extensions.Options;
+using Equinor.ProCoSys.Auth.Client;
 
 namespace Equinor.ProCoSys.IPO.Command.Email
 {
     public class SmtpService : ISmtpService
     {
-        private readonly Smtp _smtp;
+        protected readonly IOptionsMonitor<SmtpOptions> _smtp;
 
-        public SmtpService(Smtp smtp)
+        public SmtpService(IOptionsMonitor<SmtpOptions> smtp)
         {
             _smtp = smtp;
         }
@@ -25,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Command.Email
         public void SendAsync(MailMessage message, string token)
         {
             // SendAsync is not thread-safe, so to ensure it is not busy sending an mail I instantiate an new SmtpClient
-            var client = new System.Net.Mail.SmtpClient(_smtp.Host, _smtp.Port);
-            client.EnableSsl = _smtp.EnableSSL;
-            client.Credentials = new NetworkCredential(_smtp.Email, _smtp.Password);
+            var client = new System.Net.Mail.SmtpClient(_smtp.CurrentValue.Server, _smtp.CurrentValue.Port);
+            client.EnableSsl = _smtp.CurrentValue.EnableSSL;
+            client.Credentials = new NetworkCredential(_smtp.CurrentValue.Email, _smtp.CurrentValue.Password);
             client.SendAsync(message, token);
         }
 
@@ -66,7 +70,7 @@ namespace Equinor.ProCoSys.IPO.Command.Email
             return str.ToString();
         }
 
-        private Attachment CreateInviteAttachment(String inviteString)
+        private Attachment CreateInviteAttachment(string inviteString)
         {
             byte[] byteArray = Encoding.ASCII.GetBytes(inviteString);
             MemoryStream stream = new MemoryStream(byteArray);
@@ -78,15 +82,16 @@ namespace Equinor.ProCoSys.IPO.Command.Email
             return attachment;
         }
 
-        public async Task SendSmtpWithInviteAsync(Invitation invitation, string projectName, Person organizer, string pcsBaseUrl)
+        public async Task SendSmtpWithInviteAsync(Invitation invitation, string projectName, Person organizer, string pcsBaseUrl, CreateInvitationCommand request)
         {
             var baseUrl = InvitationHelper.GetBaseUrl(pcsBaseUrl, invitation.Plant);
 
             var message = new MailMessage()
             {
                 From = new MailAddress(organizer.Email, $"{organizer.FirstName} {organizer.LastName}"),
-                Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName),
-                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, _smtp.FakeEmail),
+                Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
+                            request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
+                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, _smtp.CurrentValue.FakeEmail),
                 Priority = MailPriority.Normal
             };
             invitation.Participants.ToList().ForEach(y =>
