@@ -566,5 +566,35 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             // Assert
             Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
         }
+
+        [TestMethod]
+        public void GetCommPkgs_ShouldGetCommPkgs_WhenExists()
+        {
+            // Act
+            var commPkgs = _dut.GetCommPkgs(GetProjectName(_commPkg.ProjectId), new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo });
+
+            // Assert
+            Assert.AreEqual(2, commPkgs.Count);
+        }
+
+        [TestMethod]
+        public void GetMcPkg_ShouldGetMcPkg_WhenExists()
+        {
+            // Act
+            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
+
+            // Assert
+            Assert.IsNotNull(mcPkg);
+        }
+
+        [TestMethod]
+        public void GetMcPkg_ShouldNotGetMcPkg_WhenNotExists()
+        {
+            // Act
+            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+
+            // Assert
+            Assert.IsNull(mcPkg);
+        }
     }
 }

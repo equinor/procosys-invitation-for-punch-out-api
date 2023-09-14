@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
-        public CommPkg GetCommPkg(string projectName, string commPkgNo)
+        public IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
@@ -151,7 +151,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 throw new NullReferenceException($"Project not found. {projectName}.");
             }
 
-            return _context.CommPkgs.SingleOrDefault(c => c.CommPkgNo == commPkgNo && c.ProjectId == project.Id);
+            return _context.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo) && c.ProjectId == project.Id).ToList();
         }
 
         public McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo)

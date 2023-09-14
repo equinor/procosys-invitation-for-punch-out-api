@@ -13,6 +13,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         }
 
         public Task<Certificate> GetCertificateByGuid(Guid certificateGuid) 
-            => Set.SingleOrDefaultAsync(c => c.PcsGuid == certificateGuid);
+            => DefaultQuery.SingleOrDefaultAsync(c => c.PcsGuid == certificateGuid);
     }
 }

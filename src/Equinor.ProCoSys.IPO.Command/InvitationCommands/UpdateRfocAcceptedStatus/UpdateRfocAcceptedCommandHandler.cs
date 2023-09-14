@@ -10,6 +10,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus
@@ -94,21 +95,24 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             var commPkgNos = certificateCommPkgsModel.CommPkgs.Select(c => c.CommPkgNo).ToList();
             var mcPkgs = certificateMcPkgsModel.McPkgs.Select(mc =>new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo)).ToList();
             _invitationRepository.UpdateRfocStatuses(project.Name, commPkgNos, mcPkgs);
-            var certificate = await GetOrCreateCertificateAsync(request.ProCoSysGuid, project, cancellationToken);
+            Certificate certificate = null;
 
-            foreach (var commPkgNo in commPkgNos)
+            var commPkgs = _invitationRepository.GetCommPkgs(project.Name, commPkgNos);
+            if (!commPkgs.IsNullOrEmpty())
             {
-                var commPkg = _invitationRepository.GetCommPkg(project.Name, commPkgNo);
-                if (commPkg != null)
+                certificate = await GetOrCreateCertificateAsync(request.ProCoSysGuid, project, cancellationToken);
+                foreach (var commPkg in commPkgs)
                 {
                     certificate.AddCommPkgRelation(commPkg);
                 }
             }
+
             foreach (var mcPkgInfo in mcPkgs)
             {
                 var mcPkg = _invitationRepository.GetMcPkg(project.Name, mcPkgInfo.Item2, mcPkgInfo.Item1);
                 if (mcPkg != null)
                 {
+                    certificate ??= await GetOrCreateCertificateAsync(request.ProCoSysGuid, project, cancellationToken);
                     certificate.AddMcPkgRelation(mcPkg);
                 }
             }
