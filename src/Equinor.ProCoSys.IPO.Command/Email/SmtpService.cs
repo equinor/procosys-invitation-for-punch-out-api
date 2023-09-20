@@ -21,41 +21,38 @@ namespace Equinor.ProCoSys.IPO.Command.Email
     {
         protected readonly IOptionsMonitor<SmtpOptions> _smtp;
 
-        public SmtpService(IOptionsMonitor<SmtpOptions> smtp)
-        {
-            _smtp = smtp;
-        }
+        public SmtpService(IOptionsMonitor<SmtpOptions> smtp) => _smtp = smtp;
 
-        public void SendAsync(MailMessage message, string token)
+        public async Task SendAsync(MailMessage message)
         {
-            // SendAsync is not thread-safe, so to ensure it is not busy sending an mail I instantiate an new SmtpClient
-            var client = new System.Net.Mail.SmtpClient(_smtp.CurrentValue.Server, _smtp.CurrentValue.Port);
+            // SendMailAsync is not thread-safe, so to ensure it is not busy sending an mail I instantiate an new SmtpClient
+            var client = new SmtpClient(_smtp.CurrentValue.Server, _smtp.CurrentValue.Port);
             client.EnableSsl = _smtp.CurrentValue.EnableSSL;
-            client.Credentials = new NetworkCredential(_smtp.CurrentValue.Email, _smtp.CurrentValue.Password);
-            client.SendAsync(message, token);
+            client.Credentials = new NetworkCredential(_smtp.CurrentValue.From, _smtp.CurrentValue.Password);
+            await client.SendMailAsync(message);
         }
 
         private String CreateInviteString(MailMessage message, Invitation invitation)
         {
-            StringBuilder str = new StringBuilder();
+            var str = new StringBuilder();
             str.AppendLine("BEGIN:VCALENDAR");
             str.AppendLine("PRODID:-//Equinor//ProCoSys//EN");
             str.AppendLine("VERSION:2.0");
             str.AppendLine("METHOD:REQUEST");
             str.AppendLine("X-MS-OLK-FORCEINSPECTOROPEN:TRUE");
             str.AppendLine("BEGIN:VEVENT");
-            str.AppendLine(string.Format("DTSTART:{0:yyyyMMddTHHmmssZ}", invitation.StartTimeUtc));
-            str.AppendLine(string.Format("DTSTAMP:{0:yyyyMMddTHHmmssZ}", DateTime.UtcNow));
-            str.AppendLine(string.Format("DTEND:{0:yyyyMMddTHHmmssZ}", invitation.EndTimeUtc));
-            str.AppendLine("LOCATION: " + invitation.Location);
-            str.AppendLine(string.Format("UID:{0}", Guid.NewGuid()));
-            str.AppendLine(string.Format("DESCRIPTION:{0}", message.Body));
-            str.AppendLine(string.Format("X-ALT-DESC;FMTTYPE=text/html:{0}", message.Body));
-            str.AppendLine(string.Format("SUMMARY:{0}", message.Subject));
-            str.AppendLine(string.Format("ORGANIZER;CN=\"{0}\":mailto:{1}", message.From.DisplayName, message.From.Address));
+            str.AppendLine($"DTSTART:{invitation.StartTimeUtc:yyyyMMddTHHmmssZ}");
+            str.AppendLine($"DTSTAMP:{DateTime.UtcNow:yyyyMMddTHHmmssZ}");
+            str.AppendLine($"DTEND:{invitation.EndTimeUtc:yyyyMMddTHHmmssZ}");
+            str.AppendLine($"LOCATION: {invitation.Location}");
+            str.AppendLine($"UID:{Guid.NewGuid()}");
+            str.AppendLine($"DESCRIPTION:{message.Body}");
+            str.AppendLine($"X-ALT-DESC;FMTTYPE=text/html:{message.Body}");
+            str.AppendLine($"SUMMARY:{message.Subject}");
+            str.AppendLine($"ORGANIZER;CN=\"{message.From.DisplayName}\":mailto:{message.From.Address}");
             message.To.ToList().ForEach(y =>
             {
-                str.AppendLine(string.Format("ATTENDEE;CN=\"{0}\";RSVP=TRUE:mailto:{1}", y.DisplayName, y.Address));
+                str.AppendLine($"ATTENDEE;CN=\"{y.DisplayName}\";RSVP=TRUE:mailto:{y.Address}");
             });
             str.AppendLine("CLASS:PUBLIC");
             str.AppendLine("TRANSP:OPAQUE");
@@ -72,10 +69,10 @@ namespace Equinor.ProCoSys.IPO.Command.Email
 
         private Attachment CreateInviteAttachment(string inviteString)
         {
-            byte[] byteArray = Encoding.ASCII.GetBytes(inviteString);
-            MemoryStream stream = new MemoryStream(byteArray);
+            var byteArray = Encoding.ASCII.GetBytes(inviteString);
+            var stream = new MemoryStream(byteArray);
 
-            Attachment attachment = new Attachment(stream, "invite.ics");
+            var attachment = new Attachment(stream, "invite.ics");
             attachment.ContentType = new ContentType("text/calendar");
 
             attachment.TransferEncoding = TransferEncoding.QuotedPrintable;
@@ -91,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.Email
                 From = new MailAddress(organizer.Email, $"{organizer.FirstName} {organizer.LastName}"),
                 Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
                             request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
-                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, _smtp.CurrentValue.FakeEmail),
+                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, true, _smtp.CurrentValue.FakeEmail),
                 Priority = MailPriority.Normal
             };
             invitation.Participants.ToList().ForEach(y =>
@@ -99,22 +96,22 @@ namespace Equinor.ProCoSys.IPO.Command.Email
                 message.To.Add(new MailAddress(y.Email, $"{y.FirstName} {y.LastName}"));
             });
 
-            AlternateView avBody = AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
+            var avBody = AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
             message.AlternateViews.Add(avBody);
 
-            String inviteString = CreateInviteString(message, invitation);
-            Attachment attachment = CreateInviteAttachment(inviteString);
+            var inviteString = CreateInviteString(message, invitation);
+            var attachment = CreateInviteAttachment(inviteString);
             message.Attachments.Add(attachment);
 
-            ContentType contype = new ContentType("text/calendar");
+            var contype = new ContentType("text/calendar");
             contype.CharSet = "UTF-8";
             contype.Parameters.Add("method", "REQUEST");
             contype.Parameters.Add("name", "invite.ics");
 
-            AlternateView avCal = AlternateView.CreateAlternateViewFromString(inviteString, contype);
+            var avCal = AlternateView.CreateAlternateViewFromString(inviteString, contype);
             avCal.TransferEncoding = TransferEncoding.QuotedPrintable;
             message.AlternateViews.Add(avCal);
-            SendAsync(message, ToString());
+            await SendAsync(message);
         }
     }
 }

@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
             }
-            catch
+            catch (IpoSendMailException e)
             {
                 try
                 {
@@ -147,6 +147,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} using backup solution of sending ics attachment through SMTP.");
                     throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
                 }
+            }
+            catch (Exception ex) 
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
             try 
             { 
@@ -496,7 +501,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         .WithParticipants(meetingParticipants)
                         .WithClassification(MeetingClassification.Open)
                         .EnableOutlookIntegration()
-                        .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
+                        .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, false));
 
                     if (request.IsOnline)
                     {

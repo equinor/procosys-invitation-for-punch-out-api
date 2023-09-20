@@ -10,6 +10,6 @@ namespace Equinor.ProCoSys.IPO.Command.Email
     public interface ISmtpService
     {
         Task SendSmtpWithInviteAsync(Invitation invitation, string projectName, Person organizer, string pcsBaseUrl, CreateInvitationCommand request);
-        void SendAsync(MailMessage message, string token);
+        Task SendAsync(MailMessage message);
     }
 }

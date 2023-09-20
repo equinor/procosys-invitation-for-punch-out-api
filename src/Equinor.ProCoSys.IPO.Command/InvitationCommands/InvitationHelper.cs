@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return $"{ipoPart}. {projectPart}. {scopePart}";
         }
 
-        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName, bool isFake = false)
+        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName, bool isFallback, bool isFake = false)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
@@ -86,17 +86,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
             meetingDescription += $"</br><p>Best regards, {organizer.FirstName} {organizer.LastName}</p>";
 
-            meetingDescription += string.Format(
-                @"
-                <p>#########################################################################################################<br/>
-                NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
-                a fallback solution was used to send this invite.<br/>
-                This has the concequence that all updates to the invite has to be done directly in ProCoSys through the provided link above<br/>
-                instead of directly in your Outlook calendar item.<br/>
-                Content updated directly in the Outlook calendar item will NOT be shared between participants.<br/>
-                #########################################################################################################<br/>
-                ",
-                "<br/>");
+            if (isFallback)
+            {
+                meetingDescription += $@"<p>#########################################################################################################<br/>
+                    NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
+                    a fallback solution was used to send this invite.<br/>
+                    This has the concequence that all updates to the invite has to be done directly in ProCoSys through the provided link above<br/>
+                    instead of directly in your Outlook calendar item.<br/>
+                    Content updated directly in the Outlook calendar item will NOT be shared between participants.<br/>
+                    #########################################################################################################<br/>";
+            }
 
             if (isFake)
             {
@@ -113,7 +112,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                 {0}</p>
                 ",
                     "<br/>",
-                    string.Join(' ', invitation.Participants.Select(x => x.Email).Distinct()),
+                    string.Join(',', invitation.Participants.Select(x => x.Email).Distinct()),
                     "",
                     "");
             }
