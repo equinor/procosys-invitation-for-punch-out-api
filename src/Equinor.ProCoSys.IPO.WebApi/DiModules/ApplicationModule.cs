@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -88,6 +89,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ISettingRepository, SettingRepository>();
             services.AddScoped<IOutstandingIpoRepository, OutstandingIpoRepository>();
+            services.AddScoped<ICertificateRepository, CertificateRepository>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();

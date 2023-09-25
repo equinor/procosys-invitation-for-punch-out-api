@@ -22,8 +22,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     public class InvitationValidatorTests : ReadOnlyTestsBaseInMemory
     {
         #region Setup
-        private static readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
-        private static readonly Project _project2 = new("PCS$TEST_PLANT", _projectName2, $"Description of {_projectName2} project");
+        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
+        private static readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
         private const string _projectName = "Project name";
         private const string _projectName2 = "Project name 2";
         private const string _title1 = "Test title";
