@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             if (project.Plant != plant)
             {
-                throw new ArgumentException($"Plant {plant} should be equal to project plant {project.Plant}");
+                throw new ArgumentException($"Can't relate {nameof(project)} in {project.Plant} to item in {plant}");
             }
 
             if (string.IsNullOrEmpty(title))
