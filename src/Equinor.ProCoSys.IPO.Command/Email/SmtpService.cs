@@ -19,17 +19,52 @@ namespace Equinor.ProCoSys.IPO.Command.Email
 {
     public class SmtpService : ISmtpService
     {
-        protected readonly IOptionsMonitor<SmtpOptions> _smtp;
+        protected readonly IOptionsMonitor<SmtpOptions> _smtpOptions;
 
-        public SmtpService(IOptionsMonitor<SmtpOptions> smtp) => _smtp = smtp;
+        public SmtpService(IOptionsMonitor<SmtpOptions> smtpOptions) => _smtpOptions = smtpOptions;
 
         public async Task SendAsync(MailMessage message)
         {
             // SendMailAsync is not thread-safe, so to ensure it is not busy sending an mail I instantiate an new SmtpClient
-            var client = new SmtpClient(_smtp.CurrentValue.Server, _smtp.CurrentValue.Port);
-            client.EnableSsl = _smtp.CurrentValue.EnableSSL;
-            client.Credentials = new NetworkCredential(_smtp.CurrentValue.From, _smtp.CurrentValue.Password);
+            var client = new SmtpClient(_smtpOptions.CurrentValue.Server, _smtpOptions.CurrentValue.Port);
+            client.EnableSsl = _smtpOptions.CurrentValue.EnableSSL;
+            client.Credentials = new NetworkCredential(_smtpOptions.CurrentValue.From, _smtpOptions.CurrentValue.Password);
             await client.SendMailAsync(message);
+        }
+
+        public async Task SendSmtpWithInviteAsync(Invitation invitation, string projectName, Person organizer, string pcsBaseUrl, CreateInvitationCommand request)
+        {
+            var baseUrl = InvitationHelper.GetBaseUrl(pcsBaseUrl, invitation.Plant);
+
+            var message = new MailMessage()
+            {
+                From = new MailAddress(organizer.Email, $"{organizer.FirstName} {organizer.LastName}"),
+                Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
+                            request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
+                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, true, _smtpOptions.CurrentValue.FakeEmail),
+                Priority = MailPriority.Normal
+            };
+            invitation.Participants.ToList().ForEach(y =>
+            {
+                message.To.Add(new MailAddress(y.Email, $"{y.FirstName} {y.LastName}"));
+            });
+
+            var avBody = AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
+            message.AlternateViews.Add(avBody);
+
+            var inviteString = CreateInviteString(message, invitation);
+            var attachment = CreateInviteAttachment(inviteString);
+            message.Attachments.Add(attachment);
+
+            var contype = new ContentType("text/calendar");
+            contype.CharSet = "UTF-8";
+            contype.Parameters.Add("method", "REQUEST");
+            contype.Parameters.Add("name", "invite.ics");
+
+            var avCal = AlternateView.CreateAlternateViewFromString(inviteString, contype);
+            avCal.TransferEncoding = TransferEncoding.QuotedPrintable;
+            message.AlternateViews.Add(avCal);
+            await SendAsync(message);
         }
 
         private String CreateInviteString(MailMessage message, Invitation invitation)
@@ -77,41 +112,6 @@ namespace Equinor.ProCoSys.IPO.Command.Email
 
             attachment.TransferEncoding = TransferEncoding.QuotedPrintable;
             return attachment;
-        }
-
-        public async Task SendSmtpWithInviteAsync(Invitation invitation, string projectName, Person organizer, string pcsBaseUrl, CreateInvitationCommand request)
-        {
-            var baseUrl = InvitationHelper.GetBaseUrl(pcsBaseUrl, invitation.Plant);
-
-            var message = new MailMessage()
-            {
-                From = new MailAddress(organizer.Email, $"{organizer.FirstName} {organizer.LastName}"),
-                Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
-                            request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
-                Body = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, true, _smtp.CurrentValue.FakeEmail),
-                Priority = MailPriority.Normal
-            };
-            invitation.Participants.ToList().ForEach(y =>
-            {
-                message.To.Add(new MailAddress(y.Email, $"{y.FirstName} {y.LastName}"));
-            });
-
-            var avBody = AlternateView.CreateAlternateViewFromString(message.Body, Encoding.UTF8, MediaTypeNames.Text.Html);
-            message.AlternateViews.Add(avBody);
-
-            var inviteString = CreateInviteString(message, invitation);
-            var attachment = CreateInviteAttachment(inviteString);
-            message.Attachments.Add(attachment);
-
-            var contype = new ContentType("text/calendar");
-            contype.CharSet = "UTF-8";
-            contype.Parameters.Add("method", "REQUEST");
-            contype.Parameters.Add("name", "invite.ics");
-
-            var avCal = AlternateView.CreateAlternateViewFromString(inviteString, contype);
-            avCal.TransferEncoding = TransferEncoding.QuotedPrintable;
-            message.AlternateViews.Add(avCal);
-            await SendAsync(message);
         }
     }
 }

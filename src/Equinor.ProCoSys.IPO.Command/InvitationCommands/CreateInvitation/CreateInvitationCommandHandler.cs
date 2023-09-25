@@ -19,6 +19,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.Email;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -57,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
             IProjectApiService projectApiService,
-            Email.ISmtpService smtpClient,
+            Email.ISmtpService smtpService,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -73,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
             _projectApiService = projectApiService;
-            _smtpService = smtpClient;
+            _smtpService = smtpService;
             _logger = logger;
         }
 
@@ -498,7 +499,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
                             request.Location)
                         .StartsOn(request.StartTime, request.EndTime)
-                        .WithTimeZone("UTC")
+                    .WithTimeZone("UTC")
                         .WithParticipants(meetingParticipants)
                         .WithClassification(MeetingClassification.Open)
                         .EnableOutlookIntegration()

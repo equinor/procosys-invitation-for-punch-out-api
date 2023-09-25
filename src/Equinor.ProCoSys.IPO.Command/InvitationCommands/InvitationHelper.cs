@@ -117,7 +117,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                     "");
             }
 
-
             return meetingDescription;
         }
 
