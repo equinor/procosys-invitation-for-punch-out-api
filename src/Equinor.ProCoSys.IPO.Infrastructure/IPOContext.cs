@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -19,9 +20,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 {
     public class IPOContext : DbContext, IUnitOfWork, IReadOnlyContext
     {
-        private readonly IPlantProvider _plantProvider;
-        private readonly IEventDispatcher _eventDispatcher;
-        private readonly ICurrentUserProvider _currentUserProvider;
+        protected readonly IPlantProvider _plantProvider;
+        protected readonly IEventDispatcher _eventDispatcher;
+        protected readonly ICurrentUserProvider _currentUserProvider;
 
         public IPOContext(
             DbContextOptions<IPOContext> options,
@@ -63,6 +64,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<SavedFilter> SavedFilters { get; set; }
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Setting> Setting { get; set; }
+        public virtual DbSet<Certificate> Certificates { get; set; }
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
@@ -107,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public void Commit() => base.Database.CommitTransaction();
 
-        private void UpdateConcurrencyToken()
+        protected virtual void UpdateConcurrencyToken()
         {
             var modifiedEntries = ChangeTracker
                 .Entries<EntityBase>()

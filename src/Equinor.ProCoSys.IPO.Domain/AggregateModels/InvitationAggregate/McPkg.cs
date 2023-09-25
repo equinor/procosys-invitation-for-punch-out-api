@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -11,6 +13,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public const int McPkgNoMaxLength = 30;
         public const int SystemMaxLength = 40;
+        private readonly List<Certificate> _certificateScope = new List<Certificate>();
 
         protected McPkg()
             : base(null)
@@ -55,7 +58,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public string McPkgNo { get; private set; }
         public string System { get; private set; }
         public bool RfocAccepted { get; set; }
+<<<<<<< HEAD
         public Guid RfocAcceptedCertificateGuid { get; set; }
+=======
+        public IReadOnlyCollection<Certificate> CertificateScopes => _certificateScope.AsReadOnly();
+>>>>>>> master
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public void SetCreated(Person createdBy)

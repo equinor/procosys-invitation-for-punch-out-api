@@ -92,10 +92,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasForeignKey(x => x.AcceptedBy)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            //Made specifically for Me/GetOutstandingIPOs
             builder
-                .HasIndex(i => i.Plant)
-                .HasFilter("[Status] <> 3")
-                .IncludeProperties(i => new { i.Description, i.Status });
+                .HasIndex("Plant", "ProjectId", "Status")
+                .HasFilter("[Status] <> 3 AND [Status] <> 4")
+                .IncludeProperties(i => new { i.Description });
       
         }
     }

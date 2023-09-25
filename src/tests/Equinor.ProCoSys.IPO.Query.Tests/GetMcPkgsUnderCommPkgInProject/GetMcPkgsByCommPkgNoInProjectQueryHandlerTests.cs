@@ -14,7 +14,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
 {
     [TestClass]
-    public class GetMcPkgsByCommPkgNoInProjectQueryHandlerTests : ReadOnlyTestsBase
+    public class GetMcPkgsByCommPkgNoInProjectQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
         private IList<ProCoSysMcPkgOnCommPkg> _mainApiMcPkgs;

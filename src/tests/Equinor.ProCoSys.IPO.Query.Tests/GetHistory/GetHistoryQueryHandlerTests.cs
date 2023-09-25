@@ -15,7 +15,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 {
     [TestClass]
-    public class GetHistoryQueryHandlerTests : ReadOnlyTestsBase
+    public class GetHistoryQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _invitationWithHistory;
         private Invitation _invitationWithNoHistory;

@@ -1,6 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -35,11 +36,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             // Arrange
             Assert.IsNull(_historyAdded);
 
-            // Act
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
-            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default);
+            var participant = new Participant("TestPlant",
+                                                Domain.AggregateModels.InvitationAggregate.Organization.ConstructionCompany,
+                                                IpoParticipantType.Person,
+                                                null,
+                                                "Rob",
+                                                "Hubbard",
+                                                "robhubbard",
+                                                "a@b.com",
+                                                sourceGuid,
+                                                0);
 
+            // Act
+            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default);
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);

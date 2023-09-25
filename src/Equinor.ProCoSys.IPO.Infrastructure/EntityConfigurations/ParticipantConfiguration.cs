@@ -33,11 +33,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasForeignKey(x => x.SignedBy)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            //Made specifically for Me/GetOutstandingIPOs
             builder
-                .HasIndex("InvitationId", "Plant")
+                .HasIndex("InvitationId", "Plant", "AzureOid")
                 .IncludeProperties(p => new
                 {
-                    p.AzureOid,
                     p.FunctionalRoleCode,
                     p.Organization,
                     p.SignedAtUtc,

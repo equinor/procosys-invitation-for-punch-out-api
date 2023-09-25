@@ -18,7 +18,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 {
     [TestClass]
-    public class GetInvitationsQueryHandlerTests : ReadOnlyTestsBase
+    public class GetInvitationsQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Invitation _invitation1;
         private Invitation _invitation2;
@@ -106,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     "LastName",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var constructionCompanyPersonParticipant = new Participant(
@@ -130,7 +130,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     "LastName1",
                     "UN",
                     _personEmail1,
-                    _currentUserOid,
+                    CurrentUserOid,
                     0);
 
                 var constructionCompanyPersonParticipant1 = new Participant(
@@ -867,7 +867,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider);
 
                 var result = await dut.Handle(query, default);
-                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, _currentUserOid), Times.Once);                
+                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid), Times.Once);                
                 Assert.IsTrue(result.Data.Invitations.DistinctBy(x => x.ProjectName).Count() > 1);
             }
         }

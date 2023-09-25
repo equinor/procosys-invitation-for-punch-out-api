@@ -10,7 +10,7 @@ using ServiceResult;
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
 {
      [TestClass]
-    public class GetSavedFiltersInProjectQueryHandlerTests : ReadOnlyTestsBase
+    public class GetSavedFiltersInProjectQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private GetSavedFiltersInProjectQuery _query;
         private GetSavedFiltersInProjectQuery _queryWithNullProject;

@@ -51,6 +51,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 throw new ArgumentNullException(nameof(project));
             }
 
+            if (project.Plant != plant)
+            {
+                throw new ArgumentException($"Can't relate {nameof(project)} in {project.Plant} to item in {plant}");
+            }
+
             if (string.IsNullOrEmpty(title))
             {
                 throw new ArgumentNullException(nameof(title));
@@ -231,7 +236,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedBy = completedBy.Id;
             CompletedAtUtc = completedAtUtc;
-            AddDomainEvent(new IpoCompletedEvent(Plant, Guid));
+            AddDomainEvent(new IpoCompletedEvent(Plant, Guid, participant));
 
             var emails = GetCompleterEmails();
 
@@ -262,7 +267,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedAtUtc = null;
             CompletedBy = null;
-            AddDomainEvent(new IpoUnCompletedEvent(Plant, Guid));
+            AddDomainEvent(new IpoUnCompletedEvent(Plant, Guid, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnCompletedEvent(Plant, Guid));
         }
 
@@ -284,7 +289,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedBy = acceptedBy.Id;
             AcceptedAtUtc = acceptedAtUtc;
-            AddDomainEvent(new IpoAcceptedEvent(Plant, Guid));
+            AddDomainEvent(new IpoAcceptedEvent(Plant, Guid, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoAcceptedEvent(Plant, Guid));
         }
 
@@ -306,7 +311,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedAtUtc = null;
             AcceptedBy = null;
-            AddDomainEvent(new IpoUnAcceptedEvent(Plant, Guid));
+            AddDomainEvent(new IpoUnAcceptedEvent(Plant, Guid, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnAcceptedEvent(Plant, Guid));
         }
 
@@ -325,10 +330,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SignedBy = signedBy.Id;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new IpoSignedEvent(Plant, Guid));
+            AddDomainEvent(new IpoSignedEvent(Plant, Guid, participant, signedBy));
         }
 
-        public void UnSignIpo(Participant participant, string participantRowVersion)
+        public void UnSignIpo(Participant participant, Person unSignedBy, string participantRowVersion)
         {
             if (participant == null)
             {
@@ -339,11 +344,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new Exception($"Unsign on {nameof(Invitation)} {Id} can not be performed. Status = {Status}");
             }
-            
+
             participant.SignedBy = null;
             participant.SignedAtUtc = null;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new IpoUnSignedEvent(Plant, Guid));
+            AddDomainEvent(new IpoUnSignedEvent(Plant, Guid, participant, unSignedBy));
         }
 
         public void EditIpo(
@@ -446,6 +451,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             Status = IpoStatus.ScopeHandedOver;
+            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
         }
 
         public void SetCreated(Person createdBy)

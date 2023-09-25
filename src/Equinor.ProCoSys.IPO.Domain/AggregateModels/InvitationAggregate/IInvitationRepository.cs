@@ -19,5 +19,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Guid certificateGuid);
         void UpdateRfocStatuses(string projectName, Guid certificateGuid);
         IList<Invitation> GetInvitationsForSynchronization();
+        IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos);
+        McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo);
     }
 }

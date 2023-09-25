@@ -29,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project3Id = 714;
 
         private readonly List<Project> _projects = new List<Project>();
-        private readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
-        private readonly Project _project2 = new("PCS$TEST_PLANT", _projectName2, $"Description of {_projectName2} project");
-        private readonly Project _project3 = new("PCS$TEST_PLANT", _projectName3, $"Description of {_projectName3} project");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
+        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project");
 
         private const string _projectName = "ProjectName";
         private const string _projectName2 = "ProjectName2";
@@ -565,6 +565,36 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             // Assert
             Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+        }
+
+        [TestMethod]
+        public void GetCommPkgs_ShouldGetCommPkgs_WhenExists()
+        {
+            // Act
+            var commPkgs = _dut.GetCommPkgs(GetProjectName(_commPkg.ProjectId), new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo });
+
+            // Assert
+            Assert.AreEqual(2, commPkgs.Count);
+        }
+
+        [TestMethod]
+        public void GetMcPkg_ShouldGetMcPkg_WhenExists()
+        {
+            // Act
+            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
+
+            // Assert
+            Assert.IsNotNull(mcPkg);
+        }
+
+        [TestMethod]
+        public void GetMcPkg_ShouldNotGetMcPkg_WhenNotExists()
+        {
+            // Act
+            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+
+            // Assert
+            Assert.IsNull(mcPkg);
         }
     }
 }
