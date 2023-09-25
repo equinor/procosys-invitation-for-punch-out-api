@@ -91,7 +91,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
               
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {
-                    if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED" && pcsMcPkg.RfocGuid != null)
+                    if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED" && pcsMcPkg.RfocGuid != null && pcsMcPkg.RfocGuid != Guid.Empty)
                     {
                         var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
                         foreach (var mcPkg in mcPkgsToUpdate)
@@ -122,12 +122,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
 
                 foreach (var relation in pcsCommPkgRfocRelations)
                 {
-                    var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == relation.CommPkgNo).ToList();
-                    foreach (var commPkg in commPkgsToUpdate)
+                    if (relation.RfocGuid != null && relation.RfocGuid != Guid.Empty)
                     {
-                        var certificate = await GetOrCreateCertificateAsync(relation.RfocGuid, project, token);
-                        certificate.AddCommPkgRelation(commPkg);
-                        count++;
+                        var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == relation.CommPkgNo).ToList();
+                        foreach (var commPkg in commPkgsToUpdate)
+                        {
+                            var certificate = await GetOrCreateCertificateAsync((Guid)relation.RfocGuid, project, token);
+                            certificate.AddCommPkgRelation(commPkg);
+                            count++;
+                        }
                     }
                 }
             }
