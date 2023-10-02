@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations
                 .Include(i => i.McPkgs)
                 .Include(i => i.CommPkgs)
-                .Where(i => i.Status == IpoStatus.Planned || i.Status == IpoStatus.Completed || i.Status == IpoStatus.Accepted)
+                .Where(i => i.Status == IpoStatus.ScopeHandedOver)
                 .ToList();
 
         public void UpdateProjectOnInvitations(string projectName, string description)
@@ -140,6 +140,30 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 RemoveParticipant(participant);
             }
             _context.Invitations.Remove(invitation);
+        }
+
+        public IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            return _context.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo) && c.ProjectId == project.Id).ToList();
+        }
+
+        public McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            return _context.McPkgs.SingleOrDefault(mc => mc.McPkgNo == mcPkgNo && mc.CommPkgNo == commPkgNo && mc.ProjectId == project.Id);
         }
 
         public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)

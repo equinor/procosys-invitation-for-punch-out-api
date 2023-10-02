@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
@@ -61,6 +62,32 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             var commPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysCommPkg>>(url);
 
             return commPkgs;
+        }
+
+        public async Task<IList<ProCoSysRfocOnCommPkg>> GetRfocGuidsByCommPkgNosAsync(
+            string plant,
+            string projectName,
+            IList<string> commPkgNos)
+        {
+            var baseUrl = $"{_baseAddress}CommPkg/RfocByCommPkgNos" +
+                      $"?plantId={plant}" +
+                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                      $"&api-version={_apiVersion}";
+            var commPkgNosChunks = commPkgNos.Chunk(80);
+            var rfocs = new List<ProCoSysRfocOnCommPkg>();
+
+            foreach (var chunk in commPkgNosChunks)
+            {
+                var commPkgNosString = "";
+                foreach (var commPkgNo in chunk)
+                {
+                    commPkgNosString += $"&commPkgNos={commPkgNo}";
+                }
+                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysRfocOnCommPkg>>(baseUrl + commPkgNosString);
+                rfocs.AddRange(response);
+            }
+
+            return rfocs;
         }
     }
 }
