@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using ClosedXML.Excel;
-using ClosedXML.Graphics;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 using LargeXlsx;
 using Color = System.Drawing.Color;
@@ -13,15 +10,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
-        public ExcelConverter()
-        {
-            using (var fallbackFontStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Equinor.ProCoSys.IPO.WebApi.Excel.CarlitoFont.Carlito-Regular.ttf"))
-            {
-                LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateWithFontsAndSystemFonts(fallbackFontStream);
-            }
-        }
-
         public MemoryStream Convert(ExportDto dto)
         {
             var stream = new MemoryStream();
