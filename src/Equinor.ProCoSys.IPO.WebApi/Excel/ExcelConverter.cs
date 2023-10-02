@@ -26,10 +26,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
         {
             var stream = new MemoryStream();
             using var xlsxWriter = new XlsxWriter(stream);
-            var headerStyle = new XlsxStyle(new XlsxFont("Calibri", 14, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
-            var subHeaderStyle = new XlsxStyle(new XlsxFont("Calibri", 11, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
-            var normalStyle = new XlsxStyle(new XlsxFont("Calibri", 11, Color.Black, bold: false), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
-            var invitationsHeader = new XlsxStyle(new XlsxFont("Calibri", 12, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var headerStyle = new XlsxStyle(new XlsxFont("Carlito", 14, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var subHeaderStyle = new XlsxStyle(new XlsxFont("Carlito", 11, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var normalStyle = new XlsxStyle(new XlsxFont("Carlito", 11, Color.Black, bold: false), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var invitationsHeader = new XlsxStyle(new XlsxFont("Carlito", 12, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
             var dateStyle = XlsxStyle.Default.With(XlsxNumberFormat.ShortDateTime);
 
             try
