@@ -44,9 +44,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 return stream;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -57,9 +57,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 return;
             }
 
-            var ipoWidth = exportInvitationDtos.OrderByDescending(s => s.Id.ToString().Length).FirstOrDefault().Id.ToString().Length + 10;
-            var descriptionWidth = exportInvitationDtos.OrderByDescending(s => s.Description?.Length ?? 0).FirstOrDefault()?.Description.Length + 10 ?? 20;
-            var createdByWidth = exportInvitationDtos.OrderByDescending(s => s.CreatedBy?.Length ?? 0).FirstOrDefault()?.CreatedBy.Length + 10 ?? 20;
+            var ipoWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Id.ToString());
+            var descriptionWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Description);
+            var createdByWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.CreatedBy);
 
             xlsxWriter.BeginWorksheet("History", columns: new[]
             {
@@ -221,35 +221,45 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             }
         }
 
+        private static int CalculatePropertyWidth<T>(IEnumerable<T> collection, Func<T, string> propertySelector, int defaultValue = 20)
+        {
+            return collection
+                .Select(propertySelector)
+                .Where(prop => !string.IsNullOrEmpty(prop))
+                .OrderByDescending(prop => prop.Length)
+                .FirstOrDefault()?.Length + 10 ?? defaultValue;
+        }
+
         private static void GenerateInvitationsSheet(XlsxWriter xlsxWriter, XlsxStyle normalStyle, XlsxStyle invitationsHeader, XlsxStyle dateStyle, List<ExportInvitationDto> exportInvitationDtos)
         {
-            var ipoWidth = exportInvitationDtos.OrderByDescending(s => s.Id.ToString().Length).FirstOrDefault().Id.ToString().Length + 10;
-            var projNameWidth = exportInvitationDtos.OrderByDescending(s => s.ProjectName?.Length ?? 0).FirstOrDefault()?.ProjectName?.Length + 10 ?? 20;
+            var ipoWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Id.ToString());
+            var projNameWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.ProjectName);
             var statusWidth = 20;
-            var titleWidth = exportInvitationDtos.OrderByDescending(s => s.Title?.Length ?? 0).FirstOrDefault()?.Title?.Length + 10 ?? 30;
-            var descriptionWidth = exportInvitationDtos.OrderByDescending(s => s.Description?.Length ?? 0).FirstOrDefault()?.Description?.Length ?? 40;
-            var locationWidth = exportInvitationDtos.OrderByDescending(s => s.Location?.Length ?? 0).FirstOrDefault()?.Location?.Length + 10 ?? 30;
-            var typeWidth = exportInvitationDtos.OrderByDescending(s => s.Type?.Length ?? 0).FirstOrDefault()?.Type?.Length + 10 ?? 30;
+            var titleWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Title);
+            var descriptionWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Description, 40);
+            var locationWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Location);
+            var typeWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Type);
             var timeWidth = 20;
+
             var mcPckgsWidth = exportInvitationDtos
-                                .OrderByDescending(s => s.McPkgs?.Count() ?? 0)
-                                .FirstOrDefault()
-                                ?.McPkgs
-                                ?.Select(x => x.Length) // Projecting lengths
-                                .DefaultIfEmpty(0)
-                                .Max() + 10 ?? 20;
+                .OrderByDescending(s => s.McPkgs?.Count() ?? 0)
+                .FirstOrDefault()
+                ?.McPkgs
+                ?.Select(x => x.Length)
+                .DefaultIfEmpty(0)
+                .Max() + 10 ?? 20;
 
             var commPckgsWidth = exportInvitationDtos
-                                .OrderByDescending(s => s.CommPkgs?.Count() ?? 0)
-                                .FirstOrDefault()
-                                ?.CommPkgs
-                                ?.Select(x => x.Length)
-                                .DefaultIfEmpty(0)
-                                .Max() + 10 ?? 20;
+                .OrderByDescending(s => s.CommPkgs?.Count() ?? 0)
+                .FirstOrDefault()
+                ?.CommPkgs
+                ?.Select(x => x.Length)
+                .DefaultIfEmpty(0)
+                .Max() + 10 ?? 20;
 
-            var contractorRepLength = exportInvitationDtos.OrderByDescending(s => s.ContractorRep?.Length ?? 0).FirstOrDefault()?.ContractorRep?.Length + 10 ?? 20;
-            var constructionCompanyRefLength = exportInvitationDtos.OrderByDescending(s => s.ConstructionCompanyRep?.Length ?? 0).FirstOrDefault()?.ConstructionCompanyRep?.Length + 10 ?? 20;
-            var createdByLength = exportInvitationDtos.OrderByDescending(s => s.CreatedBy?.Length ?? 0).FirstOrDefault()?.CreatedBy?.Length + 10 ?? 20;
+            var contractorRepLength = CalculatePropertyWidth(exportInvitationDtos, s => s.ContractorRep);
+            var constructionCompanyRefLength = CalculatePropertyWidth(exportInvitationDtos, s => s.ConstructionCompanyRep);
+            var createdByLength = CalculatePropertyWidth(exportInvitationDtos, s => s.CreatedBy);
 
 
             xlsxWriter.BeginWorksheet("Invitations", columns: new[] {
