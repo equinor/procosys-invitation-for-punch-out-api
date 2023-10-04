@@ -18,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs,
             Guid certificateGuid);
         void UpdateRfocStatuses(string projectName, Guid certificateGuid);
+        void ResetScopeHandedOverStatus(string projectName, IList<CommPkg> commPkg, IList<McPkg> mcPkgs);
         IList<Invitation> GetInvitationsForSynchronization();
         IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos);
         McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo);

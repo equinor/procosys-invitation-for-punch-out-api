@@ -142,15 +142,17 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
-<<<<<<< HEAD
-        public void UpdateRfocStatuses(string projectName, Guid certificateGuid)
+        public void ResetScopeHandedOverStatus(string projectName, IList<CommPkg> commPkg, IList<McPkg> mcPkgs)
         {
-
+            
         }
 
         public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos,
             IList<Tuple<string, string>> mcPkgs, Guid certificateGuid)
-=======
+        {
+
+        }
+
         public IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
@@ -176,7 +178,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         }
 
         public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
->>>>>>> master
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 

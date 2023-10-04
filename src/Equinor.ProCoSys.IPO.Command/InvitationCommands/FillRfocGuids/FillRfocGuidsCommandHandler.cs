@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             {
                 var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
                 var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
-              
+
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {
                     if (pcsMcPkg.OperationHandoverStatus == "ACCEPTED" && pcsMcPkg.RfocGuid != null && pcsMcPkg.RfocGuid != Guid.Empty)
@@ -96,13 +96,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
                         var mcPkgsToUpdate = mcPkgsInProject.Where(m => m.McPkgNo == pcsMcPkg.McPkgNo).ToList();
                         foreach (var mcPkg in mcPkgsToUpdate)
                         {
-<<<<<<< HEAD:src/Equinor.ProCoSys.IPO.Command/InvitationCommands/FillRfocStatuses/FillRfocStatusesCommandHandler.cs
-                            mcPkg.RfocAccepted = true;
-                            mcPkg.RfocAcceptedCertificateGuid = certificateGuid;
-=======
                             var certificate = await GetOrCreateCertificateAsync((Guid)pcsMcPkg.RfocGuid, project, token);
                             certificate.AddMcPkgRelation(mcPkg);
->>>>>>> master:src/Equinor.ProCoSys.IPO.Command/InvitationCommands/FillRfocGuids/FillRfocGuidsCommandHandler.cs
                             count++;
                         }
                     }
@@ -123,26 +118,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (commPkgsInProject.Any())
             {
                 var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
-<<<<<<< HEAD:src/Equinor.ProCoSys.IPO.Command/InvitationCommands/FillRfocStatuses/FillRfocStatusesCommandHandler.cs
-                var mcPkgNosChunks = commPkgNosInProject.Chunk(80);
-                var pcsCommPkgs = new List<ProCoSysCommPkg>();
-                foreach (var chunk in mcPkgNosChunks)
-                {
-                    var response = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, chunk); // TODO: ta imot endring fra WebApi med RfocCertificateNo
-                    pcsCommPkgs.AddRange(response);
-                }
-=======
                 var pcsCommPkgRfocRelations = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject);
->>>>>>> master:src/Equinor.ProCoSys.IPO.Command/InvitationCommands/FillRfocGuids/FillRfocGuidsCommandHandler.cs
 
                 foreach (var relation in pcsCommPkgRfocRelations)
                 {
-                    var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == relation.CommPkgNo).ToList();
-                    foreach (var commPkg in commPkgsToUpdate)
+                    if (relation.RfocGuid != null && relation.RfocGuid != Guid.Empty)
                     {
-                        var certificate = await GetOrCreateCertificateAsync(relation.RfocGuid, project, token);
-                        certificate.AddCommPkgRelation(commPkg);
-                        count++;
+                        var commPkgsToUpdate = commPkgsInProject.Where(m => m.CommPkgNo == relation.CommPkgNo).ToList();
+                        foreach (var commPkg in commPkgsToUpdate)
+                        {
+                            var certificate = await GetOrCreateCertificateAsync((Guid)relation.RfocGuid, project, token);
+                            certificate.AddCommPkgRelation(commPkg);
+                            count++;
+                        }
                     }
                 }
             }

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
         private readonly ICertificateApiService _certificateApiService;
+        private readonly ICertificateRepository _certificateRepository;
         private readonly ILogger<UpdateRfocVoidedCommandHandler> _logger;
 
         public UpdateRfocVoidedCommandHandler(
@@ -28,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
             IUnitOfWork unitOfWork,
             IPlantProvider plantProvider,
             ICertificateApiService certificateApiService,
+            ICertificateRepository certificateRepository,
             ILogger<UpdateRfocVoidedCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -35,6 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
             _unitOfWork = unitOfWork;
             _plantProvider = plantProvider;
             _certificateApiService = certificateApiService;
+            _certificateRepository = certificateRepository;
             _logger = logger;
         }
 
@@ -73,7 +77,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new UnexpectedResult<Unit>(error);
             }
 
-            _invitationRepository.UpdateRfocStatuses(project.Name, request.ProCoSysGuid);
+            var certificate = await _certificateRepository.GetCertificateByGuid(request.ProCoSysGuid);
+            if (certificate == null)
+            {
+                _logger.LogInformation($"Early exit in RfocVoided handling. RFOC {request.ProCoSysGuid} does not exist in IPO module");
+                return new SuccessResult<Unit>(Unit.Value);
+            }
+
+            _certificateRepository.UpdateRfocStatuses(request.ProCoSysGuid);
+            _invitationRepository.ResetScopeHandedOverStatus(request.ProjectName, certificate.CertificateCommPkgs, certificate.CertificateMcPkgs);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             

@@ -7,5 +7,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
     public interface ICertificateRepository : IRepository<Certificate>
     {
         Task<Certificate> GetCertificateByGuid(Guid pcsGuid);
+        void UpdateRfocStatuses(Guid proCoSysGuid);
     }
 }
