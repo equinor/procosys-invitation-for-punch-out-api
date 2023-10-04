@@ -48,30 +48,30 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             // THIS CODE WAS WRITTEN TO RUN A ONETIME TRANSFORMATION WHEN WE INTRODUCED Certificate table
             // WE KEEP THE CODE ... MAYBE WE WANT TO DO SIMILAR STUFF LATER
 
-            var projects = await _projectRepository.GetAllAsync();
-            var invitations = _invitationRepository.GetInvitationsForSynchronization();
+            //var projects = await _projectRepository.GetAllAsync();
+            //var invitations = _invitationRepository.GetInvitationsForSynchronization();
 
-            var mcPkgsUpdatedCount = 0;
-            var commPkgsUpdatedCount = 0;
+            //var mcPkgsUpdatedCount = 0;
+            //var commPkgsUpdatedCount = 0;
 
-            foreach (var project in projects)
-            {
-                var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
+            //foreach (var project in projects)
+            //{
+            //    var invitationsInProject = invitations.Where(i => i.ProjectId == project.Id).ToList();
 
-                mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project, cancellationToken);
-                commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project, cancellationToken);
-                _logger.LogInformation($"FillRfocGuids: Project updated: {project.Name}");
-            }
+            //    mcPkgsUpdatedCount += await HandleMcPkgsAsync(invitationsInProject, project, cancellationToken);
+            //    commPkgsUpdatedCount += await HandleCommPkgsAsync(invitationsInProject, project, cancellationToken);
+            //    _logger.LogInformation($"FillRfocGuids: Project updated: {project.Name}");
+            //}
 
-            if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
-            {
-                if (request.SaveChanges)
-                {
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
-                }
-                _logger.LogInformation($"McPkgs updated with RfocGuid: {mcPkgsUpdatedCount}");
-                _logger.LogInformation($"CommPkgs updated with RfocGuid: {commPkgsUpdatedCount}");
-            }
+            //if (mcPkgsUpdatedCount > 0 || commPkgsUpdatedCount > 0)
+            //{
+            //    if (request.SaveChanges)
+            //    {
+            //        await _unitOfWork.SaveChangesAsync(cancellationToken);
+            //    }
+            //    _logger.LogInformation($"McPkgs updated with RfocGuid: {mcPkgsUpdatedCount}");
+            //    _logger.LogInformation($"CommPkgs updated with RfocGuid: {commPkgsUpdatedCount}");
+            //}
 
             return new SuccessResult<Unit>(Unit.Value);
         }
