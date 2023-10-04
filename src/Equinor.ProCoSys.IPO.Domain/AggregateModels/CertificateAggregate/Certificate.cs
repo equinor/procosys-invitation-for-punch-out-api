@@ -41,6 +41,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
         // private setters needed for Entity Framework
         public int ProjectId { get; private set; }
         public Guid PcsGuid { get; private set; }
+        public bool IsAccepted {  get; private set; }
+        public DateTime? AcceptedAtUtc {  get; private set; }
+        public bool IsVoided { get; private set; }
+        public DateTime? VoidedAtUtc { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
@@ -66,6 +70,18 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
                 throw new ArgumentNullException(nameof(modifiedBy));
             }
             ModifiedById = modifiedBy.Id;
+        }
+
+        public void SetIsAccepted()
+        {
+            AcceptedAtUtc = TimeService.UtcNow;
+            IsAccepted = true;
+        }
+
+        public void SetIsVoided()
+        {
+            VoidedAtUtc = TimeService.UtcNow;
+            IsVoided = true;
         }
 
         public void AddCommPkgRelation(CommPkg commPkg)
