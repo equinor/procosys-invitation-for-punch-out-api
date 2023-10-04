@@ -98,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
                         {
                             var certificate = await GetOrCreateCertificateAsync((Guid)pcsMcPkg.RfocGuid, project, token);
                             certificate.AddMcPkgRelation(mcPkg);
-                            count++;
+                            count++; 
                         }
                     }
                 }

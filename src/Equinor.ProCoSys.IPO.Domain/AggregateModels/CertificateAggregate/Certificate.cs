@@ -9,7 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
 {
-    public class Certificate : PlantEntityBase, IAggregateRoot, ICreationAuditable
+    public class Certificate : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable
     {
         private readonly List<McPkg> _certificateMcPkgScope = new List<McPkg>();
         private readonly List<CommPkg> _certificateCommPkgScope = new List<CommPkg>();
@@ -43,6 +43,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
         public Guid PcsGuid { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
+        public DateTime? ModifiedAtUtc { get; private set; }
+        public int? ModifiedById { get; private set; }
         public IReadOnlyCollection<McPkg> CertificateMcPkgs => _certificateMcPkgScope.AsReadOnly();
         public IReadOnlyCollection<CommPkg> CertificateCommPkgs => _certificateCommPkgScope.AsReadOnly();
 
@@ -54,6 +56,16 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
                 throw new ArgumentNullException(nameof(createdBy));
             }
             CreatedById = createdBy.Id;
+        }
+
+        public void SetModified(Person modifiedBy)
+        {
+            ModifiedAtUtc = TimeService.UtcNow;
+            if (modifiedBy == null)
+            {
+                throw new ArgumentNullException(nameof(modifiedBy));
+            }
+            ModifiedById = modifiedBy.Id;
         }
 
         public void AddCommPkgRelation(CommPkg commPkg)

@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.4")
+                .HasAnnotation("ProductVersion", "7.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -66,6 +66,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<int>("CreatedById")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModifiedById")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("PcsGuid")
                         .HasColumnType("uniqueidentifier");
 
@@ -85,6 +91,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
+
+                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("ProjectId");
 
@@ -802,6 +810,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ModifiedById")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate.Project", null)
                         .WithMany()
