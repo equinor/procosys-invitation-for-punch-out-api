@@ -110,7 +110,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             foreach (var mcPkgInfo in mcPkgs)
             {
                 var mcPkgList = _invitationRepository.GetMcPkgs(project.Name, mcPkgInfo.Item2, mcPkgInfo.Item1);
-                if (!mcPkgs.IsNullOrEmpty())
+                if (!mcPkgList.IsNullOrEmpty())
                 {
                     certificate ??= await GetOrCreateCertificateAsync(request.ProCoSysGuid, project, cancellationToken);
                     foreach (var mcPkg in mcPkgList)
