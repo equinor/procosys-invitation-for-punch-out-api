@@ -144,7 +144,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 null,
                 new List<McPkg> { _mcPkgCopy },
                 null);
-            _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgCopyId);
+            _dpInviationSameScope.SetProtectedIdForTesting(InvitationWithMcPkgCopyId);
             _dpInviationMove = new Invitation(
                 TestPlant,
                 _project1,
@@ -290,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             var result = await _dut.GetAllAsync();
 
-            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(6, result.Count);
         }
 
         [TestMethod]
