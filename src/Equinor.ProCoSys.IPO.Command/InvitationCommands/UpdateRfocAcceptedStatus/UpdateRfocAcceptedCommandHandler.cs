@@ -11,6 +11,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus
@@ -75,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 _logger.LogError(error);
                 return new NotFoundResult<Unit>(error);
             }
+            _logger.LogInformation($"Certificate guid {request.ProCoSysGuid} resulted in certificateAccepted {certificateCommPkgsModel.CertificateIsAccepted}");
 
             if (!certificateMcPkgsModel.CertificateIsAccepted && !certificateCommPkgsModel.CertificateIsAccepted)
             {
@@ -97,12 +99,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             _invitationRepository.UpdateRfocStatuses(project.Name, commPkgNos, mcPkgs);
             Certificate certificate = null;
 
+            _logger.LogInformation("Finding commpkgs with nos: " + string.Join(",", commPkgNos));
             var commPkgs = _invitationRepository.GetCommPkgs(project.Name, commPkgNos);
+            _logger.LogInformation("CommPkgs found: " + commPkgs.Count);
+
             if (!commPkgs.IsNullOrEmpty())
             {
                 certificate = await GetOrCreateCertificateAsync(request.ProCoSysGuid, project, cancellationToken);
                 foreach (var commPkg in commPkgs)
                 {
+                    _logger.LogInformation("Adding relation with commpkg " + commPkg.CommPkgNo);
                     certificate.AddCommPkgRelation(commPkg);
                 }
             }
