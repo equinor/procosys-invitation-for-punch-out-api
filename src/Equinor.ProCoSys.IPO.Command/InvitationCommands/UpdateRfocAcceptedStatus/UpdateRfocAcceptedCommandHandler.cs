@@ -100,7 +100,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             _logger.LogInformation("Finding commpkgs with nos: " + string.Join(",", commPkgNos));
             var commPkgs = _invitationRepository.GetCommPkgs(project.Name, commPkgNos);
-            _logger.LogInformation("CommPkgs found: " + commPkgs.Count);
+            _logger.LogInformation("CommPkgs found: " + !commPkgs.IsNullOrEmpty());
 
             if (!commPkgs.IsNullOrEmpty())
             {
@@ -122,7 +122,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                     {
                         certificate.AddMcPkgRelation(mcPkg);
                     }
-                    
                 }
             }
 
