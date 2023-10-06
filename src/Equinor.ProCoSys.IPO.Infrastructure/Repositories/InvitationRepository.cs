@@ -154,7 +154,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return _context.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo) && c.ProjectId == project.Id).ToList();
         }
 
-        public McPkg GetMcPkg(string projectName, string commPkgNo, string mcPkgNo)
+        public IList<McPkg> GetMcPkgs(string projectName, string commPkgNo, string mcPkgNo)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
@@ -163,7 +163,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 throw new NullReferenceException($"Project not found. {projectName}.");
             }
 
-            return _context.McPkgs.SingleOrDefault(mc => mc.McPkgNo == mcPkgNo && mc.CommPkgNo == commPkgNo && mc.ProjectId == project.Id);
+            return _context.McPkgs.Where(mc => mc.McPkgNo == mcPkgNo && mc.CommPkgNo == commPkgNo && mc.ProjectId == project.Id).ToList();
         }
 
         public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)

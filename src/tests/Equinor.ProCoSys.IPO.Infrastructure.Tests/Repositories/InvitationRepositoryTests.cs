@@ -17,8 +17,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     public class InvitationRepositoryTests : RepositoryTestBase
     {
         private const int InvitationWithMcPkgId = 5;
+        private const int InvitationWithMcPkgCopyId = 7;
         private const int InvitationWithMcPkgMoveId = 6;
         private const int McPkgId = 51;
+        private const int McPkgIdCopy = 55;
         private const int McPkgId2 = 52;
         private const int McPkgId3 = 54;
         private const int CommPkgId = 71;
@@ -54,12 +56,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private Mock<DbSet<Project>> _projectSetMock;
 
         private InvitationRepository _dut;
-        private McPkg _mcPkg, _mcPkg2, _mcPkg3;
+        private McPkg _mcPkg, _mcPkg2, _mcPkg3, _mcPkgCopy;
         private CommPkg _commPkg;
         private Participant _participant;
         private Attachment _attachment;
         private Comment _comment;
         private Invitation _dpInviation;
+        private Invitation _dpInviationSameScope;
         private Invitation _mdpInvitation;
         private Invitation _mdpInvitationWithTwoCommpkgs;
         private CommPkg _commPkg2;
@@ -86,6 +89,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
+
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
             _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2");
             _commPkg.SetProtectedIdForTesting(CommPkgId);
@@ -127,6 +133,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new List<McPkg> {_mcPkg},
                 null);
             _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgId);
+            _dpInviationSameScope = new Invitation(
+                TestPlant,
+                _project2,
+                "Title",
+                "D",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                new List<McPkg> { _mcPkgCopy },
+                null);
+            _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgCopyId);
             _dpInviationMove = new Invitation(
                 TestPlant,
                 _project1,
@@ -188,7 +206,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 _dpInviationMove,
                 _mdpInvitation,
                 _mdpInvitationWithTwoCommpkgs,
-                _mdpInvitation4
+                _mdpInvitation4,
+                _dpInviationSameScope
             };
 
             _dbInvitationSetMock = _invitations.AsQueryable().BuildMockDbSet();
@@ -226,7 +245,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             {
                 _mcPkg,
                 _mcPkg2,
-                _mcPkg3
+                _mcPkg3,
+                _mcPkgCopy
             };
 
             _mcPkgSetMock = mcPkgs.AsQueryable().BuildMockDbSet();
@@ -578,23 +598,33 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void GetMcPkg_ShouldGetMcPkg_WhenExists()
+        public void GetMcPkgs_ShouldGetMcPkgs_WhenExists()
         {
             // Act
-            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
 
             // Assert
-            Assert.IsNotNull(mcPkg);
+            Assert.IsNotNull(mcPkgs);
         }
 
         [TestMethod]
-        public void GetMcPkg_ShouldNotGetMcPkg_WhenNotExists()
+        public void GetMcPkgs_ShouldGetMcPkgs_WhenExistsMoreThanOneInstance()
         {
             // Act
-            var mcPkg = _dut.GetMcPkg(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+            var mcPkgs = _dut.GetMcPkgs(_projectName2, _commPkgNo2, _mcPkgNo);
 
             // Assert
-            Assert.IsNull(mcPkg);
+            Assert.AreEqual(2, mcPkgs.Count);
+        }
+
+        [TestMethod]
+        public void GetMcPkgs_ShouldNotGetMcPkgs_WhenNotExists()
+        {
+            // Act
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+
+            // Assert
+            Assert.AreEqual(0, mcPkgs.Count);
         }
     }
 }

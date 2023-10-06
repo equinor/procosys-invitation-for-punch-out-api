@@ -184,8 +184,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         public async Task HandlingUpdateRfocStatusCommand_ShouldCreateCertificateAndCreateRelation()
         {
             _invitationRepositoryMock
-                .Setup(r => r.GetMcPkg(_projectName, _commPkgNo, _mcPkgNo))
-                .Returns(new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2"));
+                .Setup(r => r.GetMcPkgs(_projectName, _commPkgNo, _mcPkgNo))
+                .Returns(new List<McPkg> { new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2") });
             var result = await _dut.Handle(_command, default);
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
