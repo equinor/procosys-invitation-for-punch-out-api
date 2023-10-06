@@ -11,7 +11,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualBasic;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus
