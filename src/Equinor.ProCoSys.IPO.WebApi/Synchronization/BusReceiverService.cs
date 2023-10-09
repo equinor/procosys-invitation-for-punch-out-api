@@ -65,6 +65,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         public async Task ProcessMessageAsync(PcsTopic pcsTopic, string messageJson, CancellationToken cancellationToken)
         {
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                    {"ProcessingMessage", "true"},
+                    {PcsServiceBusTelemetryConstants.Event, pcsTopic.ToString()}
+                });
             var deserializedMessage = JsonSerializer.Deserialize<Dictionary<string, object>>(messageJson);
             /***
              * Filter out deleted events for now, but should be handled properly #96688(pres issue)
@@ -79,6 +85,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _mainApiTokenProvider.AuthenticationType = AuthenticationType.AsApplication;
             _currentUserSetter.SetCurrentUserOid(_ipoApiOid);
 
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                    {"Tmp", "going into switch"},
+                    {PcsServiceBusTelemetryConstants.Event, pcsTopic.ToString()}
+                });
             switch (pcsTopic)
             {
                 case PcsTopic.Ipo:

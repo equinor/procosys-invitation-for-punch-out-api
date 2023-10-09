@@ -37,6 +37,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         public async Task ProcessCertificateEventAsync(string messageJson)
         {
+            _logger.LogInformation("Inside ProcessEventAsync. Message: " + messageJson);
+
             var certificateEvent = JsonSerializer.Deserialize<CertificateTopic>(messageJson);
 
             if (certificateEvent == null)
