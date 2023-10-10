@@ -1356,6 +1356,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void ResetStatus_ShouldAddStatusResetDomainEvent()
         {
+            _dutWithCompletedStatus.ScopeHandedOver();
+
             _dutWithCompletedStatus.ResetStatus();
 
             Assert.IsInstanceOfType(_dutWithCompletedStatus.DomainEvents.Last(), typeof(StatusResetEvent));
