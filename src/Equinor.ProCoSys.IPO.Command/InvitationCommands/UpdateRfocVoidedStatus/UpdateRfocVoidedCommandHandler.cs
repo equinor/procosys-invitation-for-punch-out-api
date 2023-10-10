@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
@@ -84,8 +83,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            _certificateRepository.UpdateRfocStatuses(request.ProCoSysGuid);
-            _invitationRepository.ResetScopeHandedOverStatus(request.ProjectName, certificate.CertificateCommPkgs, certificate.CertificateMcPkgs);
+            _invitationRepository.ResetScopeHandedOverStatus(
+                request.ProjectName,
+                certificate.CertificateCommPkgs.Select(c => c.CommPkgNo).ToList(),
+                certificate.CertificateMcPkgs.Select(c => c.McPkgNo).ToList());
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             

@@ -1,0 +1,186 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus;
+using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
+{
+    [TestClass]
+    public class UpdateRfocVoidedCommandHandlerTests
+    {
+        private Mock<IPlantProvider> _plantProviderMock;
+        private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<ICertificateRepository> _certificateRepositoryMock;
+        private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IProjectRepository> _projectRepositoryMock;
+        private Mock<ILogger<UpdateRfocVoidedCommandHandler>> _loggerMock;
+        private Mock<ICertificateApiService> _certificateApiServiceMock;
+
+        private UpdateRfocVoidedCommand _command;
+        private UpdateRfocVoidedCommandHandler _dut;
+        private const string _plant = "PCS$TEST_PLANT";
+        private const string _projectName = "Project name";
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private const string _title = "Test title";
+        private const string _description = "Test description";
+        private const DisciplineType _typeDP = DisciplineType.DP;
+        private readonly Guid _certificateGuid = new Guid("11111111-2222-2222-2222-333333333333");
+        private Invitation _invitation;
+        private PCSCertificateCommPkgsModel _certificateCommPkgsModel;
+        private PCSCertificateMcPkgsModel _certificateMcPkgsModel;
+        private string _commPkgNo = "CommNo1";
+        private string _commPkgNo2 = "CommNo2";
+        private string _commPkgNo3 = "CommNo3";
+        private string _mcPkgNo = "McNo1";
+        private string _mcPkgNo2 = "McNo2";
+        private string _mcPkgNo3 = "McNo3";
+        private Certificate _certificate;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _plantProviderMock = new Mock<IPlantProvider>();
+            _plantProviderMock
+                .Setup(x => x.Plant)
+                .Returns(_plant);
+            _invitationRepositoryMock = new Mock<IInvitationRepository>();
+            _certificateRepositoryMock = new Mock<ICertificateRepository>();
+            _unitOfWorkMock = new Mock<IUnitOfWork>();
+
+            var commPkg1 = new PCSCertificateCommPkg
+            {
+                CommPkgNo = _commPkgNo
+            };
+            var commPkg2 = new PCSCertificateCommPkg
+            {
+                CommPkgNo = _commPkgNo2
+            };
+            var commPkg3 = new PCSCertificateCommPkg
+            {
+                CommPkgNo = _commPkgNo3
+            };
+            _certificateCommPkgsModel = new PCSCertificateCommPkgsModel
+            {
+                CertificateIsAccepted = true,
+                CommPkgs = new List<PCSCertificateCommPkg> { commPkg1, commPkg2, commPkg3 }
+            };
+
+            var mcPkg1 = new PCSCertificateMcPkg
+            {
+                McPkgNo = _mcPkgNo,
+                CommPkgNo = _commPkgNo
+            };
+            var mcPkg2 = new PCSCertificateMcPkg
+            {
+                McPkgNo = _mcPkgNo2,
+                CommPkgNo = _commPkgNo
+            };
+            var mcPkg3 = new PCSCertificateMcPkg
+            {
+                McPkgNo = _mcPkgNo3,
+                CommPkgNo = _commPkgNo3
+            };
+            _certificateMcPkgsModel = new PCSCertificateMcPkgsModel
+            {
+                CertificateIsAccepted = true,
+                McPkgs = new List<PCSCertificateMcPkg> { mcPkg1, mcPkg2, mcPkg3 }
+            };
+
+            _certificateApiServiceMock = new Mock<ICertificateApiService>();
+            _certificateApiServiceMock
+                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Returns(Task.FromResult<PCSCertificateCommPkgsModel>(null));
+            _certificateApiServiceMock
+                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
+
+            _certificate = new Certificate(_plant, _project, _certificateGuid);
+            _certificateRepositoryMock
+                .Setup(c => c.GetCertificateByGuid(_certificateGuid))
+                .Returns(Task.FromResult(_certificate));
+
+            _projectRepositoryMock = new Mock<IProjectRepository>();
+            _projectRepositoryMock
+                .Setup(r => r.GetProjectOnlyByNameAsync(_projectName))
+                .Returns(Task.FromResult(new Project(_plant, _projectName, "Desc")));
+
+            _loggerMock = new Mock<ILogger<UpdateRfocVoidedCommandHandler>>();
+
+            //create invitation
+            _invitation = new Invitation(
+                    _plant,
+                    _project,
+                    _title,
+                    _description,
+                    _typeDP,
+                    new DateTime(),
+                    new DateTime(),
+                    null,
+                    new List<McPkg> { new McPkg(_plant, _project, "CommNo1", "McNo1", "d", "1|2"), new McPkg(_plant, _project, "CommNo1", "McNo2", "d", "1|2") },
+                    null);
+            _invitation.ScopeHandedOver();
+
+            //command
+            _command = new UpdateRfocVoidedCommand(_projectName, _certificateGuid);
+
+            _dut = new UpdateRfocVoidedCommandHandler(
+                _invitationRepositoryMock.Object,
+                _projectRepositoryMock.Object,
+                _unitOfWorkMock.Object,
+                _plantProviderMock.Object,
+                _certificateApiServiceMock.Object,
+                _certificateRepositoryMock.Object,
+                _loggerMock.Object);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateRfocVoidedCommand_ShouldCallMainApi()
+        {
+            Assert.AreEqual(IpoStatus.ScopeHandedOver, _invitation.Status);
+
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateRfocVoidedCommand_ShouldCallSaveChanges()
+        {
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateRfocVoidedCommand_ShouldNotSaveChangesWhenVoidedCertificateIsNotActuallyVoidedOrDeleted()
+        {
+            _certificateApiServiceMock
+                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Returns(Task.FromResult(_certificateCommPkgsModel));
+            _certificateApiServiceMock
+                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Returns(Task.FromResult(_certificateMcPkgsModel));
+
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ServiceResult.ResultType.Unexpected, result.ResultType);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+    }
+}

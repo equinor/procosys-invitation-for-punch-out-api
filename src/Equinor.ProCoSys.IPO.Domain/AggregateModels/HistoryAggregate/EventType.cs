@@ -35,6 +35,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
         [Description("Note updated")]
         NoteUpdated,
         [Description("Scope handed over")]
-        ScopeHandedOver
+        ScopeHandedOver,
+        [Description("Status reset after voiding of RFOC")]
+        StatusReset
     }
 }

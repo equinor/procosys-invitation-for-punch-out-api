@@ -454,6 +454,23 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
         }
 
+        public void ResetStatus()
+        {
+            if (AcceptedAtUtc != null)
+            {
+                Status = IpoStatus.Accepted;
+            }
+            else if (CompletedAtUtc != null)
+            {
+                Status = IpoStatus.Completed;
+            }
+            else
+            {
+                Status = IpoStatus.Planned;
+            }
+            AddDomainEvent(new StatusResetEvent(Plant, Guid));
+        }
+
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;

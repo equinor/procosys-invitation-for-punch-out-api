@@ -532,7 +532,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_mcPkg.ProjectId),
                 new List<string>(),
-                new List<Tuple<string, string>> { Tuple.Create(_mcPkg.McPkgNo, _mcPkg.CommPkgNo)}, TODO);
+                new List<string> { _mcPkg.McPkgNo });
             // Assert
             Assert.IsTrue(_mcPkg.RfocAccepted);
         }
@@ -548,7 +548,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
-                new List<Tuple<string, string>>(), TODO);
+                new List<string>());
 
             // Assert
             Assert.IsTrue(_commPkg.RfocAccepted);
@@ -565,7 +565,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> {_commPkg.CommPkgNo},
-                new List<Tuple<string, string>>(), TODO);
+                new List<string>());
 
             // Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
@@ -581,7 +581,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _dut.UpdateRfocStatuses(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
-                new List<Tuple<string, string>>(), TODO);
+                new List<string>());
 
             // Assert
             Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
@@ -601,7 +601,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         public void GetMcPkgs_ShouldGetMcPkgs_WhenExists()
         {
             // Act
-            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), new List<string> { _mcPkgNo2 });
 
             // Assert
             Assert.IsNotNull(mcPkgs);
@@ -611,7 +611,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         public void GetMcPkgs_ShouldGetMcPkgs_WhenExistsMoreThanOneInstance()
         {
             // Act
-            var mcPkgs = _dut.GetMcPkgs(_projectName2, _commPkgNo2, _mcPkgNo);
+            var mcPkgs = _dut.GetMcPkgs(_projectName2, new List<string> { _mcPkgNo });
 
             // Assert
             Assert.AreEqual(2, mcPkgs.Count);
@@ -621,7 +621,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         public void GetMcPkgs_ShouldNotGetMcPkgs_WhenNotExists()
         {
             // Act
-            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), new List<string> { _mcPkgNo });
 
             // Assert
             Assert.AreEqual(0, mcPkgs.Count);
