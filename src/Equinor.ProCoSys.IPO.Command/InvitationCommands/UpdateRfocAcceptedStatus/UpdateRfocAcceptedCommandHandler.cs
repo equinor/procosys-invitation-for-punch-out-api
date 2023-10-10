@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             var mcPkgNosToUpdateStatusOn = await GetMcPkgNosToUpdateRfocStatusAsync(mcPkgNos, project);
             var commPkgNosToUpdateStatusOn = await GetCommPkgNosToUpdateRfocStatusAsync(commPkgNos, project);
-            _invitationRepository.UpdateRfocStatuses(project.Name, commPkgNosToUpdateStatusOn, mcPkgNosToUpdateStatusOn);
+            _invitationRepository.RfocAcceptedHandling(project.Name, commPkgNosToUpdateStatusOn, mcPkgNosToUpdateStatusOn);
 
             try
             {

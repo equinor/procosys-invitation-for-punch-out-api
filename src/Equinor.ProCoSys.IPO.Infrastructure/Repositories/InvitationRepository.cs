@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
-        public void ResetScopeHandedOverStatus(string projectName, IList<string> commPkgNos, IList<string> mcPkgNos)
+        public void RfocVoidedHandling(string projectName, IList<string> commPkgNos, IList<string> mcPkgNos)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
@@ -181,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             }
         }
 
-        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNosWithAcceptedRfoc, IList<string> mcPkgNosWithAcceptedRfoc)
+        public void RfocAcceptedHandling(string projectName, IList<string> commPkgNosWithAcceptedRfoc, IList<string> mcPkgNosWithAcceptedRfoc)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 

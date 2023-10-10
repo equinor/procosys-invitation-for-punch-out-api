@@ -523,13 +523,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldUpdateMcPkgs()
+        public void RfocAcceptedHandling_ShouldUpdateMcPkgs()
         {
             // Arrange & Assert
             Assert.IsFalse(_mcPkg.RfocAccepted);
 
             // Act
-            _dut.UpdateRfocStatuses(
+            _dut.RfocAcceptedHandling(
                 GetProjectName(_mcPkg.ProjectId),
                 new List<string>(),
                 new List<string> { _mcPkg.McPkgNo });
@@ -538,14 +538,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldUpdateCommPkgs()
+        public void RfocAcceptedHandling_ShouldUpdateCommPkgs()
         {
             // Arrange & Assert
             Assert.IsFalse(_commPkg.RfocAccepted);
             Assert.IsFalse(_commPkg2.RfocAccepted);
 
             // Act
-            _dut.UpdateRfocStatuses(
+            _dut.RfocAcceptedHandling(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
                 new List<string>());
@@ -556,13 +556,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldNotUpdateInvitationStatus_WhenInvitationScopeIsPartlyHandedOver()
+        public void RfocAcceptedHandling_ShouldNotUpdateInvitationStatus_WhenInvitationScopeIsPartlyHandedOver()
         {
             // Arrange & Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
 
             // Act
-            _dut.UpdateRfocStatuses(
+            _dut.RfocAcceptedHandling(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> {_commPkg.CommPkgNo},
                 new List<string>());
@@ -572,13 +572,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void UpdateRfocStatuses_ShouldUpdateInvitationStatus_WhenEntireInvitationScopeIsHandedOver()
+        public void RfocAcceptedHandling_ShouldUpdateInvitationStatus_WhenEntireInvitationScopeIsHandedOver()
         {
             // Arrange & Assert
             Assert.AreNotEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
 
             // Act
-            _dut.UpdateRfocStatuses(
+            _dut.RfocAcceptedHandling(
                 GetProjectName(_commPkg.ProjectId),
                 new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
                 new List<string>());
@@ -625,6 +625,64 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             // Assert
             Assert.AreEqual(0, mcPkgs.Count);
+        }
+
+        [TestMethod]
+        public void ResetScopeHandedOverStatus_ShouldResetStatus_WhenAnyInvitations()
+        {
+            // Arrange & Assert
+            _dut.RfocAcceptedHandling(
+                GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<string>());
+
+            // Act
+            _dut.RfocVoidedHandling(GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<string>());
+
+            // Assert
+            Assert.AreEqual(IpoStatus.Planned, _mdpInvitationWithTwoCommpkgs.Status);
+        }
+
+        [TestMethod]
+        public void ResetScopeHandedOverStatus_ShouldResetRfocAcceptedFlag_WhenAnyCommPkgs()
+        {
+            // Arrange & Assert
+            _dut.RfocAcceptedHandling(
+                GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<string>());
+            Assert.IsTrue(_mdpInvitationWithTwoCommpkgs.CommPkgs.All(c => c.RfocAccepted));
+
+
+            // Act
+            _dut.RfocVoidedHandling(GetProjectName(_commPkg.ProjectId),
+                new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo },
+                new List<string>());
+
+            // Assert
+            Assert.IsTrue(_mdpInvitationWithTwoCommpkgs.CommPkgs.All(c => !c.RfocAccepted));
+        }
+
+        [TestMethod]
+        public void ResetScopeHandedOverStatus_ShouldResetRfocAcceptedFlag_WhenAnyMcPkgs()
+        {
+            // Arrange & Assert
+            _dut.RfocAcceptedHandling(
+                GetProjectName(_mcPkg.ProjectId),
+                new List<string>(),
+                new List<string> { _mcPkgNo });
+            Assert.IsTrue(_dpInviation.McPkgs.All(c => c.RfocAccepted));
+
+            // Act
+            _dut.RfocVoidedHandling(
+                GetProjectName(_mcPkg.ProjectId),
+                new List<string>(),
+                new List<string> { _mcPkgNo });
+
+            // Assert
+            Assert.IsTrue(_dpInviation.McPkgs.All(c => !c.RfocAccepted));
         }
     }
 }

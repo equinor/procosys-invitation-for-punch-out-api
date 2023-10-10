@@ -456,6 +456,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         public void ResetStatus()
         {
+            if (Status != IpoStatus.ScopeHandedOver)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} is {Status}. Can only reset status when status is {IpoStatus.ScopeHandedOver}");
+            }
             if (AcceptedAtUtc != null)
             {
                 Status = IpoStatus.Accepted;
