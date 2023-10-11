@@ -83,6 +83,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
+            certificate.SetIsVoided();
             _invitationRepository.RfocVoidedHandling(
                 request.ProjectName,
                 certificate.CertificateCommPkgs.Select(c => c.CommPkgNo).ToList(),

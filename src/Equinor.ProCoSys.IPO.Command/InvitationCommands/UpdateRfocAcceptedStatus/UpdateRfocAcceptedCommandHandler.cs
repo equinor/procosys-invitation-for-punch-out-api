@@ -170,7 +170,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
         private async Task<Certificate> AddCertificateAsync(Guid certificateGuid, Project project, CancellationToken cancellationToken)
         {
-            var certificate = new Certificate(project.Plant, project, certificateGuid);
+            var certificate = new Certificate(project.Plant, project, certificateGuid, true);
             _certificateRepository.Add(certificate);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return certificate;

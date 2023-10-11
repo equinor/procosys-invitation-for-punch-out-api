@@ -104,7 +104,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
                 .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
-            _certificate = new Certificate(_plant, _project, _certificateGuid);
+            _certificate = new Certificate(_plant, _project, _certificateGuid, true);
             _certificateRepositoryMock
                 .Setup(c => c.GetCertificateByGuid(_certificateGuid))
                 .Returns(Task.FromResult(_certificate));
