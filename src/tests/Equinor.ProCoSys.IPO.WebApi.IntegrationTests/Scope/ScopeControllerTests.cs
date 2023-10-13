@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             Assert.AreEqual(McPkgNo1, mcPkg1.McPkgNo);
             Assert.AreEqual(McPkgNo2, mcPkg2.McPkgNo);
             Assert.AreEqual(RfcoAccetpedAt, mcPkg1.RfocAcceptedAt);
-            Assert.IsNull(McPkgNo2, mcPkg2.RfocAcceptedAt);
+            Assert.IsNull(mcPkg2.RfocAcceptedAt);
         }
     }
 }
