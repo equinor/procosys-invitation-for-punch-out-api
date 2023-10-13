@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
@@ -10,6 +11,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
         public string CommStatus { get; set; }
         public string OperationHandoverStatus { get; set; }
         public string System { get; set; }
+        public DateTime? RfocAcceptedAt { get; set; }
         public string Section
             => System.Count(s => s == '|') == 2
                 ? System.Substring(0, System.IndexOf('|'))
