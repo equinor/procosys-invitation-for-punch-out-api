@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
+﻿using System;
+
+namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 {
     public class ProCoSysCommPkgDto
     {
@@ -7,5 +9,6 @@
         public string Description { get; set; }
         public string Status { get; set; }
         public string System { get; set; }
+        public DateTime? RfocAcceptedAt { get; set; }
     }
 }
