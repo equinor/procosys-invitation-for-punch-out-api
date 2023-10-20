@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
-using Fusion.Integration.Meeting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<ICertificateRepository> _certificateRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<ILogger<UpdateRfocAcceptedCommandHandler>> _loggerMock;
@@ -36,10 +35,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         private const string _description = "Test description";
         private const DisciplineType _typeDP = DisciplineType.DP;
         private readonly Guid _certificateGuid = new Guid("11111111-2222-2222-2222-333333333333");
-        private const string _invitationRowVersion = "AAAAAAAAABA=";
         private Invitation _invitation;
         private PCSCertificateCommPkgsModel _certificateCommPkgsModel;
         private PCSCertificateMcPkgsModel _certificateMcPkgsModel;
+        private string _commPkgNo = "CommNo1";
+        private string _mcPkgNo = "McNo1";
+        private Certificate _createdCertificate;
 
         [TestInitialize]
         public void Setup()
@@ -49,14 +50,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                 .Setup(x => x.Plant)
                 .Returns(_plant);
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
-            //_invitationRepositoryMock
-            //    .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
-            //    .Returns(Task.FromResult(_invitation));
+            _certificateRepositoryMock = new Mock<ICertificateRepository>();
+            _certificateRepositoryMock
+                .Setup(x => x.Add(It.IsAny<Certificate>()))
+                .Callback<Certificate>(x => _createdCertificate = x);
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             var commPkg1 = new PCSCertificateCommPkg
             {
-                CommPkgNo = "CommNo1"
+                CommPkgNo = _commPkgNo
             };
             var commPkg2 = new PCSCertificateCommPkg
             {
@@ -74,13 +76,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             var mcPkg1 = new PCSCertificateMcPkg
             {
-                McPkgNo = "McNo1",
-                CommPkgNo = "CommNo1"
+                McPkgNo = _mcPkgNo,
+                CommPkgNo = _commPkgNo
             };
             var mcPkg2 = new PCSCertificateMcPkg
             {
                 McPkgNo = "McNo2",
-                CommPkgNo = "CommNo1"
+                CommPkgNo = _commPkgNo
             };
             var mcPkg3 = new PCSCertificateMcPkg
             {
@@ -131,7 +133,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                 _unitOfWorkMock.Object,
                 _plantProviderMock.Object,
                 _certificateApiServiceMock.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _certificateRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -154,6 +157,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
+            Assert.IsNull(_createdCertificate);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -174,6 +178,22 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task HandlingUpdateRfocStatusCommand_ShouldCreateCertificateAndCreateRelation()
+        {
+            _invitationRepositoryMock
+                .Setup(r => r.GetMcPkgs(_projectName, _commPkgNo, _mcPkgNo))
+                .Returns(new List<McPkg> { new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2") });
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            Assert.IsNotNull(_createdCertificate);
+            Assert.AreEqual(1, _createdCertificate.CertificateMcPkgs.Count);
+            Assert.AreEqual(0, _createdCertificate.CertificateCommPkgs.Count);
         }
     }
 }

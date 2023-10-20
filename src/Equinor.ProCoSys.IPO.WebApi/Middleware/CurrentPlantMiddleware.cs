@@ -27,13 +27,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 throw new Exception("Could not determine request headers");
             }
 
-            if (headers.Keys.Contains(PlantHeader))
+            if (headers.TryGetValue(PlantHeader, out var header))
             {
-                var plant = headers[PlantHeader].ToString().ToUpperInvariant();
+                var plant = header.ToString().ToUpperInvariant();
                 plantSetter.SetPlant(plant);
+                logger.LogDebug("----- {MiddlewareName} complete setting plant {Plant}", GetType().Name, plant);
+            }
+            else
+            {
+                logger.LogDebug("----- {MiddlewareName} complete. No plant header set", GetType().Name);
             }
 
-            logger.LogDebug("----- {MiddlewareName} complete", GetType().Name);
             // Call the next delegate/middleware in the pipeline
             await _next(context);
         }

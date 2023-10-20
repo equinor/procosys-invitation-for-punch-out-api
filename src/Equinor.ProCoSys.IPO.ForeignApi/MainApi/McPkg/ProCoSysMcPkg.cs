@@ -11,6 +11,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
         public string DisciplineCode { get; set; }
         public string CommPkgNo { get; set; }
         public string OperationHandoverStatus { get; set; }
+        public Guid? RfocGuid { get; set; }
         public DateTime? M01 { get; set; }
         public DateTime? M02 { get; set; }
         public string System { get; set; }

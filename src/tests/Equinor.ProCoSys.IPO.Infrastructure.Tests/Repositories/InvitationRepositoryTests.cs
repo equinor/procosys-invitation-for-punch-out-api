@@ -17,8 +17,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     public class InvitationRepositoryTests : RepositoryTestBase
     {
         private const int InvitationWithMcPkgId = 5;
+        private const int InvitationWithMcPkgCopyId = 7;
         private const int InvitationWithMcPkgMoveId = 6;
         private const int McPkgId = 51;
+        private const int McPkgIdCopy = 55;
         private const int McPkgId2 = 52;
         private const int McPkgId3 = 54;
         private const int CommPkgId = 71;
@@ -29,9 +31,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project3Id = 714;
 
         private readonly List<Project> _projects = new List<Project>();
-        private readonly Project _project1 = new("PCS$TEST_PLANT", _projectName, $"Description of {_projectName} project");
-        private readonly Project _project2 = new("PCS$TEST_PLANT", _projectName2, $"Description of {_projectName2} project");
-        private readonly Project _project3 = new("PCS$TEST_PLANT", _projectName3, $"Description of {_projectName3} project");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
+        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project");
 
         private const string _projectName = "ProjectName";
         private const string _projectName2 = "ProjectName2";
@@ -54,12 +56,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private Mock<DbSet<Project>> _projectSetMock;
 
         private InvitationRepository _dut;
-        private McPkg _mcPkg, _mcPkg2, _mcPkg3;
+        private McPkg _mcPkg, _mcPkg2, _mcPkg3, _mcPkgCopy;
         private CommPkg _commPkg;
         private Participant _participant;
         private Attachment _attachment;
         private Comment _comment;
         private Invitation _dpInviation;
+        private Invitation _dpInviationSameScope;
         private Invitation _mdpInvitation;
         private Invitation _mdpInvitationWithTwoCommpkgs;
         private CommPkg _commPkg2;
@@ -86,6 +89,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
+
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
             _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2");
             _commPkg.SetProtectedIdForTesting(CommPkgId);
@@ -127,6 +133,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new List<McPkg> {_mcPkg},
                 null);
             _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgId);
+            _dpInviationSameScope = new Invitation(
+                TestPlant,
+                _project2,
+                "Title",
+                "D",
+                DisciplineType.DP,
+                new DateTime(),
+                new DateTime(),
+                null,
+                new List<McPkg> { _mcPkgCopy },
+                null);
+            _dpInviationSameScope.SetProtectedIdForTesting(InvitationWithMcPkgCopyId);
             _dpInviationMove = new Invitation(
                 TestPlant,
                 _project1,
@@ -188,7 +206,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 _dpInviationMove,
                 _mdpInvitation,
                 _mdpInvitationWithTwoCommpkgs,
-                _mdpInvitation4
+                _mdpInvitation4,
+                _dpInviationSameScope
             };
 
             _dbInvitationSetMock = _invitations.AsQueryable().BuildMockDbSet();
@@ -226,7 +245,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             {
                 _mcPkg,
                 _mcPkg2,
-                _mcPkg3
+                _mcPkg3,
+                _mcPkgCopy
             };
 
             _mcPkgSetMock = mcPkgs.AsQueryable().BuildMockDbSet();
@@ -270,7 +290,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             var result = await _dut.GetAllAsync();
 
-            Assert.AreEqual(5, result.Count);
+            Assert.AreEqual(6, result.Count);
         }
 
         [TestMethod]
@@ -565,6 +585,46 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             // Assert
             Assert.AreEqual(IpoStatus.ScopeHandedOver, _mdpInvitationWithTwoCommpkgs.Status);
+        }
+
+        [TestMethod]
+        public void GetCommPkgs_ShouldGetCommPkgs_WhenExists()
+        {
+            // Act
+            var commPkgs = _dut.GetCommPkgs(GetProjectName(_commPkg.ProjectId), new List<string> { _commPkg.CommPkgNo, _commPkg2.CommPkgNo });
+
+            // Assert
+            Assert.AreEqual(2, commPkgs.Count);
+        }
+
+        [TestMethod]
+        public void GetMcPkgs_ShouldGetMcPkgs_WhenExists()
+        {
+            // Act
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo2);
+
+            // Assert
+            Assert.IsNotNull(mcPkgs);
+        }
+
+        [TestMethod]
+        public void GetMcPkgs_ShouldGetMcPkgs_WhenExistsMoreThanOneInstance()
+        {
+            // Act
+            var mcPkgs = _dut.GetMcPkgs(_projectName2, _commPkgNo2, _mcPkgNo);
+
+            // Assert
+            Assert.AreEqual(2, mcPkgs.Count);
+        }
+
+        [TestMethod]
+        public void GetMcPkgs_ShouldNotGetMcPkgs_WhenNotExists()
+        {
+            // Act
+            var mcPkgs = _dut.GetMcPkgs(GetProjectName(_commPkg.ProjectId), _commPkgNo, _mcPkgNo);
+
+            // Assert
+            Assert.AreEqual(0, mcPkgs.Count);
         }
     }
 }

@@ -2,316 +2,348 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using ClosedXML.Excel;
-using ClosedXML.Graphics;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
+using LargeXlsx;
+using Color = System.Drawing.Color;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
-        public ExcelConverter()
-        {
-            using (var fallbackFontStream = Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Equinor.ProCoSys.IPO.WebApi.Excel.CarlitoFont.Carlito-Regular.ttf"))
-            {
-                LoadOptions.DefaultGraphicEngine = DefaultGraphicEngine.CreateWithFontsAndSystemFonts(fallbackFontStream);
-            }
-        }
-
-        public static class FrontSheetRows
-        {
-            public static int MainHeading = 1;
-            public static int Plant = 2;
-            public static int ProjectName = 3;
-            public static int FilterHeading = 4;
-            public static int Invitation = 5;
-            public static int Title = 6;
-            public static int CommPkg = 7;
-            public static int McPkg = 8;
-            public static int PunchOutDateFrom = 9;
-            public static int PunchOutDateTo = 10;
-            public static int Status = 11;
-            public static int LastChangedFrom = 12;
-            public static int LastChangedTo = 13;
-            public static int Role = 14;
-            public static int Person = 15;
-        }
-
-        public static class InvitationSheetColumns
-        {
-            public static int IpoNo = 1;
-            public static int ProjectName = 2;
-            public static int Status = 3;
-            public static int Title = 4;
-            public static int Description = 5;
-            public static int Location = 6;
-            public static int Type = 7;
-            public static int StartTimeUtc = 8;
-            public static int EndTimeUtc = 9;
-            public static int McPkgs = 10;
-            public static int CommPkgs = 11;
-            public static int ContractorRep = 12;
-            public static int ConstructionCompanyRep = 13;
-            public static int CompletedAtUtc = 14;
-            public static int AcceptedAtUtc = 15;
-            public static int CreatedAtUtc = 16;
-            public static int CreatedBy = 17;
-            public static int Last = CreatedBy;
-        }
-
-        public static class ParticipantsSheetColumns
-        {
-            public static int IpoNo = 1;
-            public static int Organization = 2;
-            public static int Type = 3;
-            public static int Participant = 4;
-            public static int Attended = 5;
-            public static int Note = 6;
-            public static int SignedBy = 7;
-            public static int SignedAtUtc = 8;
-            public static int Last = SignedAtUtc;
-        }
-
-        public static class HistorySheetColumns
-        {
-            public static int IpoNo = 1;
-            public static int Description = 2;
-            public static int Date = 3;
-            public static int User = 4;
-            public static int Last = User;
-        }
-
         public MemoryStream Convert(ExportDto dto)
         {
-            // see https://github.com/ClosedXML/ClosedXML for sample code
-            var excelStream = new MemoryStream();
+            var stream = new MemoryStream();
+            using var xlsxWriter = new XlsxWriter(stream);
+            var headerStyle = new XlsxStyle(new XlsxFont("Carlito", 14, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var subHeaderStyle = new XlsxStyle(new XlsxFont("Carlito", 11, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var normalStyle = new XlsxStyle(new XlsxFont("Carlito", 11, Color.Black, bold: false), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var invitationsHeader = new XlsxStyle(new XlsxFont("Carlito", 12, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
+            var dateStyle = XlsxStyle.Default.With(XlsxNumberFormat.ShortDateTime);
 
-            using (var workbook = new XLWorkbook())
+            try
             {
-                CreateFrontSheet(workbook, dto.UsedFilter);
+                GenerateFrontSheet(dto, xlsxWriter, headerStyle, subHeaderStyle, normalStyle, dateStyle);
 
                 var exportInvitationDtos = dto.Invitations.ToList();
 
-                CreateInvitationSheet(workbook, exportInvitationDtos);
+                GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle, exportInvitationDtos);
+                GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle, normalStyle);
+                GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
 
-                CreateParticipantsSheet(workbook, exportInvitationDtos);
-
-                CreateHistorySheet(workbook, exportInvitationDtos);
-
-                workbook.SaveAs(excelStream);
+                return stream;
             }
-
-            return excelStream;
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
-        private void AddDateCell(IXLRow row, int cellIdx, DateTime date, bool onlyDate = true)
+        private static void GenerateHistorySheet(XlsxWriter xlsxWriter, XlsxStyle normalStyle, XlsxStyle invitationsHeader, List<ExportInvitationDto> exportInvitationDtos, XlsxStyle dateStyle)
         {
-            var cell = row.Cell(cellIdx);
-
-            if (date != DateTime.MinValue)
-            {
-                cell.SetValue(date);
-            }
-
-            var format = "yyyy-mm-dd";
-            if (!onlyDate)
-            {
-                format += " hh:mm";
-            }
-            cell.Style.DateFormat.Format = format;
-        }
-
-        private void CreateHistorySheet(XLWorkbook workbook, IList<ExportInvitationDto> invitations)
-        {
-            if (invitations.Count != 1)
+            if (exportInvitationDtos.Count != 1)
             {
                 return;
             }
 
-            var sheet = workbook.Worksheets.Add("History");
+            var ipoWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Id.ToString());
+            var descriptionWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Description);
+            var createdByWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.CreatedBy);
 
-            var rowIdx = 0;
-            var row = sheet.Row(++rowIdx);
-            row.Style.Font.SetBold();
-            row.Style.Font.SetFontSize(12);
-            row.Cell(HistorySheetColumns.IpoNo).Value = "Ipo nr";
-            row.Cell(HistorySheetColumns.Description).Value = "Description";
-            row.Cell(HistorySheetColumns.Date).Value = "Date (UTC)";
-            row.Cell(HistorySheetColumns.User).Value = "User";
+            xlsxWriter.BeginWorksheet("History", columns: new[]
+            {
+                    XlsxColumn.Formatted(width: ipoWidth),
+                    XlsxColumn.Formatted(width: descriptionWidth),
+                    XlsxColumn.Formatted(width: 30),
+                    XlsxColumn.Formatted(width: createdByWidth),
+                }
+            )
+                .SetDefaultStyle(invitationsHeader)
+                .BeginRow()
+                .Write("Ipo nr")
+                .Write("Description")
+                .Write("Date (UTC)")
+                .Write("User");
 
-            var invitation = invitations.Single();
+            var invitation = exportInvitationDtos.Single();
+
             foreach (var history in invitation.History)
             {
-                row = sheet.Row(++rowIdx);
+                xlsxWriter.SetDefaultStyle(normalStyle)
+                    .BeginRow()
+                    .Write(invitation.Id)
+                .Write(history.Description)
+                    .Write(history.CreatedAtUtc, dateStyle)
+                    .Write(history.CreatedBy);
 
-                row.Cell(HistorySheetColumns.IpoNo).SetValue(invitation.Id);
-                row.Cell(HistorySheetColumns.Description).SetValue(history.Description);
-                AddDateCell(row, HistorySheetColumns.Date, history.CreatedAtUtc);
-                row.Cell(HistorySheetColumns.User).SetValue(history.CreatedBy);
             }
-
-            const int minWidth = 10;
-            const int maxWidth = 100;
-            sheet.Columns(1, HistorySheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
         }
 
-        private void CreateParticipantsSheet(XLWorkbook workbook, IList<ExportInvitationDto> invitations)
+        private static void GenerateFrontSheet(ExportDto dto, XlsxWriter xlsxWriter, XlsxStyle headerStyle, XlsxStyle subHeaderStyle, XlsxStyle normalStyle, XlsxStyle dateStyle)
         {
-            var severalParticipantsSheet = workbook.Worksheets.Add("Participants");
-
-            var rowIdx = 0;
-            var row = severalParticipantsSheet.Row(++rowIdx);
-            row.Style.Font.SetBold();
-            row.Style.Font.SetFontSize(12);
-            row.Cell(ParticipantsSheetColumns.IpoNo).Value = "Ipo nr";
-            row.Cell(ParticipantsSheetColumns.Organization).Value = "Organization";
-            row.Cell(ParticipantsSheetColumns.Type).Value = "Type";
-            row.Cell(ParticipantsSheetColumns.Participant).Value = "Participant";
-            row.Cell(ParticipantsSheetColumns.Attended).Value = "Attended";
-            row.Cell(ParticipantsSheetColumns.Note).Value = "Note";
-            row.Cell(ParticipantsSheetColumns.SignedBy).Value = "SignedBy";
-            row.Cell(ParticipantsSheetColumns.SignedAtUtc).Value = "SignedAtUtc";
-
-            foreach (var invitation in invitations)
+            xlsxWriter.BeginWorksheet("Filters", columns: new[] { XlsxColumn.Formatted(width: 45), XlsxColumn.Formatted(width: 50) })
+                                .SetDefaultStyle(headerStyle)
+                                .BeginRow().Write("Export of invitation to punch-outs")
+                                .SetDefaultStyle(subHeaderStyle)
+                                .BeginRow().Write("Plant").Write(dto.UsedFilter.Plant)
+                                .BeginRow().Write("Project name").Write(dto.UsedFilter.ProjectName)
+                                .BeginRow().Write("Filter values:")
+                                .SetDefaultStyle(normalStyle)
+                                .BeginRow().Write("Ipo number starts with").Write(dto.UsedFilter.IpoIdStartsWith)
+                                .BeginRow().Write("Title starts with").Write(dto.UsedFilter.IpoTitleStartWith)
+                                .BeginRow().Write("CommPkg number starts with").Write(dto.UsedFilter.CommPkgNoStartWith)
+                                .BeginRow().Write("McPkg number starts with").Write(dto.UsedFilter.McPkgNoStartsWith);
+            if (dto.UsedFilter.PunchOutDateFromUtc != null)
             {
+                xlsxWriter.BeginRow().Write("Punch out dates from").Write((DateTime)dto.UsedFilter.PunchOutDateToUtc, dateStyle);
+            }
+            else
+            {
+                xlsxWriter.BeginRow().Write("Punch out dates from");
+            }
 
+            if (dto.UsedFilter.PunchOutDateToUtc != null)
+            {
+                xlsxWriter.BeginRow().Write("Punch out dates to").Write((DateTime)dto.UsedFilter.PunchOutDateToUtc, dateStyle);
+            }
+            else
+            {
+                xlsxWriter.BeginRow().Write("Punch out dates to");
+            }
+
+            xlsxWriter.BeginRow().Write("Ipo status").Write(string.Join(",", dto.UsedFilter.IpoStatuses));
+
+            if (dto.UsedFilter.LastChangedFromUtc != null)
+            {
+                xlsxWriter.BeginRow().Write("Last changed dates from").Write((DateTime)dto.UsedFilter.LastChangedFromUtc, dateStyle);
+            }
+            else
+            {
+                xlsxWriter.BeginRow().Write("Last changed dates from");
+            }
+
+            if (dto.UsedFilter.LastChangedToUtc != null)
+            {
+                xlsxWriter.BeginRow().Write("Last changed dates to").Write((DateTime)dto.UsedFilter.LastChangedToUtc, dateStyle);
+            }
+            else
+            {
+                xlsxWriter.BeginRow().Write("Last changed dates to");
+            }
+
+            xlsxWriter
+                .BeginRow().Write("Functional role invited").Write(dto.UsedFilter.FunctionalRoleInvited)
+                .BeginRow().Write("Person invited").Write(dto.UsedFilter.PersonInvited);
+        }
+
+        private static void GenerateParticipantsSheet(XlsxWriter xlsxWriter, XlsxStyle headerStyle, List<ExportInvitationDto> exportInvitationDtos, XlsxStyle dateStyle, XlsxStyle normalStyle)
+        {
+            var ipoWidth = exportInvitationDtos.OrderByDescending(s => s.Id.ToString().Length).FirstOrDefault().Id.ToString().Length + 10;
+            var orgWidth = exportInvitationDtos
+                .SelectMany(s => s.Participants)
+                .OrderByDescending(a => a?.Organization?.Length ?? 40)
+                .FirstOrDefault()?.Organization?.Length + 10 ?? 40;
+
+            var typeWidth = exportInvitationDtos
+                .SelectMany(s => s.Participants)
+                .OrderByDescending(a => a?.Type?.Length ?? 40)
+                .FirstOrDefault()?.Type?.Length + 10 ?? 40;
+
+            var participantWidth = exportInvitationDtos
+                .SelectMany(s => s.Participants)
+                .OrderByDescending(a => a?.Participant?.Length ?? 40)
+                .FirstOrDefault()?.Participant?.Length + 10 ?? 40;
+
+            var noteWidth = exportInvitationDtos
+                .SelectMany(s => s.Participants)
+                .OrderByDescending(a => a?.Note?.Length ?? 40)
+                .FirstOrDefault()?.Note?.Length + 10 ?? 40;
+
+            var signedByWidth = exportInvitationDtos
+                .SelectMany(s => s.Participants)
+                .OrderByDescending(a => a?.SignedBy?.Length ?? 40)
+                .FirstOrDefault()?.SignedBy?.Length + 10 ?? 40;
+
+            // Participant sheet
+            xlsxWriter.BeginWorksheet("Participants",
+                columns: new[] {
+                        XlsxColumn.Formatted(width: ipoWidth),
+                        XlsxColumn.Formatted(width: orgWidth),
+                        XlsxColumn.Formatted(width: typeWidth),
+                        XlsxColumn.Formatted(width: participantWidth),
+                        XlsxColumn.Formatted(width: 20),
+                        XlsxColumn.Formatted(width: noteWidth),
+                        XlsxColumn.Formatted(width: signedByWidth ),
+                        XlsxColumn.Formatted(width: 20),
+                })
+                .SetDefaultStyle(headerStyle)
+                .BeginRow()
+                .Write("Ipo nr")
+                .Write("Organization")
+                .Write("Type")
+                .Write("Participant")
+                .Write("Attended")
+                .Write("Note")
+                .Write("SignedBy")
+                .Write("SignedAtUtc");
+
+
+            foreach (var invitation in exportInvitationDtos)
+            {
                 foreach (var participant in invitation.Participants)
                 {
-                    row = severalParticipantsSheet.Row(++rowIdx);
+                    xlsxWriter.SetDefaultStyle(normalStyle)
+                    .BeginRow()
+                        .Write(invitation.Id)
+                        .Write(participant.Organization)
+                        .Write(participant.Type)
+                        .Write(participant.Participant)
+                        .Write(participant.Attended)
+                        .Write(participant.Note)
+                        .Write(participant.SignedBy);
 
-                    row.Cell(ParticipantsSheetColumns.IpoNo).SetValue(invitation.Id);
-                    row.Cell(ParticipantsSheetColumns.Organization).SetValue(participant.Organization);
-                    row.Cell(ParticipantsSheetColumns.Type).SetValue(participant.Type);
-                    row.Cell(ParticipantsSheetColumns.Participant).SetValue(participant.Participant);
-                    row.Cell(ParticipantsSheetColumns.Attended).SetValue(participant.Attended);
-                    row.Cell(ParticipantsSheetColumns.Note).SetValue(participant.Note);
-                    row.Cell(ParticipantsSheetColumns.SignedBy).SetValue(participant.SignedBy);
                     if (participant.SignedAtUtc.HasValue)
                     {
-                        AddDateCell(row, ParticipantsSheetColumns.SignedAtUtc, participant.SignedAtUtc.Value, false);
+                        xlsxWriter.Write(participant.SignedAtUtc.Value, dateStyle);
                     }
                 }
-
-                rowIdx++;
-                row.InsertRowsBelow(1);
             }
-
-            const int minWidth = 10;
-            const int maxWidth = 100;
-            severalParticipantsSheet.Columns(1, ParticipantsSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
         }
 
-        private void CreateInvitationSheet(XLWorkbook workbook, IEnumerable<ExportInvitationDto> invitations)
+        private static int CalculatePropertyWidth<T>(IEnumerable<T> collection, Func<T, string> propertySelector, int defaultValue = 20)
         {
-            var sheet = workbook.Worksheets.Add("Invitations");
+            return collection
+                .Select(propertySelector)
+                .Where(prop => !string.IsNullOrEmpty(prop))
+                .OrderByDescending(prop => prop.Length)
+                .FirstOrDefault()?.Length + 10 ?? defaultValue;
+        }
 
-            var rowIdx = 0;
-            var row = sheet.Row(++rowIdx);
-            row.Style.Font.SetBold();
-            row.Style.Font.SetFontSize(12);
-            row.Cell(InvitationSheetColumns.IpoNo).Value = "Ipo no";
-            row.Cell(InvitationSheetColumns.ProjectName).Value = "Project name";
-            row.Cell(InvitationSheetColumns.Status).Value = "Status";
-            row.Cell(InvitationSheetColumns.Title).Value = "Title";
-            row.Cell(InvitationSheetColumns.Description).Value = "Description";
-            row.Cell(InvitationSheetColumns.Location).Value = "Location";
-            row.Cell(InvitationSheetColumns.Type).Value = "Type";
-            row.Cell(InvitationSheetColumns.StartTimeUtc).Value = "Start time";
-            row.Cell(InvitationSheetColumns.EndTimeUtc).Value = "End time";
-            row.Cell(InvitationSheetColumns.McPkgs).Value = "Mc pkgs";
-            row.Cell(InvitationSheetColumns.CommPkgs).Value = "Comm pkgs";
-            row.Cell(InvitationSheetColumns.ContractorRep).Value = "Contractor rep";
-            row.Cell(InvitationSheetColumns.ConstructionCompanyRep).Value = "Construction company rep";
-            row.Cell(InvitationSheetColumns.CompletedAtUtc).Value = "Completed at";
-            row.Cell(InvitationSheetColumns.AcceptedAtUtc).Value = "Accepted at";
-            row.Cell(InvitationSheetColumns.CreatedBy).Value = "Created by";
-            row.Cell(InvitationSheetColumns.CreatedAtUtc).Value = "Created at";
+        private static void GenerateInvitationsSheet(XlsxWriter xlsxWriter, XlsxStyle normalStyle, XlsxStyle invitationsHeader, XlsxStyle dateStyle, List<ExportInvitationDto> exportInvitationDtos)
+        {
+            var ipoWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Id.ToString());
+            var projNameWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.ProjectName);
+            var statusWidth = 20;
+            var titleWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Title);
+            var descriptionWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Description, 40);
+            var locationWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Location);
+            var typeWidth = CalculatePropertyWidth(exportInvitationDtos, s => s.Type);
+            var timeWidth = 20;
 
-            foreach (var invitation in invitations)
+            var mcPckgsWidth = exportInvitationDtos
+                .OrderByDescending(s => s.McPkgs?.Count() ?? 0)
+                .FirstOrDefault()
+                ?.McPkgs
+                ?.Select(x => x.Length)
+                .DefaultIfEmpty(0)
+                .Max() + 10 ?? 20;
+
+            var commPckgsWidth = exportInvitationDtos
+                .OrderByDescending(s => s.CommPkgs?.Count() ?? 0)
+                .FirstOrDefault()
+                ?.CommPkgs
+                ?.Select(x => x.Length)
+                .DefaultIfEmpty(0)
+                .Max() + 10 ?? 20;
+
+            var contractorRepLength = CalculatePropertyWidth(exportInvitationDtos, s => s.ContractorRep);
+            var constructionCompanyRefLength = CalculatePropertyWidth(exportInvitationDtos, s => s.ConstructionCompanyRep);
+            var createdByLength = CalculatePropertyWidth(exportInvitationDtos, s => s.CreatedBy);
+
+
+            xlsxWriter.BeginWorksheet("Invitations", columns: new[] {
+                XlsxColumn.Formatted(width: ipoWidth),
+                XlsxColumn.Formatted(width: projNameWidth),
+                XlsxColumn.Formatted(width: statusWidth),
+                XlsxColumn.Formatted(width: titleWidth),
+                XlsxColumn.Formatted(width: descriptionWidth),
+                XlsxColumn.Formatted(width: locationWidth),
+                XlsxColumn.Formatted(width: typeWidth),
+                XlsxColumn.Formatted(width: timeWidth),
+                XlsxColumn.Formatted(width: timeWidth),
+                XlsxColumn.Formatted(width: mcPckgsWidth),
+                XlsxColumn.Formatted(width: commPckgsWidth),
+                XlsxColumn.Formatted(width: contractorRepLength),
+                XlsxColumn.Formatted(width: constructionCompanyRefLength),
+                XlsxColumn.Formatted(width: timeWidth),
+                XlsxColumn.Formatted(width: timeWidth),
+                XlsxColumn.Formatted(width: createdByLength),
+                XlsxColumn.Formatted(width: timeWidth)})
+            .SetDefaultStyle(invitationsHeader)
+            .BeginRow().Write("Ipo no")
+            .Write("Project name")
+            .Write("Status")
+            .Write("Title")
+            .Write("Description")
+            .Write("Location")
+            .Write("Type")
+            .Write("Start time")
+            .Write("End time")
+            .Write("Mc pkgs")
+            .Write("Comm pkgs")
+            .Write("Contractor rep")
+            .Write("Construction company rep")
+            .Write("Completed at")
+            .Write("Accepted at")
+            .Write("Created by")
+            .Write("Created at");
+
+            foreach (var invitation in exportInvitationDtos)
             {
-                row = sheet.Row(++rowIdx);
+                xlsxWriter.SetDefaultStyle(normalStyle)
+                .BeginRow()
+                .Write(invitation.Id)
+                .Write(invitation.ProjectName)
+                .Write(invitation.Status.ToString())
+                .Write(invitation.Title)
+                .Write(invitation.Description)
+                .Write(invitation.Location)
+                .Write(invitation.Type);
 
-                row.Cell(InvitationSheetColumns.IpoNo).SetValue(invitation.Id);
-                row.Cell(InvitationSheetColumns.ProjectName).SetValue(invitation.ProjectName);
-                row.Cell(InvitationSheetColumns.Status).SetValue(invitation.Status.ToString());
-                row.Cell(InvitationSheetColumns.Title).SetValue(invitation.Title);
-                row.Cell(InvitationSheetColumns.Description).SetValue(invitation.Description);
-                row.Cell(InvitationSheetColumns.Location).SetValue(invitation.Location);
-                row.Cell(InvitationSheetColumns.Type).SetValue(invitation.Type);
-                AddDateCell(row, InvitationSheetColumns.StartTimeUtc, invitation.StartTimeUtc, false);
-                AddDateCell(row, InvitationSheetColumns.EndTimeUtc, invitation.EndTimeUtc, false);
-                row.Cell(InvitationSheetColumns.McPkgs)
-                    .SetValue(string.Join(", ", invitation.McPkgs));
-                row.Cell(InvitationSheetColumns.CommPkgs)
-                    .SetValue(string.Join(", ", invitation.CommPkgs));
-                row.Cell(InvitationSheetColumns.ContractorRep).SetValue(invitation.ContractorRep);
-                row.Cell(InvitationSheetColumns.ConstructionCompanyRep).SetValue(invitation.ConstructionCompanyRep);
+                if (invitation.StartTimeUtc != DateTime.MinValue)
+                {
+                    xlsxWriter.Write(invitation.StartTimeUtc, dateStyle);
+                }
+                else
+                {
+                    xlsxWriter.Write("");
+                }
+
+                if (invitation.EndTimeUtc != DateTime.MinValue)
+                {
+                    xlsxWriter.Write(invitation.EndTimeUtc, dateStyle);
+                }
+                else
+                {
+                    xlsxWriter.Write("");
+                }
+
+                xlsxWriter
+                .Write(string.Join(", ", invitation.McPkgs))
+                .Write(string.Join(", ", invitation.CommPkgs))
+                .Write(invitation.ContractorRep)
+                .Write(invitation.ConstructionCompanyRep);
+
                 if (invitation.CompletedAtUtc.HasValue)
                 {
-                    AddDateCell(row, InvitationSheetColumns.CompletedAtUtc, invitation.CompletedAtUtc.Value.Date);
+                    xlsxWriter.Write((DateTime)invitation.CompletedAtUtc, dateStyle);
                 }
+                else
+                {
+                    xlsxWriter.Write("");
+                }
+
                 if (invitation.AcceptedAtUtc.HasValue)
                 {
-                    AddDateCell(row, InvitationSheetColumns.AcceptedAtUtc, invitation.AcceptedAtUtc.Value.Date);
+                    xlsxWriter.Write((DateTime)invitation.AcceptedAtUtc, dateStyle);
                 }
-                row.Cell(InvitationSheetColumns.CreatedBy).SetValue(invitation.CreatedBy);
-                AddDateCell(row, InvitationSheetColumns.CreatedAtUtc, invitation.CreatedAtUtc, false);
+                else
+                {
+                    xlsxWriter.Write("");
+                }
+
+                xlsxWriter.Write(invitation.CreatedBy)
+                    .Write(invitation.CreatedAtUtc, dateStyle);
             }
-
-            const int minWidth = 10;
-            const int maxWidth = 100;
-            sheet.Columns(1, InvitationSheetColumns.Last).AdjustToContents(1, rowIdx, minWidth, maxWidth);
-        }
-
-        private void CreateFrontSheet(XLWorkbook workbook, UsedFilterDto usedFilter)
-        {
-            var sheet = workbook.Worksheets.Add("Filters");
-            var row = sheet.Row(FrontSheetRows.MainHeading);
-            row.Style.Font.SetBold();
-            row.Style.Font.SetFontSize(14);
-            row.Cell(1).Value = "Export of invitation to punch-outs";
-
-            AddUsedFilter(sheet.Row(FrontSheetRows.Plant), "Plant", usedFilter.Plant, true);
-            AddUsedFilter(sheet.Row(FrontSheetRows.ProjectName), "Project name", usedFilter.ProjectName, true);
-
-            AddUsedFilter(sheet.Row(FrontSheetRows.FilterHeading), "Filter values:", "", true);
-
-            AddUsedFilter(sheet.Row(FrontSheetRows.Invitation), "Ipo number starts with", usedFilter.IpoIdStartsWith);
-            AddUsedFilter(sheet.Row(FrontSheetRows.Title), "Title starts with", usedFilter.IpoTitleStartWith);
-            AddUsedFilter(sheet.Row(FrontSheetRows.CommPkg), "CommPkg number starts with", usedFilter.CommPkgNoStartWith);
-            AddUsedFilter(sheet.Row(FrontSheetRows.McPkg), "McPkg number starts with", usedFilter.McPkgNoStartsWith);
-            AddUsedFilter(sheet.Row(FrontSheetRows.PunchOutDateFrom), "Punch out dates from", usedFilter.PunchOutDateFromUtc);
-            AddUsedFilter(sheet.Row(FrontSheetRows.PunchOutDateTo), "Punch out dates to", usedFilter.PunchOutDateToUtc);
-            AddUsedFilter(sheet.Row(FrontSheetRows.LastChangedFrom), "Last changed dates from", usedFilter.LastChangedFromUtc);
-            AddUsedFilter(sheet.Row(FrontSheetRows.LastChangedTo), "Last changed dates to", usedFilter.LastChangedToUtc);
-            AddUsedFilter(sheet.Row(FrontSheetRows.Status), "Ipo status", usedFilter.IpoStatuses);
-            AddUsedFilter(sheet.Row(FrontSheetRows.Role), "Functional role invited", usedFilter.FunctionalRoleInvited);
-            AddUsedFilter(sheet.Row(FrontSheetRows.Person), "Person invited", usedFilter.PersonInvited);
-
-            sheet.Columns(1, 2).AdjustToContents();
-        }
-
-        private void AddUsedFilter(IXLRow row, string label, IEnumerable<string> values)
-            => AddUsedFilter(row, label, string.Join(",", values));
-
-        private void AddUsedFilter(IXLRow row, string label, string value, bool bold = false)
-        {
-            row.Cell(1).SetValue(label);
-            row.Cell(2).SetValue(value);
-            row.Style.Font.SetBold(bold);
-        }
-
-        private void AddUsedFilter(IXLRow row, string label, DateTime? date, bool bold = false)
-        {
-            row.Cell(1).SetValue(label);
-            if (date.HasValue)
-            {
-                AddDateCell(row, 2, date.Value.Date);
-            }
-
-            row.Style.Font.SetBold(bold);
         }
 
         public string GetFileName() => $"InvitationForPunchOuts-{DateTime.Now:yyyyMMdd-hhmmss}";
