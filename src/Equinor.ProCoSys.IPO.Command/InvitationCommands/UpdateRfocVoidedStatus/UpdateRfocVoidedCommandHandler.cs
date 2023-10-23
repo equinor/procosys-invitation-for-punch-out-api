@@ -56,6 +56,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
+            var certificate = await _certificateRepository.GetCertificateByGuid(request.ProCoSysGuid);
+            if (certificate == null)
+            {
+                _logger.LogInformation($"Early exit in RfocVoided handling. RFOC {request.ProCoSysGuid} does not exist in IPO module");
+                return new SuccessResult<Unit>(Unit.Value);
+            }
+
             var certificateMcPkgsModel = await _certificateApiService.GetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
 
             if (certificateMcPkgsModel != null)
@@ -74,13 +81,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 var error = $"Certificate {request.ProCoSysGuid} CommPkg is not voided or deleted";
                 _logger.LogError(error);
                 return new UnexpectedResult<Unit>(error);
-            }
-
-            var certificate = await _certificateRepository.GetCertificateByGuid(request.ProCoSysGuid);
-            if (certificate == null)
-            {
-                _logger.LogInformation($"Early exit in RfocVoided handling. RFOC {request.ProCoSysGuid} does not exist in IPO module");
-                return new SuccessResult<Unit>(Unit.Value);
             }
 
             certificate.SetIsVoided();

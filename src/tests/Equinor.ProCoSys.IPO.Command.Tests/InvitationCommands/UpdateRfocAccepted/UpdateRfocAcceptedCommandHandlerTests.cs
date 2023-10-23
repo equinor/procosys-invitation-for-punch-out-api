@@ -237,7 +237,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             Assert.AreEqual(0, _createdCertificate.CertificateCommPkgs.Count);
         }
 
-
         [TestMethod]
         public async Task HandlingUpdateRfocStatusCommand_ShouldRollbackIfGetCommPkgsFails()
         {
