@@ -66,7 +66,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task HandleCertificateEventIfRelevantAsync(CertificateTopic certificateEvent)
         {
-            if (certificateEvent.CertificateStatus == CertificateStatus.Accepted && certificateEvent.CertificateType == "RFOC")
+            if (certificateEvent.CertificateType == "RFOC")
             {
                 if (certificateEvent.CertificateStatus == CertificateStatus.Accepted)
                 {
