@@ -59,10 +59,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
 
             _certificateApiServiceMock = new Mock<ICertificateApiService>();
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult<PCSCertificateCommPkgsModel>(null));
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
             var mcPkg1 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo, "d", "1|2");
@@ -119,8 +119,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
         }
 
         [TestMethod]
@@ -167,8 +167,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _certificateRepositoryMock.Verify(c => c.GetCertificateByGuid(_certificateGuid), Times.Never);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -186,8 +186,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _certificateRepositoryMock.Verify(c => c.GetCertificateByGuid(_certificateGuid), Times.Never);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -203,8 +203,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
             _certificateRepositoryMock.Verify(c => c.GetCertificateByGuid(_certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -235,7 +235,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             };
 
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(certificateMcPkgsModel));
 
             var result = await _dut.Handle(_command, default);
@@ -243,8 +243,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             Assert.AreEqual(ServiceResult.ResultType.Unexpected, result.ResultType);
 
             _certificateRepositoryMock.Verify(c => c.GetCertificateByGuid(_certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Never);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
@@ -271,7 +271,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             };
 
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(certificateCommPkgsModel));
 
 
@@ -280,8 +280,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             Assert.AreEqual(ServiceResult.ResultType.Unexpected, result.ResultType);
 
             _certificateRepositoryMock.Verify(c => c.GetCertificateByGuid(_certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }

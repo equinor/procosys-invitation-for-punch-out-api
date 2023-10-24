@@ -112,10 +112,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             _certificateApiServiceMock = new Mock<ICertificateApiService>();
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             var mcPkgDetails = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo, System = "1|2", OperationHandoverStatus = "ACCEPTED" };
@@ -181,8 +181,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            _certificateApiServiceMock.Verify(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
         }
 
         [TestMethod]
@@ -202,10 +202,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             _certificateCommPkgsModel.CertificateIsAccepted = false;
             _certificateMcPkgsModel.CertificateIsAccepted = false;
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
             _certificateApiServiceMock
-                .Setup(c => c.GetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             var result = await _dut.Handle(_command, default);
