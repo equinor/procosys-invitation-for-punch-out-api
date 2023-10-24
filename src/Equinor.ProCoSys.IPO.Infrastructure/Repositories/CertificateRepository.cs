@@ -8,7 +8,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
     public class CertificateRepository : RepositoryBase<Certificate>, ICertificateRepository
     {
         public CertificateRepository(IPOContext context)
-            : base(context, context.Certificates)
+            : base(context, context.Certificates,
+                  context.Certificates
+                    .Include(x => x.CertificateCommPkgs)
+                    .Include(x => x.CertificateMcPkgs))
         {
         }
 

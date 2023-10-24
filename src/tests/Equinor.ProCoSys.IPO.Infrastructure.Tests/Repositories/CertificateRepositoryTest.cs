@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             var testPlant = "TestPlant";
             var project = new Project("TestPlant", "title", "description");
             var certificate = new Certificate(testPlant, project, _knownGuid, true);
+            var mcPkg = new McPkg(testPlant, project, "123", "456", "desc", "1|2");
+            var commPkg = new CommPkg(testPlant, project, "123", "desc", "ok", "1|2");
+            certificate.CertificateMcPkgs.Add(mcPkg);
+            certificate.CertificateCommPkgs.Add(commPkg);
 
             var certificates = new List<Certificate>
             {
@@ -49,6 +54,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
 
             Assert.IsNotNull(certificate);
             Assert.AreEqual(_knownGuid, certificate.PcsGuid);
+        }
+
+        [TestMethod]
+        public async Task GetCertificateByGuid_KnownCertificate_ShouldGetScope()
+        {
+            var certificate = await _dut.GetCertificateByGuid(_knownGuid);
+
+            Assert.AreEqual(1, certificate.CertificateMcPkgs.Count);
+            Assert.AreEqual(1, certificate.CertificateCommPkgs.Count);
         }
 
         [TestMethod]

@@ -11,8 +11,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
 {
     public class Certificate : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable
     {
-        private readonly List<McPkg> _certificateMcPkgScope = new List<McPkg>();
-        private readonly List<CommPkg> _certificateCommPkgScope = new List<CommPkg>();
+        private List<McPkg> _certificateMcPkgScope = new List<McPkg>();
+        private List<CommPkg> _certificateCommPkgScope = new List<CommPkg>();
 
         protected Certificate()
             : base(null)
@@ -50,8 +50,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
-        public IReadOnlyCollection<McPkg> CertificateMcPkgs => _certificateMcPkgScope.AsReadOnly();
-        public IReadOnlyCollection<CommPkg> CertificateCommPkgs => _certificateCommPkgScope.AsReadOnly();
+        public ICollection<McPkg> CertificateMcPkgs => _certificateMcPkgScope;
+        public ICollection<CommPkg> CertificateCommPkgs => _certificateCommPkgScope;
 
         public void SetCreated(Person createdBy)
         {
