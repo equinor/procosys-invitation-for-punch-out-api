@@ -1,4 +1,6 @@
-﻿namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
+﻿using System;
+
+namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
     public class ProCoSysCommPkgDto
     {
@@ -8,7 +10,8 @@
             string description,
             string status,
             string system,
-            string operationHandoverStatus)
+            string operationHandoverStatus,
+            DateTime? rfocAcceptedAt)
         {
             Id = id;
             CommPkgNo = commPkgNo;
@@ -16,6 +19,7 @@
             Status = status;
             System = system;
             OperationHandoverStatus = operationHandoverStatus;
+            RfocAcceptedAt = rfocAcceptedAt;
         }
 
         public long Id { get; }
@@ -24,5 +28,6 @@
         public string Status { get; }
         public string System { get; }
         public string OperationHandoverStatus { get;}
+        public DateTime? RfocAcceptedAt { get; }
     }
 }

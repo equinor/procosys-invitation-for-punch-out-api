@@ -26,6 +26,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             Assert.AreEqual(CommPkgNo2, commPkg2.CommPkgNo);
             Assert.AreEqual(System, commPkg1.System);
             Assert.AreEqual(System, commPkg2.System);
+            Assert.AreEqual(RfcoAccetpedAt, commPkg1.RfocAcceptedAt);
+            Assert.IsNull(commPkg2.RfocAcceptedAt);
         }
 
         [TestMethod]
@@ -60,6 +62,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             Assert.AreEqual(2, mcPkgs.Count);
             Assert.AreEqual(McPkgNo1, mcPkg1.McPkgNo);
             Assert.AreEqual(McPkgNo2, mcPkg2.McPkgNo);
+            Assert.AreEqual(RfcoAccetpedAt, mcPkg1.RfocAcceptedAt);
+            Assert.IsNull(mcPkg2.RfocAcceptedAt);
         }
     }
 }

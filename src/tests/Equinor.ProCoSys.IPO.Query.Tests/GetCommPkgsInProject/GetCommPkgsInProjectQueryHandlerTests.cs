@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -23,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
         private readonly string _commPkgStartsWith = "C";
         private readonly int _defaultPageSize = 10;
         private readonly int _defaultCurrentPage = 0;
+        private readonly DateTime RfocAcceptedAt = new DateTime(2017, 11, 3);
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -33,15 +35,15 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                 {
                     new ProCoSysSearchCommPkg
                     {
-                        Id = 1, CommPkgNo = "CommPkgNo1", Description = "Desc1", CommStatus = "PB"
+                        Id = 1, CommPkgNo = "CommPkgNo1", Description = "Desc1", CommStatus = "PB", RfocAcceptedAt = RfocAcceptedAt
                     },
                     new ProCoSysSearchCommPkg
                     {
-                        Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK"
+                        Id = 2, CommPkgNo = "CommPkgNo2", Description = "Desc2", CommStatus = "OK", RfocAcceptedAt = null
                     },
                     new ProCoSysSearchCommPkg
                     {
-                        Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA"
+                        Id = 3, CommPkgNo = "CommPkgNo3", Description = "Desc3", CommStatus = "PA", RfocAcceptedAt = null
                     }
                 };
 
@@ -113,6 +115,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             Assert.AreEqual(pcsSearchCommPkg.CommPkgNo, commPkgDto.CommPkgNo);
             Assert.AreEqual(pcsSearchCommPkg.Description, commPkgDto.Description);
             Assert.AreEqual(pcsSearchCommPkg.CommStatus, commPkgDto.Status);
+            Assert.AreEqual(pcsSearchCommPkg.RfocAcceptedAt, commPkgDto.RfocAcceptedAt);
         }
     }
 }
