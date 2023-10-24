@@ -74,11 +74,11 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
             };
 
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
 
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             _dut = new MainApiCertificateService(_foreignApiClient.Object, _mainApiOptions.Object);
@@ -98,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateMcPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
             var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateCommPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult<PCSCertificateCommPkgsModel>(null));
 
             var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
