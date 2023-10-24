@@ -22,7 +22,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
         public Certificate(
             string plant,
             Project project,
-            Guid pcsGuid)
+            Guid pcsGuid,
+            bool isAccepted)
             : base(plant)
         {
             if (project is null)
@@ -36,10 +37,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
 
             ProjectId = project.Id;
             PcsGuid = pcsGuid;
+            IsAccepted = isAccepted;
+            IsVoided = false;
         }
 
         // private setters needed for Entity Framework
         public int ProjectId { get; private set; }
+        public bool IsAccepted { get; private set; }
+        public bool IsVoided { get; private set; }
         public Guid PcsGuid { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
@@ -96,6 +101,15 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate
             }
 
             _certificateMcPkgScope.Add(mcPkg);
+        }
+
+        public void SetIsVoided()
+        {
+            if (IsVoided)
+            {
+                throw new ArgumentException($"Can't void voided certificate {PcsGuid}");
+            }
+            IsVoided = true;
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         {
             var testPlant = "TestPlant";
             var project = new Project("TestPlant", "title", "description");
-            var certificate = new Certificate(testPlant, project, _knownGuid);
+            var certificate = new Certificate(testPlant, project, _knownGuid, true);
 
             var certificates = new List<Certificate>
             {

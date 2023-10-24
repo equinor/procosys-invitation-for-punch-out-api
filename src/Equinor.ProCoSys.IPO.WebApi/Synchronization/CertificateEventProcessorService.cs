@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Enums;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
@@ -46,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             if (certificateEvent.Behavior == "delete")
             {
-                TrackUnsupportedDeleteEvent(PcsTopic.Certificate, certificateEvent.ProCoSysGuid);
+                TrackUnsupportedDeleteEvent(PcsTopicConstants.Certificate, certificateEvent.ProCoSysGuid);
                 return;
             }
 
@@ -60,18 +61,34 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             TrackCertificateEvent(certificateEvent);
 
-            await HandleRfocAcceptedIfRelevantAsync(certificateEvent);
+            await HandleCertificateEventIfRelevantAsync(certificateEvent);
         }
 
-        private async Task HandleRfocAcceptedIfRelevantAsync(CertificateTopic certificateEvent)
+        private async Task HandleCertificateEventIfRelevantAsync(CertificateTopic certificateEvent)
         {
             if (certificateEvent.CertificateStatus == CertificateStatus.Accepted && certificateEvent.CertificateType == "RFOC")
             {
-                var result = await _mediator.Send(new UpdateRfocAcceptedCommand(
-                    certificateEvent.ProjectName,
-                    certificateEvent.ProCoSysGuid));
+                if (certificateEvent.CertificateStatus == CertificateStatus.Accepted)
+                {
+                    var result = await _mediator.Send(new UpdateRfocAcceptedCommand(
+                        certificateEvent.ProjectName,
+                        certificateEvent.ProCoSysGuid));
 
-                LogRfocAcceptedResult(certificateEvent, result);
+                    LogRfocAcceptedResult(certificateEvent, result);
+                }
+                else if (certificateEvent.CertificateStatus == CertificateStatus.Voided)
+                {
+                    var result = await _mediator.Send(new UpdateRfocVoidedCommand(
+                        certificateEvent.ProjectName,
+                        certificateEvent.ProCoSysGuid));
+
+                    LogRfocVoidedResult(certificateEvent, result);
+                }
+                else
+                {
+                    LogRfocUnhandled(certificateEvent);
+                }
+                
             }
         }
 
@@ -94,6 +111,44 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient.TrackEvent("Synchronization Status", telemetryDictionary);
         }
 
+        private void LogRfocVoidedResult(CertificateTopic certificateEvent, Result<Unit> result)
+        {
+            var resultOk = result.ResultType == ResultType.Ok;
+
+            _logger.LogInformation(resultOk ? "RfocVoided handling complete." : "RfocVoided handling functions failed.");
+
+            var telemetryDictionary = new Dictionary<string, string>
+            {
+                {"Status", resultOk ? "Succeeded" : "Failed"},
+                {"Plant", certificateEvent.Plant},
+                {"Type", "UpdateRfocStatus"},
+                {"ProjectName", string.IsNullOrWhiteSpace(certificateEvent.ProjectName) ? "null or empty" : certificateEvent.ProjectName},
+                {"CertificateNo", certificateEvent.CertificateNo},
+                {"CertificateType", certificateEvent.CertificateType}
+            };
+
+            _telemetryClient.TrackEvent("Synchronization Status", telemetryDictionary);
+        }
+
+        private void LogRfocUnhandled(CertificateTopic certificateEvent)
+        {
+
+            _logger.LogInformation("No handling implemented for certificate status '"
+                                   + certificateEvent.CertificateStatus);
+
+            var telemetryDictionary = new Dictionary<string, string>
+            {
+                {"Status", "Unhandled"},
+                {"Plant", certificateEvent.Plant},
+                {"Type", "UpdateRfocStatus"},
+                {"ProjectName", string.IsNullOrWhiteSpace(certificateEvent.ProjectName) ? "null or empty" : certificateEvent.ProjectName},
+                {"CertificateNo", certificateEvent.CertificateNo},
+                {"CertificateType", certificateEvent.CertificateType}
+            };
+
+            _telemetryClient.TrackEvent("Synchronization Status", telemetryDictionary);
+        }
+
         private void TrackCertificateEvent(CertificateTopic certificateTopic) =>
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
@@ -106,11 +161,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     {nameof(certificateTopic.ProjectName), NormalizeProjectName(certificateTopic.ProjectName)}
                 });
 
-        private void TrackUnsupportedDeleteEvent(PcsTopic topic, Guid guid) =>
+        private void TrackUnsupportedDeleteEvent(string topic, Guid guid) =>
             _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                 new Dictionary<string, string>
                 {
-                    {"Event Delete", topic.ToString()},
+                    {"Event Delete", topic},
                     {"ProCoSysGuid", guid.ToString()},
                     {"Supported", "false"}
                 });

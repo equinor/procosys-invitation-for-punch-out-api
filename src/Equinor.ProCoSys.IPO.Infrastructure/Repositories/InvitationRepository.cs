@@ -142,6 +142,84 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             _context.Invitations.Remove(invitation);
         }
 
+        public void RfocVoidedHandling(string projectName, IList<string> commPkgNos, IList<string> mcPkgNos)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            var invitations = _context.Invitations
+                   .Include(i => i.McPkgs)
+                   .Include(i => i.CommPkgs)
+                   .ToList()
+                   .Where(i => i.ProjectId == project.Id && i.Status is IpoStatus.ScopeHandedOver
+                           && (i.CommPkgs.Any(x => commPkgNos.Any(y => y == x.CommPkgNo))
+                               || i.McPkgs.Any(x => mcPkgNos.Any(y => y == x.McPkgNo))))
+                   .ToList();
+
+            foreach (var invitation in invitations)
+            {
+                if (invitation.Type == DisciplineType.MDP)
+                {
+                    UpdateRfocAcceptedForMdp(invitation, commPkgNos, false);
+                    if (!invitation.CommPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ResetStatus();
+                    }
+                }
+                else
+                {
+                    UpdateRfocAcceptedForDp(invitation, mcPkgNos, false);
+                    if (!invitation.McPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ResetStatus();
+                    }
+                }
+            }
+        }
+
+        public void RfocAcceptedHandling(string projectName, IList<string> commPkgNosWithAcceptedRfoc, IList<string> mcPkgNosWithAcceptedRfoc)
+        {
+            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+
+            if (project == null)
+            {
+                throw new NullReferenceException($"Project not found. {projectName}.");
+            }
+
+            var invitations = _context.Invitations
+                    .Include(i => i.McPkgs)
+                    .Include(i => i.CommPkgs)
+                    .ToList()
+                    .Where(i => i.ProjectId == project.Id && i.Status is IpoStatus.Completed or IpoStatus.Planned or IpoStatus.Accepted
+                            && (i.CommPkgs.Any(x => commPkgNosWithAcceptedRfoc.Any(y => y == x.CommPkgNo))
+                                || i.McPkgs.Any(x => mcPkgNosWithAcceptedRfoc.Any(y => y == x.McPkgNo))))
+                    .ToList();
+
+            foreach (var invitation in invitations)
+            {
+                if (invitation.Type == DisciplineType.MDP)
+                {
+                    UpdateRfocAcceptedForMdp(invitation, commPkgNosWithAcceptedRfoc, true);
+                    if (invitation.CommPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
+                }
+                else
+                {
+                    UpdateRfocAcceptedForDp(invitation, mcPkgNosWithAcceptedRfoc, true);
+                    if (invitation.McPkgs.All(c => c.RfocAccepted))
+                    {
+                        invitation.ScopeHandedOver();
+                    }
+                }
+            }
+        }
+
         public IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
@@ -154,7 +232,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return _context.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo) && c.ProjectId == project.Id).ToList();
         }
 
-        public IList<McPkg> GetMcPkgs(string projectName, string commPkgNo, string mcPkgNo)
+        public IList<McPkg> GetMcPkgs(string projectName, IList<string> mcPkgNos)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
@@ -163,54 +241,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 throw new NullReferenceException($"Project not found. {projectName}.");
             }
 
-            return _context.McPkgs.Where(mc => mc.McPkgNo == mcPkgNo && mc.CommPkgNo == commPkgNo && mc.ProjectId == project.Id).ToList();
+            return _context.McPkgs.Where(mc => mcPkgNos.Contains(mc.McPkgNo) && mc.ProjectId == project.Id).ToList();
         }
 
-        public void UpdateRfocStatuses(string projectName, IList<string> commPkgNos, IList<Tuple<string, string>> mcPkgs)
-        {
-            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
-
-            if (project == null)
-            {
-                throw new NullReferenceException($"Project not found. {projectName}.");
-            }
-
-            var invitations = _context.Invitations
-                .Include(i => i.McPkgs)
-                .Include(i => i.CommPkgs)
-                .ToList()
-                .Where(i => i.ProjectId == project.Id && i.Status is IpoStatus.Completed or IpoStatus.Planned or IpoStatus.Accepted
-                            && (i.CommPkgs.Any(x => commPkgNos.Any(y => y == x.CommPkgNo))
-                                || i.McPkgs.Any(x => mcPkgs.Any(y => y.Item1 == x.McPkgNo && y.Item2 == x.CommPkgNo))))
-                .ToList();
-
-            foreach (var invitation in invitations)
-            {
-                if (invitation.Type == DisciplineType.MDP)
-                {
-                    UpdateRfocStatusForMDP(invitation, commPkgNos);
-                    if (invitation.CommPkgs.All(c => c.RfocAccepted))
-                    {
-                        invitation.ScopeHandedOver();
-                    }
-                }
-                else
-                {
-                    UpdateRfocStatusForDP(invitation, mcPkgs);
-                    if (invitation.McPkgs.All(c => c.RfocAccepted))
-                    {
-                        invitation.ScopeHandedOver();
-                    }
-                }
-            }
-        }
-
-        private void UpdateRfocStatusForMDP(Invitation invitation, IList<string> commPkgNos) =>
+        private void UpdateRfocAcceptedForMdp(Invitation invitation, IList<string> commPkgNos, bool rfocAccepted) =>
             invitation.CommPkgs.Where(c => commPkgNos.Contains(c.CommPkgNo)).ToList()
-                .ForEach(c => c.RfocAccepted = true);
+                .ForEach(c => c.RfocAccepted = rfocAccepted);
 
-        private void UpdateRfocStatusForDP(Invitation invitation, IList<Tuple<string, string>> mcPkgs) =>
-            invitation.McPkgs.Where(mc => mcPkgs.Contains(new Tuple<string, string>(mc.McPkgNo, mc.CommPkgNo))).ToList()
-                .ForEach(mc => mc.RfocAccepted = true);
+        private void UpdateRfocAcceptedForDp(Invitation invitation, IList<string> mcPkgNos, bool rfocAccepted) =>
+            invitation.McPkgs.Where(mc => mcPkgNos.Contains(mc.McPkgNo)).ToList()
+                .ForEach(mc => mc.RfocAccepted = rfocAccepted);
     }
 }

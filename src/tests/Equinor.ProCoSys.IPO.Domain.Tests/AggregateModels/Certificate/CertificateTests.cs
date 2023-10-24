@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         public void Setup()
         {
             _project.SetProtectedIdForTesting(ProjectId);
-            _dut = new Domain.AggregateModels.CertificateAggregate.Certificate(TestPlant, _project, Guid);
+            _dut = new Domain.AggregateModels.CertificateAggregate.Certificate(TestPlant, _project, Guid, true);
         }
 
         #region Constructor
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenProjectNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new Domain.AggregateModels.CertificateAggregate.Certificate(TestPlant, null, Guid)
+                new Domain.AggregateModels.CertificateAggregate.Certificate(TestPlant, null, Guid, true)
             );
         #endregion
 
@@ -88,6 +88,28 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
             Assert.ThrowsException<ArgumentException>(() =>
                 _dut.AddMcPkgRelation(new McPkg("Plant B", new Project("Plant B", "new name", "test"), "123", "456", "OK", "1|2"))
             );
+        #endregion
+
+        #region SetIsVoided
+        [TestMethod]
+        public void SetIsVoided_ShouldSetIsVoided()
+        {
+            Assert.IsFalse(_dut.IsVoided);
+
+            _dut.SetIsVoided();
+
+            Assert.IsTrue(_dut.IsVoided);
+        }
+
+        [TestMethod]
+        public void SetIsVoided_ShouldThrowError_WhenCertificateIsVoided()
+        {
+            _dut.SetIsVoided();
+
+            Assert.ThrowsException<ArgumentException>(() =>
+                _dut.SetIsVoided()
+            );
+        }
         #endregion
     }
 }
