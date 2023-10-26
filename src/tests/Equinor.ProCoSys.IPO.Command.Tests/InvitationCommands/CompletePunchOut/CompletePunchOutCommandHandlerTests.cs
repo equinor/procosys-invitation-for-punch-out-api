@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
@@ -12,6 +13,8 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -24,6 +27,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<ILogger<CompletePunchOutCommandHandler>> _loggerMock;
+        private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
+        private Mock<IEmailService> _emailServiceMock;
+
 
         private CompletePunchOutCommand _command;
         private CompletePunchOutCommandHandler _dut;
@@ -67,6 +74,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         [TestInitialize]
         public void Setup()
         {
+            _loggerMock = new Mock<ILogger<CompletePunchOutCommandHandler>>();
+            _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
+            _meetingOptionsMock.Setup(m => m.CurrentValue).Returns(new MeetingOptions() { PcsBaseUrl = "baseUrl" });
+            _emailServiceMock = new Mock<IEmailService>();
+
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
@@ -83,9 +95,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2")},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2") },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
             var participant1 = new Participant(
                 _plant,
                 Organization.Contractor,
@@ -133,10 +145,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 _participantRowVersion,
                 _participantsToChange);
 
-            _dut = new CompletePunchOutCommandHandler(_invitationRepositoryMock.Object,
+            _dut = new CompletePunchOutCommandHandler(
+                _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personRepositoryMock.Object);
+                _personRepositoryMock.Object,
+                _meetingOptionsMock.Object,
+                _emailServiceMock.Object,
+                _loggerMock.Object);
         }
 
         [TestMethod]
@@ -156,6 +172,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
             Assert.IsNotNull(_invitation.CompletedAtUtc);
             Assert.AreEqual(_participantId1, _invitation.CompletedBy);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+            // Assert
+            _emailServiceMock.Verify(
+                t => t.SendEmailsAsync(It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                Times.Once());
+
         }
 
         [TestMethod]

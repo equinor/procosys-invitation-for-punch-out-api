@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
-using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -21,8 +19,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         private IpoCompletedEventHandler _dut;
         private Mock<ServiceBusSender> _serviceBusSender;
         private PcsBusSender _pcsBusSender;
-        private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
-        private Mock<IEmailService> _emailServiceMock;
 
         [TestInitialize]
         public void Setup()
@@ -31,11 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             _pcsBusSender = new PcsBusSender();
             _pcsBusSender.Add("ipo", _serviceBusSender.Object);
 
-            _meetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
-            _meetingOptionsMock.Setup(m => m.CurrentValue).Returns(new MeetingOptions() { PcsBaseUrl = "baseUrl"});
-            _emailServiceMock = new Mock<IEmailService>();
-
-            _dut = new IpoCompletedEventHandler(_pcsBusSender, _emailServiceMock.Object, _meetingOptionsMock.Object);
+            _dut = new IpoCompletedEventHandler(_pcsBusSender);
         }
 
         [TestMethod]
@@ -44,14 +36,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             // Arrange
             var sourceGuid = Guid.NewGuid();
             const string Plant = "TestPlant";
-            var emails = new List<string> {"email1@test.com", "email2@test.com"};
-            var ipoCompletedEvent = new IpoCompletedEvent(Plant, sourceGuid, 1234, "Invitation title", emails);
+            var ipoCompletedEvent = new IpoCompletedEvent(Plant, sourceGuid);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);
 
             // Assert
-            _serviceBusSender.Verify(t => t.SendMessageAsync(It.IsAny<ServiceBusMessage>(),It.IsAny<CancellationToken>()), Times.Once());
+            _serviceBusSender.Verify(t => t.SendMessageAsync(It.IsAny<ServiceBusMessage>(), It.IsAny<CancellationToken>()), Times.Once());
         }
 
         [TestMethod]
@@ -69,16 +60,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
                 DateTime.Now, "location", null, commpkgs);
             invitation.AddParticipant(new Participant(plant, Organization.ConstructionCompany,
                 IpoParticipantType.Person, "code", "firstname", "lastname", "username", "email", Guid.NewGuid(), 1));
-            var emails = new List<string>() {"email1@test.com", "email2@test.com"};
-            var ipoCompletedEvent = new IpoCompletedEvent(plant, sourceGuid, invitation.Id, invitation.Title, emails);
+            var ipoCompletedEvent = new IpoCompletedEvent(plant, sourceGuid);
 
             // Act
             await _dut.Handle(ipoCompletedEvent, default);
 
-            // Assert
-            _emailServiceMock.Verify(
-                t => t.SendEmailsAsync(It.IsAny<List<string>>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-                Times.Once());
         }
     }
 }
