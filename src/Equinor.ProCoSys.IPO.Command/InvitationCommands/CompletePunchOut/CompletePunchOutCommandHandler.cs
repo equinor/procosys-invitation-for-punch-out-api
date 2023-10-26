@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             {
                 _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not complete invitation {invitation.Id}. Error occured when sending email.");
                 await transaction.RollbackAsync(cancellationToken);
-                throw new IpoSendMailException();
+                throw new IpoSendMailException("It is currently not possible to complete invitation for punch-out since there is a problem when sending email. Please try again in a later. Contact support if the issue persists.", ex);
             }
 
             _unitOfWork.Commit();
