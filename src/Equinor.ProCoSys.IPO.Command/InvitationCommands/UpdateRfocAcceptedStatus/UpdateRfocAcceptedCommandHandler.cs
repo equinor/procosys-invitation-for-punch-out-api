@@ -54,8 +54,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
         public async Task<Result<Unit>> Handle(UpdateRfocAcceptedCommand request, CancellationToken cancellationToken)
         {
-            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
-
             var project = await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName);
             if (project == null)
             {
@@ -108,6 +106,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             var mcPkgNosToUpdateStatusOn = await GetMcPkgNosToUpdateRfocStatusAsync(mcPkgNos, project);
             var commPkgNosToUpdateStatusOn = await GetCommPkgNosToUpdateRfocStatusAsync(commPkgNos, project);
+
+            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+
             _invitationRepository.RfocAcceptedHandling(project.Name, commPkgNosToUpdateStatusOn, mcPkgNosToUpdateStatusOn);
 
             try
