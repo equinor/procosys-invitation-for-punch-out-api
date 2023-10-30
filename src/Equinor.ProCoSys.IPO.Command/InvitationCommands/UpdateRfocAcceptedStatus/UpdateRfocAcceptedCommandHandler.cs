@@ -118,8 +118,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 project.Name,
                 pcsCommPkgs.Where(c => c.OperationHandoverStatus == "ACCEPTED").Select(c => c.CommPkgNo).ToList(),
                 pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList());
-            AddCertificateMcPkgRelations(pcsMcPkgs.Select(mc => mc.McPkgNo).ToList(), project);
-            AddCertificateCommPkgRelations(pcsCommPkgs.Select(c => c.CommPkgNo).ToList(), project);
+            AddCertificateMcPkgRelations(pcsMcPkgs.Select(mc => mc.McPkgNo).ToList(), project, certificate);
+            AddCertificateCommPkgRelations(pcsCommPkgs.Select(c => c.CommPkgNo).ToList(), project, certificate);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
