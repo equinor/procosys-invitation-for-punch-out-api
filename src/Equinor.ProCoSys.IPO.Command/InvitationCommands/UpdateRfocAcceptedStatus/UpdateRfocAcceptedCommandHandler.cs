@@ -106,9 +106,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
             var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
             var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos);
-            if ((pcsMcPkgs == null || !pcsMcPkgs.Any()) && (pcsCommPkgs == null || !pcsCommPkgs.Any()))
+            if (!pcsMcPkgs.Any() && !pcsCommPkgs.Any())
             {
-                _logger.LogInformation($"Early exit in RfocAccepted handling. Certificate with guid {request.ProCoSysGuid} in project {request.ProjectName} does not have scope in IPO.");
+                _logger.LogInformation($"Early exit in RfocAccepted handling. " +
+                    $"Certificate with guid {request.ProCoSysGuid} in project {request.ProjectName} does not have scope in IPO.");
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
