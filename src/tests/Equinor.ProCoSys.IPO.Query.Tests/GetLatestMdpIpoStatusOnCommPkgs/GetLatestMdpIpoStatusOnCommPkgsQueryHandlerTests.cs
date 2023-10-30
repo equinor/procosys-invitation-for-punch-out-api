@@ -23,12 +23,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         private const string _commPkgNo1 = "CommPkgNo";
         private const string _commPkgNo2 = "CommPkgNo2";
         private const string _projectName = "Project1";
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var project = new Project(TestPlant, _projectName, $"Description of {_projectName}");
+                var project = new Project(TestPlant, _projectName, $"Description of {_projectName}", _project1Guid);
                 project.SetProtectedIdForTesting(320);
 
                 var meetingId = new Guid("11111111-2222-2222-2222-333333333333");

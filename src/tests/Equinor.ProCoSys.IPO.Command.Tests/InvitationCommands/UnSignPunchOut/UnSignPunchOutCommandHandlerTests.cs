@@ -27,7 +27,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnSignPunchOut
         private UnSignPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}", _projectGuid);
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _typeDp = DisciplineType.DP;

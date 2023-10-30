@@ -27,7 +27,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private AcceptPunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private static readonly Project project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private static readonly Guid _project1uid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Project project = new(_plant, _projectName, $"Description of {_projectName} project", _project1uid);
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const string _firstName = "Ola";

@@ -36,7 +36,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         private UpdateRfocAcceptedCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project", _projectGuid);
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _typeDP = DisciplineType.DP;
@@ -139,7 +140,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             _projectRepositoryMock = new Mock<IProjectRepository>();
             _projectRepositoryMock
                 .Setup(r => r.GetProjectOnlyByNameAsync(_projectName))
-                .Returns(Task.FromResult(new Project(_plant, _projectName, "Desc")));
+                .Returns(Task.FromResult(new Project(_plant, _projectName, "Desc", _projectGuid)));
 
 
             _loggerMock = new Mock<ILogger<UpdateRfocAcceptedCommandHandler>>();

@@ -31,13 +31,18 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project3Id = 714;
 
         private readonly List<Project> _projects = new List<Project>();
-        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
-        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
-        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project", _project1Guid);
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project", _project2Guid);
+        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project", _project3Guid);
 
         private const string _projectName = "ProjectName";
         private const string _projectName2 = "ProjectName2";
         private const string _projectName3 = "ProjectName3";
+
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
+        private static readonly Guid _project3Guid = new Guid("11111111-2222-2222-2222-333333333343");
+
         private string _mcPkgNo = "MC1";
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";

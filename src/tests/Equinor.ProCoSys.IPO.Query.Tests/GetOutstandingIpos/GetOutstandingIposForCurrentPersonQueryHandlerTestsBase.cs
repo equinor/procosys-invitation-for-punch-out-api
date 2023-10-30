@@ -63,10 +63,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _query = new GetOutstandingIposForCurrentPersonQuery();
             _person = context.Persons.FirstOrDefault();
 
-            _testProject = new Project(TestPlant, "TestProject", "Description for TestProject");
+            _testProject = new Project(TestPlant, "TestProject", "Description for TestProject", Guid.NewGuid());
             _testProject.SetProtectedIdForTesting(1);
 
-            _testProjectClosed = new Project(TestPlant, "TestProject", "Description for TestProject") { IsClosed = true };
+            _testProjectClosed = new Project(TestPlant, "TestProject", "Description for TestProject", Guid.NewGuid()) { IsClosed = true };
             _testProjectClosed.SetProtectedIdForTesting(2);
 
             context.Projects.Add(_testProject);

@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         private static Project SeedProject(IPOContext dbContext)
         {
-            var project = new Project(KnownTestData.Plant, KnownTestData.ProjectName, $"Description for {KnownTestData.ProjectName}");
+            var project = new Project(KnownTestData.Plant, KnownTestData.ProjectName, $"Description for {KnownTestData.ProjectName}", KnownTestData.ProjectGuid);
             var projectRepository = new ProjectRepository(dbContext);
             projectRepository.Add(project);
             dbContext.SaveChangesAsync().Wait();

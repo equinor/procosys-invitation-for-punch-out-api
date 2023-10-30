@@ -136,7 +136,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"Could not find ProCoSys project called {request.ProjectName} in plant {_plantProvider.Plant}");
             }
 
-            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description);
+            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description, proCoSysProject.ProCoSysGuid);
             project.IsClosed = proCoSysProject.IsClosed;
 
             _projectRepository.Add(project);

@@ -51,8 +51,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int _projectId = 320;
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project", _projectGuid);
         private const string _title = "Test title";
         private const string _newTitle = "Test title 2";
         private const string _description = "Test description";

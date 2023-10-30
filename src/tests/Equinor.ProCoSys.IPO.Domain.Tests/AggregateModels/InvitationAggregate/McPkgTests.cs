@@ -12,12 +12,13 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private McPkg _dut;
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
+        private static readonly Guid ProjectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int ProjectId = 320;
         private const string CommPkgNo = "Comm1";
         private const string McPkgNo = "Mc1";
         private const string Description = "D1";
         private const string System = "1|2";
-        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}", ProjectGuid);
 
 
         [TestInitialize]

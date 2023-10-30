@@ -20,7 +20,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
     {
         private const string _plant = "PCS$TESTPLANT";
         private const string _projectName = "TestProject";
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}", _projectGuid);
 
         private Invitation _invitation;
         private Mock<IInvitationRepository> _invitationRepositoryMock;

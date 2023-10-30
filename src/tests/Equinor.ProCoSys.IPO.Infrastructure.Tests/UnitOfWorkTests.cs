@@ -18,7 +18,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
     public class UnitOfWorkTests
     {
         private const string Plant = "PCS$TESTPLANT";
-        private readonly Project project = new(Plant, "Project", "Description of Project");
+        private static readonly Guid ProjectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project project = new(Plant, "Project", "Description of Project", ProjectGuid);
         private readonly Guid _currentUserOid = new Guid("12345678-1234-1234-1234-123456789123");
         private readonly DateTime _currentTime = new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc);
         private McPkg _mcPkg;

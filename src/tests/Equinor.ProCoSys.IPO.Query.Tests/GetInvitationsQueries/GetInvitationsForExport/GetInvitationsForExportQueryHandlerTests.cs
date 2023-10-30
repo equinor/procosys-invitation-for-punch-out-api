@@ -28,6 +28,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         private readonly Guid _personGuid = new Guid("11111111-2222-2222-2222-333333333333");
         private readonly Guid _frPersonGuid1 = new Guid("11111111-2222-2222-2222-333333333332");
         private readonly Guid _frPersonGuid2 = new Guid("11111111-2222-2222-2222-333333333335");
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
         private string _frEmail1 = "FR1@email.com";
         private string _personEmail1 = "P1@email.com";
         private string _personEmail2 = "P2@email.com";
@@ -42,8 +44,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         const string _commPkgNo2 = "CommPkgNo2";
         const string _mcPkgNo = "McPkgNo";
         const string _system = "1|2";
-        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
-        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}", _project1Guid);
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}" , _project2Guid);
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
         private int _invitationId;
         private const string _projectName = "Project1";
         private const int _projectId = 320;
-        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
+        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project", new Guid("6afabbbf-cf21-4533-93ff-73fe6fdfd27a"));
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

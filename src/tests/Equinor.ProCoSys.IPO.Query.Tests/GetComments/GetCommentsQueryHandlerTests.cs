@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetComments
     {
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
-            var project = new Project(TestPlant, "TestProject", $"Description of TestProject");
+            var project = new Project(TestPlant, "TestProject", $"Description of TestProject", ProjectGuid1);
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {

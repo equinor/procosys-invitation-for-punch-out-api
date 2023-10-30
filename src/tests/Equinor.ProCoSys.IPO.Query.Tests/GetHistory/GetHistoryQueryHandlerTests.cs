@@ -25,8 +25,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
-            var project1 = new Project(TestPlant, "TestProject", $"Description of TestProject");
-            var project2 = new Project(TestPlant, "project", $"Description of project");
+            var project1 = new Project(TestPlant, "TestProject", $"Description of TestProject", ProjectGuid1);
+            var project2 = new Project(TestPlant, "project", $"Description of project", ProjectGuid2);
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {

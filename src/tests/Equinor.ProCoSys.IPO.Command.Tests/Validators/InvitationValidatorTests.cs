@@ -22,10 +22,12 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
     public class InvitationValidatorTests : ReadOnlyTestsBaseInMemory
     {
         #region Setup
-        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
-        private static readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
+        private static readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project", _project1Guid);
+        private static readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project", _project2Guid);
         private const string _projectName = "Project name";
         private const string _projectName2 = "Project name 2";
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
         private const string _title1 = "Test title";
         private const string _title2 = "Test title 2";
         private const string _title3 = "Test title 3";

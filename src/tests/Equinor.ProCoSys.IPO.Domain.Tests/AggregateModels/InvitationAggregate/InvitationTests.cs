@@ -40,8 +40,9 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private Attachment _attachment;
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
+        private static readonly Guid ProjectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int ProjectId = 132;
-        private static readonly Project project = new(TestPlant, ProjectName, $"Description of {ProjectName} project");
+        private static readonly Project project = new(TestPlant, ProjectName, $"Description of {ProjectName} project", ProjectGuid);
         private const string Title = "Title A";
         private const string Title2 = "Title B";
         private const string Description = "Description A";

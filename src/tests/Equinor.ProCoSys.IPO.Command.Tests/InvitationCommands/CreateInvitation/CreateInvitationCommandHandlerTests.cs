@@ -60,8 +60,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private static Guid _azureOid = new Guid("11111111-1111-2222-2222-333333333333");
 
         private const string _plant = "PCS$TEST_PLANT";
-        private readonly Project _project = new(_plant, _projectName, "Description of Project");
-        private readonly Project _project2 = new(_plant, _proCoSysProjectName, _proCoSysProjectDescription);
+        private readonly Project _project = new(_plant, _projectName, "Description of Project", _project1Guid);
+        private readonly Project _project2 = new(_plant, _proCoSysProjectName, _proCoSysProjectDescription,_project2Guid);
         
         List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
@@ -89,6 +89,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private const string _projectName = "Project name";
         private const string _proCoSysProjectName = "ProCoSys Project name";
         private const string _proCoSysProjectDescription = "ProCoSys Project description";
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
         private readonly string _title = "Test title";
         private readonly string _description = "Body";
         private readonly string _location = "Outside";
