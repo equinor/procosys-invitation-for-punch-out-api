@@ -238,7 +238,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         }
 
         [TestMethod]
-        public async Task HandlingUpdateRfocStatusCommand_ShouldRollbackIfGetCommPkgsFails()
+        public async Task HandlingUpdateRfocStatusCommand_ShouldNotSaveGetCommPkgsFails()
         {
             var mcPkgs = new List<McPkg> {
                 new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2"),
@@ -254,8 +254,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             await Assert.ThrowsExceptionAsync<Exception>(() =>
                 _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }
