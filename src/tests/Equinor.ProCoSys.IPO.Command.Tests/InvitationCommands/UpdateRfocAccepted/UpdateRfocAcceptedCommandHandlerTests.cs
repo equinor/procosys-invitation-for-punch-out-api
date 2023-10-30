@@ -192,7 +192,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            Assert.IsNull(_createdCertificate);
+            Assert.IsNotNull(_createdCertificate);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -231,7 +231,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.IsNotNull(_createdCertificate);
             Assert.AreEqual(3, _createdCertificate.CertificateMcPkgs.Count);
             Assert.AreEqual(0, _createdCertificate.CertificateCommPkgs.Count);
