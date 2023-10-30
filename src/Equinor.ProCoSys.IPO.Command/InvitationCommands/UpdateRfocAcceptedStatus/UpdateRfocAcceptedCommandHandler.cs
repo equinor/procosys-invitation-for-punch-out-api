@@ -54,8 +54,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
 
         public async Task<Result<Unit>> Handle(UpdateRfocAcceptedCommand request, CancellationToken cancellationToken)
         {
-            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
-
             var project = await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName);
             if (project == null)
             {
@@ -106,33 +104,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             var commPkgNos = certificateCommPkgsModel.CommPkgs.Select(c => c.CommPkgNo).ToList();
             var mcPkgNos = certificateMcPkgsModel.McPkgs.Select(mc => mc.McPkgNo).ToList();
 
-            var mcPkgNosToUpdateStatusOn = await GetMcPkgNosToUpdateRfocStatusAsync(mcPkgNos, project);
-            var commPkgNosToUpdateStatusOn = await GetCommPkgNosToUpdateRfocStatusAsync(commPkgNos, project);
-            _invitationRepository.RfocAcceptedHandling(project.Name, commPkgNosToUpdateStatusOn, mcPkgNosToUpdateStatusOn);
+            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
+            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos);
+            if (!pcsMcPkgs.Any() && !pcsCommPkgs.Any())
+            {
+                _logger.LogInformation($"Early exit in RfocAccepted handling. " +
+                    $"Certificate with guid {request.ProCoSysGuid} in project {request.ProjectName} does not have scope in IPO.");
+                return new SuccessResult<Unit>(Unit.Value);
+            }
 
-            try
-            {
-                await AddCertificateMcPkgRelationsAsync(request.ProCoSysGuid, mcPkgNos, project, cancellationToken);
-                await AddCertificateCommPkgRelationsAsync(request.ProCoSysGuid, commPkgNos, project, cancellationToken);
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            var certificate = AddCertificate(request.ProCoSysGuid, project);
+
+            _invitationRepository.RfocAcceptedHandling(
+                project.Name,
+                pcsCommPkgs.Where(c => c.OperationHandoverStatus == "ACCEPTED").Select(c => c.CommPkgNo).ToList(),
+                pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList());
+            AddCertificateMcPkgRelations(pcsMcPkgs.Select(mc => mc.McPkgNo).ToList(), project, certificate);
+            AddCertificateCommPkgRelations(pcsCommPkgs.Select(c => c.CommPkgNo).ToList(), project, certificate);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            _unitOfWork.Commit();
-
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private async Task AddCertificateMcPkgRelationsAsync(Guid certificateGuid, IList<string> mcPkgNos, Project project, CancellationToken cancellationToken)
+        private void AddCertificateMcPkgRelations(IList<string> mcPkgNos, Project project, Certificate certificate)
         {
             var mcPkgs = _invitationRepository.GetMcPkgs(project.Name, mcPkgNos);
             if (!mcPkgs.IsNullOrEmpty())
             {
-                var certificate = await GetOrCreateCertificateAsync(certificateGuid, project, cancellationToken);
                 foreach (var mcPkg in mcPkgs)
                 {
                     certificate.AddMcPkgRelation(mcPkg);
@@ -140,12 +138,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             }
         }
 
-        private async Task AddCertificateCommPkgRelationsAsync(Guid certificateGuid, IList<string> commPkgNos, Project project, CancellationToken cancellationToken)
+        private void AddCertificateCommPkgRelations(IList<string> commPkgNos, Project project, Certificate certificate)
         {
             var commPkgs = _invitationRepository.GetCommPkgs(project.Name, commPkgNos);
             if (!commPkgs.IsNullOrEmpty())
             {
-                var certificate = await GetOrCreateCertificateAsync(certificateGuid, project, cancellationToken);
                 foreach (var commPkg in commPkgs)
                 {
                     certificate.AddCommPkgRelation(commPkg);
@@ -159,20 +156,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             return pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList();
         }
 
-        private async Task<IList<string>> GetCommPkgNosToUpdateRfocStatusAsync(IList<string> commPkgNos, Project project)
-        {
-            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos);
-            return pcsCommPkgs.Where(c => c.OperationHandoverStatus == "ACCEPTED").Select(c => c.CommPkgNo).ToList();
-        }
 
-        private async Task<Certificate> GetOrCreateCertificateAsync(Guid certificateGuid, Project project, CancellationToken cancellationToken)
-            => await _certificateRepository.GetCertificateByGuid(certificateGuid) ?? await AddCertificateAsync(certificateGuid, project, cancellationToken);
-
-        private async Task<Certificate> AddCertificateAsync(Guid certificateGuid, Project project, CancellationToken cancellationToken)
+        private Certificate AddCertificate(Guid certificateGuid, Project project)
         {
             var certificate = new Certificate(project.Plant, project, certificateGuid, true);
             _certificateRepository.Add(certificate);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
             return certificate;
         }
     }

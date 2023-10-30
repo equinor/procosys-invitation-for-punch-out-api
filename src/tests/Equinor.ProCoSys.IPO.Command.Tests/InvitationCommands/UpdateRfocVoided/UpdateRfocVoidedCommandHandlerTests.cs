@@ -208,7 +208,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
-
         [TestMethod]
         public async Task HandlingUpdateRfocVoidedCommand_CertificateIsActiveInMainOnMcPkgCall_ShouldReturnUnexpectedResult()
         {

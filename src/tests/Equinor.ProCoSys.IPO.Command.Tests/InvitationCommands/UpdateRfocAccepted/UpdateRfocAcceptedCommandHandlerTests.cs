@@ -192,7 +192,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            Assert.IsNull(_createdCertificate);
+            Assert.IsNotNull(_createdCertificate);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -231,31 +231,32 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(2));
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.IsNotNull(_createdCertificate);
             Assert.AreEqual(3, _createdCertificate.CertificateMcPkgs.Count);
             Assert.AreEqual(0, _createdCertificate.CertificateCommPkgs.Count);
         }
 
         [TestMethod]
-        public async Task HandlingUpdateRfocStatusCommand_ShouldRollbackIfGetCommPkgsFails()
+        public async Task HandlingUpdateRfocAcceptedCommand_CertificateScopeDoesNotExistInIPO_ShouldExitEarly()
         {
-            var mcPkgs = new List<McPkg> {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2"),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "description", "1|2"),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo3, "description", "1|2")
-            };
-            _invitationRepositoryMock
-                .Setup(r => r.GetMcPkgs(_projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }))
-                .Returns(mcPkgs);
-            _invitationRepositoryMock
-                .Setup(x => x.GetCommPkgs(It.IsAny<string>(), It.IsAny<IList<string>>()))
-                .Throws(new Exception("Something failed"));
+            IList<ProCoSysMcPkg> pcsMcPkgs = new List<ProCoSysMcPkg>();
 
-            await Assert.ThrowsExceptionAsync<Exception>(() =>
-                _dut.Handle(_command, default));
-            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mcPkgApiServiceMock
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }))
+                .Returns(Task.FromResult(pcsMcPkgs));
+
+            IList<ProCoSysCommPkg> pcsCommPkgs = new List<ProCoSysCommPkg>();
+
+            _commPkgApiServiceMock
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, new List<string> { _commPkgNo, _commPkgNo2, _commPkgNo3 }))
+                .Returns(Task.FromResult(pcsCommPkgs));
+
+            var result = await _dut.Handle(_command, default);
+
+            Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
+
+            _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

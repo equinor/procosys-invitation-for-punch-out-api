@@ -96,6 +96,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("PcsGuid");
+
                     b.HasIndex("CreatedById");
 
                     b.HasIndex("ModifiedById");
