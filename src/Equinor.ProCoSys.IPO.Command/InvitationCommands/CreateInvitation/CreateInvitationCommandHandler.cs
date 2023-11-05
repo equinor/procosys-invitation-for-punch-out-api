@@ -19,7 +19,8 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.Email;
+using Equinor.ProCoSys.IPO.Command.ICalendar;
+using Equinor.ProCoSys.Common.Email;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -42,7 +43,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectApiService _projectApiService;
-        private readonly Email.ISmtpService _smtpService;
+        private readonly IICalendarService _iCalendarService;
+        private readonly IEmailService _emailService;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -58,7 +60,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
             IProjectApiService projectApiService,
-            Email.ISmtpService smtpService,
+            IICalendarService calendarService,
+            IEmailService emailService,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -74,13 +77,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
             _projectApiService = projectApiService;
-            _smtpService = smtpService;
+            _iCalendarService = calendarService;
+            _emailService = emailService;
             _logger = logger;
         }
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
             var meetingParticipants = new List<BuilderParticipant>();
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
@@ -141,18 +145,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
                 try
                 {
-                    await _smtpService.SendSmtpWithInviteAsync(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
+                    var message = _iCalendarService.CreateMessage(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
+                    await _emailService.SendMessageAsync(message);
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync(cancellationToken);
+                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                     _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} using backup solution of sending ics attachment through SMTP.");
                     throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
                 }
             }
             catch (Exception ex) 
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
             try 
@@ -163,7 +168,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
         }

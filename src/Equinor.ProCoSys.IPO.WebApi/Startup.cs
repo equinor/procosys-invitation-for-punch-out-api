@@ -27,7 +27,6 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Swagger;
-using Equinor.ProCoSys.IPO.Command.Email;
 
 namespace Equinor.ProCoSys.IPO.WebApi
 {

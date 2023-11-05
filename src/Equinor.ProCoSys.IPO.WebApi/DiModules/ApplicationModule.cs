@@ -7,8 +7,8 @@ using Equinor.ProCoSys.Common.Caches;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.Command.Email;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
+using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.SavedFilterValidators;
@@ -55,8 +55,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
+            services
+                .Configure<GraphOptions>(configuration.GetSection("Graph"))
+                .Configure<GraphOptions>(x => x.TenantId = configuration.GetValue<string>("TenantId"));
             services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
-            services.Configure<SmtpOptions>(configuration.GetSection("Email"));
 
             services.AddDbContext<IPOContext>(options =>
             {
@@ -117,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
             services.AddSingleton<IEmailService, EmailService>();
-            services.AddSingleton<ISmtpService, SmtpService>();
+            services.AddSingleton<IICalendarService, ICalendarService>();
         }
     }
 }

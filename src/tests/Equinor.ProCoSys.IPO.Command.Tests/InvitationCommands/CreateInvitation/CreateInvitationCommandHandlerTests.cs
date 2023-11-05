@@ -23,7 +23,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.Email;
+using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.ICalendar;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 {
@@ -40,11 +41,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
-        private Mock<IDbContextTransaction> _transactionMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IProjectApiService> _projectApiServiceMock;
-        private Mock<ISmtpService> _smtpServiceMock;
+        private Mock<IICalendarService> _iCalendarServiceMock;
+        private Mock<IEmailService> _emailServiceMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _functionalRoleWithMultipleEmailsCode = "FR2";
@@ -180,12 +181,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
                 .Returns(Task.FromResult(_proCoSysProject2));
 
-            _smtpServiceMock = new Mock<ISmtpService>();
+            _iCalendarServiceMock = new Mock<IICalendarService>();
+            _emailServiceMock = new Mock<IEmailService>();
 
-            _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock.Setup(x => x.BeginTransaction(It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(_transactionMock.Object));
+            _unitOfWorkMock.Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()));
 
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
 
@@ -290,7 +290,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 _projectRepositoryMock.Object,
                 _projectApiServiceMock.Object,
-                _smtpServiceMock.Object,
+                _iCalendarServiceMock.Object,
+                _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
@@ -622,14 +623,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
-            _smtpServiceMock
-                .Setup(x => x.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()))
+            _iCalendarServiceMock
+                .Setup(x => x.CreateMessage(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()))
                 .Throws(new Exception("Could not send invitation as ics through SMTP"));
 
             await Assert.ThrowsExceptionAsync<IpoSendMailException>(() =>
                 _dut.Handle(_command, default));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _unitOfWorkMock.Verify(t => t.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
@@ -640,7 +641,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
             await _dut.Handle(_command, default);
-            _smtpServiceMock.Verify(t => t.SendSmtpWithInviteAsync(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()), Times.Once);
+            _iCalendarServiceMock.Verify(t => t.CreateMessage(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
@@ -686,7 +687,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             var invitationParticipants = _createdInvitation.Participants.Select(p => p).ToList();
             Assert.AreEqual(invitationParticipants.Count, 2);
             Assert.AreEqual(invitationParticipants[0].FunctionalRoleCode, _functionalRoleWithMultipleEmailsCode);
-            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _unitOfWorkMock.Verify(t => t.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
@@ -730,7 +731,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             var invitationParticipants = _createdInvitation.Participants.Select(p => p).ToList();
             Assert.AreEqual(invitationParticipants.Count, 2);
             Assert.AreEqual(invitationParticipants[0].FunctionalRoleCode, _functionalRoleWithMultipleInformationEmailsCode);
-            _transactionMock.Verify(t => t.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
+            _unitOfWorkMock.Verify(t => t.RollbackTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
@@ -752,7 +753,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
-                _smtpServiceMock.Object,
+                _iCalendarServiceMock.Object,
+                _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(
@@ -794,7 +796,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
-                _smtpServiceMock.Object,
+                _iCalendarServiceMock.Object,
+                _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(

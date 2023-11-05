@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Fusion.Integration.Meeting;
+using Microsoft.Graph.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Organization = Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Organization;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
@@ -263,13 +264,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
 
         [TestMethod]
-        public async Task CreateInvitation_AsPlanner_ShouldReturn_SpecificError_WhenMailProblem()
+        public async Task CreateInvitation_AsPlanner_ShouldReturn_SpecificError_WhenFallbackProblem()
         {
             // Arrange
             TestFactory.Instance
                 .FusionMeetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
                 .Throws(new Exception("Something failed"));
+
+            TestFactory.Instance
+                .EmailServiceMock
+                .Setup(x => x.SendMessageAsync(It.IsAny<Message>(), default))
+                .Throws(new Exception("Something failed"));
+
 
             // Act
             await InvitationsControllerTestsHelper.CreateInvitationAsync(
@@ -288,6 +295,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 expectedMessageOnInternalServerError: "It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists."
             );
         }
+
+        [TestMethod]
+        public async Task CreateInvitation_AsPlanner_ShouldUse_Fallback_WhenPlannerProblem()
+        {
+            // Arrange
+            TestFactory.Instance
+                .FusionMeetingClientMock
+                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
+                .Throws(new Exception("Something failed"));
+
+            TestFactory.Instance
+                .EmailServiceMock
+                .Setup(x => x.SendMessageAsync(It.IsAny<Message>(), default));
+
+            // Act
+            await InvitationsControllerTestsHelper.CreateInvitationAsync(
+                UserType.Planner,
+                TestFactory.PlantWithAccess,
+                Guid.NewGuid().ToString(),
+                Guid.NewGuid().ToString(),
+                InvitationLocation,
+                DisciplineType.DP,
+                _invitationStartTime,
+                _invitationEndTime,
+                _participants,
+                _mcPkgScope,
+                null,
+                HttpStatusCode.OK
+            );
+        }
+
 
         #endregion
 

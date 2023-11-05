@@ -5,10 +5,12 @@ using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.PcsServiceBus.Sender;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
         private PcsBusSender _pcsBusSender;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IEmailService> _emailServiceMock;
+        private Mock<ILogger<IpoCompletedEventHandler>> _loggerMock;
 
         [TestInitialize]
         public void Setup()
@@ -35,7 +38,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             _meetingOptionsMock.Setup(m => m.CurrentValue).Returns(new MeetingOptions() { PcsBaseUrl = "baseUrl"});
             _emailServiceMock = new Mock<IEmailService>();
 
-            _dut = new IpoCompletedEventHandler(_pcsBusSender, _emailServiceMock.Object, _meetingOptionsMock.Object);
+            _loggerMock = new Mock<ILogger<IpoCompletedEventHandler>>();
+
+            _dut = new IpoCompletedEventHandler(_pcsBusSender, _emailServiceMock.Object, _meetingOptionsMock.Object, _loggerMock.Object);
         }
 
         [TestMethod]

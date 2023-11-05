@@ -104,8 +104,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             }
         }
             
-        public async Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken = default) 
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default) 
             => await base.Database.BeginTransactionAsync(cancellationToken);
+
+        public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+            => await base.Database.RollbackTransactionAsync(cancellationToken);
 
         public void Commit() => base.Database.CommitTransaction();
 
