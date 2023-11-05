@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                 .Callback<Certificate>(x => _createdCertificate = x);
             _transactionMock = new Mock<IDbContextTransaction>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _unitOfWorkMock.Setup(x => x.BeginTransaction(It.IsAny<CancellationToken>()))
+            _unitOfWorkMock.Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_transactionMock.Object));
 
             var commPkg1 = new PCSCertificateCommPkg

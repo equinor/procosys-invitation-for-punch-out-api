@@ -11,7 +11,6 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 {
     public class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent>
     {
-        private readonly ILogger<IpoCompletedEventHandler> _logger;
         private readonly IPcsBusSender _pcsBusSender;
 
         public IpoCompletedEventHandler(IPcsBusSender pcsBusSender)
