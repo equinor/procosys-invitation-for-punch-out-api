@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -16,6 +17,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
         protected const string McPkgNo1 = "MCPKGNO1";
         protected const string McPkgNo2 = "MCPKGNO2";
         protected const string System = "1|2";
+        protected DateTime RfcoAccetpedAt = new DateTime(2020, 10, 4);
 
         private ProCoSysCommPkgSearchResult _commPkgSearchResult;
         private IList<ProCoSysProject> _projects;
@@ -32,7 +34,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OK",
                     Description = "CommPkg1Description",
                     Id = 1,
-                    System = System
+                    System = System,
+                    RfocAcceptedAt = RfcoAccetpedAt
                 },
                 new ProCoSysSearchCommPkg
                 {
@@ -40,7 +43,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     CommStatus = "OS",
                     Description = "CommPkg2Description",
                     Id = 2,
-                    System = System
+                    System = System,
+                    RfocAcceptedAt = null
                 }
             };
 
@@ -61,7 +65,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     McPkgNo = McPkgNo1,
                     Description = "McPkg1Description",
                     DisciplineCode = "A",
-                    System = System
+                    System = System,
+                    RfocAcceptedAt = RfcoAccetpedAt
                 },
                 new ProCoSysMcPkgOnCommPkg
                 {
@@ -70,7 +75,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     McPkgNo = McPkgNo2,
                     Description = "McPkg2Description",
                     DisciplineCode = "B",
-                    System = System
+                    System = System,
+                    RfocAcceptedAt = null
                 }
             };
 

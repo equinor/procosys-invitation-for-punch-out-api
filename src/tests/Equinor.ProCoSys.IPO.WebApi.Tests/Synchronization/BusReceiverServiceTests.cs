@@ -128,7 +128,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -142,7 +142,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingCommPkgTopic_Move_WithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project2Name}\", \"ProjectNameOld\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo3}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -158,14 +158,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectNameOld\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
             
-            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
         }
 
         [TestMethod]
         public async Task HandlingMcPkgTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"Description\" : \"{description}\", \"Milestones\": [{{\"Code\": \"M-01\",\"Planned\": \"2021-12-06T00:00:00.000Z\",\"Actual\": \"12-dec-2021\"}}]}}";
-            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -181,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var commPkgOld = "C1";
             var mcPKgOld = "M1";
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"CommPkgNoOld\" :\"{commPkgOld}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"McPkgNoOld\" : \"{mcPKgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
 
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
@@ -198,7 +198,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var mcPKgOld = "M1";
             var message =
                 $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"McPkgNoOld\" : \"{mcPKgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -208,7 +208,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var commPkgOld = "C1";
             var message =
                 $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"CommPkgNoOld\" : \"{commPkgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -219,7 +219,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(It.IsAny<Guid>()), Times.Never);
 
-            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Library, message, new CancellationToken(false));
             
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -237,7 +237,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(It.IsAny<Guid>()), Times.Never);
 
-            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Library, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -256,7 +256,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(It.IsAny<Guid>()), Times.Never);
 
-            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Library, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -291,7 +291,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 projectRepositoryTestDouble,
                 _certificationEventProcessorService.Object);
 
-            await dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
+            await dut.ProcessMessageAsync(PcsTopicConstants.Project, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -315,7 +315,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
             
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
@@ -335,7 +335,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
@@ -355,7 +355,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
 
             // Assert
             _plantSetter.Verify(p => p.SetPlant(plant));
@@ -375,7 +375,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
 
             // Assert
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
@@ -396,7 +396,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
 
             // Assert
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
@@ -417,7 +417,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{\"Plant\" : \"{plant}\", \"InvitationGuid\" : \"{_invitation1.Guid}\", \"Event\" : \"{ipoEvent}\", \"Status\" : {status}}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
 
             // Assert
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
@@ -435,7 +435,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.CommPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -445,7 +445,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.McPkg, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -455,7 +455,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Ipo, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Ipo, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -465,7 +465,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Project, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Project, message, new CancellationToken(false));
         }
 
         [TestMethod]
@@ -475,7 +475,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             var message = $"{{}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Library, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Library, message, new CancellationToken(false));
         }
 
        
@@ -489,13 +489,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 $"{{\"Plant\" : \"SomePlant\",\"ProCoSysGuid\" : \"{guid}\",\"TagNo\" : \"someTagNo\",\"Behavior\" : \"{Delete}\",\"RegisterCode\" : \"SomeRegister\"}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Tag, message, new CancellationToken(false));
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Tag, message, new CancellationToken(false));
 
             // Assert
             _telemetryClient.Verify(tc => tc.TrackEvent("IPO Bus Receiver",
                 new Dictionary<string, string>
                 {
-                    {"Event Delete", PcsTopic.Tag.ToString()},
+                    {"Event Delete", PcsTopicConstants.Tag.ToString()},
                     {"ProCoSysGuid", guid.ToString()}
                 }, null), Times.Once());
 
@@ -511,7 +511,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\"}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Certificate, message, default);
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
 
             // Assert
             _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Once);
@@ -525,7 +525,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\", \"Behavior\" :\"delete\"}}";
 
             // Act
-            await _dut.ProcessMessageAsync(PcsTopic.Certificate, message, default);
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
 
             // Assert
             _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Never);

@@ -39,7 +39,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
                         Status = "OK",
                         M01 = new DateTime(),
                         M02 = null,
-                        OperationHandoverStatus = "ACCEPTED"
+                        OperationHandoverStatus = "ACCEPTED",
+                        RfocAcceptedAt = DateTime.Now
                     },
                     new ProCoSysMcPkgOnCommPkg
                     {
@@ -50,7 +51,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
                         Status = "OK",
                         M01 = new DateTime(),
                         M02 = null,
-                        OperationHandoverStatus = "ACCEPTED"
+                        OperationHandoverStatus = "ACCEPTED",
+                        RfocAcceptedAt = null
                     },
                     new ProCoSysMcPkgOnCommPkg
                     {
@@ -61,7 +63,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
                         Status = "PA",
                         M01 = null,
                         M02 = null,
-                        OperationHandoverStatus = "NOCERTIFICATE"
+                        OperationHandoverStatus = "NOCERTIFICATE",
+                        RfocAcceptedAt = null
                     }
                 };
 
@@ -130,6 +133,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
             Assert.AreEqual(PCSMcPkg.M02, mcPkgDto.M02);
             Assert.AreEqual(PCSMcPkg.Status, mcPkgDto.Status);
             Assert.AreEqual(PCSMcPkg.OperationHandoverStatus, mcPkgDto.OperationHandoverStatus);
+            Assert.AreEqual(PCSMcPkg.RfocAcceptedAt, mcPkgDto.RfocAcceptedAt);
         }
     }
 }

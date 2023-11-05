@@ -12,7 +12,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
             string operationHandoverStatus,
             DateTime? m01,
             DateTime? m02,
-            string status)
+            string status,
+            DateTime? rfocAcceptedAt)
         {
             Id = id;
             McPkgNo = mcPkgNo;
@@ -23,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
             M01 = m01;
             M02 = m02;
             Status = status;
+            RfocAcceptedAt = rfocAcceptedAt;
         }
 
         public long Id { get; }
@@ -34,5 +36,6 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
         public DateTime? M01 { get; }
         public DateTime? M02 { get; }
         public string Status { get; }
+        public DateTime? RfocAcceptedAt { get; }
     }
 }

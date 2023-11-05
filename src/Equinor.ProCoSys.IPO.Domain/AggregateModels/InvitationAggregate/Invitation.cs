@@ -202,7 +202,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, note));
         }
-        
+
         public void UpdateAttendedStatus(
             Participant participant,
             bool attended,
@@ -238,12 +238,10 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CompletedAtUtc = completedAtUtc;
             AddDomainEvent(new IpoCompletedEvent(Plant, Guid, participant));
 
-            var emails = GetCompleterEmails();
-
-            AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid, Id, Title, emails));
+            AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }
 
-        private List<string> GetCompleterEmails()
+        public List<string> GetCompleterEmails()
             => this.Participants.Where(
                     p => p.Organization == Organization.ConstructionCompany && p.SortKey == 1 && p.Email != null)
                 .Select(p => p.Email).ToList();
@@ -380,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             Title = title;
             Description = description;
-            
+
             SetScope(type, mcPkgScope, commPkgScope);
 
             StartTimeUtc = startTime;
@@ -452,6 +450,27 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             Status = IpoStatus.ScopeHandedOver;
             AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
+        }
+
+        public void ResetStatus()
+        {
+            if (Status != IpoStatus.ScopeHandedOver)
+            {
+                throw new Exception($"{nameof(Invitation)} {Id} is {Status}. Can only reset status when status is {IpoStatus.ScopeHandedOver}");
+            }
+            if (AcceptedAtUtc != null)
+            {
+                Status = IpoStatus.Accepted;
+            }
+            else if (CompletedAtUtc != null)
+            {
+                Status = IpoStatus.Completed;
+            }
+            else
+            {
+                Status = IpoStatus.Planned;
+            }
+            AddDomainEvent(new StatusResetEvent(Plant, Guid));
         }
 
         public void SetCreated(Person createdBy)

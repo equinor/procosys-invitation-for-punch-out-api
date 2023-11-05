@@ -20,24 +20,24 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<PCSCertificateMcPkgsModel> GetCertificateMcPkgsAsync(string plant, Guid proCoSysGuid)
+        public async Task<PCSCertificateMcPkgsModel> TryGetCertificateMcPkgsAsync(string plant, Guid proCoSysGuid)
         {
             var url = $"{_baseAddress}Certificate/McPkgsByCertificateGuid" +
                       $"?plantId={plant}" +
                       $"&proCoSysGuid={proCoSysGuid.ToString("N")}" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.QueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url);
+            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url);
         }
 
-        public async Task<PCSCertificateCommPkgsModel> GetCertificateCommPkgsAsync(string plant, Guid proCoSysGuid)
+        public async Task<PCSCertificateCommPkgsModel> TryGetCertificateCommPkgsAsync(string plant, Guid proCoSysGuid)
         {
             var url = $"{_baseAddress}Certificate/CommPkgsByCertificateGuid" +
                       $"?plantId={plant}" +
                       $"&proCoSysGuid={proCoSysGuid.ToString("N")}" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.QueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(url);
+            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(url);
         }
     }
 }

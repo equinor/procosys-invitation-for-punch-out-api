@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
         public string OperationHandoverStatus { get; set; }
         public DateTime? M01 { get; set; }
         public DateTime? M02 { get; set; }
+        public DateTime? RfocAcceptedAt { get; set; }
         public string System { get; set; }
         public string Section
             => System.Count(s => s == '|') == 2

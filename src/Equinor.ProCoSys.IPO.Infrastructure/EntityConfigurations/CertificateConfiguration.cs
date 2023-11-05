@@ -23,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
 
             builder.Property(x => x.PcsGuid)
                 .IsRequired();
+            builder.HasAlternateKey(x => x.PcsGuid);
 
             builder
                 .HasMany(x => x.CertificateMcPkgs)

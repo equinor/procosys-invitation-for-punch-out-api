@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
         private const string _plant = "PCS$TESTPLANT";
         private const int _defaultPageSize = 10;
         private const int _defaultCurrentPage = 0;
+        private DateTime RfocAcceptedAt = new DateTime(2017, 6, 6);
 
         [TestInitialize]
         public void Setup()
@@ -43,7 +45,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 Description = "Description1",
                                 CommStatus = "OK",
                                 System = "1|2",
-                                OperationHandoverStatus = "Accepted"
+                                OperationHandoverStatus = "Accepted",
+                                RfocAcceptedAt = RfocAcceptedAt
                             },
                             new ProCoSysSearchCommPkg
                             {
@@ -52,7 +55,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 Description = "Description2",
                                 CommStatus = "PA",
                                 System = "1|2",
-                                OperationHandoverStatus = "Sent"
+                                OperationHandoverStatus = "Sent",
+                                RfocAcceptedAt = null
                             },
                             new ProCoSysSearchCommPkg
                             {
@@ -61,7 +65,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                                 Description = "Description3",
                                 CommStatus = "PB",
                                 System = "1|2",
-                                OperationHandoverStatus = "Sent"
+                                OperationHandoverStatus = "Sent",
+                                RfocAcceptedAt = null
                             }
                         }
             };
@@ -167,6 +172,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             Assert.AreEqual("OK", commPkg.CommStatus);
             Assert.AreEqual("1|2", commPkg.System);
             Assert.AreEqual("Accepted", commPkg.OperationHandoverStatus);
+            Assert.AreEqual(RfocAcceptedAt, commPkg.RfocAcceptedAt);
         }
     }
 }

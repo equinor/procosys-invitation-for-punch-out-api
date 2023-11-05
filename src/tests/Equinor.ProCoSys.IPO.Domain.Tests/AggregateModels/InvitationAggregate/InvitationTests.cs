@@ -1277,107 +1277,92 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void ScopeHandedOver_SetsStatusToScopeHandedOver_WhenIpoIsPlanned()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
+            Assert.AreEqual(_dutDpIpo.Status, IpoStatus.Planned);
 
-            var dut = new Invitation(
-                TestPlant,
-                project,
-                Title,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                null,
-                new List<CommPkg> { _commPkg1 });
+            _dutDpIpo.ScopeHandedOver();
 
-            dut.SetCreated(_currentPerson);
-            dut.ScopeHandedOver();
-            Assert.AreEqual(dut.Status, IpoStatus.ScopeHandedOver);
+            Assert.AreEqual(_dutDpIpo.Status, IpoStatus.ScopeHandedOver);
         }
 
 
         [TestMethod]
         public void ScopeHandedOver_SetsStatusToScopeHandedOver_WhenIpoIsAccepted()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
-
-            var dut = new Invitation(
-                TestPlant,
-                project,
-                Title,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                null,
-                new List<CommPkg> { _commPkg1 });
-
-            dut.SetCreated(creator);
-
-            dut.CompleteIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
-            dut.AcceptIpo(_personParticipant, ParticipantRowVersion, creator, new DateTime());
-
-            dut.ScopeHandedOver();
-            Assert.AreEqual(dut.Status, IpoStatus.ScopeHandedOver);
+            _dutWithAcceptedStatus.ScopeHandedOver();
+            Assert.AreEqual(_dutWithAcceptedStatus.Status, IpoStatus.ScopeHandedOver);
         }
 
         [TestMethod]
         public void ScopeHandedOver_ThrowsException_WhenIpoIsCanceled()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-
-            var dut = new Invitation(
-                TestPlant,
-                project,
-                Title,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                null,
-                new List<CommPkg> { _commPkg1 });
-
-            dut.SetCreated(_currentPerson);
-            dut.CancelIpo(_currentPerson);
-            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+            Assert.ThrowsException<Exception>(() => _dutWithCanceledStatus.ScopeHandedOver());
         }
 
         [TestMethod]
         public void ScopeHandedOver_ThrowsException_WhenStatusIsScopeHandedOver()
         {
-            TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            var creator = new Person(new Guid("12345678-1234-1234-1234-123456789123"), "Test", "Person", "tp", "tp@pcs.pcs");
+            _dutWithCompletedStatus.ScopeHandedOver();
 
-            var dut = new Invitation(
-                TestPlant,
-                project,
-                Title,
-                Description,
-                DisciplineType.MDP,
-                new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
-                new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
-                null,
-                null,
-                new List<CommPkg> { _commPkg1 });
-
-            dut.SetCreated(creator);
-
-            dut.ScopeHandedOver();
-
-            Assert.ThrowsException<Exception>(() => dut.ScopeHandedOver());
+            Assert.ThrowsException<Exception>(() => _dutWithCompletedStatus.ScopeHandedOver());
         }
 
         [TestMethod]
-        public void AcceptIpo_ShouldAddScopeHandedOverDomainEvent()
+        public void ScopeHandedOver_ShouldAddScopeHandedOverDomainEvent()
         {
             _dutWithCompletedStatus.ScopeHandedOver();
 
             Assert.IsInstanceOfType(_dutWithCompletedStatus.DomainEvents.Last(), typeof(ScopeHandedOverEvent));
         }
         #endregion
+
+        #region ResetStatus
+        [TestMethod]
+        public void ResetStatus_SetsStatusToPlanned_WhenIpoWasPlanned()
+        {
+            _dutDpIpo.ScopeHandedOver();
+
+            _dutDpIpo.ResetStatus();
+
+            Assert.AreEqual(_dutDpIpo.Status, IpoStatus.Planned);
+        }
+
+
+        [TestMethod]
+        public void ResetStatus_SetsStatusToCompleted_WhenIpoWasCompleted()
+        {
+            _dutWithCompletedStatus.ScopeHandedOver();
+
+            _dutWithCompletedStatus.ResetStatus();
+
+            Assert.AreEqual(_dutWithCompletedStatus.Status, IpoStatus.Completed);
+        }
+
+        [TestMethod]
+        public void ResetStatus_SetsStatusToAccepted_WhenIpoWasAccepted()
+        {
+            _dutWithAcceptedStatus.ScopeHandedOver();
+
+            _dutWithAcceptedStatus.ResetStatus();
+
+            Assert.AreEqual(_dutWithAcceptedStatus.Status, IpoStatus.Accepted);
+        }
+
+        [TestMethod]
+        public void ResetStatus_ThrowsException_WhenStatusIsNotScopeHandedOver()
+        {
+            Assert.ThrowsException<Exception>(() => _dutWithCanceledStatus.ResetStatus());
+        }
+
+        [TestMethod]
+        public void ResetStatus_ShouldAddStatusResetDomainEvent()
+        {
+            _dutWithCompletedStatus.ScopeHandedOver();
+
+            _dutWithCompletedStatus.ResetStatus();
+
+            Assert.IsInstanceOfType(_dutWithCompletedStatus.DomainEvents.Last(), typeof(StatusResetEvent));
+        }
+        #endregion
+
     }
 }

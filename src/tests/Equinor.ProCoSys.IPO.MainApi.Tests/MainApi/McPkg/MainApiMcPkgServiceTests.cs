@@ -25,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         private ProCoSysMcPkg _proCoSysMcPkg3;
 
         private const string _plant = "PCS$TESTPLANT";
+        private DateTime RfocAcceptedAt = new DateTime(2016, 7, 8);
 
         [TestInitialize]
         public void Setup()
@@ -46,7 +47,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(2021, 10, 10),
                 M02 = null,
-                Status = "OK"
+                Status = "OK",
+                RfocAcceptedAt = RfocAcceptedAt
             };
             _proCoSysMcPkgOnCommPkg2 = new ProCoSysMcPkgOnCommPkg
             {
@@ -58,7 +60,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(),
                 M02 = null,
-                Status = "PA"
+                Status = "PA",
+                RfocAcceptedAt = RfocAcceptedAt
             };
             _proCoSysMcPkgOnCommPkg3 = new ProCoSysMcPkgOnCommPkg
             {
@@ -70,7 +73,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(),
                 M02 = null,
-                Status = "PB"
+                Status = "PB",
+                RfocAcceptedAt = RfocAcceptedAt
             };
 
             _proCoSysMcPkg1 = new ProCoSysMcPkg
@@ -82,7 +86,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 System = "1|2",
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(2021, 10, 10),
-                M02 = null
+                M02 = null,
+                RfocAcceptedAt = RfocAcceptedAt
             };
             _proCoSysMcPkg2 = new ProCoSysMcPkg
             {
@@ -93,7 +98,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 System = "1|2",
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(),
-                M02 = null
+                M02 = null,
+                RfocAcceptedAt = RfocAcceptedAt
             };
             _proCoSysMcPkg3 = new ProCoSysMcPkg
             {
@@ -104,7 +110,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 System = "1|2",
                 OperationHandoverStatus = "Accepted",
                 M01 = new DateTime(),
-                M02 = null
+                M02 = null,
+                RfocAcceptedAt = RfocAcceptedAt
             };
 
             _foreignApiClient
@@ -158,6 +165,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("A", mcPkg.DisciplineCode);
             Assert.AreEqual("1|2", mcPkg.System);
             Assert.AreEqual("Accepted", mcPkg.OperationHandoverStatus);
+            Assert.AreEqual(RfocAcceptedAt, mcPkg.RfocAcceptedAt);
             Assert.AreEqual(new DateTime(2021, 10, 10), mcPkg.M01);
             Assert.IsNull(mcPkg.M02);
         }
@@ -181,6 +189,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             Assert.AreEqual("McNo2", mcPkg.McPkgNo);
             Assert.AreEqual("Description2", mcPkg.Description);
             Assert.AreEqual("A", mcPkg.DisciplineCode);
+            Assert.AreEqual(RfocAcceptedAt, mcPkg.RfocAcceptedAt);
         }
 
         [TestMethod]
