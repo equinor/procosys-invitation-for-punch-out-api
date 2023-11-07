@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/text";
 
-                string message = string.IsNullOrEmpty(e.Message)? "Something went wrong when sending email!":e.Message;
+                var message = string.IsNullOrEmpty(e.Message)? "Something went wrong when sending email!":e.Message;
                 await context.Response.WriteAsync(message);
             }
             catch (Exception ex)

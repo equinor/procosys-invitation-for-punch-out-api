@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                 meetingDescription += $@"<p>#########################################################################################################<br/>
                     NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
                     a fallback solution was used to send this invite.<br/>
-                    This has the concequence that the related meeting does not have the same level of integration and features as you are used to.<br/>                    
+                    This has the consequence that the related meeting does not have the same level of integration and features as you are used to.<br/>                    
                     #########################################################################################################<br/>";
             }
 
@@ -103,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         {
             var meetingDescription = "<h4>Invitation to a punch round - fallback solution</h4>";
             meetingDescription += $@"<p>Due to technical issues with the regular system used to send invitation for punch-out, a fallback solution is used.<br/>
-                    This has the concequence that the invitation has been made available to you through an attached iCalendar.<br/>
+                    This has the consequence that the invitation has been made available to you through an attached iCalendar.<br/>
                     To ensure that the invitation is made available to the participants follow these steps:<br/><br/>
                     - Left click the file drop down<br/>
                     - Select open<br/>

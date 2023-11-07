@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectApiService _projectApiService;
-        private readonly IICalendarService _iCalendarService;
+        private readonly ICalendarService _calendarService;
         private readonly IEmailService _emailService;
 
         public CreateInvitationCommandHandler(
@@ -60,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
             IProjectApiService projectApiService,
-            IICalendarService calendarService,
+            ICalendarService calendarService,
             IEmailService emailService,
             ILogger<CreateInvitationCommandHandler> logger)
         {
@@ -77,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
             _projectApiService = projectApiService;
-            _iCalendarService = calendarService;
+            _calendarService = calendarService;
             _emailService = emailService;
             _logger = logger;
         }
@@ -117,40 +117,40 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
         
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             try
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
             }
             catch (IpoSendMailException e)
             {
-                _logger.LogWarning($"Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {_currentUserProvider.GetCurrentUserOid()} and invitation id {invitation.Id}.");
+                _logger.LogWarning("Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {UserOid} and invitation id {InvitationId}.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
                 var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
 
                 try
                 {
-                    var message = _iCalendarService.CreateMessage(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
-                    await _emailService.SendMessageAsync(message);
+                    var message = _calendarService.CreateMessage(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
+                    await _emailService.SendMessageAsync(message, cancellationToken);
                 }
                 catch (Exception ex)
                 {
                     await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-                    _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} using backup solution of sending ics attachment through SMTP.");
+                    _logger.LogError(ex, "User with oid {UserOid} could not create outlook meeting for invitation {InvitationId} using backup solution of sending ics attachment through SMTP.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
                     throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
                 }
             }
-            catch (Exception ex) 
+            catch (Exception)
             {
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
-            try 
+
+            try
             { 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;

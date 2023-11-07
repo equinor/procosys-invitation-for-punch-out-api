@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IProjectApiService> _projectApiServiceMock;
-        private Mock<IICalendarService> _iCalendarServiceMock;
+        private Mock<ICalendarService> _iCalendarServiceMock;
         private Mock<IEmailService> _emailServiceMock;
 
         private const string _functionalRoleCode = "FR1";
@@ -181,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
                 .Returns(Task.FromResult(_proCoSysProject2));
 
-            _iCalendarServiceMock = new Mock<IICalendarService>();
+            _iCalendarServiceMock = new Mock<ICalendarService>();
             _emailServiceMock = new Mock<IEmailService>();
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();

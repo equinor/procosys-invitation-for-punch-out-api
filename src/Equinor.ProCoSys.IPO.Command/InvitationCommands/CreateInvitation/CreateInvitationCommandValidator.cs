@@ -77,8 +77,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 {
                     if (!string.IsNullOrEmpty(participant.InvitedExternalEmail?.Email))
                     {
-                        var IsValid = EmailValidator.IsValid(participant.InvitedExternalEmail?.Email);
-                        if (!IsValid)
+                        var isValid = EmailValidator.IsValid(participant.InvitedExternalEmail?.Email);
+                        if (!isValid)
                         {
                             return false;
                         }
