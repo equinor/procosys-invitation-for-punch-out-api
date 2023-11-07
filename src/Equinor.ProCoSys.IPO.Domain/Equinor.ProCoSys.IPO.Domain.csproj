@@ -5,12 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Equinor.ProCoSys.Common" Version="1.0.17" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\procosys-common\src\Equinor.ProCoSys.Common\Equinor.ProCoSys.Common.csproj" />
   </ItemGroup>
 
 </Project>
