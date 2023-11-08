@@ -8,7 +8,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Fusion.Integration.Meeting;
-using System.Linq;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {

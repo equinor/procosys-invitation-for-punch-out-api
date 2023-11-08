@@ -121,7 +121,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
             }
-            catch (IpoSendMailException e)
+            catch (IpoSendMailException)
             {
                 _logger.LogWarning("Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {UserOid} and invitation id {InvitationId}.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
                 var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());

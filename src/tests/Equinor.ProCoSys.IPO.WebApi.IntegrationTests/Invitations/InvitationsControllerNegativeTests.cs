@@ -296,37 +296,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             );
         }
 
-        [TestMethod]
-        public async Task CreateInvitation_AsPlanner_ShouldUse_Fallback_WhenPlannerProblem()
-        {
-            // Arrange
-            TestFactory.Instance
-                .FusionMeetingClientMock
-                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Throws(new Exception("Something failed"));
-
-            TestFactory.Instance
-                .EmailServiceMock
-                .Setup(x => x.SendMessageAsync(It.IsAny<Message>(), default));
-
-            // Act
-            await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null,
-                HttpStatusCode.OK
-            );
-        }
-
-
         #endregion
 
         #region Edit

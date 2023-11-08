@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
                             request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope);
             var content = InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, true);
 
-            var message = new Message()
+            var message = new Message
             {
                 Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
                             request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
@@ -29,9 +29,9 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
                     ContentType = BodyType.Html,
                     Content = InvitationHelper.GenerateMeetingFallbackDescription()
                 },
-                ToRecipients = new List<Recipient>() { 
-                    new Recipient { 
-                        EmailAddress = new EmailAddress { 
+                ToRecipients = new List<Recipient> { 
+                    new () { 
+                            EmailAddress = new EmailAddress { 
                             Address = organizer.Email, 
                             Name = $"{organizer.FirstName} {organizer.LastName}" 
                         } 
@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
 
             var invitationString = CreateInvitation(organizer, subject, content, invitation);
             var attachment = CreateICalendarInvitationAttachment(invitationString);
-            message.Attachments = new List<Microsoft.Graph.Models.Attachment>() 
+            message.Attachments = new List<Microsoft.Graph.Models.Attachment> 
             { 
                 attachment 
             };

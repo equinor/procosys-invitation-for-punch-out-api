@@ -17,7 +17,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Fusion.Integration.Meeting;
 using Fusion.Integration.Meeting.Http.Models;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -44,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IProjectApiService> _projectApiServiceMock;
-        private Mock<ICalendarService> _iCalendarServiceMock;
+        private Mock<ICalendarService> _calendarServiceMock;
         private Mock<IEmailService> _emailServiceMock;
 
         private const string _functionalRoleCode = "FR1";
@@ -181,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
                 .Returns(Task.FromResult(_proCoSysProject2));
 
-            _iCalendarServiceMock = new Mock<ICalendarService>();
+            _calendarServiceMock = new Mock<ICalendarService>();
             _emailServiceMock = new Mock<IEmailService>();
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
@@ -290,7 +289,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 _projectRepositoryMock.Object,
                 _projectApiServiceMock.Object,
-                _iCalendarServiceMock.Object,
+                _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
@@ -623,7 +622,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
-            _iCalendarServiceMock
+            _calendarServiceMock
                 .Setup(x => x.CreateMessage(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()))
                 .Throws(new Exception("Could not send invitation as ics through SMTP"));
 
@@ -641,7 +640,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 .Throws(new Exception("Could not send invitation through meeting API"));
 
             await _dut.Handle(_command, default);
-            _iCalendarServiceMock.Verify(t => t.CreateMessage(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()));
+            _calendarServiceMock.Verify(t => t.CreateMessage(It.IsAny<Invitation>(), It.IsAny<string>(), It.IsAny<Person>(), It.IsAny<string>(), It.IsAny<CreateInvitationCommand>()));
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()));
         }
 
@@ -753,7 +752,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
-                _iCalendarServiceMock.Object,
+                _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
@@ -796,7 +795,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _currentUserProviderMock.Object,
                 projectRepositoryTestDouble,
                 _projectApiServiceMock.Object,
-                _iCalendarServiceMock.Object,
+                _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
