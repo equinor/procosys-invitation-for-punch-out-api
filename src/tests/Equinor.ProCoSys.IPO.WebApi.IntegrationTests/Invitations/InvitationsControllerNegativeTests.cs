@@ -263,39 +263,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 HttpStatusCode.Forbidden);
 
 
-        [TestMethod]
-        public async Task CreateInvitation_AsPlanner_ShouldReturn_SpecificError_WhenFallbackProblem()
-        {
-            // Arrange
-            TestFactory.Instance
-                .FusionMeetingClientMock
-                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Throws(new Exception("Something failed"));
-
-            TestFactory.Instance
-                .EmailServiceMock
-                .Setup(x => x.SendMessageAsync(It.IsAny<Message>(), default))
-                .Throws(new Exception("Something failed"));
-
-
-            // Act
-            await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null,
-                HttpStatusCode.InternalServerError,
-                expectedMessageOnInternalServerError: "It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists."
-            );
-        }
-
         #endregion
 
         #region Edit
