@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             return $"{ipoPart}. {projectPart}. {scopePart}";
         }
 
-        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName)
+        public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName, bool isFallback)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
             meetingDescription += $"<p>Title: {invitation.Title}</p>";
@@ -82,8 +82,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                 meetingDescription += GenerateCommPkgTable(invitation, baseUrl, projectName);
             }
 
-            meetingDescription += $"</br><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a>";
-            meetingDescription += $"</br><p>Best regards, {organizer.FirstName} {organizer.LastName}</p>";
+            meetingDescription += $"<br/><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a><br/><br/>";
+            meetingDescription += $"Best regards,<br/>";
+            meetingDescription += $"{organizer.FirstName} {organizer.LastName}<br/><br/>";
+
+            if (isFallback)
+            {
+                meetingDescription += $@"<p>#########################################################################################################<br/>
+                    NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
+                    a fallback solution was used to send this invite.<br/>
+                    This has the consequence that the related meeting does not have the same level of integration and features as you are used to.<br/>                    
+                    #########################################################################################################<br/>";
+            }
+
+            return meetingDescription;
+        }
+
+        public static string GenerateMeetingFallbackDescription()
+        {
+            var meetingDescription = "<h4>Invitation to a punch round - fallback solution</h4>";
+            meetingDescription += $@"<p>Due to technical issues with the regular system used to send invitation for punch-out, a fallback solution is used.<br/>
+                    This has the consequence that the invitation has been made available to you through an attached iCalendar.<br/>
+                    To ensure that the invitation is made available to the participants follow these steps:<br/><br/>
+                    - Left click the file drop down<br/>
+                    - Select open<br/>
+                    - Add the attached iCalendar to Outlook by clicking yes.<br/>
+                    - Select 'send update'.<br/>
+                    - Select 'send update to all attendees'<br/>";
 
             return meetingDescription;
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using FluentValidation;
@@ -46,7 +47,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => RequiredParticipantsHaveLowestSortKeys(command.Participants))
                 .WithMessage("Contractor must be first and Construction Company must be second!")
                 .Must(command => ParticipantListMustBeValid(command.Participants))
-                .WithMessage("Each participant must contain an oid!");
+                .WithMessage("Each participant must contain an oid!")
+                .Must(command => ParticipantListMustHaveValidEmails(command.Participants))
+                .WithMessage("One, or more, of the email-addresses for the participants is invalid.");
 
             RuleForEach(command => command.Participants)
                 .Must(participant => participant.SortKey >= 0)
@@ -67,6 +70,22 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);
+
+            bool ParticipantListMustHaveValidEmails(IList<ParticipantsForCommand> participants)
+            {
+                foreach (var participant in participants)
+                {
+                    if (!string.IsNullOrEmpty(participant.InvitedExternalEmail?.Email))
+                    {
+                        var isValid = EmailValidator.IsValid(participant.InvitedExternalEmail?.Email);
+                        if (!isValid)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
 
             bool FunctionalRoleParticipantsMustBeValid(ParticipantsForCommand participant)
             {

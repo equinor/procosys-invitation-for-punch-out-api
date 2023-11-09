@@ -7,6 +7,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public IpoSendMailException()
         {
         }
+
         public IpoSendMailException(string message, Exception exception) : base(message, exception)
         {
         }

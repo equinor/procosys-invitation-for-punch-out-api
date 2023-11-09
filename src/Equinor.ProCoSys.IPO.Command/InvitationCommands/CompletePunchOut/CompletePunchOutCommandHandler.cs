@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 p.Organization == Organization.Contractor &&
                 p.AzureOid == currentUser.Guid);
 
-            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
             if (participant == null || participant.FunctionalRoleCode != null)
             {
@@ -80,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not complete invitation {invitation.Id}. Error occured when sending email.");
-                await transaction.RollbackAsync(cancellationToken);
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw new IpoSendMailException("It is currently not possible to complete invitation for punch-out since there is a problem when sending email. Please try again in a later. Contact support if the issue persists.", ex);
             }
 

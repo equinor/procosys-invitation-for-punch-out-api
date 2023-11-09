@@ -19,6 +19,8 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.ICalendar;
+using Equinor.ProCoSys.Common.Email;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -41,6 +43,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectApiService _projectApiService;
+        private readonly ICalendarService _calendarService;
+        private readonly IEmailService _emailService;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -56,6 +60,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
             IProjectApiService projectApiService,
+            ICalendarService calendarService,
+            IEmailService emailService,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -71,12 +77,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
             _projectApiService = projectApiService;
+            _calendarService = calendarService;
+            _emailService = emailService;
             _logger = logger;
         }
 
         public async Task<Result<int>> Handle(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            var transaction = await _unitOfWork.BeginTransaction(cancellationToken);
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
             var meetingParticipants = new List<BuilderParticipant>();
             var mcPkgs = new List<McPkg>();
             var commPkgs = new List<CommPkg>();
@@ -109,17 +117,42 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
         
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             try
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
+            }
+            catch (IpoSendMailException)
+            {
+                _logger.LogWarning("Trying to use fallback solution for creating outlook meeting since meeting API failed for user with oid {UserOid} and invitation id {InvitationId}.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
+                var organizer = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
+
+                try
+                {
+                    var message = _calendarService.CreateMessage(invitation, project.Name, organizer, _meetingOptions?.CurrentValue?.PcsBaseUrl, request);
+                    await _emailService.SendMessageAsync(message, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                    _logger.LogError(ex, "User with oid {UserOid} could not create outlook meeting for invitation {InvitationId} using backup solution of sending ics attachment through SMTP.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
+                    throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
+                }
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
+
+            try
+            { 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
             }
-            catch
+            catch (Exception)
             {
-                await transaction.RollbackAsync(cancellationToken);
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
         }
@@ -449,11 +482,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                             request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
                             request.Location)
                         .StartsOn(request.StartTime, request.EndTime)
-                        .WithTimeZone("UTC")
+                    .WithTimeZone("UTC")
                         .WithParticipants(meetingParticipants)
                         .WithClassification(MeetingClassification.Open)
                         .EnableOutlookIntegration()
-                        .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName));
+                        .WithInviteBodyHtml(InvitationHelper.GenerateMeetingDescription(invitation, baseUrl, organizer, projectName, false));
 
                     if (request.IsOnline)
                     {
@@ -463,7 +496,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id}.");
+                _logger.LogWarning(ex, $"User with oid {_currentUserProvider.GetCurrentUserOid()} could not create outlook meeting for invitation {invitation.Id} when using meeting API.");
                 throw new IpoSendMailException();
             }
             return meeting.Id;

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Fusion.Integration.Meeting;
+using Microsoft.Graph.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Organization = Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Organization;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
@@ -261,33 +262,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 null,
                 HttpStatusCode.Forbidden);
 
-
-        [TestMethod]
-        public async Task CreateInvitation_AsPlanner_ShouldReturn_SpecificError_WhenMailProblem()
-        {
-            // Arrange
-            TestFactory.Instance
-                .FusionMeetingClientMock
-                .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
-                .Throws(new Exception("Something failed"));
-
-            // Act
-            await InvitationsControllerTestsHelper.CreateInvitationAsync(
-                UserType.Planner,
-                TestFactory.PlantWithAccess,
-                Guid.NewGuid().ToString(),
-                Guid.NewGuid().ToString(),
-                InvitationLocation,
-                DisciplineType.DP,
-                _invitationStartTime,
-                _invitationEndTime,
-                _participants,
-                _mcPkgScope,
-                null,
-                HttpStatusCode.InternalServerError,
-                expectedMessageOnInternalServerError: "Something went wrong when sending email!"
-            );
-        }
 
         #endregion
 
