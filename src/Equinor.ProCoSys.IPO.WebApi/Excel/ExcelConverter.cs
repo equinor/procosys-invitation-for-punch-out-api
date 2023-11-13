@@ -301,7 +301,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.StartTimeUtc != DateTime.MinValue)
                 {
-                    xlsxWriter.Write(invitation.StartTimeUtc, dateStyle);
+                    xlsxWriter.Write(invitation.StartTimeUtc.ToLocalTime(), dateStyle);
                 }
                 else
                 {
@@ -310,7 +310,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.EndTimeUtc != DateTime.MinValue)
                 {
-                    xlsxWriter.Write(invitation.EndTimeUtc, dateStyle);
+                    xlsxWriter.Write(invitation.EndTimeUtc.ToLocalTime(), dateStyle);
                 }
                 else
                 {
@@ -325,7 +325,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.CompletedAtUtc.HasValue)
                 {
-                    xlsxWriter.Write((DateTime)invitation.CompletedAtUtc, dateStyle);
+                    xlsxWriter.Write(((DateTime)invitation.CompletedAtUtc).ToLocalTime(), dateStyle);
                 }
                 else
                 {
@@ -334,7 +334,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.AcceptedAtUtc.HasValue)
                 {
-                    xlsxWriter.Write((DateTime)invitation.AcceptedAtUtc, dateStyle);
+                    xlsxWriter.Write(((DateTime)invitation.AcceptedAtUtc).ToLocalTime(), dateStyle);
                 }
                 else
                 {
@@ -342,7 +342,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 }
 
                 xlsxWriter.Write(invitation.CreatedBy)
-                    .Write(invitation.CreatedAtUtc, dateStyle);
+                    .Write(invitation.CreatedAtUtc.ToLocalTime(), dateStyle);
             }
         }
 
