@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -20,5 +22,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         IList<Invitation> GetInvitationsForSynchronization();
         IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos);
         IList<McPkg> GetMcPkgs(string projectName, IList<string> mcPkgNos);
+        IList<CommPkg> GetCommPkgsOnly();
+        IList<McPkg> GetMcPkgsOnly();
     }
 }

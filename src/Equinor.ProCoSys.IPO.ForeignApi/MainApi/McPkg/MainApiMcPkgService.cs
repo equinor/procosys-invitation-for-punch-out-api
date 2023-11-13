@@ -42,6 +42,18 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             return mcPkgs;
         }
 
+        public async Task<ProCoSysMcPkg> GetMcPkgByIdAsync(
+            string plant,
+            long mcPkgNo)
+        {
+            var baseUrl = $"{_baseAddress}McPkg" +
+                      $"?plantId={plant}" +
+                      $"&mcPkgId={mcPkgNo}" +
+                      $"&api-version={_apiVersion}";
+            var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl);
+            return response;
+        }
+
         public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
             string plant,
             string projectName,

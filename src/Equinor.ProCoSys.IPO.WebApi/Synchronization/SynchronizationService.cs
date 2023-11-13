@@ -8,7 +8,8 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids;
+using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
+using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;
@@ -91,8 +92,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     await _claimsTransformation.TransformAsync(currentUser);
 
                     var startTime = TimeService.UtcNow;
-                    
-                    //await _mediator.Send(new FillRfocGuidsCommand(saveChanges?.Value == "true"));
+
+                    await _mediator.Send(new FillCommPkgPCSGuidsCommand(saveChanges?.Value == "true"));
+                    await _mediator.Send(new FillMcPkgPCSGuidsCommand(saveChanges?.Value == "true"));
 
                     var endTime = TimeService.UtcNow;
 

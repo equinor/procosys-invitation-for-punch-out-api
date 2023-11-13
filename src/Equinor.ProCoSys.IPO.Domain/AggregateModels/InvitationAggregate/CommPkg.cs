@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int ProjectId { get; private set; }
         public bool RfocAccepted { get; set; }
         public ICollection<Certificate> CertificateScopes => _certificateScope;
-        public Guid Guid { get; private set; } = Guid.Empty;
+        public Guid Guid { get; set; } = Guid.Empty;
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;
