@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
-        public Guid Guid { get; private set; } = Guid.Empty;
+        public Guid Guid { get; set; } = Guid.Empty;
 
         public void SetCreated(Person createdBy)
         {

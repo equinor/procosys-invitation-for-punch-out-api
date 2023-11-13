@@ -11,50 +11,49 @@ using ServiceResult;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using System.Collections.Generic;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 
-namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
+namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
 {
-    public class FillPCSGuidsCommandHandler : IRequestHandler<FillCommPkgPCSGuidsCommand, Result<Unit>>
+    public class FillPCSGuidsCommandHandler : IRequestHandler<FillProjectPCSGuidsCommand, Result<Unit>>
     {
-        private readonly ILogger<FillCommPkgPCSGuidsCommand> _logger;
+        private readonly ILogger<FillProjectPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly IProjectApiService _projectApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
 
         public FillPCSGuidsCommandHandler(
-            ILogger<FillCommPkgPCSGuidsCommand> logger,
+            ILogger<FillProjectPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            ICommPkgApiService commPkgApiService,
+            IProjectApiService projectApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _commPkgApiService = commPkgApiService;
+            _projectApiService = projectApiService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<Unit>> Handle(FillCommPkgPCSGuidsCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(FillProjectPCSGuidsCommand request, CancellationToken cancellationToken)
         {
-            var allCommPkgs = _invitationRepository.GetCommPkgsOnly();
+            var allProjects = await _projectRepository.GetAllAsync();
             var count = 0;
-            foreach (var commPkg in allCommPkgs)
+            foreach (var project in allProjects)
             {
-                if (commPkg.Guid == Guid.Empty)
+                if (project.Guid == Guid.Empty)
                 {
-                    var project = await _projectRepository.GetByIdAsync(commPkg.ProjectId);
-                    IList<string> commPkgNo = new List<string>() { commPkg.CommPkgNo };
-                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
+                    var projectDetails = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, project.Name);
 
-                    if (commPkgDetails != null && commPkgDetails.Count == 1)
+                    if (projectDetails != null)
                     {
-                        commPkg.Guid = commPkgDetails.First().ProCoSysGuid;
-                       _logger.LogInformation($"FillCommPkgPCSGuids: CommPkg updated: {commPkg.CommPkgNo}");
+                        project.Guid = projectDetails.ProCoSysGuid;
+                       _logger.LogInformation($"FillProjectPCSGuids: Project updated: {project.Name}");
                        count++;
                     }
                 }
@@ -63,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
           if (request.SaveChanges && count > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                _logger.LogInformation($"FillCommPkgPCSGuids: {count} CommPks updated");
+                _logger.LogInformation($"FillProjectPCSGuids: {count} Projects updated");
             }
             return new SuccessResult<Unit>(Unit.Value);
         }
