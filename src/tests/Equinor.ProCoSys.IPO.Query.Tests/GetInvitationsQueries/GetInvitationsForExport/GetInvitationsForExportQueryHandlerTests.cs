@@ -171,7 +171,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     _commPkgNo,
                     description,
                     "OK",
-                    "1|2");
+                    "1|2",
+                    Guid.Empty);
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
@@ -179,7 +180,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     _commPkgNo,
                     _mcPkgNo,
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
@@ -187,7 +189,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     _commPkgNo2,
                     _mcPkgNo,
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var startTime1 = _timeProvider.UtcNow;
 

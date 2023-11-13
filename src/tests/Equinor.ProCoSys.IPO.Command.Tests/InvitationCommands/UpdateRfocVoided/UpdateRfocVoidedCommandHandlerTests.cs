@@ -66,8 +66,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
                 .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
-            var mcPkg1 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo, "d", "1|2");
-            var mcPkg2 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo2, "d", "1|2");
+            var mcPkg1 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo, "d", "1|2", Guid.Empty);
+            var mcPkg2 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo2, "d", "1|2", Guid.Empty);
             _mcPkgNos = new List<string> { _mcPkgNo, _mcPkgNo2 };
 
             _certificate = new Certificate(_plant, _project, _certificateGuid, true);

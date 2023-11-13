@@ -256,8 +256,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection, Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection, Guid.Empty)
             };
             //create invitation
             _dpInvitation = new Invitation(
@@ -275,8 +275,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var commPkgs = new List<CommPkg>
             {
-                new CommPkg(_plant, _project, _commPkgNo, "d", "ok", _systemPathWithSection),
-                new CommPkg(_plant, _project, _commPkgNo, "d2", "ok", _systemPathWithSection)
+                new CommPkg(_plant, _project, _commPkgNo, "d", "ok", _systemPathWithSection, Guid.Empty),
+                new CommPkg(_plant, _project, _commPkgNo, "d2", "ok", _systemPathWithSection, Guid.Empty)
             };
             //create invitation
             _mdpInvitation = new Invitation(

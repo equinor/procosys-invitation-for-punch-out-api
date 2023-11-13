@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();

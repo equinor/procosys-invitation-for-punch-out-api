@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
         [TestInitialize]
         public void Setup()
         {
-            _mcPkg = new McPkg(Plant, project, "commno", "mcno", "d", "1|2");
+            _mcPkg = new McPkg(Plant, project, "commno", "mcno", "d", "1|2", Guid.Empty);
 
             _dbContextOptions = new DbContextOptionsBuilder<IPOContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())

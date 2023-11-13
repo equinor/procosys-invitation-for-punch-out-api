@@ -91,7 +91,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     description,
                     "OK",
-                    "1|2");
+                    "1|2",
+                    Guid.Empty);
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
@@ -99,7 +100,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     "McPkgNo1",
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
@@ -107,7 +109,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     "McPkgNo2",
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 _dpInvitation = new Invitation(
                     TestPlant,

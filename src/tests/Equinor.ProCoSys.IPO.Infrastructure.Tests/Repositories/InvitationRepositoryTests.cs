@@ -47,6 +47,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";
         private string _system = "1|2";
+        private Guid _mcPkgGuid = Guid.Empty;
         private string _commPkgNo = "Comm1";
         private string _commPkgNo2 = "Comm2";
         private string _commPkgNo3 = "Comm3";
@@ -92,25 +93,25 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 .Setup(x => x.Projects)
                 .Returns(_projectSetMock.Object);
 
-            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
             _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
-            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2");
+            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", Guid.Empty);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
-            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2");
+            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", Guid.Empty);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
             
-            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2");
+            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", Guid.Empty);
             _commPkg4.SetProtectedIdForTesting(CommPkgId4);
 
-            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system);
+            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid);
             _mcPkg2.SetProtectedIdForTesting(McPkgId2);
 
-            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system);
+            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid);
             _mcPkg3.SetProtectedIdForTesting(McPkgId3);
 
             _participant = new Participant(

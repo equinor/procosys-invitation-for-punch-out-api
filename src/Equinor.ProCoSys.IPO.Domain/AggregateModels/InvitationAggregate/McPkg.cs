@@ -20,7 +20,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         {
         }
 
-        public McPkg(string plant, Project project, string commPkgNo, string mcPkgNo, string description, string system)
+        public McPkg(
+            string plant,
+            Project project,
+            string commPkgNo,
+            string mcPkgNo,
+            string description,
+            string system,
+            Guid guid)
             : base(plant)
         {
             if (project is null)
@@ -49,6 +56,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Description = description;
             McPkgNo = mcPkgNo;
             RfocAccepted = false;
+            Guid= guid;
         }
 
         // private setters needed for Entity Framework

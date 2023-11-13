@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "CommNo1", "McNo1", "d", "1|2"), new McPkg(_plant, _project, "CommNo1", "McNo2", "d", "1|2") },
+                    new List<McPkg> { new McPkg(_plant, _project, "CommNo1", "McNo1", "d", "1|2", Guid.Empty), new McPkg(_plant, _project, "CommNo1", "McNo2", "d", "1|2", Guid.Empty) },
                     null);
 
             //command
@@ -220,9 +220,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         public async Task HandlingUpdateRfocStatusCommand_ShouldCreateCertificateAndCreateRelation()
         {
             var mcPkgs = new List<McPkg> {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2"),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "description", "1|2"),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo3, "description", "1|2")
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo, "description", "1|2", Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "description", "1|2", Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo3, "description", "1|2", Guid.Empty)
             };
             _invitationRepositoryMock
                 .Setup(r => r.GetMcPkgs(_projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }))

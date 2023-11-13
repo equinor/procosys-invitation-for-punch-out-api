@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null)
             { MeetingId = _meetingId };
             var participant = new Participant(

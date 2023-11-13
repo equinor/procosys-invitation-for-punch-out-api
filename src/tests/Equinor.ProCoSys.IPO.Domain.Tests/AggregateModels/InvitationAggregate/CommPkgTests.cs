@@ -18,6 +18,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string Description = "D1";
         private const string Status = "OK";
         private const string System = "1|2";
+        private readonly Guid CommPkgGuid = Guid.Empty;
         private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}", ProjectGuid);
 
 
@@ -25,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void Setup()
         {
             _project.SetProtectedIdForTesting(ProjectId);
-            _dut = new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, System);
+            _dut = new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, System, CommPkgGuid);
         }
 
         [TestMethod]
@@ -42,31 +43,31 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenProjectNameNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new CommPkg(TestPlant, null, CommPkgNo, Description, Status, System)
+                new CommPkg(TestPlant, null, CommPkgNo, Description, Status, System, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenCommPkgNoNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new CommPkg(TestPlant, _project, null, Description, Status, System)
+                new CommPkg(TestPlant, _project, null, Description, Status, System, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, null)
+                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, null, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemIsTooShort() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, "1|")
+                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, "1|", Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemIsInvalid() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, "1234")
+                new CommPkg(TestPlant, _project, CommPkgNo, Description, Status, "1234", Guid.Empty)
             );
     }
 }
