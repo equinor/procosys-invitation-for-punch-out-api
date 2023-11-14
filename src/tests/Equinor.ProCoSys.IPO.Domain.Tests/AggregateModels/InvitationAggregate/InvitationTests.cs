@@ -156,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 null,
                 null,
-                "fr1@test.com;fr2@test.com",
+                "fr1@test.com; fr2@test.com",
                 null,
                 1);
             _functionalRoleParticipant.SetProtectedIdForTesting(_functionalRoleParticipantId);
@@ -927,6 +927,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             var emails = _dutDpIpo.GetCompleterEmails();
             Assert.IsTrue(emails.Count()==2);
+            Assert.IsTrue(emails[0]=="fr1@test.com");
+            Assert.IsTrue(emails[1] == "fr2@test.com");
         }
 
         [TestMethod]
@@ -940,11 +942,12 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 null,
                 null,
-                "fr1additional@test.com ", // Should remove whitespace.
+                " fr1additional@test.com ", // Should remove whitespace.
                 null,
                 1));
             var emails = _dutDpIpo.GetCompleterEmails();
             Assert.IsTrue(emails.Count() == 3);
+            Assert.IsTrue(emails[2]== "fr1additional@test.com");
         }
 
 
