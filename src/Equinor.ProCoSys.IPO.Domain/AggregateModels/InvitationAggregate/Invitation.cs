@@ -241,11 +241,26 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }
 
+        private List<string> SplitEmailAddressBySemicolon(List<string> unsplittedEmails)
+        {
+            var splittedEmails = new List<string>();
+            unsplittedEmails.ForEach(x =>
+            {
+                var emailsArray = x.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                splittedEmails.AddRange(emailsArray.Select(y => y.Trim()));
+
+            });
+            return splittedEmails;
+        }
+
         public List<string> GetCompleterEmails()
-            => this.Participants.Where(
+        {
+            var unsplittedEmails = this.Participants.Where(
                     p => p.Organization == Organization.ConstructionCompany && p.SortKey == 1 && p.Email != null)
                 .Select(p => p.Email).ToList();
 
+            return SplitEmailAddressBySemicolon(unsplittedEmails);
+        }
 
         public void UnCompleteIpo(Participant participant, string participantRowVersion)
         {
