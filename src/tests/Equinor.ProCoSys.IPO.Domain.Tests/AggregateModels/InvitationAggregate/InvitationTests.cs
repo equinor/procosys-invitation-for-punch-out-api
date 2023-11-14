@@ -156,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 null,
                 null,
                 null,
-                "fr1@test.com",
+                "fr1@test.com;fr2@test.com",
                 null,
                 1);
             _functionalRoleParticipant.SetProtectedIdForTesting(_functionalRoleParticipantId);
@@ -921,6 +921,32 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.IsNotNull(_dutDpIpo.CompletedAtUtc);
             Assert.AreEqual(_currentUserId, _dutDpIpo.CompletedBy);
         }
+
+        [TestMethod]
+        public void CompleteIpo_ShouldCompleteIpo_WhenSemicolonSeparatedEmailInFunctionalRole()
+        {
+            var emails = _dutDpIpo.GetCompleterEmails();
+            Assert.IsTrue(emails.Count()==2);
+        }
+
+        [TestMethod]
+        public void CompleteIpo_ShouldCompleteIpo_WhenSemicolonSeparatedEmailInMultipleFunctionalRoles()
+        {
+            _dutDpIpo.AddParticipant(new Participant(
+                TestPlant,
+                Organization.ConstructionCompany,
+                IpoParticipantType.FunctionalRole,
+                "FRADD1",
+                null,
+                null,
+                null,
+                "fr1additional@test.com ", // Should remove whitespace.
+                null,
+                1));
+            var emails = _dutDpIpo.GetCompleterEmails();
+            Assert.IsTrue(emails.Count() == 3);
+        }
+
 
         [TestMethod]
         public void CompleteIpo_ShouldAddCompleteIpoDomainEvent()
