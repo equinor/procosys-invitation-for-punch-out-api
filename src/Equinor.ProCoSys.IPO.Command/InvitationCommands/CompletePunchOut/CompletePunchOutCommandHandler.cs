@@ -76,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             try
             {
                 await SendEmailAsync(invitation, cancellationToken);
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
@@ -84,7 +85,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
                 throw new IpoSendMailException("It is currently not possible to complete invitation for punch-out since there is a problem when sending email. Please try again in a later. Contact support if the issue persists.", ex);
             }
 
-            _unitOfWork.Commit();
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
