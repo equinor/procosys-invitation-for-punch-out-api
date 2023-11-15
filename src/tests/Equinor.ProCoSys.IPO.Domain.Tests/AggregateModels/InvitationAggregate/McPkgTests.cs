@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void Setup()
         {
             _project.SetProtectedIdForTesting(ProjectId);
-            _dut = new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, System, Guid.Empty);
+            _dut = new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, System, new Guid("11111111-2222-2222-6666-333333333333"));
         }
 
         [TestMethod]
@@ -36,6 +36,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.AreEqual(CommPkgNo, _dut.CommPkgNo);
             Assert.AreEqual(McPkgNo, _dut.McPkgNo);
             Assert.AreEqual(Description, _dut.Description);
+            Assert.AreNotEqual(_dut.Guid, Guid.Empty);
             Assert.IsFalse(_dut.RfocAccepted);
         }
 

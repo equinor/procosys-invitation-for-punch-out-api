@@ -5,13 +5,10 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using global::Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
-using System.Collections;
 using System.Collections.Generic;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 
@@ -21,7 +18,6 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
     {
         private readonly ILogger<FillMcPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly ICommPkgApiService _commPkgApiService;
         private readonly IMcPkgApiService _mcPkgApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
@@ -31,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
             ILogger<FillMcPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            ICommPkgApiService commPkgApiService,
             IMcPkgApiService mcPkgApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
@@ -39,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _commPkgApiService = commPkgApiService;
             _mcPkgApiService= mcPkgApiService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
@@ -69,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
                 }
             }
 
-          if (request.SaveChanges && count > 0)
+            if (request.SaveChanges && count > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation($"FillMcPkgPCSGuids: {count} McPks updated");

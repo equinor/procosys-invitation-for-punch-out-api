@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         private const string Description = "D1";
         private const string Status = "OK";
         private const string System = "1|2";
-        private readonly Guid CommPkgGuid = Guid.Empty;
+        private readonly Guid CommPkgGuid = new Guid("11111111-2222-2222-5555-333333333333");
         private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}", ProjectGuid);
 
 
@@ -37,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.AreEqual(CommPkgNo, _dut.CommPkgNo);
             Assert.AreEqual(Status, _dut.Status);
             Assert.AreEqual(Description, _dut.Description);
+            Assert.AreNotEqual(_dut.Guid, Guid.Empty);
             Assert.IsFalse(_dut.RfocAccepted);
         }
 
