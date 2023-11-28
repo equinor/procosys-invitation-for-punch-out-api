@@ -17,6 +17,5 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             => System.Count(s => s == '|') == 2
                 ? System.Substring(0, System.IndexOf('|'))
                 : null;
-        public Guid ProCoSysGuid { get; set; }
     }
 }

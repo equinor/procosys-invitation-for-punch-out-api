@@ -43,6 +43,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
         private static readonly Guid _project3Guid = new Guid("11111111-2222-2222-2222-333333333343");
 
+        
+
         private string _mcPkgNo = "MC1";
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";
@@ -52,6 +54,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private string _commPkgNo2 = "Comm2";
         private string _commPkgNo3 = "Comm3";
         private string _commPkgNo4 = "Comm4";
+
+        private static readonly Guid _commPkgNo1Guid = new Guid("11111111-5555-2222-2222-333333333331");
+        private static readonly Guid _commPkgNo2Guid = new Guid("11111111-5555-2222-2222-333333333332");
+        private static readonly Guid _commPkgNo3Guid = new Guid("11111111-5555-2222-2222-333333333333");
+
+        private string _commPkgNo1BusGuid = "11111111555522222222333333333331";
+        private string _commPkgNo2BusGuid = "11111111555522222222333333333332";
+        private string _commPkgNo3BusGuid = "11111111555522222222333333333333";
+
+
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
@@ -99,13 +111,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
             _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
-            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", Guid.Empty);
+            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", _commPkgNo1Guid);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
-            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", Guid.Empty);
+            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", _commPkgNo2Guid);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
             
-            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", Guid.Empty);
+            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", _commPkgNo3Guid);
             _commPkg4.SetProtectedIdForTesting(CommPkgId4);
 
             _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid);
@@ -507,7 +519,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(newDescription, _commPkg.Description);
 
             // Act
-            _dut.UpdateCommPkgOnInvitations(GetProjectName(_commPkg.ProjectId), _commPkg.CommPkgNo, newDescription);
+            //_dut.UpdateCommPkgOnInvitations(GetProjectName(_commPkg.ProjectId), _commPkg.CommPkgNo, newDescription);
+            _dut.UpdateCommPkgOnInvitations(_commPkgNo1BusGuid, _commPkg.CommPkgNo, newDescription, _project1);
 
             // Assert
             Assert.AreEqual(newDescription, _commPkg.Description);

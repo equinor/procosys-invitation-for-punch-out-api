@@ -162,7 +162,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         $"Could not find ProCoSys project called {commPkgEvent.ProjectName} in plant {commPkgEvent.Plant}");
                 }
 
-                project = new Project(commPkgEvent.Plant, commPkgEvent.ProjectName, proCoSysProject.Description);
+                project = new Project(commPkgEvent.Plant, commPkgEvent.ProjectName, proCoSysProject.Description, proCoSysProject.ProCoSysGuid);
                 project.IsClosed = proCoSysProject.IsClosed;
 
                 _projectRepository.Add(project);

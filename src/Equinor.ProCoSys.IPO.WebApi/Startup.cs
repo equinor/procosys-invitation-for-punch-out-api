@@ -183,17 +183,17 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 // Env variable used in kubernetes. Configuration is added for easier use locally
                 // Url will be validated during startup of service bus integration and give a
                 // Uri exception if invalid.
-                //var leaderElectorUrl = "http://" + (Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? Configuration["ServiceBus:LeaderElectorUrl"]) + ":3003";
+                var leaderElectorUrl = "http://" + (Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? Configuration["ServiceBus:LeaderElectorUrl"]) + ":3003";
 
                 services.AddPcsServiceBusIntegration(options => options
                     .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
-                    //.WithLeaderElector(leaderElectorUrl)
+                    .WithLeaderElector(leaderElectorUrl)
                     .WithRenewLeaseInterval(int.Parse(Configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
                     .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
                     .WithSubscription(PcsTopicConstants.Project, "ipo_project")
-                    .WithSubscription(PcsTopicConstants.CommPkg, "ipo_commpkg_local")
+                    .WithSubscription(PcsTopicConstants.CommPkg, "ipo_commpkg")
                     .WithSubscription(PcsTopicConstants.McPkg, "ipo_mcpkg")
-                    //.WithSubscription(PcsTopicConstants.Library, "ipo_library")
+                    .WithSubscription(PcsTopicConstants.Library, "ipo_library")
                     .WithSubscription(PcsTopicConstants.Certificate, "ipo_certificate")
                     //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
                     //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.

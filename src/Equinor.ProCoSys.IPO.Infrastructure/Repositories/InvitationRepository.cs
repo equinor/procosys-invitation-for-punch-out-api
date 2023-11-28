@@ -6,6 +6,7 @@ using Equinor.ProCoSys.IPO.Domain;
 using System.Threading;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.EntityFrameworkCore;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
