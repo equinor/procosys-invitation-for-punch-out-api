@@ -7,6 +7,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
     {
         public static string Plant => "PCS$PLANT1";
         public static string ProjectName => "TestProject";
+        public static Guid ProjectGuid => new Guid("11111111-2222-2222-2222-333333333341");
         public static string ProjectDescription => "Test - Project";
         public static string McPkgNo => "MC10-2034";
         public static string CommPkgNo => "COMM12-2387";

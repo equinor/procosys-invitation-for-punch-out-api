@@ -5,8 +5,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain;
 using System.Threading;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
@@ -266,6 +264,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 }
             }
         }
+
+        public IList<CommPkg> GetCommPkgsOnly()
+            => _context.CommPkgs.ToList();
+
+        public IList<McPkg> GetMcPkgsOnly()
+            => _context.McPkgs.ToList();
 
         public IList<CommPkg> GetCommPkgs(string projectName, IList<string> commPkgNos)
         {

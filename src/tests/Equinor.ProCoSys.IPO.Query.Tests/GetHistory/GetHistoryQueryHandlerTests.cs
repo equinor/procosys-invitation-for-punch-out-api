@@ -25,12 +25,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
-            var project1 = new Project(TestPlant, "TestProject", $"Description of TestProject");
-            var project2 = new Project(TestPlant, "project", $"Description of project");
+            var project1 = new Project(TestPlant, "TestProject", $"Description of TestProject", ProjectGuid1);
+            var project2 = new Project(TestPlant, "project", $"Description of project", ProjectGuid2);
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var mcScope = new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2")};
+                var mcScope = new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2", Guid.Empty)};
 
                 _invitationWithNoHistory = new Invitation(
                     TestPlant,

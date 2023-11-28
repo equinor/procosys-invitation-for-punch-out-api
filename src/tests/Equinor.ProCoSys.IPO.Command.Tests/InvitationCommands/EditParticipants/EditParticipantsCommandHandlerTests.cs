@@ -33,7 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName}", _projectGuid);
         private const string _firstName = "Ola";
         private const string _lastName = "Nordmann";
         private const DisciplineType _typeDp = DisciplineType.DP;
@@ -161,8 +162,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection,Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection, Guid.Empty)
             };
             //create invitation
             _dpInvitation = new Invitation(
