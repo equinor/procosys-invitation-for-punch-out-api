@@ -38,22 +38,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IProjectRepository> _projectRepository;
         private Mock<ICertificateEventProcessorService> _certificationEventProcessorService;
 
+        private static readonly Guid _project1Guid = new("11111111-2222-2222-2222-333333333341");
         private const string plant = "PCS$HEIMDAL";
         private static readonly Project project1 = new(plant, project1Name, $"Description of {project1Name} project", _project1Guid);
         private const int project1Id = 320;
         private const string project1Name = "HEIMDAL";
-        private const string project2Name = "XYZ";
 
-        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
-        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
-
-        private static readonly Guid _commPkgNo1Guid = new Guid("11111111-5555-2222-2222-333333333331");
-        private static readonly Guid _commPkgNo2Guid = new Guid("11111111-5555-2222-2222-333333333332");
-        private static readonly Guid _commPkgNo3Guid = new Guid("11111111-5555-2222-2222-333333333333");
-
-        private string _commPkgNo1BusGuid = "11111111555522222222333333333331";
         private string _commPkgNo2BusGuid = "11111111555522222222333333333332";
-        private string _commPkgNo3BusGuid = "11111111555522222222333333333333";
 
         private const string commPkgNo1 = "123";
         private const string commPkgNo2 = "234";
@@ -66,23 +57,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string functionalRoleCodeNew = "IPO FR2 TEST";
         private const string librarytypefunctionalrole = "FUNCTIONAL_ROLE";
 
-        private List<McPkg> _mcPkgsOn1 = new List<McPkg>
+        private List<McPkg> _mcPkgsOn1 = new()
         {
             new McPkg(plant, project1, commPkgNo2, mcPkgNo1, description, "1|2",Guid.Empty)
         };
 
-        private List<CommPkg> _commPkgsOn2 = new List<CommPkg>
+        private List<CommPkg> _commPkgsOn2 = new()
         {
             new CommPkg(plant, project1, commPkgNo1, description,"status", "1|2",Guid.Empty),
             new CommPkg(plant, project1, commPkgNo2, description, "status", "1|2", Guid.Empty)
         };
 
-        private List<McPkg> _mcPkgsOn3 = new List<McPkg>
+        private List<McPkg> _mcPkgsOn3 = new()
         {
             new McPkg(plant, project1, commPkgNo3, mcPkgNo3, description, "1|2", Guid.Empty)
         };
 
-        private List<McPkg> _mcPkgsOn4 = new List<McPkg>
+        private List<McPkg> _mcPkgsOn4 = new()
         {
             new McPkg(plant, project1, commPkgNo3, mcPkgNo4, description, "1|2", Guid.Empty)
         };
@@ -141,7 +132,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
-
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProCoSysGuid\" : \"{_commPkgNo2BusGuid}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
@@ -165,16 +155,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(_commPkgNo2BusGuid, commPkgNo3, description, project1), Times.Once);
-            
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-
-        public async Task HandlingCommPkgTopic_ShouldCallMoveCommPkgOnInvitationRepository()
+        public async Task HandlingCommPkgTopic_ShouldThrowException_WhenProjectNameMissing()
         {
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectNameOld\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
             
             await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
         }
@@ -193,9 +180,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
-
         [TestMethod]
-
         public async Task HandlingLibraryTopicWithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"Code\" : \"{functionalRoleCodeNew}\", \"CodeOld\" : \"{functionalRoleCodeOld}\", \"Description\" : \"{description}\", \"IsVoided\" : false, \"Type\" : \"{librarytypefunctionalrole}\"}}";
@@ -479,7 +464,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _telemetryClient.Verify(tc => tc.TrackEvent("IPO Bus Receiver",
                 new Dictionary<string, string>
                 {
-                    {"Event Delete", PcsTopicConstants.Tag.ToString()},
+                    {"Event Delete", PcsTopicConstants.Tag},
                     {"ProCoSysGuid", guid.ToString()}
                 }, null), Times.Once());
 

@@ -20,7 +20,6 @@ using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -150,7 +149,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
 
-
             // Get or create project
             var project = _invitationRepository.GetProject(commPkgEvent.ProjectName);
             if (project == null)
@@ -162,8 +160,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         $"Could not find ProCoSys project called {commPkgEvent.ProjectName} in plant {commPkgEvent.Plant}");
                 }
 
-                project = new Project(commPkgEvent.Plant, commPkgEvent.ProjectName, proCoSysProject.Description, proCoSysProject.ProCoSysGuid);
-                project.IsClosed = proCoSysProject.IsClosed;
+                project = new Project(commPkgEvent.Plant, commPkgEvent.ProjectName, proCoSysProject.Description, proCoSysProject.ProCoSysGuid)
+                {
+                    IsClosed = proCoSysProject.IsClosed
+                };
 
                 _projectRepository.Add(project);
                 CancellationToken cancellationToken = default;

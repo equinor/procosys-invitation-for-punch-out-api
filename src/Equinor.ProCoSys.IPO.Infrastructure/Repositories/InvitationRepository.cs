@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Domain;
-using System.Threading;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Microsoft.EntityFrameworkCore;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 {
@@ -37,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void UpdateCommPkgOnInvitations(string proCoSysGuid, string commPkgNo, string description, Project project)
         {
-
             var invitationsToMove =
             _context.Invitations
                 .Where(i => i.ProjectId != project.Id && (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
@@ -72,18 +68,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid == guid).ToList();
 
                 commPkgsToUpdate.ForEach(cp =>
-                {
-                    cp.Description = description;
-                    cp.CommPkgNo = commPkgNo;
-                }
+                    {
+                        cp.Description = description;
+                        cp.CommPkgNo = commPkgNo;
+                    }
                 );
             }
         }
 
         public Project GetProject(string projectName)
-        {
-            return _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
-        }
+            => _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
         private static bool NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(string commPkgNo, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgNo!=commPkgNo));
 

@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project2Id = 598;
         private const int Project3Id = 714;
 
-        private readonly List<Project> _projects = new List<Project>();
+        private readonly List<Project> _projects = new();
         private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project", _project1Guid);
         private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project", _project2Guid);
         private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project", _project3Guid);
@@ -43,8 +43,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
         private static readonly Guid _project3Guid = new Guid("11111111-2222-2222-2222-333333333343");
 
-        
-
         private string _mcPkgNo = "MC1";
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";
@@ -55,14 +53,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private string _commPkgNo3 = "Comm3";
         private string _commPkgNo4 = "Comm4";
 
-        private static readonly Guid _commPkgNo1Guid = new Guid("11111111-5555-2222-2222-333333333331");
-        private static readonly Guid _commPkgNo2Guid = new Guid("11111111-5555-2222-2222-333333333332");
-        private static readonly Guid _commPkgNo3Guid = new Guid("11111111-5555-2222-2222-333333333333");
+        private static readonly Guid _commPkgNo1Guid = new("11111111-5555-2222-2222-333333333331");
+        private static readonly Guid _commPkgNo2Guid = new("11111111-5555-2222-2222-333333333332");
+        private static readonly Guid _commPkgNo3Guid = new("11111111-5555-2222-2222-333333333333");
 
         private string _commPkgNo1BusGuid = "11111111555522222222333333333331";
-        private string _commPkgNo2BusGuid = "11111111555522222222333333333332";
-        private string _commPkgNo3BusGuid = "11111111555522222222333333333333";
-
 
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
@@ -434,7 +429,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(newDescription, _commPkg.Description);
 
             // Act
-            //_dut.UpdateCommPkgOnInvitations(GetProjectName(_commPkg.ProjectId), _commPkg.CommPkgNo, newDescription);
             _dut.UpdateCommPkgOnInvitations(_commPkgNo1BusGuid, _commPkg.CommPkgNo, newDescription, _project1);
 
             // Assert
