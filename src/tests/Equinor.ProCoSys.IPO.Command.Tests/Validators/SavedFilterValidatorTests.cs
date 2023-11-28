@@ -26,7 +26,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         private const string _title = "title";
         private const int _projectId = 320;
         private const string _projectName = "projectName";
-        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}", _projectGuid);
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {

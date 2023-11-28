@@ -120,7 +120,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     commPkgNo,
                     description,
                     "OK",
-                    system);
+                    system, 
+                    Guid.Empty);
 
                 _mdpInvitation = new Invitation(
                     TestPlant,
@@ -149,7 +150,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     commPkgNo,
                     mcPkgNo,
                     description,
-                    system);
+                    system,
+                    Guid.Empty);
 
                 _dpInvitation = new Invitation(
                     TestPlant,

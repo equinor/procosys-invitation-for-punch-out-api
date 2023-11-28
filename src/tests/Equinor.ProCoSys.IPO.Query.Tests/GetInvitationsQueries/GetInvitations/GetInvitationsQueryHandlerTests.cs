@@ -49,8 +49,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         private const string _system = "1|2";
         private const int _projectId1 = 320;
         private const int _projectId2 = 640;
-        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}");
-        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}");
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
+
+
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}", _project1Guid);
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}", _project2Guid);
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -211,7 +215,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _commPkgNo,
                     description,
                     "OK",
-                    "1|2");
+                    "1|2",
+                    Guid.Empty);
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
@@ -219,7 +224,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _commPkgNo,
                     _mcPkgNo,
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
@@ -227,7 +233,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     _commPkgNo2,
                     _mcPkgNo,
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var startTime1 = _timeProvider.UtcNow;
 

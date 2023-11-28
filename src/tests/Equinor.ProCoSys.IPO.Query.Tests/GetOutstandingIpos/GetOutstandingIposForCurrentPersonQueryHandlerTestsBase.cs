@@ -63,10 +63,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _query = new GetOutstandingIposForCurrentPersonQuery();
             _person = context.Persons.FirstOrDefault();
 
-            _testProject = new Project(TestPlant, "TestProject", "Description for TestProject");
+            _testProject = new Project(TestPlant, "TestProject", "Description for TestProject", Guid.NewGuid());
             _testProject.SetProtectedIdForTesting(1);
 
-            _testProjectClosed = new Project(TestPlant, "TestProject", "Description for TestProject") { IsClosed = true };
+            _testProjectClosed = new Project(TestPlant, "TestProject", "Description for TestProject", Guid.NewGuid()) { IsClosed = true };
             _testProjectClosed.SetProtectedIdForTesting(2);
 
             context.Projects.Add(_testProject);
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationWithPersonParticipantContractor);
@@ -172,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationWithFunctionalRoleParticipantConstructionCompany);
@@ -213,7 +213,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _cancelledInvitation);
@@ -249,7 +249,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationWithFunctionalRoleParticipantContractor);
@@ -282,7 +282,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationWithPersonParticipantConstructionCompany);
@@ -323,7 +323,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2",Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _acceptedInvitationWithOperationPerson);
@@ -368,7 +368,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2",Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationForClosedProject);
@@ -402,7 +402,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationForNotClosedProject);
@@ -439,7 +439,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2") },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationWithBothAzureOidAndFunctionalRoleParticipantContractor);

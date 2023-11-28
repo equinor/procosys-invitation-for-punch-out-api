@@ -11,13 +11,14 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
     {
         private const string TestPlant = "PCS$PlantA";
         private const string ProjectName = "Project name";
+        private static readonly Guid ProjectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int ProjectId = 320;
         private const string Title = "title";
         private const string Criteria = "criteria";
         private bool DefaultFilterValue = true;
         private SavedFilter _dut;
         private SavedFilter _dutWithNullProject;
-        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}",ProjectGuid);
 
         [TestInitialize]
         public void Setup()
