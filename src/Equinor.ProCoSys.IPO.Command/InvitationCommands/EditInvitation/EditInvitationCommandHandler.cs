@@ -211,7 +211,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     c.CommPkgNo,
                     c.Description,
                     c.CommStatus,
-                    c.System)).ToList();
+                    c.System,
+                    c.ProCoSysGuid)).ToList();
             }
 
             return new List<CommPkg>();

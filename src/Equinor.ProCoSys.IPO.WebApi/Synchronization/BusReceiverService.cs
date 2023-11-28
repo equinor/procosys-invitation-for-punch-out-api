@@ -18,6 +18,9 @@ using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -29,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
         private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IProjectApiService _projectApiService;
         private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IProjectRepository _projectRepository;
@@ -44,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
+            IProjectApiService projectApiService,
             IMainApiAuthenticator mainApiTokenProvider,
             IOptionsSnapshot<IpoAuthenticatorOptions> options,
             ICurrentUserSetter currentUserSetter,
@@ -56,6 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _telemetryClient = telemetryClient;
             _context = context;
             _mcPkgApiService = mcPkgApiService;
+            _projectApiService = projectApiService;
             _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
             _projectRepository = projectRepository;
@@ -88,7 +94,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     ProcessProjectEvent(messageJson);
                     break;
                 case PcsTopicConstants.CommPkg:
-                    ProcessCommPkgEvent(messageJson);
+                    await ProcessCommPkgEventAsync(messageJson);
                     break;
                 case PcsTopicConstants.McPkg:
                     ProcessMcPkgEvent(messageJson);
@@ -113,8 +119,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             if (mcPkgEvent == null ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) ||
-                string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo) ||
-                (string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld) != (string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNoOld))))
+                string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo))
             {
                 throw new Exception($"Unable to deserialize JSON to McPkgEvent {messageJson}");
             }
@@ -129,23 +134,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(mcPkgEvent.Plant);
 
-            if (!string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld))
-            {
-                _invitationRepository.MoveMcPkg(
-                    mcPkgEvent.ProjectName,
-                    mcPkgEvent.CommPkgNoOld,
-                    mcPkgEvent.CommPkgNo,
-                    mcPkgEvent.McPkgNoOld,
-                    mcPkgEvent.McPkgNo,
-                    mcPkgEvent.Description);
-            }
-            else
-            {
-                _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
-            }
+            _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
         }
 
-        private void ProcessCommPkgEvent(string messageJson)
+        private async Task ProcessCommPkgEventAsync(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTmpTopic>(messageJson);
             if (commPkgEvent == null || 
@@ -157,36 +149,37 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
-            if (!string.IsNullOrWhiteSpace(commPkgEvent.ProjectNameOld))
+
+
+            // Get or create project
+            var project = _invitationRepository.GetProject(commPkgEvent.ProjectName);
+            if (project == null)
             {
-                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
-                    new Dictionary<string, string>
-                    {
-                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
-                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')},
-                        {PcsServiceBusTelemetryConstants.ProjectNameOld, commPkgEvent.ProjectNameOld.Replace('$', '_')}
-                    });
-                _invitationRepository.MoveCommPkg(
-                    commPkgEvent.ProjectNameOld,
-                    commPkgEvent.ProjectName,
-                    commPkgEvent.CommPkgNo,
-                    commPkgEvent.Description);
+                var proCoSysProject = await _projectApiService.TryGetProjectAsync(commPkgEvent.Plant, commPkgEvent.ProjectName);
+                if (proCoSysProject is null)
+                {
+                    throw new IpoValidationException(
+                        $"Could not find ProCoSys project called {commPkgEvent.ProjectName} in plant {commPkgEvent.Plant}");
+                }
+
+                project = new Project(commPkgEvent.Plant, commPkgEvent.ProjectName, proCoSysProject.Description);
+                project.IsClosed = proCoSysProject.IsClosed;
+
+                _projectRepository.Add(project);
+                CancellationToken cancellationToken = default;
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
-            else
-            {
-                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
-                    new Dictionary<string, string>
-                    {
-                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
-                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
-                    });
-                _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
-                    commPkgEvent.Description);
-            }
+
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                    {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                    {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
+                    {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
+                });
+
+            _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProCoSysGuid, commPkgEvent.CommPkgNo,commPkgEvent.Description,project);
         }
 
         private void ProcessProjectEvent(string messageJson)

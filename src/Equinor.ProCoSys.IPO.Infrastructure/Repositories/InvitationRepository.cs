@@ -1,7 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
+using Equinor.ProCoSys.IPO.Domain;
+using System.Threading;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
@@ -31,20 +36,62 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             //Intentionally left blank for now
         }
 
-        public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
+        public void UpdateCommPkgOnInvitations(string proCoSysGuid, string commPkgNo, string description, Project project)
         {
-            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
-            var commPkgsToUpdate = _context.CommPkgs.Where(cp => project != null && cp.ProjectId == project.Id && cp.CommPkgNo == commPkgNo).ToList();
+            var invitationsToMove =
+            _context.Invitations
+                .Where(i => i.ProjectId != project.Id && (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
 
-            commPkgsToUpdate.ForEach(cp => cp.Description = description);
+            var commPkgsToMove = _context.CommPkgs.Where(cp => cp.CommPkgNo == commPkgNo).ToList();
+
+            var mcPkgsToMove = _context.McPkgs.Where(mc => mc.ProjectId != project.Id && mc.CommPkgNo == commPkgNo).ToList();
+
+            if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgNo, invitationsToMove))
+            {
+                throw new Exception($"Unable to move to other comm pkg {commPkgNo} to {project.Name}. Will result in bad data as invitation will reference more than one project");
+            }
+
+            invitationsToMove.ForEach(i =>
+            {
+                i.MoveToProject(project);
+            });
+
+            commPkgsToMove.ForEach(cp =>
+            {
+                cp.Description = description;
+                cp.MoveToProject(project);
+            });
+
+            mcPkgsToMove.ForEach(mc =>
+            {
+                mc.MoveToProject(project);
+            });
+
+            if (Guid.TryParse(proCoSysGuid, out var guid))
+            {
+                var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid == guid).ToList();
+
+                commPkgsToUpdate.ForEach(cp =>
+                {
+                    cp.Description = description;
+                    cp.CommPkgNo = commPkgNo;
+                }
+                );
+            }
         }
+
+        public Project GetProject(string projectName)
+        {
+            return _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+        }
+            
 
         public void MoveCommPkg(string fromProjectName, string toProjectName, string commPkgNo, string description)
         {
             var toProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProjectName));
             var fromProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProjectName));
-
+            
             var commPkgsToMove = _context.CommPkgs.Where(cp => fromProject != null && cp.ProjectId == fromProject.Id && cp.CommPkgNo == commPkgNo).ToList();
 
             var mcPkgsToMove = _context.McPkgs.Where(mc => fromProject != null && mc.ProjectId == fromProject.Id && mc.CommPkgNo == commPkgNo).ToList();

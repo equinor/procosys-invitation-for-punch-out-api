@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public interface IInvitationRepository : IRepository<Invitation>
     {
+        public Project GetProject(string projectName);
         void UpdateProjectOnInvitations(string projectName, string description);
-        void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description);
+        void UpdateCommPkgOnInvitations(string proCoSysGuid, string commPkgNo, string description, Project project);
         void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description);
         void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew);
         void RemoveParticipant(Participant participant);

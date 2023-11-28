@@ -26,7 +26,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string commPkgNo,
             string description,
             string status,
-            string system)
+            string system,
+            Guid guid)
             : base(plant)
         {
             if (project is null)
@@ -51,10 +52,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             System = system;
             ProjectId = project.Id;
             RfocAccepted = false;
+            Guid = guid;
         }
 
         // private setters needed for Entity Framework
-        public string CommPkgNo { get; private set; }
+        public string CommPkgNo { get; set; }
+        public Guid Guid { get; private set; }
         public string Description { get; set; }
         public string Status { get; private set; }
         public string System { get; set; }

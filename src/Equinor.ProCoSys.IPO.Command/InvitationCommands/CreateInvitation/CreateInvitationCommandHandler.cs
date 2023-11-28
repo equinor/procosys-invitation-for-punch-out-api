@@ -410,7 +410,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
-                c.System)).ToList();
+                c.System,
+                c.ProCoSysGuid)).ToList();
         }
 
         private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
