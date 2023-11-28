@@ -101,6 +101,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
+            _projectApiService = new Mock<IProjectApiService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
             _certificationEventProcessorService = new Mock<ICertificateEventProcessorService>();
