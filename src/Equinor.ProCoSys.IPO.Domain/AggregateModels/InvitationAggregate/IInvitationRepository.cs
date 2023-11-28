@@ -15,7 +15,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         void RemoveParticipant(Participant participant);
         void RemoveAttachment(Attachment attachment);
         void RemoveInvitation(Invitation invitation);
-        void MoveCommPkg(string fromProject, string toProject, string commPkgNo, string description);
         void MoveMcPkg(string projectName, string fromCommPkgNo, string toCommPkgNo, string fromMcPkgNo, string toMcPkgNo, string description);
         void RfocAcceptedHandling(string projectName, IList<string> commPkgNosWithAcceptedRfoc, IList<string> mcPkgNosWithAcceptedRfoc);
         void RfocVoidedHandling(string projectName, IList<string> commPkgNos, IList<string> mcPkgNos);

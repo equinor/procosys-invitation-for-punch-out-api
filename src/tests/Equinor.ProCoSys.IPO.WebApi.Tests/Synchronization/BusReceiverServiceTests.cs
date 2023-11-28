@@ -121,6 +121,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             _projectRepository.Setup(x => x.GetByIdAsync(project1Id)).Returns(Task.FromResult(project1));
 
+            _invitationRepository.Setup(x => x.GetProject(project1Name)).Returns(project1);
+
             _dut = new BusReceiverService(_invitationRepository.Object,
                                           _plantSetter.Object,
                                           _unitOfWork.Object,
@@ -142,13 +144,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"ProCoSysGuid\" : \"{_commPkgNo2BusGuid}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"Description\" : \"{description}\"}}";
             await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(_commPkgNo1BusGuid, commPkgNo2, description, project1), Times.Once);
+            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(_commPkgNo2BusGuid, commPkgNo2, description, project1), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
@@ -156,13 +158,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         [TestMethod]
         public async Task HandlingCommPkgTopic_Move_WithoutFailure()
         {
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project2Name}\", \"ProjectNameOld\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo3}\", \"Description\" : \"{description}\"}}";
+            var message = $"{{\"Plant\" : \"{plant}\", \"ProCoSysGuid\" : \"{_commPkgNo2BusGuid}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo3}\", \"Description\" : \"{description}\"}}";
             await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.MoveCommPkg(project1Name, project2Name, commPkgNo3, description));
+            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(_commPkgNo2BusGuid, commPkgNo3, description, project1), Times.Once);
+            
         }
 
 
@@ -190,41 +193,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
-        [TestMethod]
-        public async Task HandlingMcPkgTopicWithoutFailure_WhenMoveMcPkg()
-        {
-            var commPkgOld = "C1";
-            var mcPKgOld = "M1";
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"CommPkgNoOld\" :\"{commPkgOld}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"McPkgNoOld\" : \"{mcPKgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
-
-            _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-            _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.MoveMcPkg(project1Name, commPkgOld, commPkgNo2, mcPKgOld, mcPkgNo1, description), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Project>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public async Task HandlingMcPkgTopicShouldFail_WhenMoveMcPkg_MissingCommPkgNoOld()
-        {
-            var mcPKgOld = "M1";
-            var message =
-                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"McPkgNoOld\" : \"{mcPKgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(Exception))]
-        public async Task HandlingMcPkgTopicShouldFail_WhenMoveMcPkg_MissingMvPkgNoOld()
-        {
-            var commPkgOld = "C1";
-            var message =
-                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CommPkgNo\" :\"{commPkgNo2}\", \"McPkgNo\" : \"{mcPkgNo1}\", \"CommPkgNoOld\" : \"{commPkgOld}\", \"Description\" : \"{description}\"}}";
-            await _dut.ProcessMessageAsync(PcsTopicConstants.McPkg, message, new CancellationToken(false));
-        }
 
         [TestMethod]
 

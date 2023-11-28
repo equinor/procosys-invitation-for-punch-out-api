@@ -84,43 +84,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         {
             return _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
         }
-            
-
-        public void MoveCommPkg(string fromProjectName, string toProjectName, string commPkgNo, string description)
-        {
-            var toProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProjectName));
-            var fromProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProjectName));
-            
-            var commPkgsToMove = _context.CommPkgs.Where(cp => fromProject != null && cp.ProjectId == fromProject.Id && cp.CommPkgNo == commPkgNo).ToList();
-
-            var mcPkgsToMove = _context.McPkgs.Where(mc => fromProject != null && mc.ProjectId == fromProject.Id && mc.CommPkgNo == commPkgNo).ToList();
-
-            var invitationsToMove =
-                _context.Invitations
-                    .Where(i => fromProject != null && i.ProjectId == fromProject.Id &&
-                                (i.CommPkgs.Any(c => c.CommPkgNo == commPkgNo) || i.McPkgs.Any(m => m.CommPkgNo == commPkgNo))).ToList();
-
-            if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgNo, invitationsToMove))
-            { 
-                throw new Exception($"Unable to move to other comm pkg {commPkgNo } to {toProjectName}. Will result in bad data as invitation will reference more than one project");
-            }
-
-            invitationsToMove.ForEach(i =>
-            {
-                i.MoveToProject(toProject);
-            });
-
-            commPkgsToMove.ForEach(cp =>
-            {
-                cp.Description = description;
-                cp.MoveToProject(toProject);
-            });
-
-            mcPkgsToMove.ForEach(mc =>
-            {
-                mc.MoveToProject(toProject);
-            });
-        }
 
         private static bool NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(string commPkgNo, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgNo!=commPkgNo));
 
