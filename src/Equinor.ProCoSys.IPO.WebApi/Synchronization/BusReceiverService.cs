@@ -139,6 +139,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private async Task ProcessCommPkgEventAsync(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgTmpTopic>(messageJson);
+
+            if (!Guid.TryParse(commPkgEvent.ProCoSysGuid, out var proCoSysGuid))
+            {
+                throw new Exception($"Unable to parse property ProCoSysGuid as guid.  Value vas {commPkgEvent.ProCoSysGuid}");
+            }
             if (commPkgEvent == null || 
                 string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
                 string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo) ||
@@ -179,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
                 });
 
-            _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProCoSysGuid, commPkgEvent.CommPkgNo,commPkgEvent.Description,project);
+            _invitationRepository.UpdateCommPkgOnInvitations(proCoSysGuid, commPkgEvent.CommPkgNo,commPkgEvent.Description,project);
         }
 
         private void ProcessProjectEvent(string messageJson)

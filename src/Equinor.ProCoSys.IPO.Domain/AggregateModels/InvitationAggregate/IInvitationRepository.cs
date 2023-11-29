@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 
@@ -8,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     {
         public Project GetProject(string projectName);
         void UpdateProjectOnInvitations(string projectName, string description);
-        void UpdateCommPkgOnInvitations(string proCoSysGuid, string commPkgNo, string description, Project project);
+        void UpdateCommPkgOnInvitations(Guid proCoSysGuid, string commPkgNo, string description, Project project);
         void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description);
         void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew);
         void RemoveParticipant(Participant participant);

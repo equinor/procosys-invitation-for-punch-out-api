@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             //Intentionally left blank for now
         }
 
-        public void UpdateCommPkgOnInvitations(string proCoSysGuid, string commPkgNo, string description, Project project)
+        public void UpdateCommPkgOnInvitations(Guid proCoSysGuid, string commPkgNo, string description, Project project)
         {
             var invitationsToMove =
             _context.Invitations
@@ -63,17 +63,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 mc.MoveToProject(project);
             });
 
-            if (Guid.TryParse(proCoSysGuid, out var guid))
-            {
-                var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid == guid).ToList();
+            
+            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid == guid).ToList();
 
-                commPkgsToUpdate.ForEach(cp =>
-                    {
-                        cp.Description = description;
-                        cp.CommPkgNo = commPkgNo;
-                    }
-                );
-            }
+            commPkgsToUpdate.ForEach(cp =>
+                {
+                    cp.Description = description;
+                    cp.CommPkgNo = commPkgNo;
+                }
+            );
+            
         }
 
         public Project GetProject(string projectName)
