@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void Setup()
         {
             _project.SetProtectedIdForTesting(ProjectId);
-            _dut = new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, System, McPkgGuid);
+            _dut = new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, System, McPkgGuid, Guid.Empty);
         }
 
         [TestMethod]
@@ -44,37 +44,37 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenProjectNameNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, null, CommPkgNo, McPkgNo, Description, System, Guid.Empty)
+                new McPkg(TestPlant, null, CommPkgNo, McPkgNo, Description, System, Guid.Empty, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenCommPkgNoNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, _project, null, McPkgNo, Description, System, Guid.Empty)
+                new McPkg(TestPlant, _project, null, McPkgNo, Description, System, Guid.Empty, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenMcPkgNoNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, _project, CommPkgNo, null, Description, System, Guid.Empty)
+                new McPkg(TestPlant, _project, CommPkgNo, null, Description, System, Guid.Empty, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemNotGiven() =>
             Assert.ThrowsException<ArgumentNullException>(() =>
-                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, null, Guid.Empty)
+                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, null, Guid.Empty, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemIsTooShort() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, "1|", Guid.Empty)
+                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, "1|", Guid.Empty, Guid.Empty)
             );
 
         [TestMethod]
         public void Constructor_ShouldThrowException_WhenSystemIsInvalid() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, "1234", Guid.Empty)
+                new McPkg(TestPlant, _project, CommPkgNo, McPkgNo, Description, "1234", Guid.Empty, Guid.Empty)
             );
     }
 }

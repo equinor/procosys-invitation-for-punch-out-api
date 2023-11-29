@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
         private List<McPkg> _mcPkgsOn1 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo2, mcPkgNo1, description, "1|2",Guid.Empty)
+            new McPkg(plant, project1, commPkgNo2, mcPkgNo1, description, "1|2", Guid.Empty, Guid.Empty)
         };
 
         private List<CommPkg> _commPkgsOn2 = new List<CommPkg>
@@ -69,12 +69,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
         private List<McPkg> _mcPkgsOn3 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo3, mcPkgNo3, description, "1|2", Guid.Empty)
+            new McPkg(plant, project1, commPkgNo3, mcPkgNo3, description, "1|2", Guid.Empty, Guid.Empty)
         };
 
         private List<McPkg> _mcPkgsOn4 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo3, mcPkgNo4, description, "1|2", Guid.Empty)
+            new McPkg(plant, project1, commPkgNo3, mcPkgNo4, description, "1|2", Guid.Empty, Guid.Empty)
         };
 
         private Invitation _invitation1, _invitation2, _invitation3, _invitation4;

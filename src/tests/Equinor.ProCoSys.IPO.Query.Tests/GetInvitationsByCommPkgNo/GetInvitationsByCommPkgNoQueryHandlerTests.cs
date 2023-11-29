@@ -101,6 +101,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     "McPkgNo1",
                     description,
                     _system,
+                    Guid.Empty,
                     Guid.Empty);
 
                 var mcPkg2 = new McPkg(
@@ -110,6 +111,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     "McPkgNo2",
                     description,
                     _system,
+                    Guid.Empty,
                     Guid.Empty);
 
                 _dpInvitation = new Invitation(
