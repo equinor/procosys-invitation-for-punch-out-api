@@ -533,5 +533,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             // Assert
             _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Never);
         }
+
+
+        [TestMethod]
+        public async Task HandleCertificateTopic_ShouldNotFail_WhenReceivingTheSameMessageTwice()
+        {
+            // Arrange
+            var message =
+                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\"}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
+
+            // Assert
+            _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Exactly(2));
+        }
     }
 }

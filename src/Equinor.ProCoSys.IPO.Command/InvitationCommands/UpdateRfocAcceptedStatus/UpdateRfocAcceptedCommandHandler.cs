@@ -113,8 +113,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            var certificate = AddCertificate(request.ProCoSysGuid, project);
+            var certificate = await _certificateRepository.GetCertificateByGuid(request.ProCoSysGuid);
+            if (certificate != null)
+            {
+                _logger.LogInformation($"Early exit in RfocAccepted handling. " +
+                                       $"Certificate has already been accepted. ProCoSysGuid:{request.ProCoSysGuid}");
+                return new SuccessResult<Unit>(Unit.Value);
+            }
 
+            certificate = AddCertificate(request.ProCoSysGuid, project);
             _invitationRepository.RfocAcceptedHandling(
                 project.Name,
                 pcsCommPkgs.Where(c => c.OperationHandoverStatus == "ACCEPTED").Select(c => c.CommPkgNo).ToList(),
@@ -123,6 +130,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             AddCertificateCommPkgRelations(pcsCommPkgs.Select(c => c.CommPkgNo).ToList(), project, certificate);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation($"New certificate created. ProCoSysGuid:{request.ProCoSysGuid}");
+
             return new SuccessResult<Unit>(Unit.Value);
         }
 
