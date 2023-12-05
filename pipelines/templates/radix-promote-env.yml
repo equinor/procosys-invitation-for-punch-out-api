@@ -33,7 +33,7 @@ parameters:
   default: 6dae42f8-4368-4678-94ff-3960e28e3630 # Kor finner eg denne verdien?
 
 - name: radixApplication
-  default: procosys-invitation-for-punch-out-api
+  default: procosys-ipo-api
 
 - name: radixUrl
   default: https://api.radix.equinor.com/api/v1
