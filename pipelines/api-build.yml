@@ -70,7 +70,7 @@ stages:
     parameters:
       deploymentName: 'docker_build'
       dependsOn: ''
-      condition: and(always(), eq(variables['Build.Reason'], 'PullRequest'))
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest')) # Remember to change back to eq instead of ne.
       envGroup: '${{ variables.envGroupName }}'
       buildCommand: buildAndPush # Remember to change back to build.
       versionNumber: ${{ variables.versionNumber }}
