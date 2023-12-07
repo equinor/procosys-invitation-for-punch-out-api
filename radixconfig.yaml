@@ -72,11 +72,11 @@ spec:
       replicas: 3
       resources:
         requests:
-          memory: '2048Mi'
-          cpu: '100m'
+          memory: '750Mi'
+          cpu: '200m'
         limits:
-          memory: '2048Mi'
-          cpu: '1000m'
+          memory: '750Mi'
+          cpu: '500m'
 
   #--------------------
   # LeaderElector 
@@ -86,6 +86,7 @@ spec:
     ports:
     - name: http
       port: 3003
+      publicPort: http
     environmentConfig:
     # Development environment
     - environment: dev
