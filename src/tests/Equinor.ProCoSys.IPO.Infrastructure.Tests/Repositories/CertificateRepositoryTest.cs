@@ -26,10 +26,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         public void Setup()
         {
             var testPlant = "TestPlant";
-            var project = new Project("TestPlant", "title", "description");
+            var project = new Project("TestPlant", "title", "description", Guid.NewGuid());
             var certificate = new Certificate(testPlant, project, _knownGuid, true);
-            var mcPkg = new McPkg(testPlant, project, "123", "456", "desc", "1|2");
-            var commPkg = new CommPkg(testPlant, project, "123", "desc", "ok", "1|2");
+            var mcPkg = new McPkg(testPlant, project, "123", "456", "desc", "1|2",Guid.Empty);
+            var commPkg = new CommPkg(testPlant, project, "123", "desc", "ok", "1|2", Guid.Empty);
             certificate.CertificateMcPkgs.Add(mcPkg);
             certificate.CertificateCommPkgs.Add(commPkg);
 

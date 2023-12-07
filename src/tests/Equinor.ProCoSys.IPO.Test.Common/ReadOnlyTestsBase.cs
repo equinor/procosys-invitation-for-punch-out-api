@@ -50,8 +50,10 @@ namespace Equinor.ProCoSys.IPO.Test.Common
     public abstract class ReadOnlyTestsBase
     {
         protected const string TestPlant = "PCS$PlantA";
-        protected readonly Project Project = new(TestPlant, ProjectName, $"Description of {ProjectName} project");
+        protected readonly Project Project = new(TestPlant, ProjectName, $"Description of {ProjectName} project", ProjectGuid1);
         protected const string ProjectName = "Pname";
+        protected static Guid ProjectGuid1 => new Guid("11111111-2222-2222-2222-333333333341");
+        protected static Guid ProjectGuid2 => new Guid("11111111-2222-2222-2222-333333333342");
         protected const int ProjectId = 480;
         protected const string FilterName = "Fname";
         protected const string Criteria = "Fcriteria";

@@ -23,9 +23,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
         private int _mdpInvitationId;
         private const string _commPkgNo = "CommPkgNo";
         private const string _projectName = "Project1";
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int _projectId = 320;
         private const string _system = "1|2";
-        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}");
+        private readonly Project _project = new(TestPlant, _projectName, $"Description of {_projectName}", _project1Guid);
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -90,7 +91,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     description,
                     "OK",
-                    "1|2");
+                    "1|2",
+                    Guid.Empty);
 
                 var mcPkg1 = new McPkg(
                     TestPlant,
@@ -98,7 +100,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     "McPkgNo1",
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 var mcPkg2 = new McPkg(
                     TestPlant,
@@ -106,7 +109,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsByCommPkgNo
                     _commPkgNo,
                     "McPkgNo2",
                     description,
-                    _system);
+                    _system,
+                    Guid.Empty);
 
                 _dpInvitation = new Invitation(
                     TestPlant,

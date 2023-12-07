@@ -31,17 +31,23 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private const int Project3Id = 714;
 
         private readonly List<Project> _projects = new List<Project>();
-        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project");
-        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project");
-        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project");
+        private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName} project", _project1Guid);
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2} project", _project2Guid);
+        private readonly Project _project3 = new(TestPlant, _projectName3, $"Description of {_projectName3} project", _project3Guid);
 
         private const string _projectName = "ProjectName";
         private const string _projectName2 = "ProjectName2";
         private const string _projectName3 = "ProjectName3";
+
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
+        private static readonly Guid _project3Guid = new Guid("11111111-2222-2222-2222-333333333343");
+
         private string _mcPkgNo = "MC1";
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";
         private string _system = "1|2";
+        private Guid _mcPkgGuid = Guid.Empty;
         private string _commPkgNo = "Comm1";
         private string _commPkgNo2 = "Comm2";
         private string _commPkgNo3 = "Comm3";
@@ -87,25 +93,25 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 .Setup(x => x.Projects)
                 .Returns(_projectSetMock.Object);
 
-            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system);
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
             _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
-            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2");
+            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", Guid.Empty);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
-            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2");
+            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", Guid.Empty);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
             
-            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2");
+            _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", Guid.Empty);
             _commPkg4.SetProtectedIdForTesting(CommPkgId4);
 
-            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system);
+            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid);
             _mcPkg2.SetProtectedIdForTesting(McPkgId2);
 
-            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system);
+            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid);
             _mcPkg3.SetProtectedIdForTesting(McPkgId3);
 
             _participant = new Participant(

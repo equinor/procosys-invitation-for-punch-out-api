@@ -30,7 +30,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
         private UpdateRfocVoidedCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
         private const string _projectName = "Project name";
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project", _projectGuid);
         private const string _title = "Test title";
         private const string _description = "Test description";
         private const DisciplineType _typeDP = DisciplineType.DP;
@@ -65,8 +66,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
                 .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
-            var mcPkg1 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo, "d", "1|2");
-            var mcPkg2 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo2, "d", "1|2");
+            var mcPkg1 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo, "d", "1|2", Guid.Empty);
+            var mcPkg2 = new McPkg(_plant, _project, "CommNo1", _mcPkgNo2, "d", "1|2", Guid.Empty);
             _mcPkgNos = new List<string> { _mcPkgNo, _mcPkgNo2 };
 
             _certificate = new Certificate(_plant, _project, _certificateGuid, true);
@@ -79,7 +80,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             _projectRepositoryMock = new Mock<IProjectRepository>();
             _projectRepositoryMock
                 .Setup(r => r.GetProjectOnlyByNameAsync(_projectName))
-                .Returns(Task.FromResult(new Project(_plant, _projectName, "Desc")));
+                .Returns(Task.FromResult(new Project(_plant, _projectName, "Desc", _projectGuid)));
 
             _loggerMock = new Mock<ILogger<UpdateRfocVoidedCommandHandler>>();
 
@@ -175,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
         [TestMethod]
         public async Task HandlingUpdateRfocVoidedCommand_ProjectIdClosed_ShouldExitEarly()
         {
-            var project = new Project(_plant, _projectName, "Desc");
+            var project = new Project(_plant, _projectName, "Desc", _projectGuid);
             project.IsClosed = true;
             _projectRepositoryMock
                 .Setup(r => r.GetProjectOnlyByNameAsync(_projectName))

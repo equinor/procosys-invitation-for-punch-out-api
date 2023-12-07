@@ -51,10 +51,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.PostSaveEvents
             // Arrange
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
-            var project = new Project("TestPlant", "project", "Description of project");
+            var project = new Project("TestPlant", "project", "Description of project",Guid.NewGuid());
             var commpkgs = new List<CommPkg>
             {
-                new CommPkg(plant, project, "commpkgno", "description", "status", "system|subsystem")
+                new CommPkg(plant, project, "commpkgno", "description", "status", "system|subsystem", Guid.Empty)
             };
             var invitation = new Invitation(plant, project, "title", "description", DisciplineType.MDP, DateTime.Now,
                 DateTime.Now, "location", null, commpkgs);

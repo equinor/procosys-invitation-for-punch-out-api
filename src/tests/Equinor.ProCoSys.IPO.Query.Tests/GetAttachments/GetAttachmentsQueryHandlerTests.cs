@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
-            var project = new Project(TestPlant, "TestProject", $"Description of TestProject");
+            var project = new Project(TestPlant, "TestProject", $"Description of TestProject", ProjectGuid1);
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, project, "commno", "mcno", "d", "1|2")},
+                    new List<McPkg> {new McPkg(TestPlant, project, "commno", "mcno", "d", "1|2", Guid.Empty)},
                     null);
                 var attachmentA = new Attachment(TestPlant, "fileA.txt");
                 var attachmentB = new Attachment(TestPlant, "fileB.txt");
