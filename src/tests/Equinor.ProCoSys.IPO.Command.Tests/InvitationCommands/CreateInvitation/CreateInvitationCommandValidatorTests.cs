@@ -473,5 +473,54 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters!"));
         }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenExternalEmailIsInvalid()
+        {
+            var participants = new List<ParticipantsForCommand>
+                {
+                    new ParticipantsForCommand(
+                        Organization.Contractor,
+                        null,
+                        new InvitedPersonForCreateCommand(new Guid(), true),
+                        null,
+                        0),
+                    new ParticipantsForCommand(
+                        Organization.ConstructionCompany,
+                        null,
+                        new InvitedPersonForCreateCommand(new Guid(), true),
+                        null,
+                        1),
+                    new ParticipantsForCommand(
+                        Organization.External,
+                        new InvitedExternalEmailForCreateCommand("jon@test,no"),
+                        null,
+                        null,
+                        -3)
+                };
+
+            _invitationValidatorMock.Setup(inv => inv.IsValidParticipantList(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.RequiredParticipantsMustBeInvited(participants)).Returns(true);
+            _invitationValidatorMock.Setup(inv => inv.OnlyRequiredParticipantsHaveLowestSortKeys(participants)).Returns(true);
+            var command = new CreateInvitationCommand(
+                _title,
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _projectName,
+                _type,
+                participants,
+                null,
+                _commPkgScope,
+                false);
+
+
+            var result = _dut.Validate(command);
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"One, or more, of the email-addresses for the participants is invalid."));
+        }
     }
 }
