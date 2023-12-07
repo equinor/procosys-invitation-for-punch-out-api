@@ -51,8 +51,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private const string _participantRowVersion = "AAAAAAAAJ00=";
         private const int _participantId = 20;
         private const string _projectName = "Project name";
+        private static readonly Guid _projectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int _projectId = 320;
-        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project");
+        private readonly Project _project = new(_plant, _projectName, $"Description of {_projectName} project", _projectGuid);
         private const string _title = "Test title";
         private const string _newTitle = "Test title 2";
         private const string _description = "Test description";
@@ -255,8 +256,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection, Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection, Guid.Empty)
             };
             //create invitation
             _dpInvitation = new Invitation(
@@ -274,8 +275,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 
             var commPkgs = new List<CommPkg>
             {
-                new CommPkg(_plant, _project, _commPkgNo, "d", "ok", _systemPathWithSection),
-                new CommPkg(_plant, _project, _commPkgNo, "d2", "ok", _systemPathWithSection)
+                new CommPkg(_plant, _project, _commPkgNo, "d", "ok", _systemPathWithSection, Guid.Empty),
+                new CommPkg(_plant, _project, _commPkgNo, "d2", "ok", _systemPathWithSection, Guid.Empty)
             };
             //create invitation
             _mdpInvitation = new Invitation(

@@ -16,11 +16,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate
         {
         }
 
-        public Project(string plant, string name, string description)
+        public Project(string plant, string name, string description, Guid guid)
             : base(plant)
         {
             Name = name;
             Description = description;
+            Guid = guid;
         }
 
         // private setters needed for Entity Framework
@@ -31,6 +32,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate
         public int CreatedById { get; private set; }
         public DateTime? ModifiedAtUtc { get; private set; }
         public int? ModifiedById { get; private set; }
+        // TODO: make Guid private after FillGuids has completed
+        public Guid Guid { get; set; }
 
         public void SetCreated(Person createdBy)
         {

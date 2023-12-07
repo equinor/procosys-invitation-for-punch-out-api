@@ -236,6 +236,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int?>("InvitationId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -440,6 +443,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("InvitationId")
                         .HasColumnType("int");
@@ -707,6 +713,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("Guid")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsClosed")
                         .HasColumnType("bit");
