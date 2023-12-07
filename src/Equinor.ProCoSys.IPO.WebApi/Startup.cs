@@ -183,7 +183,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
                 // Env variable used in kubernetes. Configuration is added for easier use locally
                 // Url will be validated during startup of service bus integration and give a
                 // Uri exception if invalid.
-                var leaderElectorUrl = "http://" + (Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? Configuration["ServiceBus:LeaderElectorUrl"]) + ":3003";
+                var leaderElectorUrl = Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? (Configuration["ServiceBus:LeaderElectorUrl"]);
 
                 services.AddPcsServiceBusIntegration(options => options
                     .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))

@@ -31,9 +31,9 @@ spec:
       variables:
         ASPNETCORE_ENVIRONMENT: 'Development'
         UseAzureAppConfiguration: 'true'
-        LEADERELECTOR_SERVICE: leader-elector:3003
+        LEADERELECTOR_SERVICE: http://leader-elector:3003
         TEST: jid
-      monitoring: false
+      monitoring: true
       resources:
         requests:
           memory: '256Mi'
@@ -49,8 +49,8 @@ spec:
       variables:
         ASPNETCORE_ENVIRONMENT: 'Test'
         UseAzureAppConfiguration: 'true'
-        LEADERELECTOR_SERVICE: leader-elector:3003
-      monitoring: false
+        LEADERELECTOR_SERVICE: http://leader-elector:3003
+      monitoring: true
       replicas: 2
       resources:
         requests:
@@ -67,7 +67,7 @@ spec:
       variables:
         ASPNETCORE_ENVIRONMENT: 'Prod'
         UseAzureAppConfiguration: 'true'
-        LEADERELECTOR_SERVICE: leader-elector:3003
+        LEADERELECTOR_SERVICE: http://leader-elector:3003
       monitoring: false
       replicas: 3
       resources:
