@@ -86,7 +86,7 @@ spec:
     ports:
     - name: http
       port: 3003
-      publicPort: http
+    publicPort: http
     environmentConfig:
     # Development environment
     - environment: dev
