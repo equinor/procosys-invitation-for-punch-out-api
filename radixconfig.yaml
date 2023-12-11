@@ -32,7 +32,6 @@ spec:
         ASPNETCORE_ENVIRONMENT: 'Development'
         UseAzureAppConfiguration: 'true'
         LEADERELECTOR_SERVICE: http://leader-elector:3003
-        TEST: jid
       monitoring: true
       resources:
         requests:
@@ -67,7 +66,7 @@ spec:
       variables:
         ASPNETCORE_ENVIRONMENT: 'Prod'
         UseAzureAppConfiguration: 'true'
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
+        LEADERELECTOR_SERVICE: http://leader-elector-inactive:3003
       monitoring: false
       replicas: 3
       resources:

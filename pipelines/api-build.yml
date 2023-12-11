@@ -1,4 +1,4 @@
-trigger: none
+trigger: none # Remember to change to include master.
 
 resources:
   repositories:
@@ -36,30 +36,30 @@ name: '${{ variables.versionNumber }}$(Build.BuildId)-$(Date:MMddyyyy)'
 
 stages:
 # Run tests Stage
-# - stage: runtests
-#   displayName: 'Run tests'
-#   variables:
-#     envName: 'runtests'
-#     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
-#     testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
+- stage: runtests
+  displayName: 'Run tests'
+  variables:
+    envName: 'runtests'
+    envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
+    testPath: '$(Build.SourcesDirectory)/src/Equinor.Procosys.IPO.sln'
 
-  # jobs:
+  jobs:
   # Run Test
-  # - template: /templates/pipelines/runtest.yml@templates
-  #   parameters:
-  #     deploymentName: 'runtests'
-  #     dependsOn: ''
-  #     envGroup: '${{ variables.envGroupName }}'
-  #     testPath: '${{ variables.testPath }}'
+  - template: /templates/pipelines/runtest.yml@templates
+    parameters:
+      deploymentName: 'runtests'
+      dependsOn: ''
+      envGroup: '${{ variables.envGroupName }}'
+      testPath: '${{ variables.testPath }}'
 
 # Build stage. Docker build, tag and push
 - stage: build
   displayName: 'Build'
-  #dependsOn: 'runtests'
+  dependsOn: 'runtests'
   variables:
     envName: 'build'
-    envRg: '${{ variables.envRgName }}'
-    containerRegistry: '${{ variables.containerRegistryName }}'
+    envRg: '${{ variables.envRgName }}' # Is this needed? Not in preservation.
+    containerRegistry: '${{ variables.containerRegistryName }}' # Is this needed? Not in preservation.
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
     dockerRegistryServiceConnection: '${{ variables.dockerRegistryServiceConnectionName }}'
     dockerfilePath: '$(Build.SourcesDirectory)/src/Equinor.ProCoSys.IPO.WebApi/Dockerfile'
@@ -70,9 +70,12 @@ stages:
     parameters:
       deploymentName: 'docker_build'
       dependsOn: ''
-      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest')) # Remember to change back to eq instead of ne.
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+      #condition: and(always(), ne(variables['Build.Reason'], 'PullRequest')) # Remember to change back to eq instead of ne. ... or comment in line below instead (from preservation)
+      #condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+      #env: 'pcs-${{ variables.envName }}' Copied from preservation. Why is this missing here?
       envGroup: '${{ variables.envGroupName }}'
-      buildCommand: buildAndPush # Remember to change back to build.
+      buildCommand: build
       versionNumber: ${{ variables.versionNumber }}
       arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
       dockerfilePath: '${{ variables.dockerfilePath }}'
@@ -85,7 +88,10 @@ stages:
     parameters:
       deploymentName: 'docker_build_and_push_master_only'
       dependsOn: ''
-      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+      # condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
+      # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))  - From preservation. Why is the line above so different?
+      # env: 'pcs-${{ variables.envName }}' - Need this also here?
       envGroup: '${{ variables.envGroupName }}'
       arguments: '--build-arg FEED_ACCESSTOKEN=$(VSS_NUGET_ACCESSTOKEN)'
       buildCommand: buildAndPush
@@ -107,8 +113,9 @@ stages:
 - stage: DeployDev
   displayName: 'Deploy to dev'
   dependsOn: 'Build' 
-  #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+  #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) - From preservation.
+  #condition: succeeded() # Remove this
   variables:
     envName: 'dev'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
@@ -147,7 +154,8 @@ stages:
 - stage: DeployTest
   displayName: 'Deploy to test'
   dependsOn: 'DeployDev'
-  condition: succeeded()
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+  #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) 
   variables:
     envName: 'test'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
@@ -189,6 +197,7 @@ stages:
 - stage: DeployProd
   displayName: 'Deploy to prod'
   dependsOn: 'DeployTest'
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
   #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) 
   variables:
     envName: 'prod'
