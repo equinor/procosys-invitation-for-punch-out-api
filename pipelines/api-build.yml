@@ -70,8 +70,7 @@ stages:
     parameters:
       deploymentName: 'docker_build'
       dependsOn: ''
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
-      #condition: and(always(), ne(variables['Build.Reason'], 'PullRequest')) # Remember to change back to eq instead of ne. ... or comment in line below instead (from preservation)
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest')) # Remember to change back to eq instead of ne. ... or comment in line below instead (from preservation)
       #condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
       #env: 'pcs-${{ variables.envName }}' Copied from preservation. Why is this missing here?
       envGroup: '${{ variables.envGroupName }}'
@@ -88,7 +87,7 @@ stages:
     parameters:
       deploymentName: 'docker_build_and_push_master_only'
       dependsOn: ''
-      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+      condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       # condition: and(always(), ne(variables['Build.Reason'], 'PullRequest'))
       # condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))  - From preservation. Why is the line above so different?
       # env: 'pcs-${{ variables.envName }}' - Need this also here?
@@ -113,7 +112,7 @@ stages:
 - stage: DeployDev
   displayName: 'Deploy to dev'
   dependsOn: 'Build' 
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+  condition: succeeded()
   #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) - From preservation.
   #condition: succeeded() # Remove this
   variables:
@@ -154,7 +153,7 @@ stages:
 - stage: DeployTest
   displayName: 'Deploy to test'
   dependsOn: 'DeployDev'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+  condition: succeeded()
   #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) 
   variables:
     envName: 'test'
