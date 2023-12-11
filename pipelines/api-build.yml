@@ -196,7 +196,8 @@ stages:
 - stage: DeployProd
   displayName: 'Deploy to prod'
   dependsOn: 'DeployTest'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
+  condition: succeeded()
+  #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/014953_radix')) 
   #condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) 
   variables:
     envName: 'prod'
