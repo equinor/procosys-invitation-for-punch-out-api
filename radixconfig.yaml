@@ -1,0 +1,138 @@
+apiVersion: radix.equinor.com/v1
+kind: RadixApplication
+metadata:
+  name: procosys-ipo-api
+spec:
+  environments:
+  - name: dev
+  - name: test
+  - name: prod
+
+  components:
+  # ---------
+  # Backend
+  #---------- 
+
+  - name: backend
+    image: procosys.azurecr.io/ipo/api:{imageTagName}
+    ports:
+    - name: http
+      port: 5000
+    publicPort: http
+    secrets:
+    - CONNECTIONSTRINGS__APPCONFIG
+    environmentConfig:
+    # Development environment
+    - environment: dev
+      identity:
+        azure:
+          clientId: 2e1868db-3024-45a9-b3f1-568e85586244
+      imageTagName: latest
+      variables:
+        ASPNETCORE_ENVIRONMENT: 'Development'
+        UseAzureAppConfiguration: 'true'
+        LEADERELECTOR_SERVICE: http://leader-elector:3003
+      monitoring: true
+      resources:
+        requests:
+          memory: '256Mi'
+          cpu: '100m'
+        limits:
+          memory: '256Mi'
+          cpu: '250m'
+    # Test environment
+    - environment: test
+      identity:
+        azure:
+          clientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31
+      variables:
+        ASPNETCORE_ENVIRONMENT: 'Test'
+        UseAzureAppConfiguration: 'true'
+        LEADERELECTOR_SERVICE: http://leader-elector:3003
+      monitoring: true
+      replicas: 2
+      resources:
+        requests:
+          memory: '256Mi'
+          cpu: '100m'
+        limits:
+          memory: '256Mi'
+          cpu: '250m'
+    # Prod environment
+    - environment: prod
+      identity:
+        azure:
+          clientId: b3399356-b2b6-44d4-a7b6-323eefc8a173
+      variables:
+        ASPNETCORE_ENVIRONMENT: 'Production'
+        UseAzureAppConfiguration: 'true'
+        LEADERELECTOR_SERVICE: http://leader-elector-inactive:3003
+      monitoring: false
+      replicas: 3
+      resources:
+        requests:
+          memory: '750Mi'
+          cpu: '200m'
+        limits:
+          memory: '750Mi'
+          cpu: '500m'
+
+  #--------------------
+  # LeaderElector 
+  #--------------------
+  - name: leader-elector
+    image: procosys.azurecr.io/leader-elector:{imageTagName}
+    ports:
+    - name: http
+      port: 3003
+    publicPort: http
+    environmentConfig:
+    # Development environment
+    - environment: dev
+      imageTagName: latest
+      variables:
+        LEASE_TIME: 5
+      monitoring: false
+      replicas: 1
+      resources:
+        requests:
+          memory: '128Mi'
+          cpu: '100m'
+        limits:
+          memory: '128Mi'
+          cpu: '100m'
+    # Test environment
+    - environment: test
+      imageTagName: latest
+      variables:
+        LEASE_TIME: 5
+      monitoring: false
+      replicas: 1
+      resources:
+        requests:
+          memory: '128Mi'
+          cpu: '100m'
+        limits:
+          memory: '128Mi'
+          cpu: '100m'
+    # Prod environment
+    - environment: prod
+      imageTagName: latest
+      variables:
+         LEASE_TIME: 5
+      replicas: 1
+      resources:
+        requests:
+          memory: '128Mi'
+          cpu: '100m'
+        limits:
+          memory: '128Mi'
+          cpu: '100m'
+      monitoring: false
+  #--------------------------------
+  # External docker image registry
+  #--------------------------------
+  privateImageHubs:
+    procosys.azurecr.io:
+      username: 9d3898e4-730f-4fb5-8ddf-a5de51537896
+      email: arbje@equinor.com
