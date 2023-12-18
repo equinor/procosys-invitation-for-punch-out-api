@@ -201,7 +201,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
 
                 var organizer = organizersDict[invitation.CreatedById];
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
-                var participants = await Task.FromResult(invitationWithIncludes.Participants.ToList());
+                var participants = invitationWithIncludes.Participants.ToList();
                 var exportInvitationDto = new ExportInvitationDto(
                     invitation.Id,
                     project.Name,

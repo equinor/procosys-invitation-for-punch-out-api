@@ -53,13 +53,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             var filterPunchOutDates = new List<int>();
             if (filter.PunchOutDates.Any())
             {
-                filterPunchOutDates = filter.PunchOutDates.Select(x => (int)x).ToList<int>();
+                filterPunchOutDates = filter.PunchOutDates.Select(x => (int)x).ToList();
             }
 
             var filterIpoStatuses = new List<int>();
             if (filter.IpoStatuses.Any())
             {
-                filterIpoStatuses = filter.IpoStatuses.Select(x => (int)x).ToList<int>();
+                filterIpoStatuses = filter.IpoStatuses.Select(x => (int)x).ToList();
             }
 
             // No need to specify that case should be ignored here, e.g. by using slow performing ToUpper(), since related database is created with a case insensitive collation.
