@@ -181,21 +181,27 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         {
             var organizerIds = invitationsWithIncludes.Select(i => i.CreatedById).Distinct().ToList();
             var organizers = await GetPersonsByIdsAsync(organizerIds);
+            var organizersDict = organizers.ToDictionary(o => o.Id);
+
+            var invitationProjectIds = invitationsWithIncludes.Select(i => i.ProjectId).ToList();
+
+            var projects = await _context.QuerySet<Project>()
+                .Where(p => invitationProjectIds.Contains(p.Id))
+                .ToListAsync();
 
             var exportInvitations = new List<ExportInvitationDto>();
             foreach (var invitation in invitationsWithIncludes)
             {
-                var project = await _context.QuerySet<Project>()
-                    .SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
+                var project = projects.Single(x => x.Id == invitation.ProjectId);
 
                 if (project is null)
                 {
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                var organizer = organizers.Single(x => x.Id == invitation.CreatedById);
+                var organizer = organizersDict[invitation.CreatedById];
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
-                var participants = invitationWithIncludes.Participants.ToList();
+                var participants = await Task.FromResult(invitationWithIncludes.Participants.ToList());
                 var exportInvitationDto = new ExportInvitationDto(
                     invitation.Id,
                     project.Name,
