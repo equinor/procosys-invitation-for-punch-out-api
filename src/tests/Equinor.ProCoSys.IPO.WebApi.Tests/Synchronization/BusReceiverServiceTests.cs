@@ -37,10 +37,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<ICertificateEventProcessorService> _certificationEventProcessorService;
 
         private const string plant = "PCS$HEIMDAL";
-        private static readonly Project project1 = new(plant, project1Name, $"Description of {project1Name} project");
+        private static readonly Project project1 = new(plant, project1Name, $"Description of {project1Name} project", _project1Guid);
         private const int project1Id = 320;
         private const string project1Name = "HEIMDAL";
         private const string project2Name = "XYZ";
+
+        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
 
         private const string commPkgNo1 = "123";
         private const string commPkgNo2 = "234";
@@ -55,23 +58,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
         private List<McPkg> _mcPkgsOn1 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo2, mcPkgNo1, description, "1|2")
+            new McPkg(plant, project1, commPkgNo2, mcPkgNo1, description, "1|2",Guid.Empty)
         };
 
         private List<CommPkg> _commPkgsOn2 = new List<CommPkg>
         {
-            new CommPkg(plant, project1, commPkgNo1, description,"status", "1|2"),
-            new CommPkg(plant, project1, commPkgNo2, description, "status", "1|2")
+            new CommPkg(plant, project1, commPkgNo1, description,"status", "1|2",Guid.Empty),
+            new CommPkg(plant, project1, commPkgNo2, description, "status", "1|2", Guid.Empty)
         };
 
         private List<McPkg> _mcPkgsOn3 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo3, mcPkgNo3, description, "1|2")
+            new McPkg(plant, project1, commPkgNo3, mcPkgNo3, description, "1|2", Guid.Empty)
         };
 
         private List<McPkg> _mcPkgsOn4 = new List<McPkg>
         {
-            new McPkg(plant, project1, commPkgNo3, mcPkgNo4, description, "1|2")
+            new McPkg(plant, project1, commPkgNo3, mcPkgNo4, description, "1|2", Guid.Empty)
         };
 
         private Invitation _invitation1, _invitation2, _invitation3, _invitation4;
@@ -271,7 +274,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingProjectTopicWithoutFailure()
         {
             var projectRepositoryTestDouble = new ProjectRepositoryTestDouble();
-            projectRepositoryTestDouble.Add(new Project(plant, project1Name, "Description to be changed") { IsClosed = false });
+            projectRepositoryTestDouble.Add(new Project(plant, project1Name, "Description to be changed", _project1Guid) { IsClosed = false });
 
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"IsClosed\" : true, \"Description\" : \"{description}\"}}";
 
@@ -529,6 +532,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
             // Assert
             _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Never);
+        }
+
+
+        [TestMethod]
+        public async Task HandleCertificateTopic_ShouldNotFail_WhenReceivingTheSameMessageTwice()
+        {
+            // Arrange
+            var message =
+                $"{{\"Plant\" : \"{plant}\", \"ProjectName\" : \"{project1Name}\", \"CertificateNo\" :\"XX\"}}";
+
+            // Act
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
+            await _dut.ProcessMessageAsync(PcsTopicConstants.Certificate, message, default);
+
+            // Assert
+            _certificationEventProcessorService.Verify(u => u.ProcessCertificateEventAsync(message), Times.Exactly(2));
         }
     }
 }

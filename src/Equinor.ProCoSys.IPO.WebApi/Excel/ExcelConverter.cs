@@ -26,9 +26,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 var exportInvitationDtos = dto.Invitations.ToList();
 
-                GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle, exportInvitationDtos);
-                GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle, normalStyle);
-                GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
+                if (exportInvitationDtos.Any())
+                {
+                    GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle,
+                        exportInvitationDtos);
+                    GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle,
+                        normalStyle);
+                    GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
+                }
 
                 return stream;
             }
@@ -307,7 +312,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 {
                     // Convert the UTC time to GMT+1
                     var startTimeCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.StartTimeUtc, cetTimeZone);
-
                     xlsxWriter.Write(startTimeCet, dateStyle);
                 }
                 else
@@ -319,7 +323,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 {
                     // Convert the UTC time to GMT+1
                     var endTimeCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.EndTimeUtc, cetTimeZone);
-
                     xlsxWriter.Write(endTimeCet, dateStyle);
                 }
                 else

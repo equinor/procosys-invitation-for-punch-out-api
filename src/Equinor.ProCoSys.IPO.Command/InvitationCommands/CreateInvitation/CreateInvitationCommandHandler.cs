@@ -169,7 +169,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     $"Could not find ProCoSys project called {request.ProjectName} in plant {_plantProvider.Plant}");
             }
 
-            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description);
+            var project = new Project(_plantProvider.Plant, request.ProjectName, proCoSysProject.Description, proCoSysProject.ProCoSysGuid);
             project.IsClosed = proCoSysProject.IsClosed;
 
             _projectRepository.Add(project);
@@ -410,7 +410,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 c.CommPkgNo,
                 c.Description,
                 c.CommStatus,
-                c.System)).ToList();
+                c.System,
+                c.ProCoSysGuid)).ToList();
         }
 
         private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
@@ -450,7 +451,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     mc.CommPkgNo,
                     mc.McPkgNo,
                     mc.Description,
-                    mc.System)).ToList();
+                    mc.System,
+                    mc.ProCoSysGuid)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(

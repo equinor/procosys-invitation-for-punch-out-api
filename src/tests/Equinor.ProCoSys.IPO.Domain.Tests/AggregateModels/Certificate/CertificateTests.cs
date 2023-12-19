@@ -12,9 +12,10 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         private Domain.AggregateModels.CertificateAggregate.Certificate _dut;
         private const string TestPlant = "PlantA";
         private const string ProjectName = "ProjectName";
+        private static readonly Guid ProjectGuid = new Guid("11111111-2222-2222-2222-333333333341");
         private const int ProjectId = 320;
         private Guid Guid = new Guid("00000000-0000-0000-0000-000000000001");
-        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}");
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}", ProjectGuid);
 
 
         [TestInitialize]
@@ -46,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         {
             Assert.AreEqual(0, _dut.CertificateCommPkgs.Count);
 
-            var commPkg = new CommPkg(TestPlant, _project, "123", "456", "OK", "1|2");
+            var commPkg = new CommPkg(TestPlant, _project, "123", "456", "OK", "1|2", Guid.Empty);
             _dut.AddCommPkgRelation(commPkg);
 
             Assert.AreEqual(1, _dut.CertificateCommPkgs.Count);
@@ -61,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         [TestMethod]
         public void AddCommPkgRelation_ShouldThrowException_WhenPlantsDoNotMatch() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                _dut.AddCommPkgRelation(new CommPkg("Plant B", new Project("Plant B", "new name", "test"), "123", "456", "OK", "1|2"))
+                _dut.AddCommPkgRelation(new CommPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2",Guid.Empty))
             );
         #endregion
 
@@ -71,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         {
             Assert.AreEqual(0, _dut.CertificateMcPkgs.Count);
 
-            var mcPkg = new McPkg(TestPlant, _project, "123", "456", "OK", "1|2");
+            var mcPkg = new McPkg(TestPlant, _project, "123", "456", "OK", "1|2", Guid.Empty);
             _dut.AddMcPkgRelation(mcPkg);
 
             Assert.AreEqual(1, _dut.CertificateMcPkgs.Count);
@@ -86,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         [TestMethod]
         public void AddMcPkgRelation_ShouldThrowException_WhenPlantsDoNotMatch() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                _dut.AddMcPkgRelation(new McPkg("Plant B", new Project("Plant B", "new name", "test"), "123", "456", "OK", "1|2"))
+                _dut.AddMcPkgRelation(new McPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2",Guid.Empty))
             );
         #endregion
 
