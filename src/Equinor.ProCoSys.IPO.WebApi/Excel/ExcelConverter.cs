@@ -254,6 +254,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             var constructionCompanyRefLength = CalculatePropertyWidth(exportInvitationDtos, s => s.ConstructionCompanyRep);
             var createdByLength = CalculatePropertyWidth(exportInvitationDtos, s => s.CreatedBy);
 
+            // Define the time zone for GMT+1 (Central European Time)
+            var cetTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
 
             xlsxWriter.BeginWorksheet("Invitations", columns: new[] {
                 XlsxColumn.Formatted(width: ipoWidth),
@@ -304,9 +306,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 .Write(invitation.Location)
                 .Write(invitation.Type);
 
+
+
                 if (invitation.StartTimeUtc != DateTime.MinValue)
                 {
-                    xlsxWriter.Write(invitation.StartTimeUtc.ToLocalTime(), dateStyle);
+                    // Convert the UTC time to GMT+1
+                    var startTimeCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.StartTimeUtc, cetTimeZone);
+                    xlsxWriter.Write(startTimeCet, dateStyle);
                 }
                 else
                 {
@@ -315,7 +321,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.EndTimeUtc != DateTime.MinValue)
                 {
-                    xlsxWriter.Write(invitation.EndTimeUtc.ToLocalTime(), dateStyle);
+                    // Convert the UTC time to GMT+1
+                    var endTimeCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.EndTimeUtc, cetTimeZone);
+                    xlsxWriter.Write(endTimeCet, dateStyle);
                 }
                 else
                 {
@@ -330,7 +338,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.CompletedAtUtc.HasValue)
                 {
-                    xlsxWriter.Write(((DateTime)invitation.CompletedAtUtc).ToLocalTime(), dateStyle);
+                    var completeAtCet = TimeZoneInfo.ConvertTimeFromUtc((DateTime)invitation.CompletedAtUtc, cetTimeZone);
+                    xlsxWriter.Write(completeAtCet, dateStyle);
                 }
                 else
                 {
@@ -339,15 +348,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (invitation.AcceptedAtUtc.HasValue)
                 {
-                    xlsxWriter.Write(((DateTime)invitation.AcceptedAtUtc).ToLocalTime(), dateStyle);
+                    var acceptedAtCet = TimeZoneInfo.ConvertTimeFromUtc((DateTime)invitation.AcceptedAtUtc, cetTimeZone);
+                    xlsxWriter.Write(acceptedAtCet, dateStyle);
                 }
                 else
                 {
                     xlsxWriter.Write("");
                 }
 
+                var createdAtCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.CreatedAtUtc, cetTimeZone);
+
                 xlsxWriter.Write(invitation.CreatedBy)
-                    .Write(invitation.CreatedAtUtc.ToLocalTime(), dateStyle);
+                    .Write(createdAtCet, dateStyle);
             }
         }
 
