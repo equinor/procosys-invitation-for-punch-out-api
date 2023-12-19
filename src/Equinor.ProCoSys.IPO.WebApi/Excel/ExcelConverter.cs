@@ -26,9 +26,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 var exportInvitationDtos = dto.Invitations.ToList();
 
-                GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle, exportInvitationDtos);
-                GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle, normalStyle);
-                GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
+                if (exportInvitationDtos.Any())
+                {
+                    GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle,
+                        exportInvitationDtos);
+                    GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle,
+                        normalStyle);
+                    GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
+                }
 
                 return stream;
             }
