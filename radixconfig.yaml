@@ -71,10 +71,10 @@ spec:
       replicas: 3
       resources:
         requests:
-          memory: '2048Mi'
+          memory: '30728Mi'
           cpu: '200m'
         limits:
-          memory: '2048Mi'
+          memory: '3072Mi'
           cpu: '500m'
 
   #--------------------
