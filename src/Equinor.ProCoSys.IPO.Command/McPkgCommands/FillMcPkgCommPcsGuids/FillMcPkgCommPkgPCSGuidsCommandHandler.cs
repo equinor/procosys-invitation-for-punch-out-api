@@ -59,6 +59,10 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
                        _logger.LogInformation($"FillMcPkgCommPkgPCSGuidsCommand: McPkg {mcPkg.McPkgNo} updated with CommPkgGuid: {mcPkg.CommPkgGuid}");
                        count++;
                     }
+                    else
+                    {
+                        _logger.LogError($"FillMcPkgCommPkgPCSGuidsCommand: McPkg {mcPkg.McPkgNo} not found.");
+                    }
                 }
             }
 
