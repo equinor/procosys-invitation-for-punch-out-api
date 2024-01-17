@@ -93,10 +93,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 .Setup(x => x.Projects)
                 .Returns(_projectSetMock.Object);
 
-            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
+            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid, Guid.Empty);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid);
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid, Guid.Empty);
             _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
             _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", Guid.Empty);
@@ -108,10 +108,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", Guid.Empty);
             _commPkg4.SetProtectedIdForTesting(CommPkgId4);
 
-            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid);
+            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid, Guid.Empty);
             _mcPkg2.SetProtectedIdForTesting(McPkgId2);
 
-            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid);
+            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid, Guid.Empty);
             _mcPkg3.SetProtectedIdForTesting(McPkgId3);
 
             _participant = new Participant(

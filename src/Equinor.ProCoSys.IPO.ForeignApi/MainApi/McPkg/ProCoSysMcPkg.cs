@@ -17,6 +17,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
         public DateTime? RfocAcceptedAt { get; set; }
         public string System { get; set; }
         public Guid ProCoSysGuid { get; set; }
+        public Guid CommPkgGuid { get; set; }
         public string Section
             => System.Count(s => s == '|') == 2
                 ? System.Substring(0, System.IndexOf('|'))

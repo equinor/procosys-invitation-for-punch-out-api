@@ -54,8 +54,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         {
             project.SetProtectedIdForTesting(ProjectId);
             TimeService.SetProvider(new ManualTimeProvider(new DateTime(2021, 1, 1, 12, 0, 0, DateTimeKind.Utc)));
-            _mcPkg1 = new McPkg(TestPlant, project, "Comm1", "Mc1", "MC D", System, Guid.Empty);
-            _mcPkg2 = new McPkg(TestPlant, project, "Comm1", "Mc2", "MC D 2", System, Guid.Empty);
+            _mcPkg1 = new McPkg(TestPlant, project, "Comm1", "Mc1", "MC D", System, Guid.Empty, Guid.Empty);
+            _mcPkg2 = new McPkg(TestPlant, project, "Comm1", "Mc2", "MC D 2", System, Guid.Empty, Guid.Empty);
             _commPkg1 = new CommPkg(TestPlant, project, "Comm1", "Comm D", "OK", "1|2", Guid.Empty);
             _commPkg2 = new CommPkg(TestPlant, project, "Comm2", "Comm D 2", "OK", "1|2", Guid.Empty);
 
@@ -633,7 +633,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddMcPkgScope()
         {
-            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System, Guid.Empty);
+            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System, Guid.Empty, Guid.Empty);
 
             Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
 
@@ -653,7 +653,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         [TestMethod]
         public void EditIpo_ShouldEditIpo_AddUniqueMcPkgs()
         {
-            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System, Guid.Empty);
+            var newMcPkg = new McPkg(TestPlant, project, "Comm2", "Mc3", "MC D", System, Guid.Empty, Guid.Empty);
 
             Assert.AreEqual(2, _dutDpIpo.McPkgs.Count);
 

@@ -59,6 +59,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     "McPkgNo",
                     "Description",
                     system,
+                    Guid.Empty,
                     Guid.Empty);
 
                 var mdpInvitation = new Invitation(
