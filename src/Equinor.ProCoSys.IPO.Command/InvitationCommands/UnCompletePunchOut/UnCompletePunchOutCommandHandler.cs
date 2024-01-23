@@ -39,6 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
             var participant = invitation.Participants.SingleOrDefault(p => 
                 p.SortKey == 0 && 
                 p.Organization == Organization.Contractor && 
+                p.SignedAtUtc != null &&
                 (p.AzureOid == currentUserAzureOid || hasAdminPrivilege));
 
             if (participant == null || participant.FunctionalRoleCode != null)
