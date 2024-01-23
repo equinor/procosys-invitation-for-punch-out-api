@@ -144,7 +144,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         public async Task UnCompletePunchOutCommand_ShouldUnCompletePunchOut()
         {
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            var participant = _invitation.Participants.Single(p => p.Organization == Organization.Contractor);
+            var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);
             Assert.IsNotNull(participant);
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.IsNotNull(participant.SignedBy);
