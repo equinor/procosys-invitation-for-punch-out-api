@@ -64,8 +64,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddDbContext<IPOContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("IPOContext");
-                //var connectionString =
-                //    "Server=tcp:127.0.0.1;Initial Catalog=pcs-ipo-sandbox-from-prod-db-2024-1-5-12-14;Persist Security Info=False;User ID=sa;Password=PresTest2019;TrustServerCertificate=True;";
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
