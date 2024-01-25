@@ -452,7 +452,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     mc.McPkgNo,
                     mc.Description,
                     mc.System,
-                    mc.ProCoSysGuid)).ToList();
+                    mc.ProCoSysGuid,
+                    mc.CommPkgGuid)).ToList();
         }
 
         private async Task<Guid> CreateOutlookMeeting(

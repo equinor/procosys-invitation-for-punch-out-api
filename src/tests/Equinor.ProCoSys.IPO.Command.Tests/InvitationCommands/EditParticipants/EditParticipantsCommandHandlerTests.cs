@@ -162,8 +162,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
 
             var mcPkgs = new List<McPkg>
             {
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection,Guid.Empty),
-                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection, Guid.Empty)
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo1, "d", _systemPathWithSection,Guid.Empty, Guid.Empty),
+                new McPkg(_plant, _project, _commPkgNo, _mcPkgNo2, "d2", _systemPathWithSection, Guid.Empty, Guid.Empty)
             };
             //create invitation
             _dpInvitation = new Invitation(

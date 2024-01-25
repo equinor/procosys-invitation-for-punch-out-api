@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, _project1, "commno", "mcno", "d", "1|2", Guid.Empty)},
+                    new List<McPkg> {new McPkg(TestPlant, _project1, "commno", "mcno", "d", "1|2", Guid.Empty, Guid.Empty)},
                     null);
                 context.Projects.Add(_project1);
                 context.Invitations.Add(invitation);

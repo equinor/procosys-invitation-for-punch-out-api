@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private static Invitation SeedDpInvitation(IPOContext dbContext, string plant, Project project)
         {
             var mcPkg = new McPkg(plant, project, KnownTestData.CommPkgNo,
-                KnownTestData.McPkgNo, "Description", KnownTestData.System, Guid.Empty);
+                KnownTestData.McPkgNo, "Description", KnownTestData.System, Guid.Empty, Guid.Empty);
             var invitationRepository = new InvitationRepository(dbContext);
             var dpInvitation = new Invitation(
                 plant,

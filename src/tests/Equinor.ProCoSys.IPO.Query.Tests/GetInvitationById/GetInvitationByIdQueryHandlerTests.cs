@@ -151,6 +151,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                     mcPkgNo,
                     description,
                     system,
+                    Guid.Empty,
                     Guid.Empty);
 
                 _dpInvitation = new Invitation(

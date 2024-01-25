@@ -28,7 +28,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string mcPkgNo,
             string description,
             string system,
-            Guid guid)
+            Guid guid,
+            Guid commPkgGuid)
             : base(plant)
         {
             if (project is null)
@@ -58,6 +59,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             McPkgNo = mcPkgNo;
             RfocAccepted = false;
             Guid= guid;
+            CommPkgGuid = commPkgGuid;
         }
 
         [NotMapped] // EF defines a shadow property for InvitationId.
@@ -74,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int CreatedById { get; private set; }
         // TODO: make Guid private after FillGuids has completed
         public Guid Guid { get; set; }
+        public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;

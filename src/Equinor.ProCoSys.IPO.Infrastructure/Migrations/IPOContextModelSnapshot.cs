@@ -429,6 +429,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CommPkgGuid")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CommPkgNo")
                         .IsRequired()
                         .HasMaxLength(30)

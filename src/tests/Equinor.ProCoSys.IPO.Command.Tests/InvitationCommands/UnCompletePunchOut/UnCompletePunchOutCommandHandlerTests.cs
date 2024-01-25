@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
                     null)
                 { MeetingId = _meetingId };
 
@@ -90,6 +90,18 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 0);
             _invitation.AddParticipant(participant1);
             participant1.SetProtectedIdForTesting(_participantId);
+            var participant3 = new Participant(
+                _plant,
+                Organization.Contractor,
+                IpoParticipantType.Person,
+                _functionalRoleCode,
+                "kari",
+                "n",
+                "KariN",
+                "kari@test.com",
+                _azureOidForCurrentUser,
+                0);
+            _invitation.AddParticipant(participant3);
 
             var participant2 = new Participant(
                 _plant,
@@ -132,7 +144,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         public async Task UnCompletePunchOutCommand_ShouldUnCompletePunchOut()
         {
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            var participant = _invitation.Participants.Single(p => p.Organization == Organization.Contractor);
+            var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);
             Assert.IsNotNull(participant);
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.IsNotNull(participant.SignedBy);
@@ -174,7 +186,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 _plant, _azureOidNotForCurrentUser))
                 .Returns(Task.FromResult(permissions));
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
-            var participant = _invitation.Participants.Single(p => p.Organization == Organization.Contractor);
+            var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);
             Assert.IsNotNull(participant);
             Assert.IsNotNull(participant.SignedAtUtc);
             Assert.IsNotNull(participant.SignedBy);

@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {new McPkg(TestPlant, project, "commno", "mcno", "d", "1|2", Guid.Empty)},
+                    new List<McPkg> {new McPkg(TestPlant, project, "commno", "mcno", "d", "1|2", Guid.Empty, Guid.Empty)},
                     null);
                 var attachmentA = new Attachment(TestPlant, "fileA.txt");
                 var attachmentB = new Attachment(TestPlant, "fileB.txt");
