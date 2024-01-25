@@ -19,6 +19,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) =>
                 {
+                    // Load configuration from secrets.json
                     var settings = config.Build();
                     var azConfig = settings.GetValue<bool>("UseAzureAppConfiguration");
                     if (azConfig)
@@ -29,9 +30,9 @@ namespace Equinor.ProCoSys.IPO.WebApi
                             options.Connect(connectionString)
                                 .ConfigureKeyVault(kv =>
                                 {
-                                    kv.SetCredential(new ManagedIdentityCredential());
+                                    //kv.SetCredential(new ManagedIdentityCredential());
                                     // Use DefaultAzureCredential in local dev env.
-                                    // kv.SetCredential(new DefaultAzureCredential());
+                                    kv.SetCredential(new DefaultAzureCredential());
                                 })
                                 .Select(KeyFilter.Any)
                                 .Select(KeyFilter.Any, context.HostingEnvironment.EnvironmentName)
@@ -42,6 +43,8 @@ namespace Equinor.ProCoSys.IPO.WebApi
                                 });
                         });
                     }
+
+                    config.AddJsonFile("C:\\Users\\TKLIN\\AppData\\Roaming\\Microsoft\\UserSecrets\\658758da-aa5c-4eb2-b76f-83fe39f5ad2e\\secrets.json", true, true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

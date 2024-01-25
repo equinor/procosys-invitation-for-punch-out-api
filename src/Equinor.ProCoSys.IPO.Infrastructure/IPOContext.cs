@@ -13,7 +13,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using IDomainMarker = Equinor.ProCoSys.IPO.Domain.IDomainMarker;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure

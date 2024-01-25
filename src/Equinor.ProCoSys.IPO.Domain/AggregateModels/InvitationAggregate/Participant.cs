@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.Common.Time;
@@ -16,12 +17,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public Participant(
-            string plant, 
-            Organization organization, 
-            IpoParticipantType type, 
-            string functionalRoleCode, 
-            string firstName, 
-            string lastName, 
+            string plant,
+            Organization organization,
+            IpoParticipantType type,
+            string functionalRoleCode,
+            string firstName,
+            string lastName,
             string userName,
             string email,
             Guid? azureOid,
@@ -42,6 +43,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Organization Organization { get; set; }
         public IpoParticipantType Type { get; set; }
         public string FunctionalRoleCode { get; set; }
+        [NotMapped] // EF defines a shadow property for InvitationId.
+        public int InvitationId { get; set; } // This id is needed to be able to handle relations when not using EF to load this object.
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }

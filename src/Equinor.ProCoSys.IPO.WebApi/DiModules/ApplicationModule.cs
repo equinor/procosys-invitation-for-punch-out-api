@@ -30,6 +30,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -63,6 +64,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddDbContext<IPOContext>(options =>
             {
                 var connectionString = configuration.GetConnectionString("IPOContext");
+                //var connectionString =
+                //    "Server=tcp:127.0.0.1;Initial Catalog=pcs-ipo-sandbox-from-prod-db-2024-1-5-12-14;Persist Security Info=False;User ID=sa;Password=PresTest2019;TrustServerCertificate=True;";
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
@@ -93,6 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ISettingRepository, SettingRepository>();
             services.AddScoped<IOutstandingIpoRepository, OutstandingIpoRepository>();
+            services.AddScoped<IExportIpoRepository, ExportIpoRepository>();
             services.AddScoped<ICertificateRepository, CertificateRepository>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
