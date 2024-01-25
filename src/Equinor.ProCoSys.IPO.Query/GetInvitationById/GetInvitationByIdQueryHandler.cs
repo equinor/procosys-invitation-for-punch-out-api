@@ -74,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 _logger.LogWarning(e, $"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
             }
+                    _logger.LogError(e, $"Fusion meeting error with code {invitation.MeetingId}");
             catch (Exception e)
             {
                 _logger.LogError(e, $"Fusion meeting error. MeetingId={invitation.MeetingId}.");
