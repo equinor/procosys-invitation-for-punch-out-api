@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 
 public class DapperRepositoryBase
 {
-    private readonly IPOContext _context;
+    public readonly IPOContext _context;
 
     public DapperRepositoryBase(IPOContext context) => _context = context;
 
