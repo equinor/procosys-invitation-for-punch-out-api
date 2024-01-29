@@ -6,7 +6,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public interface IExcelConverter
     {
-        MemoryStream Convert(ExportDto dto, ILogger logger);
+        MemoryStream Convert(ExportDto dto);
         string GetFileName();
     }
 }

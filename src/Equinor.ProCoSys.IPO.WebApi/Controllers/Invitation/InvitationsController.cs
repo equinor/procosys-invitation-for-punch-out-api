@@ -97,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 return this.FromResult(result);
             }
 
-            var excelMemoryStream = _excelConverter.Convert(result.Data, _logger);
+            var excelMemoryStream = _excelConverter.Convert(result.Data);
             excelMemoryStream.Position = 0;
 
             return File(excelMemoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"{_excelConverter.GetFileName()}.xlsx");

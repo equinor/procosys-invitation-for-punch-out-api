@@ -22,7 +22,7 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
         IPlantProvider plantProvider,
         CancellationToken cancellationToken)
     {
-        await using (var connection = _context.Database.GetDbConnection())
+        await using (var connection = Context.Database.GetDbConnection())
         {
             await connection.OpenAsync(cancellationToken);
             await using (var transaction = await connection.BeginTransactionAsync())
@@ -34,10 +34,10 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
                     var invitations = await results.ReadAsync<Invitation>();
                     var invitationsLookup = invitations.ToLookup(p => p.Id, p => p);
 
-                    var participants = await results.ReadAsync<Participant>();
+                    var participants = await results.ReadAsync<DapperParticipant>();
 
-                    var commPkgs = await results.ReadAsync<CommPkg>();
-                    var mcPkgs = await results.ReadAsync<McPkg>();
+                    var commPkgs = await results.ReadAsync<DapperCommPkg>();
+                    var mcPkgs = await results.ReadAsync<DapperMcPkg>();
 
                     var participantsByInvitation = participants.OrderByDescending(p => p.Type).ToLookup(p => p.InvitationId, p => p);
                     var commPkgsByInvitation = commPkgs.ToLookup(c => c.InvitationId, c => c);
@@ -46,19 +46,27 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
                     foreach (var participantByInvitation in participantsByInvitation)
                     {
                         var participantsForThisInvitation = participantsByInvitation[participantByInvitation.Key].AsList();
-                        invitationsLookup[participantByInvitation.Key].First().AddParticipants(participantsForThisInvitation);
+                        participantsForThisInvitation.ForEach(p =>
+                        {
+                            invitationsLookup[participantByInvitation.Key].First().AddParticipant(p);
+                        });
                     }
 
                     foreach (var commPkgByInvitation in commPkgsByInvitation)
                     {
                         var commpkgs = commPkgsByInvitation[commPkgByInvitation.Key].AsList();
-                        invitationsLookup[commPkgByInvitation.Key].First().AddCommPkgs(commpkgs);
+                        commpkgs.ForEach(c => {
+                            invitationsLookup[commPkgByInvitation.Key].First().AddCommPkg(c);
+                        });
                     }
 
                     foreach (var mcPkgByInvitation in mcPkgsByInvitation)
                     {
                         var mcpkgs = mcPkgsByInvitation[mcPkgByInvitation.Key].AsList();
-                        invitationsLookup[mcPkgByInvitation.Key].First().AddMcPkgs(mcpkgs);
+                        mcpkgs.ForEach(m =>
+                        {
+                            invitationsLookup[mcPkgByInvitation.Key].First().AddMcPkg(m);
+                        });
                     }
 
                     return invitations.ToList();

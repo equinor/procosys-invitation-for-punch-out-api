@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
+using Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation;
 using LargeXlsx;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Color = System.Drawing.Color;
@@ -12,7 +14,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
-        public MemoryStream Convert(ExportDto dto, ILogger logger)
+        private readonly ILogger<ExcelConverter> _logger;
+
+        public ExcelConverter(
+            ILogger<ExcelConverter> logger) => _logger = logger;
+
+        public MemoryStream Convert(ExportDto dto)
         {
             var stream = new MemoryStream();
             using var xlsxWriter = new XlsxWriter(stream);
@@ -24,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
             try
             {
-                logger.LogInformation($"Export to excel. Start generating sheets...");
+                _logger.LogInformation($"Export to excel. Start generating sheets...");
 
                 GenerateFrontSheet(dto, xlsxWriter, headerStyle, subHeaderStyle, normalStyle, dateStyle);
 
@@ -32,20 +39,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 if (exportInvitationDtos.Any())
                 {
-                    logger.LogInformation("Export to excel. Generating invitation sheet...");
+                    _logger.LogInformation("Export to excel. Generating invitation sheet...");
 
                     GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle,
                         exportInvitationDtos);
 
-                    logger.LogInformation("Export to excel. Generating participants sheet...");
+                    _logger.LogInformation("Export to excel. Generating participants sheet...");
 
                     GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle,
                         normalStyle);
-                    logger.LogInformation("Export to excel. Generating history sheet...");
+                    _logger.LogInformation("Export to excel. Generating history sheet...");
 
                     GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
                 }
-                logger.LogInformation("Export to excel. Completed.");
+                _logger.LogInformation("Export to excel. Completed.");
 
                 return stream;
             }

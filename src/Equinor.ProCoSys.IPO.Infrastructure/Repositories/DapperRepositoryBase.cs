@@ -10,13 +10,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 
 public class DapperRepositoryBase
 {
-    public readonly IPOContext _context;
+    public readonly IPOContext Context;
 
-    public DapperRepositoryBase(IPOContext context) => _context = context;
+    public DapperRepositoryBase(IPOContext context) => Context = context;
 
     protected async Task<IEnumerable<T>> QueryAsync<T>(string query, DynamicParameters parameters)
     {
-        var connection = _context.Database.GetDbConnection();
+        var connection = Context.Database.GetDbConnection();
         var connectionWasClosed = connection.State != ConnectionState.Open;
 
         try
@@ -36,7 +36,7 @@ public class DapperRepositoryBase
             //If we open it, we have to close it.
             if (connectionWasClosed)
             {
-                await _context.Database.CloseConnectionAsync();
+                await Context.Database.CloseConnectionAsync();
             }
         }
     }

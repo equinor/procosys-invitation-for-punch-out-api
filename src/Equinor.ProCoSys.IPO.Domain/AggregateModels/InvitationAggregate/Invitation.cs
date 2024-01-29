@@ -135,9 +135,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new AttachmentRemovedEvent(Plant, Guid, attachment.FileName));
         }
 
-        public void AddParticipants(IReadOnlyCollection<Participant> participants) => _participants.AddRange(participants);
-        public void AddCommPkgs(IReadOnlyCollection<CommPkg> commpkgs) => _commPkgs.AddRange(commpkgs);
-        public void AddMcPkgs(IReadOnlyCollection<McPkg> mcpkgs) => _mcPkgs.AddRange(mcpkgs);
 
         public void AddParticipant(Participant participant)
         {
@@ -527,7 +524,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ProjectId = toProject.Id;
         }
 
-        private void AddCommPkg(CommPkg commPkg)
+        public void AddCommPkg(CommPkg commPkg)
         {
             if (commPkg == null)
             {
@@ -551,7 +548,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _commPkgs.Add(commPkg);
         }
 
-        private void AddMcPkg(McPkg mcPkg)
+        public void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
             {
