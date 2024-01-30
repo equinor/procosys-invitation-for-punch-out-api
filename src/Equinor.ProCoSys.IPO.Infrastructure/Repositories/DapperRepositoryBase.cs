@@ -10,6 +10,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 
 public class DapperRepositoryBase
 {
+    // HACK: This should normally be private since we do not want to expose DbContext internals.
+    // However, we here have one case where we need to use some of the Context methods to be able to call and handle results from a specific stored procedure.
+    // FFE: We can evaluate if it is possible to move sufficient amount of logic into this class from ExportIpoRepository to make IPOContext private again.
     public readonly IPOContext Context;
 
     public DapperRepositoryBase(IPOContext context) => Context = context;

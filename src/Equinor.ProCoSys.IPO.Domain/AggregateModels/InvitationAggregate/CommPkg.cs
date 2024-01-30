@@ -56,9 +56,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Guid = guid;
         }
 
-        [NotMapped] // EF defines a shadow property for InvitationId.
-        public int InvitationId { get; set; } // This id is needed to be able to handle relations when not using EF to load this object.
-
         // private setters needed for Entity Framework
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }

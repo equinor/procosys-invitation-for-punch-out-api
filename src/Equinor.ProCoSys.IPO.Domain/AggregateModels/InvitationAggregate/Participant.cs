@@ -43,8 +43,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public Organization Organization { get; set; }
         public IpoParticipantType Type { get; set; }
         public string FunctionalRoleCode { get; set; }
-        [NotMapped] // EF defines a shadow property for InvitationId.
-        public int InvitationId { get; set; } // This id is needed to be able to handle relations when not using EF to load this object.
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }

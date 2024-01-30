@@ -74,21 +74,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Export to excel. Creating queryable with filter...");
+            _logger.LogInformation("Export to excel. Creating queryable with filter...");
 
             var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
 
-            _logger.LogInformation($"Export to excel. Add sorting to queryable...");
+            _logger.LogInformation("Export to excel. Add sorting to queryable...");
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
 
-            _logger.LogInformation($"Export to excel. Retrieving invitation ids from ordered invitations...");
+            _logger.LogInformation("Export to excel. Retrieving invitation ids from ordered invitations...");
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
 
-            _logger.LogInformation($"Export to excel. Get invitations with includes...");
+            _logger.LogInformation("Export to excel. Get invitations with includes...");
 
             var invitationsWithIncludes = await _exportIpoSqlRepository.GetInvitationsWithIncludesAsync(invitationIds, _plantProvider, cancellationToken);
 
-            _logger.LogInformation($"Export to excel. Extract invitations with includes.");
+            _logger.LogInformation("Export to excel. Extract invitations with includes.");
             return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
         }
 

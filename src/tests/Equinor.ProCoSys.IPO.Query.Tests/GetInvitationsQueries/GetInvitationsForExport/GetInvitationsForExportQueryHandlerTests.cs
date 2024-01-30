@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
@@ -26,12 +25,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
     {
         private ILogger<GetInvitationsForExportQuery> _logger;
         private IExportIpoRepository _exportIpoRepository;
-        private Mock<IExportIpoRepository> _exportIpoRepositoryMock;
 
         private Invitation _invitation1;
         private Invitation _invitation2;
         private Invitation _invitation3;
-        private int _participantId1;
         private string _functionalRoleCode1 = "FrCode1";
         private string _functionalRoleCode2 = "FrCode2";
         private readonly Guid _personGuid = new Guid("11111111-2222-2222-2222-333333333333");
@@ -60,14 +57,14 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         public void Setup()
         {
             _logger = new Mock<ILogger<GetInvitationsForExportQuery>>().Object;
-            _exportIpoRepositoryMock = new Mock<IExportIpoRepository>();
+            var exportIpoRepositoryMock = new Mock<IExportIpoRepository>();
 
             // InMemory database used for unit test does not support stored procedures. Hence we are mocking return results from this.
-            _exportIpoRepositoryMock
+            exportIpoRepositoryMock
                 .Setup(x => x.GetInvitationsWithIncludesAsync(It.IsAny<List<int>>(), _plantProvider, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<Invitation>(){_invitation1,_invitation2,_invitation3}));
                 
-            _exportIpoRepository = _exportIpoRepositoryMock.Object;
+            _exportIpoRepository = exportIpoRepositoryMock.Object;
         }
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -284,7 +281,6 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 context.History.Add(history3);
                 
                 context.SaveChangesAsync().Wait();
-                _participantId1 = personParticipant1.Id;
             }
         }
 

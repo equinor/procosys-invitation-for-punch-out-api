@@ -38,7 +38,6 @@ using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using ServiceResult;
 using ServiceResult.ApiExtensions;
 using InvitationDto = Equinor.ProCoSys.IPO.Query.GetInvitationById.InvitationDto;
@@ -49,16 +48,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     [Route("Invitations")]
     public class InvitationsController : ControllerBase
     {
-        private readonly ILogger<InvitationsController> _logger;
         private readonly IMediator _mediator;
         private readonly IExcelConverter _excelConverter;
 
         public InvitationsController(
-            ILogger<InvitationsController> logger,
             IMediator mediator,
             IExcelConverter excelConverter)
         {
-            _logger = logger;
             _mediator = mediator;
             _excelConverter = excelConverter;
         }
