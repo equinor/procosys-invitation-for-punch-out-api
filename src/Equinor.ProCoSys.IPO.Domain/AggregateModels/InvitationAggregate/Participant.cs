@@ -1,8 +1,8 @@
 ﻿using System;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.Common.Time;
-using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -16,12 +16,12 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         public Participant(
-            string plant, 
-            Organization organization, 
-            IpoParticipantType type, 
-            string functionalRoleCode, 
-            string firstName, 
-            string lastName, 
+            string plant,
+            Organization organization,
+            IpoParticipantType type,
+            string functionalRoleCode,
+            string firstName,
+            string lastName,
             string userName,
             string email,
             Guid? azureOid,

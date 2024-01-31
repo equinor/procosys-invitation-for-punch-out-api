@@ -4,12 +4,17 @@ using System.IO;
 using System.Linq;
 using Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport;
 using LargeXlsx;
+using Microsoft.Extensions.Logging;
 using Color = System.Drawing.Color;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Excel
 {
     public class ExcelConverter : IExcelConverter
     {
+        private readonly ILogger<ExcelConverter> _logger;
+
+        public ExcelConverter(ILogger<ExcelConverter> logger) => _logger = logger;
+
         public MemoryStream Convert(ExportDto dto)
         {
             var stream = new MemoryStream();
@@ -20,27 +25,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             var invitationsHeader = new XlsxStyle(new XlsxFont("Carlito", 12, Color.Black, bold: true), XlsxStyle.Default.Fill, XlsxStyle.Default.Border, XlsxNumberFormat.General, XlsxAlignment.Default);
             var dateStyle = XlsxStyle.Default.With(XlsxNumberFormat.ShortDateTime);
 
-            try
+            _logger.LogInformation("Export to excel. Start generating sheets...");
+
+            GenerateFrontSheet(dto, xlsxWriter, headerStyle, subHeaderStyle, normalStyle, dateStyle);
+
+            var exportInvitationDtos = dto.Invitations.ToList();
+
+            if (exportInvitationDtos.Any())
             {
-                GenerateFrontSheet(dto, xlsxWriter, headerStyle, subHeaderStyle, normalStyle, dateStyle);
+                _logger.LogInformation("Export to excel. Generating invitation sheet...");
 
-                var exportInvitationDtos = dto.Invitations.ToList();
+                GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle,
+                    exportInvitationDtos);
 
-                if (exportInvitationDtos.Any())
-                {
-                    GenerateInvitationsSheet(xlsxWriter, normalStyle, invitationsHeader, dateStyle,
-                        exportInvitationDtos);
-                    GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle,
-                        normalStyle);
-                    GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
-                }
+                _logger.LogInformation("Export to excel. Generating participants sheet...");
 
-                return stream;
+                GenerateParticipantsSheet(xlsxWriter, invitationsHeader, exportInvitationDtos, dateStyle,
+                    normalStyle);
+                _logger.LogInformation("Export to excel. Generating history sheet...");
+
+                GenerateHistorySheet(xlsxWriter, normalStyle, invitationsHeader, exportInvitationDtos, dateStyle);
             }
-            catch (Exception)
-            {
-                throw;
-            }
+            _logger.LogInformation("Export to excel. Completed.");
+
+            return stream;
         }
 
         private static void GenerateHistorySheet(XlsxWriter xlsxWriter, XlsxStyle normalStyle, XlsxStyle invitationsHeader, List<ExportInvitationDto> exportInvitationDtos, XlsxStyle dateStyle)

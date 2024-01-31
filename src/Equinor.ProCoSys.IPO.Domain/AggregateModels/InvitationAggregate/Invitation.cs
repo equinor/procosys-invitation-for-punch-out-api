@@ -135,6 +135,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new AttachmentRemovedEvent(Plant, Guid, attachment.FileName));
         }
 
+
         public void AddParticipant(Participant participant)
         {
             if (participant == null)
@@ -145,6 +146,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             if (participant.Plant != Plant)
             {
                 throw new ArgumentException($"Can't relate item in {participant.Plant} to item in {Plant}");
+            }
+
+            if (_participants.Contains(participant))
+            {
+                return;
             }
 
             _participants.Add(participant);
@@ -518,7 +524,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ProjectId = toProject.Id;
         }
 
-        private void AddCommPkg(CommPkg commPkg)
+        public void AddCommPkg(CommPkg commPkg)
         {
             if (commPkg == null)
             {
@@ -542,7 +548,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             _commPkgs.Add(commPkg);
         }
 
-        private void AddMcPkg(McPkg mcPkg)
+        public void AddMcPkg(McPkg mcPkg)
         {
             if (mcPkg == null)
             {

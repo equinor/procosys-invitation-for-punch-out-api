@@ -15,6 +15,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
+using static Fusion.Integration.Meeting.MeetingApiException;
 using Person = Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
@@ -73,6 +74,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             catch (NotAuthorizedError e)
             {
                 _logger.LogWarning(e, $"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
+            }
+            catch (MeetingApiException e)
+            {
+                if (e.Code == ErrorCode.Forbidden)
+                {
+                    _logger.LogInformation(e, $"Fusion meeting: The user does not have access to retrieve this meeting. MeetingId={invitation.MeetingId}");
+                }
+                else
+                {
+                    _logger.LogError(e, $"Fusion meeting error with code {e.Code}");
+                    throw;
+                }
             }
             catch (Exception e)
             {

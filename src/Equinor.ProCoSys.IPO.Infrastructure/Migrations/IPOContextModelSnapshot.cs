@@ -239,8 +239,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<Guid>("Guid")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("InvitationId")
-                        .IsRequired()
+                    b.Property<int>("InvitationId")
                         .HasColumnType("int");
 
                     b.Property<string>("Plant")

@@ -14,19 +14,25 @@ using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common;
+using Microsoft.Extensions.Logging;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
 {
     public class GetInvitationsForExportQueryHandler : GetInvitationsQueryBase, IRequestHandler<GetInvitationsForExportQuery, Result<ExportDto>>
     {
+        private readonly IExportIpoRepository _exportIpoSqlRepository;
+        private readonly ILogger<GetInvitationsForExportQuery> _logger;
         private readonly IReadOnlyContext _context;
         private readonly IPlantProvider _plantProvider;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly DateTime _utcNow;
 
-        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, ICurrentUserProvider currentUserProvider, IPermissionCache permissionCache)
+        public GetInvitationsForExportQueryHandler(IReadOnlyContext context, IPlantProvider plantProvider, ICurrentUserProvider currentUserProvider, IPermissionCache permissionCache, IExportIpoRepository exportIpoSqlRepository, ILogger<GetInvitationsForExportQuery> logger)
         {
+            _exportIpoSqlRepository = exportIpoSqlRepository;
+            _logger = logger;
             _context = context;
             _plantProvider = plantProvider;
             _utcNow = TimeService.UtcNow;
@@ -43,10 +49,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
                 return await CreateSuccessResultAsync(null, request);
             }
 
+            _logger.LogInformation("Export to Excel. Format retrieved result.");
             var invitationsToBeExported = await CreateExportInvitationDtosAsync(invitationsWithIncludes);
 
             if (invitationsToBeExported.Count == 1)
             {
+                _logger.LogInformation("Export to Excel. Add history to single invitation.");
                 await AddHistoryToSingleInvitationInList(invitationsToBeExported, cancellationToken);
             }
 
@@ -66,13 +74,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         private async Task<List<Invitation>> GetOrderedInvitationsWithIncludesAsync(GetInvitationsForExportQuery request,
             CancellationToken cancellationToken)
         {
+            _logger.LogInformation("Export to excel. Creating queryable with filter...");
+
             var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
 
+            _logger.LogInformation("Export to excel. Add sorting to queryable...");
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);
+
+            _logger.LogInformation("Export to excel. Retrieving invitation ids from ordered invitations...");
             var invitationIds = orderedInvitations.Select(dto => dto.Id).ToList();
 
-            var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
+            _logger.LogInformation("Export to excel. Get invitations with includes...");
 
+            var invitationsWithIncludes = await _exportIpoSqlRepository.GetInvitationsWithIncludesAsync(invitationIds, _plantProvider, cancellationToken);
+
+            _logger.LogInformation("Export to excel. Extract invitations with includes.");
             return orderedInvitations.Select(invitation => invitationsWithIncludes.Single(i => i.Id == invitation.Id)).ToList();
         }
 
