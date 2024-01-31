@@ -14,6 +14,7 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
 {
     public ExportIpoRepository(IPOContext context) : base(context) { }
 
+    // Todo 109937 Add unit tests
     public async Task<List<Invitation>> GetInvitationsWithIncludesAsync(
         List<int> invitationIds,
         IPlantProvider plantProvider,
@@ -30,7 +31,8 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
                     commandType: CommandType.StoredProcedure);
                 {
                     var invitations = await results.ReadAsync<Invitation>();
-                    var invitationsLookup = invitations.ToLookup(p => p.Id, p => p);
+                    var invitationList = invitations.ToList();
+                    var invitationsLookup = invitationList.ToLookup(p => p.Id, p => p);
 
                     var participants = await results.ReadAsync<DapperParticipant>();
 
@@ -67,8 +69,7 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
                         });
                     }
 
-                    var invitationsList = invitations.ToList();
-                    return invitationsList;
+                    return invitationList;
                 }
             }
         }

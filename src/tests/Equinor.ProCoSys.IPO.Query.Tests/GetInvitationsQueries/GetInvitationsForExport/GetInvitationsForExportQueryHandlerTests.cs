@@ -375,6 +375,38 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             }
         }
 
+        // Todo 109937 Fix this unit test. The problem in this test is that there is a commit (save) which can't be
+        // done in inmemory db. Suggestion: create a new _invitation4 in Setup, and complete it there so
+        // we don't have to perform a save here. Other tests need to be fixed since the count will differ
+        //[TestMethod]
+        //public async Task HandleGetInvitationsForExportQuery_ShouldFilterOnStatusCompleted()
+        //{
+        //    var filter = new Filter { IpoStatuses = new List<IpoStatus> { IpoStatus.Completed } };
+        //    using (var context =
+        //           new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+        //    {
+        //        var invitation = context.Invitations.Include(inv => inv.Participants).Single(inv => inv.Id == _invitation2.Id);
+        //        var participant = invitation.Participants.Single(p => p.Id == _participantId1);
+        //        invitation.CompleteIpo(participant, participant.RowVersion.ConvertToString(), context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()), DateTime.Now);
+        //        context.SaveChangesAsync().Wait();
+        //    }
+
+        //    using (var context =
+        //           new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
+        //    {
+        //        var query = new GetInvitationsForExportQuery(_projectName2, null, filter);
+        //        var dut = new GetInvitationsForExportQueryHandler(context, _plantProvider, _currentUserProvider, _permissionCache, _exportIpoRepository, _logger);
+
+        //        var result = await dut.Handle(query, default);
+        //        AssertCount(result.Data, 1);
+        //        var data = result.Data.Invitations.First();
+        //        Assert.AreEqual(1, data.Participants.Where(p => p.SignedAtUtc != null).ToList().Count);
+        //        var participant = data.Participants.Where(p => p.SignedBy != null).ToList();
+        //        Assert.AreEqual(1, participant.Count);
+        //        Assert.AreEqual(context.Persons.Single(p => p.Guid == _currentUserProvider.GetCurrentUserOid()).UserName, participant.First().SignedBy);
+        //    }
+        //}
+
         [TestMethod]
         public async Task HandleGetInvitationsForExportQuery_ShouldFilterOnStatusPlanned()
         {
