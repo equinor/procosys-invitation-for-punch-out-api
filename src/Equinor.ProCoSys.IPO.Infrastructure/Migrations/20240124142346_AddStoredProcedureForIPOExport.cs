@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var storedProcedureText = @"
-                        CREATE PROCEDURE GetInvitations
+                        EXEC('CREATE PROCEDURE GetInvitations
                             @plant nvarchar(255)
                         AS
                         BEGIN
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                             FROM McPkgs m
                             INNER JOIN Invitations i ON i.Id = m.InvitationId AND i.Plant = @plant
                             WHERE EXISTS (SELECT 1 FROM @TableVariable v WHERE v.Id = m.InvitationId)
-                        END";
+                        END')";
 
             migrationBuilder.Sql(storedProcedureText);
         }
