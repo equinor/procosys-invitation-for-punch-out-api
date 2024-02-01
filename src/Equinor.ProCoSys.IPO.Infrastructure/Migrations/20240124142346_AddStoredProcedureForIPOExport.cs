@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             var storedProcedureText = @"
-                        CREATE OR ALTER PROCEDURE GetInvitations
+                        CREATE PROCEDURE GetInvitations
                             @plant nvarchar(255)
                         AS
                         BEGIN
