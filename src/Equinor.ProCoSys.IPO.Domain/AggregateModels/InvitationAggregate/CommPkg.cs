@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         // private setters needed for Entity Framework
-        public string CommPkgNo { get; private set; }
+        public string CommPkgNo { get; set; }
         public string Description { get; set; }
         public string Status { get; private set; }
         public string System { get; set; }
