@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             set;
         }
 
-        public string CommPkgNoOld
+        public string CommPkgGuid
         {
             get;
             set;
@@ -49,12 +49,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         }
 
         public string McPkgId
-        {
-            get;
-            set;
-        }
-
-        public string McPkgNoOld
         {
             get;
             set;

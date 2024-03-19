@@ -82,33 +82,35 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         private static bool InvitationsContainMoreThanOneCommPkg(List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.CommPkgs.Count()>1);
 
-        public void MoveMcPkg(
-            string projectName,
-            string fromCommPkgNo,
-            string toCommPkgNo,
-            string fromMcPkgNo,
-            string toMcPkgNo,
-            string description)
+        public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description, Guid mcPkgGuid, Guid commPkgGuid)
         {
-            var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
-
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => project != null && mp.ProjectId == project.Id && mp.CommPkgNo == fromCommPkgNo && mp.McPkgNo == fromMcPkgNo).ToList();
-
-            mcPkgsToUpdate.ForEach(mp =>
+            var mcPkgToUpdate = _context.McPkgs.SingleOrDefault(x => x.Guid == mcPkgGuid);
+            if(mcPkgToUpdate == null)
             {
-                mp.MoveToCommPkg(toCommPkgNo);
-                mp.Rename(toMcPkgNo);
-                mp.Description = description;
-            });
-        }
+                return;
+            }
 
-        public void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description)
-        {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
+            
+            // Move ?
+            if (commPkgGuid != mcPkgToUpdate.CommPkgGuid)
+            {
+                var commPkg = _context.CommPkgs.SingleOrDefault(x => x.Guid.Equals(commPkgGuid));
+                if (commPkg == null)
+                {
+                    // TBD: Need to import commPkg
+                    return;
+                }
+                mcPkgToUpdate.MoveToCommPkg(commPkg.CommPkgNo, commPkg.Guid);
+            }
 
-            var mcPkgsToUpdate = _context.McPkgs.Where(mp => project != null && mp.ProjectId == project.Id && mp.McPkgNo == mcPkgNo).ToList();
+            // Rename ?
+            if (mcPkgNo != mcPkgToUpdate.McPkgNo)
+            {
+                mcPkgToUpdate.Rename(mcPkgNo);
+            }
 
-            mcPkgsToUpdate.ForEach(mp => mp.Description=description);
+            mcPkgToUpdate.Description = description;
         }
 
         public void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew)

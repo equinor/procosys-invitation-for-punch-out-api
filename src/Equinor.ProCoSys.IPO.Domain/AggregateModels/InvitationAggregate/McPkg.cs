@@ -84,7 +84,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             CreatedById = createdBy.Id;
         }
 
-        public void MoveToCommPkg(string toCommPkgNo) => CommPkgNo = toCommPkgNo;
+        public void MoveToCommPkg(string toCommPkgNo, Guid toCommPkgGuid)
+        {
+            CommPkgNo = toCommPkgNo;
+            CommPkgGuid = toCommPkgGuid;
+        }
 
         public void Rename(string toMcPkgNo) => McPkgNo = toMcPkgNo;
 

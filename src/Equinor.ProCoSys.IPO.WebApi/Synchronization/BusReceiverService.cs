@@ -113,8 +113,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             if (mcPkgEvent == null ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.Plant) ||
                 string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNo) ||
-                string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo) ||
-                (string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld) != (string.IsNullOrWhiteSpace(mcPkgEvent.CommPkgNoOld))))
+                string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNo)
+                )
             {
                 throw new Exception($"Unable to deserialize JSON to McPkgEvent {messageJson}");
             }
@@ -129,20 +129,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 });
             _plantSetter.SetPlant(mcPkgEvent.Plant);
 
-            if (!string.IsNullOrWhiteSpace(mcPkgEvent.McPkgNoOld))
-            {
-                _invitationRepository.MoveMcPkg(
-                    mcPkgEvent.ProjectName,
-                    mcPkgEvent.CommPkgNoOld,
-                    mcPkgEvent.CommPkgNo,
-                    mcPkgEvent.McPkgNoOld,
-                    mcPkgEvent.McPkgNo,
-                    mcPkgEvent.Description);
-            }
-            else
-            {
-                _invitationRepository.UpdateMcPkgOnInvitations(mcPkgEvent.ProjectName, mcPkgEvent.McPkgNo, mcPkgEvent.Description);
-            }
+            
+            _invitationRepository.UpdateMcPkgOnInvitations(
+                mcPkgEvent.ProjectName,
+                mcPkgEvent.McPkgNo,
+                mcPkgEvent.Description,
+                Guid.Parse(mcPkgEvent.ProCoSysGuid),
+                Guid.Parse(mcPkgEvent.CommPkgGuid));
+            
         }
 
         private void ProcessCommPkgEvent(string messageJson)

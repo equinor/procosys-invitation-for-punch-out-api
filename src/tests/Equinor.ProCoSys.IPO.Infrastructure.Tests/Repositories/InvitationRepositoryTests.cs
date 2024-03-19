@@ -47,11 +47,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         private string _mcPkgNo2 = "MC2";
         private string _mcPkgNo3 = "MC3";
         private string _system = "1|2";
-        private Guid _mcPkgGuid = Guid.Empty;
+        private Guid _mcPkgGuid = new Guid("11111111-2222-2222-3333-333333333331");
+        private Guid _mcPkgGuid2 = new Guid("11111111-2222-2222-3333-333333333332");
+        private Guid _mcPkgGuid3 = new Guid("11111111-2222-2222-3333-333333333333");
+        private Guid _mcPkgGuid4 = new Guid("11111111-2222-2222-3333-333333333333");
         private string _commPkgNo = "Comm1";
         private string _commPkgNo2 = "Comm2";
         private string _commPkgNo3 = "Comm3";
         private string _commPkgNo4 = "Comm4";
+        private Guid _commPkgGuid1 = new Guid("11111111-2222-2222-4444-444444444441");
+        private Guid _commPkgGuid2 = new Guid("11111111-2222-2222-4444-444444444442");
         private List<Invitation> _invitations;
         private Mock<DbSet<Invitation>> _dbInvitationSetMock;
         private Mock<DbSet<Attachment>> _attachmentSetMock;
@@ -93,25 +98,25 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 .Setup(x => x.Projects)
                 .Returns(_projectSetMock.Object);
 
-            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid, Guid.Empty);
+            _mcPkg = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid, _commPkgGuid1);
             _mcPkg.SetProtectedIdForTesting(McPkgId);
 
-            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid, Guid.Empty);
+            _mcPkgCopy = new McPkg(TestPlant, _project2, _commPkgNo2, _mcPkgNo, "Description", _system, _mcPkgGuid4, _commPkgGuid2);
             _mcPkgCopy.SetProtectedIdForTesting(McPkgIdCopy);
 
-            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", Guid.Empty);
+            _commPkg = new CommPkg(TestPlant, _project1, _commPkgNo, "Description", "OK", "1|2", _commPkgGuid1);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
 
-            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", Guid.Empty);
+            _commPkg2 = new CommPkg(TestPlant, _project1, _commPkgNo2, "Description", "OK", "1|2", _commPkgGuid2);
             _commPkg.SetProtectedIdForTesting(CommPkgId);
             
             _commPkg4 = new CommPkg(TestPlant, _project1, _commPkgNo4, "Description", "OK", "1|2", Guid.Empty);
             _commPkg4.SetProtectedIdForTesting(CommPkgId4);
 
-            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid, Guid.Empty);
+            _mcPkg2 = new McPkg(TestPlant, _project1, _commPkgNo, _mcPkgNo2, "Description", _system, _mcPkgGuid2, _commPkgGuid1);
             _mcPkg2.SetProtectedIdForTesting(McPkgId2);
 
-            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid, Guid.Empty);
+            _mcPkg3 = new McPkg(TestPlant, _project1, _commPkgNo3, _mcPkgNo3, "Description", _system, _mcPkgGuid3, _commPkgGuid1);
             _mcPkg3.SetProtectedIdForTesting(McPkgId3);
 
             _participant = new Participant(
@@ -449,55 +454,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
         }
 
         [TestMethod]
-        public void MoveMcPkg_AsRename_ShouldUpdateMcPkgNo()
-        {
-            // Arrange & Assert
-            const string toMcPkgNo = "McPkgNo2";
-            const string description = "New description";
-            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
-
-            // Act
-            _dut.MoveMcPkg(_projectName2, _commPkgNo2, _commPkgNo2, _mcPkgNo, toMcPkgNo, description);
-
-            // Assert
-            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
-            Assert.AreEqual(description, _mcPkg.Description);
-        }
-
-        [TestMethod]
         public void MoveMcPkg_WithoutRename_ShouldUpdateCommPkgNo()
         {
             // Arrange & Assert
-            const string toCommPkgNo = "McPkgNo2";
+            Guid toCommPkgGuid = _commPkgGuid2;
             const string description = "New description";
-            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreNotEqual(toCommPkgGuid, _mcPkg.CommPkgGuid);
 
             // Act
-            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, _mcPkgNo, description);
+            _dut.UpdateMcPkgOnInvitations(GetProjectName(_mcPkg.ProjectId), _mcPkg.McPkgNo, description, _mcPkgGuid, toCommPkgGuid);
 
             // Assert
-            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
+            Assert.AreEqual(toCommPkgGuid, _mcPkg.CommPkgGuid);
             Assert.AreEqual(description, _mcPkg.Description);
         }
 
-        [TestMethod]
-        public void MoveMcPkg_WithRename_ShouldUpdateCommPkgNoAndMcPkgNo()
-        {
-            // Arrange & Assert
-            const string toMcPkgNo = "McPkgNo2";
-            const string toCommPkgNo = "McPkgNo2";
-            const string description = "New description";
-            Assert.AreNotEqual(toMcPkgNo, _mcPkg.McPkgNo);
-            Assert.AreNotEqual(toCommPkgNo, _mcPkg.CommPkgNo);
-
-            // Act
-            _dut.MoveMcPkg(_projectName2, _commPkgNo2, toCommPkgNo, _mcPkgNo, toMcPkgNo, description);
-
-            // Assert
-            Assert.AreEqual(toMcPkgNo, _mcPkg.McPkgNo);
-            Assert.AreEqual(toCommPkgNo, _mcPkg.CommPkgNo);
-            Assert.AreEqual(description, _mcPkg.Description);
-        }
 
         [TestMethod]
         public void UpdateCommPkg_ShouldUpdateCommPkgWithGiveNo()
@@ -522,7 +493,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(newDescription, _mcPkg.Description);
 
             // Act
-            _dut.UpdateMcPkgOnInvitations(GetProjectName(_mcPkg.ProjectId), _mcPkg.McPkgNo, newDescription);
+            _dut.UpdateMcPkgOnInvitations(GetProjectName(_mcPkg.ProjectId), _mcPkg.McPkgNo, newDescription,_mcPkgGuid,_commPkgGuid1);
 
             // Assert
             Assert.AreEqual(newDescription, _mcPkg.Description);
