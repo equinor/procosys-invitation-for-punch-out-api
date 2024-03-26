@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,5 +16,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public Task<Project> GetProjectOnlyByNameAsync(string projectName)
             => Set.SingleOrDefaultAsync(p => p.Name == projectName);
+
+        public Task<Project> GetProjectOnlyByProCoSysGuid(Guid proCoSysGuid)
+            => Set.SingleOrDefaultAsync(p => p.Guid == proCoSysGuid);
     }
 }
