@@ -151,36 +151,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
-            if (!string.IsNullOrWhiteSpace(commPkgEvent.ProjectNameOld))
-            {
-                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
-                    new Dictionary<string, string>
-                    {
-                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
-                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')},
-                        {PcsServiceBusTelemetryConstants.ProjectNameOld, commPkgEvent.ProjectNameOld.Replace('$', '_')}
-                    });
-                _invitationRepository.MoveCommPkg(
-                    commPkgEvent.ProjectNameOld,
-                    commPkgEvent.ProjectName,
-                    commPkgEvent.CommPkgNo,
-                    commPkgEvent.Description);
-            }
-            else
-            {
-                _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
-                    new Dictionary<string, string>
-                    {
-                        {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
-                        {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
-                    });
-                _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
-                    commPkgEvent.Description);
-            }
+
+            _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
+                new Dictionary<string, string>
+                {
+                                    {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
+                                    {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
+                                    {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
+                                    {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
+                });
+            _invitationRepository.UpdateCommPkgOnInvitations(
+                commPkgEvent.ProjectName, 
+                commPkgEvent.CommPkgNo,
+                commPkgEvent.Description,
+                Guid.Parse(commPkgEvent.ProCoSysGuid));
         }
 
         private void ProcessProjectEvent(string messageJson)

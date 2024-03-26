@@ -10,7 +10,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
     public interface IInvitationRepository : IRepository<Invitation>
     {
         void UpdateProjectOnInvitations(string projectName, string description);
-        void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description);
+        void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description, Guid commPkgGuid);
         void UpdateMcPkgOnInvitations(string projectName, string mcPkgNo, string description, Guid mcPkgGuid, Guid commPkgGuid);
         void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew);
         void RemoveParticipant(Participant participant);

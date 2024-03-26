@@ -33,13 +33,21 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             //Intentionally left blank for now
         }
 
-        public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description)
+        public void UpdateCommPkgOnInvitations(string projectName, string commPkgNo, string description, Guid commPkgGuid)
         {
             var project = _context.Projects.SingleOrDefault(x => x.Name.Equals(projectName));
 
-            var commPkgsToUpdate = _context.CommPkgs.Where(cp => project != null && cp.ProjectId == project.Id && cp.CommPkgNo == commPkgNo).ToList();
+            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid == commPkgGuid).ToList();
 
-            commPkgsToUpdate.ForEach(cp => cp.Description = description);
+            foreach (var commPkg in commPkgsToUpdate)
+            {
+                commPkg.Description = description;
+                if(commPkg.ProjectId != project.Id)
+                {
+                    commPkg.MoveToProject(project);
+                }
+            }
+            //commPkgsToUpdate.ForEach(cp => cp.Description = description);
         }
 
         public void MoveCommPkg(string fromProjectName, string toProjectName, string commPkgNo, string description)
