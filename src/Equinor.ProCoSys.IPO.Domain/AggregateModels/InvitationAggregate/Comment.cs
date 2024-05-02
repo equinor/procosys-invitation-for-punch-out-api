@@ -22,7 +22,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentNullException(nameof(comment));
             }
- 
+
+            Guid = Guid.NewGuid();
             CommentText = comment;
         }
 

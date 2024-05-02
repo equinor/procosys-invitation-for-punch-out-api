@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
@@ -79,6 +80,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
 
             Assert.AreEqual(1, _invitation.Comments.Count);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task AddCommentCommand_ShouldNotHaveDefaultGuid()
+        {
+            await _dut.Handle(_command, default);
+
+            Assert.AreNotEqual(new Guid("00000000-0000-0000-0000-000000000000"), _invitation.Comments.First().Guid);
         }
     }
 }

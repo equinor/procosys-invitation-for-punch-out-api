@@ -37,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Email = email;
             AzureOid = azureOid;
             SortKey = sortKey;
+            Guid = Guid.NewGuid();
         }
 
         // private setters needed for Entity Framework
