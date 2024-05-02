@@ -6,7 +6,7 @@ using Equinor.ProCoSys.IPO.Domain.Audit;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
-    public class Participant : PlantEntityBase, ICreationAuditable, IModificationAuditable
+    public class Participant : PlantEntityBase, ICreationAuditable, IModificationAuditable, IHaveGuid
     {
         public const int FunctionalRoleCodeMaxLength = 255;
 
@@ -39,6 +39,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             SortKey = sortKey;
         }
 
+        // private setters needed for Entity Framework
+        public Guid Guid { get; private set; }
         public Organization Organization { get; set; }
         public IpoParticipantType Type { get; set; }
         public string FunctionalRoleCode { get; set; }
