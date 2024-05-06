@@ -187,6 +187,7 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
                 services.AddPcsServiceBusIntegration(options => options
                     .UseBusConnection(Configuration.GetConnectionString("ServiceBus"))
+                    //JSOI TEMP INCLUDE LINE BELOW
                     .WithLeaderElector(leaderElectorUrl)
                     .WithRenewLeaseInterval(int.Parse(Configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
                     .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")

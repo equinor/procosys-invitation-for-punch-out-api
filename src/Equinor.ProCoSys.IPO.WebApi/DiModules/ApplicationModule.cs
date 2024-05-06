@@ -39,6 +39,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,57 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
+            services.AddMassTransit(x =>
+            {
+                x.AddEntityFrameworkOutbox<IPOContext>(o =>
+                {
+                    o.UseSqlServer();
+                    o.UseBusOutbox();
+                });
+
+                x.UsingInMemory((context, config) => config.ConfigureEndpoints(context));
+
+
+                //x.AddConsumer<ProjectEventConsumer>()
+                //    .Endpoint(e =>
+                //    {
+                //        e.ConfigureConsumeTopology = false; //MT should not create the endpoint for us, as it already exists.
+                //        e.Name = "completion_project";
+                //        e.Temporary = false;
+                //    });
+
+                //x.AddConsumer<PersonEventConsumer>()
+                //    .Endpoint(e =>
+                //    {
+                //        e.ConfigureConsumeTopology = false;
+                //        e.Name = "completion_person";
+                //        e.Temporary = false;
+                //    });
+                //x.UsingAzureServiceBus((context, cfg) =>
+                //{
+                //    var connectionString = configuration.GetConnectionString("ServiceBus");
+                //    cfg.Host(connectionString);
+
+                //    cfg.MessageTopology.SetEntityNameFormatter(new ProCoSysKebabCaseEntityNameFormatter());
+
+                //    cfg.ConfigureJsonSerializerOptions(opts =>
+                //    {
+                //        opts.Converters.Add(new JsonStringEnumConverter());
+                //        return opts;
+                //    });
+                //    cfg.SubscriptionEndpoint("completion_project", "project", e =>
+                //    {
+                //        e.ClearSerialization();
+                //        e.UseRawJsonSerializer();
+                //        e.UseRawJsonDeserializer();
+                //        e.ConfigureConsumer<ProjectEventConsumer>(context);
+                //        e.ConfigureConsumeTopology = false;
+                //        e.PublishFaults = false; //I didn't get this to work, I think it tried to publish to endpoint that already exists in different context or something, we're logging errors anyway.
+                //    });
+
+                //    cfg.AutoStart = true;
+                //});
+            });
 
             // Hosted services
             services.AddHostedService<TimedSynchronization>();
