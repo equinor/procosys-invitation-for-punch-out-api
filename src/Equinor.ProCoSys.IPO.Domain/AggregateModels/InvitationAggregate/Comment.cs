@@ -6,7 +6,7 @@ using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
-    public class Comment : PlantEntityBase, ICreationAuditable
+    public class Comment : PlantEntityBase, ICreationAuditable, IHaveGuid
     {
         public const int CommentMaxLength = 4096;
 
@@ -22,10 +22,13 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentNullException(nameof(comment));
             }
- 
+
+            Guid = Guid.NewGuid();
             CommentText = comment;
         }
 
+        // private setters needed for Entity Framework
+        public Guid Guid { get; private set; }
         public string CommentText { get; set; }
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }

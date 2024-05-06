@@ -582,6 +582,16 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         }
 
         [TestMethod]
+        public async Task HandleCreateInvitationCommand_ParticipantShouldNotHaveDefaultGuid()
+        {
+            await _dut.Handle(_command, default);
+
+            var participants = _createdInvitation.Participants.Select(p => p).ToList();
+
+            Assert.AreNotEqual(new Guid("00000000-0000-0000-0000-000000000000"), participants.First().Guid);
+        }
+
+        [TestMethod]
         public async Task HandlingCreateIpoCommand_ShouldThrowErrorIfSigningParticipantDoesNotHaveCorrectPrivileges()
         {
             _personApiServiceMock
