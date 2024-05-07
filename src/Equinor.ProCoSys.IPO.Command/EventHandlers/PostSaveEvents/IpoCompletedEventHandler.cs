@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
@@ -11,17 +12,11 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 {
     public class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent>
     {
-        private readonly IPcsBusSender _pcsBusSender;
+        private readonly IIntegrationEventPublisher _publisher;
 
-        public IpoCompletedEventHandler(IPcsBusSender pcsBusSender)
-        {
-            _pcsBusSender = pcsBusSender;
-        }
+        public IpoCompletedEventHandler(IIntegrationEventPublisher publisher) => _publisher = publisher;
 
-        public async Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
-        {
-            await SendBusTopicAsync(notification);
-        }
+        public async Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken) => await SendBusTopicAsync(notification);
 
         private async Task SendBusTopicAsync(IpoCompletedEvent notification)
         {
@@ -32,7 +27,10 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
                 InvitationGuid = notification.SourceGuid
             };
 
-            await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
+            //How is topicname handled? ==> Use an EntityNameFormatter, see Completion
+            //TODO: JSOI Move this to command handler
+            await _publisher.PublishAsync(eventMessage, CancellationToken.None);
+            //await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
     }
 }

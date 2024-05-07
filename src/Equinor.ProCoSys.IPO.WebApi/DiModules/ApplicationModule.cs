@@ -1,4 +1,5 @@
-﻿using Equinor.ProCoSys.Auth.Authentication;
+﻿using System.Text.Json.Serialization;
+using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.BlobStorage;
@@ -8,6 +9,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;
@@ -35,6 +37,7 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
+using Equinor.ProCoSys.IPO.WebApi.MassTransit;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
@@ -76,48 +79,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     o.UseBusOutbox();
                 });
 
-                x.UsingInMemory((context, config) => config.ConfigureEndpoints(context));
+                x.UsingAzureServiceBus((context, cfg) =>
+                {
+                    var connectionString = configuration.GetConnectionString("ServiceBus");
+                    cfg.Host(connectionString);
 
+                    cfg.MessageTopology.SetEntityNameFormatter(new IpoEntityNameFormatter());
 
-                //x.AddConsumer<ProjectEventConsumer>()
-                //    .Endpoint(e =>
-                //    {
-                //        e.ConfigureConsumeTopology = false; //MT should not create the endpoint for us, as it already exists.
-                //        e.Name = "completion_project";
-                //        e.Temporary = false;
-                //    });
+                    cfg.ConfigureJsonSerializerOptions(opts =>
+                    {
+                        //TODO: JSOI What exactly is this ??
+                        opts.Converters.Add(new JsonStringEnumConverter());
+                        return opts;
+                    });
 
-                //x.AddConsumer<PersonEventConsumer>()
-                //    .Endpoint(e =>
-                //    {
-                //        e.ConfigureConsumeTopology = false;
-                //        e.Name = "completion_person";
-                //        e.Temporary = false;
-                //    });
-                //x.UsingAzureServiceBus((context, cfg) =>
-                //{
-                //    var connectionString = configuration.GetConnectionString("ServiceBus");
-                //    cfg.Host(connectionString);
-
-                //    cfg.MessageTopology.SetEntityNameFormatter(new ProCoSysKebabCaseEntityNameFormatter());
-
-                //    cfg.ConfigureJsonSerializerOptions(opts =>
-                //    {
-                //        opts.Converters.Add(new JsonStringEnumConverter());
-                //        return opts;
-                //    });
-                //    cfg.SubscriptionEndpoint("completion_project", "project", e =>
-                //    {
-                //        e.ClearSerialization();
-                //        e.UseRawJsonSerializer();
-                //        e.UseRawJsonDeserializer();
-                //        e.ConfigureConsumer<ProjectEventConsumer>(context);
-                //        e.ConfigureConsumeTopology = false;
-                //        e.PublishFaults = false; //I didn't get this to work, I think it tried to publish to endpoint that already exists in different context or something, we're logging errors anyway.
-                //    });
-
-                //    cfg.AutoStart = true;
-                //});
+                    cfg.AutoStart = true;
+                });
             });
 
             // Hosted services
@@ -169,6 +146,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ISavedFilterValidator, SavedFilterValidator>();
 
             services.AddScoped<IExcelConverter, ExcelConverter>();
+            services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
