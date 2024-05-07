@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -18,17 +20,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonRepository _personRepository;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
         public AcceptPunchOutCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider,
-            IPersonRepository personRepository)
+            IPersonRepository personRepository,
+            IIntegrationEventPublisher integrationEventPublisher)
         {
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personRepository = personRepository;
+            _integrationEventPublisher = integrationEventPublisher;
         }
 
         public async Task<Result<string>> Handle(AcceptPunchOutCommand request, CancellationToken cancellationToken)
@@ -56,11 +61,25 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
+            
+            await PublishEventToBusAsync(cancellationToken, invitation);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
-        
+
+        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        {
+            var eventMessage = new BusEventMessage
+            {
+                Plant = invitation.Plant,
+                Event = "Accepted",
+                InvitationGuid = invitation.Guid
+            };
+
+            await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
+        }
+
 
         private void UpdateNotesOnParticipants(Invitation invitation, IList<UpdateNoteOnParticipantForCommand> participants)
         {

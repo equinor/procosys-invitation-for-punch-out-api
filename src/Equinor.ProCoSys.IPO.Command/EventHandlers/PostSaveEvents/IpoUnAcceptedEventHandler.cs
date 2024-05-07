@@ -23,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
                 InvitationGuid = notification.SourceGuid
             };
 
-            await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
+            //await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
     }
 }

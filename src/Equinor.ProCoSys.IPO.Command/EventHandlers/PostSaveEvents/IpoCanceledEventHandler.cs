@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
                 IpoStatus = notification.Status
             };
             
-            await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
+            //await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
     }
 }

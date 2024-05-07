@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
 
             //How is topicname handled? ==> Use an EntityNameFormatter, see Completion
             //TODO: JSOI Move this to command handler
-            await _publisher.PublishAsync(eventMessage, CancellationToken.None);
+            //await _publisher.PublishAsync(eventMessage, CancellationToken.None);
             //await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
     }

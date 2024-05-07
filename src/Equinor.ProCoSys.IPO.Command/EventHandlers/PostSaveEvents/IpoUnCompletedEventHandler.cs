@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents
             };
 
             //TODO: JSOI Move this to command handler
-            await _publisher.PublishAsync(eventMessage, CancellationToken.None);
+            //await _publisher.PublishAsync(eventMessage, CancellationToken.None);
             //await _pcsBusSender.SendAsync(IpoTopic.TopicName, JsonSerializer.Serialize(eventMessage));
         }
     }

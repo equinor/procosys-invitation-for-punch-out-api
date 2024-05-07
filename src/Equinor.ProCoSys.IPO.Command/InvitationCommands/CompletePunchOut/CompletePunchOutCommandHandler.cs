@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -23,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
         private readonly IPersonRepository _personRepository;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
         private readonly IEmailService _emailService;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
         private readonly ILogger<CompletePunchOutCommandHandler> _logger;
 
         public CompletePunchOutCommandHandler(
@@ -32,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             IPersonRepository personRepository,
             IOptionsMonitor<MeetingOptions> meetingOptions,
             IEmailService emailService,
+            IIntegrationEventPublisher integrationEventPublisher,
             ILogger<CompletePunchOutCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -40,6 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             _personRepository = personRepository;
             _meetingOptions = meetingOptions;
             _emailService = emailService;
+            _integrationEventPublisher = integrationEventPublisher;
             _logger = logger;
         }
 
@@ -71,6 +76,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
             invitation.SetRowVersion(request.InvitationRowVersion);
 
+            await PublishEventToBusAsync(cancellationToken, invitation);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             try
@@ -86,6 +93,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             }
 
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        {
+            var eventMessage = new BusEventMessage
+            {
+                Plant = invitation.Plant,
+                Event = "Completed",
+                InvitationGuid = invitation.Guid
+            };
+
+            await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
         }
 
         private void UpdateAttendedStatusAndNotesOnParticipants(Invitation invitation,
