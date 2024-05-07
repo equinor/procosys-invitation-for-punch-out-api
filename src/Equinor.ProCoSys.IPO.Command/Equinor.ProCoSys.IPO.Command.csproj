@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="EventHandlers\PostSaveEvents\" />
     <Folder Include="Validators\PersonValidators\" />
   </ItemGroup>
 

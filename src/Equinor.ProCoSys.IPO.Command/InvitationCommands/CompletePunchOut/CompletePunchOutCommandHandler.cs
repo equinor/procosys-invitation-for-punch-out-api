@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;

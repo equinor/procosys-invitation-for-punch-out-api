@@ -1,5 +1,5 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.MessageContracts;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using MassTransit;
