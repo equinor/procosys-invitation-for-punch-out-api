@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -26,6 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
         private Mock<ILogger<CancelPunchOutCommandHandler>> _loggerMock;
 
         private CancelPunchOutCommand _command;
@@ -41,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         private static Guid _azureOidForCurrentUser = new Guid("11111111-1111-2222-3333-333333333334");
         private const string _invitationRowVersion = "AAAAAAAAABA=";
         private Invitation _invitation;
+        private BusEventMessage _busEventMessage;
 
         [TestInitialize]
         public void Setup()
@@ -51,6 +54,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _integrationEventPublisherMock
+                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))
+                .Callback<BusEventMessage, CancellationToken>((busEventMessage, cancellationToken) =>
+                {
+                    _busEventMessage = busEventMessage;
+                });
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -107,6 +117,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 _unitOfWorkMock.Object,
                 _fusionMeetingClient.Object,
                 _currentUserProviderMock.Object,
+                _integrationEventPublisherMock.Object,
                 _loggerMock.Object
                 );
         }
@@ -176,6 +187,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                     It.Is<It.IsAnyType>((v, t) => state(v, t)),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendBusTopic()
+        {
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("Canceled", _busEventMessage.Event);
+            Assert.AreEqual(IpoStatus.Canceled, _busEventMessage.IpoStatus);
+            Assert.AreEqual(_plant, _busEventMessage.Plant);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.InvitationGuid);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.Guid);
         }
     }
 }
