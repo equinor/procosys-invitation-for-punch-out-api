@@ -1,5 +1,6 @@
 ﻿using System;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using MassTransit;
 
@@ -12,6 +13,9 @@ public class IpoEntityNameFormatter : IEntityNameFormatter
         typeof(T).Name switch
         {
             nameof(BusEventMessage) => IpoTopic.TopicName,
-            _ => throw new ArgumentException($"{typeof(T).Name} is not supported")
+            //MassTransit calls this formatter with both BusEventMessage and IIntegrationEvent.
+            //Handling it so it does not crash the application.
+            nameof(IIntegrationEvent) => nameof(IIntegrationEvent),
+            _ => throw new ArgumentException($"IPO error: {typeof(T).Name} is not supported")
         };
 }

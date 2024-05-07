@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.PostSaveEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
@@ -18,14 +19,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
-        private readonly IntegrationEventPublisher _integrationEventPublisher;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
         public UnCompletePunchOutCommandHandler(IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache,
-            IntegrationEventPublisher integrationEventPublisher)
+            IIntegrationEventPublisher integrationEventPublisher)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
