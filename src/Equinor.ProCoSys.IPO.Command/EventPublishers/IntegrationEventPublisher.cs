@@ -1,9 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.MessageContracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+
+namespace Equinor.ProCoSys.IPO.Command.EventPublishers;
 
 public class IntegrationEventPublisher : IIntegrationEventPublisher
 {

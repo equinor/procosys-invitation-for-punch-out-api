@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Client;
@@ -85,11 +86,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     cfg.Host(connectionString);
 
                     cfg.MessageTopology.SetEntityNameFormatter(new IpoEntityNameFormatter());
-
+                    cfg.UseRawJsonSerializer();
                     cfg.ConfigureJsonSerializerOptions(opts =>
                     {
-                        //TODO: JSOI What exactly is this ??
                         opts.Converters.Add(new JsonStringEnumConverter());
+                        
+                        // Set it to null to use the default .NET naming convention (PascalCase)
+                        opts.PropertyNamingPolicy = null;
                         return opts;
                     });
 
