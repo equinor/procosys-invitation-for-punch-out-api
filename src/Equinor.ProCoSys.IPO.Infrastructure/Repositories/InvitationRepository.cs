@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.Events.Invitation;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.MessageContracts.Invitation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
@@ -259,5 +261,111 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         private void UpdateRfocAcceptedForDp(Invitation invitation, IList<string> mcPkgNos, bool rfocAccepted) =>
             invitation.McPkgs.Where(mc => mcPkgNos.Contains(mc.McPkgNo)).ToList()
                 .ForEach(mc => mc.RfocAccepted = rfocAccepted);
+
+
+        public IInvitation GetInvitationEvent(int invitationId)
+        {
+            var result = 
+                (from i in _context.Invitations
+                join project in _context.Projects on i.ProjectId equals project.Id
+                join completedBy in _context.Persons on i.CompletedBy equals completedBy.Id
+                join acceptedBy in _context.Persons on i.AcceptedBy equals acceptedBy.Id
+                join createdBy in _context.Persons on i.CreatedById equals createdBy.Id
+                 //select new InvitationCreatedIntegrationEvent(
+                 //        Guid: i.Guid,
+                 //        ProCoSysGuid: i.Guid,
+                 //        Plant: i.Plant,
+                 //        ProjectName: project.Name,
+                 //        IpoNumber: "IPO - " + i.Id,
+                 //        CreatedAtUtc: i.CreatedAtUtc,
+                 //        CreatedByOid: createdBy.Guid,
+                 //        ModifiedAtUtc: i.ModifiedAtUtc,
+                 //        Title: i.Title,
+                 //        Type: i.Type.ToString(),
+                 //        Description: i.Description,
+                 //        Status: i.Status.ToString(),
+                 //        EndTimeUtc: i.EndTimeUtc,
+                 //        Location: i.Location,
+                 //        StartTimeUtc: i.StartTimeUtc,
+                 //        AcceptedAtUtc: i.AcceptedAtUtc,
+                 //        AcceptedByOid:i.Guid,
+                 //        CompletedAtUtc: i.CompletedAtUtc,
+                 //        CompletedByOid: i.Guid)
+                 select new InvitationCreatedIntegrationEvent
+                 {
+                     Guid = i.Guid,
+                     ProCoSysGuid = i.Guid,
+                     Plant = i.Plant,
+                     ProjectName = project.Name,
+                     IpoNumber = "IPO - " + i.Id,
+                     CreatedAtUtc = i.CreatedAtUtc,
+                     CreatedByOid = createdBy.Guid,
+                     ModifiedAtUtc = i.ModifiedAtUtc,
+                     Title = i.Title,
+                     Type = i.Type.ToString(),
+                     Description = i.Description,
+                     Status = i.Status.ToString(),
+                     EndTimeUtc = i.EndTimeUtc,
+                     Location = i.Location,
+                     StartTimeUtc = i.StartTimeUtc,
+                     AcceptedAtUtc = i.AcceptedAtUtc,
+                     AcceptedByOid = acceptedBy.Guid
+                 }
+                );
+
+            return result.SingleOrDefault();
+            //_context.Invitations
+            //    .Include(p => p.CreatedById)
+            //    .Join(_context.Projects, i => i.ProjectId, p => p.Id, (i, p) => p.Name)
+            //    //.Join(_context.Persons, i => i.CreatedById, person => person.Id, (i, person) => person.Guid)
+            //        new InvitationCreatedIntegrationEvent(i.Guid,
+            //            i.Plant,
+            //            p.Name,
+            //            "IPO - " + i.Id,
+            //            i.CreatedAtUtc,
+            //            i.CreatedById,
+            //            i.ModifiedAtUtc,
+            //            i.Title,
+            //            i.Type,
+            //            i.Description,
+            //            i.Status,
+            //            i.EndTimeUtc,
+            //            i.Location,
+            //            i.StartTimeUtc,
+            //            i.AcceptedAtUtc,
+            //            i.AcceptedBy,
+            //            i.CompletedAtUtc,
+            //            i.CompletedBy))
+            //    //.Where(i => i.Id == invitationId)
+            //    //.Select(i => new InvitationCreatedIntegrationEvent(i.Id, i.Plant, i.ProjectId))
+            //    ;
+        }
+        //public IInvitation GetInvitationEvent(int invitationId)
+        //{
+        //    _context.Invitations
+        //        .Include(x => x.ProjectId)
+        //        .Join(_context.Projects, i => i.ProjectId, p => p.Id, (i, p) => 
+        //            new InvitationCreatedIntegrationEvent(i.Guid,
+        //                i.Plant,
+        //                p.Name,
+        //                "IPO - " + i.Id,
+        //                i.CreatedAtUtc,
+        //                i.CreatedById,
+        //                i.ModifiedAtUtc,
+        //                i.Title,
+        //                i.Type,
+        //                i.Description,
+        //                i.Status,
+        //                i.EndTimeUtc,
+        //                i.Location,
+        //                i.StartTimeUtc,
+        //                i.AcceptedAtUtc,
+        //                i.AcceptedBy,
+        //                i.CompletedAtUtc,
+        //                i.CompletedBy))
+        //        //.Where(i => i.Id == invitationId)
+        //        //.Select(i => new InvitationCreatedIntegrationEvent(i.Id, i.Plant, i.ProjectId))
+        //        ;
+        //}
     }
 }
