@@ -67,6 +67,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             };
 
             await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
+
+            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
+            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 
         private async Task CancelFusionMeetingAsync(Guid meetingId)

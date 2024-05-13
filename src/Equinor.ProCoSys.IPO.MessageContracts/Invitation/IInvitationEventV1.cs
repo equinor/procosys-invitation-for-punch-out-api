@@ -1,8 +1,7 @@
 ﻿namespace Equinor.ProCoSys.IPO.MessageContracts.Invitation;
 
-public interface IInvitation
+public interface IInvitationEventV1 : IIntegrationEvent
 {
-    public Guid ProCoSysGuid { get;  }
     public string Plant { get;  }
     public string ProjectName { get;  }
     public string IpoNumber { get;  }
