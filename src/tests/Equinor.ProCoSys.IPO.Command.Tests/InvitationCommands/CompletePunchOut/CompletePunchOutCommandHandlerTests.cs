@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
@@ -30,7 +31,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         private Mock<ILogger<CompletePunchOutCommandHandler>> _loggerMock;
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<IEmailService> _emailServiceMock;
-
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
+        private BusEventMessage _busEventMessage;
 
         private CompletePunchOutCommand _command;
         private CompletePunchOutCommandHandler _dut;
@@ -81,7 +83,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
             _emailServiceMock = new Mock<IEmailService>();
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
-
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _integrationEventPublisherMock
+                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))
+                .Callback<BusEventMessage, CancellationToken>((busEventMessage, cancellationToken) =>
+                {
+                    _busEventMessage = busEventMessage;
+                });
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
@@ -153,6 +161,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
                 _personRepositoryMock.Object,
                 _meetingOptionsMock.Object,
                 _emailServiceMock.Object,
+                _integrationEventPublisherMock.Object,
                 _loggerMock.Object);
         }
 
@@ -207,6 +216,34 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
             // Assert
             Assert.AreEqual(1, _invitation.PostSaveDomainEvents.Count);
             Assert.AreEqual(typeof(IpoCompletedEvent), _invitation.PostSaveDomainEvents.Last().GetType());
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendBusTopic()
+        {
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("Completed", _busEventMessage.Event);
+            Assert.AreEqual(IpoStatus.Planned, _busEventMessage.IpoStatus);
+            Assert.AreEqual(_plant, _busEventMessage.Plant);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.InvitationGuid);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.Guid);
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendEmail()
+        {
+            // Act
+            await _dut.Handle(_command, default);
+
+            // Assert
+            _emailServiceMock.Verify(x 
+                => x.SendEmailsAsync(new List<string>{"ola@test.com"}, "Completed notification: IPO-0",
+                    @"<p>IPO-0: Test title has been completed and is ready for your attention to sign and accept.</p><p>Click the link to review <a href=""baseUrlTEST_PLANT/InvitationForPunchOut/0"">IPO-0</a>.</p>", 
+                    It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

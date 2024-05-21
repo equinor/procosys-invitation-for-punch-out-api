@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFusionMeetingClient _meetingClient;
         private readonly ICurrentUserProvider _currentUserProvider;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
         private readonly ILogger<CancelPunchOutCommandHandler> _logger;
 
         public CancelPunchOutCommandHandler(
@@ -27,6 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             IUnitOfWork unitOfWork,
             IFusionMeetingClient meetingClient,
             ICurrentUserProvider currentUserProvider,
+            IIntegrationEventPublisher integrationEventPublisher,
             ILogger<CancelPunchOutCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -34,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             _unitOfWork = unitOfWork;
             _meetingClient = meetingClient;
             _currentUserProvider = currentUserProvider;
+            _integrationEventPublisher = integrationEventPublisher;
             _logger = logger;
         }
 
@@ -46,8 +50,23 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
 
             await CancelFusionMeetingAsync(invitation.MeetingId);
 
+            await PublishEventToBusAsync(cancellationToken, invitation);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        {
+            var eventMessage = new BusEventMessage
+            {
+                Plant = invitation.Plant,
+                Event = "Canceled",
+                InvitationGuid = invitation.Guid,
+                IpoStatus = invitation.Status
+            };
+
+            await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
         }
 
         private async Task CancelFusionMeetingAsync(Guid meetingId)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -22,6 +23,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
         private AcceptPunchOutCommand _command;
         private AcceptPunchOutCommandHandler _dut;
@@ -45,6 +47,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         private const int _participantId2 = 20;
         private const string _participantRowVersion1 = "AAAAAAAAABB=";
         private const string _participantRowVersion2 = "AAAAAAAAABM=";
+        private BusEventMessage _busEventMessage;
 
         private readonly List<UpdateNoteOnParticipantForCommand> _participantsToChange =
             new List<UpdateNoteOnParticipantForCommand>
@@ -63,6 +66,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
         public void Setup()
         {
             _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _integrationEventPublisherMock
+                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))
+                .Callback<BusEventMessage, CancellationToken>((busEventMessage, cancellationToken) =>
+                {
+                    _busEventMessage = busEventMessage;
+                });
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -138,7 +148,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             _dut = new AcceptPunchOutCommandHandler(_invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personRepositoryMock.Object);
+                _personRepositoryMock.Object,
+                _integrationEventPublisherMock.Object);
         }
 
         [TestMethod]
@@ -170,6 +181,21 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             Assert.AreEqual(_invitationRowVersion, result.Data);
             Assert.AreEqual(_invitationRowVersion, _invitation.RowVersion.ConvertToString());
             Assert.AreEqual(_participantRowVersion, _invitation.Participants.ToList()[0].RowVersion.ConvertToString());
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendBusTopic()
+        {
+            // Act
+            var result = await _dut.Handle(_command, default);
+
+            // Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("Accepted", _busEventMessage.Event);
+            Assert.AreEqual(IpoStatus.Planned, _busEventMessage.IpoStatus);
+            Assert.AreEqual(_plant, _busEventMessage.Plant);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.InvitationGuid);
+            Assert.AreNotEqual(Guid.Empty, _busEventMessage.Guid);
         }
     }
 }
