@@ -71,7 +71,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 
             _loggerMock = new Mock<ILogger<CancelPunchOutCommandHandler>>();
 
-
             var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
             _personRepositoryMock = new Mock<IPersonRepository>();
             _personRepositoryMock
@@ -110,6 +109,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
+            _invitationRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<int>())).Returns(new InvitationEvent());
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
