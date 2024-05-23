@@ -268,9 +268,13 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             var result =
                 (from i in _context.Invitations
                     join project in _context.Projects on i.ProjectId equals project.Id
-                    join completedBy in _context.Persons on i.CompletedBy equals completedBy.Id
-                    join acceptedBy in _context.Persons on i.AcceptedBy equals acceptedBy.Id
-                    join createdBy in _context.Persons on i.CreatedById equals createdBy.Id
+                    join completedByInner in _context.Persons on i.CompletedBy equals completedByInner.Id into completedByOuter
+                    from completedBy in completedByOuter.DefaultIfEmpty()
+                    join acceptedByInner in _context.Persons on i.AcceptedBy equals acceptedByInner.Id into acceptedByOuter
+                    from acceptedBy in acceptedByOuter.DefaultIfEmpty()
+                    join createdByInner in _context.Persons on i.CreatedById equals createdByInner.Id into createdByOuter
+                    from createdBy in createdByOuter.DefaultIfEmpty()
+                    where i.Id == invitationId
                     select new InvitationEvent
                     {
                         Guid = i.Guid,
@@ -292,6 +296,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                         AcceptedByOid = acceptedBy.Guid
                     }
                 );
+            var temp = result.ToList();
 
             return result.SingleOrDefault();
         }

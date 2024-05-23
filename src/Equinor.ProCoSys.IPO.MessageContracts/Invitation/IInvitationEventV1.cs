@@ -16,8 +16,8 @@ public interface IInvitationEventV1 : IIntegrationEvent
     public string Location { get;  }
     public DateTime StartTimeUtc { get;  }
     public DateTime? AcceptedAtUtc { get;  }
-    public Guid AcceptedByOid { get;  }
+    public Guid? AcceptedByOid { get;  }
     public DateTime? CompletedAtUtc { get;  }
-    public Guid CompletedByOid { get;  }
+    public Guid? CompletedByOid { get;  }
 
 }

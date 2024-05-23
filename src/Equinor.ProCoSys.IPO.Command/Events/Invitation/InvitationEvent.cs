@@ -22,7 +22,7 @@ public record InvitationEvent : IInvitationEventV1
     public string Location { get; init; }
     public DateTime StartTimeUtc { get; init; }
     public DateTime? AcceptedAtUtc { get; init; }
-    public Guid AcceptedByOid { get; init; }
+    public Guid? AcceptedByOid { get; init; }
     public DateTime? CompletedAtUtc { get; init; }
-    public Guid CompletedByOid { get; init; }
+    public Guid? CompletedByOid { get; init; }
 }
