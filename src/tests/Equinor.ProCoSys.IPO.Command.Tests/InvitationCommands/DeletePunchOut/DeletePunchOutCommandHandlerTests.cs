@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -19,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IHistoryRepository> _historyRepositoryMock;
-
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
         private DeletePunchOutCommand _command;
         private DeletePunchOutCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
@@ -60,6 +63,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+
             var history = new List<History>
             {
                 new History(_plant, "description", _invitation.Guid, EventType.IpoCanceled)
@@ -77,7 +82,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
             _dut = new DeletePunchOutCommandHandler(
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
-                _historyRepositoryMock.Object);
+                _historyRepositoryMock.Object,
+                _integrationEventPublisherMock.Object);
         }
 
         // This test does not offer a lot of coverage except for that changes should be saved.
@@ -90,6 +96,37 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task DeletePunchOutCommand_ShouldSendDeleteMessage()
+        {
+            //Arrange
+            var invitationEvent = new DeleteEvent { };
+            //_invitationRepositoryMock
+            //    .Setup(x => x.GetInvitationEvent(It.IsAny<int>()))
+            //    .Returns(invitationEvent);
+
+            var deleteInvitationEventMessage = new DeleteEvent();
+
+            _integrationEventPublisherMock
+                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<IDeleteEventV1>(), It.IsAny<CancellationToken>()))
+                .Callback<IDeleteEventV1, CancellationToken>((callbackDeleteInvitationEventMessage, cancellationToken) =>
+                {
+                    deleteInvitationEventMessage = (DeleteEvent)callbackDeleteInvitationEventMessage;
+                });
+
+            //Act
+            await _dut.Handle(_command, default);
+
+            //Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<IDeleteEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("Invitation", deleteInvitationEventMessage.EntityType);
+            Assert.AreEqual("delete", deleteInvitationEventMessage.Behavior);
+            Assert.AreNotEqual(Guid.Empty, deleteInvitationEventMessage.ProCoSysGuid);
+            Assert.AreEqual("PCS$TEST_PLANT", deleteInvitationEventMessage.Plant);
+
+
         }
     }
 }

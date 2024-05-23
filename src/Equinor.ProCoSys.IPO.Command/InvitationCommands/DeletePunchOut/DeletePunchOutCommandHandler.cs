@@ -1,5 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -12,16 +15,19 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
     {
         private readonly IInvitationRepository _invitationRepository;
         private readonly IHistoryRepository _historyRepository;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
         private readonly IUnitOfWork _unitOfWork;
 
         public DeletePunchOutCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            IHistoryRepository historyRepository)
+            IHistoryRepository historyRepository,
+            IIntegrationEventPublisher integrationEventPublisher)
         {
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _historyRepository = historyRepository;
+            _integrationEventPublisher = integrationEventPublisher;
         }
 
         public async Task<Result<Unit>> Handle(DeletePunchOutCommand request, CancellationToken cancellationToken)
@@ -35,8 +41,20 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
             invitation.SetRowVersion(request.RowVersion);
             _invitationRepository.RemoveInvitation(invitation);
 
+            await PublishEventToBusAsync(cancellationToken, invitation);
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
+        }
+
+        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        {
+            var deleteInvitationMessage = new DeleteEvent
+            {
+                Plant = invitation.Plant, ProCoSysGuid = invitation.Guid, EntityType = nameof(Invitation)
+            };
+
+            await _integrationEventPublisher.PublishAsync(deleteInvitationMessage, cancellationToken);
         }
     }
 }
