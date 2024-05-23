@@ -293,10 +293,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                         Location = i.Location,
                         StartTimeUtc = i.StartTimeUtc,
                         AcceptedAtUtc = i.AcceptedAtUtc,
-                        AcceptedByOid = acceptedBy.Guid
+                        AcceptedByOid = acceptedBy.Guid,
+                        CompletedAtUtc = i.CompletedAtUtc,
+                        CompletedByOid = completedBy.Guid,
                     }
                 );
-            var temp = result.ToList();
 
             return result.SingleOrDefault();
         }

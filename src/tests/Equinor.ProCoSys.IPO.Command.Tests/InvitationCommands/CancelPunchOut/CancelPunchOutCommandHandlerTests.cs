@@ -5,12 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events.Invitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
+using Equinor.ProCoSys.IPO.MessageContracts;
+using Equinor.ProCoSys.IPO.MessageContracts.Invitation;
 using Fusion.Integration.Meeting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -190,7 +193,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public async Task Handle_ShouldSendBusTopic()
+        public async Task Handle_ShouldSendIpoMessageToServiceBus()
         {
             // Act
             var result = await _dut.Handle(_command, default);
@@ -202,6 +205,33 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             Assert.AreEqual(_plant, _busEventMessage.Plant);
             Assert.AreNotEqual(Guid.Empty, _busEventMessage.InvitationGuid);
             Assert.AreNotEqual(Guid.Empty, _busEventMessage.Guid);
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendInvitationMessage()
+        {
+            //Arrange
+            var invitationEvent = new InvitationEvent { Description = "A Invitation message description" };
+            _invitationRepositoryMock
+                .Setup(x => x.GetInvitationEvent(It.IsAny<int>()))
+                .Returns(invitationEvent);
+
+            IInvitationEventV1 invitationEventMessage = new InvitationEvent();
+
+            _integrationEventPublisherMock
+            .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<IInvitationEventV1>(), It.IsAny<CancellationToken>()))
+                .Callback<IInvitationEventV1, CancellationToken>((callbackInvitationEventMessage, cancellationToken) =>
+                {
+                    invitationEventMessage = callbackInvitationEventMessage;
+                });
+
+            // Act
+            await _dut.Handle(_command, default);
+
+            // Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<IInvitationEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("A Invitation message description", invitationEventMessage.Description);
+
         }
     }
 }
