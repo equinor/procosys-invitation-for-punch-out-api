@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -19,6 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
         private AddCommentCommand _command;
         private AddCommentCommandHandler _dut;
@@ -55,6 +59,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                 null);
 
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
@@ -68,7 +74,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             _dut = new AddCommentCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
-                _unitOfWorkMock.Object);
+                _unitOfWorkMock.Object,
+                _integrationEventPublisherMock.Object);
         }
 
         [TestMethod]
@@ -88,6 +95,33 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             await _dut.Handle(_command, default);
 
             Assert.AreNotEqual(new Guid("00000000-0000-0000-0000-000000000000"), _invitation.Comments.First().Guid);
+        }
+
+        [TestMethod]
+        public async Task Handle_ShouldSendCommentMessage()
+        {
+            //Arrange
+            var commentEvent = new CommentEvent { CommentText = "A comment" };
+            _invitationRepositoryMock
+                .Setup(x => x.GetCommentEvent(It.IsAny<int>(), It.IsAny<int>()))
+                .Returns(commentEvent);
+
+            ICommentEventV1 commentEventMessage = new CommentEvent();
+
+            _integrationEventPublisherMock
+                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()))
+                .Callback<ICommentEventV1, CancellationToken>((callbackcommentEventMessage, cancellationToken) =>
+                {
+                    commentEventMessage = callbackcommentEventMessage;
+                });
+
+            // Act
+            await _dut.Handle(_command, default);
+
+            // Assert
+            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual("A comment", commentEventMessage.CommentText);
+
         }
     }
 }

@@ -102,11 +102,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
         public async Task DeletePunchOutCommand_ShouldSendDeleteMessage()
         {
             //Arrange
-            var invitationEvent = new DeleteEvent { };
-            //_invitationRepositoryMock
-            //    .Setup(x => x.GetInvitationEvent(It.IsAny<int>()))
-            //    .Returns(invitationEvent);
-
             var deleteInvitationEventMessage = new DeleteEvent();
 
             _integrationEventPublisherMock
