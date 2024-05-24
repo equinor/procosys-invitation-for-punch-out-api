@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -24,29 +25,59 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
         public EditParticipantsCommandHandler(
             IInvitationRepository invitationRepository, 
             IPlantProvider plantProvider,
             IUnitOfWork unitOfWork,
             IPersonApiService personApiService,
-            IFunctionalRoleApiService functionalRoleApiService)
+            IFunctionalRoleApiService functionalRoleApiService,
+            IIntegrationEventPublisher integrationEventPublisher)
         {
             _invitationRepository = invitationRepository;
             _plantProvider = plantProvider;
             _unitOfWork = unitOfWork;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
+            _integrationEventPublisher = integrationEventPublisher;
         }
 
         public async Task<Result<Unit>> Handle(EditParticipantsCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            
-            await UpdateParticipants(request.UpdatedParticipants, invitation);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                await UpdateParticipants(request.UpdatedParticipants, invitation);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                await PublishEventToBusAsync(cancellationToken, invitation);
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                //TODO: Remember to test with functional roles, we don't want to send one message per member in a functional role
+                _unitOfWork.Commit();
+
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
             return new SuccessResult<Unit>(Unit.Value);
+        }
+
+        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        {
+            foreach (var participant in invitation.Participants)
+            {
+                var participantMessage = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
+                await _integrationEventPublisher.PublishAsync(participantMessage, cancellationToken);
+            }
         }
 
         private async Task UpdateParticipants(
@@ -79,6 +110,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             {
                 invitation.RemoveParticipant(participantToDelete);
                 _invitationRepository.RemoveParticipant(participantToDelete);
+                //TODO: Add publish delete here?
             }
 
             if (functionalRoleParticipants.Count > 0)

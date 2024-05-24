@@ -22,6 +22,8 @@ public class IpoEntityNameFormatter : IEntityNameFormatter
             nameof(DeleteEvent) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(ICommentEventV1) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(CommentEvent) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(IParticipantEventV1) => "ipoparticipant", //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(ParticipantEvent) => "ipoparticipant", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             _ => throw new ArgumentException($"IPO error: {typeof(T).Name} is not configured with a topic name mapping.")
         };
 }

@@ -340,5 +340,46 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             return commentEvent;
         }
+
+        public IParticipantEventV1 GetParticipantEvent(int invitationId, int participantId)
+        {
+            //TODO: Handle null reference
+            var invitation = (from inv in _context.QuerySet<Invitation>()
+                        .Include(i => i.Participants)
+                        .Where(i => i.Id == invitationId)
+                    select inv).SingleOrDefault();
+
+            //TODO: Consider using QuerySet in order to get AsNoTracking functionality
+            var projectName = (from p in _context.Projects
+                                                where p.Id == invitation.ProjectId
+                                                select p.Name).SingleOrDefault();
+
+
+            var participantMessage = (from p in _context.Participants
+                join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
+                join signedByInner in _context.Persons on p.SignedBy equals signedByInner.Id into signedByOuter
+                from signedBy in signedByOuter.DefaultIfEmpty()
+                where p.Id == participantId
+                select new ParticipantEvent()
+                {
+                    ProCoSysGuid = p.Guid,
+                    Plant = p.Plant,
+                    ProjectName = projectName,
+                    Organization = p.Organization.ToString(),
+                    Type = p.Type.ToString(),
+                    FunctionalRoleCode = p.FunctionalRoleCode,
+                    AzureOid = p.AzureOid,
+                    SortKey = p.SortKey,
+                    CreatedAtUtc = p.CreatedAtUtc,
+                    InvitationGuid = invitation.Guid,
+                    ModifiedAtUtc = p.ModifiedAtUtc,
+                    Attended = p.Attended,
+                    Note = p.Note,
+                    SignedAtUtc = p.SignedAtUtc,
+                    SignedByOid = signedBy != null ? signedBy.Guid : null
+                }).SingleOrDefault();
+
+            return participantMessage;
+        }
     }
 }
