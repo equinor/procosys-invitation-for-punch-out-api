@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.Events.Invitation;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.MessageContracts.Invitation;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
@@ -300,6 +298,47 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 );
 
             return result.SingleOrDefault();
+        }
+
+        public ICommentEventV1 GetCommentEvent(int commentId, int invitationId)
+        {
+            var invitation =
+                (from i in _context.Invitations
+                    join project in _context.Projects on i.ProjectId equals project.Id
+                    where i.Id == invitationId
+                    select new 
+                        {
+                            ProjectName = project.Name, 
+                            Guid = i.Guid
+                        })
+                .Single();
+
+            var comment =
+                (from c in _context.Comments
+                    join createdBy in _context.Persons on c.CreatedById equals createdBy.Id 
+                    where c.Id == commentId
+                    select new
+                    {
+                        CommentText = c.CommentText,
+                        CreatedAtUtc = c.CreatedAtUtc,
+                        CreatedByGuid = createdBy.Guid,
+                        Plant = c.Plant,
+                        ProCoSysGuid = c.Guid
+                    })
+                .Single();
+
+            var commentEvent = new CommentEvent
+            {
+                CommentText = comment.CommentText,
+                CreatedAtUtc = comment.CreatedAtUtc,
+                CreatedByGuid = comment.CreatedByGuid,
+                Plant = comment.Plant,
+                InvitationGuid = invitation.Guid,
+                ProCoSysGuid = comment.ProCoSysGuid,
+                ProjectName = invitation.ProjectName
+            };
+
+            return commentEvent;
         }
     }
 }

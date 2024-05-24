@@ -53,6 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
             {
                 Plant = invitation.Plant, ProCoSysGuid = invitation.Guid, EntityType = nameof(Invitation)
             };
+            //TODO: JSOI Need to publish many delete events here if all the dependencies of an invitation (comments, participants) are also deleted
 
             await _integrationEventPublisher.PublishAsync(deleteInvitationMessage, cancellationToken);
         }

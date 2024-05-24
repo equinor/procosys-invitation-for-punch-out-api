@@ -1,7 +1,7 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.MessageContracts.Invitation;
+using Equinor.ProCoSys.IPO.MessageContracts;
 
-namespace Equinor.ProCoSys.IPO.Command.Events.Invitation;
+namespace Equinor.ProCoSys.IPO.Command.Events;
 
 public record InvitationEvent : IInvitationEventV1
 
