@@ -84,7 +84,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name);
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
-
+            
+            //TODO: Need to send deletes for participants, and then send list of participants
+            
             invitation.EditIpo(
                 request.Title,
                 request.Description,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
@@ -49,13 +50,50 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
 
         private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
         {
-            var deleteInvitationMessage = new DeleteEvent
-            {
-                Plant = invitation.Plant, ProCoSysGuid = invitation.Guid, EntityType = nameof(Invitation)
-            };
-            //TODO: JSOI Need to publish many delete events here if all the dependencies of an invitation (comments, participants) are also deleted
+            var invitationDeleteEvent = GetInvitationDeleteEvent(invitation);
+            var commentDeleteEvents = GetCommentDeleteEvents(invitation.Comments);
+            var participantDeleteEvents = GetParticipantDeleteEvents(invitation.Participants);
 
-            await _integrationEventPublisher.PublishAsync(deleteInvitationMessage, cancellationToken);
+            await _integrationEventPublisher.PublishAsync(invitationDeleteEvent, cancellationToken);
+
+            foreach (var commentDeleteEvent in commentDeleteEvents)
+            {
+                await _integrationEventPublisher.PublishAsync(commentDeleteEvent, cancellationToken);
+            }
+
+            foreach (var participantDeleteEvent in participantDeleteEvents)
+            {
+                await _integrationEventPublisher.PublishAsync(participantDeleteEvent, cancellationToken);
+            }
+
+            //TODO: JSOI Add for McPkg and CommPkg
+
+        }
+
+        private static InvitationDeleteEvent GetInvitationDeleteEvent(Invitation invitation) =>
+            new()
+            {
+                Plant = invitation.Plant, ProCoSysGuid = invitation.Guid
+            };
+
+        private List<CommentDeleteEvent> GetCommentDeleteEvents(IReadOnlyCollection<Comment> comments)
+        {
+            var commentDeleteEvents = new List<CommentDeleteEvent>();
+            foreach (var comment in comments)
+            {
+                commentDeleteEvents.Add(new CommentDeleteEvent {Plant = comment.Plant, ProCoSysGuid = comment.Guid});
+            }
+            return commentDeleteEvents;
+        }
+
+        private List<ParticipantDeleteEvent> GetParticipantDeleteEvents(IReadOnlyCollection<Participant> participants)
+        {
+            var participantDeleteEvents = new List<ParticipantDeleteEvent>();
+            foreach (var comment in participants)
+            {
+                participantDeleteEvents.Add(new ParticipantDeleteEvent { Plant = comment.Plant, ProCoSysGuid = comment.Guid });
+            }
+            return participantDeleteEvents;
         }
     }
 }

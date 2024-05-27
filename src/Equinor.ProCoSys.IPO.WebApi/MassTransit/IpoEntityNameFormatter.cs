@@ -19,7 +19,10 @@ public class IpoEntityNameFormatter : IEntityNameFormatter
             nameof(IInvitationEventV1) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(InvitationEvent) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(IDeleteEventV1) => nameof(IDeleteEventV1), //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(DeleteEvent) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(DeleteEvent) => nameof(DeleteEvent), //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(InvitationDeleteEvent) => "ipoinvitation",
+            nameof(CommentDeleteEvent) => "ipocomment",
+            nameof(ParticipantDeleteEvent) => "ipoparticipant",
             nameof(ICommentEventV1) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(CommentEvent) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
             nameof(IParticipantEventV1) => "ipoparticipant", //TODO: JSOI Replace with IpoTopic name from ServiceBus
