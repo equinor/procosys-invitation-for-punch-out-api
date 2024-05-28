@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 //TODO: JSOI Publish new event
 
-                await PublishEventToBusAsync(cancellationToken, invitation);
+               // await PublishEventToBusAsync(cancellationToken, invitation);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -72,14 +72,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             return new SuccessResult<Unit>(Unit.Value);
         }
 
-        private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
-        {
-            foreach (var participant in invitation.Participants)
-            {
-                var participantMessage = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
-                await _integrationEventPublisher.PublishAsync(participantMessage, cancellationToken);
-            }
-        }
+        //private async Task PublishEventToBusAsync(CancellationToken cancellationToken, Invitation invitation)
+        //{
+        //    foreach (var participant in invitation.Participants)
+        //    {
+        //        var participantMessage = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
+        //        await _integrationEventPublisher.PublishAsync(participantMessage, cancellationToken);
+        //    }
+        //}
 
         private async Task UpdateParticipants(
             IList<ParticipantsForEditCommand> participantsToUpdate,

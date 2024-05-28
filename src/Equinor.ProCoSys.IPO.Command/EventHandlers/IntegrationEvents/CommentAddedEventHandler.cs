@@ -20,11 +20,6 @@ public class CommentAddedEventHandler : INotificationHandler<CommentAddedEvent>
 
     public Task Handle(CommentAddedEvent notification, CancellationToken cancellationToken)
     {
-        //const EventType eventType = EventType.CommentAdded;
-        //var history = new History(notification.Plant, eventType.GetDescription(), notification.SourceGuid, eventType);
-        //_invitationRepository.Add(history);
-        //return Task.CompletedTask;
-
         var commentEvent = _invitationRepository.GetCommentEvent(notification.SourceGuid, notification.CommentGuid);
         return _integrationEventPublisher.PublishAsync(commentEvent, cancellationToken);
     }

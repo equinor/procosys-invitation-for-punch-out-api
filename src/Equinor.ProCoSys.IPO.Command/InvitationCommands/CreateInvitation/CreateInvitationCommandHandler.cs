@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             //TODO: JSOI Publish new event
 
-            await PublishEventToBusAsync(invitation, cancellationToken);
+            //await PublishEventToBusAsync(invitation, cancellationToken);
             //TODO: JSOI need SaveChangesAsync here to publish to MassTransit outbox table??
             try
             {
@@ -165,17 +165,17 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
         }
 
-        private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
-        {
-            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
-            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+        //private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
+        //{
+        //    var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
+        //    await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
 
-            foreach (var participant in invitation.Participants)
-            {
-                var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
-                await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
-            }
-        }
+        //    foreach (var participant in invitation.Participants)
+        //    {
+        //        var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
+        //        await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
+        //    }
+        //}
 
         private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 
             => await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName) ?? await AddProjectAsync(request, cancellationToken);

@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         IList<CommPkg> GetCommPkgsOnly();
         IList<McPkg> GetMcPkgsOnly();
         IInvitationEventV1 GetInvitationEvent(int invitationId);
-        ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentId);
-        IParticipantEventV1 GetParticipantEvent(int invitationId, int participantId);
+        ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid);
+        IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid);
     }
 }

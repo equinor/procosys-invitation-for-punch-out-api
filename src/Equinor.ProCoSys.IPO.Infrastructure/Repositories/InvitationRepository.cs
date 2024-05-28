@@ -305,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return result;
         }
 
-        public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentId)
+        public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid)
         {
             //TODO: Fix possible nullpointers
             var invitation = (from i in _context.Invitations
@@ -315,7 +315,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             var comment = (from c in invitation.Comments
                     join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
-                    where c.Guid == commentId
+                    where c.Guid == commentGuid
                     select new
                     {
                         CommentText = c.CommentText,
@@ -344,17 +344,22 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return commentEvent;
         }
 
-        public IParticipantEventV1 GetParticipantEvent(int invitationId, int participantId)
+        public IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid)
         {
             //TODO: Handle null reference
-            var invitation = (from inv in _context.QuerySet<Invitation>()
-                        .Include(i => i.Participants)
-                        .Where(i => i.Id == invitationId)
-                    select inv).SingleOrDefault();
+            //var invitation = (from inv in _context.QuerySet<Invitation>()
+            //            .Include(i => i.Participants)
+            //            .Where(i => i.Guid == invitationGuid)
+            //        select inv).SingleOrDefault();
+
+            var invitation = (from i in _context.Invitations
+                    where i.Guid.Equals(invitationGuid)
+                    select i)
+                .SingleOrDefault();
 
             if (invitation is null)
             {
-                throw new ArgumentException($"Could not find an invitation for invitation with id {invitationId} and participant id {participantId}");
+                throw new ArgumentException($"Could not find an invitation for invitation with id {invitationGuid} and participant id {participantGuid}");
             }
 
             //TODO: Consider using QuerySet in order to get AsNoTracking functionality
@@ -364,14 +369,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             if (projectName is null)
             {
-                throw new ArgumentException($"Could not find a project for invitation with id {invitationId}");
+                throw new ArgumentException($"Could not find a project for invitation with id {invitationGuid}");
             }
 
-            var participantMessage = (from p in _context.Participants
+            var participantMessage = (from p in invitation.Participants
                 join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
                 join signedByInner in _context.Persons on p.SignedBy equals signedByInner.Id into signedByOuter
                 from signedBy in signedByOuter.DefaultIfEmpty()
-                where p.Id == participantId
+                where p.Guid == participantGuid
                 select new ParticipantEvent()
                 {
                     ProCoSysGuid = p.Guid,
@@ -393,7 +398,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             if (participantMessage is null)
             {
-                throw new ArgumentException($"Could not find an participation event for invitation with id {invitationId} and participant id {participantId}");
+                throw new ArgumentException($"Could not find an participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
             }
             return participantMessage;
         }

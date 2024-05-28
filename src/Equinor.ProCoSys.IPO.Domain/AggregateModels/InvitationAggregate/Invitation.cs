@@ -154,6 +154,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Add(participant);
+            AddDomainEvent(new ParticipantAddedEvent(Plant, Guid, participant.Guid));
         }
 
         public void RemoveParticipant(Participant participant)
@@ -169,6 +170,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Remove(participant);
+            AddDomainEvent(new ParticipantRemovedEvent(Plant, Guid, participant.Guid));
         }
 
         public void UpdateParticipant(
@@ -193,6 +195,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.AzureOid = azureOid;
             participant.SortKey = sortKey;
             participant.SetRowVersion(participantRowVersion);
+
+            AddDomainEvent(new ParticipantUpdatedEvent(Plant, Guid, participant.Guid));
         }
 
         public void UpdateNote(
