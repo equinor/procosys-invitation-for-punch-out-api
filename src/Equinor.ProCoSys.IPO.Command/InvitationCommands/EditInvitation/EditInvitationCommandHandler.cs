@@ -130,38 +130,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 }
             }
             //TODO: JSOI Publish new event
-            //await PublishEventToBusAsync(invitation, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
-        }
-
-        //private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
-        //{
-        //    //Delete first then add
-        //    var participantDeleteEvents = GetParticipantDeleteEvents(invitation.Participants);
-        //    foreach (var participantDeleteEvent in participantDeleteEvents)
-        //    {
-        //        await _integrationEventPublisher.PublishAsync(participantDeleteEvent, cancellationToken);
-        //    }
-
-        //    //Add section
-        //    var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
-        //    await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
-
-        //    foreach (var participant in invitation.Participants)
-        //    {
-        //        var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
-        //        await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
-        //    }
-        //}
-        private List<ParticipantDeleteEvent> GetParticipantDeleteEvents(IReadOnlyCollection<Participant> participants)
-        {
-            var participantDeleteEvents = new List<ParticipantDeleteEvent>();
-            foreach (var comment in participants)
-            {
-                participantDeleteEvents.Add(new ParticipantDeleteEvent { Plant = comment.Plant, ProCoSysGuid = comment.Guid });
-            }
-            return participantDeleteEvents;
         }
 
         private async Task<List<McPkg>> GetMcPkgScopeAsync(IList<string> mcPkgNos, string projectName)

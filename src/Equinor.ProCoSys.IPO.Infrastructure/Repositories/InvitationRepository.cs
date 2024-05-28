@@ -261,10 +261,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 .ForEach(mc => mc.RfocAccepted = rfocAccepted);
 
 
-        public IInvitationEventV1 GetInvitationEvent(int invitationId)
+        public IInvitationEventV1 GetInvitationEvent(Guid invitationGuid)
         {
+            //Using .Local as otherwise we get the old values from the database, and not the updated values
             var result =
-                (from i in _context.Invitations
+                (from i in _context.Invitations.Local
                     join project in _context.Projects on i.ProjectId equals project.Id
                     join completedByInner in _context.Persons on i.CompletedBy equals completedByInner.Id into completedByOuter
                     from completedBy in completedByOuter.DefaultIfEmpty()
@@ -272,7 +273,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                     from acceptedBy in acceptedByOuter.DefaultIfEmpty()
                     join createdByInner in _context.Persons on i.CreatedById equals createdByInner.Id into createdByOuter
                     from createdBy in createdByOuter.DefaultIfEmpty()
-                    where i.Id == invitationId
+                    where i.Guid == invitationGuid
                     select new InvitationEvent
                     {
                         Guid = i.Guid,
@@ -291,15 +292,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                         Location = i.Location,
                         StartTimeUtc = i.StartTimeUtc,
                         AcceptedAtUtc = i.AcceptedAtUtc,
-                        AcceptedByOid = acceptedBy.Guid,
+                        AcceptedByOid = acceptedBy?.Guid,
                         CompletedAtUtc = i.CompletedAtUtc,
-                        CompletedByOid = completedBy.Guid,
+                        CompletedByOid = completedBy?.Guid,
                     }
                 ).SingleOrDefault();
 
             if (result is null)
             {
-                throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationId}");
+                throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationGuid}");
             }
 
             return result;

@@ -78,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
 
             await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
 
-            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
+            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Guid);
             //TODO: Verify that changes exist in invitation, that we don't need another savechanges or begintransaction
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
