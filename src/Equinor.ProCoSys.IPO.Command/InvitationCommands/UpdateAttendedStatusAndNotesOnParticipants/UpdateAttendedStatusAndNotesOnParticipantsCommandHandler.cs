@@ -55,6 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             {
                 UpdateParticipantStatusesAndNotes(invitation, request.Participants);
             }
+            //TODO: JSOI Publish new event
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);

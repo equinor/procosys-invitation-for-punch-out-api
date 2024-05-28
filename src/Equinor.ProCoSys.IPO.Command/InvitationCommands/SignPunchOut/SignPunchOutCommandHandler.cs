@@ -35,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
             var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
             var participant = invitation.Participants.Single(p => p.Id == request.ParticipantId);
             invitation.SignIpo(participant, currentUser, request.ParticipantRowVersion);
+            //TODO: JSOI Publish new event
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(participant.RowVersion.ConvertToString());

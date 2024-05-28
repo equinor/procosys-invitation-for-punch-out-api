@@ -73,6 +73,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             {
                 throw new ArgumentException($"Could not find an invitation event for invitation with id {invitation.Id}");
             }
+            //TODO: JSOI Publish new event
+
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 

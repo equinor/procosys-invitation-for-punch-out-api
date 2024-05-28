@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -41,6 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly IProjectRepository _projectRepository;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
         private readonly ILogger<EditInvitationCommandHandler> _logger;
 
         public EditInvitationCommandHandler(
@@ -57,6 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache,
             IProjectRepository projectRepository,
+            IIntegrationEventPublisher integrationEventPublisher,
             ILogger<EditInvitationCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -72,6 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _currentUserProvider = currentUserProvider;
             _permissionCache = permissionCache;
             _projectRepository = projectRepository;
+            _integrationEventPublisher = integrationEventPublisher;
             _logger = logger;
         }
 
@@ -85,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
             
-            //TODO: Need to send deletes for participants, and then send list of participants
+            //TODO: Need to send deletes for participants, and then send list of participants, same for mcpkg and commpkg
             
             invitation.EditIpo(
                 request.Title,
@@ -124,9 +129,39 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     throw new Exception("Error: Could not update outlook meeting.", e);
                 }
             }
-
+            //TODO: JSOI Publish new event
+            await PublishEventToBusAsync(invitation, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
+        }
+
+        private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
+        {
+            //Delete first then add
+            var participantDeleteEvents = GetParticipantDeleteEvents(invitation.Participants);
+            foreach (var participantDeleteEvent in participantDeleteEvents)
+            {
+                await _integrationEventPublisher.PublishAsync(participantDeleteEvent, cancellationToken);
+            }
+
+            //Add section
+            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
+            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+
+            foreach (var participant in invitation.Participants)
+            {
+                var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
+                await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
+            }
+        }
+        private List<ParticipantDeleteEvent> GetParticipantDeleteEvents(IReadOnlyCollection<Participant> participants)
+        {
+            var participantDeleteEvents = new List<ParticipantDeleteEvent>();
+            foreach (var comment in participants)
+            {
+                participantDeleteEvents.Add(new ParticipantDeleteEvent { Plant = comment.Plant, ProCoSysGuid = comment.Guid });
+            }
+            return participantDeleteEvents;
         }
 
         private async Task<List<McPkg>> GetMcPkgScopeAsync(IList<string> mcPkgNos, string projectName)

@@ -54,6 +54,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 await UpdateParticipants(request.UpdatedParticipants, invitation);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                //TODO: JSOI Publish new event
 
                 await PublishEventToBusAsync(cancellationToken, invitation);
 

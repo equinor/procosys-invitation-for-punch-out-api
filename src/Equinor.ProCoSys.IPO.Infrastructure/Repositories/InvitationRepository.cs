@@ -295,9 +295,14 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                         CompletedAtUtc = i.CompletedAtUtc,
                         CompletedByOid = completedBy.Guid,
                     }
-                );
+                ).SingleOrDefault();
 
-            return result.SingleOrDefault();
+            if (result is null)
+            {
+                throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationId}");
+            }
+
+            return result;
         }
 
         public ICommentEventV1 GetCommentEvent(int commentId, int invitationId)
@@ -349,11 +354,20 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                         .Where(i => i.Id == invitationId)
                     select inv).SingleOrDefault();
 
+            if (invitation is null)
+            {
+                throw new ArgumentException($"Could not find an invitation for invitation with id {invitationId} and participant id {participantId}");
+            }
+
             //TODO: Consider using QuerySet in order to get AsNoTracking functionality
             var projectName = (from p in _context.Projects
                                                 where p.Id == invitation.ProjectId
                                                 select p.Name).SingleOrDefault();
 
+            if (projectName is null)
+            {
+                throw new ArgumentException($"Could not find a project for invitation with id {invitationId}");
+            }
 
             var participantMessage = (from p in _context.Participants
                 join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
@@ -379,6 +393,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                     SignedByOid = signedBy != null ? signedBy.Guid : null
                 }).SingleOrDefault();
 
+            if (participantMessage is null)
+            {
+                throw new ArgumentException($"Could not find an participation event for invitation with id {invitationId} and participant id {participantId}");
+            }
             return participantMessage;
         }
     }

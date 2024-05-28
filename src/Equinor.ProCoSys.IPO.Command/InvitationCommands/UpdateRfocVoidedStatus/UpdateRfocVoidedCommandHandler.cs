@@ -88,6 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 request.ProjectName,
                 certificate.CertificateCommPkgs.Select(c => c.CommPkgNo).ToList(),
                 certificate.CertificateMcPkgs.Select(c => c.McPkgNo).ToList());
+            //TODO: JSOI Publish new event
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             

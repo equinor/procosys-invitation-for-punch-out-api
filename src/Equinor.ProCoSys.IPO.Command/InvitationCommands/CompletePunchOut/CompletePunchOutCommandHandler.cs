@@ -74,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CompletePunchOut
             }
             UpdateAttendedStatusAndNotesOnParticipants(invitation, request.Participants);
             invitation.SetRowVersion(request.InvitationRowVersion);
+            //TODO: JSOI Publish new event
 
             await PublishEventToBusAsync(cancellationToken, invitation);
 

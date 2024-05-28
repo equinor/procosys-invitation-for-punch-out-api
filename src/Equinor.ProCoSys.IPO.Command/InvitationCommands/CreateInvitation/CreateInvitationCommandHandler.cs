@@ -121,9 +121,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
         
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            //TODO: JSOI Publish new event
 
             await PublishEventToBusAsync(invitation, cancellationToken);
-
+            //TODO: JSOI need SaveChangesAsync here to publish to MassTransit outbox table??
             try
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
@@ -166,10 +167,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
         {
+            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Id);
+            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+
             foreach (var participant in invitation.Participants)
             {
-                var participantMessage = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
-                await _integrationEventPublisher.PublishAsync(participantMessage, cancellationToken);
+                var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Id, participant.Id);
+                await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
             }
         }
 
