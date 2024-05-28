@@ -27,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOn
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var participant = invitation.Participants.Single(p => p.Id == request.ParticipantId);
             invitation.UpdateAttendedStatus(participant, request.Attended, request.RowVersion);
-            //TODO: JSOI Publish new event
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(participant.RowVersion.ConvertToString());
         }

@@ -210,7 +210,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             participant.Note = note;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, note));
+            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, participant.Guid, note));
         }
 
         public void UpdateAttendedStatus(
@@ -225,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.Attended = attended;
             participant.IsAttendedTouched = true;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new AttendedStatusUpdatedEvent(Plant, Guid));
+            AddDomainEvent(new AttendedStatusUpdatedEvent(Plant, Guid, participant.Guid));
         }
 
         public void CompleteIpo(Participant participant, string participantRowVersion, Person completedBy, DateTime completedAtUtc)
@@ -441,7 +441,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Remove(comment);
-            AddDomainEvent(new CommentRemovedEvent(Plant, Guid));
+            AddDomainEvent(new CommentRemovedEvent(Plant, Guid, comment.Guid));
         }
 
         public void CancelIpo(Person caller)
