@@ -348,12 +348,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid)
         {
             //TODO: Handle null reference
-            //var invitation = (from inv in _context.QuerySet<Invitation>()
-            //            .Include(i => i.Participants)
-            //            .Where(i => i.Guid == invitationGuid)
-            //        select inv).SingleOrDefault();
-
-            var invitation = (from i in _context.Invitations
+            var invitation = (from i in _context.Invitations.Local
                     where i.Guid.Equals(invitationGuid)
                     select i)
                 .SingleOrDefault();
