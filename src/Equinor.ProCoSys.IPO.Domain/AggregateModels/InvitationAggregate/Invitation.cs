@@ -421,7 +421,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Add(comment);
-            AddDomainEvent(new CommentAddedEvent(Plant, Guid));
+            AddDomainEvent(new CommentAddedEvent(Plant, Guid, comment.Guid));
         }
 
         public void RemoveComment(Comment comment)

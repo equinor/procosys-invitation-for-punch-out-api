@@ -305,32 +305,30 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return result;
         }
 
-        public ICommentEventV1 GetCommentEvent(int commentId, int invitationId)
+        public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentId)
         {
-            var invitation =
-                (from i in _context.Invitations
-                    join project in _context.Projects on i.ProjectId equals project.Id
-                    where i.Id == invitationId
-                    select new 
-                        {
-                            ProjectName = project.Name, 
-                            Guid = i.Guid
-                        })
-                .Single();
+            //TODO: Fix possible nullpointers
+            var invitation = (from i in _context.Invitations
+                    where i.Guid.Equals(invitationGuid)
+                    select i)
+                .SingleOrDefault();
 
-            var comment =
-                (from c in _context.Comments
-                    join createdBy in _context.Persons on c.CreatedById equals createdBy.Id 
-                    where c.Id == commentId
+            var comment = (from c in invitation.Comments
+                    join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
+                    where c.Guid == commentId
                     select new
                     {
                         CommentText = c.CommentText,
                         CreatedAtUtc = c.CreatedAtUtc,
                         CreatedByGuid = createdBy.Guid,
                         Plant = c.Plant,
-                        ProCoSysGuid = c.Guid
+                        ProCoSysGuid = c.Guid,
                     })
                 .Single();
+
+            var project = (from p in _context.Projects
+                where p.Id == invitation.ProjectId
+                select p).SingleOrDefault();
 
             var commentEvent = new CommentEvent
             {
@@ -340,7 +338,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 Plant = comment.Plant,
                 InvitationGuid = invitation.Guid,
                 ProCoSysGuid = comment.ProCoSysGuid,
-                ProjectName = invitation.ProjectName
+                ProjectName = project.Name
             };
 
             return commentEvent;
