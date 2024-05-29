@@ -67,65 +67,34 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
 
     public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid)
     {
-        //TODO: Fix possible nullpointers
-        var invitation = (from i in _context.Invitations
-                          where i.Guid.Equals(invitationGuid)
-                          select i)
+        var invitation = GetInvitationFromLocal(invitationGuid);
+
+        var commentEvent = (from c in invitation.Comments
+                join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
+                where c.Guid == commentGuid
+                select new CommentEvent
+                {
+                    CommentText = c.CommentText,
+                    CreatedAtUtc = c.CreatedAtUtc,
+                    CreatedByOid = createdBy.Guid,
+                    Plant = c.Plant,
+                    InvitationGuid = invitation.Guid,
+                    ProCoSysGuid = c.Guid,
+                    ProjectName = GetProjectName(invitation.ProjectId)
+                })
             .SingleOrDefault();
-
-        var comment = (from c in invitation.Comments
-                       join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
-                       where c.Guid == commentGuid
-                       select new
-                       {
-                           CommentText = c.CommentText,
-                           CreatedAtUtc = c.CreatedAtUtc,
-                           CreatedByOid = createdBy.Guid,
-                           Plant = c.Plant,
-                           ProCoSysGuid = c.Guid,
-                       })
-            .Single();
-
-        var project = (from p in _context.Projects
-                       where p.Id == invitation.ProjectId
-                       select p).SingleOrDefault();
-
-        var commentEvent = new CommentEvent
+        
+        if (commentEvent is null)
         {
-            CommentText = comment.CommentText,
-            CreatedAtUtc = comment.CreatedAtUtc,
-            CreatedByOid = comment.CreatedByOid,
-            Plant = comment.Plant,
-            InvitationGuid = invitation.Guid,
-            ProCoSysGuid = comment.ProCoSysGuid,
-            ProjectName = project.Name
-        };
+            throw new ArgumentException($"Could not construct a comment event for invitation with id {invitationGuid} and comment id {commentGuid}");
+        }
 
         return commentEvent;
     }
 
     public IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid)
     {
-        //TODO: Handle null reference
-        var invitation = (from i in _context.Invitations.Local
-                          where i.Guid.Equals(invitationGuid)
-                          select i)
-            .SingleOrDefault();
-
-        if (invitation is null)
-        {
-            throw new ArgumentException($"Could not find an invitation for invitation with id {invitationGuid} and participant id {participantGuid}");
-        }
-
-        //TODO: Consider using QuerySet in order to get AsNoTracking functionality
-        var projectName = (from p in _context.Projects
-                           where p.Id == invitation.ProjectId
-                           select p.Name).SingleOrDefault();
-
-        if (projectName is null)
-        {
-            throw new ArgumentException($"Could not find a project for invitation with id {invitationGuid}");
-        }
+        var invitation = GetInvitationFromLocal(invitationGuid);
 
         var participantEvent = (from p in invitation.Participants
                                   join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
@@ -136,7 +105,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                                   {
                                       ProCoSysGuid = p.Guid,
                                       Plant = p.Plant,
-                                      ProjectName = projectName,
+                                      ProjectName = GetProjectName(invitation.ProjectId),
                                       Organization = p.Organization.ToString(),
                                       Type = p.Type.ToString(),
                                       FunctionalRoleCode = p.FunctionalRoleCode,
@@ -148,36 +117,27 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                                       Attended = p.Attended,
                                       Note = p.Note,
                                       SignedAtUtc = p.SignedAtUtc,
-                                      SignedByOid = signedBy != null ? signedBy.Guid : null
+                                      SignedByOid = signedBy?.Guid
                                   }).SingleOrDefault();
 
         if (participantEvent is null)
         {
-            throw new ArgumentException($"Could not find an participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
+            throw new ArgumentException($"Could not construct a participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
         }
         return participantEvent;
     }
-
-    public Invitation GetInvitationFromLocal(Guid invitationGuid) => _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));
 
     public IMcPkgEventV1 GetMcPkgEvent(Guid invitationGuid, Guid mcPkgGuid)
     {
         var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var project = (from p in _context.Projects
-                       where p.Id == invitation.ProjectId
-                       select p).SingleOrDefault();
-
-        //TODO: Fix possible nullpointer exceptions for project
-
-        //TODO: See if we can move project to separate method or include in a join or something
         var mcPkgEvent = (from m in invitation.McPkgs
                           where m.Guid.Equals(mcPkgGuid)
                           select new McPkgEvent()
                           {
                               ProCoSysGuid = m.Guid,
                               Plant = m.Plant,
-                              ProjectName = project.Name,
+                              ProjectName = GetProjectName(invitation.ProjectId),
                               InvitationGuid = invitationGuid,
                               CreatedAtUtc = m.CreatedAtUtc
                           }).SingleOrDefault();
@@ -189,24 +149,26 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     {
         var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var project = (from p in _context.Projects
-                       where p.Id == invitation.ProjectId
-                       select p).SingleOrDefault();
-
-        //TODO: Fix possible nullpointer exceptions for project
-
-        //TODO: See if we can move project to separate method or include in a join or something
         var commPkgEvent = (from m in invitation.CommPkgs
                             where m.Guid.Equals(commPkgGuid)
                             select new CommPkgEvent()
                             {
                                 ProCoSysGuid = m.Guid,
                                 Plant = m.Plant,
-                                ProjectName = project.Name,
+                                ProjectName = GetProjectName(invitation.ProjectId),
                                 InvitationGuid = invitationGuid,
                                 CreatedAtUtc = m.CreatedAtUtc
                             }).SingleOrDefault();
 
         return commPkgEvent;
     }
+
+    private Invitation GetInvitationFromLocal(Guid invitationGuid) 
+        => _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));
+
+
+    private string GetProjectName(int projectId) =>
+        (from p in _context.Projects
+            where p.Id == projectId
+            select p.Name).SingleOrDefault();
 }
