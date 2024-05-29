@@ -140,10 +140,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             foreach (var participant in invitation.Participants)
             {
                 RemoveParticipant(participant);
-                //JSOI ParticipantRemoved domain event
+                //TODO: JSOI ParticipantRemoved domain event
             }
             _context.Invitations.Remove(invitation);
-            //JSOI invitationremoved domain event
+            //TODO: JSOI invitationremoved domain event
         }
 
         public void RfocVoidedHandling(string projectName, IList<string> commPkgNos, IList<string> mcPkgNos)

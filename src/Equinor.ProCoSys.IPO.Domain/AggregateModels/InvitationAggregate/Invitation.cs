@@ -618,9 +618,23 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
         }
 
-        private void ClearDpScope() => _mcPkgs.Clear();
+        private void ClearDpScope()
+        {
+            foreach (var mcPkg in _mcPkgs)
+            {
+                AddDomainEvent(new McPkgRemovedEvent(Plant, Guid, mcPkg.Guid));
+            }
+            _mcPkgs.Clear();
+        }
 
-        private void ClearMdpScope() => _commPkgs.Clear();
+        private void ClearMdpScope()
+        {
+            foreach (var commPkg in _commPkgs)
+            {
+                AddDomainEvent(new CommPkgRemovedEvent(Plant, Guid, commPkg.Guid));
+            }
+            _commPkgs.Clear();
+        }
 
         private void SetScope(DisciplineType type, IList<McPkg> mcPkgs, IList<CommPkg> commPkgs)
         {
