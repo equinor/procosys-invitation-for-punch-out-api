@@ -90,8 +90,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
             
-            //TODO: Need to send deletes for participants, and then send list of participants, same for mcpkg and commpkg
-            
             invitation.EditIpo(
                 request.Title,
                 request.Description,
@@ -129,7 +127,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     throw new Exception("Error: Could not update outlook meeting.", e);
                 }
             }
-            //TODO: JSOI Publish new event
+            
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
