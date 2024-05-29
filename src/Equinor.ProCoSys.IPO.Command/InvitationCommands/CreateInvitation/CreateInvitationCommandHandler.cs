@@ -550,41 +550,5 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         }
     }
 
-    public interface IMcPkgEvent : IIntegrationEvent
-    {
-        Guid ProCoSysGuid { get; init; }
-        string Plant { get; init; }
-        string ProjectName { get; init; }
-        Guid InvitationGuid { get; init; }
-        DateTime CreatedAtUtc { get; init; }
-    }
 
-    public class McPkgEvent : IMcPkgEvent
-    {
-        public Guid ProCoSysGuid { get; init; }
-        public string Plant { get; init; }
-        public string ProjectName { get; init; }
-        public Guid InvitationGuid { get; init; }
-        public DateTime CreatedAtUtc { get; init; }
-        public Guid Guid => ProCoSysGuid;
-    }
-
-    public interface ICommPkgEvent : IIntegrationEvent
-    {
-        Guid ProCoSysGuid { get; init; }
-        string Plant { get; init; }
-        string ProjectName { get; init; }
-        Guid InvitationGuid { get; init; }
-        DateTime CreatedAtUtc { get; init; }
-    }
-
-    public class CommPkgEvent : ICommPkgEvent
-    {
-        public Guid ProCoSysGuid { get; init; }
-        public string Plant { get; init; }
-        public string ProjectName { get; init; }
-        public Guid InvitationGuid { get; init; }
-        public DateTime CreatedAtUtc { get; init; }
-        public Guid Guid => ProCoSysGuid;
-    }
 }
