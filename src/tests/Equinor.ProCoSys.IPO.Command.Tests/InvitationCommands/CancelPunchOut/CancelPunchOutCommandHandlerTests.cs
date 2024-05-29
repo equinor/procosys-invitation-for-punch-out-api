@@ -108,7 +108,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-            _invitationRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<int>())).Returns(new InvitationEvent());
+            _invitationRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
@@ -212,7 +212,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             //Arrange
             var invitationEvent = new InvitationEvent { Description = "A Invitation message description" };
             _invitationRepositoryMock
-                .Setup(x => x.GetInvitationEvent(It.IsAny<int>()))
+                .Setup(x => x.GetInvitationEvent(It.IsAny<Guid>()))
                 .Returns(invitationEvent);
 
             IInvitationEventV1 invitationEventMessage = new InvitationEvent();

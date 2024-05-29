@@ -74,8 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             _dut = new AddCommentCommandHandler(
                 _plantProviderMock.Object,
                 _invitationRepositoryMock.Object,
-                _unitOfWorkMock.Object,
-                _integrationEventPublisherMock.Object);
+                _unitOfWorkMock.Object);
         }
 
         [TestMethod]
@@ -97,31 +96,32 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
             Assert.AreNotEqual(new Guid("00000000-0000-0000-0000-000000000000"), _invitation.Comments.First().Guid);
         }
 
-        [TestMethod]
-        public async Task Handle_ShouldSendCommentMessage()
-        {
-            //Arrange
-            var commentEvent = new CommentEvent { CommentText = "A comment" };
-            _invitationRepositoryMock
-                .Setup(x => x.GetCommentEvent(It.IsAny<int>(), It.IsAny<int>()))
-                .Returns(commentEvent);
+        //TODO: JSOI Replace with domain event handler test
+        //[TestMethod]
+        //public async Task Handle_ShouldSendCommentMessage()
+        //{
+        //    //Arrange
+        //    var commentEvent = new CommentEvent { CommentText = "A comment" };
+        //    _invitationRepositoryMock
+        //        .Setup(x => x.GetCommentEvent(It.IsAny<Guid>(), It.IsAny<Guid>()))
+        //        .Returns(commentEvent);
 
-            ICommentEventV1 commentEventMessage = new CommentEvent();
+        //    ICommentEventV1 commentEventMessage = new CommentEvent();
 
-            _integrationEventPublisherMock
-                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()))
-                .Callback<ICommentEventV1, CancellationToken>((callbackcommentEventMessage, cancellationToken) =>
-                {
-                    commentEventMessage = callbackcommentEventMessage;
-                });
+        //    _integrationEventPublisherMock
+        //        .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()))
+        //        .Callback<ICommentEventV1, CancellationToken>((callbackcommentEventMessage, cancellationToken) =>
+        //        {
+        //            commentEventMessage = callbackcommentEventMessage;
+        //        });
 
-            // Act
-            await _dut.Handle(_command, default);
+        //    // Act
+        //    await _dut.Handle(_command, default);
 
-            // Assert
-            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
-            Assert.AreEqual("A comment", commentEventMessage.CommentText);
+        //    // Assert
+        //    _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
+        //    Assert.AreEqual("A comment", commentEventMessage.CommentText);
 
-        }
+        //}
     }
 }

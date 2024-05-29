@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
                                                 0);
 
             // Act
-            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid), default);
+            _dut.Handle(new AttendedStatusUpdatedEvent(plant, sourceGuid, participant.Guid), default);
             // Assert
             Assert.IsNotNull(_historyAdded);
             Assert.AreEqual(plant, _historyAdded.Plant);

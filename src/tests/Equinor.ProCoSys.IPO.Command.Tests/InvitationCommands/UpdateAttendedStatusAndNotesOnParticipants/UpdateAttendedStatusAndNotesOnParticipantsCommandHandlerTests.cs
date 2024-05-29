@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAndNotesOnParticipants;
 using Equinor.ProCoSys.IPO.Domain;
@@ -27,7 +28,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
-
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
+        
         private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
         private UpdateAttendedStatusAndNotesOnParticipantsCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
@@ -70,6 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -157,7 +160,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 _invitationRepositoryMock.Object,
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
-                _personApiServiceMock.Object);
+                _personApiServiceMock.Object,
+                _integrationEventPublisherMock.Object);
         }
 
         [TestMethod]

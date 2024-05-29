@@ -172,33 +172,33 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
 
             //TODO: JSOI these can probably be removed due to them being published via domain event
-            foreach (var mcPkg in invitation.McPkgs)
-            {
-                var mcPkgEvent = new McPkgEvent
-                {
-                    ProCoSysGuid = mcPkg.Guid,
-                    Plant = invitationEvent.Plant,
-                    ProjectName = invitationEvent.ProjectName,
-                    InvitationGuid = invitationEvent.Guid,
-                    CreatedAtUtc = mcPkg.CreatedAtUtc
-                };
+            //foreach (var mcPkg in invitation.McPkgs)
+            //{
+            //    var mcPkgEvent = new McPkgEvent
+            //    {
+            //        ProCoSysGuid = mcPkg.Guid,
+            //        Plant = invitationEvent.Plant,
+            //        ProjectName = invitationEvent.ProjectName,
+            //        InvitationGuid = invitationEvent.Guid,
+            //        CreatedAtUtc = mcPkg.CreatedAtUtc
+            //    };
                 
-                await _integrationEventPublisher.PublishAsync(mcPkgEvent, cancellationToken);
-            }
+            //    await _integrationEventPublisher.PublishAsync(mcPkgEvent, cancellationToken);
+            //}
 
-            foreach (var commPkg in invitation.CommPkgs)
-            {
-                var commPkgEvent = new CommPkgEvent
-                {
-                    ProCoSysGuid = commPkg.Guid,
-                    Plant = invitationEvent.Plant,
-                    ProjectName = invitationEvent.ProjectName,
-                    InvitationGuid = invitationEvent.Guid,
-                    CreatedAtUtc = commPkg.CreatedAtUtc
-                };
+            //foreach (var commPkg in invitation.CommPkgs)
+            //{
+            //    var commPkgEvent = new CommPkgEvent
+            //    {
+            //        ProCoSysGuid = commPkg.Guid,
+            //        Plant = invitationEvent.Plant,
+            //        ProjectName = invitationEvent.ProjectName,
+            //        InvitationGuid = invitationEvent.Guid,
+            //        CreatedAtUtc = commPkg.CreatedAtUtc
+            //    };
 
-                await _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
-            }
+            //    await _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
+            //}
         }
 
         private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 

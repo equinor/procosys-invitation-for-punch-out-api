@@ -54,11 +54,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 await UpdateParticipants(request.UpdatedParticipants, invitation);
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                //TODO: JSOI Publish new event
+                //TODO: JSOI Revert this back to original state
 
                // await PublishEventToBusAsync(cancellationToken, invitation);
 
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                //await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 //TODO: Remember to test with functional roles, we don't want to send one message per member in a functional role
                 _unitOfWork.Commit();

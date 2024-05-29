@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
 {
@@ -43,6 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<ILogger<EditInvitationCommandHandler>> _loggerMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
         private EditInvitationCommand _command;
         private EditInvitationCommandHandler _dut;
@@ -124,6 +126,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _permissionCacheMock = new Mock<IPermissionCache>();
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _loggerMock = new Mock<ILogger<EditInvitationCommandHandler>>();
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
@@ -364,6 +367,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _currentUserProviderMock.Object,
                 _permissionCacheMock.Object,
                 _projectRepositoryMock.Object,
+                _integrationEventPublisherMock.Object,
                 _loggerMock.Object);
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Domain;
@@ -26,6 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
         private EditParticipantsCommand _command;
         private EditParticipantsCommandHandler _dut;
@@ -77,6 +79,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
                 .Returns(_plant);
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
             //mock person response from main API
             var personDetails = new ProCoSysPerson
@@ -219,7 +222,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
                 _plantProviderMock.Object,
                 _unitOfWorkMock.Object,
                 _personApiServiceMock.Object,
-                _functionalRoleApiServiceMock.Object);
+                _functionalRoleApiServiceMock.Object,
+                _integrationEventPublisherMock.Object);
         }
 
         [TestMethod]
