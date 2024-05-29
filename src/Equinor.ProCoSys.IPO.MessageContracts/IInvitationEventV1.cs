@@ -4,7 +4,7 @@ public interface IInvitationEventV1 : IIntegrationEvent
 {
     public string Plant { get; }
     public string ProjectName { get; }
-    public string IpoNumber { get; }
+    public int Id { get; }
     public DateTime CreatedAtUtc { get; }
     public Guid CreatedByOid { get; }
     public DateTime? ModifiedAtUtc { get; }

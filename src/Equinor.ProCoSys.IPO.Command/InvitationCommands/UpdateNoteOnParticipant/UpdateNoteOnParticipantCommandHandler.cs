@@ -27,7 +27,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipan
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var participant = invitation.Participants.Single(p => p.Id == request.ParticipantId);
             invitation.UpdateNote(participant, request.Note, request.RowVersion);
-            //TODO: JSOI Publish new event
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(participant.RowVersion.ConvertToString());
         }

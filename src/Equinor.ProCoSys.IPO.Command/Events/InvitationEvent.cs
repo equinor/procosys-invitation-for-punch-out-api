@@ -10,7 +10,7 @@ public record InvitationEvent : IInvitationEventV1
     public Guid ProCoSysGuid { get; init; }
     public string Plant { get; init; }
     public string ProjectName { get; init; }
-    public string IpoNumber { get; init; }
+    public int Id { get; init; }
     public DateTime CreatedAtUtc { get; init; }
     public Guid CreatedByOid { get; init; }
     public DateTime? ModifiedAtUtc { get; init; }

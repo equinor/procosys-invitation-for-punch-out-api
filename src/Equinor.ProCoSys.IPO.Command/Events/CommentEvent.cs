@@ -10,7 +10,7 @@ public class CommentEvent : ICommentEventV1
     public string ProjectName { get; init; }
     public string CommentText { get; init; }
     public DateTime CreatedAtUtc { get; init; }
-    public Guid CreatedByGuid { get; init; }
+    public Guid CreatedByOid { get; init; }
     public Guid InvitationGuid { get; init; }
     public Guid Guid => ProCoSysGuid;
 }

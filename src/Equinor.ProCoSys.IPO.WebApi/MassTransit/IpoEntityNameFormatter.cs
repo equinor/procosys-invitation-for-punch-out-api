@@ -9,28 +9,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.MassTransit;
 
 public class IpoEntityNameFormatter : IEntityNameFormatter
 {
+    //TODO: JSOI Replace with hardcoded strings with IpoTopic name from ServiceBus solution
     public string FormatEntityName<T>() =>
         typeof(T).Name switch
         {
             nameof(BusEventMessage) => IpoTopic.TopicName,
             //MassTransit calls this formatter with both BusEventMessage and IIntegrationEvent.
             //Handling it so it does not crash the application.
-            nameof(IIntegrationEvent) => nameof(IIntegrationEvent),//nameof(IIntegrationEvent),
-            nameof(IInvitationEventV1) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(InvitationEvent) => "ipoinvitation", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(IDeleteEventV1) => nameof(IDeleteEventV1), //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(IIntegrationEvent) => nameof(IIntegrationEvent),
+            nameof(IInvitationEventV1) => "ipoinvitation", 
+            nameof(InvitationEvent) => "ipoinvitation", 
+            nameof(IDeleteEventV1) => nameof(IDeleteEventV1), 
             nameof(InvitationDeleteEvent) => "ipoinvitation",
             nameof(CommentDeleteEvent) => "ipocomment",
             nameof(ParticipantDeleteEvent) => "ipoparticipant",
-            nameof(ICommentEventV1) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(CommentEvent) => "ipocomment", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(IParticipantEventV1) => "ipoparticipant", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(ParticipantEvent) => "ipoparticipant", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(IMcPkgEventV1) => "ipomcpkg", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(McPkgEvent) => "ipomcpkg", //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(ICommentEventV1) => "ipocomment", 
+            nameof(CommentEvent) => "ipocomment", 
+            nameof(IParticipantEventV1) => "ipoparticipant", 
+            nameof(ParticipantEvent) => "ipoparticipant", 
+            nameof(IMcPkgEventV1) => "ipomcpkg", 
+            nameof(McPkgEvent) => "ipomcpkg", 
             nameof(McPkgDeleteEvent) => "ipomcpkg",
-            nameof(ICommPkgEventV1) => "ipocommpkg", //TODO: JSOI Replace with IpoTopic name from ServiceBus
-            nameof(CommPkgEvent) => "ipocommpkg", //TODO: JSOI Replace with IpoTopic name from ServiceBus
+            nameof(ICommPkgEventV1) => "ipocommpkg", 
+            nameof(CommPkgEvent) => "ipocommpkg", 
             nameof(CommPkgDeleteEvent) => "ipocommpkg",
 
             _ => throw new ArgumentException($"IPO error: {typeof(T).Name} is not configured with a topic name mapping.")

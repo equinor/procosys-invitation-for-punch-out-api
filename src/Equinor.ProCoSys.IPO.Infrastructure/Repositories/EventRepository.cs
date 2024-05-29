@@ -39,7 +39,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                  ProCoSysGuid = i.Guid,
                  Plant = i.Plant,
                  ProjectName = project.Name,
-                 IpoNumber = "IPO - " + i.Id,
+                 Id = i.Id,
                  CreatedAtUtc = i.CreatedAtUtc,
                  CreatedByOid = createdBy.Guid,
                  ModifiedAtUtc = i.ModifiedAtUtc,
@@ -80,7 +80,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                        {
                            CommentText = c.CommentText,
                            CreatedAtUtc = c.CreatedAtUtc,
-                           CreatedByGuid = createdBy.Guid,
+                           CreatedByOid = createdBy.Guid,
                            Plant = c.Plant,
                            ProCoSysGuid = c.Guid,
                        })
@@ -94,7 +94,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
         {
             CommentText = comment.CommentText,
             CreatedAtUtc = comment.CreatedAtUtc,
-            CreatedByGuid = comment.CreatedByGuid,
+            CreatedByOid = comment.CreatedByOid,
             Plant = comment.Plant,
             InvitationGuid = invitation.Guid,
             ProCoSysGuid = comment.ProCoSysGuid,
@@ -127,7 +127,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
             throw new ArgumentException($"Could not find a project for invitation with id {invitationGuid}");
         }
 
-        var participantMessage = (from p in invitation.Participants
+        var participantEvent = (from p in invitation.Participants
                                   join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
                                   join signedByInner in _context.Persons on p.SignedBy equals signedByInner.Id into signedByOuter
                                   from signedBy in signedByOuter.DefaultIfEmpty()
@@ -151,11 +151,11 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                                       SignedByOid = signedBy != null ? signedBy.Guid : null
                                   }).SingleOrDefault();
 
-        if (participantMessage is null)
+        if (participantEvent is null)
         {
             throw new ArgumentException($"Could not find an participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
         }
-        return participantMessage;
+        return participantEvent;
     }
 
     public Invitation GetInvitationFromLocal(Guid invitationGuid) => _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));

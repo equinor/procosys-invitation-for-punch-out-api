@@ -56,10 +56,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 //TODO: JSOI Revert this back to original state
 
-               // await PublishEventToBusAsync(cancellationToken, invitation);
-
-                //await _unitOfWork.SaveChangesAsync(cancellationToken);
-
                 //TODO: Remember to test with functional roles, we don't want to send one message per member in a functional role
                 _unitOfWork.Commit();
 
@@ -111,7 +107,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             {
                 invitation.RemoveParticipant(participantToDelete);
                 _invitationRepository.RemoveParticipant(participantToDelete);
-                //TODO: Add publish delete here?
             }
 
             if (functionalRoleParticipants.Count > 0)

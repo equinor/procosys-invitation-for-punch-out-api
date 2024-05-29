@@ -7,6 +7,6 @@ public interface ICommentEventV1 : IIntegrationEvent
     public string ProjectName { get; init; }
     public string CommentText { get; init; }
     public DateTime CreatedAtUtc { get; init; }
-    public Guid CreatedByGuid { get; init; }
+    public Guid CreatedByOid { get; init; }
     public Guid InvitationGuid { get; init; }
 }

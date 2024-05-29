@@ -128,7 +128,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList());
             AddCertificateMcPkgRelations(pcsMcPkgs.Select(mc => mc.McPkgNo).ToList(), project, certificate);
             AddCertificateCommPkgRelations(pcsCommPkgs.Select(c => c.CommPkgNo).ToList(), project, certificate);
-            //TODO: JSOI Publish new event
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
