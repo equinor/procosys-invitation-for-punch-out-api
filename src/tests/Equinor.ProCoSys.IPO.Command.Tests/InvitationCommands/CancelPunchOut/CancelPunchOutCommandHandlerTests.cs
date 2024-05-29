@@ -25,6 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
@@ -57,6 +58,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _eventRepositoryMock = new Mock<IEventRepository>();
+
             _integrationEventPublisherMock
                 .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))
                 .Callback<BusEventMessage, CancellationToken>((busEventMessage, cancellationToken) =>
@@ -108,7 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-            _invitationRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
+            _eventRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
@@ -211,7 +214,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         {
             //Arrange
             var invitationEvent = new InvitationEvent { Description = "A Invitation message description" };
-            _invitationRepositoryMock
+            _eventRepositoryMock
                 .Setup(x => x.GetInvitationEvent(It.IsAny<Guid>()))
                 .Returns(invitationEvent);
 

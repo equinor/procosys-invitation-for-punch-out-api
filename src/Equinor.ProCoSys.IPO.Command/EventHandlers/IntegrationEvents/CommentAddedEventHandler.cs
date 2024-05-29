@@ -8,18 +8,18 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class CommentAddedEventHandler : INotificationHandler<CommentAddedEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public CommentAddedEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public CommentAddedEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(CommentAddedEvent notification, CancellationToken cancellationToken)
     {
-        var commentEvent = _invitationRepository.GetCommentEvent(notification.SourceGuid, notification.CommentGuid);
+        var commentEvent = _eventRepository.GetCommentEvent(notification.SourceGuid, notification.CommentGuid);
         return _integrationEventPublisher.PublishAsync(commentEvent, cancellationToken);
     }
 }

@@ -67,15 +67,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             };
 
             await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
-
-            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Guid);
-            if (invitationEvent is null)
-            {
-                throw new ArgumentException($"Could not find an invitation event for invitation with id {invitation.Id}");
-            }
-            //TODO: JSOI Publish new event
-
-            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 
         private async Task CancelFusionMeetingAsync(Guid meetingId)

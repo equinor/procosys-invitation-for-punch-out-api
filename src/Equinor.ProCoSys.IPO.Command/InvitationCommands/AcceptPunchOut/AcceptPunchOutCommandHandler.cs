@@ -60,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
-            //TODO: JSOI Publish new event
+            
             await PublishEventToBusAsync(cancellationToken, invitation);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -77,10 +77,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             };
 
             await _integrationEventPublisher.PublishAsync(eventMessage, cancellationToken);
-
-            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Guid);
-            //TODO: Verify that changes exist in invitation, that we don't need another savechanges or begintransaction
-            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 
 

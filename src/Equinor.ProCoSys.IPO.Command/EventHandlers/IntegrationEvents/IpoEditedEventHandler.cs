@@ -11,18 +11,18 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class IpoEditedEventHandler : INotificationHandler<IpoEditedEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public IpoEditedEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public IpoEditedEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(IpoEditedEvent notification, CancellationToken cancellationToken)
     {
-        var invitationEvent = _invitationRepository.GetInvitationEvent(notification.SourceGuid);
+        var invitationEvent = _eventRepository.GetInvitationEvent(notification.SourceGuid);
         _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
 
         return Task.CompletedTask;

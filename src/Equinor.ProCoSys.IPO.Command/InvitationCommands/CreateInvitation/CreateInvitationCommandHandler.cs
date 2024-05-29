@@ -48,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICalendarService _calendarService;
         private readonly IEmailService _emailService;
         private readonly IIntegrationEventPublisher _integrationEventPublisher;
+        private readonly IEventRepository _eventRepository;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -66,6 +67,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICalendarService calendarService,
             IEmailService emailService,
             IIntegrationEventPublisher integrationEventPublisher,
+            IEventRepository eventRepository,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -84,6 +86,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _calendarService = calendarService;
             _emailService = emailService;
             _integrationEventPublisher = integrationEventPublisher;
+            _eventRepository = eventRepository;
             _logger = logger;
         }
 
@@ -168,37 +171,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
         {
-            var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Guid);
+            var invitationEvent = _eventRepository.GetInvitationEvent(invitation.Guid);
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
-
-            //TODO: JSOI these can probably be removed due to them being published via domain event
-            //foreach (var mcPkg in invitation.McPkgs)
-            //{
-            //    var mcPkgEvent = new McPkgEvent
-            //    {
-            //        ProCoSysGuid = mcPkg.Guid,
-            //        Plant = invitationEvent.Plant,
-            //        ProjectName = invitationEvent.ProjectName,
-            //        InvitationGuid = invitationEvent.Guid,
-            //        CreatedAtUtc = mcPkg.CreatedAtUtc
-            //    };
-                
-            //    await _integrationEventPublisher.PublishAsync(mcPkgEvent, cancellationToken);
-            //}
-
-            //foreach (var commPkg in invitation.CommPkgs)
-            //{
-            //    var commPkgEvent = new CommPkgEvent
-            //    {
-            //        ProCoSysGuid = commPkg.Guid,
-            //        Plant = invitationEvent.Plant,
-            //        ProjectName = invitationEvent.ProjectName,
-            //        InvitationGuid = invitationEvent.Guid,
-            //        CreatedAtUtc = commPkg.CreatedAtUtc
-            //    };
-
-            //    await _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
-            //}
         }
 
         private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 

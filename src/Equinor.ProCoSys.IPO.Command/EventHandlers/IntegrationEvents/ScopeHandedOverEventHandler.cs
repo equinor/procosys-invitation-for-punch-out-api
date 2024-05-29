@@ -9,18 +9,18 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class ScopeHandedOverEventHandler : INotificationHandler<ScopeHandedOverEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public ScopeHandedOverEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public ScopeHandedOverEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(ScopeHandedOverEvent notification, CancellationToken cancellationToken)
     {
-        var invitationEvent = _invitationRepository.GetInvitationEvent(notification.SourceGuid);
+        var invitationEvent = _eventRepository.GetInvitationEvent(notification.SourceGuid);
         return _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
     }
 }

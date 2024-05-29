@@ -8,18 +8,18 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class McPkgAddedEventHandler : INotificationHandler<McPkgAddedEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public McPkgAddedEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public McPkgAddedEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(McPkgAddedEvent notification, CancellationToken cancellationToken)
     {
-        var commentEvent = _invitationRepository.GetMcPkgEvent(notification.SourceGuid, notification.McPkgGuid);
+        var commentEvent = _eventRepository.GetMcPkgEvent(notification.SourceGuid, notification.McPkgGuid);
         return _integrationEventPublisher.PublishAsync(commentEvent, cancellationToken);
     }
 }

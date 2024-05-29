@@ -34,6 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
@@ -131,7 +132,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
             _personRepositoryMock = new Mock<IPersonRepository>();
-            
+            _eventRepositoryMock = new Mock<IEventRepository>();
+
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
             
             _meetingClientMock = new Mock<IFusionMeetingClient>();
@@ -298,6 +300,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 _integrationEventPublisherMock.Object,
+                _eventRepositoryMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
@@ -772,6 +775,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 _integrationEventPublisherMock.Object,
+                _eventRepositoryMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(
@@ -816,6 +820,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
                 _integrationEventPublisherMock.Object,
+                _eventRepositoryMock.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(

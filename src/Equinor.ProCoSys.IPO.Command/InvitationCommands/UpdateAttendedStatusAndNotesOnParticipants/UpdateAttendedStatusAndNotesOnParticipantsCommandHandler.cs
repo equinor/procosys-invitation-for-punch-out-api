@@ -20,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
         private readonly IIntegrationEventPublisher _integrationEventPublisher;
+        private readonly IEventRepository _eventRepository;
 
         public UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
             IPlantProvider plantProvider,
@@ -27,7 +28,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
-            IIntegrationEventPublisher integrationEventPublisher)
+            IIntegrationEventPublisher integrationEventPublisher,
+            IEventRepository eventRepository)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
@@ -35,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _integrationEventPublisher = integrationEventPublisher;
+            _eventRepository = eventRepository;
         }
 
         public async Task<Result<Unit>> Handle(UpdateAttendedStatusAndNotesOnParticipantsCommand request, CancellationToken cancellationToken)
@@ -102,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
 
         private async Task PublishEventToBusAsync(Invitation invitation, Participant participant)
         {
-            var participantEvent = _invitationRepository.GetParticipantEvent(invitation.Guid, participant.Guid);
+            var participantEvent = _eventRepository.GetParticipantEvent(invitation.Guid, participant.Guid);
             await _integrationEventPublisher.PublishAsync(participantEvent, CancellationToken.None);
         }
     }

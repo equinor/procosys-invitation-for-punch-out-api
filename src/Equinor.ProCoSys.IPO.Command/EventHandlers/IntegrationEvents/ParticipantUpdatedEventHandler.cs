@@ -9,18 +9,18 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class ParticipantUpdatedEventHandler : INotificationHandler<ParticipantUpdatedEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public ParticipantUpdatedEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public ParticipantUpdatedEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(ParticipantUpdatedEvent notification, CancellationToken cancellationToken)
     {
-        var participantEvent = _invitationRepository.GetParticipantEvent(notification.SourceGuid, notification.ParticipantGuid);
+        var participantEvent = _eventRepository.GetParticipantEvent(notification.SourceGuid, notification.ParticipantGuid);
         return _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
     }
 }

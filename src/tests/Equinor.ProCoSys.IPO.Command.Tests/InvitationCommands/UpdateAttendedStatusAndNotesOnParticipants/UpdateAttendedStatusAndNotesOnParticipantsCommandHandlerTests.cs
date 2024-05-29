@@ -24,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
@@ -73,6 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _eventRepositoryMock = new Mock<IEventRepository>();
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock
@@ -161,7 +163,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 _unitOfWorkMock.Object,
                 _currentUserProviderMock.Object,
                 _personApiServiceMock.Object,
-                _integrationEventPublisherMock.Object);
+                _integrationEventPublisherMock.Object,
+                _eventRepositoryMock.Object);
         }
 
         [TestMethod]

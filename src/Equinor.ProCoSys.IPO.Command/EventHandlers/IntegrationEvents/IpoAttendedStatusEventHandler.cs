@@ -8,18 +8,18 @@ using MediatR;
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 internal class IpoAttendedStatusEventHandler : INotificationHandler<AttendedStatusUpdatedEvent>
 {
-    private readonly IInvitationRepository _invitationRepository;
+    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
 
-    public IpoAttendedStatusEventHandler(IInvitationRepository invitationRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public IpoAttendedStatusEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
     {
-        _invitationRepository = invitationRepository;
+        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
     }
 
     public Task Handle(AttendedStatusUpdatedEvent notification, CancellationToken cancellationToken)
     {
-        var participantEvent = _invitationRepository.GetParticipantEvent(notification.SourceGuid, notification.ParticipantGuid);
+        var participantEvent = _eventRepository.GetParticipantEvent(notification.SourceGuid, notification.ParticipantGuid);
         return _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
     }
 }
