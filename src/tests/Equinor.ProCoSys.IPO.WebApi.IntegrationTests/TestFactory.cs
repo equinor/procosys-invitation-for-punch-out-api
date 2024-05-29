@@ -31,6 +31,10 @@ using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+using MediatR;
 using Microsoft.Data.SqlClient;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
@@ -66,6 +70,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
+        public readonly Mock<IIntegrationEventPublisher> IntegrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+        public readonly Mock<IEventRepository> EventRepositoryMock = new Mock<IEventRepository>();
+
 
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
@@ -176,6 +183,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => PcsBusSenderMock.Object);
                 services.AddScoped(_ => MeApiServiceMock.Object);
                 services.AddScoped(_ => EmailServiceMock.Object);
+                services.AddScoped(_ => IntegrationEventPublisherMock.Object);
+                services.AddScoped(_ => EventRepositoryMock.Object);
             });
 
             builder.ConfigureServices(services =>
