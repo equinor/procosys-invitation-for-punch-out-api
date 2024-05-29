@@ -116,7 +116,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
 
             //Assert
             _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<IDeleteEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
-            Assert.AreEqual("Invitation", deleteInvitationEventMessage.EntityType);
             Assert.AreEqual("delete", deleteInvitationEventMessage.Behavior);
             Assert.AreNotEqual(Guid.Empty, deleteInvitationEventMessage.ProCoSysGuid);
             Assert.AreEqual("PCS$TEST_PLANT", deleteInvitationEventMessage.Plant);

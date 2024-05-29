@@ -21,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
@@ -60,6 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 null);
 
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            _eventRepositoryMock = new Mock<IEventRepository>();
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock
@@ -102,7 +104,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
         //{
         //    //Arrange
         //    var commentEvent = new CommentEvent { CommentText = "A comment" };
-        //    _invitationRepositoryMock
+        //    _eventRepositoryMock
         //        .Setup(x => x.GetCommentEvent(It.IsAny<Guid>(), It.IsAny<Guid>()))
         //        .Returns(commentEvent);
 
@@ -110,9 +112,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
 
         //    _integrationEventPublisherMock
         //        .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()))
-        //        .Callback<ICommentEventV1, CancellationToken>((callbackcommentEventMessage, cancellationToken) =>
+        //        .Callback<ICommentEventV1, CancellationToken>((callbackCommentEventMessage, cancellationToken) =>
         //        {
-        //            commentEventMessage = callbackcommentEventMessage;
+        //            commentEventMessage = callbackCommentEventMessage;
         //        });
 
         //    // Act
