@@ -586,7 +586,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             RemoveOldMcPkgs(mcPkgs);
         }
 
-        private void RemoveOldMcPkgs(IList<McPkg> mcPkgs)
+        private void RemoveOldMcPkgs(IList<McPkg> mcPkgs) 
             => _mcPkgs.RemoveAll(x => !mcPkgs.Select(y => y.McPkgNo).Contains(x.McPkgNo));
 
         private void SetMdpScope(IList<CommPkg> commPkgs)

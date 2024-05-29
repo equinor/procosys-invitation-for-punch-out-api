@@ -22,6 +22,7 @@ using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -169,6 +170,35 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         {
             var invitationEvent = _invitationRepository.GetInvitationEvent(invitation.Guid);
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+
+            //TODO: JSOI these can probably be removed due to them being published via domain event
+            foreach (var mcPkg in invitation.McPkgs)
+            {
+                var mcPkgEvent = new McPkgEvent
+                {
+                    ProCoSysGuid = mcPkg.Guid,
+                    Plant = invitationEvent.Plant,
+                    ProjectName = invitationEvent.ProjectName,
+                    InvitationGuid = invitationEvent.Guid,
+                    CreatedAtUtc = mcPkg.CreatedAtUtc
+                };
+                
+                await _integrationEventPublisher.PublishAsync(mcPkgEvent, cancellationToken);
+            }
+
+            foreach (var commPkg in invitation.CommPkgs)
+            {
+                var commPkgEvent = new CommPkgEvent
+                {
+                    ProCoSysGuid = commPkg.Guid,
+                    Plant = invitationEvent.Plant,
+                    ProjectName = invitationEvent.ProjectName,
+                    InvitationGuid = invitationEvent.Guid,
+                    CreatedAtUtc = commPkg.CreatedAtUtc
+                };
+
+                await _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
+            }
         }
 
         private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 
@@ -518,5 +548,43 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
             return meeting.Id;
         }
+    }
+
+    public interface IMcPkgEvent : IIntegrationEvent
+    {
+        Guid ProCoSysGuid { get; init; }
+        string Plant { get; init; }
+        string ProjectName { get; init; }
+        Guid InvitationGuid { get; init; }
+        DateTime CreatedAtUtc { get; init; }
+    }
+
+    public class McPkgEvent : IMcPkgEvent
+    {
+        public Guid ProCoSysGuid { get; init; }
+        public string Plant { get; init; }
+        public string ProjectName { get; init; }
+        public Guid InvitationGuid { get; init; }
+        public DateTime CreatedAtUtc { get; init; }
+        public Guid Guid => ProCoSysGuid;
+    }
+
+    public interface ICommPkgEvent : IIntegrationEvent
+    {
+        Guid ProCoSysGuid { get; init; }
+        string Plant { get; init; }
+        string ProjectName { get; init; }
+        Guid InvitationGuid { get; init; }
+        DateTime CreatedAtUtc { get; init; }
+    }
+
+    public class CommPkgEvent : ICommPkgEvent
+    {
+        public Guid ProCoSysGuid { get; init; }
+        public string Plant { get; init; }
+        public string ProjectName { get; init; }
+        public Guid InvitationGuid { get; init; }
+        public DateTime CreatedAtUtc { get; init; }
+        public Guid Guid => ProCoSysGuid;
     }
 }

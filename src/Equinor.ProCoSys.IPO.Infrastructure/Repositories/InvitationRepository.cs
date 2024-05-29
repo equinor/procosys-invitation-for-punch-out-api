@@ -400,5 +400,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             }
             return participantMessage;
         }
+
+        public Invitation GetInvitationFromLocal(Guid invitationGuid) => _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));
     }
 }
