@@ -208,32 +208,5 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             Assert.AreNotEqual(Guid.Empty, _busEventMessage.InvitationGuid);
             Assert.AreNotEqual(Guid.Empty, _busEventMessage.Guid);
         }
-
-        [TestMethod]
-        public async Task Handle_ShouldSendInvitationMessage()
-        {
-            //Arrange
-            var invitationEvent = new InvitationEvent { Description = "A Invitation message description" };
-            _eventRepositoryMock
-                .Setup(x => x.GetInvitationEvent(It.IsAny<Guid>()))
-                .Returns(invitationEvent);
-
-            IInvitationEventV1 invitationEventMessage = new InvitationEvent();
-
-            _integrationEventPublisherMock
-            .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<IInvitationEventV1>(), It.IsAny<CancellationToken>()))
-                .Callback<IInvitationEventV1, CancellationToken>((callbackInvitationEventMessage, cancellationToken) =>
-                {
-                    invitationEventMessage = callbackInvitationEventMessage;
-                });
-
-            // Act
-            await _dut.Handle(_command, default);
-
-            // Assert
-            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<IInvitationEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
-            Assert.AreEqual("A Invitation message description", invitationEventMessage.Description);
-
-        }
     }
 }

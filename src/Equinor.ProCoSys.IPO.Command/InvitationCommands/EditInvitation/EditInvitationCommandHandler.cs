@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -43,7 +41,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPermissionCache _permissionCache;
         private readonly IProjectRepository _projectRepository;
-        private readonly IIntegrationEventPublisher _integrationEventPublisher;
         private readonly ILogger<EditInvitationCommandHandler> _logger;
 
         public EditInvitationCommandHandler(
@@ -60,7 +57,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache,
             IProjectRepository projectRepository,
-            IIntegrationEventPublisher integrationEventPublisher,
             ILogger<EditInvitationCommandHandler> logger)
         {
             _invitationRepository = invitationRepository;
@@ -76,7 +72,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _currentUserProvider = currentUserProvider;
             _permissionCache = permissionCache;
             _projectRepository = projectRepository;
-            _integrationEventPublisher = integrationEventPublisher;
             _logger = logger;
         }
 
@@ -89,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name);
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
-            
+
             invitation.EditIpo(
                 request.Title,
                 request.Description,
@@ -127,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     throw new Exception("Error: Could not update outlook meeting.", e);
                 }
             }
-            
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
@@ -146,7 +141,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
                 if (mcPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
                 {
-                    throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: " 
+                    throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: "
                         + string.Join(",", mcPkgsFromMain
                          .Where(mc => mc.OperationHandoverStatus == "ACCEPTED")
                          .Select(mc => mc.McPkgNo)
@@ -193,7 +188,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
                 if (commPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
                 {
-                    throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                    throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: "
                         + string.Join(",", commPkgsFromMain
                         .Where(c => c.OperationHandoverStatus == "ACCEPTED")
                         .Select(c => c.CommPkgNo)

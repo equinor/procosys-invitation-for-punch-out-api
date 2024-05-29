@@ -1,8 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using System;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using MediatR;
@@ -30,11 +28,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var comment = new Comment(_plantProvider.Plant, request.Comment);
-            
             invitation.AddComment(comment);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             return new SuccessResult<int>(comment.Id);
         }
     }

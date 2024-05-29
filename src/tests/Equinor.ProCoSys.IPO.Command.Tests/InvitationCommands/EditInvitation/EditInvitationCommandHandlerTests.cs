@@ -367,7 +367,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
                 _currentUserProviderMock.Object,
                 _permissionCacheMock.Object,
                 _projectRepositoryMock.Object,
-                _integrationEventPublisherMock.Object,
                 _loggerMock.Object);
         }
 

@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.MassTransit;
 
 public class IpoEntityNameFormatter : IEntityNameFormatter
 {
-    //TODO: JSOI Replace with hardcoded strings with IpoTopic name from ServiceBus solution
+    //TODO: JSOI Replace hardcoded strings with IpoTopic name from ServiceBus solution?
     public string FormatEntityName<T>() =>
         typeof(T).Name switch
         {

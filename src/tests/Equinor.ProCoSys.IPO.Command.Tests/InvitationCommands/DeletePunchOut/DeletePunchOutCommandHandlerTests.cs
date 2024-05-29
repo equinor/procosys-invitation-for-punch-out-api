@@ -97,30 +97,5 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
             _unitOfWorkMock.Verify(t => t.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
-
-        [TestMethod]
-        public async Task DeletePunchOutCommand_ShouldSendDeleteMessage()
-        {
-            //Arrange
-            var deleteInvitationEventMessage = new InvitationDeleteEvent();
-
-            _integrationEventPublisherMock
-                .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<InvitationDeleteEvent>(), It.IsAny<CancellationToken>()))
-                .Callback<InvitationDeleteEvent, CancellationToken>((callbackDeleteInvitationEventMessage, cancellationToken) =>
-                {
-                    deleteInvitationEventMessage = callbackDeleteInvitationEventMessage;
-                });
-
-            //Act
-            await _dut.Handle(_command, default);
-
-            //Assert
-            _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<IDeleteEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
-            Assert.AreEqual("delete", deleteInvitationEventMessage.Behavior);
-            Assert.AreNotEqual(Guid.Empty, deleteInvitationEventMessage.ProCoSysGuid);
-            Assert.AreEqual("PCS$TEST_PLANT", deleteInvitationEventMessage.Plant);
-
-
-        }
     }
 }

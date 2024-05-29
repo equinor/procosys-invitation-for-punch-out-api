@@ -222,8 +222,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
                 _plantProviderMock.Object,
                 _unitOfWorkMock.Object,
                 _personApiServiceMock.Object,
-                _functionalRoleApiServiceMock.Object,
-                _integrationEventPublisherMock.Object);
+                _functionalRoleApiServiceMock.Object);
         }
 
         [TestMethod]
