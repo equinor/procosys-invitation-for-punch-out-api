@@ -377,7 +377,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
         [TestMethod]
         public void Constructor_ShouldAddIpoCreatedEvent()
-            => Assert.IsInstanceOfType(_dutDpIpo.DomainEvents.First(), typeof(IpoCreatedEvent));
+            => Assert.IsInstanceOfType(_dutDpIpo.DomainEvents.ToList()[2], typeof(IpoCreatedEvent));
         #endregion
 
         #region Participant

@@ -30,5 +30,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid);
         Invitation GetInvitationFromLocal(Guid invitationGuid);
         IMcPkgEventV1 GetMcPkgEvent(Guid invitationGuid, Guid mcPkgGuid);
+        ICommPkgEventV1 GetCommPkgEvent(Guid invitationGuid, Guid commPkgGuid);
     }
 }

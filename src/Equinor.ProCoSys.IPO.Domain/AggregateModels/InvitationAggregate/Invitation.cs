@@ -550,6 +550,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 return;
             }
             _commPkgs.Add(commPkg);
+            AddDomainEvent(new CommPkgAddedEvent(Plant, Guid, commPkg.Guid));
         }
 
         public void AddMcPkg(McPkg mcPkg)
@@ -608,7 +609,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         private void RemoveOldCommPkgs(IList<CommPkg> commPkgs)
-            => _commPkgs.RemoveAll(x => !commPkgs.Select(y => y.CommPkgNo).Contains(x.CommPkgNo));
+        {
+            var mcPkgsToRemoves = _commPkgs.Where(m => commPkgs.All(m2 => m2.CommPkgNo != m.CommPkgNo)).ToList();
+            foreach (var commPkgToRemove in mcPkgsToRemoves)
+            {
+                _commPkgs.Remove(commPkgToRemove);
+                AddDomainEvent(new CommPkgRemovedEvent(Plant, Guid, commPkgToRemove.Guid));
+            }
+        }
 
         private void ClearDpScope() => _mcPkgs.Clear();
 

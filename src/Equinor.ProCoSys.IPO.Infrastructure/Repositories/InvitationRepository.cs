@@ -427,5 +427,30 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             return mcPkgEvent;
         }
+
+        public ICommPkgEventV1 GetCommPkgEvent(Guid invitationGuid, Guid commPkgGuid)
+        {
+            var invitation = GetInvitationFromLocal(invitationGuid);
+
+            var project = (from p in _context.Projects
+                where p.Id == invitation.ProjectId
+                select p).SingleOrDefault();
+
+            //TODO: Fix possible nullpointer exceptions for project
+
+            //TODO: See if we can move project to separate method or include in a join or something
+            var commPkgEvent = (from m in invitation.CommPkgs
+                where m.Guid.Equals(commPkgGuid)
+                select new CommPkgEvent()
+                {
+                    ProCoSysGuid = m.Guid,
+                    Plant = m.Plant,
+                    ProjectName = project.Name,
+                    InvitationGuid = invitationGuid,
+                    CreatedAtUtc = m.CreatedAtUtc
+                }).SingleOrDefault();
+
+            return commPkgEvent;
+        }
     }
 }
