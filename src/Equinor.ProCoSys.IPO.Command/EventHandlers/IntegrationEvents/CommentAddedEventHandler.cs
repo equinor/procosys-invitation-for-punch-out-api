@@ -1,5 +1,4 @@
-﻿using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+﻿using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
