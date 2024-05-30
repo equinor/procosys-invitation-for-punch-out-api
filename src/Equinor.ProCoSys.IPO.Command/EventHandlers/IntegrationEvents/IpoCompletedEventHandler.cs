@@ -20,6 +20,11 @@ internal class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent
     public Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
     {
         var invitationEvent = _eventRepository.GetInvitationEvent(notification.SourceGuid);
-        return _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+        _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+
+        var participantEvent = _eventRepository.GetParticipantEvent(notification.SourceGuid, notification.Participant.Guid);
+        _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
+
+        return Task.CompletedTask;
     }
 }
