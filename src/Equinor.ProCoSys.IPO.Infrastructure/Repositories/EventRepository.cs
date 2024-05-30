@@ -20,28 +20,25 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     {
     }
 
+
+
     public IInvitationEventV1 GetInvitationEvent(Guid invitationGuid)
     {
-        //Using .Local as otherwise we get the old values from the database, and not the updated values
+        
+        //Using .Local in invitation as otherwise we get the old values from the database, and not the updated values
+        //Not including project and person as joins as this created strange exception when doing sign punch out
         var invitationEvent =
             (from i in _context.Invitations.Local
-             join project in _context.Projects on i.ProjectId equals project.Id
-             join completedByInner in _context.Persons on i.CompletedBy equals completedByInner.Id into completedByOuter
-             from completedBy in completedByOuter.DefaultIfEmpty()
-             join acceptedByInner in _context.Persons on i.AcceptedBy equals acceptedByInner.Id into acceptedByOuter
-             from acceptedBy in acceptedByOuter.DefaultIfEmpty()
-             join createdByInner in _context.Persons on i.CreatedById equals createdByInner.Id into createdByOuter
-             from createdBy in createdByOuter.DefaultIfEmpty()
              where i.Guid == invitationGuid
              select new InvitationEvent
              {
                  Guid = i.Guid,
                  ProCoSysGuid = i.Guid,
                  Plant = i.Plant,
-                 ProjectName = project.Name,
+                 ProjectName = GetProjectName(i.ProjectId),
                  Id = i.Id,
                  CreatedAtUtc = i.CreatedAtUtc,
-                 CreatedByOid = createdBy.Guid,
+                 CreatedByOid = GetPersonGuid(i.CreatedById), 
                  ModifiedAtUtc = i.ModifiedAtUtc,
                  Title = i.Title,
                  Type = i.Type.ToString(),
@@ -51,9 +48,9 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                  Location = i.Location,
                  StartTimeUtc = i.StartTimeUtc,
                  AcceptedAtUtc = i.AcceptedAtUtc,
-                 AcceptedByOid = acceptedBy?.Guid,
+                 AcceptedByOid = i.AcceptedBy == null ? null : GetPersonGuid(i.AcceptedBy.Value), 
                  CompletedAtUtc = i.CompletedAtUtc,
-                 CompletedByOid = completedBy?.Guid,
+                 CompletedByOid = i.CompletedBy == null ? null : GetPersonGuid(i.CompletedBy.Value),
              }
             ).SingleOrDefault();
 
@@ -185,8 +182,33 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     }
 
 
-    private string GetProjectName(int projectId) =>
-        (from p in _context.Projects
+    private string GetProjectName(int projectId)
+    {
+        var projectName = (from p in _context.Projects
             where p.Id == projectId
-            select p.Name).SingleOrDefault();
+            select p.Name)
+            .SingleOrDefault();
+
+        if (projectName is null)
+        {
+            throw new ArgumentException($"Could not retrieve project with id {projectId}");
+        }
+
+        return projectName;
+    }
+
+    private Guid GetPersonGuid(int personId)
+    {
+        var personGuid = (from p in _context.Persons
+                where p.Id == personId
+                select p.Guid)
+                .SingleOrDefault();
+
+        if (personGuid.Equals(Guid.Empty))
+        {
+            throw new ArgumentException($"Could not retrieve person with id {personId}");
+        }
+
+        return personGuid;
+    }
 }
