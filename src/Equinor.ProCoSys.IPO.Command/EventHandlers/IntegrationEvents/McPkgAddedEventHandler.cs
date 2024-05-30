@@ -19,7 +19,7 @@ public class McPkgAddedEventHandler : INotificationHandler<McPkgAddedEvent>
 
     public Task Handle(McPkgAddedEvent notification, CancellationToken cancellationToken)
     {
-        var commentEvent = _eventRepository.GetMcPkgEvent(notification.SourceGuid, notification.McPkgGuid);
-        return _integrationEventPublisher.PublishAsync(commentEvent, cancellationToken);
+        var mcPkgEvent = _eventRepository.GetMcPkgEvent(notification.SourceGuid, notification.McPkgGuid);
+        return _integrationEventPublisher.PublishAsync(mcPkgEvent, cancellationToken);
     }
 }

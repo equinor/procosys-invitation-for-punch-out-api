@@ -6,7 +6,7 @@ using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
-internal class IpoCompletedEventHandler : INotificationHandler<IpoCanceledEvent>
+internal class IpoCompletedEventHandler : INotificationHandler<IpoCompletedEvent>
 {
     private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
@@ -17,7 +17,7 @@ internal class IpoCompletedEventHandler : INotificationHandler<IpoCanceledEvent>
         _integrationEventPublisher = integrationEventPublisher;
     }
 
-    public Task Handle(IpoCanceledEvent notification, CancellationToken cancellationToken)
+    public Task Handle(IpoCompletedEvent notification, CancellationToken cancellationToken)
     {
         var invitationEvent = _eventRepository.GetInvitationEvent(notification.SourceGuid);
         return _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);

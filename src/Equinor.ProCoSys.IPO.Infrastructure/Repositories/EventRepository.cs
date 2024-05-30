@@ -23,7 +23,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     public IInvitationEventV1 GetInvitationEvent(Guid invitationGuid)
     {
         //Using .Local as otherwise we get the old values from the database, and not the updated values
-        var result =
+        var invitationEvent =
             (from i in _context.Invitations.Local
              join project in _context.Projects on i.ProjectId equals project.Id
              join completedByInner in _context.Persons on i.CompletedBy equals completedByInner.Id into completedByOuter
@@ -57,12 +57,12 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
              }
             ).SingleOrDefault();
 
-        if (result is null)
+        if (invitationEvent is null)
         {
             throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationGuid}");
         }
 
-        return result;
+        return invitationEvent;
     }
 
     public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid)
@@ -141,7 +141,11 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                               InvitationGuid = invitationGuid,
                               CreatedAtUtc = m.CreatedAtUtc
                           }).SingleOrDefault();
-
+        
+        if (mcPkgEvent is null)
+        {
+            throw new ArgumentException($"Could not construct a mcpkg event for invitation with id {invitationGuid} and mcpkg id {mcPkgGuid}");
+        }
         return mcPkgEvent;
     }
 
@@ -160,11 +164,25 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                                 CreatedAtUtc = m.CreatedAtUtc
                             }).SingleOrDefault();
 
+        if (commPkgEvent is null)
+        {
+            throw new ArgumentException($"Could not construct a commpkg event for invitation with id {invitationGuid} and commpkg id {commPkgGuid}");
+        }
+
         return commPkgEvent;
     }
 
-    private Invitation GetInvitationFromLocal(Guid invitationGuid) 
-        => _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));
+    private Invitation GetInvitationFromLocal(Guid invitationGuid)
+    {
+        var invitation = _context.Invitations.Local.SingleOrDefault(x => x.Guid.Equals(invitationGuid));
+        
+        if (invitation is null)
+        {
+            throw new ArgumentException($"Could not retrieve invitation from local with id {invitationGuid}");
+        }
+
+        return invitation;
+    }
 
 
     private string GetProjectName(int projectId) =>

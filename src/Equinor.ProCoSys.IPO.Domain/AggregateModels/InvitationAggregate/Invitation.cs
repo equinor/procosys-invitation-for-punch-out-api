@@ -64,6 +64,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ProjectId = project.Id;
             Title = title;
             Description = description;
+            Guid = Guid.NewGuid();
+            ObjectGuid = Guid;
 
             SetScope(type, mcPkgs, commPkgs);
 
@@ -71,8 +73,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             StartTimeUtc = startTimeUtc;
             EndTimeUtc = endTimeUtc;
             Location = location;
-            Guid = Guid.NewGuid();
-            ObjectGuid = Guid;
             AddDomainEvent(new IpoCreatedEvent(plant, Guid));
         }
 
@@ -610,8 +610,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
         private void RemoveOldCommPkgs(IList<CommPkg> commPkgs)
         {
-            var mcPkgsToRemoves = _commPkgs.Where(m => commPkgs.All(m2 => m2.CommPkgNo != m.CommPkgNo)).ToList();
-            foreach (var commPkgToRemove in mcPkgsToRemoves)
+            var commPkgsToRemove = _commPkgs.Where(c => commPkgs.All(c2 => c2.CommPkgNo != c.CommPkgNo)).ToList();
+            foreach (var commPkgToRemove in commPkgsToRemove)
             {
                 _commPkgs.Remove(commPkgToRemove);
                 AddDomainEvent(new CommPkgRemovedEvent(Plant, Guid, commPkgToRemove.Guid));
