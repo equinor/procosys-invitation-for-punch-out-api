@@ -15,12 +15,9 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                 .Include(x => x.Participants)
                 .Include(x => x.McPkgs)
                 .Include(x => x.CommPkgs)
-                .Include(x => x.Comments)
-                .Include(x => x.Attachments))
+                .Include(x => x.Comments))
     {
     }
-
-
 
     public IInvitationEventV1 GetInvitationEvent(Guid invitationGuid)
     {
