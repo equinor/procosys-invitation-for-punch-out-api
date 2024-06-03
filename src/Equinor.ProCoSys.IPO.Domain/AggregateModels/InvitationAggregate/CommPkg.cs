@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int ProjectId { get; private set; }
         public bool RfocAccepted { get; set; }
         public ICollection<Certificate> CertificateScopes => _certificateScope;
-        // TODO: make Guid private after FillGuids has completed
+        // TODO: make CommPkgGuid private after FillGuids has completed
         public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
         {

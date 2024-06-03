@@ -71,7 +71,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public ICollection<Certificate> CertificateScopes => _certificateScope;
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
-        // TODO: make Guid private after FillGuids has completed
+        // TODO: make McPkgGuid private after FillGuids has completed
         public Guid McPkgGuid { get; set; }
         public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
