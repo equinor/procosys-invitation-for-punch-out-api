@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
             Assert.AreEqual(CommPkgNo, _dut.CommPkgNo);
             Assert.AreEqual(McPkgNo, _dut.McPkgNo);
             Assert.AreEqual(Description, _dut.Description);
-            Assert.AreEqual(McPkgGuid, _dut.Guid);
+            Assert.AreEqual(McPkgGuid, _dut.McPkgGuid);
             Assert.IsFalse(_dut.RfocAccepted);
         }
 

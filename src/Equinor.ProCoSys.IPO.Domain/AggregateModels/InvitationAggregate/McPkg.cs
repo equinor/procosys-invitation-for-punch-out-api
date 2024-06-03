@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string mcPkgNo,
             string description,
             string system,
-            Guid guid,
+            Guid mcPkgGuid,
             Guid commPkgGuid)
             : base(plant)
         {
@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Description = description;
             McPkgNo = mcPkgNo;
             RfocAccepted = false;
-            Guid= guid;
+            McPkgGuid= mcPkgGuid;
             CommPkgGuid = commPkgGuid;
         }
 
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public DateTime CreatedAtUtc { get; private set; }
         public int CreatedById { get; private set; }
         // TODO: make Guid private after FillGuids has completed
-        public Guid Guid { get; set; }
+        public Guid McPkgGuid { get; set; }
         public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
         {

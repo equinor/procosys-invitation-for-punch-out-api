@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
             var count = 0;
             foreach (var commPkg in allCommPkgs)
             {
-                if (commPkg.Guid == Guid.Empty)
+                if (commPkg.CommPkgGuid == Guid.Empty)
                 {
                     var project = await _projectRepository.GetByIdAsync(commPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { commPkg.CommPkgNo };
@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
 
                     if (commPkgDetails != null && commPkgDetails.Count == 1)
                     {
-                        commPkg.Guid = commPkgDetails.First().ProCoSysGuid;
+                        commPkg.CommPkgGuid = commPkgDetails.First().ProCoSysGuid;
                        _logger.LogInformation($"FillCommPkgPCSGuids: CommPkg updated: {commPkg.CommPkgNo}");
                        count++;
                     }

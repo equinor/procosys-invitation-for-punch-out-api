@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
             var count = 0;
             foreach (var mcPkg in allMcPkgs)
             {
-                if (mcPkg.Guid == Guid.Empty)
+                if (mcPkg.McPkgGuid == Guid.Empty)
                 {
 
                     var project = await _projectRepository.GetByIdAsync(mcPkg.ProjectId);
@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
                     if (mcPkgWithId != null && mcPkgWithId.Count == 1)
                     {
                         var mcPkgDetails = await _mcPkgApiService.GetMcPkgByIdAsync(_plantProvider.Plant, mcPkgWithId.First().Id);
-                        mcPkg.Guid = mcPkgDetails.ProCoSysGuid;
+                        mcPkg.McPkgGuid = mcPkgDetails.ProCoSysGuid;
                        _logger.LogInformation($"FillMcPkgPCSGuids: McPkg updated: {mcPkg.McPkgNo}");
                        count++;
                     }
