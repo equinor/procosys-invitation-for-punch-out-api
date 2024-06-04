@@ -4,6 +4,7 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 {
     [DbContext(typeof(IPOContext))]
-    partial class IPOContextModelSnapshot : ModelSnapshot
+    [Migration("20240603065725_RenameGuidColumnMcPkgAndCommPkg")]
+    partial class RenameGuidColumnMcPkgAndCommPkg
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,9 +242,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("InvitationId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -273,9 +273,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("Guid")
-                        .IsUnique();
 
                     b.HasIndex("InvitationId");
 
@@ -459,9 +456,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("Guid")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("InvitationId")
                         .HasColumnType("int");
 
@@ -497,9 +491,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("Guid")
-                        .IsUnique();
 
                     b.HasIndex("InvitationId");
 

@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             string description,
             string status,
             string system,
-            Guid guid)
+            Guid commPkgGuid)
             : base(plant)
         {
             if (project is null)
@@ -46,16 +46,19 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException($"{(nameof(system))} is not valid. Must be at least three characters and include '|'");
             }
+
+            Guid = Guid.NewGuid();
             CommPkgNo = commPkgNo;
             Description = description;
             Status = status;
             System = system;
             ProjectId = project.Id;
             RfocAccepted = false;
-            Guid = guid;
+            CommPkgGuid = commPkgGuid;
         }
 
         // private setters needed for Entity Framework
+        public Guid Guid { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
         public string Status { get; private set; }
@@ -65,8 +68,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public int ProjectId { get; private set; }
         public bool RfocAccepted { get; set; }
         public ICollection<Certificate> CertificateScopes => _certificateScope;
-        // TODO: make Guid private after FillGuids has completed
-        public Guid Guid { get; set; }
+        // TODO: make CommPkgGuid private after FillGuids has completed
+        public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
         {
             CreatedAtUtc = TimeService.UtcNow;
