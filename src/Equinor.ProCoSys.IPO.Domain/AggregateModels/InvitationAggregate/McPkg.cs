@@ -51,6 +51,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentNullException(nameof(mcPkgNo));
             }
+
+            Guid = Guid.NewGuid();
             ProjectId = project.Id;
             CommPkgNo = commPkgNo;
             System = system;
@@ -62,6 +64,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         // private setters needed for Entity Framework
+        public Guid Guid { get; private set; }
         public int ProjectId { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }

@@ -46,6 +46,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 throw new ArgumentException($"{(nameof(system))} is not valid. Must be at least three characters and include '|'");
             }
+
+            Guid = Guid.NewGuid();
             CommPkgNo = commPkgNo;
             Description = description;
             Status = status;
@@ -56,6 +58,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         // private setters needed for Entity Framework
+        public Guid Guid { get; private set; }
         public string CommPkgNo { get; private set; }
         public string Description { get; set; }
         public string Status { get; private set; }

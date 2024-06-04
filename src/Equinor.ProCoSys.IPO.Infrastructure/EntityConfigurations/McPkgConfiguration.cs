@@ -14,6 +14,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
             builder.ConfigureCreationAudit();
             builder.ConfigureConcurrencyToken();
 
+            builder.HasIndex(x => x.Guid)
+                .IsUnique();
+
             builder.HasOne<Project>()
                 .WithMany()
                 .HasForeignKey(x => x.ProjectId)
