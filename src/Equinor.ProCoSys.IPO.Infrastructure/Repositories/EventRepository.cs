@@ -132,6 +132,7 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
                               ProCoSysGuid = m.Guid,
                               Plant = m.Plant,
                               ProjectName = GetProjectName(invitation.ProjectId),
+                              McPkgGuid = m.McPkgGuid,
                               InvitationGuid = invitationGuid,
                               CreatedAtUtc = m.CreatedAtUtc
                           }).SingleOrDefault();
@@ -147,15 +148,16 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     {
         var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var commPkgEvent = (from m in invitation.CommPkgs
-                            where m.Guid.Equals(commPkgGuid)
+        var commPkgEvent = (from c in invitation.CommPkgs
+                            where c.Guid.Equals(commPkgGuid)
                             select new CommPkgEvent()
                             {
-                                ProCoSysGuid = m.Guid,
-                                Plant = m.Plant,
+                                ProCoSysGuid = c.Guid,
+                                Plant = c.Plant,
                                 ProjectName = GetProjectName(invitation.ProjectId),
+                                CommPkgGuid = c.CommPkgGuid,
                                 InvitationGuid = invitationGuid,
-                                CreatedAtUtc = m.CreatedAtUtc
+                                CreatedAtUtc = c.CreatedAtUtc
                             }).SingleOrDefault();
 
         if (commPkgEvent is null)

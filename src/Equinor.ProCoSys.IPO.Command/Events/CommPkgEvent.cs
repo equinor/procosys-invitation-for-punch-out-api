@@ -10,4 +10,5 @@ public class CommPkgEvent : ICommPkgEventV1
     public Guid InvitationGuid { get; init; }
     public DateTime CreatedAtUtc { get; init; }
     public Guid Guid => ProCoSysGuid;
+    public Guid CommPkgGuid { get; init; }
 }

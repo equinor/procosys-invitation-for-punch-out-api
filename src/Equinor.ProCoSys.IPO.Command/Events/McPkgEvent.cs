@@ -11,4 +11,5 @@ public class McPkgEvent : IMcPkgEventV1
     public Guid InvitationGuid { get; init; }
     public DateTime CreatedAtUtc { get; init; }
     public Guid Guid => ProCoSysGuid;
+    public Guid McPkgGuid { get; init; }
 }

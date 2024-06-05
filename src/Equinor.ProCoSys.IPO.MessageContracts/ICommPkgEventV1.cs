@@ -6,4 +6,5 @@ public interface ICommPkgEventV1 : IIntegrationEvent
     string ProjectName { get; init; }
     Guid InvitationGuid { get; init; }
     DateTime CreatedAtUtc { get; init; }
+    Guid CommPkgGuid { get; init; }
 }
