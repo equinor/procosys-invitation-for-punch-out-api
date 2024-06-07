@@ -22,6 +22,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
+using Equinor.ProCoSys.IPO.Fam;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -44,6 +45,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
+using Fam.Core.EventHubs.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +59,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
         {
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
+            services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
+
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
@@ -100,6 +104,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     cfg.AutoStart = true;
                 });
             });
+            services.AddEventHubProducer(configBuilder
+                => configuration.Bind("EventHubProducerConfig", configBuilder));
 
             // Hosted services
             services.AddHostedService<TimedSynchronization>();

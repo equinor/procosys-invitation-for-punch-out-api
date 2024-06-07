@@ -22,7 +22,7 @@ public class FamSenderController : ControllerBase
     /// <returns>Result of sending to FAM</returns>
     [Authorize()]
     //TODO: JSOI Add ApiKey authentication with action filter
-    [HttpPost("Send")]
+    [HttpPost("SendAllData")]
     public async Task<ActionResult<string>> SendAllDataToFam()
     {
         var result = await _mediator.Send(new SendAllDataToFamCommand());
