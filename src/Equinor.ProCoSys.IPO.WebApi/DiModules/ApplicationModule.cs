@@ -34,6 +34,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -151,6 +152,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddScoped<IExcelConverter, ExcelConverter>();
             services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
+            services.AddScoped<IFamRepository, FamRepository>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
