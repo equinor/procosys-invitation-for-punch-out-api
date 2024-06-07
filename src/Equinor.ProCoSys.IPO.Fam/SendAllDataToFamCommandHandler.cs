@@ -1,4 +1,5 @@
-﻿using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
+﻿using Equinor.ProCoSys.IPO.Command.Events;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using MediatR;
 using ServiceResult;
 
@@ -15,7 +16,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
     public async Task<Result<string>> Handle(SendAllDataToFamCommand request, CancellationToken cancellationToken)
     {
-        var participants = _famRepository.GetParticipants().ToList();
+        var participants = (await _famRepository.GetParticipants()).ToList();
         return new SuccessResult<string>("");
     }
 }

@@ -57,7 +57,6 @@ public class FamRepository : DapperRepositoryBase, IFamRepository
 	        JOIN Projects project on project.Id = i.ProjectId
 	        LEFT JOIN Persons signedBy on signedBy.Id = p.SignedBy
 	        WHERE ((p.FunctionalRoleCode is null and p.UserName is not null) OR (p.FunctionalRoleCode is not null and p.UserName is null) OR (p.SignedAtUtc is not null))
-            {whereClause}
             ";
 
         return (query, dynamicParameters);
