@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Equinor.ProCoSys.FamWebJob.Core.Mappers;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Equinor.TI.Common.Messaging;
 using Equinor.TI.CommonLibrary.Mapper;
 using Equinor.TI.CommonLibrary.Mapper.Core;
@@ -27,16 +28,44 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
     public async Task<Result<string>> Handle(SendAllDataToFamCommand request, CancellationToken cancellationToken)
     {
-        var participants = (await _famRepository.GetParticipants()).ToList();
-        var participantsAsJson = participants.Select(e => JsonSerializer.Serialize(e)).ToList();
-        var messages = participantsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, "IpoInvitationParticipant"));
         var mapper = CreateCommonLibMapper();
-        var mappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
+
+        var statusResult = string.Empty;
+
+        statusResult += await SendEventsToFam<IParticipantEventV1>( 
+            _famRepository.GetParticipants, CommonLibClassConstants.Participant, mapper);
+
+        statusResult += await SendEventsToFam<IInvitationEventV1>(
+            _famRepository.GetInvitations, CommonLibClassConstants.Invitation, mapper);
+
+        statusResult += await SendEventsToFam<ICommentEventV1>(
+            _famRepository.GetComments, CommonLibClassConstants.Comment, mapper);
+
+        statusResult += await SendEventsToFam<IMcPkgEventV1>(
+            _famRepository.GetMcPkgs, CommonLibClassConstants.McPkg, mapper);
+
+        statusResult += await SendEventsToFam<ICommPkgEventV1>(
+            _famRepository.GetCommPkgs, CommonLibClassConstants.CommPkg, mapper);
+
+        return new SuccessResult<string>(statusResult);
+    }
+
+    private async Task<string> SendEventsToFam<T>(
+        Func<Task<IEnumerable<T>>> getEvents,
+        string commonLibClassName,
+        SchemaMapper mapper)
+    {
+        var events = (await getEvents()).ToList();
+        var eventsAsJson = events.Select(e => JsonSerializer.Serialize(e)).ToList();
+        var messages = eventsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, commonLibClassName));
+        var commonLibMappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
+
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
         {
-            await SendFamMessages(mappedMessages);
+            await SendFamMessages(commonLibMappedMessages);
         }
-        return new SuccessResult<string>("");
+
+        return $"Successfully sent {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.\n";
     }
 
     private SchemaMapper CreateCommonLibMapper()
