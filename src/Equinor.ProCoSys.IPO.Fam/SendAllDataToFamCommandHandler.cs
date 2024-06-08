@@ -24,7 +24,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
     public SendAllDataToFamCommandHandler(IFamRepository famRepository,
         IOptions<CommonLibConfig> commonLibConfig,
         IEventHubProducerService eventHubProducerService,
-        ILogger logger)
+        ILogger<SendAllDataToFamCommandHandler> logger)
     {
         _famRepository = famRepository;
         _commonLibConfig = commonLibConfig.Value;

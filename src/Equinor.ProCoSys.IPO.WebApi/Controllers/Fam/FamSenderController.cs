@@ -1,5 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Fam;
+using Equinor.ProCoSys.IPO.WebApi.ActionFilters;
+using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,8 +25,12 @@ public class FamSenderController : ControllerBase
     /// <returns>Result of sending to FAM</returns>
     [Authorize()]
     //TODO: JSOI Add ApiKey authentication with action filter
+    [SendToFamApiKey]
     [HttpPost("SendAllData")]
-    public async Task<ActionResult<string>> SendAllDataToFam()
+    public async Task<ActionResult<string>> SendAllDataToFam(
+        [FromHeader(Name = "X-Send-To-Fam-Api-Key")] //TODO: Move to constant
+        [Required]
+        string apiKey) 
     {
         var result = await _mediator.Send(new SendAllDataToFamCommand());
         return this.FromResult(result);
