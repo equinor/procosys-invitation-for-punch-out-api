@@ -8,6 +8,7 @@ using Equinor.TI.CommonLibrary.Mapper.Core;
 using Fam.Core.EventHubs.Contracts;
 using Fam.Models.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ServiceResult;
 
@@ -18,12 +19,17 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
     private readonly IFamRepository _famRepository;
     private readonly CommonLibConfig _commonLibConfig;
     private readonly IEventHubProducerService _eventHubProducerService;
+    private readonly ILogger _logger;
 
-    public SendAllDataToFamCommandHandler(IFamRepository famRepository, IOptions<CommonLibConfig> commonLibConfig, IEventHubProducerService eventHubProducerService)
+    public SendAllDataToFamCommandHandler(IFamRepository famRepository,
+        IOptions<CommonLibConfig> commonLibConfig,
+        IEventHubProducerService eventHubProducerService,
+        ILogger logger)
     {
         _famRepository = famRepository;
         _commonLibConfig = commonLibConfig.Value;
         _eventHubProducerService = eventHubProducerService;
+        _logger = logger;
     }
 
     public async Task<Result<string>> Handle(SendAllDataToFamCommand request, CancellationToken cancellationToken)
@@ -55,17 +61,33 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         string commonLibClassName,
         SchemaMapper mapper)
     {
-        var events = (await getEvents()).ToList();
-        var eventsAsJson = events.Select(e => JsonSerializer.Serialize(e)).ToList();
-        var messages = eventsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, commonLibClassName));
-        var commonLibMappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
-
-        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+        try
         {
-            await SendFamMessages(commonLibMappedMessages);
-        }
+            var events = (await getEvents()).ToList();
 
-        return $"Successfully sent {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.\n";
+            _logger.LogInformation($"Found {events.Count} events for type {commonLibClassName} to send to FAM");
+            
+            if (!events.Any())
+            {
+                return $"Found no events for {commonLibClassName}";
+            }
+
+            var eventsAsJson = events.Select(e => JsonSerializer.Serialize(e)).ToList();
+            var messages = eventsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, commonLibClassName));
+            var commonLibMappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
+
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
+            {
+                await SendFamMessages(commonLibMappedMessages);
+            }
+
+            return $"Successfully sent {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.\n";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to transfer data to FAM for type {commonLibClassName}", ex);
+            throw;
+        }
     }
 
     private SchemaMapper CreateCommonLibMapper()
