@@ -85,8 +85,9 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to transfer data to FAM for type {commonLibClassName}", ex);
-            throw;
+            var errorMessage = $"Failed to transfer data to FAM for type {commonLibClassName}.";
+            _logger.LogError(errorMessage, ex);
+            return errorMessage + " See logs for more details.";
         }
     }
 
