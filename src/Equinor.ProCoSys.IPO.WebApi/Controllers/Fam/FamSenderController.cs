@@ -26,7 +26,7 @@ public class FamSenderController : ControllerBase
     [SendToFamApiKey]
     [HttpPost("SendAllData")]
     public async Task<ActionResult<string>> SendAllDataToFam(
-        [FromHeader(Name = SendToFamApiKeyAttribute.FamApiKeyHeader)] //TODO: Move to constant
+        [FromHeader(Name = SendToFamApiKeyAttribute.FamApiKeyHeader)]
         [Required]
         string apiKey) 
     {

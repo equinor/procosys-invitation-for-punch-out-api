@@ -97,33 +97,5 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
 
             Assert.AreNotEqual(new Guid("00000000-0000-0000-0000-000000000000"), _invitation.Comments.First().Guid);
         }
-
-        //TODO: JSOI Replace with domain event handler test
-        //[TestMethod]
-        //public async Task Handle_ShouldSendCommentMessage()
-        //{
-        //    //Arrange
-        //    var commentEvent = new CommentEvent { CommentText = "A comment" };
-        //    _eventRepositoryMock
-        //        .Setup(x => x.GetCommentEvent(It.IsAny<Guid>(), It.IsAny<Guid>()))
-        //        .Returns(commentEvent);
-
-        //    ICommentEventV1 commentEventMessage = new CommentEvent();
-
-        //    _integrationEventPublisherMock
-        //        .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()))
-        //        .Callback<ICommentEventV1, CancellationToken>((callbackCommentEventMessage, cancellationToken) =>
-        //        {
-        //            commentEventMessage = callbackCommentEventMessage;
-        //        });
-
-        //    // Act
-        //    await _dut.Handle(_command, default);
-
-        //    // Assert
-        //    _integrationEventPublisherMock.Verify(t => t.PublishAsync(It.IsAny<ICommentEventV1>(), It.IsAny<CancellationToken>()), Times.Once);
-        //    Assert.AreEqual("A comment", commentEventMessage.CommentText);
-
-        //}
     }
 }
