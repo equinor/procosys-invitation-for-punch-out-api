@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Fam;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +11,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.ActionFilters;
 
 public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
 {
-    private const string APIKEYNAME = "X-Send-To-Fam-Api-Key";
+    public const string FamApiKeyHeader = "X-SendToFam-ApiKey";
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (!context.HttpContext.Request.Headers.TryGetValue(APIKEYNAME, out var apiKeyFromRequest))
+        if (!context.HttpContext.Request.Headers.TryGetValue(FamApiKeyHeader, out var apiKeyFromRequest))
         {
             context.Result = new UnauthorizedResult();
             return;
@@ -27,7 +26,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
         
         if (famOptions is null)
         {
-            logger.LogError($"Failed to retrieve configuration for {APIKEYNAME}");
+            logger.LogError($"Failed to retrieve configuration for {FamApiKeyHeader}");
             context.Result = new ForbidResult();
             return;
         }
@@ -36,7 +35,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
 
         if (string.IsNullOrWhiteSpace(famApiKeyFromConfig))
         {
-            logger.LogError($"The configured value for Api key {APIKEYNAME} is empty.");
+            logger.LogError($"The configured value for Api key {FamApiKeyHeader} is empty.");
             context.Result = new ForbidResult(); 
             return;
         }
@@ -44,7 +43,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
 
         if (famApiKeyFromConfig != apiKeyFromRequest)
         {
-            logger.LogError($"The value sent in for Api key {APIKEYNAME} does not match configured value.");
+            logger.LogError($"The value sent in for Api key {FamApiKeyHeader} does not match configured value.");
             context.Result = new ForbidResult(); 
             return;
         }

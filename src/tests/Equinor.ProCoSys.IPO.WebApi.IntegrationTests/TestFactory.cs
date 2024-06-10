@@ -34,6 +34,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+using Equinor.ProCoSys.IPO.Fam;
 using MediatR;
 using Microsoft.Data.SqlClient;
 
@@ -61,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
+        public readonly Mock<IOptionsMonitor<FamOptions>> FamOptionsMock = new Mock<IOptionsMonitor<FamOptions>>();
         public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
@@ -81,6 +83,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public static string ProjectWithoutAccess => "Project999";
         public static string AValidRowVersion => "AAAAAAAAAAA=";
         public static string WrongButValidRowVersion => "AAAAAAAAAAA=";
+        public const string SendToFamCorrectApiKey = "Correct api key";
 
         public KnownTestData KnownTestData { get; }
 
@@ -174,6 +177,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => _permissionApiServiceMock.Object);
                 services.AddScoped(_ => FusionMeetingClientMock.Object);
                 services.AddScoped(_ => MeetingOptionsMock.Object);
+                services.AddScoped(_ => FamOptionsMock.Object);
                 services.AddScoped(_ => CommPkgApiServiceMock.Object);
                 services.AddScoped(_ => McPkgApiServiceMock.Object);
                 services.AddScoped(_ => MainPersonApiServiceMock.Object);
