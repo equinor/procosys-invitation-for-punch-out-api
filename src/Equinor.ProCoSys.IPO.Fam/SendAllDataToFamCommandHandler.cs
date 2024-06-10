@@ -78,6 +78,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
             {
+                _logger.LogInformation($"Sending {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.");
                 await SendFamMessages(commonLibMappedMessages);
             }
 

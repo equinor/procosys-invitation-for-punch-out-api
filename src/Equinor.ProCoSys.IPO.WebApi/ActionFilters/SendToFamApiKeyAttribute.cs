@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Fam;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.ActionFilters;
@@ -22,9 +23,12 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
         }
 
         var famOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<FamOptions>>();
+        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<SendToFamApiKeyAttribute>>();
+        
         if (famOptions is null)
         {
-            context.Result = new ForbidResult("Failed to retrieve configuration");
+            logger.LogError($"Failed to retrieve configuration for {APIKEYNAME}");
+            context.Result = new ForbidResult();
             return;
         }
 
@@ -32,17 +36,19 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
 
         if (string.IsNullOrWhiteSpace(famApiKeyFromConfig))
         {
-            context.Result = new ForbidResult($"Api key {APIKEYNAME} is invalid, missing configuration."); 
+            logger.LogError($"The configured value for Api key {APIKEYNAME} is empty.");
+            context.Result = new ForbidResult(); 
             return;
         }
 
 
         if (famApiKeyFromConfig != apiKeyFromRequest)
         {
-            context.Result = new ForbidResult($"Api key {APIKEYNAME} is invalid"); 
+            logger.LogError($"The value sent in for Api key {APIKEYNAME} does not match configured value.");
+            context.Result = new ForbidResult(); 
             return;
         }
 
-        await next(); // proceed to the action if API key is valid
+        await next();
     }
 }
