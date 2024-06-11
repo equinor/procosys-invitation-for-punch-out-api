@@ -111,7 +111,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
-            _eventRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
+            //_eventRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);

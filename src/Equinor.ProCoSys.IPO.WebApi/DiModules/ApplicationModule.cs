@@ -10,6 +10,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -138,6 +139,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IExportIpoRepository, ExportIpoRepository>();
             services.AddScoped<ICertificateRepository, CertificateRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();

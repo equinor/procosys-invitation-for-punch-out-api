@@ -3,14 +3,15 @@ using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.Events;
 
-public class CommentEvent : ICommentEventV1
-{
-    public Guid ProCoSysGuid { get; init; }
-    public string Plant { get; init; }
-    public string ProjectName { get; init; }
-    public string CommentText { get; init; }
-    public DateTime CreatedAtUtc { get; init; }
-    public Guid CreatedByOid { get; init; }
-    public Guid InvitationGuid { get; init; }
-    public Guid Guid => ProCoSysGuid;
-}
+public record CommentEvent 
+(
+    Guid Guid,
+    string CommentText,
+    DateTime CreatedAtUtc,
+    Guid CreatedByOid,
+    string Plant,
+    Guid InvitationGuid,
+    Guid ProCoSysGuid,
+    string ProjectName
+) : ICommentEventV1 { }
+

@@ -1,5 +1,4 @@
 ﻿using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using MediatR;
 using System.Threading.Tasks;
@@ -7,20 +6,20 @@ using System.Threading;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
-public class StatusResetEventHandler : INotificationHandler<StatusResetEvent>
+internal class StatusResetEventHandler : INotificationHandler<StatusResetEvent>
 {
-    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
+    private readonly ICreateEventHelper _eventHelper;
 
-    public StatusResetEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public StatusResetEventHandler(IIntegrationEventPublisher integrationEventPublisher, ICreateEventHelper eventHelper)
     {
-        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
+        _eventHelper = eventHelper;
     }
 
-    public Task Handle(StatusResetEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(StatusResetEvent notification, CancellationToken cancellationToken)
     {
-        var invitationEvent = _eventRepository.GetInvitationEvent(notification.SourceGuid);
-        return _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
+        var invitationEvent = await _eventHelper.CreateInvitationEvent(notification.Invitation);
+        await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
     }
 }

@@ -48,29 +48,23 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
 
     public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid)
     {
-        var invitation = GetInvitationFromLocal(invitationGuid);
+        //var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var commentEvent = (from c in invitation.Comments
-                join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
-                where c.Guid == commentGuid
-                select new CommentEvent
-                {
-                    CommentText = c.CommentText,
-                    CreatedAtUtc = c.CreatedAtUtc,
-                    CreatedByOid = createdBy.Guid,
-                    Plant = c.Plant,
-                    InvitationGuid = invitation.Guid,
-                    ProCoSysGuid = c.Guid,
-                    ProjectName = GetProjectName(invitation.ProjectId)
-                })
-            .SingleOrDefault();
+        //var commentEvent = (from c in invitation.Comments
+        //        join createdBy in _context.Persons on c.CreatedById equals createdBy.Id
+        //        where c.Guid == commentGuid
+        //        select new CommentEvent(commentText: c.CommentText, createdAtUtc: c.CreatedAtUtc,
+        //            createdByOid: createdBy.Guid, plant: c.Plant, invitationGuid: invitation.Guid, proCoSysGuid: c.Guid,
+        //            projectName: GetProjectName(invitation.ProjectId)))
+        //    .SingleOrDefault();
         
-        if (commentEvent is null)
-        {
-            throw new ArgumentException($"Could not construct a comment event for invitation with id {invitationGuid} and comment id {commentGuid}");
-        }
+        //if (commentEvent is null)
+        //{
+        //    throw new ArgumentException($"Could not construct a comment event for invitation with id {invitationGuid} and comment id {commentGuid}");
+        //}
 
-        return commentEvent;
+        //return commentEvent;
+        return null;
     }
 
     public IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid)
@@ -100,49 +94,39 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
 
     public IMcPkgEventV1 GetMcPkgEvent(Guid invitationGuid, Guid mcPkgGuid)
     {
-        var invitation = GetInvitationFromLocal(invitationGuid);
+        //var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var mcPkgEvent = (from m in invitation.McPkgs
-                          where m.Guid.Equals(mcPkgGuid)
-                          select new McPkgEvent()
-                          {
-                              ProCoSysGuid = m.Guid,
-                              Plant = m.Plant,
-                              ProjectName = GetProjectName(invitation.ProjectId),
-                              McPkgGuid = m.McPkgGuid,
-                              InvitationGuid = invitationGuid,
-                              CreatedAtUtc = m.CreatedAtUtc
-                          }).SingleOrDefault();
+        //var mcPkgEvent = (from m in invitation.McPkgs
+        //                  where m.Guid.Equals(mcPkgGuid)
+        //                  select new McPkgEvent(proCoSysGuid: m.Guid, plant: m.Plant,
+        //                      projectName: GetProjectName(invitation.ProjectId), mcPkgGuid: m.McPkgGuid,
+        //                      invitationGuid: invitationGuid, createdAtUtc: m.CreatedAtUtc)).SingleOrDefault();
         
-        if (mcPkgEvent is null)
-        {
-            throw new ArgumentException($"Could not construct a mcpkg event for invitation with id {invitationGuid} and mcpkg id {mcPkgGuid}");
-        }
-        return mcPkgEvent;
+        //if (mcPkgEvent is null)
+        //{
+        //    throw new ArgumentException($"Could not construct a mcpkg event for invitation with id {invitationGuid} and mcpkg id {mcPkgGuid}");
+        //}
+        //return mcPkgEvent;
+        return null;
     }
 
     public ICommPkgEventV1 GetCommPkgEvent(Guid invitationGuid, Guid commPkgGuid)
     {
-        var invitation = GetInvitationFromLocal(invitationGuid);
+        //var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var commPkgEvent = (from c in invitation.CommPkgs
-                            where c.Guid.Equals(commPkgGuid)
-                            select new CommPkgEvent()
-                            {
-                                ProCoSysGuid = c.Guid,
-                                Plant = c.Plant,
-                                ProjectName = GetProjectName(invitation.ProjectId),
-                                CommPkgGuid = c.CommPkgGuid,
-                                InvitationGuid = invitationGuid,
-                                CreatedAtUtc = c.CreatedAtUtc
-                            }).SingleOrDefault();
+        //var commPkgEvent = (from c in invitation.CommPkgs
+        //                    where c.Guid.Equals(commPkgGuid)
+        //                    select new CommPkgEvent(ProCoSysGuid: c.Guid, Plant: c.Plant,
+        //                        ProjectName: GetProjectName(invitation.ProjectId), commPkgGuid: c.CommPkgGuid,
+        //                        invitationGuid: invitationGuid, createdAtUtc: c.CreatedAtUtc)).SingleOrDefault();
 
-        if (commPkgEvent is null)
-        {
-            throw new ArgumentException($"Could not construct a commpkg event for invitation with id {invitationGuid} and commpkg id {commPkgGuid}");
-        }
+        //if (commPkgEvent is null)
+        //{
+        //    throw new ArgumentException($"Could not construct a commpkg event for invitation with id {invitationGuid} and commpkg id {commPkgGuid}");
+        //}
 
-        return commPkgEvent;
+        //return commPkgEvent;
+        return null;
     }
 
     private Invitation GetInvitationFromLocal(Guid invitationGuid)

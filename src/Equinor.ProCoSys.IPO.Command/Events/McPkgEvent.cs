@@ -3,13 +3,13 @@ using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.Events;
 
-public class McPkgEvent : IMcPkgEventV1
-{
-    public Guid ProCoSysGuid { get; init; }
-    public string Plant { get; init; }
-    public string ProjectName { get; init; }
-    public Guid InvitationGuid { get; init; }
-    public DateTime CreatedAtUtc { get; init; }
-    public Guid Guid => ProCoSysGuid;
-    public Guid McPkgGuid { get; init; }
-}
+public record McPkgEvent
+    (
+        Guid Guid,
+        Guid ProCoSysGuid, 
+        string Plant, 
+        string ProjectName, 
+        Guid McPkgGuid, 
+        Guid InvitationGuid, 
+        DateTime CreatedAtUtc)
+    : IMcPkgEventV1 { }

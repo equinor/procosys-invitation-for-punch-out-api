@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
@@ -10,7 +6,8 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
-internal class CreateEventHelper : ICreateEventHelper
+
+public class CreateEventHelper : ICreateEventHelper
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IPersonRepository _personRepository;
@@ -79,5 +76,46 @@ internal class CreateEventHelper : ICreateEventHelper
             participant.Note,
             participant.SignedAtUtc,
             signedBy?.Guid);
+    }
+
+    public async Task<ICommentEventV1> CreateCommentEvent(Comment comment, Invitation invitation)
+    {
+        var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+        var createdBy = await _personRepository.GetByIdAsync(invitation.CreatedById);
+
+        return new CommentEvent(comment.Guid, 
+            comment.CommentText, 
+            comment.CreatedAtUtc, 
+            createdBy.Guid, 
+            comment.Plant,
+            invitation.Guid, 
+            comment.Guid, 
+            project.Name);
+    }
+
+    public async Task<ICommPkgEventV1> CreateCommPkgEvent(CommPkg commPkg, Invitation invitation)
+    {
+        var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
+        return new CommPkgEvent(commPkg.Guid, 
+            commPkg.Guid, 
+            commPkg.Plant, 
+            project.Name, 
+            commPkg.Guid, 
+            invitation.Guid,
+            commPkg.CreatedAtUtc);
+    }
+
+    public async Task<IMcPkgEventV1> CreateMcPkgEvent(McPkg mcPkg, Invitation invitation)
+    {
+        var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
+
+        return new McPkgEvent(mcPkg.Guid,
+            mcPkg.Guid,
+            mcPkg.Plant,
+            project.Name,
+            mcPkg.Guid,
+            invitation.Guid,
+            mcPkg.CreatedAtUtc);
     }
 }

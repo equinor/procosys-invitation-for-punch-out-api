@@ -3,23 +3,22 @@ using MediatR;
 using System.Threading.Tasks;
 using System.Threading;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
-public class CommPkgAddedEventHandler : INotificationHandler<CommPkgAddedEvent>
+internal class CommPkgAddedEventHandler : INotificationHandler<CommPkgAddedEvent>
 {
-    private readonly IEventRepository _eventRepository;
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
+    private readonly ICreateEventHelper _eventHelper;
 
-    public CommPkgAddedEventHandler(IEventRepository eventRepository, IIntegrationEventPublisher integrationEventPublisher)
+    public CommPkgAddedEventHandler(IIntegrationEventPublisher integrationEventPublisher, ICreateEventHelper eventHelper)
     {
-        _eventRepository = eventRepository;
         _integrationEventPublisher = integrationEventPublisher;
+        _eventHelper = eventHelper;
     }
 
-    public Task Handle(CommPkgAddedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(CommPkgAddedEvent notification, CancellationToken cancellationToken)
     {
-        var commPkgEvent = _eventRepository.GetCommPkgEvent(notification.SourceGuid, notification.CommPkgGuid);
-        return _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
+        var commPkgEvent = await _eventHelper.CreateCommPkgEvent(notification.CommPkg, notification.Invitation);
+        await _integrationEventPublisher.PublishAsync(commPkgEvent, cancellationToken);
     }
 }

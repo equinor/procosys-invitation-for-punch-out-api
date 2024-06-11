@@ -31,6 +31,7 @@ using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
@@ -74,6 +75,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
         public readonly Mock<IIntegrationEventPublisher> IntegrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
         public readonly Mock<IEventRepository> EventRepositoryMock = new Mock<IEventRepository>();
+        public readonly Mock<ICreateEventHelper> CreateEventHelperMock = new Mock<ICreateEventHelper>();
 
 
         public static string PlantWithAccess => KnownTestData.Plant;
@@ -189,6 +191,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => EmailServiceMock.Object);
                 services.AddScoped(_ => IntegrationEventPublisherMock.Object);
                 services.AddScoped(_ => EventRepositoryMock.Object);
+                services.AddScoped(_ => CreateEventHelperMock.Object);
             });
 
             builder.ConfigureServices(services =>
