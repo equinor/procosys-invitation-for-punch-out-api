@@ -138,7 +138,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IOutstandingIpoRepository, OutstandingIpoRepository>();
             services.AddScoped<IExportIpoRepository, ExportIpoRepository>();
             services.AddScoped<ICertificateRepository, CertificateRepository>();
-            services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();

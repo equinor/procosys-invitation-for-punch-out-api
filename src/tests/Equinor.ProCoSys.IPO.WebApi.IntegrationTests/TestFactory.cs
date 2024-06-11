@@ -74,7 +74,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
         public readonly Mock<IIntegrationEventPublisher> IntegrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
-        public readonly Mock<IEventRepository> EventRepositoryMock = new Mock<IEventRepository>();
         public readonly Mock<ICreateEventHelper> CreateEventHelperMock = new Mock<ICreateEventHelper>();
 
 
@@ -190,7 +189,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => MeApiServiceMock.Object);
                 services.AddScoped(_ => EmailServiceMock.Object);
                 services.AddScoped(_ => IntegrationEventPublisherMock.Object);
-                services.AddScoped(_ => EventRepositoryMock.Object);
                 services.AddScoped(_ => CreateEventHelperMock.Object);
             });
 

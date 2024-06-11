@@ -21,6 +21,7 @@ using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.MessageContracts;
 
@@ -48,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly ICalendarService _calendarService;
         private readonly IEmailService _emailService;
         private readonly IIntegrationEventPublisher _integrationEventPublisher;
-        private readonly IEventRepository _eventRepository;
+        private readonly ICreateEventHelper _eventHelper;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -67,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             ICalendarService calendarService,
             IEmailService emailService,
             IIntegrationEventPublisher integrationEventPublisher,
-            IEventRepository eventRepository,
+            ICreateEventHelper eventHelper,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -86,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _calendarService = calendarService;
             _emailService = emailService;
             _integrationEventPublisher = integrationEventPublisher;
-            _eventRepository = eventRepository;
+            _eventHelper = eventHelper;
             _logger = logger;
         }
 
@@ -171,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
         {
-            var invitationEvent = _eventRepository.GetInvitationEvent(invitation.Guid);
+            var invitationEvent = await _eventHelper.CreateInvitationEvent(invitation);
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 

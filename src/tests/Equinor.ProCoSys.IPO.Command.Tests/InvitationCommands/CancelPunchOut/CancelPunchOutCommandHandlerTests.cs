@@ -25,7 +25,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
-        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IFusionMeetingClient> _fusionMeetingClient;
@@ -58,7 +57,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
-            _eventRepositoryMock = new Mock<IEventRepository>();
 
             _integrationEventPublisherMock
                 .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))

@@ -21,7 +21,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
     {
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
-        private Mock<IEventRepository> _eventRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
@@ -61,7 +60,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AddComment
                 null);
 
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
-            _eventRepositoryMock = new Mock<IEventRepository>();
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _invitationRepositoryMock

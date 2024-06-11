@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -20,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
         private readonly IIntegrationEventPublisher _integrationEventPublisher;
-        private readonly IEventRepository _eventRepository;
+        private readonly ICreateEventHelper _eventHelper;
 
         public UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
             IPlantProvider plantProvider,
@@ -29,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             ICurrentUserProvider currentUserProvider, 
             IPersonApiService personApiService,
             IIntegrationEventPublisher integrationEventPublisher,
-            IEventRepository eventRepository)
+            ICreateEventHelper eventHelper)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
@@ -37,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
             _integrationEventPublisher = integrationEventPublisher;
-            _eventRepository = eventRepository;
+            _eventHelper = eventHelper;
         }
 
         public async Task<Result<Unit>> Handle(UpdateAttendedStatusAndNotesOnParticipantsCommand request, CancellationToken cancellationToken)
@@ -105,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
 
         private async Task PublishEventToBusAsync(Invitation invitation, Participant participant)
         {
-            var participantEvent = _eventRepository.GetParticipantEvent(invitation.Guid, participant.Guid);
+            var participantEvent = await _eventHelper.CreateParticipantEvent(participant, invitation);
             await _integrationEventPublisher.PublishAsync(participantEvent, CancellationToken.None);
         }
     }

@@ -210,7 +210,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             participant.Note = note;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, participant.Guid, note));
+            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, participant, this, note));
         }
 
         public void UpdateAttendedStatus(
