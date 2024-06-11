@@ -75,37 +75,27 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
 
     public IParticipantEventV1 GetParticipantEvent(Guid invitationGuid, Guid participantGuid)
     {
-        var invitation = GetInvitationFromLocal(invitationGuid);
+        //var invitation = GetInvitationFromLocal(invitationGuid);
 
-        var participantEvent = (from p in invitation.Participants
-                                  join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
-                                  join signedByInner in _context.Persons on p.SignedBy equals signedByInner.Id into signedByOuter
-                                  from signedBy in signedByOuter.DefaultIfEmpty()
-                                  where p.Guid == participantGuid
-                                  select new ParticipantEvent()
-                                  {
-                                      ProCoSysGuid = p.Guid,
-                                      Plant = p.Plant,
-                                      ProjectName = GetProjectName(invitation.ProjectId),
-                                      Organization = p.Organization.ToString(),
-                                      Type = p.Type.ToString(),
-                                      FunctionalRoleCode = p.FunctionalRoleCode,
-                                      AzureOid = p.AzureOid,
-                                      SortKey = p.SortKey,
-                                      CreatedAtUtc = p.CreatedAtUtc,
-                                      InvitationGuid = invitation.Guid,
-                                      ModifiedAtUtc = p.ModifiedAtUtc,
-                                      Attended = p.Attended,
-                                      Note = p.Note,
-                                      SignedAtUtc = p.SignedAtUtc,
-                                      SignedByOid = signedBy?.Guid
-                                  }).SingleOrDefault();
+        //var participantEvent = (from p in invitation.Participants
+        //                          join createdBy in _context.Persons on p.CreatedById equals createdBy.Id
+        //                          join signedByInner in _context.Persons on p.SignedBy equals signedByInner.Id into signedByOuter
+        //                          from signedBy in signedByOuter.DefaultIfEmpty()
+        //                          where p.Guid == participantGuid
+        //                          select new ParticipantEvent(ProCoSysGuid: p.Guid, plant: p.Plant,
+        //                              ProjectName: GetProjectName(invitation.ProjectId),
+        //                              Organization: p.Organization.ToString(), Type: p.Type.ToString(),
+        //                              functionalRoleCode: p.FunctionalRoleCode, azureOid: p.AzureOid,
+        //                              sortKey: p.SortKey, createdAtUtc: p.CreatedAtUtc, invitationGuid: invitation.Guid,
+        //                              modifiedAtUtc: p.ModifiedAtUtc, attended: p.Attended, note: p.Note,
+        //                              signedAtUtc: p.SignedAtUtc, signedByOid: signedBy?.Guid)).SingleOrDefault();
 
-        if (participantEvent is null)
-        {
-            throw new ArgumentException($"Could not construct a participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
-        }
-        return participantEvent;
+        //if (participantEvent is null)
+        //{
+        //    throw new ArgumentException($"Could not construct a participation event for invitation with id {invitationGuid} and participant id {participantGuid}");
+        //}
+        //return participantEvent;
+        return null;
     }
 
     public IMcPkgEventV1 GetMcPkgEvent(Guid invitationGuid, Guid mcPkgGuid)
