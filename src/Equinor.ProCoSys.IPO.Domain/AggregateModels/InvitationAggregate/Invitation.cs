@@ -246,7 +246,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedBy = completedBy.Id;
             CompletedAtUtc = completedAtUtc;
-            AddDomainEvent(new IpoCompletedEvent(Plant, Guid, participant));
+
+            AddDomainEvent(new IpoCompletedEvent(Plant, Guid, this, participant));
 
             AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }

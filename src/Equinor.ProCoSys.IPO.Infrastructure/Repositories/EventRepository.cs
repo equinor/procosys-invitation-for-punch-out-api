@@ -22,41 +22,28 @@ public class EventRepository : RepositoryBase<Invitation>, IEventRepository
     public IInvitationEventV1 GetInvitationEvent(Guid invitationGuid)
     {
         
-        //Using .Local in invitation as otherwise we get the old values from the database, and not the updated values
-        //Not including project and person as joins as this created strange exception when doing sign punch out
-        var invitationEvent =
-            (from i in _context.Invitations.Local
-             where i.Guid == invitationGuid
-             select new InvitationEvent
-             {
-                 Guid = i.Guid,
-                 ProCoSysGuid = i.Guid,
-                 Plant = i.Plant,
-                 ProjectName = GetProjectName(i.ProjectId),
-                 Id = i.Id,
-                 CreatedAtUtc = i.CreatedAtUtc,
-                 CreatedByOid = GetPersonGuid(i.CreatedById), 
-                 ModifiedAtUtc = i.ModifiedAtUtc,
-                 Title = i.Title,
-                 Type = i.Type.ToString(),
-                 Description = i.Description,
-                 Status = i.Status.ToString(),
-                 EndTimeUtc = i.EndTimeUtc,
-                 Location = i.Location,
-                 StartTimeUtc = i.StartTimeUtc,
-                 AcceptedAtUtc = i.AcceptedAtUtc,
-                 AcceptedByOid = i.AcceptedBy == null ? null : GetPersonGuid(i.AcceptedBy.Value), 
-                 CompletedAtUtc = i.CompletedAtUtc,
-                 CompletedByOid = i.CompletedBy == null ? null : GetPersonGuid(i.CompletedBy.Value),
-             }
-            ).SingleOrDefault();
+        ////Using .Local in invitation as otherwise we get the old values from the database, and not the updated values
+        ////Not including project and person as joins as this created strange exception when doing sign punch out
+        //var invitationEvent =
+        //    (from i in _context.Invitations.Local
+        //     where i.Guid == invitationGuid
+        //     select new InvitationEvent(guid: i.Guid, proCoSysGuid: i.Guid, plant: i.Plant,
+        //         projectName: GetProjectName(i.ProjectId), id: i.Id, createdAtUtc: i.CreatedAtUtc,
+        //         createdByOid: GetPersonGuid(i.CreatedById), modifiedAtUtc: i.ModifiedAtUtc, title: i.Title,
+        //         type: i.Type.ToString(), description: i.Description, status: i.Status.ToString(),
+        //         endTimeUtc: i.EndTimeUtc, location: i.Location, startTimeUtc: i.StartTimeUtc,
+        //         acceptedAtUtc: i.AcceptedAtUtc,
+        //         acceptedByOid: i.AcceptedBy == null ? null : GetPersonGuid(i.AcceptedBy.Value),
+        //         completedAtUtc: i.CompletedAtUtc,
+        //         completedByOid: i.CompletedBy == null ? null : GetPersonGuid(i.CompletedBy.Value))).SingleOrDefault();
 
-        if (invitationEvent is null)
-        {
-            throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationGuid}");
-        }
+        //if (invitationEvent is null)
+        //{
+        //    throw new ArgumentException($"Could not find an invitation event for invitation with id {invitationGuid}");
+        //}
 
-        return invitationEvent;
+        //return invitationEvent;
+        return null;
     }
 
     public ICommentEventV1 GetCommentEvent(Guid invitationGuid, Guid commentGuid)
