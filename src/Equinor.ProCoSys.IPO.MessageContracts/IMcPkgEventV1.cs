@@ -2,11 +2,11 @@
 
 public interface IMcPkgEventV1 : IIntegrationEvent
 {
-    Guid ProCoSysGuid { get; init; }
-    string Plant { get; init; }
-    string ProjectName { get; init; }
-    Guid InvitationGuid { get; init; }
-    DateTime CreatedAtUtc { get; init; }
-    public Guid McPkgGuid { get; init; }
+    Guid ProCoSysGuid { get; }
+    string Plant { get; }
+    string ProjectName { get; }
+    Guid InvitationGuid { get; }
+    DateTime CreatedAtUtc { get; }
+    public Guid McPkgGuid { get; }
 
 }

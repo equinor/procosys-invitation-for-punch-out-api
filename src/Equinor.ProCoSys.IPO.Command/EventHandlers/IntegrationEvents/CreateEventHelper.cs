@@ -32,7 +32,6 @@ public class CreateEventHelper : ICreateEventHelper
 
         return new InvitationEvent(
             invitation.Guid,
-            invitation.Guid,
             invitation.Plant,
             project.Name,
             invitation.Id,
@@ -61,7 +60,6 @@ public class CreateEventHelper : ICreateEventHelper
             : null;
 
         return new ParticipantEvent(invitation.Guid,
-            invitation.Guid,
             invitation.Plant,
             project.Name,
             participant.Organization.ToString(),
@@ -87,9 +85,8 @@ public class CreateEventHelper : ICreateEventHelper
             comment.CommentText, 
             comment.CreatedAtUtc, 
             createdBy.Guid, 
-            comment.Plant,
             invitation.Guid, 
-            comment.Guid, 
+            comment.Plant,
             project.Name);
     }
 
@@ -97,7 +94,7 @@ public class CreateEventHelper : ICreateEventHelper
     {
         var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
-        return new CommPkgEvent(commPkg.Guid, 
+        return new CommPkgEvent( 
             commPkg.Guid, 
             commPkg.Plant, 
             project.Name, 
@@ -111,7 +108,6 @@ public class CreateEventHelper : ICreateEventHelper
         var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
         return new McPkgEvent(mcPkg.Guid,
-            mcPkg.Guid,
             mcPkg.Plant,
             project.Name,
             mcPkg.Guid,

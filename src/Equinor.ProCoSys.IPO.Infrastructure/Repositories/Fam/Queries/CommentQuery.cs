@@ -4,14 +4,13 @@ public static class CommentQuery
 {
     public static string Query => @$"
             SELECT 
+                  c.Guid,
                   c.CommentText,
                   c.CreatedAtUtc,
-                  c.CreatedById,
+	              person.Guid as CreatedByGuid,
                   i.Guid as InvitationGuid,
                   c.Plant,
-	              project.Name as ProjectName,
-                  c.Guid as ProCoSysGuid,
-	              person.Guid as CreatedByOid
+	              project.Name as ProjectName                 
               FROM Comments c
               JOIN Invitations i on i.Id = c.InvitationId
               JOIN Projects project on project.Id = c.InvitationId
