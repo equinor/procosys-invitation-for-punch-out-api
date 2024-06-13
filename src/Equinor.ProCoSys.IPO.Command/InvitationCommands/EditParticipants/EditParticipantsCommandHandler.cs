@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
 
         public EditParticipantsCommandHandler(
-            IInvitationRepository invitationRepository, 
+            IInvitationRepository invitationRepository,
             IPlantProvider plantProvider,
             IUnitOfWork unitOfWork,
             IPersonApiService personApiService,
@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         public async Task<Result<Unit>> Handle(EditParticipantsCommand request, CancellationToken cancellationToken)
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
-            
+
             await UpdateParticipants(request.UpdatedParticipants, invitation);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -89,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             {
                 await AddPersonParticipantsWithOidsAsync(invitation, persons, existingParticipants);
             }
-            
+
             AddExternalParticipant(invitation, externalEmailParticipants, existingParticipants);
         }
 
@@ -136,7 +136,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                             null,
                             participant.SortKey));
                     }
-                    
+
                     foreach (var person in participant.InvitedFunctionalRoleToEdit.EditPersons)
                     {
                         var frPerson = fr.Persons.SingleOrDefault(p => p.AzureOid == person.AzureOid.ToString());

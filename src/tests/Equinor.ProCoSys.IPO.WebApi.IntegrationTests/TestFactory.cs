@@ -31,6 +31,12 @@ using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+using Equinor.ProCoSys.IPO.Fam;
+using MediatR;
 using Microsoft.Data.SqlClient;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
@@ -57,6 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<ICurrentUserProvider> CurrentUserProviderMock = new Mock<ICurrentUserProvider>();
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
+        public readonly Mock<IOptionsMonitor<FamOptions>> FamOptionsMock = new Mock<IOptionsMonitor<FamOptions>>();
         public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
         public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
@@ -66,6 +73,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
+        public readonly Mock<IIntegrationEventPublisher> IntegrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+        public readonly Mock<ICreateEventHelper> CreateEventHelperMock = new Mock<ICreateEventHelper>();
+
 
         public static string PlantWithAccess => KnownTestData.Plant;
         public static string PlantWithoutAccess => "PCS$PLANT999";
@@ -74,6 +84,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public static string ProjectWithoutAccess => "Project999";
         public static string AValidRowVersion => "AAAAAAAAAAA=";
         public static string WrongButValidRowVersion => "AAAAAAAAAAA=";
+        public const string SendToFamCorrectApiKey = "Correct api key";
 
         public KnownTestData KnownTestData { get; }
 
@@ -167,6 +178,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => _permissionApiServiceMock.Object);
                 services.AddScoped(_ => FusionMeetingClientMock.Object);
                 services.AddScoped(_ => MeetingOptionsMock.Object);
+                services.AddScoped(_ => FamOptionsMock.Object);
                 services.AddScoped(_ => CommPkgApiServiceMock.Object);
                 services.AddScoped(_ => McPkgApiServiceMock.Object);
                 services.AddScoped(_ => MainPersonApiServiceMock.Object);
@@ -176,6 +188,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => PcsBusSenderMock.Object);
                 services.AddScoped(_ => MeApiServiceMock.Object);
                 services.AddScoped(_ => EmailServiceMock.Object);
+                services.AddScoped(_ => IntegrationEventPublisherMock.Object);
+                services.AddScoped(_ => CreateEventHelperMock.Object);
             });
 
             builder.ConfigureServices(services =>

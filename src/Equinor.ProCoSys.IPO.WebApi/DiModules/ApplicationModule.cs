@@ -10,6 +10,7 @@ using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
@@ -22,6 +23,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
+using Equinor.ProCoSys.IPO.Fam;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -34,6 +36,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
@@ -43,6 +46,7 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
+using Fam.Core.EventHubs.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -56,6 +60,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
         {
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
+            services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
+            services.Configure<FamOptions>(configuration.GetSection("Fam"));
+
+
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
@@ -99,6 +107,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     cfg.AutoStart = true;
                 });
             });
+            services.AddEventHubProducer(configBuilder
+                => configuration.Bind("EventHubProducerConfig", configBuilder));
 
             // Hosted services
             services.AddHostedService<TimedSynchronization>();
@@ -128,6 +138,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IOutstandingIpoRepository, OutstandingIpoRepository>();
             services.AddScoped<IExportIpoRepository, ExportIpoRepository>();
             services.AddScoped<ICertificateRepository, CertificateRepository>();
+            services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
             services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
@@ -150,6 +161,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddScoped<IExcelConverter, ExcelConverter>();
             services.AddScoped<IIntegrationEventPublisher, IntegrationEventPublisher>();
+            services.AddScoped<IFamRepository, FamRepository>();
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();

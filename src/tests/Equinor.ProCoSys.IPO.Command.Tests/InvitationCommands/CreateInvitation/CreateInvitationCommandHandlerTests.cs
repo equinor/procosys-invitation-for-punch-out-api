@@ -23,6 +23,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
@@ -33,6 +35,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IPlantProvider> _plantProviderMock;
         private Mock<IFusionMeetingClient> _meetingClientMock;
         private Mock<IInvitationRepository> _invitationRepositoryMock;
+        private Mock<ICreateEventHelper> _eventHelper;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
@@ -45,6 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IProjectApiService> _projectApiServiceMock;
         private Mock<ICalendarService> _calendarServiceMock;
         private Mock<IEmailService> _emailServiceMock;
+        private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
         private const string _functionalRoleCode = "FR1";
         private const string _functionalRoleWithMultipleEmailsCode = "FR2";
@@ -129,7 +133,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
 
             _personRepositoryMock = new Mock<IPersonRepository>();
+            _eventHelper = new Mock<ICreateEventHelper>();
 
+            _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+            
             _meetingClientMock = new Mock<IFusionMeetingClient>();
             _meetingClientMock
                 .Setup(x => x.CreateMeetingAsync(It.IsAny<Action<GeneralMeetingBuilder>>()))
@@ -293,6 +300,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _projectApiServiceMock.Object,
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
+                _integrationEventPublisherMock.Object,
+                _eventHelper.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
         }
 
@@ -766,6 +775,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _projectApiServiceMock.Object,
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
+                _integrationEventPublisherMock.Object,
+                _eventHelper.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(
@@ -809,6 +820,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 _projectApiServiceMock.Object,
                 _calendarServiceMock.Object,
                 _emailServiceMock.Object,
+                _integrationEventPublisherMock.Object,
+                _eventHelper.Object,
                 new Mock<ILogger<CreateInvitationCommandHandler>>().Object);
 
             var command = new CreateInvitationCommand(

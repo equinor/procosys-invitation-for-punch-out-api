@@ -141,7 +141,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
                 if (mcPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
                 {
-                    throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: " 
+                    throw new IpoValidationException("Mc pkgs with signed RFOC cannot be in scope. Mc pkgs with signed RFOC: "
                         + string.Join(",", mcPkgsFromMain
                          .Where(mc => mc.OperationHandoverStatus == "ACCEPTED")
                          .Select(mc => mc.McPkgNo)
@@ -188,7 +188,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
                 if (commPkgsFromMain.Any(mc => mc.OperationHandoverStatus == "ACCEPTED"))
                 {
-                    throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                    throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: "
                         + string.Join(",", commPkgsFromMain
                         .Where(c => c.OperationHandoverStatus == "ACCEPTED")
                         .Select(c => c.CommPkgNo)

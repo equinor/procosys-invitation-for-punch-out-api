@@ -50,7 +50,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
                                     sourceGuid,
                                     0);
 
-            _dut.Handle(new IpoUnAcceptedEvent(plant, sourceGuid, participant), default);
+            _dut.Handle(new IpoUnAcceptedEvent(plant, sourceGuid, null, participant), default);
 
             // Assert
             Assert.IsNotNull(_historyAdded);

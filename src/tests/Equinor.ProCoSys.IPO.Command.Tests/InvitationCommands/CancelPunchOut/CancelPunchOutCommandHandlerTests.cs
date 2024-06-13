@@ -5,12 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Fusion.Integration.Meeting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -55,6 +57,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
 
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
+
             _integrationEventPublisherMock
                 .Setup(eventPublisher => eventPublisher.PublishAsync(It.IsAny<BusEventMessage>(), It.IsAny<CancellationToken>()))
                 .Callback<BusEventMessage, CancellationToken>((busEventMessage, cancellationToken) =>
@@ -67,7 +70,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                 .Setup(x => x.GetCurrentUserOid()).Returns(_azureOidForCurrentUser);
 
             _loggerMock = new Mock<ILogger<CancelPunchOutCommandHandler>>();
-
 
             var currentPerson = new Person(_azureOidForCurrentUser, null, null, null, null);
             _personRepositoryMock = new Mock<IPersonRepository>();
@@ -107,6 +109,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             _invitationRepositoryMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
+            //_eventRepositoryMock.Setup(x => x.GetInvitationEvent(It.IsAny<Guid>())).Returns(new InvitationEvent());
 
             //command
             _command = new CancelPunchOutCommand(_invitation.Id, _invitationRowVersion);
@@ -190,7 +193,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
         }
 
         [TestMethod]
-        public async Task Handle_ShouldSendBusTopic()
+        public async Task Handle_ShouldSendIpoMessageToServiceBus()
         {
             // Act
             var result = await _dut.Handle(_command, default);

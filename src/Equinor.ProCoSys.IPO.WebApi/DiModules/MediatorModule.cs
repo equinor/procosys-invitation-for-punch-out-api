@@ -14,6 +14,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddMediatR(c => c.RegisterServicesFromAssemblies(
                 typeof(MediatorModule).GetTypeInfo().Assembly,
                 typeof(ICommandMarker).GetTypeInfo().Assembly,
+                typeof(Fam.ICommandMarker).GetTypeInfo().Assembly,
                 typeof(IQueryMarker).GetTypeInfo().Assembly
             ));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

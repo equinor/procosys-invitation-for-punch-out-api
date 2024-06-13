@@ -53,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
 
             var person = new Person(sourceGuid, "Rob", "Hubbard", "robhubbard", "a@b.com");
 
-            using (_dut.Handle(new IpoUnSignedEvent(plant, sourceGuid, participant, person), default))
+            using (_dut.Handle(new IpoUnSignedEvent(plant, sourceGuid, null, participant, person), default))
             {
 
                 // Assert

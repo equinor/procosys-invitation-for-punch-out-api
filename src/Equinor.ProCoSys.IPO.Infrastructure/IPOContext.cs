@@ -93,9 +93,15 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await DispatchDomainEventsEventsAsync(cancellationToken);
+
             await SetAuditDataAsync();
             UpdateConcurrencyToken();
+            //DispatchDomainEventsEventsAsync must be below SetAuditDataAsync in order for CreatedById and CreatedAt fields to be populated when
+            //domain event handlers access the entity
+            await DispatchDomainEventsEventsAsync(cancellationToken);
+            //HistoryEvent domain handler adds an entity and we need to call SetAuditDataAsync again
+            //to set CreatedById and CreatedAt on that entity
+            await SetAuditDataAsync();
 
             try
             {
