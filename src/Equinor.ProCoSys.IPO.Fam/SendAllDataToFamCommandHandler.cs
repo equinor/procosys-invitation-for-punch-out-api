@@ -60,8 +60,6 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         return new SuccessResult<string>(statusResult);
     }
 
-
-
     private async Task<string> SendEventsToFam<T>(
         Func<Task<IEnumerable<T>>> getEvents,
         string commonLibClassName,
@@ -69,6 +67,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
     {
         try
         {
+            _logger.LogInformation($"Starting to process events for type {commonLibClassName} to send to FAM");
             var batchSize = _famOptions.Value.BatchSize == default ? 5000 : _famOptions.Value.BatchSize;
             var totalSent = 0;
 
@@ -98,9 +97,9 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
                 }
             }
 
-            return totalSent > 0
-                ? $"Successfully sent {totalSent} events for type {commonLibClassName} to FAM.\n"
-                : $"Found no events for {commonLibClassName}";
+            var successFullySentMessage = $"Successfully sent {totalSent} events for type {commonLibClassName} to FAM.\n";
+            _logger.LogInformation(successFullySentMessage);
+            return successFullySentMessage;
         }
         catch (Exception ex)
         {
