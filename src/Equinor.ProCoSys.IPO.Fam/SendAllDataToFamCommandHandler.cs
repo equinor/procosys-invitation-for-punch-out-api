@@ -11,22 +11,26 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ServiceResult;
+using MoreLinq;
 
 namespace Equinor.ProCoSys.IPO.Fam;
 
 public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCommand, Result<string>>
 {
     private readonly IFamRepository _famRepository;
+    private readonly IOptions<FamOptions> _famOptions;
     private readonly CommonLibConfig _commonLibConfig;
     private readonly IEventHubProducerService _eventHubProducerService;
     private readonly ILogger _logger;
 
     public SendAllDataToFamCommandHandler(IFamRepository famRepository,
         IOptions<CommonLibConfig> commonLibConfig,
+        IOptions<FamOptions> famOptions,
         IEventHubProducerService eventHubProducerService,
         ILogger<SendAllDataToFamCommandHandler> logger)
     {
         _famRepository = famRepository;
+        _famOptions = famOptions;
         _commonLibConfig = commonLibConfig.Value;
         _eventHubProducerService = eventHubProducerService;
         _logger = logger;
@@ -63,26 +67,39 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
     {
         try
         {
-            var events = (await getEvents()).ToList();
+            _logger.LogInformation($"Starting to process events for type {commonLibClassName} to send to FAM");
+            var batchSize = _famOptions.Value.BatchSize == default ? 5000 : _famOptions.Value.BatchSize;
+            var totalSent = 0;
 
-            _logger.LogInformation($"Found {events.Count} events for type {commonLibClassName} to send to FAM");
-            
-            if (!events.Any())
+            var allEvents = await getEvents();
+
+            foreach (var batch in allEvents.Batch(batchSize))
             {
-                return $"Found no events for {commonLibClassName}";
+                var eventBatch = batch.ToList();
+
+                _logger.LogInformation($"Processing batch of {eventBatch.Count} events for type {commonLibClassName} to send to FAM");
+
+                if (eventBatch.Count == 0)
+                {
+                    _logger.LogInformation($"Found no more events for {commonLibClassName}");
+                    continue;
+                }
+
+                var eventsAsJson = eventBatch.Select(e => JsonSerializer.Serialize(e)).ToList();
+                var messages = eventsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, commonLibClassName));
+                var commonLibMappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
+
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development" && commonLibMappedMessages.Count > 0)
+                {
+                    _logger.LogInformation($"Sending batch of {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.");
+                    await SendFamMessages(commonLibMappedMessages);
+                    totalSent += commonLibMappedMessages.Count;
+                }
             }
 
-            var eventsAsJson = events.Select(e => JsonSerializer.Serialize(e)).ToList();
-            var messages = eventsAsJson.SelectMany(e => TieMapper.CreateTieMessage(e, commonLibClassName));
-            var commonLibMappedMessages = messages.Select(m => mapper.Map(m).Message).Where(m => m.Objects.Any()).ToList();
-
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
-            {
-                _logger.LogInformation($"Sending {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.");
-                await SendFamMessages(commonLibMappedMessages);
-            }
-
-            return $"Successfully sent {commonLibMappedMessages.Count} events for type {commonLibClassName} to FAM.\n";
+            var successFullySentMessage = $"Successfully sent {totalSent} events for type {commonLibClassName} to FAM.\n";
+            _logger.LogInformation(successFullySentMessage);
+            return successFullySentMessage;
         }
         catch (Exception ex)
         {
