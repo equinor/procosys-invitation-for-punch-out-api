@@ -2,19 +2,19 @@
 
 public interface IParticipantEventV1 : IIntegrationEvent
 {
-    public Guid ProCoSysGuid { get; init; }
-    public string Plant { get; init; }
-    public string ProjectName { get; init; }
-    public string Organization { get; init; }
-    public string Type { get; init; }
-    public string FunctionalRoleCode { get; init; }
-    public Guid? AzureOid { get; init; }
-    public int SortKey { get; init; }
-    public DateTime CreatedAtUtc { get; init; }
-    public Guid InvitationGuid { get; init; }
-    public DateTime? ModifiedAtUtc { get; init; }
-    public bool Attended { get; init; }
-    public string? Note { get; init; }
-    public DateTime? SignedAtUtc { get; init; }
-    public Guid? SignedByOid { get; init; }
+    public Guid ProCoSysGuid { get; }
+    public string Plant { get; }
+    public string ProjectName { get; }
+    public string Organization { get; }
+    public string Type { get; }
+    public string FunctionalRoleCode { get; }
+    public Guid? AzureOid { get; }
+    public int SortKey { get; }
+    public DateTime CreatedAtUtc { get; }
+    public Guid InvitationGuid { get; }
+    public DateTime? ModifiedAtUtc { get; }
+    public bool Attended { get; }
+    public string? Note { get; }
+    public DateTime? SignedAtUtc { get; }
+    public Guid? SignedByOid { get; }
 }

@@ -38,6 +38,9 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
         var statusResult = string.Empty;
 
+        statusResult += await SendEventsToFam<ICommPkgEventV1>(
+            _famRepository.GetCommPkgs, CommonLibClassConstants.CommPkg, mapper);
+
         statusResult += await SendEventsToFam<IParticipantEventV1>( 
             _famRepository.GetParticipants, CommonLibClassConstants.Participant, mapper);
 
@@ -49,9 +52,6 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
         statusResult += await SendEventsToFam<IMcPkgEventV1>(
             _famRepository.GetMcPkgs, CommonLibClassConstants.McPkg, mapper);
-
-        statusResult += await SendEventsToFam<ICommPkgEventV1>(
-            _famRepository.GetCommPkgs, CommonLibClassConstants.CommPkg, mapper);
 
         return new SuccessResult<string>(statusResult);
     }

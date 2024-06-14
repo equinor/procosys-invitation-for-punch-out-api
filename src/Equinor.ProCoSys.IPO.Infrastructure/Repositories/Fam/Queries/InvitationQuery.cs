@@ -4,7 +4,7 @@ public static class InvitationQuery
 {
     public static string Query => @$"
             SELECT 
-                i.Guid as ProCoSysGuid,
+                i.Guid,
 	            i.Plant,
 	            p.Name as ProjectName,
 	            i.Id,
@@ -24,12 +24,13 @@ public static class InvitationQuery
 		            WHEN i.Status = 3 THEN 'Canceled'
 		            WHEN i.Status = 4 THEN 'ScopeHandedOver'
 	            END as Status,
+                i.EndTimeUtc,
 	            i.Location,
 	            i.StartTimeUtc,
 	            i.AcceptedAtUtc,
 	            acceptedBy.Guid as AcceptedByOid,
 	            i.CompletedAtUtc,
-	            completedBy.Guid
+	            completedBy.Guid as CompletedByOid
               FROM Invitations i
               JOIN Projects p on p.Id = i.ProjectId
               JOIN Persons createdBy on createdBy.Id = i.CreatedById

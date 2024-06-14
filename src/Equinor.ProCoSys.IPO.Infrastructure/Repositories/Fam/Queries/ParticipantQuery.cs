@@ -4,7 +4,7 @@ public static class ParticipantQuery
 {
     public static string Query => @$"
           SELECT
-	        p.Guid as ProCoSysGuid,
+	        p.Guid,
 	        p.Plant,
 	        project.Name as ProjectName,
 	        CASE
@@ -29,8 +29,7 @@ public static class ParticipantQuery
 	        p.Attended,
 	        p.Note,
 	        p.SignedAtUtc,
-	        signedBy.Guid as SignedByOid,
-	        p.InvitationId
+	        signedBy.Guid as SignedByOid
         FROM Participants p
 	        JOIN Invitations i on i.Id = p.InvitationId
 	        JOIN Projects project on project.Id = i.ProjectId

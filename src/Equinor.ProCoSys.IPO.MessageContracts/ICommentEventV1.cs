@@ -2,11 +2,11 @@
 
 public interface ICommentEventV1 : IIntegrationEvent
 {
-    public Guid ProCoSysGuid { get; init; }
-    public string Plant { get; init; }
-    public string ProjectName { get; init; }
-    public string CommentText { get; init; }
-    public DateTime CreatedAtUtc { get; init; }
-    public Guid CreatedByOid { get; init; }
-    public Guid InvitationGuid { get; init; }
+    public Guid ProCoSysGuid { get; }
+    public string Plant { get; }    
+    public string ProjectName { get; }  
+    public string CommentText { get; }          
+    public DateTime CreatedAtUtc { get; }
+    public Guid CreatedByOid { get; }
+    public Guid InvitationGuid { get; }
 }

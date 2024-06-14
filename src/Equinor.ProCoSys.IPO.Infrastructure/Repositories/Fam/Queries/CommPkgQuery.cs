@@ -4,12 +4,12 @@ public static class CommPkgQuery
 {
     public static string Query => @$"
             SELECT
-	            c.Guid as ProCoSysGuid,
+	            c.Guid,
 	            c.Plant,
 	            p.Name as ProjectName,
+	            c.CommPkgGuid,
 	            i.Guid as InvitationGuid,
-	            c.CreatedAtUtc,
-	            c.CommPkgGuid
+	            c.CreatedAtUtc
             FROM CommPkgs c
 	            JOIN Projects p on p.Id = c.ProjectId
 	            JOIN Invitations i on i.Id = c.InvitationId	

@@ -2,6 +2,7 @@
 
 public interface IInvitationEventV1 : IIntegrationEvent
 {
+    Guid ProCoSysGuid { get; }
     public string Plant { get; }
     public string ProjectName { get; }
     public int Id { get; }
