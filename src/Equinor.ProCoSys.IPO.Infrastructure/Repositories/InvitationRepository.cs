@@ -47,6 +47,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             var toProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(toProjectName));
             var fromProject = _context.Projects.SingleOrDefault(x => x.Name.Equals(fromProjectName));
 
+                    .Where(i => i.CommPkgs.Any(c => c.Guid == commPkgGuid) || i.McPkgs.Any(m => m.CommPkgGuid == commcommPkgGuidPkgNo))).ToList();
+
+            var mcPkgsToMove = _context.McPkgs.Where(mc => fromProject != null && mc.ProjectId == fromProject.Id && mc.CommPkgGuid == commPkgNo).ToList();
+                    .Where(i => i.CommPkgs.Any(c => c.Guid == commPkgGuid) || i.McPkgs.Any(m => m.CommPkgGuid == commPkgNo))).ToList();
             var commPkgsToMove = _context.CommPkgs.Where(cp => fromProject != null && cp.ProjectId == fromProject.Id && cp.CommPkgNo == commPkgNo).ToList();
 
             var mcPkgsToMove = _context.McPkgs.Where(mc => fromProject != null && mc.ProjectId == fromProject.Id && mc.CommPkgNo == commPkgNo).ToList();
