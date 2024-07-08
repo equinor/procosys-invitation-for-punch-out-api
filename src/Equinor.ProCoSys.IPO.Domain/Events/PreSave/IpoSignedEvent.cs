@@ -7,15 +7,17 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
 {
     public class IpoSignedEvent : IDomainEvent
     {
-        public IpoSignedEvent(string plant, Guid sourceGuid, Participant participant, Person person)
+        public IpoSignedEvent(string plant, Guid sourceGuid, Invitation invitation, Participant participant, Person person)
         {
             Plant = plant;
             SourceGuid = sourceGuid;
+            Invitation = invitation;
             Participant = participant;
             Person = person;
         }
         public string Plant { get; }
         public Guid SourceGuid { get; }
+        public Invitation Invitation { get; }
         public Participant Participant { get; }
         public Person Person { get; }
 

@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Equinor.ProCoSys.IPO.MessageContracts\Equinor.ProCoSys.IPO.MessageContracts.csproj" />
+  </ItemGroup>
+
 </Project>

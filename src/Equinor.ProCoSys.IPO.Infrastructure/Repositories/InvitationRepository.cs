@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories

@@ -21,6 +21,9 @@ using ServiceResult;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -45,6 +48,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IProjectApiService _projectApiService;
         private readonly ICalendarService _calendarService;
         private readonly IEmailService _emailService;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
+        private readonly ICreateEventHelper _eventHelper;
 
         public CreateInvitationCommandHandler(
             IPlantProvider plantProvider,
@@ -62,6 +67,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IProjectApiService projectApiService,
             ICalendarService calendarService,
             IEmailService emailService,
+            IIntegrationEventPublisher integrationEventPublisher,
+            ICreateEventHelper eventHelper,
             ILogger<CreateInvitationCommandHandler> logger)
         {
             _plantProvider = plantProvider;
@@ -79,6 +86,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _projectApiService = projectApiService;
             _calendarService = calendarService;
             _emailService = emailService;
+            _integrationEventPublisher = integrationEventPublisher;
+            _eventHelper = eventHelper;
             _logger = logger;
         }
 
@@ -117,6 +126,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
         
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            
+            //Manual publish instead of domain event handler in order to obtain the id of the invitation
+            await PublishEventToBusAsync(invitation, cancellationToken);
+
             try
             {
                 invitation.MeetingId = await CreateOutlookMeeting(request, meetingParticipants, invitation, project.Name);
@@ -155,6 +168,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                 throw;
             }
+        }
+
+        private async Task PublishEventToBusAsync(Invitation invitation, CancellationToken cancellationToken)
+        {
+            var invitationEvent = await _eventHelper.CreateInvitationEvent(invitation);
+            await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 
         private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 
@@ -505,4 +524,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return meeting.Id;
         }
     }
+
+
 }

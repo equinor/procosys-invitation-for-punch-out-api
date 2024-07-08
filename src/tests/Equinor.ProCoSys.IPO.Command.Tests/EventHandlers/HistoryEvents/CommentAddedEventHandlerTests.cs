@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.HistoryEvents
             // Act
             var sourceGuid = Guid.NewGuid();
             var plant = "TestPlant";
-            _dut.Handle(new CommentAddedEvent(plant, sourceGuid), default);
+            _dut.Handle(new CommentAddedEvent(plant, sourceGuid, null, null), default);
 
             // Assert
             Assert.IsNotNull(_historyAdded);

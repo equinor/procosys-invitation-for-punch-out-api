@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using IDomainMarker = Equinor.ProCoSys.IPO.Domain.IDomainMarker;
 
@@ -34,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             _eventDispatcher = eventDispatcher;
             _currentUserProvider = currentUserProvider;
         }
-       
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (DebugOptions.DebugEntityFrameworkInDevelopment)
@@ -48,10 +49,12 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             SetGlobalPlantFilter(modelBuilder);
-        }      
+
+            ConfigureOutBoxPattern(modelBuilder);
+        }
 
         public static DateTimeKindConverter DateTimeKindConverter { get; } = new DateTimeKindConverter();
-        
+
         public virtual DbSet<Person> Persons { get; set; }
         public virtual DbSet<Invitation> Invitations { get; set; }
         public virtual DbSet<McPkg> McPkgs { get; set; }
@@ -64,6 +67,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<Setting> Setting { get; set; }
         public virtual DbSet<Certificate> Certificates { get; set; }
+
+        private static void ConfigureOutBoxPattern(ModelBuilder modelBuilder)
+            => modelBuilder.AddTransactionalOutboxEntities();
 
         private void SetGlobalPlantFilter(ModelBuilder modelBuilder)
         {
@@ -87,10 +93,16 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await DispatchDomainEventsEventsAsync(cancellationToken);
+
             await SetAuditDataAsync();
             UpdateConcurrencyToken();
-            
+            //DispatchDomainEventsEventsAsync must be below SetAuditDataAsync in order for CreatedById and CreatedAt fields to be populated when
+            //domain event handlers access the entity
+            await DispatchDomainEventsEventsAsync(cancellationToken);
+            //HistoryEvent domain handler adds an entity and we need to call SetAuditDataAsync again
+            //to set CreatedById and CreatedAt on that entity
+            await SetAuditDataAsync();
+
             try
             {
                 var result = await base.SaveChangesAsync(cancellationToken);
@@ -99,11 +111,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure
             }
             catch (DbUpdateConcurrencyException concurrencyException)
             {
-                throw new ConcurrencyException("Data store operation failed. Data may have been modified or deleted since entities were loaded.", concurrencyException);
+                throw new Common.Misc.ConcurrencyException("Data store operation failed. Data may have been modified or deleted since entities were loaded.", concurrencyException);
             }
         }
-            
-        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default) 
+
+        public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
             => await base.Database.BeginTransactionAsync(cancellationToken);
 
         public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)

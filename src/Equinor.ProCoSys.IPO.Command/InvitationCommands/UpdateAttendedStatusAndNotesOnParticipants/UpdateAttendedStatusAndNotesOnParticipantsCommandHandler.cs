@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -18,19 +20,25 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IPersonApiService _personApiService;
+        private readonly IIntegrationEventPublisher _integrationEventPublisher;
+        private readonly ICreateEventHelper _eventHelper;
 
         public UpdateAttendedStatusAndNotesOnParticipantsCommandHandler(
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
             ICurrentUserProvider currentUserProvider, 
-            IPersonApiService personApiService)
+            IPersonApiService personApiService,
+            IIntegrationEventPublisher integrationEventPublisher,
+            ICreateEventHelper eventHelper)
         {
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
             _currentUserProvider = currentUserProvider;
             _personApiService = personApiService;
+            _integrationEventPublisher = integrationEventPublisher;
+            _eventHelper = eventHelper;
         }
 
         public async Task<Result<Unit>> Handle(UpdateAttendedStatusAndNotesOnParticipantsCommand request, CancellationToken cancellationToken)
@@ -55,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             {
                 UpdateParticipantStatusesAndNotes(invitation, request.Participants);
             }
-
+            
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }
@@ -91,7 +99,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                 ipoParticipant.Attended = participant.Attended;
                 ipoParticipant.Note = participant.Note;
                 ipoParticipant.SetRowVersion(participant.RowVersion);
+
+                PublishEventToBusAsync(invitation, ipoParticipant).GetAwaiter().GetResult();
             }
+        }
+
+        private async Task PublishEventToBusAsync(Invitation invitation, Participant participant)
+        {
+            var participantEvent = await _eventHelper.CreateParticipantEvent(participant, invitation);
+            await _integrationEventPublisher.PublishAsync(participantEvent, CancellationToken.None);
         }
     }
 }

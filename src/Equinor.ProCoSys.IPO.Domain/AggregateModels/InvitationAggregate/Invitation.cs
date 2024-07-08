@@ -64,6 +64,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             ProjectId = project.Id;
             Title = title;
             Description = description;
+            Guid = Guid.NewGuid();
+            ObjectGuid = Guid;
 
             SetScope(type, mcPkgs, commPkgs);
 
@@ -71,8 +73,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             StartTimeUtc = startTimeUtc;
             EndTimeUtc = endTimeUtc;
             Location = location;
-            Guid = Guid.NewGuid();
-            ObjectGuid = Guid;
             AddDomainEvent(new IpoCreatedEvent(plant, Guid));
         }
 
@@ -154,6 +154,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Add(participant);
+            AddDomainEvent(new ParticipantAddedEvent(Plant, Guid, this, participant));
         }
 
         public void RemoveParticipant(Participant participant)
@@ -169,6 +170,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _participants.Remove(participant);
+            AddDomainEvent(new ParticipantRemovedEvent(Plant, Guid, participant.Guid));
         }
 
         public void UpdateParticipant(
@@ -193,6 +195,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.AzureOid = azureOid;
             participant.SortKey = sortKey;
             participant.SetRowVersion(participantRowVersion);
+
+            AddDomainEvent(new ParticipantUpdatedEvent(Plant, Guid, this, participant));
         }
 
         public void UpdateNote(
@@ -206,7 +210,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
             participant.Note = note;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, note));
+            AddDomainEvent(new NoteUpdatedEvent(Plant, Guid, participant, this, note));
         }
 
         public void UpdateAttendedStatus(
@@ -221,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.Attended = attended;
             participant.IsAttendedTouched = true;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new AttendedStatusUpdatedEvent(Plant, Guid));
+            AddDomainEvent(new AttendedStatusUpdatedEvent(Plant, Guid, participant, this));
         }
 
         public void CompleteIpo(Participant participant, string participantRowVersion, Person completedBy, DateTime completedAtUtc)
@@ -242,7 +246,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedBy = completedBy.Id;
             CompletedAtUtc = completedAtUtc;
-            AddDomainEvent(new IpoCompletedEvent(Plant, Guid, participant));
+
+            AddDomainEvent(new IpoCompletedEvent(Plant, Guid, this, participant));
 
             AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }
@@ -286,7 +291,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             CompletedAtUtc = null;
             CompletedBy = null;
-            AddDomainEvent(new IpoUnCompletedEvent(Plant, Guid, participant));
+            AddDomainEvent(new IpoUnCompletedEvent(Plant, Guid, this, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnCompletedEvent(Plant, Guid));
         }
 
@@ -308,7 +313,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedBy = acceptedBy.Id;
             AcceptedAtUtc = acceptedAtUtc;
-            AddDomainEvent(new IpoAcceptedEvent(Plant, Guid, participant));
+            AddDomainEvent(new IpoAcceptedEvent(Plant, Guid, this, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoAcceptedEvent(Plant, Guid));
         }
 
@@ -330,7 +335,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SetRowVersion(participantRowVersion);
             AcceptedAtUtc = null;
             AcceptedBy = null;
-            AddDomainEvent(new IpoUnAcceptedEvent(Plant, Guid, participant));
+            AddDomainEvent(new IpoUnAcceptedEvent(Plant, Guid, this, participant));
             AddPostSaveDomainEvent(new Events.PostSave.IpoUnAcceptedEvent(Plant, Guid));
         }
 
@@ -349,7 +354,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SignedBy = signedBy.Id;
             participant.SignedAtUtc = DateTime.UtcNow;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new IpoSignedEvent(Plant, Guid, participant, signedBy));
+            AddDomainEvent(new IpoSignedEvent(Plant, Guid, this, participant, signedBy));
         }
 
         public void UnSignIpo(Participant participant, Person unSignedBy, string participantRowVersion)
@@ -367,7 +372,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             participant.SignedBy = null;
             participant.SignedAtUtc = null;
             participant.SetRowVersion(participantRowVersion);
-            AddDomainEvent(new IpoUnSignedEvent(Plant, Guid, participant, unSignedBy));
+            AddDomainEvent(new IpoUnSignedEvent(Plant, Guid, this, participant, unSignedBy));
         }
 
         public void EditIpo(
@@ -405,7 +410,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             StartTimeUtc = startTime;
             EndTimeUtc = endTime;
             Location = location;
-            AddDomainEvent(new IpoEditedEvent(Plant, Guid));
+            AddDomainEvent(new IpoEditedEvent(Plant, Guid, this));
         }
 
         public void AddComment(Comment comment)
@@ -421,7 +426,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Add(comment);
-            AddDomainEvent(new CommentAddedEvent(Plant, Guid));
+            AddDomainEvent(new CommentAddedEvent(Plant, Guid, this, comment));
         }
 
         public void RemoveComment(Comment comment)
@@ -437,7 +442,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             _comments.Remove(comment);
-            AddDomainEvent(new CommentRemovedEvent(Plant, Guid));
+            AddDomainEvent(new CommentRemovedEvent(Plant, Guid, comment.Guid));
         }
 
         public void CancelIpo(Person caller)
@@ -459,7 +464,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             AddPostSaveDomainEvent(new Events.PostSave.IpoCanceledEvent(Plant, Guid, Status));
             Status = IpoStatus.Canceled;
-            AddDomainEvent(new IpoCanceledEvent(Plant, Guid));
+            AddDomainEvent(new IpoCanceledEvent(Plant, Guid, this));
         }
 
         public void ScopeHandedOver()
@@ -470,7 +475,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             }
 
             Status = IpoStatus.ScopeHandedOver;
-            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid));
+            AddDomainEvent(new ScopeHandedOverEvent(Plant, Guid, this));
         }
 
         public void ResetStatus()
@@ -491,7 +496,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             {
                 Status = IpoStatus.Planned;
             }
-            AddDomainEvent(new StatusResetEvent(Plant, Guid));
+            AddDomainEvent(new StatusResetEvent(Plant, Guid, this));
         }
 
         public void SetCreated(Person createdBy)
@@ -546,6 +551,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 return;
             }
             _commPkgs.Add(commPkg);
+            AddDomainEvent(new CommPkgAddedEvent(Plant, Guid, commPkg, this));
         }
 
         public void AddMcPkg(McPkg mcPkg)
@@ -570,6 +576,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
                 return;
             }
             _mcPkgs.Add(mcPkg);
+            AddDomainEvent(new McPkgAddedEvent(Plant, Guid, mcPkg, this));
         }
 
         private void SetDpScope(IList<McPkg> mcPkgs)
@@ -583,7 +590,14 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         private void RemoveOldMcPkgs(IList<McPkg> mcPkgs)
-            => _mcPkgs.RemoveAll(x => !mcPkgs.Select(y => y.McPkgNo).Contains(x.McPkgNo));
+        {
+            var mcPkgsToRemove = _mcPkgs.Where(m => mcPkgs.All(m2 => m2.McPkgNo != m.McPkgNo)).ToList();
+            foreach (var mcPkgToRemove in mcPkgsToRemove)
+            {
+                _mcPkgs.Remove(mcPkgToRemove);
+                AddDomainEvent(new McPkgRemovedEvent(Plant, Guid, mcPkgToRemove.Guid));
+            }
+        }
 
         private void SetMdpScope(IList<CommPkg> commPkgs)
         {
@@ -596,11 +610,32 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         }
 
         private void RemoveOldCommPkgs(IList<CommPkg> commPkgs)
-            => _commPkgs.RemoveAll(x => !commPkgs.Select(y => y.CommPkgNo).Contains(x.CommPkgNo));
+        {
+            var commPkgsToRemove = _commPkgs.Where(c => commPkgs.All(c2 => c2.CommPkgNo != c.CommPkgNo)).ToList();
+            foreach (var commPkgToRemove in commPkgsToRemove)
+            {
+                _commPkgs.Remove(commPkgToRemove);
+                AddDomainEvent(new CommPkgRemovedEvent(Plant, Guid, commPkgToRemove.Guid));
+            }
+        }
 
-        private void ClearDpScope() => _mcPkgs.Clear();
+        private void ClearDpScope()
+        {
+            foreach (var mcPkg in _mcPkgs)
+            {
+                AddDomainEvent(new McPkgRemovedEvent(Plant, Guid, mcPkg.Guid));
+            }
+            _mcPkgs.Clear();
+        }
 
-        private void ClearMdpScope() => _commPkgs.Clear();
+        private void ClearMdpScope()
+        {
+            foreach (var commPkg in _commPkgs)
+            {
+                AddDomainEvent(new CommPkgRemovedEvent(Plant, Guid, commPkg.Guid));
+            }
+            _commPkgs.Clear();
+        }
 
         private void SetScope(DisciplineType type, IList<McPkg> mcPkgs, IList<CommPkg> commPkgs)
         {
