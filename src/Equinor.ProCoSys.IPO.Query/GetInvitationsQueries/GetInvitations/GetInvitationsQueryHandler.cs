@@ -11,6 +11,7 @@ using ServiceResult;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {
@@ -19,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         private readonly IReadOnlyContext _context;
         private readonly IPermissionCache _permissionCache;
         private readonly IPlantProvider _plantProvider;
+        private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly DateTime _utcNow;
 
@@ -26,13 +28,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
            IReadOnlyContext context,
            IPermissionCache permissionCache,
            IPlantProvider plantProvider,
-           ICurrentUserProvider currentUserProvider)
+           ICurrentUserProvider currentUserProvider,
+           IFunctionalRoleApiService functionalRoleApiService)
         {
             _context = context;
             _utcNow = TimeService.UtcNow;
             _permissionCache = permissionCache;
             _plantProvider = plantProvider;
             _currentUserProvider = currentUserProvider;
+            _functionalRoleApiService = functionalRoleApiService;
         }
 
         public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)
@@ -56,8 +60,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             var invitationIds = invitationForQueryDtos.Select(i => i.Id).ToList();
 
             var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
+            var codes = invitationsWithIncludes.SelectMany(x => x.Participants).Where(y => y.FunctionalRoleCode != null).Select(y => y.FunctionalRoleCode).Distinct().ToList();
+            var functionalRoles =
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
 
-            var result = CreateResult(maxAvailable, orderedInvitations, invitationsWithIncludes);
+            var functionalRolesNotUsingPersonalEmail = new List<string>();
+
+            if (functionalRoles != null && functionalRoles.Any())
+            {
+                functionalRolesNotUsingPersonalEmail =
+                    functionalRoles.Where(fr => fr.UsePersonalEmail != null && !fr.UsePersonalEmail.Value)
+                        .Select(fr => fr.Code).ToList();
+            }
+
+            var result = CreateResult(maxAvailable, orderedInvitations, invitationsWithIncludes, functionalRolesNotUsingPersonalEmail);
 
             return new SuccessResult<InvitationsResult>(result);
         }
@@ -65,12 +81,18 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
         private InvitationsResult CreateResult(
             int maxAvailable,
             IEnumerable<InvitationForQueryDto> orderedInvitations,
-            List<Invitation> invitationsWithIncludes)
+            List<Invitation> invitationsWithIncludes,
+            List<string> functionalRolesNotUsingPersonalEmail)
         {
             var invitations = orderedInvitations.Select(invitation =>
             {
                 var invitationWithIncludes = invitationsWithIncludes.Single(i => i.Id == invitation.Id);
-                var participants = invitationWithIncludes.Participants.ToList();
+
+                // Filtering out persons related to functional roles where using personal email is set to true.
+                var participants = invitationWithIncludes.Participants
+                    .Where(p => ((!p.HasRole) || (p.IsRole) || (p.HasRole && functionalRolesNotUsingPersonalEmail.Contains(p.FunctionalRoleCode))))
+                    .ToList();
+
                 return new InvitationDto(invitation.Id,
                     invitation.ProjectName,
                     invitation.Title,
