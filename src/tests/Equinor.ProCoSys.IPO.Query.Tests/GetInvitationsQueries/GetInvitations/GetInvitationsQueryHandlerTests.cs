@@ -332,7 +332,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                         UserName = "ON"
                     }
                 },
-                UsePersonalEmail = false
+                UsePersonalEmail = true
             };
             var _functionalRole3Details = new ProCoSysFunctionalRole
             {
