@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
-internal class ParticipantAddedEventHandler : INotificationHandler<ParticipantAddedEvent>
+public class ParticipantAddedEventHandler : INotificationHandler<ParticipantAddedEvent>
 {
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
     private readonly ICreateEventHelper _eventHelper;
