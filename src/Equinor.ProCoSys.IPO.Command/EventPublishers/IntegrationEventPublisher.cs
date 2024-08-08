@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.MessageContracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Polly;
 
 namespace Equinor.ProCoSys.IPO.Command.EventPublishers;
 
@@ -18,10 +19,14 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
     }
 
     public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IIntegrationEvent
-        => await _publishEndpoint.Publish(message,
+    {
+        _logger.LogInformation("Publishing: {Message}", message.ToString());
+
+        await _publishEndpoint.Publish(message,
             context =>
             {
                 _logger.LogInformation("Publishing: {Message}", context.Message.ToString());
             },
             cancellationToken);
+    }
 }
