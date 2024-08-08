@@ -59,7 +59,7 @@ public class CreateEventHelper : ICreateEventHelper
             ? await _personRepository.GetByIdAsync(participant.SignedBy.Value)
             : null;
 
-        return new ParticipantEvent(invitation.Guid,
+        return new ParticipantEvent(participant.Guid,
             invitation.Plant,
             project.Name,
             participant.Organization.ToString(),
