@@ -17,11 +17,11 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
         _logger = logger;
     }
 
-    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IIntegrationEvent
+    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IIntegrationEvent 
         => await _publishEndpoint.Publish(message,
             context =>
             {
-                _logger.LogInformation("Publishing: {Message}", context.Message.ToString());
+                _logger.LogInformation("Publishing: {Message} with guid {guid}", context.Message.ToString(), message.Guid);
             },
             cancellationToken);
 }
