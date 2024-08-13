@@ -60,9 +60,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             var invitationIds = invitationForQueryDtos.Select(i => i.Id).ToList();
 
             var invitationsWithIncludes = await GetInvitationsWithIncludesAsync(_context, invitationIds, cancellationToken);
-            var codes = invitationsWithIncludes.SelectMany(x => x.Participants).Where(y => y.FunctionalRoleCode != null).Select(y => y.FunctionalRoleCode).Distinct().ToList();
+            var functionalRoleCodes = invitationsWithIncludes
+                .SelectMany(x => x.Participants)
+                .Where(y => y.HasRole)
+                .Select(y => y.FunctionalRoleCode)
+                .Distinct()
+                .ToList();
             var functionalRoles =
-                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, functionalRoleCodes);
 
             var functionalRolesNotUsingPersonalEmail = new List<string>();
 
