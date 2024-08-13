@@ -13,7 +13,7 @@ public static class CommentQuery
 	              project.Name as ProjectName                 
               FROM Comments c
               JOIN Invitations i on i.Id = c.InvitationId
-              JOIN Projects project on project.Id = c.InvitationId
+              JOIN Projects project on project.Id = i.ProjectId
               JOIN Persons person on person.Id = c.CreatedById
             ";
 }
