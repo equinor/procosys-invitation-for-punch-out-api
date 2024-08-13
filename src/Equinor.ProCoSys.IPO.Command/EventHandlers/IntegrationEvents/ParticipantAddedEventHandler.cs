@@ -19,16 +19,14 @@ public class ParticipantAddedEventHandler : INotificationHandler<ParticipantAdde
 
     public async Task Handle(ParticipantAddedEvent notification, CancellationToken cancellationToken)
     {
-        //Filter out participants who are members of a functional role
-        if (IsPersonAddedAsMemberOfAFunctionalRole(notification))
+        //Only export functional roles and persons of type person, filter out participants who are added as members of a functional role
+        if (FunctionalRoleOrPersonAsPersonType(notification))
         {
-            return;
+            var participantEvent = await _eventHelper.CreateParticipantEvent(notification.Participant, notification.Invitation);
+            await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
         }
-
-        var participantEvent = await _eventHelper.CreateParticipantEvent(notification.Participant, notification.Invitation);
-        await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
     }
 
-    private static bool IsPersonAddedAsMemberOfAFunctionalRole(ParticipantAddedEvent notification) => 
-        notification.Participant.FunctionalRoleCode is not null && notification.Participant.LastName is not null;
+    private static bool FunctionalRoleOrPersonAsPersonType(ParticipantAddedEvent notification) =>
+        notification.Participant.FunctionalRoleCode is null || notification.Participant.LastName is null;
 }
