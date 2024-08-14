@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
