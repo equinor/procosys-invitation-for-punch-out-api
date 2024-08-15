@@ -15,17 +15,17 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
 {
     [TestClass]
-    public class ParticipantAddedEventHandlerTest
+    public class ParticipantUpdatedEventHandlerTest
     {
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private CreateEventHelper _createEventHelper;
         private Project _project;
-        private McPkg _mcPkg;
+        public McPkg _mcPkg;
         private readonly string _plant = "TestPlant";
         private Invitation _invitation;
-        private ParticipantAddedEventHandler _dut;
+        private ParticipantUpdatedEventHandler _dut;
 
         [TestInitialize]
         public void Setup()
@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
             _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object);;
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
-            _dut = new ParticipantAddedEventHandler(_integrationEventPublisherMock.Object, _createEventHelper);
+            _dut = new ParticipantUpdatedEventHandler(_integrationEventPublisherMock.Object, _createEventHelper);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
 
 
             // Act
-            await _dut.Handle(new ParticipantAddedEvent(_plant, sourceGuid, _invitation, participant), default);
+            await _dut.Handle(new ParticipantUpdatedEvent(_plant, sourceGuid, _invitation, participant), default);
 
             // Assert
             _integrationEventPublisherMock
@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
                 null, "John", "Smith", "john@equinor.com", "john@equinor.com", null, 1);
 
             // Act
-            await _dut.Handle(new ParticipantAddedEvent(_plant, sourceGuid, _invitation, participant), default);
+            await _dut.Handle(new ParticipantUpdatedEvent(_plant, sourceGuid, _invitation, participant), default);
 
             // Assert
             _integrationEventPublisherMock
@@ -97,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
                 functionalRole, null, null, null, null, null, 1);
 
             // Act
-            await _dut.Handle(new ParticipantAddedEvent(_plant, sourceGuid, _invitation, participant), default);
+            await _dut.Handle(new ParticipantUpdatedEvent(_plant, sourceGuid, _invitation, participant), default);
 
             // Assert
             _integrationEventPublisherMock
