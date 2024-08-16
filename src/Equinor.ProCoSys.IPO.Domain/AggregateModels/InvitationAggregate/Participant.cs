@@ -40,6 +40,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Guid = Guid.NewGuid();
         }
 
+        public bool HasRole => FunctionalRoleCode != null;
+        public bool IsRole => HasRole && AzureOid == null;
+
         // private setters needed for Entity Framework
         public Guid Guid { get; private set; }
         public Organization Organization { get; set; }
