@@ -4,6 +4,8 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.MessageContracts;
+using JetBrains.Annotations;
+using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
@@ -51,8 +53,15 @@ public class CreateEventHelper : ICreateEventHelper
             completedBy?.Guid);
     }
 
+    [ItemCanBeNull]
     public async Task<IParticipantEventV1> CreateParticipantEvent(Participant participant, Invitation invitation)
     {
+        //Only export functional roles and persons of type person, filter out participants who are added as members of a functional role
+        if (!FunctionalRoleOrPersonAsPersonType(participant))
+        {
+            return null;
+        }
+        
         var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
         var signedBy = participant.SignedBy.HasValue
@@ -114,4 +123,6 @@ public class CreateEventHelper : ICreateEventHelper
             invitation.Guid,
             mcPkg.CreatedAtUtc);
     }
+    private static bool FunctionalRoleOrPersonAsPersonType(Participant participant) =>
+        participant.FunctionalRoleCode is null || participant.LastName is null;
 }
