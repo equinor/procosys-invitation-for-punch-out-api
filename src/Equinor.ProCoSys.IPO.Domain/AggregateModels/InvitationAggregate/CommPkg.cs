@@ -69,6 +69,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public bool RfocAccepted { get; set; }
         public ICollection<Certificate> CertificateScopes => _certificateScope;
         // TODO: make CommPkgGuid private after FillGuids has completed
+        // Guid used across modules.
+        // In a system using guid to identify objects between the modules, the guid may identify the object uniquely in one module,
+        // but not uniquely in another module due to many-to-many relationship to objects in that distinct module. 
+        // E.g. in IPO; one commpkgguid might have multiple invitations.
+        // Hence one should always assume that more than one instance exists when such relations are identified.
         public Guid CommPkgGuid { get; set; }
         public void SetCreated(Person createdBy)
         {

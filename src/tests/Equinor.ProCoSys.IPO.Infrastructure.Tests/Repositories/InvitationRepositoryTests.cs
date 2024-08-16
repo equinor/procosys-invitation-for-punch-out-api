@@ -529,7 +529,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(newDescription, _commPkg.Description);
 
             // Act
-            _dut.UpdateCommPkgOnInvitations(_commPkg.Guid, newDescription);
+            _dut.UpdateCommPkgOnInvitations(_commPkg.CommPkgGuid, newDescription);
 
             // Assert
             Assert.AreEqual(newDescription, _commPkg.Description);

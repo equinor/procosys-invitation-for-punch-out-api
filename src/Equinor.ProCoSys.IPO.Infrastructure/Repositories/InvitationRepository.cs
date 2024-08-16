@@ -34,31 +34,27 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public bool ShouldMoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
         {
             var toProject = _context.Projects.SingleOrDefault(x => x.Guid.Equals(toProjectGuid));
-            return _context.CommPkgs.Any(commPkg => commPkg.Guid == commPkgGuid && commPkg.ProjectId == toProject.Id);
+            return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid && commPkg.ProjectId == toProject.Id);
         }
 
         public void UpdateCommPkgOnInvitations(Guid commPkgGuid, string description)
         {
-            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.Guid ==commPkgGuid).ToList();
-
+            var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.CommPkgGuid == commPkgGuid).ToList();
             commPkgsToUpdate.ForEach(cp => cp.Description = description);
         }
 
         public void MoveCommPkg(Guid toProjectGuid, Guid commPkgGuid, string description)
         {
-            var toProject = _context.Projects.SingleOrDefault(x => x.Guid.Equals(toProjectGuid));
+            var toProject = _context.Projects.Single(x => x.Guid.Equals(toProjectGuid));
 
 
-            var commPkgsToMove = _context.CommPkgs.Where(cp => cp.Guid == commPkgGuid).ToList();
-            var fromProjectIds = commPkgsToMove.Select(c => c.ProjectId).ToList();
-            var fromProject = _context.Projects.SingleOrDefault(x => fromProjectIds.Contains(x.Id));
-
-            var mcPkgsToMove = _context.McPkgs.Where(mc => fromProject != null && mc.ProjectId == fromProject.Id && mc.CommPkgGuid == commPkgGuid).ToList();
+            var commPkgsToMove = _context.CommPkgs.Where(cp => cp.CommPkgGuid == commPkgGuid).ToList();
+            var mcPkgsToMove = _context.McPkgs.Where(mc => mc.CommPkgGuid == commPkgGuid).ToList();
 
             var invitationsToMove =
                 _context.Invitations
-                    .Where(i => fromProject != null && i.ProjectId == fromProject.Id &&
-                                (i.CommPkgs.Any(c => c.Guid == commPkgGuid) || i.McPkgs.Any(m => m.CommPkgGuid == commPkgGuid))).ToList();
+                    .Where(i => 
+                                InvitationRelatedToCommPkg(commPkgGuid, i)).ToList();
 
             if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgGuid, invitationsToMove))
             {
@@ -81,6 +77,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 mc.MoveToProject(toProject);
             });
         }
+
+        private static bool InvitationRelatedToCommPkg(Guid commPkgGuid, Invitation i) => i.CommPkgs.Any(c => c.CommPkgGuid == commPkgGuid) || i.McPkgs.Any(m => m.CommPkgGuid == commPkgGuid);
 
         private static bool NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(Guid commPkgGuid, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgGuid != commPkgGuid));
 
