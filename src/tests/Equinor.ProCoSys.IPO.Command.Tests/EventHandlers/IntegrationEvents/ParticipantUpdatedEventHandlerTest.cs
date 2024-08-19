@@ -9,6 +9,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.MessageContracts;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -20,6 +21,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<ILogger> _loggerMock;
+
         private CreateEventHelper _createEventHelper;
         private Project _project;
         public McPkg _mcPkg;
@@ -43,7 +46,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
             
             _personRepositoryMock = new Mock<IPersonRepository>();
 
-            _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object, null);;
+            _loggerMock = new Mock<ILogger>();
+            _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object, _loggerMock.Object);;
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
             _dut = new ParticipantUpdatedEventHandler(_integrationEventPublisherMock.Object, _createEventHelper);
