@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
             
             _personRepositoryMock = new Mock<IPersonRepository>();
 
-            _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object);;
+            _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object, null);;
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
 
             _dut = new ParticipantAddedEventHandler(_integrationEventPublisherMock.Object, _createEventHelper);
