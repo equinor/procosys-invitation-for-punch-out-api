@@ -110,7 +110,7 @@ stages:
 - stage: DeployDev
   displayName: 'Deploy to dev'
   dependsOn: 'build' 
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch']))
   variables:
     envName: 'dev'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.envName }}'
@@ -149,7 +149,7 @@ stages:
 - stage: DeployTest
   displayName: 'Deploy to test'
   dependsOn: 'DeployDev'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master')) 
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'])) 
   variables:
     envName: 'test'
     envGroupName: '$(globalPrefix)-$(fullAppName)-api-${{ variables.env }}'
