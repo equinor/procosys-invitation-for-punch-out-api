@@ -59,7 +59,7 @@ public class CreateEventHelper : ICreateEventHelper
     [ItemCanBeNull]
     public async Task<IParticipantEventV1> CreateParticipantEvent(Participant participant, Invitation invitation)
     {
-        _logger.LogInformation($"Participant: FunctionalRoleCode: {participant.FunctionalRoleCode}, LastName: {participant.LastName} ");
+        _logger.LogInformation($"Participant: FunctionalRoleCode: {participant.FunctionalRoleCode}, LastName: {participant.LastName}, Type {participant.Type.ToString()} ");
         //Only export functional roles and persons of type person, filter out participants who are added as members of a functional role
         if (!FunctionalRoleOrPersonAsPersonType(participant))
         {
