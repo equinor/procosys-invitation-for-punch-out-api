@@ -14,9 +14,9 @@ public class CreateEventHelper : ICreateEventHelper
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IPersonRepository _personRepository;
-    private readonly ILogger _logger;
+    private readonly ILogger<CreateEventHelper> _logger;
 
-    public CreateEventHelper(IProjectRepository projectRepository, IPersonRepository personRepository, ILogger logger)
+    public CreateEventHelper(IProjectRepository projectRepository, IPersonRepository personRepository, ILogger<CreateEventHelper> logger)
     {
         _projectRepository = projectRepository;
         _personRepository = personRepository;

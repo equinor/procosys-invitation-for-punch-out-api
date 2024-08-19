@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IPersonRepository> _personRepositoryMock;
-        private Mock<ILogger> _loggerMock;
+        private Mock<ILogger<CreateEventHelper>> _loggerMock;
         private CreateEventHelper _createEventHelper;
         private Project _project;
         private McPkg _mcPkg;
@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers.IntegrationEvents
                 .ReturnsAsync(_project);
             
             _personRepositoryMock = new Mock<IPersonRepository>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<CreateEventHelper>>();
 
             _createEventHelper = new CreateEventHelper(_projectRepositoryMock.Object, _personRepositoryMock.Object, _loggerMock.Object);;
             _integrationEventPublisherMock = new Mock<IIntegrationEventPublisher>();
