@@ -12,7 +12,7 @@ public class StringToLongConverter : JsonConverter<long>
         {
             return result;
         }
-        throw new JsonException($"Unable to deserialize JSON to CommPkgEvent. Cannot convert {reader.GetString()} to {typeof(long)}.");
+        throw new JsonException($"Unable to deserialize JSON. Cannot convert {reader.GetString()} to {typeof(long)}.");
     }
 
     public override void Write(Utf8JsonWriter writer, long value, JsonSerializerOptions options)
