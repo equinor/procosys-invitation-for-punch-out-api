@@ -34,6 +34,6 @@ public static class ParticipantQuery
 	        JOIN Invitations i on i.Id = p.InvitationId
 	        JOIN Projects project on project.Id = i.ProjectId
 	        LEFT JOIN Persons signedBy on signedBy.Id = p.SignedBy
-	        WHERE ((p.FunctionalRoleCode is null and p.UserName is not null) OR (p.FunctionalRoleCode is not null and p.UserName is null) OR (p.SignedAtUtc is not null))
+	        WHERE (p.FunctionalRoleCode is null OR p.lastname is null) 
             ";
 }

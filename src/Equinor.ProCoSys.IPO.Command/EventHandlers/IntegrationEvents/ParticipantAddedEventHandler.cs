@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
-internal class ParticipantAddedEventHandler : INotificationHandler<ParticipantAddedEvent>
+public class ParticipantAddedEventHandler : INotificationHandler<ParticipantAddedEvent>
 {
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
     private readonly ICreateEventHelper _eventHelper;
@@ -20,6 +20,11 @@ internal class ParticipantAddedEventHandler : INotificationHandler<ParticipantAd
     public async Task Handle(ParticipantAddedEvent notification, CancellationToken cancellationToken)
     {
         var participantEvent = await _eventHelper.CreateParticipantEvent(notification.Participant, notification.Invitation);
+
+        if (participantEvent is null)
+        {
+            return;
+        }
         await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);
     }
 }
