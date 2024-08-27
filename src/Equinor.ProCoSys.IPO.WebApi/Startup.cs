@@ -154,20 +154,25 @@ namespace Equinor.ProCoSys.IPO.WebApi
 
             services.AddPcsAuthIntegration();
 
-            services.AddFusionIntegration(options =>
+            if (!_environment.IsIntegrationTest())
             {
-                options.UseServiceInformation("PCS IPO", _environment.EnvironmentName); // Environment identifier
-                options.UseDefaultEndpointResolver(Configuration["Meetings:Environment"]);                               // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
-                options.UseDefaultTokenProvider(opts =>
+                services.AddFusionIntegration(options =>
                 {
-                    opts.ClientId = Configuration["Meetings:ClientId"];                  // Application client ID
-                    opts.ClientSecret = Configuration["Meetings:ClientSecret"];          // Application client secret
+                    options.UseServiceInformation("PCS IPO", _environment.EnvironmentName); // Environment identifier
+                    options.UseDefaultEndpointResolver(
+                        Configuration
+                            ["Meetings:Environment"]); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
+                    options.UseDefaultTokenProvider(opts =>
+                    {
+                        opts.ClientId = Configuration["Meetings:ClientId"]; // Application client ID
+                        opts.ClientSecret = Configuration["Meetings:ClientSecret"]; // Application client secret
+                    });
+                    options.AddMeetings(s => s.SetHttpClientTimeout(
+                        TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionRequestTimeout")),
+                        TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionTotalTimeout"))));
+                    options.DisableClaimsTransformation(); // Disable this - Fusion adds relevant claims
                 });
-                options.AddMeetings(s => s.SetHttpClientTimeout(
-                    TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionRequestTimeout")),
-                    TimeSpan.FromSeconds(Configuration.GetValue<double>("FusionTotalTimeout"))));
-                options.DisableClaimsTransformation();                                  // Disable this - Fusion adds relevant claims
-            });
+            }
 
             services.AddApplicationInsightsTelemetry(options =>
             {

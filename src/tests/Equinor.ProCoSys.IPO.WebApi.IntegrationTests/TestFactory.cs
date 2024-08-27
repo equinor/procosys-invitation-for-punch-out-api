@@ -164,8 +164,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureTestServices(services =>
-            {
+              builder.UseEnvironment(IntegrationTestEnvironment); 
+              builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath)); 
+              builder.ConfigureTestServices(services =>
+              {
                 services.AddAuthentication()
                     .AddScheme<IntegrationTestAuthOptions, IntegrationTestAuthHandler>(
                         IntegrationTestAuthHandler.TestAuthenticationScheme, opts => { });
@@ -318,23 +320,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             AddCreatorUser(accessablePlants, accessableProjects);
 
-            var webHostBuilder = WithWebHostBuilder(builder =>
-            {
-                builder.UseEnvironment(IntegrationTestEnvironment);
-                builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath));
-            });
-
-
             SetupProCoSysServiceMocks();
 
-            CreateAuthenticatedHttpClients(webHostBuilder);
+            CreateAuthenticatedHttpClients();
         }
 
-        private void CreateAuthenticatedHttpClients(WebApplicationFactory<Startup> webHostBuilder)
+        private void CreateAuthenticatedHttpClients()
         {
             foreach (var testUser in _testUsers.Values)
             {
-                testUser.HttpClient = webHostBuilder.CreateClient();
+                testUser.HttpClient = CreateClient();
 
                 if (testUser.Profile != null)
                 {
