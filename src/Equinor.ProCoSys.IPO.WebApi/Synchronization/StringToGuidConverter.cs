@@ -12,14 +12,20 @@ public class StringToGuidConverter : JsonConverter<Guid>
         if (reader.TokenType == JsonTokenType.String)
         {
             var stringGuid = reader.GetString();
-            if (Guid.TryParseExact(stringGuid, "N", out Guid guid)) // "N" format: 32 digits without hyphens
+
+            // Try parsing with hyphens (D format).
+            if (Guid.TryParseExact(stringGuid, "D", out Guid guid))
             {
                 return guid;
             }
-            else
+
+            // If the D format fails, try without hyphens (N format).
+            else if (Guid.TryParseExact(stringGuid, "N", out guid))
             {
-                throw new JsonException($"The JSON value is not in a guid format: {stringGuid}");
+                return guid;
             }
+
+            throw new JsonException($"Unable to deserialize JSON. Cannot convert {stringGuid} to {typeof(Guid)}.");
         }
 
         throw new JsonException("The JSON value could not be read as a guid.");
@@ -27,6 +33,7 @@ public class StringToGuidConverter : JsonConverter<Guid>
 
     public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options)
     {
-        writer.WriteStringValue(value.ToString("N")); // "N" format: 32 digits without hyphens
+        // This method writes the Guid in the non-hyphenated format.
+        writer.WriteStringValue(value.ToString("N"));
     }
 }
