@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json.Serialization;
 using Equinor.ProCoSys.PcsServiceBus.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus;
 
@@ -10,7 +9,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         public string? AreaCode { get; init; }
         public string? AreaDescription { get; init; }
         public string? CommissioningIdentifier { get; init; }
-        [JsonConverter(typeof(StringToLongConverter))]
         public long CommPkgId { get; init; }
         public string CommPkgNo { get; init; }
         public string CommPkgStatus { get; init; }
