@@ -42,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private const string project1Name = "HEIMDAL";
         private const string project2Name = "XYZ";
 
-        private static readonly Guid _project1Guid = new Guid("11111111-2222-2222-2222-333333333341");
+        private static readonly Guid _project1Guid = new Guid("11111111222222222222333333333341");
         private static readonly Guid _project2Guid = new Guid("11111111-2222-2222-2222-333333333342");
 
         private const string commPkgNo1 = "123";
@@ -136,7 +136,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
-            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectGuid\" : \"{_project1Guid}\", \"ProCoSysGuid\" :\"{s_commPkgGuid2Project1}\", \"Description\" : \"{description}\"}}";
+            var createdAt = "2024-08-26 12:27:44";
+            var message = $"{{\"Plant\" : \"{plant}\", \"ProjectGuid\" : \"{_project1Guid}\", \"ProCoSysGuid\" :\"{s_commPkgGuid2Project1}\", \"Description\" : \"{description}\", \"CreatedAt\" : \"{createdAt}\", \"ProjectName\" : \"{project1Name}\"}}";
             await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
