@@ -73,8 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             //    _logger.LogInformation($"CommPkgs updated with RfocGuid: {commPkgsUpdatedCount}");
             //}
 
-            // return new SuccessResult<Unit>(Unit.Value);
-           return await Task.FromResult(new SuccessResult<Unit>(Unit.Value));
+            return new SuccessResult<Unit>(Unit.Value);
         }
 
         private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project, CancellationToken token)
