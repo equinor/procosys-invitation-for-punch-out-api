@@ -147,17 +147,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private void ProcessCommPkgEvent(string messageJson)
         {
-            var commPkgEvent = JsonSerializer.Deserialize<CommPkgTmpTopic>(messageJson);
+            var commPkgEvent = JsonSerializer.Deserialize<CommPkgEvent>(messageJson);
             if (commPkgEvent == null || 
                 string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
-                string.IsNullOrWhiteSpace(commPkgEvent.CommPkgNo) ||
-                string.IsNullOrWhiteSpace(commPkgEvent.ProjectName))
+                commPkgEvent.ProCoSysGuid == Guid.Empty ||
+                commPkgEvent.ProjectGuid == Guid.Empty)
             {
                 throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
-            if (!string.IsNullOrWhiteSpace(commPkgEvent.ProjectNameOld))
+            if (commPkgEvent.ProjectGuid != Guid.Empty && _invitationRepository.ShouldMoveCommPkg(commPkgEvent.ProjectGuid, commPkgEvent.ProCoSysGuid))
             {
                 _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                     new Dictionary<string, string>
@@ -165,13 +165,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
                         {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
                         {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')},
-                        {PcsServiceBusTelemetryConstants.ProjectNameOld, commPkgEvent.ProjectNameOld.Replace('$', '_')}
+                        {"ProCoSysGuid", commPkgEvent.ProCoSysGuid.ToString()},
+                        {"ProjectGuid",commPkgEvent.ProjectGuid.ToString()}
                     });
                 _invitationRepository.MoveCommPkg(
-                    commPkgEvent.ProjectNameOld,
-                    commPkgEvent.ProjectName,
-                    commPkgEvent.CommPkgNo,
+                    commPkgEvent.ProjectGuid,
+                    commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
             }
             else
@@ -181,10 +180,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     {
                         {PcsServiceBusTelemetryConstants.Event, IpoTopic.TopicName},
                         {PcsServiceBusTelemetryConstants.CommPkgNo, commPkgEvent.CommPkgNo},
-                        {PcsServiceBusTelemetryConstants.Plant, commPkgEvent.Plant[4..]},
-                        {PcsServiceBusTelemetryConstants.ProjectName, commPkgEvent.ProjectName.Replace('$', '_')}
-                    });
-                _invitationRepository.UpdateCommPkgOnInvitations(commPkgEvent.ProjectName, commPkgEvent.CommPkgNo,
+                        {"ProCoSysGuid", commPkgEvent.ProCoSysGuid.ToString()},
+                        {"ProjectGuid",commPkgEvent.ProjectGuid.ToString()}
+                });
+                _invitationRepository.UpdateCommPkgOnInvitations(
+                    commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
             }
         }
