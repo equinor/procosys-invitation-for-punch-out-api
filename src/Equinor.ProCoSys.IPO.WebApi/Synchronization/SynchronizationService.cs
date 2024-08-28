@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids;
+using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
+using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
+using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -91,7 +94,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     await _claimsTransformation.TransformAsync(currentUser);
 
                     var startTime = TimeService.UtcNow;
-                    await _mediator.Send(new FillMcPkgCommPkgPCSGuidsCommand(saveChanges?.Value == "true"));
+
+                    await _mediator.Send(new FillCommPkgPCSGuidsCommand(saveChanges?.Value == "true"));
+                    await _mediator.Send(new FillMcPkgPCSGuidsCommand(saveChanges?.Value == "true"));
+                    await _mediator.Send(new FillProjectPCSGuidsCommand(saveChanges?.Value == "true"));
 
                     var endTime = TimeService.UtcNow;
 
