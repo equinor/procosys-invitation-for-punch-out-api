@@ -29,9 +29,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         public string? Priority1 { get; init; }
         public string? Priority2 { get; init; }
         public string? Priority3 { get; init; }
+        [JsonConverter(typeof(StringToGuidConverter))]
         public Guid ProCoSysGuid { get; init; }
         public string? Progress { get; init; }
         public string ProjectName { get; init; }
+        [JsonConverter(typeof(StringToGuidConverter))]
         public Guid ProjectGuid { get; init; }
         public string? Remark { get; init; }
         public string ResponsibleCode { get; init; }
