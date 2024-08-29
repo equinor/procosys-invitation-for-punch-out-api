@@ -28,7 +28,7 @@ public class StringToGuidConverter : JsonConverter<Guid>
             throw new JsonException($"Unable to deserialize JSON. Cannot convert {stringGuid} to {typeof(Guid)}.");
         }
 
-        throw new JsonException("The JSON value could not be read as a guid.");
+        throw new JsonException("The JSON value is not of type string and can not be read as a guid.");
     }
 
     public override void Write(Utf8JsonWriter writer, Guid value, JsonSerializerOptions options)
