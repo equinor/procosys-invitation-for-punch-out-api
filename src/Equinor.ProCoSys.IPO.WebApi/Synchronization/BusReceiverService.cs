@@ -148,12 +148,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgEvent>(messageJson);
-            if (commPkgEvent == null || 
-                string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
+            if (commPkgEvent == null)
+            {
+                throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
+            }
+
+            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
                 commPkgEvent.ProCoSysGuid == Guid.Empty ||
                 commPkgEvent.ProjectGuid == Guid.Empty)
             {
-                throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
+                throw new Exception($"Key attributes Plant, ProCoSysGuid and/ or ProjectGuid is not provided in CommPkgEvent message: {messageJson}");
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
