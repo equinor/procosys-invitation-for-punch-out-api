@@ -133,6 +133,41 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         }
 
         [TestMethod]
+        public async Task HandlingCommPkgTopic_Deserialize_WithoutFailure()
+        {
+            var message = @"
+            {
+                ""Plant"": ""PCS$AASTA_HANSTEEN"",
+                ""PlantName"": ""Aasta Hansteen"",
+                ""ProjectName"": ""4600018449"",
+                ""ProjectGuid"": ""2096408203814F9CA0630A14000A02B8"",
+                ""ProjectNameOld"": ""25500968"",
+                ""CommPkgNo"": ""4305-D04"",
+                ""CommPkgId"": ""119181683"",
+                ""Description"": ""Hydrotest of secondary vent line RF-0820"",
+                ""DescriptionOfWork"": ""I henhold til RF-0820 skal line 43L0644A hydro testes og ny golden weld skal utføres."",
+                ""Remark"": """",
+                ""ResponsibleCode"": ""STPC"",
+                ""ResponsibleDescription"": ""Statoil Project - Commissioning"",
+                ""AreaCode"": ""P000"",
+                ""AreaDescription"": ""Process (including offloading) / Pipeline"",
+                ""Phase"": ""CON"",
+                ""CommissioningIdentifier"": ""D"",
+                ""IsVoided"": false,
+                ""Demolition"": false,
+                ""CreatedAt"": ""2024-08-26 12:27:44"",
+                ""Priority1"": ""36"",
+                ""Priority2"": """",
+                ""Priority3"": """",
+                ""Progress"": """",
+                ""ProCoSysGuid"": ""2096408203814F9CE0630A14000A02B8"",
+                ""CommPkgStatus"": ""OS"",
+                ""DCCommPkgStatus"": ""OS"",
+                ""ProjectNames"": [""4600018449"",""AASTA_HANSTEEN_MOD""],
+                ""LastUpdated"": ""2024-08-29 07:33:01""
+            }";
+            await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
+        }
 
         public async Task HandlingCommPkgTopicWithoutFailure()
         {
