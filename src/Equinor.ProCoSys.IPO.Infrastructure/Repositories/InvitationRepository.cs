@@ -26,35 +26,28 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
                 .Where(i => i.Status == IpoStatus.ScopeHandedOver)
                 .ToList();
 
-        public void UpdateProjectOnInvitations(string projectName, string description)
-        {
-            //Intentionally left blank for now
-        }
-
         public bool ShouldMoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
         {
             var toProject = _context.Projects.SingleOrDefault(x => x.Guid.Equals(toProjectGuid));
             return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid && commPkg.ProjectId == toProject.Id);
         }
 
-        public void UpdateCommPkgOnInvitations(Guid commPkgGuid, string description)
+        public void UpdateCommPkg(Guid commPkgGuid, string description)
         {
             var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.CommPkgGuid == commPkgGuid).ToList();
             commPkgsToUpdate.ForEach(cp => cp.Description = description);
         }
 
-        public void MoveCommPkg(Guid toProjectGuid, Guid commPkgGuid, string description)
+        public void MoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
         {
             var toProject = _context.Projects.Single(x => x.Guid.Equals(toProjectGuid));
-
 
             var commPkgsToMove = _context.CommPkgs.Where(cp => cp.CommPkgGuid == commPkgGuid).ToList();
             var mcPkgsToMove = _context.McPkgs.Where(mc => mc.CommPkgGuid == commPkgGuid).ToList();
 
             var invitationsToMove =
                 _context.Invitations
-                    .Where(i => 
-                                InvitationRelatedToCommPkg(commPkgGuid, i)).ToList();
+                    .Where(i => InvitationRelatedToCommPkg(commPkgGuid, i)).ToList();
 
             if (InvitationsContainMoreThanOneCommPkg(invitationsToMove) || NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(commPkgGuid, invitationsToMove))
             {
@@ -68,7 +61,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             commPkgsToMove.ForEach(cp =>
             {
-                cp.Description = description;
                 cp.MoveToProject(toProject);
             });
 

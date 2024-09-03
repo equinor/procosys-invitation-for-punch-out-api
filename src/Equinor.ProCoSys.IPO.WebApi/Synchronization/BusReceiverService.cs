@@ -174,6 +174,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     });
                 _invitationRepository.MoveCommPkg(
                     commPkgEvent.ProjectGuid,
+                    commPkgEvent.ProCoSysGuid);
+
+                _invitationRepository.UpdateCommPkg(
                     commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
             }
@@ -187,7 +190,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         {"ProCoSysGuid", commPkgEvent.ProCoSysGuid.ToString()},
                         {"ProjectGuid",commPkgEvent.ProjectGuid.ToString()}
                 });
-                _invitationRepository.UpdateCommPkgOnInvitations(
+                _invitationRepository.UpdateCommPkg(
                     commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
             }
@@ -212,7 +215,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     {PcsServiceBusTelemetryConstants.ProjectName, projectEvent.ProjectName.Replace('$', '_')}
                 });
             _plantSetter.SetPlant(projectEvent.Plant);
-            _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
 
             var project =  _projectRepository.GetProjectOnlyByNameAsync(projectEvent.ProjectName).GetAwaiter().GetResult();
             if (project != null)

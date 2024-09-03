@@ -178,9 +178,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(s_commPkgGuid2Project1, description), Times.Once);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(s_commPkgGuid2Project1, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -192,7 +191,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.MoveCommPkg(_project2Guid, s_commPkgGuid3Project2, description));
+            _invitationRepository.Verify(i => i.MoveCommPkg(_project2Guid, s_commPkgGuid3Project2));
+            _invitationRepository.Verify(i => i.UpdateCommPkg(s_commPkgGuid3Project2, description));
         }
 
 
@@ -216,8 +216,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(project1Name, mcPkgNo1, description), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -232,8 +231,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.MoveMcPkg(project1Name, commPkgOld, commPkgNo2, mcPKgOld, mcPkgNo1, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -270,9 +268,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
             _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -288,9 +285,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Never);
             _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -307,9 +303,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Never);
             _invitationRepository.Verify(i => i.UpdateFunctionalRoleCodesOnInvitations(plant, functionalRoleCodeOld, functionalRoleCodeNew), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
         [TestMethod]
@@ -341,9 +336,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Verify(i => i.UpdateProjectOnInvitations(project1Name, description), Times.Once);
             _invitationRepository.Verify(i => i.UpdateMcPkgOnInvitations(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-            _invitationRepository.Verify(i => i.UpdateCommPkgOnInvitations(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
+            _invitationRepository.Verify(i => i.UpdateCommPkg(It.IsAny<Guid>(), It.IsAny<string>()), Times.Never);
 
             var actualProject = await projectRepositoryTestDouble.GetProjectOnlyByNameAsync(project1Name);
             Assert.AreEqual(description, actualProject.Description);
