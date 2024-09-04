@@ -34,6 +34,10 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public bool ShouldMoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
         {
             var toProject = _context.Projects.SingleOrDefault(x => x.Guid.Equals(toProjectGuid));
+            if (toProject == null)
+            {
+                return false;
+            }
             return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid && commPkg.ProjectId == toProject.Id);
         }
 
