@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             {
                 return false;
             }
-            return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid && commPkg.ProjectId == toProject.Id);
+            return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid);
         }
 
         public void UpdateCommPkgOnInvitations(Guid commPkgGuid, string description)
