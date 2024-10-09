@@ -131,6 +131,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
         public void RemoveParticipant(Participant participant)
             => _context.Participants.Remove(participant);
+        public void RemoveComment(Comment comment)
+            => _context.Comments.Remove(comment);
 
         public void RemoveAttachment(Attachment attachment)
             => _context.Attachments.Remove(attachment);
@@ -145,6 +147,11 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             {
                 RemoveParticipant(participant);
             }
+            foreach (var comment in invitation.Comments)
+            {
+                RemoveComment(comment);
+            }
+
             _context.Invitations.Remove(invitation);
         }
 
