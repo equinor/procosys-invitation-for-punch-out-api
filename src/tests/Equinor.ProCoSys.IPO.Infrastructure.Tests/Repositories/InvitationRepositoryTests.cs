@@ -394,7 +394,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(toProjectName, GetProjectName(_mcPkg2.ProjectId));
 
             // Act
-            _dut.MoveCommPkg(_project3Guid, _commPkgGuid3Project1, description);
+            _dut.MoveCommPkg(_project3Guid, _commPkgGuid3Project1);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkgGuid3Project1, description);
 
             // Assert
             Assert.AreEqual(toProjectName, GetProjectName(_mcPkg3.ProjectId), "McPkg should be affected by comm pkg move");
@@ -413,7 +414,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(toProjectName, GetProjectName(_mcPkg2.ProjectId));
 
             // Act
-            _dut.MoveCommPkg(_project3Guid, _commPkgGuid4, description);
+            _dut.MoveCommPkg(_project3Guid, _commPkgGuid4);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkgGuid4, description);
+
 
             // Assert
             Assert.AreNotEqual(toProjectName, GetProjectName(_mcPkg3.ProjectId), "McPkg should not be affected by comm pkg move");
@@ -434,7 +437,9 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             const string description = "New description";
 
             // Act
-            _dut.MoveCommPkg(_project3Guid, _commPkgGuid, description);
+            _dut.MoveCommPkg(_project3Guid, _commPkgGuid);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkgGuid, description);
+
         }
 
         [TestMethod]
@@ -445,7 +450,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             const string description = "New description";
 
             // Act
-            _dut.MoveCommPkg(_project3Guid, _commPkgGuid2Project2, description);
+            _dut.MoveCommPkg(_project3Guid, _commPkgGuid2Project2);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkgGuid2Project2, description);
 
             // Assert
             Assert.AreEqual(toProjectName, GetProjectName(_dpInviation.ProjectId), "Project name on invitation should be updated when comm pkg changes project");
@@ -462,7 +468,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             const string description = "New description";
 
             // Act
-            _dut.MoveCommPkg(_project3Guid, _commPkgGuid2Project2, description);
+            _dut.MoveCommPkg(_project3Guid, _commPkgGuid2Project2);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkgGuid2Project2, description);
 
             // Assert
             Assert.AreEqual(toProjectName, GetProjectName(_dpInviation.ProjectId), "Project name on invitation should be updated when comm pkg changes project");
@@ -529,7 +536,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             Assert.AreNotEqual(newDescription, _commPkg.Description);
 
             // Act
-            _dut.UpdateCommPkgOnInvitations(_commPkg.CommPkgGuid, newDescription);
+            _dut.UpdateCommPkgDescriptionOnInvitations(_commPkg.CommPkgGuid, newDescription);
 
             // Assert
             Assert.AreEqual(newDescription, _commPkg.Description);

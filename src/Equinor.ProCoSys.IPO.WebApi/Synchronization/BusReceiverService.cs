@@ -154,15 +154,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             }
 
             if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
-                commPkgEvent.ProCoSysGuid == Guid.Empty ||
-                commPkgEvent.ProjectGuid == Guid.Empty)
+                commPkgEvent.ProCoSysGuid == Guid.Empty)
             {
-                throw new Exception($"Key attributes Plant, ProCoSysGuid and/ or ProjectGuid is not provided in CommPkgEvent message: {messageJson}");
+                throw new Exception($"Key attributes Plant and/ or ProCoSysGuid is not provided in CommPkgEvent message: {messageJson}");
+            }
+
+            if (!_invitationRepository.IsExistingCommPkg(commPkgEvent.ProCoSysGuid))
+            {
+                throw new Exception($"Given ProCoSysGuid does not refer to an existing object. CommPkgEvent message: {messageJson}");
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
-            if (commPkgEvent.ProjectGuid != Guid.Empty && _invitationRepository.ShouldMoveCommPkg(commPkgEvent.ProjectGuid, commPkgEvent.ProCoSysGuid))
+            if (commPkgEvent.ProjectGuid != Guid.Empty)
             {
+                if (!_invitationRepository.IsExistingProject(commPkgEvent.ProjectGuid))
+                {
+                    throw new Exception($"Given ProjectGuid does not refer to an existing object. CommPkgEvent message: {messageJson}");
+                }
                 _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                     new Dictionary<string, string>
                     {
@@ -174,8 +182,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     });
                 _invitationRepository.MoveCommPkg(
                     commPkgEvent.ProjectGuid,
+                    commPkgEvent.ProCoSysGuid);
+
+                _invitationRepository.UpdateCommPkgDescriptionOnInvitations(
                     commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
+
             }
             else
             {
@@ -187,7 +199,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         {"ProCoSysGuid", commPkgEvent.ProCoSysGuid.ToString()},
                         {"ProjectGuid",commPkgEvent.ProjectGuid.ToString()}
                 });
-                _invitationRepository.UpdateCommPkgOnInvitations(
+                _invitationRepository.UpdateCommPkgDescriptionOnInvitations(
                     commPkgEvent.ProCoSysGuid,
                     commPkgEvent.Description);
             }
