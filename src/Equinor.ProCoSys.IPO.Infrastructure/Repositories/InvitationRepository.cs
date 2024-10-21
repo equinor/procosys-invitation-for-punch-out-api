@@ -31,23 +31,28 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             //Intentionally left blank for now
         }
 
-        public bool ShouldMoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
+        public bool IsExistingProject(Guid toProjectGuid)
         {
             var toProject = _context.Projects.SingleOrDefault(x => x.Guid.Equals(toProjectGuid));
-            if (toProject == null)
-            {
-                return false;
-            }
-            return _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid);
+            return toProject != null;
         }
 
-        public void UpdateCommPkgOnInvitations(Guid commPkgGuid, string description)
+        public bool IsExistingCommPkg(Guid commPkgGuid) => 
+            _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid);
+
+        public void UpdateCommPkgDescriptionOnInvitations(Guid commPkgGuid, string description)
         {
             var commPkgsToUpdate = _context.CommPkgs.Where(cp => cp.CommPkgGuid == commPkgGuid).ToList();
-            commPkgsToUpdate.ForEach(cp => cp.Description = description);
+            commPkgsToUpdate.ForEach(cp =>
+            {
+                if (cp.Description != description)
+                {
+                    cp.Description = description;
+                }
+            });
         }
 
-        public void MoveCommPkg(Guid toProjectGuid, Guid commPkgGuid, string description)
+        public void MoveCommPkg(Guid toProjectGuid, Guid commPkgGuid)
         {
             var toProject = _context.Projects.Single(x => x.Guid.Equals(toProjectGuid));
 
@@ -71,7 +76,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             commPkgsToMove.ForEach(cp =>
             {
-                cp.Description = description;
                 cp.MoveToProject(toProject);
             });
 
