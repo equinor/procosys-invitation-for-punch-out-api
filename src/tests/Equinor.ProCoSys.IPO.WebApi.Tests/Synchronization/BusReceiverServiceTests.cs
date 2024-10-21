@@ -192,13 +192,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         public async Task HandlingCommPkgTopic_Move_WithoutFailure()
         {
             var message = $"{{\"Plant\" : \"{plant}\", \"ProjectGuid\" : \"{_project2Guid}\", \"ProCoSysGuid\" :\"{s_commPkgGuid3Project2}\", \"Description\" : \"{description}\"}}";
+            _invitationRepository.Setup(x => x.IsExistingProject(_project2Guid)).Returns(true);
+            _invitationRepository.Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project2)).Returns(true);
+
             await _dut.ProcessMessageAsync(PcsTopicConstants.CommPkg, message, new CancellationToken(false));
 
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
-            _invitationRepository.Setup(x => x.IsExistingProject(_project2Guid)).Returns(true);
-            _invitationRepository.Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project2)).Returns(true);
 
         }
 

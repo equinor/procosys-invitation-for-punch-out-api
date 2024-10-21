@@ -161,7 +161,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             if (!_invitationRepository.IsExistingCommPkg(commPkgEvent.ProCoSysGuid))
             {
-                throw new Exception($"Given ProCoSysGuid does not refer to an existing object. CommPkgEvent message: {messageJson}");
+                throw new Exception($"There is no CommPkg with the given ProCoSysGuid. CommPkgEvent message: {messageJson}");
             }
 
             _plantSetter.SetPlant(commPkgEvent.Plant);
