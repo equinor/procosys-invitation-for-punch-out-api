@@ -113,8 +113,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _options.Setup(s => s.Value).Returns(new IpoAuthenticatorOptions { IpoApiObjectId = Guid.NewGuid() });
             _currentUserSetter = new Mock<ICurrentUserSetter>();
 
+            var sequence = new MockSequence();
             _projectRepository.Setup(x => x.GetByIdAsync(project1Id)).Returns(Task.FromResult(project1));
             _invitationRepository.Setup(x => x.IsExistingProject(_project1Guid)).Returns(true);
+
+            _plantSetter.InSequence(sequence).Setup(p => p.SetPlant(It.IsAny<string>()));
+            _invitationRepository.InSequence(sequence).Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project1)).Returns(true);
             _invitationRepository.Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project1)).Returns(true);
             _invitationRepository.Setup(x => x.IsExistingProject(_project2Guid)).Returns(true);
             _invitationRepository.Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project2)).Returns(true);
@@ -200,6 +204,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _currentUserSetter.Verify(c => c.SetCurrentUserOid(_options.Object.Value.IpoApiObjectId), Times.Once);
             _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _plantSetter.Verify(p => p.SetPlant(plant), Times.Once);
+            _invitationRepository.Verify(p => p.IsExistingCommPkg(s_commPkgGuid3Project2), Times.Once);
 
         }
 
