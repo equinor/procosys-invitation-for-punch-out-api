@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         }
 
         public bool IsExistingCommPkg(Guid commPkgGuid) => 
-            _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid == commPkgGuid);
+            _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid.Equals(commPkgGuid));
 
         public void UpdateCommPkgDescriptionOnInvitations(Guid commPkgGuid, string description)
         {
