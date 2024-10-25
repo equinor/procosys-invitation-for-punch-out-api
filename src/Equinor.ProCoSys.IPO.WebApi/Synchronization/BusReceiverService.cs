@@ -148,6 +148,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private void ProcessCommPkgEvent(string messageJson)
         {
             var commPkgEvent = JsonSerializer.Deserialize<CommPkgEvent>(messageJson);
+            _plantSetter.SetPlant(commPkgEvent.Plant);
+
             if (commPkgEvent == null)
             {
                 throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
@@ -164,7 +166,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 throw new Exception($"There is no CommPkg with the given ProCoSysGuid. CommPkgEvent message: {messageJson}");
             }
 
-            _plantSetter.SetPlant(commPkgEvent.Plant);
             if (commPkgEvent.ProjectGuid != Guid.Empty)
             {
                 if (!_invitationRepository.IsExistingProject(commPkgEvent.ProjectGuid))
