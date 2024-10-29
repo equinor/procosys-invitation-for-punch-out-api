@@ -18,11 +18,13 @@ using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
     public class BusReceiverService : IBusReceiverService
     {
+        private readonly ILogger<BusReceiverService> _logger;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IPlantSetter _plantSetter;
         private readonly IUnitOfWork _unitOfWork;
@@ -38,6 +40,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private const string FunctionalRoleLibraryType = "FUNCTIONAL_ROLE";
 
         public BusReceiverService(
+            ILogger<BusReceiverService> logger,
             IInvitationRepository invitationRepository,
             IPlantSetter plantSetter,
             IUnitOfWork unitOfWork,
@@ -50,6 +53,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IProjectRepository projectRepository,
             ICertificateEventProcessorService certificateEventProcessorService)
         {
+            _logger = logger;
             _invitationRepository = invitationRepository;
             _plantSetter = plantSetter;
             _unitOfWork = unitOfWork;
@@ -163,14 +167,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             if (!_invitationRepository.IsExistingCommPkg(commPkgEvent.ProCoSysGuid))
             {
-                throw new Exception($"There is no CommPkg with the given ProCoSysGuid. CommPkgEvent message: {messageJson}");
+                _logger.LogInformation($"There is no CommPkg with the given ProCoSysGuid. Hence ignoring this CommPkgEvent message: {messageJson}");
+                return;
             }
 
             if (commPkgEvent.ProjectGuid != Guid.Empty)
             {
                 if (!_invitationRepository.IsExistingProject(commPkgEvent.ProjectGuid))
                 {
-                    throw new Exception($"Given ProjectGuid does not refer to an existing object. CommPkgEvent message: {messageJson}");
+                    _logger.LogInformation($"There is no Project with the given ProjectGuid. Hence ignoring this CommPkgEvent message: {messageJson}");
+                    return;
                 }
                 _telemetryClient.TrackEvent(IpoBusReceiverTelemetryEvent,
                     new Dictionary<string, string>
