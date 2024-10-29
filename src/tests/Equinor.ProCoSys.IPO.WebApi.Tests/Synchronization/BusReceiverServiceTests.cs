@@ -16,6 +16,7 @@ using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -30,6 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IInvitationRepository> _invitationRepository;
         private Mock<IPlantSetter> _plantSetter;
+        private Mock<ILogger<BusReceiverService>> _logger;
         private Mock<ITelemetryClient> _telemetryClient;
         private Mock<IMcPkgApiService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
@@ -93,6 +95,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository = new Mock<IInvitationRepository>();
             _projectRepository = new Mock<IProjectRepository>();
             _plantSetter = new Mock<IPlantSetter>();
+            _logger = new Mock<ILogger<BusReceiverService>>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiService>();
@@ -123,7 +126,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _invitationRepository.Setup(x => x.IsExistingProject(_project2Guid)).Returns(true);
             _invitationRepository.Setup(x => x.IsExistingCommPkg(s_commPkgGuid3Project2)).Returns(true);
 
-            _dut = new BusReceiverService(_invitationRepository.Object,
+            _dut = new BusReceiverService(_logger.Object,
+                                          _invitationRepository.Object,
                                           _plantSetter.Object,
                                           _unitOfWork.Object,
                                           _telemetryClient.Object,
@@ -337,7 +341,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             Assert.AreEqual("Description to be changed", preActualProject.Description);
             Assert.IsFalse(preActualProject.IsClosed);
 
-            var dut = new BusReceiverService(_invitationRepository.Object,
+            var dut = new BusReceiverService(_logger.Object,
+                _invitationRepository.Object,
                 _plantSetter.Object,
                 _unitOfWork.Object,
                 _telemetryClient.Object,
