@@ -83,7 +83,6 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.EventHandlers
                 dut.DispatchPostSaveEventsAsync(null));
         }
     }
-
 }
 
 public class TestableEntityBase : EntityBase
