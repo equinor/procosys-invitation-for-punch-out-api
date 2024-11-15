@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             if (certificateMcPkgsModel == null)
             {
                 var error = $"Certificate {request.ProCoSysGuid} McPkg scope not found";
-                _logger.LogError(error);
+                _logger.LogWarning(error);
                 return new NotFoundResult<Unit>(error);
             }
 
@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             if (certificateCommPkgsModel == null)
             {
                 var error = $"Certificate {request.ProCoSysGuid} CommPkg scope not found";
-                _logger.LogError(error);
+                _logger.LogWarning(error);
                 return new NotFoundResult<Unit>(error);
             }
 

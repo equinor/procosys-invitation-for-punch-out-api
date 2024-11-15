@@ -69,17 +69,20 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             {
                 meeting = await _meetingClient.GetMeetingAsync(invitation.MeetingId,
                     query => query.ExpandInviteBodyHtml().ExpandProperty("participants.outlookstatus"));
-                LogFusionMeeting(meeting);
+                if (meeting != null)
+                {
+                    LogFusionMeeting(meeting);
+                }
             }
             catch (NotAuthorizedError e)
             {
-                _logger.LogWarning(e, $"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
+                _logger.LogWarning($"Fusion meeting not authorized. MeetingId={invitation.MeetingId}");
             }
             catch (MeetingApiException e)
             {
                 if (e.Code == ErrorCode.Forbidden)
                 {
-                    _logger.LogInformation(e, $"Fusion meeting: The user does not have access to retrieve this meeting. MeetingId={invitation.MeetingId}");
+                    _logger.LogInformation($"Fusion meeting: The user does not have access to retrieve this meeting. MeetingId={invitation.MeetingId} Stack trace: {e.StackTrace}");
                 }
                 else
                 {

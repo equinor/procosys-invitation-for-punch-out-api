@@ -79,12 +79,18 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut
             {
                 if (e.Code.ToString().ToUpperInvariant() == "FORBIDDEN")
                 {
-                    _logger.LogError(e, $"Unable to cancel outlook meeting for IPO.");
+                    _logger.LogError($"Unable to cancel outlook meeting for IPO. Inconsistency between Fusion and IPO regarding rights for meeting with id {meetingId}. Stack trace: {e.StackTrace}");
                 }
                 else
                 {
                     throw;
                 }
+            }
+            catch (ArgumentException e)
+            {
+                _logger.LogWarning($"Unable to cancel outlook meeting in Fusion IPO with id {meetingId}. " +
+                                      $"E.g. the reason could be that Fusion was unavailable/ unstable at creation time. " +
+                                      $"It will still be cancelled in IPO though.");
             }
         }
     }
