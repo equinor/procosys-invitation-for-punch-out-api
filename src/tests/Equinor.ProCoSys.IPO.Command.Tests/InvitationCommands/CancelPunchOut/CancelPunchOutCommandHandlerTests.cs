@@ -179,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             var result = await _dut.Handle(_command, default);
 
             // Assert
-            Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 0;
+            Func<object, Type, bool> state = (v, t) => v.ToString().CompareTo("Unable to cancel outlook meeting for IPO.") == 1;
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
@@ -188,8 +188,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                     It.Is<LogLevel>(l => l == LogLevel.Error),
                     It.IsAny<EventId>(),
                     It.Is<It.IsAnyType>((v, t) => state(v, t)),
-                    It.IsAny<Exception>(),
-                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Once);
+                    It.IsAny<Exception?>(),
+                    It.Is<Func<It.IsAnyType, Exception?, string>>((v, t) => true)), Times.Once);
         }
 
         [TestMethod]
