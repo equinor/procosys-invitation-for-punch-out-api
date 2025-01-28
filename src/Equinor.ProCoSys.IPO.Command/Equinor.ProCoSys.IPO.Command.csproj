@@ -19,7 +19,7 @@
     <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="6.10.7" />
     <PackageReference Include="MassTransit" Version="8.2.2" />
-    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.2.2" />
+    <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.3.5" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
     <PackageReference Include="ServiceResult" Version="1.0.1" />
