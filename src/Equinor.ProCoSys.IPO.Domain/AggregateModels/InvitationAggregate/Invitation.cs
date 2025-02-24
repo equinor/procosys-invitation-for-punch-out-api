@@ -8,6 +8,8 @@ using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.Common;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local (private setters needed for Entity Framework)
+
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class Invitation : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable, IHaveGuid
@@ -65,7 +67,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Title = title;
             Description = description;
             Guid = Guid.NewGuid();
-            ObjectGuid = Guid;
 
             SetScope(type, mcPkgs, commPkgs);
 
@@ -252,25 +253,25 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }
 
-        private List<string> SplitEmailAddressBySemicolon(List<string> unsplittedEmails)
+        private List<string> SplitEmailAddressBySemicolon(List<string> emails)
         {
-            var splittedEmails = new List<string>();
-            unsplittedEmails.ForEach(x =>
+            var allEmails = new List<string>();
+            emails.ForEach(x =>
             {
-                var emailsArray = x.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                splittedEmails.AddRange(emailsArray.Select(y => y.Trim()));
+                var emailsArray = x.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+                allEmails.AddRange(emailsArray.Select(y => y.Trim()));
 
             });
-            return splittedEmails;
+            return allEmails;
         }
 
         public List<string> GetCompleterEmails()
         {
-            var unsplittedEmails = this.Participants.Where(
+            var emails = Participants.Where(
                     p => p.Organization == Organization.ConstructionCompany && p.SortKey == 1 && p.Email != null)
                 .Select(p => p.Email).ToList();
 
-            return SplitEmailAddressBySemicolon(unsplittedEmails);
+            return SplitEmailAddressBySemicolon(emails);
         }
 
         public void UnCompleteIpo(Participant participant, string participantRowVersion)
