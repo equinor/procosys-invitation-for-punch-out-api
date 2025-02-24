@@ -21,11 +21,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public const int LocationMaxLength = 250;
         public const int DescriptionMaxLength = 4096;
 
-        private readonly List<McPkg> _mcPkgs = new List<McPkg>();
-        private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
-        private readonly List<Participant> _participants = new List<Participant>();
-        private readonly List<Comment> _comments = new List<Comment>();
-        private readonly List<Attachment> _attachments = new List<Attachment>();
+        private readonly List<McPkg> _mcPkgs = new();
+        private readonly List<CommPkg> _commPkgs = new();
+        private readonly List<Participant> _participants = new();
+        private readonly List<Comment> _comments = new();
+        private readonly List<Attachment> _attachments = new();
 
         protected Invitation()
             : base(null)
@@ -45,8 +45,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             List<CommPkg> commPkgs)
             : base(plant)
         {
-            mcPkgs ??= new List<McPkg>();
-            commPkgs ??= new List<CommPkg>();
+            mcPkgs ??= [];
+            commPkgs ??= [];
 
             if (project is null)
             {
@@ -77,10 +77,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new IpoCreatedEvent(plant, Guid));
         }
 
-        // private setters needed for Entity Framework
         public Guid Guid { get; private set; }
-        [Obsolete("Keep for migration only. To be removed in next version")]
-        public Guid ObjectGuid { get; private set; }
         public int ProjectId { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -544,7 +541,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             if (Type == DisciplineType.DP)
             {
-                throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
+                throw new ArgumentException("Can't add comm pkg to invitation with type DP");
             }
 
             if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
