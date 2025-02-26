@@ -21,4 +21,21 @@ public class StringExtensionsTests
         // Assert
         Assert.AreEqual(expected, result);
     }
+
+    [TestMethod]
+    [DataRow("<p>This is a paragraph.</p>", true)]
+    [DataRow("<div><p>Nested tags</p></div>", true)]
+    [DataRow("<a href='https://example.com'>Link</a>", true)]
+    [DataRow("<b>Bold</b> and <i>Italic</i>", true)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    [DataRow("No HTML tags", false)]
+    public void ContainsHtml_DetectsHtmlTags(string input, bool expected)
+    {
+        // Act
+        var result = input.ContainsHtml();
+
+        // Assert
+        Assert.AreEqual(expected, result);
+    }
 }

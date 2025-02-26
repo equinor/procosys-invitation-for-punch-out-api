@@ -13,4 +13,14 @@ public static class StringExtensions
 
         return Regex.Replace(input, "<.*?>", string.Empty);
     }
+
+    public static bool ContainsHtml(this string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return false;
+        }
+
+        return Regex.IsMatch(input, "<.*?>");
+    }
 }
