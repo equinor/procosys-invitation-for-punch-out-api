@@ -35,10 +35,10 @@ spec:
       monitoring: true
       resources:
         requests:
-          memory: '256Mi'
+          memory: '1024Mi'
           cpu: '100m'
         limits:
-          memory: '256Mi'
+          memory: '1024Mi'
           cpu: '250m'
     # Test environment
     - environment: test
@@ -53,10 +53,10 @@ spec:
       replicas: 2
       resources:
         requests:
-          memory: '256Mi'
+          memory: '1024Mi'
           cpu: '100m'
         limits:
-          memory: '256Mi'
+          memory: '1024Mi'
           cpu: '250m'
     # Prod environment
     - environment: prod
