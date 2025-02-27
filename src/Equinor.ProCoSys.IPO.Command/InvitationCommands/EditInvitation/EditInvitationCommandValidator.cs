@@ -26,10 +26,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(command => !command.Description.ContainsHtml())
                 .WithMessage("Description cannot contain HTML!")
                 .Must(command => command.Location == null || command.Location.Length < Invitation.LocationMaxLength)
-                .Must(command => !command.Location.ContainsHtml())
-                .WithMessage("Location cannot contain HTML!")
                 .WithMessage(command =>
                     $"Location cannot be more than {Invitation.LocationMaxLength} characters! Location={command.Location}")
+                .Must(command => !command.Location.ContainsHtml())
+                .WithMessage("Location cannot contain HTML!")
                 .Must(command => command.StartTime < command.EndTime)
                 .WithMessage(command =>
                     $"Start time must be before end time! Start={command.StartTime} End={command.EndTime}")
