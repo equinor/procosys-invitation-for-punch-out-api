@@ -64,13 +64,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static string GenerateMeetingDescription(Invitation invitation, string baseUrl, Person organizer, string projectName, bool isFallback)
         {
             var meetingDescription = "<h4>You have been invited to attend a punch round.</h4>";
-            meetingDescription += $"<p>Title: {invitation.Title}</p>";
+            meetingDescription += $"<p>Title: {invitation.Title.StripHtml()}</p>";
             meetingDescription += $"<p>Type: {invitation.Type}</p>";
-            var location = string.IsNullOrWhiteSpace(invitation.Location) ? "-" : invitation.Location;
+            var location = string.IsNullOrWhiteSpace(invitation.Location) ? "-" : invitation.Location.StripHtml();
             meetingDescription += $"<p>Location: {location}</p>";
-            var description = string.IsNullOrWhiteSpace(invitation.Description) ? "-" : invitation.Description;
+            var description = string.IsNullOrWhiteSpace(invitation.Description) ? "-" : invitation.Description.StripHtml();
             meetingDescription += $"<p>Description: {description}</p>";
-            meetingDescription += $"<p>Scope: </p>";
+            meetingDescription += "<p>Scope: </p>";
 
             if (invitation.McPkgs.Count > 0)
             {
@@ -83,12 +83,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
             }
 
             meetingDescription += $"<br/><a href='{baseUrl}" + $"/InvitationForPunchOut/{invitation.Id}'>" + "Open invitation for punch-out in ProCoSys.</a><br/><br/>";
-            meetingDescription += $"Best regards,<br/>";
+            meetingDescription += "Best regards,<br/>";
             meetingDescription += $"{organizer.FirstName} {organizer.LastName}<br/><br/>";
 
             if (isFallback)
             {
-                meetingDescription += $@"<p>#########################################################################################################<br/>
+                meetingDescription += @"<p>#########################################################################################################<br/>
                     NOTE: Due to technical issues with the regular system used to send invitation for punch-out,<br/>
                     a fallback solution was used to send this invite.<br/>
                     This has the consequence that the related meeting does not have the same level of integration and features as you are used to.<br/>                    
@@ -101,7 +101,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static string GenerateMeetingFallbackDescription()
         {
             var meetingDescription = "<h4>Invitation to a punch round - fallback solution</h4>";
-            meetingDescription += $@"<p>Due to technical issues with the regular system used to send invitation for punch-out, a fallback solution is used.<br/>
+            meetingDescription += @"<p>Due to technical issues with the regular system used to send invitation for punch-out, a fallback solution is used.<br/>
                     This has the consequence that the invitation has been made available to you through an attached iCalendar.<br/>
                     To ensure that the invitation is made available to the participants follow these steps:<br/><br/>
                     - Left click the file drop down<br/>
@@ -131,7 +131,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                     $"<td style='border: 1px solid black;'><a href='{baseUrl}/Completion#CommPkg|?projectName={projectName}&commpkgno={mcPkg.CommPkgNo}'>{mcPkg.CommPkgNo}</a></td>" +
                     "</tr>";
             }
-            table += $"</table>";
+            table += "</table>";
             return table;
         }
 
@@ -152,7 +152,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
                     "</tr>";
             }
 
-            table += $"</table>";
+            table += "</table>";
             return table;
         }
         private static ParticipantIdentifier CreateParticipantIdentifier(ProCoSysPerson person)

@@ -23,7 +23,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
                     $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
+                .Must(command => !command.Description.ContainsHtml())
+                .WithMessage("Description cannot contain HTML!")
                 .Must(command => command.Location == null || command.Location.Length < Invitation.LocationMaxLength)
+                .Must(command => !command.Location.ContainsHtml())
+                .WithMessage("Location cannot contain HTML!")
                 .WithMessage(command =>
                     $"Location cannot be more than {Invitation.LocationMaxLength} characters! Location={command.Location}")
                 .Must(command => command.StartTime < command.EndTime)
@@ -35,6 +39,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
+                .Must(command => !command.Title.ContainsHtml())
+                .WithMessage("Title cannot contain HTML!")
+
                 //business validators
                 .MustAsync((command, cancellationToken) => BeAnExistingIpo(command.InvitationId, cancellationToken))
                 .WithMessage(command => $"Invitation with this ID does not exist! Id={command.InvitationId}")
@@ -60,7 +67,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Must(FunctionalRoleParticipantsMustBeValid)
                 .WithMessage((_, participant) =>
                     $"Functional role code must be between 3 and {Participant.FunctionalRoleCodeMaxLength} characters! Code={participant.InvitedFunctionalRole.Code}")
-                .Must((command, participant) => ParticipantsHaveValidRowVersions(participant))
+                .Must((_, participant) => ParticipantsHaveValidRowVersions(participant))
                 .WithMessage(_ => "Participant doesn't have valid rowVersion!");
 
             async Task<bool> BeAnExistingIpo(int invitationId, CancellationToken cancellationToken)
