@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.10")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -383,9 +383,6 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Migrations
 
                     b.Property<int?>("ModifiedById")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("ObjectGuid")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Plant")
                         .IsRequired()
