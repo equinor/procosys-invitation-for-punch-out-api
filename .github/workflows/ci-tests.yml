@@ -19,14 +19,14 @@ jobs:
     strategy:
       matrix:
         project: [
-          ./src/Equinor.ProCoSys.IPO.Fam.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/
-          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/
+          ./src/Equinor.ProCoSys.IPO.Fam.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/,
+          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/,
           #./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ # TODO
         ]
       fail-fast: false
