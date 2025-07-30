@@ -1,4 +1,4 @@
-name: 🤖 Build & run tests
+name: 🤖 Run Tests
 
 on:
   workflow_dispatch:
@@ -18,35 +18,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
-
-      # TODO remove this
-      - name: tree
-        run: |
-          tree
-
-      - name: ls
-        run: |
-          ls -la ./src
-
-      - name: ls2
-        run: |
-          ls -la ./src/Equinor.ProCoSys.IPO.sln
 
       - name: Azure CLI Login
         uses: azure/login@v2
         with:
           creds: '{"clientId":"${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}","clientSecret":"${{ secrets.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
-
-      # TODO remove this
-      - name: Azure CLI script
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
-            # You can write your Azure CLI inline scripts here.
 
       - name: Get Access Token
         run: |
@@ -67,6 +43,38 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Run tests
+      - name: Run FAM tests
         run: |
-          dotnet test ./src -c Release
+          dotnet test ./src/Equinor.ProCoSys.IPO.Fam.Tests/ -c Release
+          
+      - name: Run  tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/ -c Release
+          
+      - name: Run Domain tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/ -c Release
+
+      - name: Run Infrastructure tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/ -c Release
+
+      - name: Run MainApi tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/ -c Release
+
+      - name: Run Query tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/ -c Release
+
+      - name: Run Common tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Test.Common/ -c Release
+
+      - name: Run WebApi tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/ -c Release
+
+      - name: Run WebApi Integration tests
+        run: |
+          dotnet test ./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ -c Release
