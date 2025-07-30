@@ -47,7 +47,7 @@ jobs:
         run: |
           dotnet test ./src/Equinor.ProCoSys.IPO.Fam.Tests/ -c Release
           
-      - name: Run  tests
+      - name: Run Command tests
         run: |
           dotnet test ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/ -c Release
           
