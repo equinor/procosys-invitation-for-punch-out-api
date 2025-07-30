@@ -30,13 +30,14 @@ jobs:
           echo "Retrieving access token..."
           echo "token=$(az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 | jq '.accessToken')" >> $GITHUB_ENV
 
-      - name: Configure NuGet source
+      - name: Restore NuGet Packages
         run: |
-          dotnet nuget add source --name ProCoSysOfficial \
-              --username statoildeveloper \
-              --password ${{ env.FEED_ACCESSTOKEN }} \
-              --store-password-in-clear-text \
-              https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json
+          nuget sources Add `
+            -Name "ProCoSysOfficial" `
+            -Source "https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json" `
+            -Username "statoildeveloper" `
+            -Password ${{ env.FEED_ACCESSTOKEN }} `
+            -StorePasswordInClearText
 
       - name: Run tests
         run: |
