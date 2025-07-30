@@ -15,7 +15,7 @@ permissions:
 jobs:
   build-test:
     name: Build & run tests
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
