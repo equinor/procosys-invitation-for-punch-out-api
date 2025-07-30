@@ -18,15 +18,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [
-          './src/Equinor.ProCoSys.IPO.Fam.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.Command.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.Domain.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.Query.Tests/',
-          './src/tests/Equinor.ProCoSys.IPO.Test.Common/',
-          './src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/',
+        project-title: [
+          Fam,
+          Command,
+          Domain,
+          Infrastructure,
+          MainApi,
+          Query,
+          Common,
+          WebApi,
+        ]
+        project-path: [
+          ./src/Equinor.ProCoSys.IPO.Fam.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/,
+          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/,
+          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/,
         ]
       fail-fast: false
     steps:
@@ -56,6 +66,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Run tests - ${{ matrix.project }}
+      - name: Run ${{ matrix.project-title }} tests
         run: |
-          dotnet test ${{ matrix.project }} -c Release
+          dotnet test ${{ matrix.project-path }} -c Release
