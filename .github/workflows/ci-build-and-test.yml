@@ -41,10 +41,23 @@ jobs:
           TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
           echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
 
+      - name: Configure NuGet source
+        run: |
+          dotnet nuget add source --name ProCoSysOfficial \
+              --username statoildeveloper \
+              --password ${{ env.FEED_ACCESSTOKEN }} \
+              --store-password-in-clear-text \
+              https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json
+
       - name: Setup dotnet 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+
+      - name: Run tests
+        run: |
+          cd src/
+          dotnet test ./src/Equinor.Procosys.IPO.sln -c Release
 
       # - name: Restore Nuget
       #   uses: ./.github/actions/nuget-restore
