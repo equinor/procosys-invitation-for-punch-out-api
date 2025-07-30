@@ -1,4 +1,4 @@
-name: 🤖 Run Tests
+name: 🤖🦾 Run Tests
 
 on:
   workflow_dispatch:
