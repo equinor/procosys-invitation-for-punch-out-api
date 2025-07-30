@@ -16,6 +16,21 @@ jobs:
   build-test:
     name: Build & run tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [
+          ./src/Equinor.ProCoSys.IPO.Fam.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/
+          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/
+          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/
+          #./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ # TODO
+
+        ]
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
 
@@ -43,38 +58,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Run FAM tests
+      - name: Run tests - ${{ matrix.project }}
         run: |
-          dotnet test ./src/Equinor.ProCoSys.IPO.Fam.Tests/ -c Release
-          
-      - name: Run Command tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/ -c Release
-          
-      - name: Run Domain tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/ -c Release
-
-      - name: Run Infrastructure tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/ -c Release
-
-      - name: Run MainApi tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/ -c Release
-
-      - name: Run Query tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/ -c Release
-
-      - name: Run Common tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.Test.Common/ -c Release
-
-      - name: Run WebApi tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/ -c Release
-
-      - name: Run WebApi Integration tests
-        run: |
-          dotnet test ./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ -c Release
+          dotnet test ${{ matrix.project }} -c Release
