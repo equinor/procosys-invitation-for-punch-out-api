@@ -13,22 +13,20 @@ permissions:
   contents: read
 
 jobs:
-  build-test:
+  run-test:
     name: Build & run tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [
-          ./src/Equinor.ProCoSys.IPO.Fam.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/
-          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/
-          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/
-          #./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ # TODO
-
+          './src/Equinor.ProCoSys.IPO.Fam.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.Command.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.Domain.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.Query.Tests/',
+          './src/tests/Equinor.ProCoSys.IPO.Test.Common/',
+          './src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/',
         ]
       fail-fast: false
     steps:
