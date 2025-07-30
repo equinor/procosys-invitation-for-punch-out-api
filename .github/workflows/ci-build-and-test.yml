@@ -21,59 +21,44 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Azure CLI Login
-        uses: azure/login@v2
-        with:
-          creds: '{"clientId":"${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}","clientSecret":"${{ secrets.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
-
       # TODO remove this
-      - name: Azure CLI script
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
-            # You can write your Azure CLI inline scripts here.
-
-      - name: Get Access Token
+      - name: tree
         run: |
-          echo "Retrieving access token..."
-          TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
-          echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
+          tree
 
-      - name: Configure NuGet source
-        run: |
-          dotnet nuget add source --name ProCoSysOfficial \
-              --username statoildeveloper \
-              --password ${{ env.FEED_ACCESSTOKEN }} \
-              --store-password-in-clear-text \
-              https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json
-
-      - name: Setup dotnet 8
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Run tests
-        run: |
-          dotnet test ./src/Equinor.Procosys.IPO.sln -c Release
-
-      # - name: Restore Nuget
-      #   uses: ./.github/actions/nuget-restore
+      # - name: Azure CLI Login
+      #   uses: azure/login@v2
       #   with:
-      #     client-id: ${{ vars.AZURE_CLIENT_ID }}
-      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      #     creds: '{"clientId":"${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}","clientSecret":"${{ secrets.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
-      # - name: Build Solution
-      #   run: |
-      #     msbuild.exe ./Export.sln /p:platform="Any CPU" /p:configuration="Debug" /m /verbosity:minimal
+      # # TODO remove this
+      # - name: Azure CLI script
+      #   uses: azure/cli@v2
+      #   with:
+      #     azcliversion: latest
+      #     inlineScript: |
+      #       az account show
+      #       # You can write your Azure CLI inline scripts here.
 
-      # - name: Test Specs
-      #   shell: pwsh
+      # - name: Get Access Token
       #   run: |
-      #     dotnet test .\Export.Specs\bin\Debug\net471\Export.Specs.dll
+      #     echo "Retrieving access token..."
+      #     TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
+      #     echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
 
-      # - name: Test Repositories
-      #   shell: pwsh
+      # - name: Configure NuGet source
       #   run: |
-      #     dotnet test .\Export.RepositoryTests\bin\Debug\net471\Export.RepositoryTests.dll
+      #     dotnet nuget add source --name ProCoSysOfficial \
+      #         --username statoildeveloper \
+      #         --password ${{ env.FEED_ACCESSTOKEN }} \
+      #         --store-password-in-clear-text \
+      #         https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json
+
+      # - name: Setup dotnet 8
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: '8.0.x'
+
+      # - name: Run tests
+      #   run: |
+      #     dotnet test ./src/Equinor.Procosys.IPO.sln -c Release
