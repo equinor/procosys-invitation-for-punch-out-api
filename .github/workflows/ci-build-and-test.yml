@@ -1,0 +1,67 @@
+name: 🤖 Build & run tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+  # TODO remove
+  push:
+    branches: ["ci/test-pipeline"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-test:
+    name: Build & run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Azure CLI Login
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}","clientSecret":"${{ secrets.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
+
+      # TODO remove this
+      - name: Azure CLI script
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
+            # You can write your Azure CLI inline scripts here.
+
+      - name: Get Access Token
+        run: |
+          echo "Retrieving access token..."
+          TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
+          echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Setup dotnet 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # - name: Restore Nuget
+      #   uses: ./.github/actions/nuget-restore
+      #   with:
+      #     client-id: ${{ vars.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+      # - name: Build Solution
+      #   run: |
+      #     msbuild.exe ./Export.sln /p:platform="Any CPU" /p:configuration="Debug" /m /verbosity:minimal
+
+      # - name: Test Specs
+      #   shell: pwsh
+      #   run: |
+      #     dotnet test .\Export.Specs\bin\Debug\net471\Export.Specs.dll
+
+      # - name: Test Repositories
+      #   shell: pwsh
+      #   run: |
+      #     dotnet test .\Export.RepositoryTests\bin\Debug\net471\Export.RepositoryTests.dll
