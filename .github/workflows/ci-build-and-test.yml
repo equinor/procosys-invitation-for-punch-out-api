@@ -69,4 +69,4 @@ jobs:
 
       - name: Run tests
         run: |
-          dotnet test ./src/Equinor.Procosys.IPO.sln -c Release
+          dotnet test ./src -c Release
