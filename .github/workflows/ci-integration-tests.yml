@@ -26,6 +26,7 @@ jobs:
           creds: '{"clientId":"${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}","clientSecret":"${{ secrets.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_SECRET }}","subscriptionId":"${{ vars.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ vars.AZURE_TENANT_ID }}"}'
 
       - name: Get Access Token
+        shell: bash
         run: |
           TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
           echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
