@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  run-test:
+  run-integration-test:
     name: Run integration tests
     runs-on: windows-latest
 

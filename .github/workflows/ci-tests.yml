@@ -15,14 +15,14 @@ jobs:
     strategy:
       matrix:
         project: [
-          ./src/Equinor.ProCoSys.IPO.Fam.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.Command.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.Domain.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.MainApi.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/,
-          ./src/tests/Equinor.ProCoSys.IPO.Test.Common/,
-          ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/,
+          Equinor.ProCoSys.IPO.Fam.Tests/,
+          tests/Equinor.ProCoSys.IPO.Command.Tests/,
+          tests/Equinor.ProCoSys.IPO.Domain.Tests/,
+          tests/Equinor.ProCoSys.IPO.Infrastructure.Tests/,
+          tests/Equinor.ProCoSys.IPO.MainApi.Tests/,
+          tests/Equinor.ProCoSys.IPO.Query.Tests/,
+          tests/Equinor.ProCoSys.IPO.Test.Common/,
+          tests/Equinor.ProCoSys.IPO.WebApi.Tests/,
         ]
       fail-fast: false
     steps:
@@ -41,4 +41,4 @@ jobs:
 
       - name: Run tests - ${{ matrix.project }}
         run: |
-          dotnet test ${{ matrix.project }} -c Release
+          dotnet test ./src/${{ matrix.project }} -c Release
