@@ -31,23 +31,14 @@ jobs:
           TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
           echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
 
-      # TODO remove
-      - name: Debug
-        run: |
-          echo "${{ env.FEED_ACCESSTOKEN }}"
-
       - name: Configure NuGet source
+        shell: bash
         run: |
-          nuget sources Add `
-            -Name "ProCoSysOfficial" `
-            -Source "https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json" `
-            -Username "AzureDevOps" `
-            -Password ${{ env.FEED_ACCESSTOKEN }} `
-            -StorePasswordInClearText
-
-      - name: NuGet restore
-        run: |
-          nuget restore ./src/Equinor.ProCoSys.IPO.sln -Verbosity quiet
+          dotnet nuget add source --name ProCoSysOfficial \
+              --username statoildeveloper \
+              --password ${{ env.FEED_ACCESSTOKEN }} \
+              --store-password-in-clear-text \
+              https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json
 
       - name: Run tests
         run: |
