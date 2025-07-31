@@ -39,6 +39,10 @@ jobs:
             -Password ${{ env.TOKEN }} `
             -StorePasswordInClearText
 
+      - name: NuGet restore
+        run: |
+          nuget restore ./src/Equinor.ProCoSys.IPO.sln -Verbosity quiet
+
       - name: Run tests
         run: |
           dotnet test ./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ -c Release
