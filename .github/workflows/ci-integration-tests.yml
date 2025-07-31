@@ -29,11 +29,12 @@ jobs:
         run: |
           echo "Retrieving access token..."
           echo "TOKEN=$(az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 | jq '.accessToken')" >> $GITHUB_ENV
+          echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV  
 
       # TODO remove
       - name: Debug
         run: |
-          echo ${{ env.TOKEN }}
+          echo ${{ env.FEED_ACCESSTOKEN }}
 
       - name: Configure NuGet source
         run: |
@@ -41,7 +42,7 @@ jobs:
             -Name "ProCoSysOfficial" `
             -Source "https://statoildeveloper.pkgs.visualstudio.com/_packaging/ProCoSysOfficial/nuget/v3/index.json" `
             -Username "AzureDevOps" `
-            -Password ${{ env.TOKEN }} `
+            -Password ${{ env.FEED_ACCESSTOKEN }} `
             -StorePasswordInClearText
 
       - name: NuGet restore
