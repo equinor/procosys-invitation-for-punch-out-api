@@ -30,6 +30,10 @@ jobs:
           echo "Retrieving access token..."
           echo "TOKEN=$(az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 | jq '.accessToken')" >> $GITHUB_ENV
 
+      - name: Debug
+        run: |
+          echo ${{ env.TOKEN }}
+
       - name: Configure NuGet source
         run: |
           nuget sources Add `
