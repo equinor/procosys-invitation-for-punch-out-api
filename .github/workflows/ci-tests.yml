@@ -39,7 +39,6 @@ jobs:
 
       - name: Get Access Token
         run: |
-          echo "Retrieving access token..."
           TOKEN=$(az account get-access-token --resource=https://pkgs.visualstudio.com --query accessToken -o tsv)
           echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
 
