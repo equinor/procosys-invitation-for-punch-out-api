@@ -34,7 +34,7 @@ jobs:
       # TODO remove
       - name: Debug
         run: |
-          echo ${{ env.FEED_ACCESSTOKEN }}
+          echo "${{ env.FEED_ACCESSTOKEN }}"
 
       - name: Configure NuGet source
         run: |
