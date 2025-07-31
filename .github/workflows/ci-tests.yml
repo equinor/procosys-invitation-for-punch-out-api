@@ -27,7 +27,6 @@ jobs:
           ./src/tests/Equinor.ProCoSys.IPO.Query.Tests/,
           ./src/tests/Equinor.ProCoSys.IPO.Test.Common/,
           ./src/tests/Equinor.ProCoSys.IPO.WebApi.Tests/,
-          #./src/tests/Equinor.ProCoSys.IPO.WebApi.IntegrationTests/ # TODO
         ]
       fail-fast: false
     steps:
