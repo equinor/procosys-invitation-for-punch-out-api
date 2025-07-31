@@ -28,7 +28,7 @@ jobs:
         env:
           AZURE_DEVOPS_APPLICATION_ID: "499b84ac-1321-427f-aa17-267ca6975798"
         run: |
-          TOKEN=$(az account get-access-token --resource= $AZURE_DEVOPS_APPLICATION_ID --query accessToken -o tsv)
+          TOKEN=$(az account get-access-token --resource=$AZURE_DEVOPS_APPLICATION_ID | jq '.accessToken')
           echo "FEED_ACCESSTOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Configure NuGet source
