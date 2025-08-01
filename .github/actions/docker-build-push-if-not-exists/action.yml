@@ -28,4 +28,5 @@ runs:
       with:
         client-id: ${{ inputs.client-id }}
         tenant-id: ${{ inputs.tenant-id }}
+        tag: ${{ inputs.tag }}
         

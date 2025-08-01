@@ -36,11 +36,6 @@ jobs:
         id: get-change-id
         uses: ./.github/actions/get-change-id
 
-      # TODO remove change ID debug
-      - name: Debug change ID
-        run: |
-          echo "Change ID: ${{ steps.get-change-id.outputs.change-id }}"
-
       - name: 'Build and Push Image'
         uses: ./.github/actions/docker-build-push-if-not-exists
         with:

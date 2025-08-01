@@ -18,15 +18,11 @@ runs:
       shell: bash
       run: az acr login --name procosys
 
-    - name: Get change ID
-      id: get-change-id
-      uses: ./.github/actions/get-change-id
-
     - name: Check if image already exists
       id: check-image-exists
       shell: bash
       run: |
-        if az acr repository show --name procosys --image api:${{ steps.get-change-id.outputs.change-id }}; then
+        if az acr repository show --name procosys --image api:${{ inputs.tag }}; then
           echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
         else
           echo "IMAGE_EXISTS=false" >> $GITHUB_ENV
