@@ -73,31 +73,6 @@ jobs:
             procosys.azurecr.io/api/ipo/api:${{ env.DOCKER_TAG }}
             procosys.azurecr.io/api/ipo/api:latest
 
-      - name: Get Radix Token
-        id: 'get-radix-token'
-        uses: ./.github/actions/get-radix-token
-        with:
-          client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-
-      - name: Set app service account token
-        run: |
-          echo "APP_SERVICE_ACCOUNT_TOKEN=${{ steps.get-radix-token.outputs.token }}" >> $GITHUB_ENV
-
-      # - name: Deploy on Radix
-      #   uses: equinor/radix-github-actions@v1
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     args: >
-      #       create pipeline-job
-      #       deploy
-      #       -a procosys-ipo-api
-      #       --from-config
-      #       -e dev
-      #       --component backend
-      #       --image-tag-name backend=${{ env.DOCKER_TAG }}
-      #       -f 
-
       - name: Radix CLI setup
         uses: equinor/radix-github-actions@v2
         with:
@@ -111,4 +86,5 @@ jobs:
             --environment dev \
             --component backend \
             --image-tag-name backend=${{ env.DOCKER_TAG }} \
-            --image-tag-name backend=latest
+            --image-tag-name backend=latest \
+            --follow
