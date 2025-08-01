@@ -15,6 +15,7 @@ outputs:
     value: ${{ steps.create-tag-from-sha.outputs.image-tag }}
 
 runs:
+  using: 'composite'
   steps:
     - name: Create Docker tag from SHA
       id: create-tag-from-sha
@@ -45,6 +46,13 @@ runs:
       run: |
         TOKEN=$(az account get-access-token | jq -r '.accessToken')
         echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+    # TODO
+    - name: Debug environment variables
+      run: |
+        echo "CLIENT_TOKEN: ${{ env.CLIENT_TOKEN }}"
+        echo "IMAGE_EXISTS: ${{ env.IMAGE_EXISTS }}"
+        echo "DOCKER_TAG: ${{ steps.create-tag-from-sha.outputs.image-tag }}"
 
     # TODO check if the image already exists
     - name: Build and push Docker image
