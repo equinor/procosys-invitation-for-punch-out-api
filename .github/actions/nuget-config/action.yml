@@ -1,5 +1,5 @@
-name: Get Devops token
-description: 'Login to Azure and obtain a token for DevOps'
+name: Configure NuGet
+description: 'Configure NuGet feeds'
 inputs:
   access-token:
     description: 'Nuget feed access token'

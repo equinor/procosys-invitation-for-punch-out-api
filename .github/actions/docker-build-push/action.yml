@@ -1,0 +1,64 @@
+name: Build and Push Docker Image
+description: 'Build and push Docker image to Azure Container Registry and returns its tag. If the image already exists, it will not be rebuilt.'
+
+inputs:
+  client-id:
+    description: 'Identity client id'
+    required: true
+  tenant-id:
+    description: 'Equinor tenant id'
+    required: true
+
+outputs:
+  image-tag:
+    description: 'Docker image tag'
+    value: ${{ steps.create-tag-from-sha.outputs.image-tag }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create Docker tag from SHA
+      id: create-tag-from-sha
+      run: |
+        DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+        echo "image-tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
+
+    - name: Login to Azure Container Registry
+      run: az acr login --name procosys
+
+    ## TODO early return
+    - name: Check if image already exists
+      id: check-image-exists
+      run: |
+        if az acr repository show --name procosys --repository api/ipo/api --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
+          echo "Image already exists, skipping build."
+          echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "Image does not exist. Proceeding with build."
+          echo "IMAGE_EXISTS=false" >> $GITHUB_ENV
+        fi
+
+    - name: Get access token
+      shell: bash
+      run: |
+        TOKEN=$(az account get-access-token | jq -r '.accessToken')
+        echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+    # TODO check if the image already exists
+    - name: Build and push Docker image
+      env:
+        DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
+      uses: docker/build-push-action@v4
+      with:
+        context: ./src
+        file: ./src/Equinor.ProCoSys.IPO.WebApi/Dockerfile
+        push: true
+        build-args: |
+          FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
+          AZURE_CLIENT_ID=${{ inputs.client-id }}
+          AZURE_TENANT_ID=${{ inputs.tenant-id }}
+        secrets: |
+          GIT_AUTH_TOKEN=${{ env.CLIENT_TOKEN }}
+        tags: |
+          procosys.azurecr.io/api/ipo/api:${{ steps.create-tag-from-sha.outputs.image-tag }}
+          procosys.azurecr.io/api/ipo/api:latest
