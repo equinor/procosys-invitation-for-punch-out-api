@@ -46,6 +46,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Setup EF Tools 
+        run: | 
+          dotnet tool install --global dotnet-ef 
+
       - name: Configure user secrets
         run: |
           # Set user secrets for API project
