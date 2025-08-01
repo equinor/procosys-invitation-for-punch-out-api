@@ -46,7 +46,12 @@ jobs:
       - name: Create Docker tag from SHA
         run: |
           echo "DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
-          echo "Docker tag: ${{ env.DOCKER_TAG }}"
+          echo "Docker tag: $DOCKER_TAG"
+
+      # TODO remove debug
+      - name: Debug Info
+        run: |
+          echo "DOCKER_TAG: $DOCKER_TAG"
 
       # TODO check if the image already exists
       - name: Build and push Docker image
