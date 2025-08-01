@@ -25,6 +25,7 @@ runs:
         echo "image-tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
 
     - name: Login to Azure Container Registry
+      shell: bash
       run: az acr login --name procosys
 
     ## TODO early return
