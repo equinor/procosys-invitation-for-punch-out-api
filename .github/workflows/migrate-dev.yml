@@ -47,10 +47,12 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Setup EF Tools 
+        shell: bash
         run: | 
           dotnet tool install --global dotnet-ef 
 
       - name: Configure user secrets
+        shell: bash
         run: |
           # Set user secrets for API project
           cd ./src/Equinor.ProCoSys.IPO.WebApi/
@@ -58,10 +60,11 @@ jobs:
       
       # TODO Is the cd needed?
       - name: Migrate database
+        shell: bash
         run: |
           # Create migration script for MyDbContext
           cd ./src/Equinor.ProCoSys.IPO.WebApi/
-          dotnet ef migrations script `
-            --project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" `
-            --startup-project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" `
+          dotnet ef migrations script \
+            --project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" \
+            --startup-project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" \
             --output ${{ github.workspace }}/migration.sql --idempotent
