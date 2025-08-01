@@ -112,4 +112,3 @@ jobs:
             --component backend \
             --image-tag-name backend=${{ env.DOCKER_TAG }} \
             --image-tag-name backend=latest
-            --follow
