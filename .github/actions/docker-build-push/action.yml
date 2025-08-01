@@ -48,7 +48,6 @@ runs:
 
     # TODO check if the image already exists
     - name: Build and push Docker image
-      shell: bash
       env:
         DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
       uses: docker/build-push-action@v4
