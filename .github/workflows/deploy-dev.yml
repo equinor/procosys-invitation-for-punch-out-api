@@ -26,6 +26,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get DevOps Token
+        id: 'get-devops-token'
         uses: ./.github/actions/get-devops-token
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
