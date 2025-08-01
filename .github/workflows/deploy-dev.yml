@@ -36,12 +36,6 @@ jobs:
         id: get-change-id
         uses: ./.github/actions/get-change-id
 
-      - name: Check if image already exists
-        id: check-if-image-exists
-        uses: ./.github/actions/docker-if-image-exists
-        with:
-          tag: ${{ steps.get-change-id.outputs.change-id }}
-
       - name: 'Build and Push Image'
         uses: ./.github/actions/docker-build-push-if-not-exists
         with:
