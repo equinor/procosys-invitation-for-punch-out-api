@@ -57,6 +57,10 @@ jobs:
           # Set user secrets for API project
           cd ./src/Equinor.ProCoSys.IPO.WebApi/
           dotnet user-secrets set "ConnectionStrings:IPOContext" "dummydata" # Need input
+
+      - name: Get change ID
+        id: get-change-id
+        uses: ./.github/actions/get-change-id
       
       - name: Migrate database
         shell: bash

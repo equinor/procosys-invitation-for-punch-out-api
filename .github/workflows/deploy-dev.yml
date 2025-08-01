@@ -43,12 +43,11 @@ jobs:
           tag: ${{ steps.get-change-id.outputs.change-id }}
 
       - name: 'Build and Push Image'
-        if: ${{ steps.check-if-image-exists.outputs.image-exists == 'false' }}
-        id: build-image
-        uses: ./.github/actions/docker-build-push
+        uses: ./.github/actions/docker-build-push-if-not-exists
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          tag: ${{ steps.get-change-id.outputs.change-id }}
 
       - name: Radix CLI setup
         uses: equinor/radix-github-actions@v2
@@ -62,6 +61,6 @@ jobs:
             --from-config \
             --environment dev \
             --component backend \
-            --image-tag-name backend=${{ steps.build-image.outputs.image-tag }} \
+            --image-tag-name backend=${{ steps.get-change-id.outputs.change-id }} \
             --image-tag-name backend=latest \
             --follow

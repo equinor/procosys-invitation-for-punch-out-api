@@ -9,7 +9,7 @@ inputs:
     description: 'Equinor tenant id'
     required: true
   tag:
-    description: 'Docker image tag to check for existence'
+    description: 'Docker image tag build and push'
     required: true
 
 runs:
@@ -20,12 +20,10 @@ runs:
       run: az acr login --name procosys
 
     - name: Get DevOps Token
-      if: env.IMAGE_EXISTS != 'true'
       id: 'get-devops-token'
       uses: ./.github/actions/get-devops-token
 
     - name: Build and push Docker image
-      if: env.IMAGE_EXISTS != 'true'
       uses: docker/build-push-action@v6
       with:
         context: ./src
