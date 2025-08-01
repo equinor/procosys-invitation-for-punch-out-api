@@ -1,0 +1,63 @@
+name: 🚀🛠️ Migrate dev database
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: 
+      - reopened
+      - opened
+      - ready_for_review
+      - synchronize
+    branches: 
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  migrate:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Login to Azure'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Get DevOps Token
+        id: 'get-devops-token'
+        uses: ./.github/actions/get-devops-token
+      
+      - name: Configure Nuget
+        uses: ./.github/actions/nuget-config
+        with:
+          access-token: ${{ steps.get-devops-token.outputs.token }}
+
+      - name: Setup dotnet 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Configure user secrets
+        run: |
+          # Set user secrets for API project
+          cd ./src/Equinor.ProCoSys.IPO.WebApi/
+          dotnet user-secrets set "ConnectionStrings:IPOContext" "dummydata" # Need input
+      
+      # TODO Is the cd needed?
+      - name: Migrate database
+        run: |
+          # Create migration script for MyDbContext
+          cd ./src/Equinor.ProCoSys.IPO.WebApi/
+          dotnet ef migrations script `
+            --project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" `
+            --startup-project "${{ github.workspace }}/src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" `
+            --output ${{ github.workspace }}/migration.sql --idempotent
