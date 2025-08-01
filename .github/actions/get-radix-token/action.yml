@@ -1,0 +1,33 @@
+name: Get Devops token
+description: 'Login to Azure and obtain a token for DevOps'
+inputs:
+  client-id:
+    description: 'Identity client id'
+    required: true
+  tenant-id:
+    description: 'Equinor tenant id'
+    required: true
+
+outputs:
+  token:
+    description: 'Devops token'
+    value: ${{ steps.token.outputs.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Login to Azure'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.client-id }}
+        tenant-id: ${{ inputs.tenant-id }}
+        allow-no-subscriptions: true
+
+    - name: Get Access Token
+      id: token
+      shell: bash
+      env:
+        AZURE_KUBERNETES_SERVICE_AAD_SERVER_APPLICATION_ID: "6dae42f8-4368-4678-94ff-3960e28e3630"
+      run: |
+        TOKEN=$(az account get-access-token --resource=$AZURE_KUBERNETES_SERVICE_AAD_SERVER_APPLICATION_ID | jq -r '.accessToken')
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT

@@ -51,6 +51,7 @@ jobs:
       # TODO remove debug
       - name: Debug Info
         run: |
+          echo "GITHUB_SHA: $GITHUB_SHA"
           echo "DOCKER_TAG: $DOCKER_TAG"
 
       # TODO check if the image already exists
@@ -71,4 +72,25 @@ jobs:
           tags: |
             procosys.azurecr.io/api/ipo/api:${{ env.DOCKER_TAG }}
             procosys.azurecr.io/api/ipo/api:latest
+
+      # - name: Get Radix Token
+      #   id: 'get-radix-token'
+      #   uses: ./.github/actions/get-radix-token
+      #   with:
+      #     client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
+
+      - name: Deploy on Radix
+        uses: equinor/radix-github-actions@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          args: >
+            create pipeline-job
+            deploy
+            -a procosys-ipo-api
+            --from-config
+            -e dev
+            --component backend
+            --image-tag-name backend=${{ env.DOCKER_TAG }}
+            -f 
 
