@@ -84,17 +84,32 @@ jobs:
         run: |
           echo "APP_SERVICE_ACCOUNT_TOKEN=${{ steps.get-radix-token.outputs.token }}" >> $GITHUB_ENV
 
-      - name: Deploy on Radix
-        uses: equinor/radix-github-actions@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          args: >
-            create pipeline-job
-            deploy
-            -a procosys-ipo-api
-            --from-config
-            -e dev
-            --component backend
-            --image-tag-name backend=${{ env.DOCKER_TAG }}
-            -f 
+      # - name: Deploy on Radix
+      #   uses: equinor/radix-github-actions@v1
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     args: >
+      #       create pipeline-job
+      #       deploy
+      #       -a procosys-ipo-api
+      #       --from-config
+      #       -e dev
+      #       --component backend
+      #       --image-tag-name backend=${{ env.DOCKER_TAG }}
+      #       -f 
 
+      - name: Radix CLI setup
+        uses: equinor/radix-github-actions@v2
+        with:
+          azure_client_id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+
+      - name: Deploy on Radix
+        run: |
+          rx create job deploy \
+            --application procosys-ipo-api \
+            --from-config \
+            --environment dev \
+            --component backend \
+            --image-tag-name backend=${{ env.DOCKER_TAG }} \
+            --image-tag-name backend=latest
+            --follow
