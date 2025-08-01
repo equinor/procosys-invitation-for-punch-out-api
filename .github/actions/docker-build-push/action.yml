@@ -49,6 +49,7 @@ runs:
 
     # TODO
     - name: Debug environment variables
+      shell: bash
       run: |
         echo "CLIENT_TOKEN: ${{ env.CLIENT_TOKEN }}"
         echo "IMAGE_EXISTS: ${{ env.IMAGE_EXISTS }}"
