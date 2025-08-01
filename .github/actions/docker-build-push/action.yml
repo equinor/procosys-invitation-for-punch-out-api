@@ -29,7 +29,6 @@ runs:
       shell: bash
       run: az acr login --name procosys
 
-    ## TODO early return
     - name: Check if image already exists
       id: check-image-exists
       shell: bash
@@ -37,6 +36,7 @@ runs:
         if az acr repository show --name procosys --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
           echo "Image already exists, skipping build."
           echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
+        fi
 
     - name: Get DevOps Token
       if: env.IMAGE_EXISTS != 'true'
