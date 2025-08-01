@@ -1,5 +1,5 @@
 name: Build and Push Docker Image
-description: 'Build and push Docker image to Azure Container Registry and returns its tag. If the image already exists, it will not be rebuilt.'
+description: 'Build and push Docker image to Azure Container Registry with a tag as the change ID. If the image already exists, it will not be rebuilt.'
 
 inputs:
   client-id:
@@ -8,35 +8,16 @@ inputs:
   tenant-id:
     description: 'Equinor tenant id'
     required: true
-
-outputs:
-  image-tag:
-    description: 'Docker image tag'
-    value: ${{ steps.create-tag-from-sha.outputs.image-tag }}
+  tag:
+    description: 'Docker image tag to check for existence'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Create Docker tag from SHA
-      id: create-tag-from-sha
-      shell: bash
-      run: |
-        IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-        echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-        echo "Image tag: $IMAGE_TAG"
-
     - name: Login to Azure Container Registry
       shell: bash
       run: az acr login --name procosys
-
-    - name: Check if image already exists
-      id: check-image-exists
-      shell: bash
-      run: |
-        if az acr repository show --name procosys --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
-          echo "Image already exists, skipping build."
-          echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
-        fi
 
     - name: Get DevOps Token
       if: env.IMAGE_EXISTS != 'true'
@@ -55,5 +36,5 @@ runs:
           AZURE_CLIENT_ID=${{ inputs.client-id }}
           AZURE_TENANT_ID=${{ inputs.tenant-id }}
         tags: |
-          procosys.azurecr.io/api/ipo/api:${{ steps.create-tag-from-sha.outputs.image-tag }}
+          procosys.azurecr.io/api/ipo/api:${{ inputs.tag }}
           procosys.azurecr.io/api/ipo/api:latest
