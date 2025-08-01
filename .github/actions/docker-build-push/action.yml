@@ -34,7 +34,7 @@ runs:
       id: check-image-exists
       shell: bash
       run: |
-        if az acr repository show --name procosys --repository api/ipo/api --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
+        if az acr repository show --name procosys --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
           echo "Image already exists, skipping build."
           echo "IMAGE_EXISTS=true" >> $GITHUB_ENV
         else
@@ -48,8 +48,6 @@ runs:
 
     # TODO check if the image already exists
     - name: Build and push Docker image
-      env:
-        DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
       uses: docker/build-push-action@v6
       with:
         context: ./src
