@@ -22,12 +22,6 @@ jobs:
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-
-      # TODO remove this
-      - name: DEBUG
-        shell: bash
-        run: |
-          echo "Short token: $(echo ${{ steps.get-devops-token.outputs.token }} | cut -c1-7)"
       
       - name: Configure Nuget
         uses: ./.github/actions/nuget-config
