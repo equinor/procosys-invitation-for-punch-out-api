@@ -48,12 +48,6 @@ jobs:
           echo "DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
           echo "Docker tag: $DOCKER_TAG"
 
-      # TODO remove debug
-      - name: Debug Info
-        run: |
-          echo "GITHUB_SHA: $GITHUB_SHA"
-          echo "DOCKER_TAG: $DOCKER_TAG"
-
       # TODO check if the image already exists
       - name: Build and push Docker image
         env:
@@ -78,7 +72,7 @@ jobs:
         with:
           azure_client_id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
 
-      - name: Deploy on Radix
+      - name: Deploy to Radix
         run: |
           rx create job deploy \
             --application procosys-ipo-api \
