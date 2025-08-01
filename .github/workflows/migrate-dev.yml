@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  migrate:
+  generate-migration-script:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     environment: dev

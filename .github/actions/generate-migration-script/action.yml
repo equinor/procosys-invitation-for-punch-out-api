@@ -48,4 +48,4 @@ runs:
       id: output-migration-path
       shell: bash
       run: |
-        echo "migration-path=./migration.sql" >> $GITHUB_ENV
+        echo "migration-path=./migration.sql" >> $GITHUB_OUTPUT
