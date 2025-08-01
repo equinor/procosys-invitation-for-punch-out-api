@@ -23,12 +23,6 @@ runs:
       id: 'get-devops-token'
       uses: ./.github/actions/get-devops-token
 
-    # TODO remove tag ID debug
-    - name: Debug tag ID
-      shell: bash
-      run: |
-        echo "Tag ID: ${{ inputs.tag }}"
-
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
