@@ -16,11 +16,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure Nuget
-        uses: ./.github/actions/nuget-config
+      - name: Get DevOps Token
+        uses: ./.github/actions/get-devops-token
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
+      
+      - name: Configure Nuget
+        uses: ./.github/actions/nuget-config
+        with:
+          access-token: ${{ steps.get-devops-token.outputs.token }}
 
       - name: Run tests
         run: |
