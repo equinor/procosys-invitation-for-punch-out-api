@@ -19,6 +19,7 @@ runs:
   steps:
     - name: Create Docker tag from SHA
       id: create-tag-from-sha
+      shell: bash
       run: |
         DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)
         echo "image-tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
@@ -29,6 +30,7 @@ runs:
     ## TODO early return
     - name: Check if image already exists
       id: check-image-exists
+      shell: bash
       run: |
         if az acr repository show --name procosys --repository api/ipo/api --image api:${{ steps.create-tag-from-sha.outputs.image-tag }}; then
           echo "Image already exists, skipping build."
@@ -46,6 +48,7 @@ runs:
 
     # TODO check if the image already exists
     - name: Build and push Docker image
+      shell: bash
       env:
         DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
       uses: docker/build-push-action@v4
