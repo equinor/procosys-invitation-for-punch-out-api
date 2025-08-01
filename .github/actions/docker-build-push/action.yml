@@ -21,8 +21,9 @@ runs:
       id: create-tag-from-sha
       shell: bash
       run: |
-        DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-        echo "image-tag=$DOCKER_TAG" >> $GITHUB_OUTPUT
+        IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+        echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+        echo "Image tag: $IMAGE_TAG"
 
     - name: Login to Azure Container Registry
       shell: bash
@@ -41,7 +42,11 @@ runs:
           echo "IMAGE_EXISTS=false" >> $GITHUB_ENV
         fi
 
-    - name: Get access token
+    - name: Get DevOps Token
+      id: 'get-devops-token'
+      uses: ./.github/actions/get-devops-token
+
+    - name: Get feed access token
       shell: bash
       run: |
         TOKEN=$(az account get-access-token | jq -r '.accessToken')
@@ -53,7 +58,7 @@ runs:
       run: |
         echo "CLIENT_TOKEN: ${{ env.CLIENT_TOKEN }}"
         echo "IMAGE_EXISTS: ${{ env.IMAGE_EXISTS }}"
-        echo "DOCKER_TAG: ${{ steps.create-tag-from-sha.outputs.image-tag }}"
+        echo "IMAGE_TAG: ${{ steps.create-tag-from-sha.outputs.image-tag }}"
 
     # TODO check if the image already exists
     - name: Build and push Docker image

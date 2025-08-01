@@ -32,12 +32,45 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
 
-      - name: 'Build and Push Image'
-        id: build-and-push-image
-        uses: ./.github/actions/docker-build-push
+          
+
+      - name: Get DevOps Token
+        id: 'get-devops-token'
+        uses: ./.github/actions/get-devops-token
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name procosys
+
+      # TODO improve token handling
+      - name: Get Client Token
+        shell: bash
+        run: |
+          TOKEN=$(az account get-access-token | jq -r '.accessToken')
+          echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Create Docker tag from SHA
+        run: |
+          echo "DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+          echo "Docker tag: $DOCKER_TAG"
+
+      # TODO check if the image already exists
+      - name: Build and push Docker image
+        env:
+          DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
+        uses: docker/build-push-action@v4
         with:
-          client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          context: ./src
+          file: ./src/Equinor.ProCoSys.IPO.WebApi/Dockerfile
+          push: true
+          build-args: |
+            FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
+            AZURE_CLIENT_ID=${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+            AZURE_TENANT_ID=${{ vars.AZURE_TENANT_ID }}
+          secrets: |
+            GIT_AUTH_TOKEN=${{ env.CLIENT_TOKEN }}
+          tags: |
+            procosys.azurecr.io/api/ipo/api:${{ env.DOCKER_TAG }}
+            procosys.azurecr.io/api/ipo/api:latest
 
       - name: Radix CLI setup
         uses: equinor/radix-github-actions@v2
@@ -51,6 +84,6 @@ jobs:
             --from-config \
             --environment dev \
             --component backend \
-            --image-tag-name backend=${{ steps.build-and-push-image.outputs.image-tag }} \
+            --image-tag-name backend=${{ env.DOCKER_TAG }} \
             --image-tag-name backend=latest \
             --follow
