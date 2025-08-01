@@ -46,12 +46,6 @@ runs:
       id: 'get-devops-token'
       uses: ./.github/actions/get-devops-token
 
-    - name: Get feed access token
-      shell: bash
-      run: |
-        TOKEN=$(az account get-access-token | jq -r '.accessToken')
-        echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
-
     # TODO check if the image already exists
     - name: Build and push Docker image
       env:
@@ -65,8 +59,6 @@ runs:
           FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
           AZURE_CLIENT_ID=${{ inputs.client-id }}
           AZURE_TENANT_ID=${{ inputs.tenant-id }}
-        secrets: |
-          GIT_AUTH_TOKEN=${{ env.CLIENT_TOKEN }}
         tags: |
           procosys.azurecr.io/api/ipo/api:${{ steps.create-tag-from-sha.outputs.image-tag }}
           procosys.azurecr.io/api/ipo/api:latest
