@@ -4,7 +4,7 @@ description: 'Get an ID that represent the change in the repository.'
 outputs:
   change-id:
     description: 'Change ID'
-    value: ${{ steps.create-tag-from-sha.outputs.image-tag }}
+    value: ${{ steps.id-from-sha.outputs.image-tag }}
 
 runs:
   using: 'composite'

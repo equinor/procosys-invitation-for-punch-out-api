@@ -25,6 +25,7 @@ runs:
 
     # TODO remove change ID debug
     - name: Debug change ID
+      shell: bash
       run: |
         echo "Change ID: ${{ steps.get-change-id.outputs.change-id }}"
 
