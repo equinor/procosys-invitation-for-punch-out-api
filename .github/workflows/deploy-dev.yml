@@ -42,26 +42,27 @@ jobs:
           TOKEN=$(az account get-access-token | jq -r '.accessToken')
           echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-      - name: Get Short SHA
+      - name: Create Docker tag from SHA
         run: |
-          echo "SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+          echo "DOCKER_TAG=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
+          echo "Docker tag: ${{ env.DOCKER_TAG }}"
 
-      # TODO check if the image already exists
-      - name: Build and push Docker image
-        env:
-          DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
-        uses: docker/build-push-action@v4
-        with:
-          context: ./src
-          file: ./src/Equinor.ProCoSys.IPO.WebApi/Dockerfile
-          push: true
-          build-args: |
-            FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
-            AZURE_CLIENT_ID=${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-            AZURE_TENANT_ID=${{ vars.AZURE_TENANT_ID }}
-          secrets: |
-            GIT_AUTH_TOKEN=${{ env.CLIENT_TOKEN }}
-          tags: |
-            procosys.azurecr.io/api/ipo/api:${{ env.SHORT_SHA }}
-            procosys.azurecr.io/api/ipo/api:latest
+      # # TODO check if the image already exists
+      # - name: Build and push Docker image
+      #   env:
+      #     DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
+      #   uses: docker/build-push-action@v4
+      #   with:
+      #     context: ./src
+      #     file: ./src/Equinor.ProCoSys.IPO.WebApi/Dockerfile
+      #     push: true
+      #     build-args: |
+      #       FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
+      #       AZURE_CLIENT_ID=${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+      #       AZURE_TENANT_ID=${{ vars.AZURE_TENANT_ID }}
+      #     secrets: |
+      #       GIT_AUTH_TOKEN=${{ env.CLIENT_TOKEN }}
+      #     tags: |
+      #       procosys.azurecr.io/api/ipo/api:${{ env.DOCKER_TAG }}
+      #       procosys.azurecr.io/api/ipo/api:latest
 
