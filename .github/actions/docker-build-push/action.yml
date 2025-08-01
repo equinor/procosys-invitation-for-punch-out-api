@@ -52,21 +52,14 @@ runs:
         TOKEN=$(az account get-access-token | jq -r '.accessToken')
         echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
 
-    # TODO
-    - name: Debug environment variables
-      shell: bash
-      run: |
-        echo "CLIENT_TOKEN: ${{ env.CLIENT_TOKEN }}"
-        echo "IMAGE_EXISTS: ${{ env.IMAGE_EXISTS }}"
-        echo "IMAGE_TAG: ${{ steps.create-tag-from-sha.outputs.image-tag }}"
-
     # TODO check if the image already exists
     - name: Build and push Docker image
       env:
         DOCKER_BUILDKIT: 1 # Enable BuildKit for this step
       uses: docker/build-push-action@v6
       with:
-        context: ./src/Equinor.ProCoSys.IPO.WebApi/
+        context: ./src
+        file: ./src/Equinor.ProCoSys.IPO.WebApi/Dockerfile
         push: true
         build-args: |
           FEED_ACCESSTOKEN=${{ steps.get-devops-token.outputs.token }}
