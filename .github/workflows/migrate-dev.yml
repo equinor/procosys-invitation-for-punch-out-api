@@ -58,7 +58,6 @@ jobs:
           cd ./src/Equinor.ProCoSys.IPO.WebApi/
           dotnet user-secrets set "ConnectionStrings:IPOContext" "dummydata" # Need input
       
-      # TODO remove echo
       - name: Migrate database
         shell: bash
         run: |
@@ -68,4 +67,9 @@ jobs:
             --startup-project "./src/Equinor.ProCoSys.IPO.WebApi/Equinor.ProCoSys.IPO.WebApi.csproj" \
             --output ./migration.sql --idempotent
 
+      # TODO
+      - name: Debug
+        shell: bash
+        run: |
+          echo "TADA!!"
           echo | cat ./migration.sql
