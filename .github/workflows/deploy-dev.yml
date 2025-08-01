@@ -39,7 +39,7 @@ jobs:
       - name: Get Client Token
         shell: bash
         run: |
-          TOKEN=$(az account get-access-token --resource= ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }} | jq -r '.accessToken')
+          TOKEN=$(az account get-access-token | jq -r '.accessToken')
           echo "CLIENT_TOKEN=$TOKEN" >> $GITHUB_ENV
 
       - name: Get Short SHA
