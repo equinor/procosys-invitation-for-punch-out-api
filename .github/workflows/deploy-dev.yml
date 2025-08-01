@@ -73,12 +73,16 @@ jobs:
             procosys.azurecr.io/api/ipo/api:${{ env.DOCKER_TAG }}
             procosys.azurecr.io/api/ipo/api:latest
 
-      # - name: Get Radix Token
-      #   id: 'get-radix-token'
-      #   uses: ./.github/actions/get-radix-token
-      #   with:
-      #     client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
+      - name: Get Radix Token
+        id: 'get-radix-token'
+        uses: ./.github/actions/get-radix-token
+        with:
+          client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+
+      - name: Set app service account token
+        run: |
+          echo "APP_SERVICE_ACCOUNT_TOKEN=${{ steps.get-radix-token.outputs.token }}" >> $GITHUB_ENV
 
       - name: Deploy on Radix
         uses: equinor/radix-github-actions@v1
