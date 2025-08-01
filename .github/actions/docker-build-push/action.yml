@@ -15,7 +15,6 @@ outputs:
     value: ${{ steps.create-tag-from-sha.outputs.image-tag }}
 
 runs:
-  using: 'composite'
   steps:
     - name: Create Docker tag from SHA
       id: create-tag-from-sha
