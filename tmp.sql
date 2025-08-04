@@ -1,5 +1,11 @@
-UPDATE SavedFilters SET Title = 'Testing Pipeline' WHERE Id = 55;
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_NAME = 'Temp' AND TABLE_SCHEMA = 'dbo'
+)
+BEGIN
+    CREATE TABLE Temp (
+        Id INT PRIMARY KEY
+    );
+END
 
-CREATE TABLE Temp (
-    Id INT PRIMARY KEY
-);
+INSERT INTO Temp (Id) VALUES (1);
