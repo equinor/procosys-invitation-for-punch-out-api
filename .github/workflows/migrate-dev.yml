@@ -67,7 +67,7 @@ jobs:
         with:        
           connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
           path: './tmp.sql'
-          # skip-firewall-check: true
+          action: Script
       
       # - uses: actions/download-artifact@v4
       #   with:
