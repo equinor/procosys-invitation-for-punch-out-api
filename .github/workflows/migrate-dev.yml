@@ -36,10 +36,6 @@ jobs:
         id: generate-migration-script
         uses: ./.github/actions/generate-migration-script
 
-      - name: Get change ID
-        id: get-change-id
-        uses: ./.github/actions/get-change-id
-
       - name: Upload EF Migrations script Artifact 
         uses: actions/upload-artifact@v4
         with: 
@@ -51,10 +47,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: 'Login to Azure'
         uses: azure/login@v2
         with:
