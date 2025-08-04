@@ -42,22 +42,6 @@ jobs:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           tag: ${{ steps.get-change-id.outputs.change-id }}
-
-      - name: Radix CLI setup
-        uses: equinor/radix-github-actions@v2
-        with:
-          azure_client_id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-
-      - name: Deploy to Radix
-        run: |
-          rx create job deploy \
-            --application procosys-ipo-api \
-            --from-config \
-            --environment dev \
-            --component backend \
-            --image-tag-name backend=${{ steps.get-change-id.outputs.change-id }} \
-            --image-tag-name backend=latest \
-            --follow
   
   generate-migration-script:
     if: github.event.pull_request.draft == false
@@ -115,6 +99,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
       # TODO: Is this needed?
       # - name: 'Login to Azure'
       #   uses: azure/login@v2
