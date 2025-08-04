@@ -22,7 +22,7 @@ runs:
         tag: ${{ inputs.tag }}
 
     - name: 'Build and Push Image'
-      if: ${{ steps.check-if-image-exists.outputs.image-exists }} == 'false' 
+      if: ${{ steps.check-if-image-exists.outputs.image-exists == 'false' }}
       id: build-image
       uses: ./.github/actions/docker-build-push
       with:
