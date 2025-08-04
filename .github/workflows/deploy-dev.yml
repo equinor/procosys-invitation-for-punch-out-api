@@ -22,8 +22,6 @@ jobs:
     environment: dev
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 'Login to Azure'
         uses: azure/login@v2
@@ -52,8 +50,6 @@ jobs:
     environment: dev
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: 'Login to Azure'
         uses: azure/login@v2
@@ -102,6 +98,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
+      - uses: actions/checkout@v4
+
       - name: Radix CLI setup
         uses: equinor/radix-github-actions@v2
         with:
