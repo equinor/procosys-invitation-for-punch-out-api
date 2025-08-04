@@ -32,10 +32,6 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
 
-      - name: Get change ID
-        id: get-change-id
-        uses: ./.github/actions/get-change-id
-
       - name: Parse change ID from SHA
         id: id-from-sha
         shell: bash
