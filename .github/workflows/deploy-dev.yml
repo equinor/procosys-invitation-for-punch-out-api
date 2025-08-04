@@ -32,20 +32,19 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
 
-      - name: Parse change ID from SHA
-        id: id-from-sha
+      - name: Parse image tag ID from SHA
         shell: bash
         run: |
-          CHANGE_ID=$(echo $GITHUB_SHA | cut -c1-7)
-          echo "CHANGE_ID=$CHANGE_ID" >> $GITHUB_ENV
-          echo "Change ID: $CHANGE_ID"
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          echo "Tag ID: $IMAGE_TAG"
 
       - name: 'Build and Push Image'
         uses: ./.github/actions/docker-build-push-if-not-exists
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          tag: ${{ env.CHANGE_ID }}
+          tag: ${{ env.IMAGE_TAG }}
   
   generate-migration-script:
     if: github.event.pull_request.draft == false
