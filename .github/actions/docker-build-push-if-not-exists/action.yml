@@ -9,7 +9,7 @@ inputs:
     description: 'Equinor tenant id'
     required: true
   tag:
-    description: 'Docker im age tag to check, build, and push'
+    description: 'Docker image tag to check, build, and push'
     required: true
 
 runs:

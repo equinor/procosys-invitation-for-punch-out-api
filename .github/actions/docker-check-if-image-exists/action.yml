@@ -23,7 +23,7 @@ runs:
       shell: bash
       run: |
         if az acr repository show --name procosys --image api:${{ inputs.tag }}; then
-          echo "IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
+          echo "image-exists=true" >> $GITHUB_OUTPUT
         else
-          echo "IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
+          echo "image-exists=false" >> $GITHUB_OUTPUT
         fi
