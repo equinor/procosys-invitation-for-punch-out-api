@@ -22,7 +22,7 @@ runs:
       id: check-image-exists
       shell: bash
       run: |
-        if az acr repository show --name procosys --image api:${{ inputs.tag }}; then
+        if az acr repository show --name procosys --image ipo/api:${{ inputs.tag }}; then
           echo "image-exists=true" >> $GITHUB_OUTPUT
         else
           echo "image-exists=false" >> $GITHUB_OUTPUT
