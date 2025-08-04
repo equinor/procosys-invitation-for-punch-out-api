@@ -45,3 +45,34 @@ jobs:
         with: 
           name: migration-${{ steps.get-change-id.outputs.change-id }}.sql
           path: ${{ steps.generate-migration-script.outputs.migration-script-path }}
+
+  migrate-database:
+    # needs: generate-migration-script #TODO
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Login to Azure'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+
+      - name: Login to Azure Container Registry
+        shell: bash
+        run: az acr login --name procosys
+
+      #TODO remove this
+      - name: Login to Azure Container Registry
+        shell: bash
+        run: |
+          echo "UPDATE [dbo].[SavedFilters] SET Title = 'Testing Pipeline' WHERE Id = 55;" >> ./tmp.sql
+
+      - uses: azure/sql-action@v2.3
+        with:        
+          connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
+          path: './tmp.sql'
