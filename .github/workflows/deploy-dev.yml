@@ -36,12 +36,20 @@ jobs:
         id: get-change-id
         uses: ./.github/actions/get-change-id
 
+      - name: Parse change ID from SHA
+        id: id-from-sha
+        shell: bash
+        run: |
+          CHANGE_ID=$(echo $GITHUB_SHA | cut -c1-7)
+          echo "CHANGE_ID=$CHANGE_ID" >> $GITHUB_ENV
+          echo "Change ID: $CHANGE_ID"
+
       - name: 'Build and Push Image'
         uses: ./.github/actions/docker-build-push-if-not-exists
         with:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          tag: ${{ steps.get-change-id.outputs.change-id }}
+          tag: ${{ env.CHANGE_ID }}
   
   generate-migration-script:
     if: github.event.pull_request.draft == false
@@ -99,22 +107,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      # TODO: Is this needed?
-      # - name: 'Login to Azure'
-      #   uses: azure/login@v2
-      #   with:
-      #     client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
-      #     tenant-id: ${{ vars.AZURE_TENANT_ID }}
-      #     allow-no-subscriptions: true
-
-      - name: Get change ID
-        id: get-change-id
-        uses: ./.github/actions/get-change-id
-
       - name: Radix CLI setup
         uses: equinor/radix-github-actions@v2
         with:
@@ -127,6 +119,6 @@ jobs:
             --from-config \
             --environment dev \
             --component backend \
-            --image-tag-name backend=${{ steps.get-change-id.outputs.change-id }} \
+            --image-tag-name backend=${{ env.IMAGE_TAG }} \
             --image-tag-name backend=latest \
             --follow
