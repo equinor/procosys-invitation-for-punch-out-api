@@ -47,7 +47,7 @@ jobs:
           path: ${{ steps.generate-migration-script.outputs.migration-script-path }}
 
   migrate-database:
-    # needs: generate-migration-script #TODO
+    needs: generate-migration-script
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -61,19 +61,12 @@ jobs:
           client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           allow-no-subscriptions: true 
+      
+      - uses: actions/download-artifact@v4
+        with:
+          name: migration-script
 
-      #TODO remove this
       - uses: azure/sql-action@v2.3
         with:        
           connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
-          path: './tmp.sql'
-          action: Script
-      
-      # - uses: actions/download-artifact@v4
-      #   with:
-      #     name: migration-script
-
-      # - uses: azure/sql-action@v2.3
-      #   with:        
-      #     connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
-      #     path: './migration.sql'
+          path: './migration.sql'
