@@ -33,7 +33,7 @@ runs:
       run: |
         # Set user secrets for API project
         cd ./src/Equinor.ProCoSys.IPO.WebApi/
-        dotnet user-secrets set "ConnectionStrings:IPOContext" "dummydata" # Need input
+        dotnet user-secrets set "ConnectionStrings:IPOContext" "${{ secrets.IPO_CONTEXT_CONNECTION_STRING }}"
     
     - name: Migrate database
       shell: bash

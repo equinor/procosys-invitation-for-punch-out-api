@@ -114,5 +114,4 @@ jobs:
             --environment dev \
             --component backend \
             --image-tag-name backend=${{ steps.get-change-id.outputs.change-id }} \
-            --image-tag-name backend=latest \
             --follow
