@@ -34,5 +34,5 @@ runs:
           AZURE_CLIENT_ID=${{ inputs.client-id }}
           AZURE_TENANT_ID=${{ inputs.tenant-id }}
         tags: |
-          procosys.azurecr.io/api/ipo/api:${{ inputs.tag }}
-          procosys.azurecr.io/api/ipo/api:latest
+          procosys.azurecr.io/ipo/api:${{ inputs.tag }}
+          procosys.azurecr.io/ipo/api:latest
