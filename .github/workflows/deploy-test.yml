@@ -1,7 +1,10 @@
-name: 🚀🛠️ Deploy to dev
+name: 🚀🧪 Deploy to test
 
 on:
   workflow_dispatch:
+  push:
+    branches: main
+  # TODO remove debug
   pull_request:
     types: 
       - reopened
@@ -20,7 +23,7 @@ jobs:
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: dev
+      environment: test
       client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
       tenant-id: ${{ vars.AZURE_TENANT_ID }}
       sql-connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
