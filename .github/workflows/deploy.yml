@@ -25,6 +25,18 @@ permissions:
   contents: read
 
 jobs:
+  # TODO remove debug
+  debug-inputs:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Debug inputs
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Client ID: ${{ inputs.client-id }}"
+          echo "Tenant ID: ${{ inputs.tenant-id }}"
+          echo "SQL Connection String: ${{ inputs.sql-connection-string }}"
+
   build-and-push-image:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -89,6 +101,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: migration-script
+
+      # TODO remove debug
+      - name: Debug migration script
+        run: |
+          echo "Connection string: ${{ inputs.sql-connection-string }}
 
       - uses: azure/sql-action@v2.3
         with:        
