@@ -78,11 +78,6 @@ jobs:
         with:
           name: migration-script
 
-      # TODO remove debug
-      - name: Debug migration script
-        run: |
-          echo "Connection string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}"
-
       - uses: azure/sql-action@v2.3
         with:        
           connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
