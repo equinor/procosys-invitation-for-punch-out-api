@@ -13,18 +13,6 @@ permissions:
   contents: read
 
 jobs:
-  # TODO remove debug
-  debug-inputs:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - name: Debug inputs
-        run: |
-          echo "Environment: ${{ inputs.environment }}"
-          echo "Client ID: ${{ vars.AZURE_CLIENT_ID }}"
-          echo "Tenant ID: ${{ vars.AZURE_TENANT_ID }}"
-          echo "SQL Connection String: ${{ vars.AZURE_SQL_CONNECTION_STRING }}"
-
   build-and-push-image:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
