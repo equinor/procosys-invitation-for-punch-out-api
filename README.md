@@ -7,7 +7,7 @@ REST API for the Invitation for punch-out module in Project Completion System (P
 
 We continuously build, test, verify, and deploy changes to production. 
 
-Changes that are ready for verification are entered into a pull request to the main branch will be automatically deployed to the Test environment for verification. Once verified and the PR is merged, the changes will automatically be deployed to test and production environments.
+Changes that are ready for verification are entered into a pull request to the main branch and will be automatically deployed to the Test environment for verification. Once verified and the PR is merged, the changes will automatically be deployed to test and production environments.
 
 For further details check out our development workflow [here](./CONTRIBUTING.md)
 
