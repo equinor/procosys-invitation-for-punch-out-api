@@ -16,11 +16,21 @@ permissions:
   contents: read
 
 jobs:
+  get-client-id:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Get app registration client ID
+        id: get-client-id
+        run: |
+          echo "client-id=${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}" >> $GITHUB_OUTPUT
+
   deploy:
     if: github.event.pull_request.draft == false
+    needs: get-client-id
     uses: ./.github/workflows/deploy.yml
     with:
       environment: dev
-      client-id: ${{ vars.EQUINOR_PROCOSYS_NON_PROD_DEVOPS_CLIENT_ID }}
+      client-id: ${{needs.get-client-id.outputs.client-id}}
       tenant-id: ${{ vars.AZURE_TENANT_ID }}
       sql-connection-string: ${{ vars.AZURE_SQL_CONNECTION_STRING }}
