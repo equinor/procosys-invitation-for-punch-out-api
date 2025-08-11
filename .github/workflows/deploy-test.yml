@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     outputs:
-      wrapped: ${{ steps.get-client-id.outputs.client-id }}
+      client-id: ${{ steps.get-client-id.outputs.client-id }}
     steps:
       - name: Get app registration client ID
         id: get-client-id
