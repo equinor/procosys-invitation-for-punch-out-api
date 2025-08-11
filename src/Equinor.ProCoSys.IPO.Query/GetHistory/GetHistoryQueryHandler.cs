@@ -23,8 +23,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
         {
             var invitation = await
                 (from i in _context.QuerySet<Invitation>()
-                    where i.Id == request.InvitationId
-                    select i).SingleOrDefaultAsync(cancellationToken);
+                 where i.Id == request.InvitationId
+                 select i).SingleOrDefaultAsync(cancellationToken);
 
             if (invitation == null)
             {
@@ -32,23 +32,23 @@ namespace Equinor.ProCoSys.IPO.Query.GetHistory
             }
 
             var invitationHistory = await (from h in _context.QuerySet<History>()
-                    join i in _context.QuerySet<Invitation>() on h.SourceGuid equals i.Guid
-                    join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
-                    where i.Guid == h.SourceGuid
-                    where i.Id == request.InvitationId
-                    select new HistoryDto(
-                        h.Id,
-                        h.Description,
-                        h.CreatedAtUtc,
-                        new PersonDto(
-                            createdBy.Id,
-                            createdBy.FirstName,
-                            createdBy.LastName,
-                            createdBy.UserName,
-                            createdBy.Guid,
-                            createdBy.Email,
-                            createdBy.RowVersion.ConvertToString()),
-                        h.EventType)
+                                           join i in _context.QuerySet<Invitation>() on h.SourceGuid equals i.Guid
+                                           join createdBy in _context.QuerySet<Person>() on h.CreatedById equals createdBy.Id
+                                           where i.Guid == h.SourceGuid
+                                           where i.Id == request.InvitationId
+                                           select new HistoryDto(
+                                               h.Id,
+                                               h.Description,
+                                               h.CreatedAtUtc,
+                                               new PersonDto(
+                                                   createdBy.Id,
+                                                   createdBy.FirstName,
+                                                   createdBy.LastName,
+                                                   createdBy.UserName,
+                                                   createdBy.Guid,
+                                                   createdBy.Email,
+                                                   createdBy.RowVersion.ConvertToString()),
+                                               h.EventType)
                 ).ToListAsync(cancellationToken);
 
             var invitationHistoryOrdered = invitationHistory.OrderByDescending(h => h.CreatedAtUtc).ToList();

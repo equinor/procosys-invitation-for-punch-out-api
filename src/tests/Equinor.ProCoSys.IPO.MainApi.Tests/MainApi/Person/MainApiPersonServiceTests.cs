@@ -22,9 +22,9 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         private const string _plant = "PCS$TESTPLANT";
         private const string _searchString = "A";
         private const string _objectName = "IPO";
-        private List<string> _privileges = new List<string>{"SIGN"};
+        private List<string> _privileges = new List<string> { "SIGN" };
 
-        private List<string> Oids = new List<string>{ "12345678-1234-123456789123", "12345678-1235-123456789123", "12345678-1236-123456789123" };
+        private List<string> Oids = new List<string> { "12345678-1234-123456789123", "12345678-1235-123456789123", "12345678-1236-123456789123" };
 
         [TestInitialize]
         public void Setup()
@@ -36,21 +36,24 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
 
             _foreignApiClient = new Mock<IMainApiClient>();
 
-            _proCoSysPerson1 = new ProCoSysPerson {
+            _proCoSysPerson1 = new ProCoSysPerson
+            {
                 AzureOid = "12345678-1234-123456789123",
                 FirstName = "F1",
                 LastName = "L1",
                 UserName = "U1",
                 Email = "E1"
             };
-            _proCoSysPerson2 = new ProCoSysPerson {
+            _proCoSysPerson2 = new ProCoSysPerson
+            {
                 AzureOid = "12345678-1235-123456789123",
                 FirstName = "F2",
                 LastName = "L2",
                 UserName = "U2",
                 Email = "E2"
             };
-            _proCoSysPerson3 = new ProCoSysPerson {
+            _proCoSysPerson3 = new ProCoSysPerson
+            {
                 AzureOid = "12345678-1236-123456789123",
                 FirstName = "F3",
                 LastName = "L3",

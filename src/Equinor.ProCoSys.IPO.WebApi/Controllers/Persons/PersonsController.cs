@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
-using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
-using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter;
+using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
+using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

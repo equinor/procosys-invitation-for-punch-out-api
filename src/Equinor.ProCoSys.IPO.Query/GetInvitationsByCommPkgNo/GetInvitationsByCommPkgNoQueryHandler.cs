@@ -16,24 +16,24 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsByCommPkgNo
     {
         private readonly IReadOnlyContext _context;
 
-        public GetInvitationsByCommPkgNoQueryHandler(IReadOnlyContext context) 
+        public GetInvitationsByCommPkgNoQueryHandler(IReadOnlyContext context)
             => _context = context;
 
         public async Task<Result<List<InvitationForMainDto>>> Handle(GetInvitationsByCommPkgNoQuery request,
             CancellationToken cancellationToken)
         {
             var projectFromRequest = await _context.QuerySet<Project>()
-                .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken); 
-            
+                .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken);
+
             var invitations =
                 await (from i in _context.QuerySet<Invitation>()
                        from comm in _context.QuerySet<CommPkg>().Where(c => i.Id == EF.Property<int>(c, "InvitationId"))
                                        .DefaultIfEmpty()
                        from mc in _context.QuerySet<McPkg>().Where(m => i.Id == EF.Property<int>(m, "InvitationId"))
                            .DefaultIfEmpty()
-                            where projectFromRequest != null && i.ProjectId == projectFromRequest.Id &&
-                          (comm.CommPkgNo == request.CommPkgNo ||
-                           mc.CommPkgNo == request.CommPkgNo)
+                       where projectFromRequest != null && i.ProjectId == projectFromRequest.Id &&
+                     (comm.CommPkgNo == request.CommPkgNo ||
+                      mc.CommPkgNo == request.CommPkgNo)
                        select new InvitationForMainDto(
                                            i.Id,
                                            i.Title,

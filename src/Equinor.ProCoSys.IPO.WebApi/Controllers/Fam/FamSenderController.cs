@@ -28,7 +28,7 @@ public class FamSenderController : ControllerBase
     public async Task<ActionResult<string>> SendAllDataToFam(
         [FromHeader(Name = SendToFamApiKeyAttribute.FamApiKeyHeader)]
         [Required]
-        string apiKey) 
+        string apiKey)
     {
         var result = await _mediator.Send(new SendAllDataToFamCommand());
         return this.FromResult(result);

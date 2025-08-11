@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
             _projectRepositoryMock = new Mock<IProjectRepository>();
             _projectRepositoryMock.Setup(x => x.GetByIdAsync(_projectId)).Returns(Task.FromResult(_project));
 
-            _person = new Person(_currentUserOid, "FirstName", "LastName", "UserName" ,"email@address.com");
+            _person = new Person(_currentUserOid, "FirstName", "LastName", "UserName", "email@address.com");
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid())

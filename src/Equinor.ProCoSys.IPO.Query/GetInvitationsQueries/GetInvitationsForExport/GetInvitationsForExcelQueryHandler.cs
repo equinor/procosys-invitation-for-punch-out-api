@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ServiceResult;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Common;
 using Microsoft.Extensions.Logging;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
+using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
 {

@@ -55,7 +55,8 @@ public class ExportIpoRepository : DapperRepositoryBase, IExportIpoRepository
                     foreach (var commPkgByInvitation in commPkgsByInvitation)
                     {
                         var commPkgs = commPkgsByInvitation[commPkgByInvitation.Key].AsList();
-                        commPkgs.ForEach(c => {
+                        commPkgs.ForEach(c =>
+                        {
                             invitationsLookup[commPkgByInvitation.Key].First().AddCommPkg(c);
                         });
                     }

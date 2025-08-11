@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
         {
             await using var context = CreateDbContext(_dbContextOptions);
             await AddAllInvitations(context);
-            
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             var result = await dut.Handle(_query, default);
@@ -265,7 +265,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
         }
 
-      
+
 
         [TestMethod]
         public async Task Handle_ShouldNotReturnIpoForConstructionCompanyFunctionalRole_AfterIpoScopeHasBeenHandedOver()
@@ -330,7 +330,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             _currentUserProviderMock = new Mock<ICurrentUserProvider>();
             _currentUserProviderMock.Setup(x => x.GetCurrentUserOid()).Throws(new Exception("Unable to determine current user"));
-        
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProviderMock.Object,
                 _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
@@ -376,7 +376,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             await using var context = CreateDbContext(_dbContextOptions);
             await AddInvitationInvitedThroughBothAzureOidAndFunctionalRole(context);
 
-           
+
             var repository = new OutstandingIpoRepository(context);
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };

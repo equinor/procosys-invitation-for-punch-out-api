@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 {
                     if (!errors.ContainsKey(error.PropertyName))
                     {
-                        errors.Add(error.PropertyName, new[] {error.ErrorMessage});
+                        errors.Add(error.PropertyName, new[] { error.ErrorMessage });
                     }
                     else
                     {
@@ -57,7 +57,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             }
             catch (InValidProjectException ipe)
             {
-                var errors = new Dictionary<string, string[]> {{"ProjectName", new[] {ipe.Message}}};
+                var errors = new Dictionary<string, string[]> { { "ProjectName", new[] { ipe.Message } } };
                 await context.WriteBadRequestAsync(errors, _logger);
             }
             catch (IpoValidationException ive)
@@ -79,7 +79,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 context.Response.ContentType = "application/text";
 
-                var message = string.IsNullOrEmpty(e.Message)? "Something went wrong when sending email!":e.Message;
+                var message = string.IsNullOrEmpty(e.Message) ? "Something went wrong when sending email!" : e.Message;
                 await context.Response.WriteAsync(message);
             }
             catch (Exception ex)

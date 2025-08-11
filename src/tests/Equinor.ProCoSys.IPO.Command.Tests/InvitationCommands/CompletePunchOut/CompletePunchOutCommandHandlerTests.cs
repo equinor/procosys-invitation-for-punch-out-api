@@ -240,9 +240,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
             await _dut.Handle(_command, default);
 
             // Assert
-            _emailServiceMock.Verify(x 
-                => x.SendEmailsAsync(new List<string>{"ola@test.com"}, "Completed notification: IPO-0",
-                    @"<p>IPO-0: Test title has been completed and is ready for your attention to sign and accept.</p><p>Click the link to review <a href=""baseUrlTEST_PLANT/InvitationForPunchOut/0"">IPO-0</a>.</p>", 
+            _emailServiceMock.Verify(x
+                => x.SendEmailsAsync(new List<string> { "ola@test.com" }, "Completed notification: IPO-0",
+                    @"<p>IPO-0: Test title has been completed and is ready for your attention to sign and accept.</p><p>Click the link to review <a href=""baseUrlTEST_PLANT/InvitationForPunchOut/0"">IPO-0</a>.</p>",
                     It.IsAny<CancellationToken>()), Times.Once);
         }
     }

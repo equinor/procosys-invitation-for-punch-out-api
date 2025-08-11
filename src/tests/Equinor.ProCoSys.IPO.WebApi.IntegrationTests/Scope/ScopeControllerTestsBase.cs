@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 }
             };
 
-            _commPkgSearchResult = new ProCoSysCommPkgSearchResult {MaxAvailable = 2, Items = commPkgs};
+            _commPkgSearchResult = new ProCoSysCommPkgSearchResult { MaxAvailable = 2, Items = commPkgs };
 
             _projects = new List<ProCoSysProject>
             {

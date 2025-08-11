@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             var plantProvider = serviceProvider.GetRequiredService<PlantProvider>();
             userProvider.SetCurrentUserOid(new Guid(_seederOid));
             plantProvider.SetPlant(KnownTestData.Plant);
-            
+
             /* 
              * Add the initial seeder user. Don't do this through the UnitOfWork as this expects/requires the current user to exist in the database.
              * This is the first user that is added to the database and will not get "Created" and "CreatedBy" data.
@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var comment = SeedComment(dbContext, mdpInvitation);
             knownTestData.CommentIds.Add(comment.Id);
-            
+
             SeedContractor(dbContext, mdpInvitation);
             SeedConstructionCompany(dbContext, mdpInvitation);
 
@@ -92,7 +92,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc),
                 null,
                 null,
-                new List<CommPkg> {commPkg})
+                new List<CommPkg> { commPkg })
             {
                 MeetingId = KnownTestData.MeetingId
             };
@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 new DateTime(2020, 9, 1, 10, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 11, 0, 0, DateTimeKind.Utc),
                 null,
-                new List<McPkg> {mcPkg},
+                new List<McPkg> { mcPkg },
                 null)
             {
                 MeetingId = KnownTestData.MeetingId
@@ -134,7 +134,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             dbContext.SaveChangesAsync().Wait();
             return comment;
         }
-        
+
         private static void SeedContractor(IPOContext dbContext, Invitation invitation)
         {
             var contractor = new Participant(

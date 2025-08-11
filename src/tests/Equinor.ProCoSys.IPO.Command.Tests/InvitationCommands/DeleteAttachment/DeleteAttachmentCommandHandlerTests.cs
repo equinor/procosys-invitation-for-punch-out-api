@@ -37,13 +37,13 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeleteAttachment
             _invitation = new Invitation(
                 _plant,
                 _project,
-                "TestInvitation", 
+                "TestInvitation",
                 "Description",
                 DisciplineType.DP,
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                 null);
             _attachment = new Attachment(_plant, "ExistingFile.txt");
             _attachment.SetProtectedIdForTesting(2);

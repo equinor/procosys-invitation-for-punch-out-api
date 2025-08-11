@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 {
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null,
-                new List<McPkg>{ _mcPkg1, _mcPkg2 },
+                new List<McPkg> { _mcPkg1, _mcPkg2 },
                 null);
 
             _dutMdpIpo = new Invitation(
@@ -93,7 +93,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 null,
                 null,
-                new List<CommPkg> {_commPkg1, _commPkg2});
+                new List<CommPkg> { _commPkg1, _commPkg2 });
 
             _dutWithAcceptedStatus = new Invitation(
                 TestPlant,
@@ -105,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 null,
                 null,
-                new List<CommPkg> {_commPkg1, _commPkg2});
+                new List<CommPkg> { _commPkg1, _commPkg2 });
 
             _dutWithCanceledStatus = new Invitation(
                 TestPlant,
@@ -241,7 +241,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null,
-                new List<McPkg>{ _mcPkg1, _mcPkg2, _mcPkg1, _mcPkg2 },
+                new List<McPkg> { _mcPkg1, _mcPkg2, _mcPkg1, _mcPkg2 },
                 null);
             Assert.AreEqual(2, dutDpIpo.McPkgs.Count);
         }
@@ -276,7 +276,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     null,
                     null,
-                    new List<CommPkg> {_commPkg1})
+                    new List<CommPkg> { _commPkg1 })
             );
 
         [TestMethod]
@@ -323,7 +323,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {_mcPkg1},
+                    new List<McPkg> { _mcPkg1 },
                     null)
             );
 
@@ -339,8 +339,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {_mcPkg1},
-                    new List<CommPkg> {_commPkg1})
+                    new List<McPkg> { _mcPkg1 },
+                    new List<CommPkg> { _commPkg1 })
             );
 
         [TestMethod]
@@ -356,7 +356,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     null,
                     null,
-                    new List<CommPkg> {_commPkg1})
+                    new List<CommPkg> { _commPkg1 })
             );
 
         [TestMethod]
@@ -371,8 +371,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> {_mcPkg1},
-                    new List<CommPkg> {_commPkg1})
+                    new List<McPkg> { _mcPkg1 },
+                    new List<CommPkg> { _commPkg1 })
             );
 
         [TestMethod]
@@ -589,7 +589,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     "outside",
                     _dutDpIpo.McPkgs.ToList(),
-                    new List<CommPkg> {_commPkg1}));
+                    new List<CommPkg> { _commPkg1 }));
 
         [TestMethod]
         public void EditIpo_ShouldThrowException_WhenAddingMcPkgToMdp() =>
@@ -601,7 +601,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                     new DateTime(),
                     new DateTime(),
                     "outside",
-                    new List<McPkg> {_mcPkg1},
+                    new List<McPkg> { _mcPkg1 },
                     _dutMdpIpo.CommPkgs.ToList()));
 
         [TestMethod]
@@ -685,7 +685,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 "outside",
                 null,
-                new List<CommPkg> {_commPkg1, _commPkg2, newCommPkg});
+                new List<CommPkg> { _commPkg1, _commPkg2, newCommPkg });
 
             Assert.AreEqual(3, _dutMdpIpo.CommPkgs.Count);
         }
@@ -705,7 +705,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 "outside",
                 null,
-                new List<CommPkg> {_commPkg1, _commPkg2, newCommPkg, _commPkg1, _commPkg2});
+                new List<CommPkg> { _commPkg1, _commPkg2, newCommPkg, _commPkg1, _commPkg2 });
 
             Assert.AreEqual(3, _dutMdpIpo.CommPkgs.Count);
         }
@@ -777,7 +777,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(),
                 new DateTime(),
                 "outside",
-                new List<McPkg> {_mcPkg1},
+                new List<McPkg> { _mcPkg1 },
                 null);
 
             Assert.AreEqual(0, _dutMdpIpo.CommPkgs.Count);
@@ -927,8 +927,8 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
         public void CompleteIpo_ShouldCompleteIpo_WhenSemicolonSeparatedEmailInFunctionalRole()
         {
             var emails = _dutDpIpo.GetCompleterEmails();
-            Assert.IsTrue(emails.Count()==2);
-            Assert.IsTrue(emails[0]=="fr1@test.com");
+            Assert.IsTrue(emails.Count() == 2);
+            Assert.IsTrue(emails[0] == "fr1@test.com");
             Assert.IsTrue(emails[1] == "fr2@test.com");
         }
 
@@ -948,7 +948,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 1));
             var emails = _dutDpIpo.GetCompleterEmails();
             Assert.IsTrue(emails.Count() == 3);
-            Assert.IsTrue(emails[2]== "fr1additional@test.com");
+            Assert.IsTrue(emails[2] == "fr1additional@test.com");
         }
 
 
@@ -1228,7 +1228,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
                 new DateTime(2020, 8, 1, 13, 0, 0, DateTimeKind.Utc),
                 null,
                 null,
-                new List<CommPkg>{_commPkg1});
+                new List<CommPkg> { _commPkg1 });
 
             dut.SetCreated(_currentPerson);
             dut.CancelIpo(_currentPerson);

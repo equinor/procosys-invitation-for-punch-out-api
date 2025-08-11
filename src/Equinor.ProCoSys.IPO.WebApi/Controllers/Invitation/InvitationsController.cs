@@ -118,7 +118,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
-            string plant,           
+            string plant,
             [FromRoute] string commPkgNo,
             [Required]
             [FromQuery] string projectName)
@@ -378,7 +378,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new UpdateNoteOnParticipantCommand(id, dto.Id, dto.Note, dto.RowVersion));
             return this.FromResult(result);
         }
-        
+
         // TODO: This endpoint will be replaced by the two above, and this this endpoint can be removed once frontend stops using it.
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/AttendedStatusAndNotes")]

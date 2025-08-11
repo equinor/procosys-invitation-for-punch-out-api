@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserProvider currentUserProvider, 
+            ICurrentUserProvider currentUserProvider,
             IPersonApiService personApiService,
             IIntegrationEventPublisher integrationEventPublisher,
             ICreateEventHelper eventHelper)
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
             {
                 UpdateParticipantStatusesAndNotes(invitation, request.Participants);
             }
-            
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
         }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs;
 using Equinor.ProCoSys.IPO.Test.Common;
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     new DateTime(),
                     null,
                     null,
-                    new List<CommPkg> {commPkg1})
+                    new List<CommPkg> { commPkg1 })
                 {
                     MeetingId = meetingId
                 };
@@ -102,7 +102,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
                     new DateTime(),
                     null,
                     null,
-                    new List<CommPkg> {commPkg2})
+                    new List<CommPkg> { commPkg2 })
                 {
                     MeetingId = meetingId
                 };
@@ -143,7 +143,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetLatestMdpIpoStatusOnCommPkgs
         {
             using (var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {_commPkgNo1, _commPkgNo2}, _projectName);
+                var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { _commPkgNo1, _commPkgNo2 }, _projectName);
                 var dut = new GetLatestMdpIpoStatusOnCommPkgsQueryHandler(context);
                 var result = await dut.Handle(query, default);
 

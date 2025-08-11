@@ -1,8 +1,8 @@
 ﻿using System;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.Common.Time;
-using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate
 {

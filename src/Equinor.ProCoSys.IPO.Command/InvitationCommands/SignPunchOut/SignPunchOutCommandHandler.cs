@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
         public SignPunchOutCommandHandler(
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICurrentUserProvider currentUserProvider, 
+            ICurrentUserProvider currentUserProvider,
             IPersonRepository personRepository)
         {
             _invitationRepository = invitationRepository;

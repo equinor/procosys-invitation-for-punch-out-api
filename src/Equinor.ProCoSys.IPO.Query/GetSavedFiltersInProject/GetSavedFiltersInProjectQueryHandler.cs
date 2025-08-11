@@ -12,7 +12,7 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
 {
-    public class GetSavedFiltersInProjectQueryHandler: IRequestHandler<GetSavedFiltersInProjectQuery, Result<List<SavedFilterDto>>>
+    public class GetSavedFiltersInProjectQueryHandler : IRequestHandler<GetSavedFiltersInProjectQuery, Result<List<SavedFilterDto>>>
     {
         private readonly IReadOnlyContext _context;
         private readonly ICurrentUserProvider _currentUserProvider;
@@ -28,10 +28,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
         public async Task<Result<List<SavedFilterDto>>> Handle(GetSavedFiltersInProjectQuery request,
             CancellationToken cancellationToken)
         {
-            var currentUserOid = _currentUserProvider.GetCurrentUserOid(); 
-            var person = await (from p in _context.QuerySet<Person>().Include(p => p.SavedFilters) 
-                where p.Guid == currentUserOid 
-                select p).SingleAsync(cancellationToken);
+            var currentUserOid = _currentUserProvider.GetCurrentUserOid();
+            var person = await (from p in _context.QuerySet<Person>().Include(p => p.SavedFilters)
+                                where p.Guid == currentUserOid
+                                select p).SingleAsync(cancellationToken);
 
             if (request.ProjectName == null)
             {
@@ -47,9 +47,9 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
                 return new SuccessResult<List<SavedFilterDto>>(savedFilterDtosWithNoProjectCriteria);
             }
 
-            var projectFromRequest = await (from pro in _context.QuerySet<Project>() 
-                where pro.Name.Equals(request.ProjectName)
-                select pro).SingleOrDefaultAsync(cancellationToken);
+            var projectFromRequest = await (from pro in _context.QuerySet<Project>()
+                                            where pro.Name.Equals(request.ProjectName)
+                                            select pro).SingleOrDefaultAsync(cancellationToken);
 
             if (projectFromRequest is null)
             {
@@ -58,11 +58,11 @@ namespace Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject
 
             var savedFilterDtos = person.SavedFilters.Where(sf => sf.ProjectId == projectFromRequest.Id)
                 .Select(savedFilter => new SavedFilterDto(
-                    savedFilter.Id, 
-                    savedFilter.Title, 
-                    savedFilter.Criteria, 
-                    savedFilter.DefaultFilter, 
-                    savedFilter.CreatedAtUtc, 
+                    savedFilter.Id,
+                    savedFilter.Title,
+                    savedFilter.Criteria,
+                    savedFilter.DefaultFilter,
+                    savedFilter.CreatedAtUtc,
                     savedFilter.RowVersion.ConvertToString())).ToList();
 
             return new SuccessResult<List<SavedFilterDto>>(savedFilterDtos);

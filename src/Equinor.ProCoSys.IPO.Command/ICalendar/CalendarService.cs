@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
             var byteArray = Encoding.UTF8.GetBytes(inviteString);
             return new FileAttachment()
             {
-                
+
                 OdataType = "#microsoft.graph.fileAttachment",
                 ContentBytes = byteArray,
                 ContentType = "text/calendar",

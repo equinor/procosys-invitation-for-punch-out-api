@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
         private const string FunctionalRoleCode = "FRC";
         protected const string InvitationLocation = "InvitationLocation";
-        private readonly IList<string> _functionalRoleCodes = new List<string> {FunctionalRoleCode};
+        private readonly IList<string> _functionalRoleCodes = new List<string> { FunctionalRoleCode };
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
 
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
             };
 
             const string McPkgNo = "MC1";
-            _mcPkgScope = new List<string> {McPkgNo};
+            _mcPkgScope = new List<string> { McPkgNo };
 
             _mcPkgDetails = new ProCoSysMcPkg
             {
@@ -72,7 +72,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 System = KnownTestData.System
             };
 
-            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails};
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { _mcPkgDetails };
 
             _personsInFunctionalRole = new List<ProCoSysPerson>
             {
@@ -105,8 +105,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 Contract = null,
                 Convention = string.Empty,
                 DateCreatedUtc = DateTime.MinValue,
-                DateEnd = new ApiDateTimeTimeZoneModel {DateTimeUtc = _invitationEndTime},
-                DateStart = new ApiDateTimeTimeZoneModel {DateTimeUtc = _invitationStartTime},
+                DateEnd = new ApiDateTimeTimeZoneModel { DateTimeUtc = _invitationEndTime },
+                DateStart = new ApiDateTimeTimeZoneModel { DateTimeUtc = _invitationStartTime },
                 ExternalId = null,
                 Id = KnownTestData.MeetingId,
                 InviteBodyHtml = string.Empty,
@@ -153,7 +153,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> {FunctionalRoleCode}))
+                    new List<string> { FunctionalRoleCode }))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
 
             TestFactory.Instance
@@ -179,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
             TestFactory.Instance
                 .MeetingOptionsMock
                 .Setup(x => x.CurrentValue)
-                .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
+                .Returns(new MeetingOptions { PcsBaseUrl = TestFactory.PlantWithAccess });
         }
     }
 }

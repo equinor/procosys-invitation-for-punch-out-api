@@ -1,7 +1,7 @@
 ﻿using System;
 using Equinor.ProCoSys.BlobStorage;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {

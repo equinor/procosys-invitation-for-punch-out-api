@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
         }
 
         public async Task<IList<ProCoSysCommPkg>> GetCommPkgsByCommPkgNosAsync(
-            string plant, 
+            string plant,
             string projectName,
             IList<string> commPkgNos)
         {

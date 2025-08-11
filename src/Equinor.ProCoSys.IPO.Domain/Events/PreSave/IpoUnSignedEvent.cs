@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave
             Plant = plant;
             SourceGuid = sourceGuid;
             Invitation = invitation;
-            Participant = participant;  
+            Participant = participant;
             Person = person;
         }
         public string Plant { get; }

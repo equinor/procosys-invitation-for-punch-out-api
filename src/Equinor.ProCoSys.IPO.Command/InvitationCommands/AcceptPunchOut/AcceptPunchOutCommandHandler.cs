@@ -39,9 +39,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var currentUser = await _personRepository.GetByOidAsync(_currentUserProvider.GetCurrentUserOid());
-            var participant = invitation.Participants.SingleOrDefault(p => 
-                p.SortKey == 1 && 
-                p.Organization == Organization.ConstructionCompany && 
+            var participant = invitation.Participants.SingleOrDefault(p =>
+                p.SortKey == 1 &&
+                p.Organization == Organization.ConstructionCompany &&
                 p.AzureOid == currentUser.Guid);
             var acceptedAtUtc = DateTime.UtcNow;
 
@@ -60,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut
             UpdateNotesOnParticipants(invitation, request.Participants);
 
             invitation.SetRowVersion(request.InvitationRowVersion);
-            
+
             await PublishEventToBusAsync(cancellationToken, invitation);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);

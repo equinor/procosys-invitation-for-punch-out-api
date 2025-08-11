@@ -15,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authentication
         protected readonly IOptionsMonitor<IpoAuthenticatorOptions> _options;
 
         private readonly IDictionary<string, string> _scopes = new Dictionary<string, string>();
-        
+
         public AuthenticatorOptions(IOptionsMonitor<IpoAuthenticatorOptions> options)
         {
             _options = options;
