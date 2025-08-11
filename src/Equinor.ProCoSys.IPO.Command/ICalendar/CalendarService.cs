@@ -33,7 +33,8 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
                     {
                         EmailAddress = new EmailAddress
                         {
-                            Address = organizer.Email, Name = $"{organizer.FirstName} {organizer.LastName}"
+                            Address = organizer.Email,
+                            Name = $"{organizer.FirstName} {organizer.LastName}"
                         }
                     }
                 ]
