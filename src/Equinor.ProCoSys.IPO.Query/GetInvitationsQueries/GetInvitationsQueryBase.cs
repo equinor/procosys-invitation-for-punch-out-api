@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Microsoft.EntityFrameworkCore;
-using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 {
     public abstract class GetInvitationsQueryBase
     {
         protected IQueryable<InvitationForQueryDto> CreateQueryableWithFilter(
-            IReadOnlyContext context, 
-            string projectName, 
-            Filter filter, 
-            DateTime utcNow, 
-            ICurrentUserProvider currentUserProvider, 
-            IPermissionCache permissionCache, 
+            IReadOnlyContext context,
+            string projectName,
+            Filter filter,
+            DateTime utcNow,
+            ICurrentUserProvider currentUserProvider,
+            IPermissionCache permissionCache,
             IPlantProvider plantProvider)
         {
 
@@ -145,7 +145,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.AcceptedAtUtc);
                             break;
                         case SortingProperty.ProjectName:
-                            invitationForQueryDtos = invitationForQueryDtos.OrderBy( dto => dto.ProjectName);
+                            invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.ProjectName);
                             break;
                         default:
                             invitationForQueryDtos = invitationForQueryDtos.OrderBy(dto => dto.Id);
@@ -244,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
 
             AddFunctionalRoleParticipants(functionalRoleParticipants, allCommissioningParticipants);
 
-            var personParticipants = participants.Where(p => 
+            var personParticipants = participants.Where(p =>
                     p.Organization == Organization.Commissioning
                     && p.Type == IpoParticipantType.Person)
                 .ToList();
@@ -257,7 +257,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
         {
             var allOperationParticipants = new List<string>();
             var functionalRoleParticipants =
-                participants.Where(p => p.Organization == Organization.Operation 
+                participants.Where(p => p.Organization == Organization.Operation
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
             AddFunctionalRoleParticipants(functionalRoleParticipants, allOperationParticipants);
@@ -282,7 +282,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             AddFunctionalRoleParticipants(functionalRoleParticipants, allTechnicalIntegrityParticipants);
 
             var personParticipants = participants.Where(
-                    p => p.Organization == Organization.TechnicalIntegrity 
+                    p => p.Organization == Organization.TechnicalIntegrity
                     && p.Type == IpoParticipantType.Person)
                 .ToList();
 
@@ -294,13 +294,13 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
         {
             var allSupplierParticipants = new List<string>();
             var functionalRoleParticipants =
-                participants.Where(p => p.Organization == Organization.Supplier 
+                participants.Where(p => p.Organization == Organization.Supplier
                                         && p.Type == IpoParticipantType.FunctionalRole).ToList();
 
             AddFunctionalRoleParticipants(functionalRoleParticipants, allSupplierParticipants);
 
-            var personParticipants = participants.Where(p => 
-                p.Organization == Organization.Supplier 
+            var personParticipants = participants.Where(p =>
+                p.Organization == Organization.Supplier
                 && p.Type == IpoParticipantType.Person)
                 .ToList();
 
@@ -333,7 +333,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             AddFunctionalRoleParticipants(functionalRoleParticipants, allAdditionalContractorParticipants);
 
             var personParticipants = participants
-                .Where(p => p.Organization == Organization.Contractor 
+                .Where(p => p.Organization == Organization.Contractor
                             && p.SortKey != 0
                             && p.Type == IpoParticipantType.Person).ToList();
 
@@ -353,7 +353,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             AddFunctionalRoleParticipants(functionalRoleParticipants, allAdditionalConstructionCompanyParticipants);
 
             var personParticipants = participants
-                .Where(p => p.Organization == Organization.ConstructionCompany 
+                .Where(p => p.Organization == Organization.ConstructionCompany
                             && p.SortKey != 1
                             && p.Type == IpoParticipantType.Person).ToList();
 
@@ -392,8 +392,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
                         .Include(i => i.Participants)
                         .Include(i => i.CommPkgs)
                         .Include(i => i.McPkgs)
-                    where invitationIds.Contains(invitation.Id)
-                    select invitation)
+                      where invitationIds.Contains(invitation.Id)
+                      select invitation)
                 .ToListAsync(cancellationToken);
     }
 }

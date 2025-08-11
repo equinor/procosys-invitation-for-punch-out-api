@@ -1,8 +1,8 @@
-﻿using Equinor.ProCoSys.IPO.Command.EventPublishers;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using MediatR;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
@@ -21,9 +21,9 @@ public class ParticipantUpdatedEventHandler : INotificationHandler<ParticipantUp
     {
         var participantEvent = await _eventHelper.CreateParticipantEvent(notification.Participant, notification.Invitation);
 
-        if (participantEvent is null) 
-        { 
-            return; 
+        if (participantEvent is null)
+        {
+            return;
         }
 
         await _integrationEventPublisher.PublishAsync(participantEvent, cancellationToken);

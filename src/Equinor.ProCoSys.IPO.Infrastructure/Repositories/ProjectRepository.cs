@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public ProjectRepository(IPOContext context)
             : base(context, context.Projects,
                 context.Projects)
-            
+
         {
         }
 

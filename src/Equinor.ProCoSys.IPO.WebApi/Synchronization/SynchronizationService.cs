@@ -8,16 +8,16 @@ using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
+using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids;
+using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
+using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids;
-using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
-using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
-using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {

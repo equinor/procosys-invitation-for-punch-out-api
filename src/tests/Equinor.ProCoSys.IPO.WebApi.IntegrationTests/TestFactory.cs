@@ -5,39 +5,39 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.BlobStorage;
-using Equinor.ProCoSys.IPO.Command;
-using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
-using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
-using Equinor.ProCoSys.IPO.WebApi.Middleware;
-using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
-using Fusion.Integration.Meeting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Moq;
 using Equinor.ProCoSys.Auth.Permission;
-using Equinor.ProCoSys.Common.Misc;
-using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
-using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
-using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
+using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Fam;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.Infrastructure;
+using Equinor.ProCoSys.IPO.WebApi.Middleware;
+using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
+using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Moq;
+using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
+using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
+using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
@@ -164,16 +164,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-              builder.UseEnvironment(IntegrationTestEnvironment); 
-              builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath)); 
-              builder.ConfigureTestServices(services =>
-              {
+            builder.UseEnvironment(IntegrationTestEnvironment);
+            builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath));
+            builder.ConfigureTestServices(services =>
+            {
                 services.AddAuthentication()
-                    .AddScheme<IntegrationTestAuthOptions, IntegrationTestAuthHandler>(
-                        IntegrationTestAuthHandler.TestAuthenticationScheme, opts => { });
+                      .AddScheme<IntegrationTestAuthOptions, IntegrationTestAuthHandler>(
+                          IntegrationTestAuthHandler.TestAuthenticationScheme, opts => { });
 
                 services.PostConfigureAll<JwtBearerOptions>(jwtBearerOptions =>
-                    jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
+                      jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
                 // Add mocks to all external resources here
                 services.AddScoped(_ => _authPersonApiServiceMock.Object);

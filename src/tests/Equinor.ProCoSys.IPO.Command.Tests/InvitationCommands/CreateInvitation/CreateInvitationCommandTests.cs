@@ -15,14 +15,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         {
             new ParticipantsForCommand(
                 Organization.Contractor,
-                null, 
-                null, 
+                null,
+                null,
                 new InvitedFunctionalRoleForCreateCommand("FR1", null),
                 0),
             new ParticipantsForCommand(
                 Organization.ConstructionCompany,
                 null,
-                new InvitedPersonForCreateCommand(new Guid(), true), 
+                new InvitedPersonForCreateCommand(new Guid(), true),
                 null,
                 1)
         };
@@ -48,8 +48,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
                 new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
                 _projectName,
-                _type, 
-                _participants, 
+                _type,
+                _participants,
                 _mcPkgScope,
                 null,
                 true);

@@ -56,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);
-            
+
             async Task<bool> BeUnsignedParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.ParticipantIsSignedAsync(participantId, invitationId, cancellationToken);
 

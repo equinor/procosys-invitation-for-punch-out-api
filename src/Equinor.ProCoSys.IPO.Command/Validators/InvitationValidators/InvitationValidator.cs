@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Microsoft.EntityFrameworkCore;
-using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
 {
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             return isValidEmail && participant.InvitedPerson == null && participant.InvitedFunctionalRole == null;
         }
 
-        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson) 
+        private bool IsValidPerson(IInvitedPersonForCommand invitedPerson)
             => invitedPerson.AzureOid != Guid.Empty;
 
         private bool IsValidPersonParticipant(ParticipantsForCommand participant)
@@ -179,8 +179,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             int invitationId, CancellationToken token)
         {
             var existingSignedFirstSigners = await (from p in _context.QuerySet<Participant>()
-                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedAtUtc != null && p.SortKey < 2
-                select p).ToListAsync(token);
+                                                    where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedAtUtc != null && p.SortKey < 2
+                                                    select p).ToListAsync(token);
 
             try
             {
@@ -219,9 +219,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             int invitationId, CancellationToken token)
         {
             var existingSignedParticipants = await (from p in _context.QuerySet<Participant>()
-                where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null
-                select p).ToListAsync(token);
-            var participantIds = participants.Select(p => 
+                                                    where EF.Property<int>(p, "InvitationId") == invitationId && p.SignedBy != null
+                                                    select p).ToListAsync(token);
+            var participantIds = participants.Select(p =>
                 p.InvitedFunctionalRoleToEdit != null ? p.InvitedFunctionalRoleToEdit.Id : p.InvitedPersonToEdit?.Id)
                 .Where(id => id != null).ToList();
             var existingParticipantIds = existingSignedParticipants.Select(p => p.Id).ToList();
@@ -257,8 +257,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
         public async Task<bool> HasOppositeAttendedStatusIfTouchedAsync(int id, int invitationId, bool attended, CancellationToken cancellationToken)
         {
             var participant = await (from p in _context.QuerySet<Participant>()
-                where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
-                select p).SingleAsync(cancellationToken);
+                                     where p.Id == id && EF.Property<int>(p, "InvitationId") == invitationId
+                                     select p).SingleAsync(cancellationToken);
             if (participant.IsAttendedTouched)
             {
                 return participant.Attended != attended;
@@ -274,9 +274,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
 
             var invitation = await (from i in _context.QuerySet<Invitation>()
-                where i.Id == invitationId
-                select i).SingleAsync(cancellationToken);
-            
+                                    where i.Id == invitationId
+                                    select i).SingleAsync(cancellationToken);
+
             switch (invitation.Status)
             {
                 case IpoStatus.Planned when await CurrentUserIsValidCompleterParticipantAsync(invitationId, cancellationToken):
@@ -285,9 +285,9 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             }
 
             var participant = await (from p in _context.QuerySet<Participant>()
-                where EF.Property<int>(p, "InvitationId") == invitationId &&
-                      p.Id == id
-                select p).SingleAsync(cancellationToken);
+                                     where EF.Property<int>(p, "InvitationId") == invitationId &&
+                                           p.Id == id
+                                     select p).SingleAsync(cancellationToken);
 
             if (participant.SignedAtUtc != null)
             {
@@ -502,13 +502,13 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var currentUserOid = _currentUserProvider.GetCurrentUserOid();
 
             var currentUserId = await (from person in _context.QuerySet<Person>()
-                    where person.Guid == currentUserOid
-                    select person.Id)
+                                       where person.Guid == currentUserOid
+                                       select person.Id)
                 .SingleAsync(cancellationToken);
 
             var createdById = await (from invitation in _context.QuerySet<Invitation>()
-                    where invitation.Id == invitationId
-                    select invitation.CreatedById)
+                                     where invitation.Id == invitationId
+                                     select invitation.CreatedById)
                 .SingleAsync(cancellationToken);
 
             return currentUserId == createdById;

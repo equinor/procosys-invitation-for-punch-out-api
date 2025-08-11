@@ -3,27 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Command.ICalendar;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.MessageContracts;
 using Fusion.Integration.Meeting;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ServiceResult;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Command.ICalendar;
-using Equinor.ProCoSys.Common.Email;
-using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 {
@@ -124,9 +124,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _invitationRepository.Add(invitation);
 
             meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
-        
+
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            
+
             //Manual publish instead of domain event handler in order to obtain the id of the invitation
             await PublishEventToBusAsync(invitation, cancellationToken);
 
@@ -148,7 +148,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 {
                     await _unitOfWork.RollbackTransactionAsync(cancellationToken);
                     _logger.LogError(ex, "User with oid {UserOid} could not create outlook meeting for invitation {InvitationId} using backup solution of sending ics attachment through SMTP.", _currentUserProvider.GetCurrentUserOid(), invitation.Id);
-                    throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.",ex);
+                    throw new IpoSendMailException("It is currently not possible to create invitation for punch-out since there is a problem when sending email to recipients. Please try again in a minute. Contact support if the issue persists.", ex);
                 }
             }
             catch (Exception)
@@ -158,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             }
 
             try
-            { 
+            {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _unitOfWork.Commit();
                 return new SuccessResult<int>(invitation.Id);
@@ -176,7 +176,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             await _integrationEventPublisher.PublishAsync(invitationEvent, cancellationToken);
         }
 
-        private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken) 
+        private async Task<Project> GetOrCreateProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
             => await _projectRepository.GetProjectOnlyByNameAsync(request.ProjectName) ?? await AddProjectAsync(request, cancellationToken);
 
         private async Task<Project> AddProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
@@ -404,7 +404,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (commPkgDetailsList.Any(c => c.OperationHandoverStatus == "ACCEPTED"))
             {
-                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: " 
+                throw new IpoValidationException("Comm pkgs with signed RFOC cannot be in scope. Comm pkgs with signed RFOC: "
                     + string.Join(",", commPkgDetailsList
                         .Where(c => c.OperationHandoverStatus == "ACCEPTED")
                         .Select(c => c.CommPkgNo)

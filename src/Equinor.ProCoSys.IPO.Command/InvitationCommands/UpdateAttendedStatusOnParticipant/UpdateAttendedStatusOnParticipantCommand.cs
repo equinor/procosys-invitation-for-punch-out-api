@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOn
         public UpdateAttendedStatusOnParticipantCommand(
             int invitationId,
             int participantId,
-            bool attended, 
+            bool attended,
             string rowVersion
         )
         {

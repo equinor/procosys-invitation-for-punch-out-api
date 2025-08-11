@@ -38,23 +38,23 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Hacker,
                 TestFactory.PlantWithAccess,
-                InitialMdpInvitationId, 
+                InitialMdpInvitationId,
                 HttpStatusCode.Forbidden);
 
         [TestMethod]
         public async Task GetInvitation_AsPlanner_ShouldReturnNotFound_WhenUnknownId()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Planner,
-                TestFactory.PlantWithAccess, 
-                9999, 
+                TestFactory.PlantWithAccess,
+                9999,
                 HttpStatusCode.NotFound);
 
         [TestMethod]
         public async Task GetInvitation_AsViewer_ShouldReturnNotFound_WhenUnknownId()
             => await InvitationsControllerTestsHelper.GetInvitationAsync(
                 UserType.Viewer,
-                TestFactory.PlantWithAccess, 
-                9999, 
+                TestFactory.PlantWithAccess,
+                9999,
                 HttpStatusCode.NotFound);
 
         [TestMethod]
@@ -156,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             => await InvitationsControllerTestsHelper.GetLatestMdpIpoOnCommPkgsAsync(
                 UserType.Anonymous,
                 TestFactory.UnknownPlant,
-                new List<string>{"CommPkgNo1"},
+                new List<string> { "CommPkgNo1" },
                 TestFactory.ProjectWithAccess,
                 HttpStatusCode.Unauthorized);
 
@@ -190,8 +190,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 "Description",
                 "Location",
                 DisciplineType.DP,
-                _invitationStartTime, 
-                _invitationEndTime, 
+                _invitationStartTime,
+                _invitationEndTime,
                 _participants,
                 _mcPkgScope,
                 null,
@@ -206,8 +206,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Guid.NewGuid().ToString(),
                 Guid.NewGuid().ToString(),
                 DisciplineType.DP,
-                _invitationStartTime, 
-                _invitationEndTime, 
+                _invitationStartTime,
+                _invitationEndTime,
                 _participants,
                 _mcPkgScope,
                 null,
@@ -270,8 +270,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         public async Task EditInvitation_AsAnonymous_ShouldReturnUnauthorized()
             => await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Anonymous,
-                TestFactory.PlantWithoutAccess, 
-                9999, 
+                TestFactory.PlantWithoutAccess,
+                9999,
                 new EditInvitedInvitationDto(),
                 HttpStatusCode.Unauthorized);
 
@@ -340,7 +340,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             editInvitationDto.UpdatedParticipants.First(p => p.Person != null).Person.Id = 23451;
-            
+
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
                 TestFactory.PlantWithAccess,
@@ -356,7 +356,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             // Arrange
             var (invitationId, editInvitationDto) = await CreateValidEditInvitationDtoAsync(_participants);
             editInvitationDto.RowVersion = TestFactory.WrongButValidRowVersion;
-            
+
             // Act
             await InvitationsControllerTestsHelper.EditInvitationAsync(
                 UserType.Planner,
@@ -807,7 +807,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             // Arrange
             var (invitationToCompleteId, completePunchOutDto) = await CreateValidCompletePunchOutDtoAsync(_participantsForSigning);
             completePunchOutDto.Participants.Single().Id = 23423;
-            
+
             // Act
             await InvitationsControllerTestsHelper.CompletePunchOutAsync(
                 UserType.Signer,
@@ -1126,7 +1126,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         {
             // Arrange
             var (_, unAcceptPunchOutDto) = await CreateValidUnAcceptPunchOutDtoAsync(_participantsForSigning);
-            
+
             // Act
             await InvitationsControllerTestsHelper.UnAcceptPunchOutAsync(
                            UserType.Signer,
@@ -1673,7 +1673,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         [TestMethod]
         public async Task GetAttachments_AsAnonymous_ShouldReturnUnauthorized()
             => await InvitationsControllerTestsHelper.GetAttachmentsAsync(
-                UserType.Anonymous, 
+                UserType.Anonymous,
                 TestFactory.UnknownPlant,
                 InitialMdpInvitationId,
                 HttpStatusCode.Unauthorized);

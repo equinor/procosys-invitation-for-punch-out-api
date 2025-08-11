@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
         public string Description { get; }
         public string Status { get; }
         public string System { get; }
-        public string OperationHandoverStatus { get;}
+        public string OperationHandoverStatus { get; }
         public DateTime? RfocAcceptedAt { get; }
     }
 }

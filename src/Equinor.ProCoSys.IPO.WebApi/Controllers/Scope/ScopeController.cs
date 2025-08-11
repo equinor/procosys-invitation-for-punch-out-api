@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         [Authorize(Roles = Permissions.COMMPKG_READ)]
         [HttpGet("CommPkgsV2")]
         public async Task<ActionResult<ProCoSysCommPkgSearchDto>> GetCommPkgsInProjectV2(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -53,6 +54,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         [Authorize(Roles = Permissions.PROJECT_READ)]
         [HttpGet("Projects")]
         public async Task<ActionResult<List<ProCoSysProjectDto>>> GetProjectsInPlant(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant)
@@ -71,6 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Scope
         [Authorize(Roles = Permissions.MCPKG_READ)]
         [HttpGet("McPkgs")]
         public async Task<ActionResult<List<ProCoSysMcPkgDto>>> GetMcPkgsInProject(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,

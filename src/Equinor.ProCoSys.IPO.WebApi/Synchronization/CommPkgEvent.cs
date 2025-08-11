@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using Equinor.ProCoSys.PcsServiceBus.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus;
+using Equinor.ProCoSys.PcsServiceBus.Interfaces;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {

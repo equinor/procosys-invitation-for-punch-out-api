@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
-        
+
         private UpdateAttendedStatusAndNotesOnParticipantsCommand _command;
         private UpdateAttendedStatusAndNotesOnParticipantsCommandHandler _dut;
         private const string _plant = "PCS$TEST_PLANT";
@@ -108,8 +108,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
-                null) { MeetingId = _meetingId };
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
+                null)
+            { MeetingId = _meetingId };
 
             var participant1 = new Participant(
                 _plant,

@@ -25,12 +25,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
             string plant,
             string classification)
         {
-            var url = 
+            var url =
                 $"{_baseAddress}FunctionalRoles" +
                 $"?classification={WebUtility.UrlEncode(classification)}";
 
             var extraHeaders =
-                new List<KeyValuePair<string, string>> {new KeyValuePair<string, string>("x-plant", plant)};
+                new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("x-plant", plant) };
 
             return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
         }

@@ -10,8 +10,8 @@ using Fam.Models.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ServiceResult;
 using MoreLinq;
+using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Fam;
 
@@ -45,7 +45,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         statusResult += await SendEventsToFam<ICommPkgEventV1>(
             _famRepository.GetCommPkgs, CommonLibClassConstants.CommPkg, mapper);
 
-        statusResult += await SendEventsToFam<IParticipantEventV1>( 
+        statusResult += await SendEventsToFam<IParticipantEventV1>(
             _famRepository.GetParticipants, CommonLibClassConstants.Participant, mapper);
 
         statusResult += await SendEventsToFam<IInvitationEventV1>(

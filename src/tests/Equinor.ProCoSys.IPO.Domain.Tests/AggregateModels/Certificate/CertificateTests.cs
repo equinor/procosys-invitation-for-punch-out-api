@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         [TestMethod]
         public void AddCommPkgRelation_ShouldThrowException_WhenPlantsDoNotMatch() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                _dut.AddCommPkgRelation(new CommPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2",Guid.Empty))
+                _dut.AddCommPkgRelation(new CommPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2", Guid.Empty))
             );
         #endregion
 
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.Certificate
         [TestMethod]
         public void AddMcPkgRelation_ShouldThrowException_WhenPlantsDoNotMatch() =>
             Assert.ThrowsException<ArgumentException>(() =>
-                _dut.AddMcPkgRelation(new McPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2",Guid.Empty, Guid.Empty))
+                _dut.AddMcPkgRelation(new McPkg("Plant B", new Project("Plant B", "new name", "test", Guid.NewGuid()), "123", "456", "OK", "1|2", Guid.Empty, Guid.Empty))
             );
         #endregion
 

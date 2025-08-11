@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                     null,
                     new List<McPkg> { new McPkg(_plant, project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
             var participant1 = new Participant(
                 _plant,
@@ -124,7 +124,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null); 
+            var currentPerson = new Person(_azureOidForCurrentUser, _firstName, _lastName, null, null);
             currentPerson.SetProtectedIdForTesting(_participantId2);
 
             _personRepositoryMock = new Mock<IPersonRepository>();
@@ -135,7 +135,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.AcceptPunchOut
             _invitation.CompleteIpo(
                 participant1,
                 participant1.RowVersion.ConvertToString(),
-                new Person(new Guid(), null, null, null, null), 
+                new Person(new Guid(), null, null, null, null),
                 new DateTime());
 
             //command

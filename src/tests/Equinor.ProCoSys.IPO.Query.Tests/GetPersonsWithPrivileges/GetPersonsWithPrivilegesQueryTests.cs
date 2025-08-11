@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
         [TestMethod]
         public void Constructor_SetsProperties()
         {
-            var dut = new GetPersonsWithPrivilegesQuery("A", "IPO", new List<string> {"READ"});
+            var dut = new GetPersonsWithPrivilegesQuery("A", "IPO", new List<string> { "READ" });
 
             Assert.AreEqual("A", dut.SearchString);
             Assert.AreEqual("IPO", dut.ObjectName);

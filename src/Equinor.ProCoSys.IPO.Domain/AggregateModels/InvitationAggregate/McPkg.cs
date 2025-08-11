@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
-using Equinor.ProCoSys.Common.Time;
-using Equinor.ProCoSys.Common;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.CertificateAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
@@ -59,7 +59,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Description = description;
             McPkgNo = mcPkgNo;
             RfocAccepted = false;
-            McPkgGuid= mcPkgGuid;
+            McPkgGuid = mcPkgGuid;
             CommPkgGuid = commPkgGuid;
         }
 

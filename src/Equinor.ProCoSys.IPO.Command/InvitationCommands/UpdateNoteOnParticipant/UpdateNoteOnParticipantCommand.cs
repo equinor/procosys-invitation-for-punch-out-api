@@ -8,7 +8,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipan
         public UpdateNoteOnParticipantCommand(
             int invitationId,
             int participantId,
-            string note, 
+            string note,
             string rowVersion
         )
         {
