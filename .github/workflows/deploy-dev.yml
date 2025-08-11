@@ -19,6 +19,8 @@ jobs:
   get-client-id:
     runs-on: ubuntu-latest
     environment: dev
+    outputs:
+      wrapped: ${{ steps.get-client-id.outputs.client-id }}
     steps:
       - name: Get app registration client ID
         id: get-client-id
