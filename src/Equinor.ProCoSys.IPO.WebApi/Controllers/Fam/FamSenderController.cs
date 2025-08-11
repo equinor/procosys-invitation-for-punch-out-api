@@ -26,6 +26,7 @@ public class FamSenderController : ControllerBase
     [SendToFamApiKey]
     [HttpPost("SendAllData")]
     public async Task<ActionResult<string>> SendAllDataToFam(
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
         [FromHeader(Name = SendToFamApiKeyAttribute.FamApiKeyHeader)]
         [Required]
         string apiKey)

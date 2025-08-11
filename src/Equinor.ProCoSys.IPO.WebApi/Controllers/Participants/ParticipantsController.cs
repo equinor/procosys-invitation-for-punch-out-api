@@ -32,6 +32,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         [Authorize(Roles = Permissions.LIBRARY_FUNCTIONAL_ROLE_READ)]
         [HttpGet("FunctionalRoles/ByClassification/IPO")]
         public async Task<ActionResult<List<ProCoSysFunctionalRoleDto>>> GetFunctionalRolesForIpo(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant)
         {
@@ -48,6 +49,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         [Authorize(Roles = Permissions.USER_READ)]
         [HttpGet("Persons")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetPersons(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
             string searchString)
@@ -65,6 +67,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Participants
         [Authorize(Roles = Permissions.USER_READ)]
         [HttpGet("Persons/ByPrivileges/Signers")]
         public async Task<ActionResult<List<ProCoSysPersonDto>>> GetSignerPersons(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)] [Required]
             string plant,
             string searchString)
