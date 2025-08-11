@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
         private GetPersonsWithPrivilegesQuery _query;
 
         private readonly string _objectName = "IPO";
-        private List<string> _privileges = new List<string> { "SIGN"};
+        private List<string> _privileges = new List<string> { "SIGN" };
         private readonly string _searchString = "A";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)

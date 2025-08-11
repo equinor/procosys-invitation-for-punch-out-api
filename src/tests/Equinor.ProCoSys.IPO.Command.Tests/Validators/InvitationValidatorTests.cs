@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Domain;
@@ -357,7 +357,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(commissioningParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(additionalContractorParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(supplierParticipant);
-   
+
                 context.SaveChangesAsync().Wait();
 
                 // Add invitation with another currentuserprovider
@@ -1199,7 +1199,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
-        
+
         [TestMethod]
         public async Task ParticipantExistsAsync_ParticipantDoesNotExistOnInvitation_ReturnsFalse()
         {
@@ -1226,7 +1226,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
-        
+
         [TestMethod]
         public async Task BeSignedParticipantAsync_ParticipantIsNotSigned_ReturnsFalse()
         {
@@ -1441,7 +1441,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsFalse(result);
             }
         }
-        
+
         [TestMethod]
         public async Task CurrentUserIsAdminOrValidUnsigningParticipantAsync_FunctionalRoleAsUnsigner_ReturnsTrue()
         {
@@ -2290,7 +2290,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2341,7 +2341,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey < 2)
@@ -2350,7 +2350,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     }
                 }
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-   
+
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(
                     participantsToUpdate,
                     _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
@@ -2372,7 +2372,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2421,7 +2421,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)
@@ -2460,7 +2460,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)

@@ -98,7 +98,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     cfg.ConfigureJsonSerializerOptions(opts =>
                     {
                         opts.Converters.Add(new JsonStringEnumConverter());
-                        
+
                         // Set it to null to use the default .NET naming convention (PascalCase)
                         opts.PropertyNamingPolicy = null;
                         return opts;

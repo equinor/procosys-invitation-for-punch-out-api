@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private readonly string _location = "location A";
         private readonly DisciplineType _type = DisciplineType.DP;
 
-        private readonly IList<string> _commPkgScope = new List<string> {"COMM-02"};
+        private readonly IList<string> _commPkgScope = new List<string> { "COMM-02" };
         private readonly List<ParticipantsForCommand> _participants = new List<ParticipantsForCommand>
         {
             new ParticipantsForCommand(

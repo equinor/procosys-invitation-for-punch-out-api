@@ -62,6 +62,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet]
         public async Task<ActionResult<InvitationsResult>> GetInvitations(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -78,6 +79,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("ExportInvitationsToExcel")]
         public async Task<ActionResult> ExportInvitationsToExcel(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -102,6 +104,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}")]
         public async Task<ActionResult<InvitationDto>> GetInvitationById(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -115,10 +118,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.COMMPKG_READ)]
         [HttpGet("ByCommPkgNo/{commPkgNo}")]
         public async Task<ActionResult<InvitationForMainDto>> GetInvitationsByCommPkgNo(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
-            string plant,           
+            string plant,
             [FromRoute] string commPkgNo,
             [Required]
             [FromQuery] string projectName)
@@ -130,6 +134,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.COMMPKG_READ)]
         [HttpGet("ByCommPkgNos")]
         public async Task<ActionResult<CommPkgsWithMdpIposDto>> GetInvitationsByCommPkgNos(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -144,6 +149,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_CREATE)]
         [HttpPost]
         public async Task<ActionResult<int>> CreateInvitation(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -171,6 +177,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}")]
         public async Task<ActionResult<string>> EditInvitation(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -199,6 +206,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Participants")]
         public async Task<ActionResult> EditParticipants(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -219,6 +227,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPut("{id}/Cancel")]
         public async Task<ActionResult> CancelInvitation(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -234,6 +243,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_DELETE, Permissions.IPO_ADMIN)]
         [HttpDelete("{id}/Delete")]
         public async Task<ActionResult> DeleteInvitation(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -249,6 +259,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Sign")]
         public async Task<ActionResult<string>> SignPunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -265,6 +276,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Accept")]
         public async Task<ActionResult<string>> AcceptPunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -282,6 +294,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Uncomplete")]
         public async Task<ActionResult<string>> UncompletePunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -297,6 +310,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unaccept")]
         public async Task<ActionResult<string>> UnacceptPunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -313,6 +327,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/Complete")]
         public async Task<ActionResult<string>> CompletePunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -338,6 +353,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Unsign")]
         public async Task<ActionResult<string>> UnsignPunchOut(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -353,6 +369,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_WRITE, Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/AttendedStatus")]
         public async Task<ActionResult> UpdateAttendedStatusOnParticipant(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -367,6 +384,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [AuthorizeAny(Permissions.IPO_WRITE, Permissions.IPO_SIGN, Permissions.IPO_ADMIN)]
         [HttpPut("{id}/Note")]
         public async Task<ActionResult> UpdateNoteOnParticipant(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -378,11 +396,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
                 new UpdateNoteOnParticipantCommand(id, dto.Id, dto.Note, dto.RowVersion));
             return this.FromResult(result);
         }
-        
+
         // TODO: This endpoint will be replaced by the two above, and this this endpoint can be removed once frontend stops using it.
         [Authorize(Roles = Permissions.IPO_SIGN)]
         [HttpPut("{id}/AttendedStatusAndNotes")]
         public async Task<ActionResult> ChangeAttendedStatusAndNotesOnParticipants(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -400,6 +419,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_ATTACHFILE)]
         [HttpPost("{id}/Attachments")]
         public async Task<ActionResult<int>> UploadAttachment(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -422,6 +442,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments/{attachmentId}")]
         public async Task<ActionResult<AttachmentDto>> GetAttachment(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -436,6 +457,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Attachments")]
         public async Task<ActionResult<List<AttachmentDto>>> GetAttachments(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -449,6 +471,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/History")]
         public async Task<ActionResult<HistoryDto>> GetHistory(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -462,6 +485,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_DETACHFILE)]
         [HttpDelete("{id}/Attachments/{attachmentId}")]
         public async Task<ActionResult<int>> DeleteAttachment(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -482,6 +506,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_WRITE)]
         [HttpPost("{id}/Comments")]
         public async Task<ActionResult<int>> AddComment(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]
@@ -497,6 +522,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("{id}/Comments")]
         public async Task<ActionResult<List<CommentDto>>> GetComments(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             [StringLength(PlantEntityBase.PlantLengthMax, MinimumLength = PlantEntityBase.PlantLengthMin)]

@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.InvitationAggregate
 
         [TestMethod]
         public void Constructor_ShouldSetProperties()
-        { 
+        {
             var dut = new Participant(
                 TestPlant,
                 Org,

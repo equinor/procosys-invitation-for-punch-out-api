@@ -97,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.EntityConfigurations
                 .HasIndex("Plant", "ProjectId", "Status")
                 .HasFilter("[Status] <> 3 AND [Status] <> 4")
                 .IncludeProperties(i => new { i.Description });
-      
+
         }
     }
 }

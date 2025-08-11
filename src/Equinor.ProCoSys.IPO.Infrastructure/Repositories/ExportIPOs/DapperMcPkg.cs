@@ -8,5 +8,5 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
  */
 public class DapperMcPkg : McPkg
 {
-    public int InvitationId { get; set; } 
+    public int InvitationId { get; set; }
 }

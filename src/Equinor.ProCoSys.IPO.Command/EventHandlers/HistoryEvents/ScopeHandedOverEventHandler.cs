@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public ScopeHandedOverEventHandler(IHistoryRepository historyRepository) 
+        public ScopeHandedOverEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(ScopeHandedOverEvent notification, CancellationToken cancellationToken)

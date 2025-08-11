@@ -100,7 +100,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CompletePunchOut
         public async Task Validate_ShouldFail_WhenInvitationRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_invitationRowVersion)).Returns(false);
-            
+
             var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);

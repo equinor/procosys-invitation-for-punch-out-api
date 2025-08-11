@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Domain.Tests.AggregateModels.PersonAggregate
         private bool DefaultFilterValue = true;
         private SavedFilter _dut;
         private SavedFilter _dutWithNullProject;
-        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}",ProjectGuid);
+        private readonly Project _project = new(TestPlant, ProjectName, $"Description of {ProjectName}", ProjectGuid);
 
         [TestInitialize]
         public void Setup()

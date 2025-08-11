@@ -6,6 +6,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Invitation
     {
         public string InvitationRowVersion { get; set; }
         public string ParticipantRowVersion { get; set; }
-        public IEnumerable<ParticipantToUpdateNoteDto> Participants {get; set;}
+        public IEnumerable<ParticipantToUpdateNoteDto> Participants { get; set; }
     }
 }

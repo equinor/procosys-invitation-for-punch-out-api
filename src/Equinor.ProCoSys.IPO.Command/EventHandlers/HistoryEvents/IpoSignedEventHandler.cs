@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public IpoSignedEventHandler(IHistoryRepository historyRepository) 
+        public IpoSignedEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(IpoSignedEvent notification, CancellationToken cancellationToken)

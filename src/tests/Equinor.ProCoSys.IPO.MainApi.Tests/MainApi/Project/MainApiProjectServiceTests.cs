@@ -31,15 +31,15 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
             _mainApiOptions = new Mock<IOptionsMonitor<MainApiOptions>>();
             _mainApiOptions
                 .Setup(x => x.CurrentValue)
-                .Returns(new MainApiOptions {ApiVersion = "4.0", BaseAddress = "http://example.com"});
+                .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
             _mainApiClient = new Mock<IMainApiClient>();
 
-            _proCoSysProject1 = new ProCoSysProject {Id = 1, Name = _project1Name, Description = _project1Description};
-            _proCoSysProject2 = new ProCoSysProject {Id = 2, Name = Project2Name, Description = Project2Description};
+            _proCoSysProject1 = new ProCoSysProject { Id = 1, Name = _project1Name, Description = _project1Description };
+            _proCoSysProject2 = new ProCoSysProject { Id = 2, Name = Project2Name, Description = Project2Description };
 
             _mainApiClient
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
-                .Returns(Task.FromResult(new List<ProCoSysProject> {_proCoSysProject1, _proCoSysProject2}));
+                .Returns(Task.FromResult(new List<ProCoSysProject> { _proCoSysProject1, _proCoSysProject2 }));
 
             _dut = new MainApiProjectService(_mainApiClient.Object, _mainApiOptions.Object);
         }

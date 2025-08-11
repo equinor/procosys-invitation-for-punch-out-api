@@ -78,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _plantProviderMock = new Mock<IPlantProvider>();
             _plantProviderMock.SetupGet(x => x.Plant).Returns(TestPlant);
             _plantProvider = _plantProviderMock.Object;
-            
+
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiService = _personApiServiceMock.Object;
 
@@ -93,7 +93,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, CurrentUserOid))
                 .Returns(Task.FromResult(new List<AccessableProject>
                 {
-                    new() {Name = "Project1"}, 
+                    new() {Name = "Project1"},
                     new() {Name = "Project2"}
                 } as IList<AccessableProject>));
             _permissionCache = _permissionCacheMock.Object;
@@ -106,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             // ensure current user exists in db
             using (var context = CreateDbContext(_dbContextOptions))// new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-               var createResult = context.Database.EnsureCreated();
+                var createResult = context.Database.EnsureCreated();
 
                 if (context.Persons.SingleOrDefault(p => p.Guid == CurrentUserOid) == null)
                 {

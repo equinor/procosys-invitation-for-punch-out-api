@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             AzureOid = azureOid;
             Required = required;
         }
-     
+
         public Guid AzureOid { get; }
         public bool Required { get; }
     }

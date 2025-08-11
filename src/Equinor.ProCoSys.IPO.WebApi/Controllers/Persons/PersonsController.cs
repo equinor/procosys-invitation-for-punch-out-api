@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
-using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
-using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.DeleteSavedFilter;
+using Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter;
+using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpPost("SavedFilter")]
         public async Task<ActionResult<int>> CreateSavedFilter(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -36,6 +37,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("SavedFilters")]
         public async Task<ActionResult<List<SavedFilterDto>>> GetSavedFiltersInProject(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -48,6 +50,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpPut("SavedFilters/{id}")]
         public async Task<ActionResult> UpdateSavedFilter(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,
@@ -68,6 +71,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Persons
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpDelete("SavedFilters/{id}")]
         public async Task<ActionResult> DeleteSavedFilter(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant,

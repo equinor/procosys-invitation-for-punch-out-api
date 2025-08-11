@@ -14,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         protected const string FunctionalRoleCode2 = "FRC2";
         private const string Classification = "IPO";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
-       
+
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
         private IList<ProCoSysPerson> _signerPersons;

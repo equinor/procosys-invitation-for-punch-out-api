@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
@@ -13,10 +13,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
 {
     public class InvitationHelper
     {
-        public static string GetBaseUrl(string pcsBaseUrl, string plant) 
+        public static string GetBaseUrl(string pcsBaseUrl, string plant)
             => $"{pcsBaseUrl.Trim('/')}/{plant.Substring(4, plant.Length - 4).ToUpper()}";
 
-        public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant) 
+        public static bool ParticipantIsSigningParticipant(ParticipantsForCommand participant)
             => participant.Organization != Organization.External && participant.Organization != Organization.Supplier;
 
         public static async Task<bool> HasIpoAdminPrivilegeAsync(

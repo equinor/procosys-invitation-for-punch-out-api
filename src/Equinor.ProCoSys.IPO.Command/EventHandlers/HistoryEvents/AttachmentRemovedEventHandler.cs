@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public AttachmentRemovedEventHandler(IHistoryRepository historyRepository) 
+        public AttachmentRemovedEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(AttachmentRemovedEvent notification, CancellationToken cancellationToken)

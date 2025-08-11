@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
 
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                var mcScope = new List<McPkg> {new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2", Guid.Empty, Guid.Empty)};
+                var mcScope = new List<McPkg> { new McPkg(TestPlant, project1, "commno", "mcno", "d", "1|2", Guid.Empty, Guid.Empty) };
 
                 _invitationWithNoHistory = new Invitation(
                     TestPlant,
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetHistory
                     DisciplineType.DP,
                     new DateTime(),
                     new DateTime(),
-                    null, 
+                    null,
                     mcScope,
                     null);
 

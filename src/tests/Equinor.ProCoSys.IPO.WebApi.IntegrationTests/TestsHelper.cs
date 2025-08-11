@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
     public static class TestsHelper
     {
         public static async Task AssertResponseAsync(
-            HttpResponseMessage response, 
+            HttpResponseMessage response,
             HttpStatusCode expectedStatusCode,
             string expectedMessagePartOnBadRequest)
         {
@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 var jsonString = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Bad request details: {jsonString}");
-                
+
                 if (!string.IsNullOrEmpty(expectedMessagePartOnBadRequest))
                 {
                     var problemDetails = JsonConvert.DeserializeObject<ValidationProblemDetails>(jsonString);
@@ -32,8 +32,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         }
 
         public static async Task AssertInternalServerErrorAsync(
-            HttpResponseMessage response, 
-            HttpStatusCode expectedStatusCode, 
+            HttpResponseMessage response,
+            HttpStatusCode expectedStatusCode,
             string expectedMessageOnInternalServerError)
         {
             if (response.StatusCode == HttpStatusCode.InternalServerError)

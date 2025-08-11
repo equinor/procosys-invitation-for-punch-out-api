@@ -97,7 +97,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 0);
         }
 
-        protected async Task AddAllInvitations(IPOContext context){
+        protected async Task AddAllInvitations(IPOContext context)
+        {
 
             var helperPerson = CreateHelperPerson();
 
@@ -323,7 +324,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2",Guid.Empty, Guid.Empty) },
+                new List<McPkg> { new McPkg(TestPlant, _testProject, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _acceptedInvitationWithOperationPerson);
@@ -368,7 +369,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2",Guid.Empty, Guid.Empty) },
+                new List<McPkg> { new McPkg(TestPlant, _testProjectClosed, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                 null);
 
             SetRequiredProperties(context, _invitationForClosedProject);

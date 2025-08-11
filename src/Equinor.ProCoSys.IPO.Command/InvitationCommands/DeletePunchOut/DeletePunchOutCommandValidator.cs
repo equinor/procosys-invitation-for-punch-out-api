@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
                 => await invitationValidator.CurrentUserIsAllowedToDeleteIpoAsync(invitationId, cancellationToken);
 
             async Task<bool> InvitationIsCanceledOrScopeHandedOver(int invitationId, CancellationToken cancellationToken) =>
-                await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken) 
+                await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken)
                 || await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.ScopeHandedOver, cancellationToken);
 
             bool HaveAValidRowVersion(string rowVersion)

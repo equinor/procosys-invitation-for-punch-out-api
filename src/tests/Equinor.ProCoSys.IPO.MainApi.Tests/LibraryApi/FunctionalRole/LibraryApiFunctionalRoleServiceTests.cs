@@ -22,7 +22,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
 
         private const string _plant = "PCS$TESTPLANT";
         private const string _classification = "NOTIFICATION";
-        private List<string> _functionalRoleCodes =  new List<string> { "A", "B" };
+        private List<string> _functionalRoleCodes = new List<string> { "A", "B" };
         private static List<KeyValuePair<string, string>> _extraHeaders = new List<KeyValuePair<string, string>>();
 
         [TestInitialize]
@@ -125,7 +125,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), _extraHeaders))
                 .Returns(Task.FromResult(new List<ProCoSysFunctionalRole>()));
 
-            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string>{ "not a code"});
+            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "not a code" });
 
             Assert.AreEqual(0, result.Count);
         }
@@ -155,17 +155,17 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
         {
             // Arrange
             var url = string.Empty;
-            _foreignApiClient.Setup(h => h.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), 
+            _foreignApiClient.Setup(h => h.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(),
                     It.IsAny<List<KeyValuePair<string, string>>>()))
                     .Callback<string, List<KeyValuePair<string, string>>>((r, _) => url = r);
 
             // Act
-            await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string>{"C&D"});
+            await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "C&D" });
 
             // Assert
             _foreignApiClient.Verify(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(),
                 It.IsAny<List<KeyValuePair<string, string>>>()), Times.Once);
-            Assert.IsTrue(url.Equals("http://example.com/FunctionalRolesByCodes?classification=IPO&functionalRoleCodes=C%26D"), 
+            Assert.IsTrue(url.Equals("http://example.com/FunctionalRolesByCodes?classification=IPO&functionalRoleCodes=C%26D"),
                 "Expected url encoded functional role code");
         }
     }

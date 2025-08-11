@@ -30,9 +30,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         private string _functionalRoleCode2 = "FrCode2";
         private string _functionalRoleCode3 = "FrCode3";
         private readonly Guid _personGuid = new Guid("11111111-2222-2222-2222-333333333333");
-        private readonly Guid _frPersonGuid1 = new Guid("11111111-2222-2222-2222-333333333332"); 
-        private readonly Guid _frPersonGuid2 = new Guid("11111111-2222-2222-2222-333333333335"); 
-        private readonly Guid _frPersonGuid3 = new Guid("11111111-2222-2222-2222-333333333336"); 
+        private readonly Guid _frPersonGuid1 = new Guid("11111111-2222-2222-2222-333333333332");
+        private readonly Guid _frPersonGuid2 = new Guid("11111111-2222-2222-2222-333333333335");
+        private readonly Guid _frPersonGuid3 = new Guid("11111111-2222-2222-2222-333333333336");
         private string _frEmail1 = "FR1@email.com";
         private string _personEmail1 = "P1@email.com";
         private string _personEmail2 = "P2@email.com";
@@ -294,7 +294,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                     startTime3,
                     startTime3.AddHours(1),
                     null,
-                    new List<McPkg> {mcPkg2},
+                    new List<McPkg> { mcPkg2 },
                     null);
 
                 _invitation3.AddParticipant(contractorPersonParticipant1);
@@ -454,7 +454,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         [TestMethod]
         public async Task Handler_ShouldFilterOnId()
         {
-            var filter = new Filter {IpoIdStartsWith = "IPO-2"};
+            var filter = new Filter { IpoIdStartsWith = "IPO-2" };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -470,7 +470,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
         [TestMethod]
         public async Task Handler_ShouldFilterOnStatusAccepted()
         {
-            var filter = new Filter { IpoStatuses = new List<IpoStatus> {IpoStatus.Accepted} };
+            var filter = new Filter { IpoStatuses = new List<IpoStatus> { IpoStatus.Accepted } };
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -676,7 +676,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider, _functionalRoleApiService);
 
                 var result = await dut.Handle(query, default);
-                AssertCount(result.Data,1);
+                AssertCount(result.Data, 1);
             }
         }
 
@@ -711,7 +711,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 AssertCount(result.Data, 0);
             }
         }
-        
+
         [TestMethod]
         public async Task Handler_ShouldFilterOnPunchOutInThisWeek_ElapseWeek_OneInvitation()
         {
@@ -882,7 +882,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 Assert.IsTrue(invitationDto.ConstructionCompanyRep.StartsWith(firstConstructionCompanyRep.FirstName));
                 Assert.IsFalse(invitationDto.AdditionalConstructionCompanyReps
                     .Any(p => p.StartsWith(firstConstructionCompanyRep.FirstName)));
-                Assert.AreEqual(invitationDto.AdditionalConstructionCompanyReps.Count(), 
+                Assert.AreEqual(invitationDto.AdditionalConstructionCompanyReps.Count(),
                     invitation.Participants.Count(p => p.Organization == Organization.ConstructionCompany && p.SortKey != 1));
             }
         }
@@ -952,7 +952,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider, _functionalRoleApiService);
 
                 var result = await dut.Handle(query, default);
-                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid), Times.Once);                
+                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid), Times.Once);
                 Assert.IsTrue(result.Data.Invitations.DistinctBy(x => x.ProjectName).Count() > 1);
             }
         }
