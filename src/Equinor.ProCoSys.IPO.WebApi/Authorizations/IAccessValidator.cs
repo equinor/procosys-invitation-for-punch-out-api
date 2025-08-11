@@ -5,6 +5,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
 {
     public interface IAccessValidator
     {
-        Task<bool> ValidateAsync<TRequest>(TRequest request) where TRequest: IBaseRequest;
+        Task<bool> ValidateAsync<TRequest>(TRequest request) where TRequest : IBaseRequest;
     }
 }

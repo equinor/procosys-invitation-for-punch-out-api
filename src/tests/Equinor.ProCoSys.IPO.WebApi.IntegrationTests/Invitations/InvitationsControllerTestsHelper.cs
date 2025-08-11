@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<List<InvitationForMainDto>> GetInvitationsByCommPkgNoAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             string commPkgNo,
             string projectName,
@@ -120,7 +120,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var parameters = new ParameterCollection { { "projectName", projectName }};
+            var parameters = new ParameterCollection { { "projectName", projectName } };
             foreach (var commPkgNo in commPkgNos)
             {
                 parameters.Add("commPkgNos", commPkgNo);
@@ -140,7 +140,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<List<AttachmentDto>> GetAttachmentsAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             int id,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
@@ -180,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<AttachmentDto> GetAttachmentAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             int id,
             int attachmentId,
@@ -325,7 +325,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             string expectedMessageOnBadRequest = null)
         {
-            var bodyPayload = new 
+            var bodyPayload = new
             {
                 dto.ParticipantRowVersion,
                 dto.InvitationRowVersion,
@@ -391,7 +391,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
-        
+
         public static async Task UpdateNoteOnParticipantAsync(
             UserType userType,
             string plant,
@@ -407,7 +407,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             await TestsHelper.AssertResponseAsync(response, expectedStatusCode, expectedMessageOnBadRequest);
         }
-        
+
         public static async Task ChangeAttendedStatusAndNotesOnParticipantsAsync(
             UserType userType,
             string plant,
@@ -425,7 +425,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<int> CreateInvitationAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             string title,
             string description,
@@ -440,7 +440,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             string expectedMessageOnBadRequest = null,
             string expectedMessageOnInternalServerError = null)
         {
-            var bodyPayload = new 
+            var bodyPayload = new
             {
                 projectName = KnownTestData.ProjectName,
                 title,
@@ -471,7 +471,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task<string> EditInvitationAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             int id,
             EditInvitation.EditInvitedInvitationDto dto,
@@ -535,7 +535,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
         }
 
         public static async Task UploadAttachmentAsync(
-            UserType userType, 
+            UserType userType,
             string plant,
             int id,
             TestFile file,

@@ -1,5 +1,5 @@
-﻿using Equinor.ProCoSys.Common;
-using System;
+﻿using System;
+using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave;

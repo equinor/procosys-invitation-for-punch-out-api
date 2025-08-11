@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                     }
                 };
 
-                var result = new ProCoSysCommPkgSearchResult {MaxAvailable = 3, Items = _mainApiCommPkgs};
+                var result = new ProCoSysCommPkgSearchResult { MaxAvailable = 3, Items = _mainApiCommPkgs };
 
                 _commPkgApiServiceMock
                     .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))

@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
         const string _mcPkgNo = "McPkgNo";
         const string _system = "1|2";
         private readonly Project _project1 = new(TestPlant, _projectName, $"Description of {_projectName}", _project1Guid);
-        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}" , _project2Guid);
+        private readonly Project _project2 = new(TestPlant, _projectName2, $"Description of {_projectName2}", _project2Guid);
 
         [TestInitialize]
         public void Setup()
@@ -62,8 +62,8 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             // InMemory database used for unit test does not support stored procedures. Hence we are mocking return results from this.
             exportIpoRepositoryMock
                 .Setup(x => x.GetInvitationsWithIncludesAsync(It.IsAny<List<int>>(), _plantProvider, It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(new List<Invitation>(){_invitation1,_invitation2,_invitation3}));
-                
+                .Returns(Task.FromResult(new List<Invitation>() { _invitation1, _invitation2, _invitation3 }));
+
             _exportIpoRepository = exportIpoRepositoryMock.Object;
         }
 
@@ -225,7 +225,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                     startTime1,
                     startTime1.AddHours(1),
                     null,
-                    new List<McPkg> {mcPkg1},
+                    new List<McPkg> { mcPkg1 },
                     null);
 
                 _invitation1.AddParticipant(functionalRoleParticipant1);
@@ -279,7 +279,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
                 context.Invitations.Add(_invitation3);
                 var history3 = new History(TestPlant, "D3", _invitation3.Guid, EventType.IpoCreated);
                 context.History.Add(history3);
-                
+
                 context.SaveChangesAsync().Wait();
             }
         }
@@ -847,7 +847,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitationsF
             Assert.IsNotNull(invitationDto.CreatedBy);
         }
 
-        private void AssertCount(ExportDto data, int count) 
+        private void AssertCount(ExportDto data, int count)
             => Assert.AreEqual(count, data.Invitations.Count);
     }
 }

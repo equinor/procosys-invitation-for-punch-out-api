@@ -88,9 +88,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
             var participant = new Participant(_plant,
                 Organization.Contractor,
@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Setup exception in Delete meeting.
             _fusionMeetingClient.Setup(c => c.DeleteMeetingAsync(_meetingId))
                 .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
-                        
+
             // Act
             var result = await _dut.Handle(_command, default);
 

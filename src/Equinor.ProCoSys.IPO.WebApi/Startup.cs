@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Swagger;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.DIModules;
@@ -24,9 +27,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
-using Equinor.ProCoSys.Auth;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Common.Swagger;
 
 namespace Equinor.ProCoSys.IPO.WebApi
 {

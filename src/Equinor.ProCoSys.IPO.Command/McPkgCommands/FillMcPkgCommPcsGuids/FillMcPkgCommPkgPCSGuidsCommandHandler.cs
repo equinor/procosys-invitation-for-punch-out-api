@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 
 namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
 {
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _mcPkgApiService= mcPkgApiService;
+            _mcPkgApiService = mcPkgApiService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
@@ -49,15 +49,15 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
                 {
 
                     var project = await _projectRepository.GetByIdAsync(mcPkg.ProjectId);
-                    IList<string> mcPkgNo = new List<string>() { mcPkg.McPkgNo};
+                    IList<string> mcPkgNo = new List<string>() { mcPkg.McPkgNo };
 
                     var mcPkgResult = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, mcPkgNo);
 
                     if (mcPkgResult != null && mcPkgResult.Count == 1)
                     {
                         mcPkg.CommPkgGuid = mcPkgResult.First().CommPkgGuid;
-                       _logger.LogInformation($"FillMcPkgCommPkgPCSGuidsCommand: McPkg {mcPkg.McPkgNo} updated with CommPkgGuid: {mcPkg.CommPkgGuid}");
-                       count++;
+                        _logger.LogInformation($"FillMcPkgCommPkgPCSGuidsCommand: McPkg {mcPkg.McPkgNo} updated with CommPkgGuid: {mcPkg.CommPkgGuid}");
+                        count++;
                     }
                     else
                     {

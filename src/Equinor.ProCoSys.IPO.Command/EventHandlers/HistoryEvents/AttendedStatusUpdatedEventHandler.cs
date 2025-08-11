@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public AttendedStatusUpdatedEventHandler(IHistoryRepository historyRepository) 
+        public AttendedStatusUpdatedEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(AttendedStatusUpdatedEvent notification, CancellationToken cancellationToken)

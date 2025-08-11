@@ -85,7 +85,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocVoided
             _loggerMock = new Mock<ILogger<UpdateRfocVoidedCommandHandler>>();
 
             _mcPkgs = new List<McPkg> { mcPkg1, mcPkg2 };
-            
+
             //create invitation
             _invitation = new Invitation(
                     _plant,

@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
         }
 
         public async Task<IList<ProCoSysMcPkgOnCommPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
-            string plant, 
+            string plant,
             string projectName,
             string commPkgNo)
         {
@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
                 var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString);
                 pcsMcPkgs.AddRange(response);
             }
-                        
+
             return pcsMcPkgs;
         }
 

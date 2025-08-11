@@ -155,7 +155,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> {_mcPkg},
+                new List<McPkg> { _mcPkg },
                 null);
             _dpInviation.SetProtectedIdForTesting(InvitationWithMcPkgId);
             _dpInviationSameScope = new Invitation(
@@ -192,7 +192,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
                 new DateTime(),
                 null,
                 null,
-                new List<CommPkg> {_commPkg});
+                new List<CommPkg> { _commPkg });
             _mdpInvitationWithTwoCommpkgs = new Invitation(
                 TestPlant,
                 _project1,
@@ -614,7 +614,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             // Act
             _dut.RfocAcceptedHandling(
                 GetProjectName(_commPkg.ProjectId),
-                new List<string> {_commPkg.CommPkgNo},
+                new List<string> { _commPkg.CommPkgNo },
                 new List<string>());
 
             // Assert

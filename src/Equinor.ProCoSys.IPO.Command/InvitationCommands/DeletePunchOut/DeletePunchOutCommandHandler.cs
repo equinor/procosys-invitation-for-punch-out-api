@@ -60,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
         }
         private async Task PublishInvitationDeleteEvent(Invitation invitation, CancellationToken cancellationToken)
         {
-            var invitationDeleteEvent = new InvitationDeleteEvent {Plant = invitation.Plant, ProCoSysGuid = invitation.Guid};
+            var invitationDeleteEvent = new InvitationDeleteEvent { Plant = invitation.Plant, ProCoSysGuid = invitation.Guid };
             await _integrationEventPublisher.PublishAsync(invitationDeleteEvent, cancellationToken);
         }
 
@@ -86,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut
         {
             foreach (var comment in comments)
             {
-                var commentDeleteEvent = new CommentDeleteEvent {Plant = comment.Plant, ProCoSysGuid = comment.Guid};
+                var commentDeleteEvent = new CommentDeleteEvent { Plant = comment.Plant, ProCoSysGuid = comment.Guid };
                 await _integrationEventPublisher.PublishAsync(commentDeleteEvent, cancellationToken);
             }
         }

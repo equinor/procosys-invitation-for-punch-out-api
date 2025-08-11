@@ -174,7 +174,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         public async Task GetMcPkgsByMcPkgNosAsync_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string>{ "McNo1", "McNo2", "McNo3" });
+            var result = await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string> { "McNo1", "McNo2", "McNo3" });
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -200,7 +200,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg>()));
 
             var result =
-                await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string> {"McNo1", "McNo2", "McNo3"});
+                await _dut.GetMcPkgsByMcPkgNosAsync(_plant, "Project3", new List<string> { "McNo1", "McNo2", "McNo3" });
 
             Assert.AreEqual(0, result.Count);
         }

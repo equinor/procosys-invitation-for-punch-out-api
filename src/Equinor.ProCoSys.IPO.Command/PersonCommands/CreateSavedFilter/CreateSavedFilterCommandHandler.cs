@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
                 var projectName = await GetProjectFromMainAsync(request.ProjectName);
                 project = await _projectRepository.GetProjectOnlyByNameAsync(projectName);
             }
-            
+
             if (request.DefaultFilter)
             {
                 var currentDefaultFilter = person.GetDefaultFilter(project);

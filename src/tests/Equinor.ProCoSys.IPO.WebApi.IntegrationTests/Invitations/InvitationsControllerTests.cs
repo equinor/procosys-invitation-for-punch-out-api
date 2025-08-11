@@ -798,9 +798,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 InitialMdpInvitationId);
             var participant = invitation.Participants.First();
             var dto = new ParticipantToUpdateAttendedStatusDto
-                {
-                    Id = participant.Id, Attended = !participant.Attended, RowVersion = participant.RowVersion
-                };
+            {
+                Id = participant.Id,
+                Attended = !participant.Attended,
+                RowVersion = participant.RowVersion
+            };
 
             // Act
             await InvitationsControllerTestsHelper.UpdateAttendedStatusOnParticipantAsync(

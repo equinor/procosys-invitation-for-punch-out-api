@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.UpdateSavedFilter
             _savedFilterValidatorMock = new Mock<ISavedFilterValidator>();
             _savedFilterValidatorMock.Setup(r => r.ExistsAsync(_savedFilterId, default)).Returns(Task.FromResult(true));
 
-            _command = new UpdateSavedFilterCommand(_savedFilterId, _title, _criteria, false,  RowVersion);
+            _command = new UpdateSavedFilterCommand(_savedFilterId, _title, _criteria, false, RowVersion);
 
             _dut = new UpdateSavedFilterCommandValidator(
                 _savedFilterValidatorMock.Object,

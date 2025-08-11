@@ -20,6 +20,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Controllers.Me
         [Authorize(Roles = Permissions.IPO_READ)]
         [HttpGet("OutstandingIpos")]
         public async Task<ActionResult<OutstandingIposResultDto>> GetOutstandingIpos(
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060: Remove unused parameter")]
             [FromHeader(Name = CurrentPlantMiddleware.PlantHeader)]
             [Required]
             string plant)

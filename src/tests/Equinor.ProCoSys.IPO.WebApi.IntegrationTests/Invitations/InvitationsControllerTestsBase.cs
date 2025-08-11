@@ -118,10 +118,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 Contract = null,
                 Convention = string.Empty,
                 DateCreatedUtc = DateTime.MinValue,
-                DateEnd = new ApiDateTimeTimeZoneModel 
-                    { DateTimeUtc = _invitationEndTime },
+                DateEnd = new ApiDateTimeTimeZoneModel
+                { DateTimeUtc = _invitationEndTime },
                 DateStart = new ApiDateTimeTimeZoneModel
-                    { DateTimeUtc = _invitationStartTime },
+                { DateTimeUtc = _invitationStartTime },
                 ExternalId = null,
                 Id = KnownTestData.MeetingId,
                 InviteBodyHtml = string.Empty,
@@ -156,17 +156,25 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             const string McPkgNo1 = "MC1";
             const string McPkgNo2 = "MC2";
 
-            _mcPkgScope = new List<string> {McPkgNo1, McPkgNo2};
+            _mcPkgScope = new List<string> { McPkgNo1, McPkgNo2 };
 
             _mcPkgDetails1 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D1", Id = 1, McPkgNo = McPkgNo1, System = KnownTestData.System
+                CommPkgNo = KnownTestData.CommPkgNo,
+                Description = "D1",
+                Id = 1,
+                McPkgNo = McPkgNo1,
+                System = KnownTestData.System
             };
             _mcPkgDetails2 = new ProCoSysMcPkg
             {
-                CommPkgNo = KnownTestData.CommPkgNo, Description = "D2", Id = 2, McPkgNo = McPkgNo2, System = KnownTestData.System
+                CommPkgNo = KnownTestData.CommPkgNo,
+                Description = "D2",
+                Id = 2,
+                McPkgNo = McPkgNo2,
+                System = KnownTestData.System
             };
-            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> {_mcPkgDetails1, _mcPkgDetails2};
+            IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { _mcPkgDetails1, _mcPkgDetails2 };
 
             TestFactory.Instance
                 .McPkgApiServiceMock
@@ -274,7 +282,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),
                         "IPO",
-                        new List<string> {"SIGN"}))
+                        new List<string> { "SIGN" }))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = personParticipant.AzureOid.ToString(),
@@ -297,7 +305,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
             TestFactory.Instance
                 .MeetingOptionsMock
                 .Setup(x => x.CurrentValue)
-                .Returns(new MeetingOptions{PcsBaseUrl = TestFactory.PlantWithAccess});
+                .Returns(new MeetingOptions { PcsBaseUrl = TestFactory.PlantWithAccess });
             _attachmentOnInitialMdpInvitation = await UploadAttachmentAsync(InitialMdpInvitationId);
         }
 
@@ -560,7 +568,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 UserType.Viewer,
                 TestFactory.PlantWithAccess,
                 invitationId);
-            
+
             return attachmentDtos.Single(t => t.FileName == fileToBeUploaded.FileName);
         }
 
@@ -615,7 +623,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                                     AzureOid = person.AzureOid,
                                     Email = person.Email,
                                     Id = person.Id,
-                                    Required = person.Required, 
+                                    Required = person.Required,
                                     RowVersion = person.RowVersion
                                 }).ToList()
                     } : null,

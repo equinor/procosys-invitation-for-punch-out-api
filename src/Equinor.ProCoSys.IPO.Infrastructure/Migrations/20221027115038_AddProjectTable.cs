@@ -324,12 +324,12 @@ on p.Id = sf.ProjectId and p.Plant = sf.Plant
                 name: "ProjectId",
                 table: "CommPkgs");
 
- 
+
 
             migrationBuilder.CreateIndex(
                     name: "IX_Invitations_Plant_ProjectName",
                     table: "Invitations",
-                    columns: new[] {"Plant", "ProjectName"})
+                    columns: new[] { "Plant", "ProjectName" })
                 .Annotation("SqlServer:Include",
                     new[]
                     {
@@ -340,7 +340,7 @@ on p.Id = sf.ProjectId and p.Plant = sf.Plant
             migrationBuilder.CreateIndex(
                 name: "IX_Invitations_ProjectName",
                 table: "Invitations",
-                columns: new[] {"ProjectName"});
+                columns: new[] { "ProjectName" });
         }
     }
 }

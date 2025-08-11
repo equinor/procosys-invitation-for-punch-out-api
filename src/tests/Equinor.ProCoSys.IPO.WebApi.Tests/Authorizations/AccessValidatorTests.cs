@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.AddComment;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
@@ -11,9 +12,9 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.SignPunchOut;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnSignPunchOut;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
@@ -36,7 +37,6 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
 {
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null,
                 false);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null,
                 null, false);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -135,7 +135,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new DeleteAttachmentCommand(_invitationIdWithAccessToProject, 0, null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -148,7 +148,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var command = new DeleteAttachmentCommand(_invitationIdWithoutAccessToProject, 0, null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -175,7 +175,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null,
                 null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -199,7 +199,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 null,
                 null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -252,7 +252,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 true,
                 null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -269,7 +269,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
                 null,
                 true,
                 null);
-            
+
             // act
             var result = await _dut.ValidateAsync(command);
 
@@ -701,7 +701,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetAttachmentByIdQuery(_invitationIdWithAccessToProject, 0);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -714,7 +714,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetAttachmentByIdQuery(_invitationIdWithoutAccessToProject, 0);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -729,7 +729,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetAttachmentsQuery(_invitationIdWithAccessToProject);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -742,7 +742,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetAttachmentsQuery(_invitationIdWithoutAccessToProject);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -770,7 +770,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetCommPkgsInProjectQuery(_projectWithoutAccess, null, 10, 0);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -896,7 +896,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         public async Task ValidateAsync_OnGetInvitationsByCommPkgNosQuery_ShouldReturnTrue_WhenAccessToProject()
         {
             // Arrange
-            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> {"commpkg"}, _projectWithAccess);
+            var query = new GetLatestMdpIpoStatusOnCommPkgsQuery(new List<string> { "commpkg" }, _projectWithAccess);
 
             // act
             var result = await _dut.ValidateAsync(query);
@@ -925,7 +925,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithAccess, null);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 
@@ -938,7 +938,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Authorizations
         {
             // Arrange
             var query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectWithoutAccess, null);
-            
+
             // act
             var result = await _dut.ValidateAsync(query);
 

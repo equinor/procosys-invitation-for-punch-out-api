@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
     public class CertificateRepositoryTests : RepositoryTestBase
     {
         private Mock<DbSet<Certificate>> _dbCertificateSetMock;
-        private Guid _knownGuid= new Guid("11111111-2222-2222-2222-333333333333");
+        private Guid _knownGuid = new Guid("11111111-2222-2222-2222-333333333333");
         private Guid _unknownGuid = new Guid("11111111-2222-2222-2222-333333333334");
 
         private CertificateRepository _dut;
@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests.Repositories
             var testPlant = "TestPlant";
             var project = new Project("TestPlant", "title", "description", Guid.NewGuid());
             var certificate = new Certificate(testPlant, project, _knownGuid, true);
-            var mcPkg = new McPkg(testPlant, project, "123", "456", "desc", "1|2",Guid.Empty, Guid.Empty);
+            var mcPkg = new McPkg(testPlant, project, "123", "456", "desc", "1|2", Guid.Empty, Guid.Empty);
             var commPkg = new CommPkg(testPlant, project, "123", "desc", "ok", "1|2", Guid.Empty);
             certificate.CertificateMcPkgs.Add(mcPkg);
             certificate.CertificateCommPkgs.Add(commPkg);

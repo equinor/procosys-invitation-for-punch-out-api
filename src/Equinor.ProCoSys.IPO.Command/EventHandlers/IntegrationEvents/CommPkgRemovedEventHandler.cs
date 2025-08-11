@@ -1,9 +1,9 @@
-﻿using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using MediatR;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using System.Threading;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.Events;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+using MediatR;
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
 public class CommPkgRemovedEventHandler : INotificationHandler<CommPkgRemovedEvent>
@@ -15,8 +15,8 @@ public class CommPkgRemovedEventHandler : INotificationHandler<CommPkgRemovedEve
     public Task Handle(CommPkgRemovedEvent notification, CancellationToken cancellationToken)
     {
         var commPkgRemovedEvent =
-            new CommPkgDeleteEvent {Plant = notification.Plant, ProCoSysGuid = notification.CommPkgGuid};
-        
+            new CommPkgDeleteEvent { Plant = notification.Plant, ProCoSysGuid = notification.CommPkgGuid };
+
         return _integrationEventPublisher.PublishAsync(commPkgRemovedEvent, cancellationToken);
     }
 }

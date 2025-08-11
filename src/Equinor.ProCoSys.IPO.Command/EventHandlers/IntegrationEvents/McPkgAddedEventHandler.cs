@@ -1,8 +1,8 @@
-﻿using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using MediatR;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using System.Threading;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
+using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
