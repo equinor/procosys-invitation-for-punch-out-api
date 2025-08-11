@@ -41,7 +41,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
-    public sealed class TestFactory : WebApplicationFactory<Startup>
+    public sealed class TestFactory : WebApplicationFactory<Program>
     {
         private const string SignerOid = "00000000-0000-0000-0000-000000000001";
         private const string PlannerOid = "00000000-0000-0000-0000-000000000002";

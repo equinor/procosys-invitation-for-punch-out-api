@@ -297,3 +297,5 @@ app.UseEndpoints(endpoints =>
 
 // Run the application
 app.Run();
+
+public abstract partial class Program;
