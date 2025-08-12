@@ -92,37 +92,7 @@ builder.Services.AddApplicationInsightsTelemetry(options =>
 builder.Services.AddMediatrModules();
 builder.Services.AddApplicationModules(configuration);
 
-var serviceBusEnabled = configuration.GetValue<bool>("ServiceBus:Enable") &&
-    (!environment.IsDevelopment() || configuration.GetValue<bool>("ServiceBus:EnableInDevelopment"));
-if (serviceBusEnabled)
-{
-    // Env variable used in kubernetes. Configuration is added for easier use locally
-    // Url will be validated during startup of service bus integration and give a
-    // Uri exception if invalid.
-    var leaderElectorUrl = Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? (configuration["ServiceBus:LeaderElectorUrl"]);
-
-    builder.Services.AddPcsServiceBusIntegration(options => options
-        .UseBusConnection(configuration.GetConnectionString("ServiceBus"))
-        .WithLeaderElector(leaderElectorUrl)
-        .WithRenewLeaseInterval(int.Parse(configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
-        .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
-        .WithSubscription(PcsTopicConstants.Project, "ipo_project")
-        .WithSubscription(PcsTopicConstants.CommPkg, "ipo_commpkg")
-        .WithSubscription(PcsTopicConstants.McPkg, "ipo_mcpkg")
-        .WithSubscription(PcsTopicConstants.Library, "ipo_library")
-        .WithSubscription(PcsTopicConstants.Certificate, "ipo_certificate")
-        //THIS METHOD SHOULD BE FALSE IN NORMAL OPERATION.
-        //ONLY SET TO TRUE WHEN A LARGE NUMBER OF MESSAGES HAVE FAILED AND ARE COPIED TO DEAD LETTER.
-        //WHEN SET TO TRUE, MESSAGES ARE READ FROM DEAD LETTER QUEUE INSTEAD OF NORMAL QUEUE
-        .WithReadFromDeadLetterQueue(configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
-
-    var topics = configuration["ServiceBus:TopicNames"];
-    builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), topics);
-}
-else
-{
-    builder.Services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
-}
+builder.ConfigureServiceBus();
 
 builder.Services.AddHostedService<VerifyApplicationExistsAsPerson>();
 
