@@ -117,10 +117,7 @@ app.UseAuthorization();
 
 app.UseResponseCompression();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.MapControllers();
 
 // Run the application
 app.Run();
