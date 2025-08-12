@@ -46,24 +46,11 @@ builder.WebHost.UseKestrel(options =>
     options.Limits.MaxRequestBodySize = null;
 });
 
-// Add services to the container
-if (environment.IsDevelopment() || environment.IsEnvironment("Test"))
-{
-    var migrateDatabase = configuration.GetValue<bool>("MigrateDatabase");
-    if (migrateDatabase)
-    {
-        builder.Services.AddHostedService<DatabaseMigrator>();
-    }
-}
+builder.ConfigureDatabase();
 
 if (environment.IsDevelopment())
 {
     DebugOptions.DebugEntityFrameworkInDevelopment = configuration.GetValue<bool>("DebugEntityFrameworkInDevelopment");
-
-    if (configuration.GetValue<bool>("SeedDummyData"))
-    {
-        builder.Services.AddHostedService<Seeder>();
-    }
 }
 
 // Add authentication

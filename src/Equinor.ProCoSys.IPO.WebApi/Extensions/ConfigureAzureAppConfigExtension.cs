@@ -6,11 +6,16 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
-public static class SetupAzureAppConfig
+public static class ConfigureAzureAppConfigExtension
 {
     public static void ConfigureAzureAppConfig(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
+        
+        if (!configuration.GetValue<bool>("UseAzureAppConfiguration"))
+        {
+            return;
+        }
         
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
