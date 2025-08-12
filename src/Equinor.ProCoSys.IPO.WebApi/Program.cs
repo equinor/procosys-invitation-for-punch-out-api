@@ -10,6 +10,7 @@ using Equinor.ProCoSys.Common.Swagger;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.DIModules;
+using Equinor.ProCoSys.IPO.WebApi.Extensions;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.IPO.WebApi.Seeding;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
@@ -36,28 +37,7 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-// Configure Azure App Configuration if enabled
-if (configuration.GetValue<bool>("UseAzureAppConfiguration"))
-{
-    builder.Configuration.AddAzureAppConfiguration(options =>
-    {
-        var connectionString = configuration["ConnectionStrings:AppConfig"];
-        options.Connect(connectionString)
-            .ConfigureKeyVault(kv =>
-            {
-                kv.SetCredential(new ManagedIdentityCredential());
-                // Use DefaultAzureCredential in local dev env.
-                // kv.SetCredential(new DefaultAzureCredential());
-            })
-            .Select(KeyFilter.Any)
-            .Select(KeyFilter.Any, environment.EnvironmentName)
-            .ConfigureRefresh(refreshOptions =>
-            {
-                refreshOptions.Register("Sentinel", true);
-                refreshOptions.SetCacheExpiration(TimeSpan.FromSeconds(30));
-            });
-    });
-}
+builder.ConfigureAzureAppConfig();
 
 // Configure server options
 builder.WebHost.UseKestrel(options =>
