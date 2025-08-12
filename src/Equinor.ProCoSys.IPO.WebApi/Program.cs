@@ -82,7 +82,7 @@ builder.Services.AddFluentValidationRulesToSwagger();
 
 builder.Services.AddPcsAuthIntegration();
 
-builder.AddFusionIntegration();
+builder.ConfigureFusionIntegration();
 
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {

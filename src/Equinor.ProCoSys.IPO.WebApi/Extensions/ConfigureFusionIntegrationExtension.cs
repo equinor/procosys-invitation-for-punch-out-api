@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
-public static class AddFusionIntegrationExtension
+public static class ConfigureFusionIntegrationExtension
 {
-    public static void AddFusionIntegration(this WebApplicationBuilder builder)
+    public static void ConfigureFusionIntegration(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
         var environment = builder.Environment;
