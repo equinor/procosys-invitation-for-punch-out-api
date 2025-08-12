@@ -17,33 +17,33 @@ public static class ConfigureDatabaseExtension
     private static void MigrateDatabase(IHostApplicationBuilder builder)
     {
         var environment = builder.Environment;
-        
+
         if (!environment.IsDevelopment() && !environment.IsEnvironment("Test"))
         {
             return;
         }
-        
+
         var migrateDatabase = builder.Configuration.GetValue<bool>("MigrateDatabase");
         if (!migrateDatabase)
         {
             return;
         }
-        
+
         builder.Services.AddHostedService<DatabaseMigrator>();
     }
-    
+
     private static void SeedDummyData(IHostApplicationBuilder builder)
     {
         if (!builder.Environment.IsDevelopment())
         {
             return;
         }
-        
+
         if (!builder.Configuration.GetValue<bool>("SeedDummyData"))
         {
             return;
         }
-        
+
         builder.Services.AddHostedService<Seeder>();
     }
 }

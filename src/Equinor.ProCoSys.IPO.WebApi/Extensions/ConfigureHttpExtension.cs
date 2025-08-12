@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 public static class ConfigureHttpExtension
 {
     public static string AllowAllOriginsCorsPolicy { get => "AllowAllOrigins"; }
-    
+
     public static void ConfigureHttp(this WebApplicationBuilder builder)
     {
         builder.Services.AddCors(options =>
@@ -23,7 +23,7 @@ public static class ConfigureHttpExtension
                         .AllowAnyMethod();
                 });
         });
-        
+
         builder.Services.AddMvc(config =>
         {
             var policy = new AuthorizationPolicyBuilder()

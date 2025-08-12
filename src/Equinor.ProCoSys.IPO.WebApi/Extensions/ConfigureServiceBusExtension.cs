@@ -18,9 +18,9 @@ public static class ConfigureServiceBusExtension
             builder.Services.AddSingleton<IPcsBusSender>(new DisabledServiceBusSender());
             return;
         }
-        
+
         var configuration = builder.Configuration;
-        
+
         // Env variable used in kubernetes. Configuration is added for easier use locally
         // Url will be validated during startup of service bus integration and give a
         // Uri exception if invalid.
@@ -44,7 +44,7 @@ public static class ConfigureServiceBusExtension
         var topics = configuration["ServiceBus:TopicNames"];
         builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), topics);
     }
-    
+
     private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>
         builder.Configuration.GetValue<bool>("ServiceBus:Enable") &&
         (!builder.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ServiceBus:EnableInDevelopment"));

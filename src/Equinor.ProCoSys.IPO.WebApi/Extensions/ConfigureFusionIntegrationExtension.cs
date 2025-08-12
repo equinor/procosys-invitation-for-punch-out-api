@@ -12,12 +12,12 @@ public static class ConfigureFusionIntegrationExtension
     {
         var configuration = builder.Configuration;
         var environment = builder.Environment;
-        
+
         if (environment.IsIntegrationTest())
         {
             return;
         }
-        
+
         builder.Services.AddFusionIntegration(options =>
         {
             options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier

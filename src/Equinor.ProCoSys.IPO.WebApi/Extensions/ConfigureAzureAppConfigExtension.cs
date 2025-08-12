@@ -11,12 +11,12 @@ public static class ConfigureAzureAppConfigExtension
     public static void ConfigureAzureAppConfig(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
-        
+
         if (!configuration.GetValue<bool>("UseAzureAppConfiguration"))
         {
             return;
         }
-        
+
         builder.Configuration.AddAzureAppConfiguration(options =>
         {
             var connectionString = configuration["ConnectionStrings:AppConfig"];

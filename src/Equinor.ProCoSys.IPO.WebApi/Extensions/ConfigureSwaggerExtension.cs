@@ -15,7 +15,7 @@ public static class ConfigureSwaggerExtension
     public static void ConfigureSwagger(this WebApplicationBuilder builder)
     {
         var scopes = builder.GetSwaggerScopes();
-        
+
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProCoSys IPO API", Version = "v1" });
@@ -47,13 +47,13 @@ public static class ConfigureSwaggerExtension
 
             c.OperationFilter<AddRoleDocumentation>();
         });
-        
+
         builder.Services.ConfigureSwaggerGen(options =>
         {
             options.CustomSchemaIds(x => x.FullName);
         });
     }
-    
+
     public static void ConfigureSwagger(this IApplicationBuilder app, IConfiguration configuration)
     {
         app.UseSwagger();
@@ -77,7 +77,7 @@ public static class ConfigureSwaggerExtension
         {
             return scopes;
         }
-        
+
         return new Dictionary<string, string>();
     }
 }
