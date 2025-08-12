@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.Json;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

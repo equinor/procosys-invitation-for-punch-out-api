@@ -18,7 +18,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
-using Equinor.ProCoSys.IPO.MessageContracts;
 using Fusion.Integration.Meeting;
 using MediatR;
 using Microsoft.Extensions.Logging;

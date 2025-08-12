@@ -4,10 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
-using Fusion.Integration.Meeting;
-using Microsoft.Graph.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using Organization = Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Organization;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
