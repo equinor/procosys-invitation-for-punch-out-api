@@ -32,15 +32,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
-// Top-level statements start here
-
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
 builder.ConfigureAzureAppConfig();
 
-// Configure server options
 builder.WebHost.UseKestrel(options =>
 {
     options.AddServerHeader = false;
@@ -54,7 +51,6 @@ if (environment.IsDevelopment())
     DebugOptions.DebugEntityFrameworkInDevelopment = configuration.GetValue<bool>("DebugEntityFrameworkInDevelopment");
 }
 
-// Add authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -68,11 +64,11 @@ if (configuration.GetValue<bool>("UseAzureAppConfiguration"))
     builder.Services.AddAzureAppConfiguration();
 }
 
-// Add validation
 builder.Services.AddFluentValidationAutoValidation(fv =>
 {
     fv.DisableDataAnnotationsValidation = true;
 });
+
 builder.Services.AddValidatorsFromAssemblies(new List<Assembly>
 {
     typeof(IQueryMarker).GetTypeInfo().Assembly,
@@ -80,44 +76,7 @@ builder.Services.AddValidatorsFromAssemblies(new List<Assembly>
     typeof(Program).Assembly
 });
 
-// Configure Swagger
-var scopes = configuration.GetSection("Swagger:Scopes")?.Get<Dictionary<string, string>>() ?? new Dictionary<string, string>();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProCoSys IPO API", Version = "v1" });
-
-    //Define the OAuth2.0 scheme that's in use (i.e. Implicit Flow)
-    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-    {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
-        {
-            Implicit = new OpenApiOAuthFlow
-            {
-                AuthorizationUrl = new Uri(configuration["Swagger:AuthorizationUrl"]),
-                Scopes = scopes
-            }
-        }
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "oauth2" }
-            },
-            scopes.Keys.ToArray()
-        }
-    });
-
-    c.OperationFilter<AddRoleDocumentation>();
-});
-
-builder.Services.ConfigureSwaggerGen(options =>
-{
-    options.CustomSchemaIds(x => x.FullName);
-});
+builder.ConfigureSwagger();
 
 builder.Services.AddFluentValidationRulesToSwagger();
 
