@@ -9,7 +9,6 @@ using Equinor.ProCoSys.Auth.Misc;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
-using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids;
 using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;

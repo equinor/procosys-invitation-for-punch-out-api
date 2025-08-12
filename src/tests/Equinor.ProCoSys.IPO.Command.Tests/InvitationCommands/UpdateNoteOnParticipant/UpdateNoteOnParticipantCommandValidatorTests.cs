@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
 using Equinor.ProCoSys.IPO.Command.Validators.RowVersionValidators;

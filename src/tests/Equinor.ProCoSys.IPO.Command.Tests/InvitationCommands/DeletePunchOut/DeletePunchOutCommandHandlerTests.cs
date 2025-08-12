@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.MessageContracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 

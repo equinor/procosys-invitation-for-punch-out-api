@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

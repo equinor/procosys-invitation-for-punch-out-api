@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
-using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

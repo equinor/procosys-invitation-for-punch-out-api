@@ -19,7 +19,6 @@ using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOnPart
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipant;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Query.GetAttachmentById;
 using Equinor.ProCoSys.IPO.Query.GetAttachments;

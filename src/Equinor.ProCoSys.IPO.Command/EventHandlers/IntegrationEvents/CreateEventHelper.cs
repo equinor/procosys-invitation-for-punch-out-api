@@ -5,9 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.MessageContracts;
 using JetBrains.Annotations;
-using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
