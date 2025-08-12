@@ -245,25 +245,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void EnsureTestDatabaseDeletedAtTeardown(IServiceCollection services)
             => _teardownList.Add(() =>
             {
-                using (var dbContext = DatabaseContext(services))
-                {
-                    dbContext.Database.EnsureDeleted();
-                }
+                using var sp = services.BuildServiceProvider();
+                using var dbContext = sp.GetRequiredService<IPOContext>();
+                    
+                dbContext.Database.EnsureDeleted();
             });
-
-        private IPOContext DatabaseContext(IServiceCollection services)
-        {
-            services.AddDbContext<IPOContext>(options
-                => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-
-            var sp = services.BuildServiceProvider();
-            _disposables.Add(sp);
-
-            var spScope = sp.CreateScope();
-            _disposables.Add(spScope);
-
-            return spScope.ServiceProvider.GetRequiredService<IPOContext>();
-        }
 
         private string GetTestDbConnectionString(string projectDir)
         {
