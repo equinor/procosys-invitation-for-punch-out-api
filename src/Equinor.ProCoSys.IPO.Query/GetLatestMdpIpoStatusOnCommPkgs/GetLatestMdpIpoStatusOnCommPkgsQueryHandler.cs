@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
         {
             var project = await _context.QuerySet<Project>()
                 .SingleOrDefaultAsync(x => x.Name.Equals(request.ProjectName), cancellationToken);
-            
+
             if (project is null)
             {
                 var emptyList = new List<CommPkgsWithMdpIposDto>();
@@ -33,17 +33,17 @@ namespace Equinor.ProCoSys.IPO.Query.GetLatestMdpIpoStatusOnCommPkgs
             }
 
             var commPkgsWithMdpIpos = await (from i in _context.QuerySet<Invitation>()
-                from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
-                    .DefaultIfEmpty()
-                     where i.ProjectId == project.Id &&
-                           i.Type == DisciplineType.MDP &&
-                           i.Status != IpoStatus.Canceled &&
-                           request.CommPkgNos.Contains(c.CommPkgNo)
-                    select new CommPkgsWithMdpIposDto(
-                        c.CommPkgNo,
-                        i.Id,
-                        i.CreatedAtUtc,
-                        i.Status == IpoStatus.Accepted))
+                                             from c in _context.QuerySet<CommPkg>().Where(comm => i.Id == EF.Property<int>(comm, "InvitationId"))
+                                                 .DefaultIfEmpty()
+                                             where i.ProjectId == project.Id &&
+                                                   i.Type == DisciplineType.MDP &&
+                                                   i.Status != IpoStatus.Canceled &&
+                                                   request.CommPkgNos.Contains(c.CommPkgNo)
+                                             select new CommPkgsWithMdpIposDto(
+                                                 c.CommPkgNo,
+                                                 i.Id,
+                                                 i.CreatedAtUtc,
+                                                 i.Status == IpoStatus.Accepted))
                 .Distinct()
                 .ToListAsync(cancellationToken);
 

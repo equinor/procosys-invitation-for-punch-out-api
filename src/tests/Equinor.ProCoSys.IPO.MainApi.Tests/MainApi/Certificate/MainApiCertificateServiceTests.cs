@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
             _certificateCommPkgsModel = new PCSCertificateCommPkgsModel
             {
                 CertificateIsAccepted = false,
-                CommPkgs = new List<PCSCertificateCommPkg> {_commPkg1, commPkg2, commPkg3}
+                CommPkgs = new List<PCSCertificateCommPkg> { _commPkg1, commPkg2, commPkg3 }
             };
 
             _mcPkg1 = new PCSCertificateMcPkg

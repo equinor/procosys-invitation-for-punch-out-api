@@ -8,9 +8,9 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.UpdateSavedFilter
 {
     public class UpdateSavedFilterCommandValidator : AbstractValidator<UpdateSavedFilterCommand>
     {
-         public UpdateSavedFilterCommandValidator(
-            ISavedFilterValidator savedFilterValidator,
-            IRowVersionValidator rowVersionValidator)
+        public UpdateSavedFilterCommandValidator(
+           ISavedFilterValidator savedFilterValidator,
+           IRowVersionValidator rowVersionValidator)
         {
             RuleLevelCascadeMode = CascadeMode.Stop;
 

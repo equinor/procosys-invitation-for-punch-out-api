@@ -24,7 +24,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 
         public VerifyApplicationExistsAsPerson(
             IServiceScopeFactory serviceProvider,
-            IOptionsMonitor<IpoAuthenticatorOptions> options, 
+            IOptionsMonitor<IpoAuthenticatorOptions> options,
             ILogger<VerifyApplicationExistsAsPerson> logger)
         {
             _serviceProvider = serviceProvider;

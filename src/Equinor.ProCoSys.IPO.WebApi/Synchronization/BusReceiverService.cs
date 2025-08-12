@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
+using Equinor.ProCoSys.Auth.Authentication;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Telemetry;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
+using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
-using Equinor.ProCoSys.Auth.Authentication;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Common.Telemetry;
-using Equinor.ProCoSys.Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 {
@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _currentUserSetter = currentUserSetter;
             _projectRepository = projectRepository;
             _certificateEventProcessorService = certificateEventProcessorService;
-            _ipoApiOid =  options.Value.IpoApiObjectId;
+            _ipoApiOid = options.Value.IpoApiObjectId;
         }
 
         public async Task ProcessMessageAsync(string pcsTopic, string messageJson, CancellationToken cancellationToken)
@@ -159,7 +159,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 throw new Exception($"Unable to deserialize JSON to CommPkgEvent {messageJson}");
             }
 
-            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant)  ||
+            if (string.IsNullOrWhiteSpace(commPkgEvent.Plant) ||
                 commPkgEvent.ProCoSysGuid == Guid.Empty)
             {
                 throw new Exception($"Key attributes Plant and/ or ProCoSysGuid is not provided in CommPkgEvent message: {messageJson}");
@@ -216,8 +216,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         {
             var projectEvent = JsonSerializer.Deserialize<ProjectTmpTopic>(messageJson);
 
-            if (projectEvent == null || 
-                string.IsNullOrWhiteSpace(projectEvent.Plant) || 
+            if (projectEvent == null ||
+                string.IsNullOrWhiteSpace(projectEvent.Plant) ||
                 string.IsNullOrWhiteSpace(projectEvent.ProjectName))
             {
                 throw new Exception($"Unable to deserialize JSON to ProjectEvent {messageJson}");
@@ -233,7 +233,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _plantSetter.SetPlant(projectEvent.Plant);
             _invitationRepository.UpdateProjectOnInvitations(projectEvent.ProjectName, projectEvent.Description);
 
-            var project =  _projectRepository.GetProjectOnlyByNameAsync(projectEvent.ProjectName).GetAwaiter().GetResult();
+            var project = _projectRepository.GetProjectOnlyByNameAsync(projectEvent.ProjectName).GetAwaiter().GetResult();
             if (project != null)
             {
                 project.Description = projectEvent.Description;
@@ -370,12 +370,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
         private async Task ClearM01DatesAndKeepExternalReferenceAndCancelMeeting(IpoTopic ipoEvent, Invitation invitation)
         {
-            if (ipoEvent.Status == (int) IpoStatus.Completed)
+            if (ipoEvent.Status == (int)IpoStatus.Completed)
             {
                 try
                 {
                     var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                    
+
                     if (project is null)
                     {
                         throw new ArgumentNullException(nameof(project));
@@ -400,7 +400,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                
+
                 if (project is null)
                 {
                     throw new ArgumentNullException(nameof(project));
@@ -424,7 +424,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             try
             {
                 var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
-                
+
                 if (project is null)
                 {
                     throw new ArgumentNullException(nameof(project));

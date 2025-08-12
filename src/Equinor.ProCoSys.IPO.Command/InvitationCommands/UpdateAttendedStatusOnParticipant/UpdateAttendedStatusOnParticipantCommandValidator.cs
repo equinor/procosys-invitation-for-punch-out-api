@@ -38,13 +38,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusOn
 
             async Task<bool> BeAnExistingInvitation(int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.IpoExistsAsync(invitationId, cancellationToken);
-            
+
             async Task<bool> NotBeCancelledInvitation(int invitationId, CancellationToken cancellationToken)
                 => !await invitationValidator.IpoIsInStageAsync(invitationId, IpoStatus.Canceled, cancellationToken);
 
             async Task<bool> BeAnExistingParticipant(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.ParticipantExistsAsync(participantId, invitationId, cancellationToken);
-            
+
             async Task<bool> HavePermissionToEdit(int participantId, int invitationId, CancellationToken cancellationToken)
                 => await invitationValidator.HasPermissionToEditParticipantAsync(participantId, invitationId, cancellationToken);
 

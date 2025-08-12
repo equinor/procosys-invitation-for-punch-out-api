@@ -11,7 +11,7 @@ public class FamRepository : DapperRepositoryBase, IFamRepository
 {
     public FamRepository(IPOContext context) : base(context) { }
 
-    public async Task<IEnumerable<IParticipantEventV1>> GetParticipants() 
+    public async Task<IEnumerable<IParticipantEventV1>> GetParticipants()
         => await QueryAsync<ParticipantEvent>(ParticipantQuery.Query, new DynamicParameters());
 
     public async Task<IEnumerable<IInvitationEventV1>> GetInvitations()

@@ -11,7 +11,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public NoteUpdatedEventHandler(IHistoryRepository historyRepository) 
+        public NoteUpdatedEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(NoteUpdatedEvent notification, CancellationToken cancellationToken)

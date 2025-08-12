@@ -1,15 +1,15 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Infrastructure;
-using Equinor.ProCoSys.IPO.Test.Common;
 using Equinor.ProCoSys.IPO.Query.GetSavedFiltersInProject;
+using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.Tests.GetSavedFiltersInProject
 {
-     [TestClass]
+    [TestClass]
     public class GetSavedFiltersInProjectQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private GetSavedFiltersInProjectQuery _query;

@@ -11,7 +11,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         {
             var project = new ProCoSysProject
             {
-                Description = "description", Id = 1, IsClosed = false, Name = TestFactory.ProjectWithAccess
+                Description = "description",
+                Id = 1,
+                IsClosed = false,
+                Name = TestFactory.ProjectWithAccess
             };
 
             TestFactory.Instance

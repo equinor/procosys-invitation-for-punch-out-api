@@ -19,7 +19,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => command.Participants != null && command.Participants.Any())
                 .WithMessage("Participants must be invited!")
                 .Must(command =>
-                    command.ProjectName != null && 
+                    command.ProjectName != null &&
                     command.ProjectName.Length >= Invitation.ProjectNameMinLength &&
                     command.ProjectName.Length < Invitation.ProjectNameMaxLength)
                 .WithMessage(command =>
@@ -37,9 +37,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => command.StartTime < command.EndTime)
                 .WithMessage(command =>
                     $"Start time must be before end time! Start={command.StartTime} End={command.EndTime}")
-                .Must(command => 
+                .Must(command =>
                     command.Title != null &&
-                    command.Title.Length >= Invitation.TitleMinLength && 
+                    command.Title.Length >= Invitation.TitleMinLength &&
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 => invitationValidator.RequiredParticipantsMustBeInvited(participants);
 
             bool RequiredParticipantsHaveLowestSortKeys(IList<ParticipantsForCommand> participants)
-                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants); 
+                => invitationValidator.OnlyRequiredParticipantsHaveLowestSortKeys(participants);
 
             bool ParticipantListMustBeValid(IList<ParticipantsForCommand> participants)
                 => invitationValidator.IsValidParticipantList(participants);

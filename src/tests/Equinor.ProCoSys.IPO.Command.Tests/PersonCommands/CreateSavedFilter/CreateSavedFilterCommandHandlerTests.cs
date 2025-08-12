@@ -52,7 +52,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
 
             var project = new ProCoSysProject
             {
-                Description = "Description", Id = 1, IsClosed = false, Name = _projectName
+                Description = "Description",
+                Id = 1,
+                IsClosed = false,
+                Name = _projectName
             };
 
             _projectApiServiceMock = new Mock<IProjectApiService>();

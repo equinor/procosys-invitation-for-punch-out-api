@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using Newtonsoft.Json;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
+using Newtonsoft.Json;
 using AuthPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public string UserName { get; set; }
         public bool IsAppToken { get; set; } = false;
 
-        public CreateInvitedPersonDto AsCreatePersonDto(bool required) 
+        public CreateInvitedPersonDto AsCreatePersonDto(bool required)
             => new CreateInvitedPersonDto
             {
                 AzureOid = Guid.Parse(Oid),
@@ -46,7 +46,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             };
 
         public override string ToString() => $"{FullName} {Oid}";
-        
+
         /// <summary>
         /// Wraps profile by serializing, encoding and then converting to base 64 string.
         /// "Bearer" is also added, making it ready to be added as Authorization header

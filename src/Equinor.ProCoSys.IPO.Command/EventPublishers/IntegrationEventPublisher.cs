@@ -17,7 +17,7 @@ public class IntegrationEventPublisher : IIntegrationEventPublisher
         _logger = logger;
     }
 
-    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IIntegrationEvent 
+    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken) where T : class, IIntegrationEvent
         => await _publishEndpoint.Publish(message,
             context =>
             {

@@ -11,8 +11,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateNoteOnParticipan
     {
         public UpdateNoteOnParticipantCommandValidator(IInvitationValidator invitationValidator, IRowVersionValidator rowVersionValidator)
         {
-            RuleLevelCascadeMode = CascadeMode.Stop; 
-            
+            RuleLevelCascadeMode = CascadeMode.Stop;
+
             RuleFor(command => command)
                 .MustAsync((command, cancellationToken) =>
                     BeAnExistingInvitation(command.InvitationId, cancellationToken))

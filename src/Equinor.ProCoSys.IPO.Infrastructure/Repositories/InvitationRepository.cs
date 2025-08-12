@@ -9,7 +9,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
     public class InvitationRepository : RepositoryBase<Invitation>, IInvitationRepository
     {
         public InvitationRepository(IPOContext context)
-            : base(context, context.Invitations, 
+            : base(context, context.Invitations,
                 context.Invitations
                     .Include(x => x.Participants)
                     .Include(x => x.McPkgs)
@@ -37,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
             return toProject != null;
         }
 
-        public bool IsExistingCommPkg(Guid commPkgGuid) => 
+        public bool IsExistingCommPkg(Guid commPkgGuid) =>
             _context.CommPkgs.Any(commPkg => commPkg.CommPkgGuid.Equals(commPkgGuid));
 
         public void UpdateCommPkgDescriptionOnInvitations(Guid commPkgGuid, string description)
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         private static bool NotAllMcPkgsOnInvitationsBelongToGivenCommPkg(Guid commPkgGuid, List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.McPkgs.Any(m => m.CommPkgGuid != commPkgGuid));
 
 
-        private static bool InvitationsContainMoreThanOneCommPkg(List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.CommPkgs.Count()>1);
+        private static bool InvitationsContainMoreThanOneCommPkg(List<Invitation> invitationsToMove) => invitationsToMove.Any(i => i.CommPkgs.Count() > 1);
 
         public void MoveMcPkg(
             string projectName,
@@ -116,7 +116,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
 
             var mcPkgsToUpdate = _context.McPkgs.Where(mp => project != null && mp.ProjectId == project.Id && mp.McPkgNo == mcPkgNo).ToList();
 
-            mcPkgsToUpdate.ForEach(mp => mp.Description=description);
+            mcPkgsToUpdate.ForEach(mp => mp.Description = description);
         }
 
         public void UpdateFunctionalRoleCodesOnInvitations(string plant, string functionalRoleCodeOld, string functionalRoleCodeNew)

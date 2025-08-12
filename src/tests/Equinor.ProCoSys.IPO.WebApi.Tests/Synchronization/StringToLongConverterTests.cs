@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 {
@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             // Arrange
             var input = "\"invalid_string\"";
             var reader = new Utf8JsonReader(System.Text.Encoding.UTF8.GetBytes(input));
-            reader.Read(); 
+            reader.Read();
 
             // Act
             _converter.Read(ref reader, typeof(long), _options);

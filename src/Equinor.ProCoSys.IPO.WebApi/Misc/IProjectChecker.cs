@@ -5,6 +5,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
 {
     public interface IProjectChecker
     {
-        Task EnsureValidProjectAsync<TRequest>(TRequest request) where TRequest: IBaseRequest;
+        Task EnsureValidProjectAsync<TRequest>(TRequest request) where TRequest : IBaseRequest;
     }
 }

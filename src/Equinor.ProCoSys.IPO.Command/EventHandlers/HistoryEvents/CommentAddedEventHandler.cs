@@ -12,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.Command.EventHandlers.HistoryEvents
     {
         private readonly IHistoryRepository _historyRepository;
 
-        public CommentAddedEventHandler(IHistoryRepository historyRepository) 
+        public CommentAddedEventHandler(IHistoryRepository historyRepository)
             => _historyRepository = historyRepository;
 
         public Task Handle(CommentAddedEvent notification, CancellationToken cancellationToken)

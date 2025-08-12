@@ -74,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             //}
 
             // return new SuccessResult<Unit>(Unit.Value);
-           return await Task.FromResult(new SuccessResult<Unit>(Unit.Value));
+            return await Task.FromResult(new SuccessResult<Unit>(Unit.Value));
         }
 
         private async Task<int> HandleMcPkgsAsync(List<Invitation> invitations, Project project, CancellationToken token)
@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
                         {
                             var certificate = await GetOrCreateCertificateAsync((Guid)pcsMcPkg.RfocGuid, project, token);
                             certificate.AddMcPkgRelation(mcPkg);
-                            count++; 
+                            count++;
                         }
                     }
                 }
