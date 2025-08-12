@@ -1,35 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Reflection;
-using System.Text.Json.Serialization;
-using Azure.Identity;
 using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Common.Swagger;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.DIModules;
 using Equinor.ProCoSys.IPO.WebApi.Extensions;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
-using Equinor.ProCoSys.IPO.WebApi.Seeding;
-using Equinor.ProCoSys.IPO.WebApi.Synchronization;
-using Equinor.ProCoSys.PcsServiceBus;
-using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Fusion.Integration;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -114,18 +100,7 @@ app.UseGlobalExceptionHandling();
 
 app.UseCors(ConfigureHttpExtension.AllowAllOriginsCorsPolicy);
 
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProCoSys IPO API V1");
-    c.DocExpansion(DocExpansion.List);
-    c.DisplayRequestDuration();
-
-    c.OAuthClientId(configuration["Swagger:ClientId"]);
-    c.OAuthAppName("ProCoSys IPO API V1");
-    c.OAuthScopeSeparator(" ");
-    c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> { { "resource", configuration["API:Audience"] } });
-});
+app.ConfigureSwagger(configuration);
 
 app.UseHttpsRedirection();
 

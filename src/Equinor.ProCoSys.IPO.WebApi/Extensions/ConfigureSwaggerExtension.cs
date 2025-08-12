@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
@@ -50,6 +51,22 @@ public static class ConfigureSwaggerExtension
         builder.Services.ConfigureSwaggerGen(options =>
         {
             options.CustomSchemaIds(x => x.FullName);
+        });
+    }
+    
+    public static void ConfigureSwagger(this IApplicationBuilder app, IConfiguration configuration)
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProCoSys IPO API V1");
+            c.DocExpansion(DocExpansion.List);
+            c.DisplayRequestDuration();
+
+            c.OAuthClientId(configuration["Swagger:ClientId"]);
+            c.OAuthAppName("ProCoSys IPO API V1");
+            c.OAuthScopeSeparator(" ");
+            c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> { { "resource", configuration["API:Audience"] } });
         });
     }
 
