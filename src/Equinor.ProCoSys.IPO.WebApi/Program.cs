@@ -181,7 +181,7 @@ builder.Services.AddResponseCompression(options =>
 
 builder.Services.AddPcsAuthIntegration();
 
-if (!environment.IsEnvironment("IntegrationTest"))
+if (!environment.IsIntegrationTest())
 {
     builder.Services.AddFusionIntegration(options =>
     {
