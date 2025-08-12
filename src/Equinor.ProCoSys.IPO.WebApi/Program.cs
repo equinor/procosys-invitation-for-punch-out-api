@@ -18,6 +18,7 @@ using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Fusion.Integration;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -55,33 +56,12 @@ if (environment.IsDevelopment())
 
 // Add authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            configuration.Bind("API", options);
-        });
+    .AddJwtBearer(options =>
+    {
+        configuration.Bind("API", options);
+    });
 
-// Configure CORS
-const string AllowAllOriginsCorsPolicy = "AllowAllOrigins";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(AllowAllOriginsCorsPolicy,
-        builder =>
-        {
-            builder
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        });
-});
-
-// Configure controllers and JSON options
-builder.Services.AddMvc(config =>
-{
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-    config.Filters.Add(new AuthorizeFilter(policy));
-}).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.ConfigureHttp();
 
 if (configuration.GetValue<bool>("UseAzureAppConfiguration"))
 {
@@ -140,11 +120,6 @@ builder.Services.ConfigureSwaggerGen(options =>
 });
 
 builder.Services.AddFluentValidationRulesToSwagger();
-
-builder.Services.AddResponseCompression(options =>
-{
-    options.EnableForHttps = true;
-});
 
 builder.Services.AddPcsAuthIntegration();
 
@@ -226,7 +201,7 @@ if (environment.IsDevelopment())
 
 app.UseGlobalExceptionHandling();
 
-app.UseCors(AllowAllOriginsCorsPolicy);
+app.UseCors(ConfigureHttpExtension.AllowAllOriginsCorsPolicy);
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
