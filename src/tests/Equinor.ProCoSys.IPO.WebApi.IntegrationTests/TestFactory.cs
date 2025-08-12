@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -12,8 +11,6 @@ using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using Equinor.ProCoSys.IPO.Fam;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -24,12 +21,10 @@ using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,7 +36,7 @@ using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPe
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
-    public sealed class TestFactory : WebApplicationFactory<Startup>
+    public sealed class TestFactory : WebApplicationFactory<Program>
     {
         private const string SignerOid = "00000000-0000-0000-0000-000000000001";
         private const string PlannerOid = "00000000-0000-0000-0000-000000000002";
@@ -245,25 +240,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void EnsureTestDatabaseDeletedAtTeardown(IServiceCollection services)
             => _teardownList.Add(() =>
             {
-                using (var dbContext = DatabaseContext(services))
-                {
-                    dbContext.Database.EnsureDeleted();
-                }
+                using var sp = services.BuildServiceProvider();
+                using var dbContext = sp.GetRequiredService<IPOContext>();
+                    
+                dbContext.Database.EnsureDeleted();
             });
-
-        private IPOContext DatabaseContext(IServiceCollection services)
-        {
-            services.AddDbContext<IPOContext>(options
-                => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-
-            var sp = services.BuildServiceProvider();
-            _disposables.Add(sp);
-
-            var spScope = sp.CreateScope();
-            _disposables.Add(spScope);
-
-            return spScope.ServiceProvider.GetRequiredService<IPOContext>();
-        }
 
         private string GetTestDbConnectionString(string projectDir)
         {

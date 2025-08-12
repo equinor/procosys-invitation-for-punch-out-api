@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PostSave

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.Domain;
 using MediatR;
 using ServiceResult;
 
