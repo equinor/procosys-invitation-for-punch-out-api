@@ -82,25 +82,7 @@ builder.Services.AddFluentValidationRulesToSwagger();
 
 builder.Services.AddPcsAuthIntegration();
 
-if (!environment.IsIntegrationTest())
-{
-    builder.Services.AddFusionIntegration(options =>
-    {
-        options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier
-        options.UseDefaultEndpointResolver(
-            configuration
-                ["Meetings:Environment"]); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
-        options.UseDefaultTokenProvider(opts =>
-        {
-            opts.ClientId = configuration["Meetings:ClientId"]; // Application client ID
-            opts.ClientSecret = configuration["Meetings:ClientSecret"]; // Application client secret
-        });
-        options.AddMeetings(s => s.SetHttpClientTimeout(
-            TimeSpan.FromSeconds(configuration.GetValue<double>("FusionRequestTimeout")),
-            TimeSpan.FromSeconds(configuration.GetValue<double>("FusionTotalTimeout"))));
-        options.DisableClaimsTransformation(); // Disable this - Fusion adds relevant claims
-    });
-}
+builder.AddFusionIntegration();
 
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {
