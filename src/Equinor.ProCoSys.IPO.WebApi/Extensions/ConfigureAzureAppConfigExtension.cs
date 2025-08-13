@@ -1,4 +1,5 @@
 using System;
+using Azure.Core;
 using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -8,31 +9,30 @@ namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
 public static class ConfigureAzureAppConfigExtension
 {
-    public static void ConfigureAzureAppConfig(this WebApplicationBuilder builder)
+    public static void ConfigureAzureAppConfig(this WebApplicationBuilder builder, TokenCredential credential)
     {
         var configuration = builder.Configuration;
 
-        if (!configuration.GetValue<bool>("UseAzureAppConfiguration"))
+        if (!configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
         {
             return;
         }
 
-        builder.Configuration.AddAzureAppConfiguration(options =>
+        configuration.AddAzureAppConfiguration(options =>
         {
-            var connectionString = configuration["ConnectionStrings:AppConfig"];
-            options.Connect(connectionString)
+            var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
+
+            options.Connect(new Uri(appConfigUrl), credential)
                 .ConfigureKeyVault(kv =>
                 {
-                    kv.SetCredential(new ManagedIdentityCredential());
-                    // Use DefaultAzureCredential in local dev env.
-                    // kv.SetCredential(new DefaultAzureCredential());
+                    kv.SetCredential(credential);
                 })
                 .Select(KeyFilter.Any)
                 .Select(KeyFilter.Any, builder.Environment.EnvironmentName)
                 .ConfigureRefresh(refreshOptions =>
                 {
                     refreshOptions.Register("Sentinel", true);
-                    refreshOptions.SetCacheExpiration(TimeSpan.FromSeconds(30));
+                    refreshOptions.SetRefreshInterval(TimeSpan.FromSeconds(30));
                 });
         });
     }

@@ -20,15 +20,17 @@ spec:
       port: 5000
     publicPort: http
     secrets:
-    - CONNECTIONSTRINGS__APPCONFIG
+    - CONNECTIONSTRINGS__APPCONFIG # TODO #2121: remove once identity auth is in use in all environments
     environmentConfig:
     # Development environment
     - environment: dev
       identity:
         azure:
-          clientId: 2e1868db-3024-45a9-b3f1-568e85586244
+          clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
       imageTagName: latest
       variables:
+        Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
+        Application__UseAzureAppConfiguration: 'true'
         ASPNETCORE_ENVIRONMENT: 'Development'
         UseAzureAppConfiguration: 'true'
         LEADERELECTOR_SERVICE: http://leader-elector:3003
@@ -44,8 +46,10 @@ spec:
     - environment: test
       identity:
         azure:
-          clientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31
+          clientId: 11325fb8-4b0f-4a20-8d25-9251b8fd8990 # Managed identity: pcs-ipo-test-mi
       variables:
+        Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
+        Application__UseAzureAppConfiguration: 'true'
         ASPNETCORE_ENVIRONMENT: 'Test'
         UseAzureAppConfiguration: 'true'
         LEADERELECTOR_SERVICE: http://leader-elector:3003
@@ -62,8 +66,9 @@ spec:
     - environment: prod
       identity:
         azure:
-          clientId: b3399356-b2b6-44d4-a7b6-323eefc8a173
+          clientId: 858de06a-eecf-49f1-ab64-de6d2be03613 # Managed identity: pcs-ipo-prod-mi
       variables:
+        Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
         ASPNETCORE_ENVIRONMENT: 'Production'
         UseAzureAppConfiguration: 'true'
         LEADERELECTOR_SERVICE: http://leader-elector:3003

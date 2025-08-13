@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using Azure.Identity;
 using Equinor.ProCoSys.Auth;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command;
@@ -21,7 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-builder.ConfigureAzureAppConfig();
+var credential = new DefaultAzureCredential();
+builder.ConfigureAzureAppConfig(credential);
 
 builder.WebHost.UseKestrel(options =>
 {
@@ -69,10 +71,7 @@ builder.Services.AddPcsAuthIntegration();
 
 builder.ConfigureFusionIntegration();
 
-builder.Services.AddApplicationInsightsTelemetry(options =>
-{
-    options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
-});
+builder.Services.ConfigureTelemetry(configuration, credential);
 
 builder.Services.AddMediatrModules();
 builder.Services.AddApplicationModules(configuration);
