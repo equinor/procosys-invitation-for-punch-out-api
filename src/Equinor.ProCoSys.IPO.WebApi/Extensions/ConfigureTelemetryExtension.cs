@@ -16,7 +16,7 @@ public static class ConfigureTelemetryExtension
         {
             options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
         });
-        
+
         services.Configure<TelemetryConfiguration>(config =>
         {
             config.SetAzureTokenCredential(credential);
