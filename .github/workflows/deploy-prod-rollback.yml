@@ -1,0 +1,14 @@
+name: 🚀🏭 Deploy rollback to prod
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: prod-rollback
