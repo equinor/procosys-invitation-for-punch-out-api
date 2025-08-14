@@ -48,7 +48,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.ConfigureHttp();
 
-if (configuration.GetValue<bool>("UseAzureAppConfiguration"))
+// TODO replace debug
+if (true)
 {
     builder.Services.AddAzureAppConfiguration();
 }
@@ -86,7 +87,8 @@ builder.Services.AddHostedService<VerifyApplicationExistsAsPerson>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (configuration.GetValue<bool>("UseAzureAppConfiguration"))
+// TODO replace debug
+if (true)
 {
     app.UseAzureAppConfiguration();
 }
