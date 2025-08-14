@@ -21,7 +21,7 @@ public static class ConfigureAzureAppConfigExtension
         configuration.AddAzureAppConfiguration(options =>
         {
             // TODO remove debug 
-            var appConfigUrl = configuration["https://pcs-ipo-non-prod-config.azconfig.io"]!;
+            var appConfigUrl = "https://pcs-ipo-non-prod-config.azconfig.io";
             // var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
 
             options.Connect(new Uri(appConfigUrl), credential)
