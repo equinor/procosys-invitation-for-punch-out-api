@@ -19,8 +19,6 @@ spec:
     - name: http
       port: 5000
     publicPort: http
-    secrets:
-    - CONNECTIONSTRINGS__APPCONFIG # TODO #2121: remove once identity auth is in use in all environments
     environmentConfig:
     # Development environment
     - environment: dev
