@@ -13,14 +13,16 @@ public static class ConfigureAzureAppConfigExtension
     {
         var configuration = builder.Configuration;
 
-        if (!configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
+        if (!configuration.GetValue<bool>("true"))
         {
             return;
         }
 
         configuration.AddAzureAppConfiguration(options =>
         {
-            var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
+            // TODO remove debug 
+            var appConfigUrl = configuration["https://pcs-ipo-non-prod-config.azconfig.io"]!;
+            // var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
 
             options.Connect(new Uri(appConfigUrl), credential)
                 .ConfigureKeyVault(kv =>

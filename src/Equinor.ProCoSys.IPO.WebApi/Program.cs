@@ -23,7 +23,7 @@ var configuration = builder.Configuration;
 var environment = builder.Environment;
 
 // TODO replace debug credential
-var credential = new WorkloadIdentityCredential(new WorkloadIdentityCredentialOptions{ClientId = "98cb737b-5c00-4ae6-962b-29c562b7ea21"});
+var credential = new WorkloadIdentityCredential(new WorkloadIdentityCredentialOptions { ClientId = "98cb737b-5c00-4ae6-962b-29c562b7ea21" });
 // var credential = new DefaultAzureCredential();
 builder.ConfigureAzureAppConfig(credential);
 
