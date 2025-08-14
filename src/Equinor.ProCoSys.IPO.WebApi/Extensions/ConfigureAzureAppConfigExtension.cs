@@ -1,6 +1,5 @@
 using System;
 using Azure.Core;
-using Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
@@ -13,17 +12,14 @@ public static class ConfigureAzureAppConfigExtension
     {
         var configuration = builder.Configuration;
 
-        // TODO
-        // if (!configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
-        // {
-        //     return;
-        // }
+        if (!configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
+        {
+            return;
+        }
 
         configuration.AddAzureAppConfiguration(options =>
         {
-            // TODO remove debug 
-            var appConfigUrl = "https://pcs-ipo-non-prod-config.azconfig.io";
-            // var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
+            var appConfigUrl = configuration["Application:AppConfigurationUrl"]!;
 
             options.Connect(new Uri(appConfigUrl), credential)
                 .ConfigureKeyVault(kv =>

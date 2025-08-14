@@ -1,8 +1,7 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  #TODO revert play
-  name: procosys-ipo-api-play
+  name: procosys-ipo-api
 spec:
   environments:
   - name: dev
@@ -20,6 +19,8 @@ spec:
     - name: http
       port: 5000
     publicPort: http
+    secrets:
+    - CONNECTIONSTRINGS__APPCONFIG # TODO remove this once identity authentication is in use
     environmentConfig:
     # Development environment
     - environment: dev
@@ -30,7 +31,6 @@ spec:
       variables:
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
         Application__UseAzureAppConfiguration: 'true'
-        Application__UseAzureAppConfiguration2: 'true' #TODO remove
         ApplicationInsights__ConnectionString: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
         ASPNETCORE_ENVIRONMENT: 'Development'
         LEADERELECTOR_SERVICE: http://leader-elector:3003

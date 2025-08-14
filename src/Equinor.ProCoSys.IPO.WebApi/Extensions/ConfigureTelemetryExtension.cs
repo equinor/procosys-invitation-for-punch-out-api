@@ -14,9 +14,7 @@ public static class ConfigureTelemetryExtension
     {
         services.AddApplicationInsightsTelemetry(options =>
         {
-            // TODO remove debug
-            options.ConnectionString = "InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97";
-            // options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
+            options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
         });
 
         services.Configure<TelemetryConfiguration>(config =>
