@@ -1,7 +1,8 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: procosys-ipo-api
+  #TODO revert play
+  name: procosys-ipo-api-play
 spec:
   environments:
   - name: dev

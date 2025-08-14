@@ -13,10 +13,11 @@ public static class ConfigureAzureAppConfigExtension
     {
         var configuration = builder.Configuration;
 
-        if (!configuration.GetValue<bool>("true"))
-        {
-            return;
-        }
+        // TODO
+        // if (!configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
+        // {
+        //     return;
+        // }
 
         configuration.AddAzureAppConfiguration(options =>
         {
