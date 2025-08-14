@@ -22,7 +22,9 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var environment = builder.Environment;
 
-var credential = new DefaultAzureCredential();
+// TODO replace debug credential
+var credential = new WorkloadIdentityCredential(new WorkloadIdentityCredentialOptions{ClientId = "98cb737b-5c00-4ae6-962b-29c562b7ea21"});
+// var credential = new DefaultAzureCredential();
 builder.ConfigureAzureAppConfig(credential);
 
 builder.WebHost.UseKestrel(options =>
