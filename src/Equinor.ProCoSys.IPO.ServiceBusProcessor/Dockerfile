@@ -1,0 +1,17 @@
+﻿FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /src
+COPY ["Radix.Samples.Dotnet.OrderProcessor/Radix.Samples.Dotnet.OrderProcessor.csproj", "Radix.Samples.Dotnet.OrderProcessor/"]
+COPY ["Radix.Samples.Dotnet.Contracts/Radix.Samples.Dotnet.Contracts.csproj", "Radix.Samples.Dotnet.Contracts/"]
+RUN dotnet restore "Radix.Samples.Dotnet.OrderProcessor/Radix.Samples.Dotnet.OrderProcessor.csproj"
+COPY . .
+WORKDIR "/src/Radix.Samples.Dotnet.OrderProcessor"
+RUN dotnet build "Radix.Samples.Dotnet.OrderProcessor.csproj" -c Release -o /app
+
+FROM build AS publish
+RUN dotnet publish "Radix.Samples.Dotnet.OrderProcessor.csproj" -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/runtime:8.0-alpine
+WORKDIR /app
+COPY --from=publish /app .
+USER 1000
+ENTRYPOINT ["dotnet", "Radix.Samples.Dotnet.OrderProcessor.dll"]
