@@ -75,6 +75,9 @@ spec:
       src: src/Equinor.ProCoSys.IPO.ServiceBusProcessor
       dockerfileName: Dockerfile
 
+      environmentConfig:
+        - environment: dev
+
       # Workload Identity for the running application:
       identity:
         azure:
