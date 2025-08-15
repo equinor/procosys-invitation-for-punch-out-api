@@ -9,41 +9,45 @@ namespace Equinor.ProCoSys.IPO.ServiceBusProcessor;
 
 public static class AddServiceBusClientExtension
 {
-    public static IServiceCollection AddOrderQueueServices(this IServiceCollection services)
+    public static IServiceCollection AddTopicSubscriptionServices(this IServiceCollection services)
     {
         services.AddSingleton<ServiceBusClient>(svc =>
         {
             var logger = svc.GetRequiredService<ILogger<ServiceBusClient>>();
-            var options = svc.GetRequiredService<IOptions<OrderQueueOptions>>();
+            var options = svc.GetRequiredService<IOptions<TopicSubscriptionOptions>>();
             return new ServiceBusClient(options.Value.FullyQualifiedNamespace, new DefaultAzureCredential());
         });
         services.AddScoped<ServiceBusReceiver>(svc =>
         {
             var client = svc.GetRequiredService<ServiceBusClient>();
-            var options = svc.GetRequiredService<IOptions<OrderQueueOptions>>();
-            return client.CreateReceiver(options.Value.QueueName);
+            var options = svc.GetRequiredService<IOptions<TopicSubscriptionOptions>>();
+            return client.CreateReceiver(options.Value.TopicName, options.Value.SubscriptionName);
         });
         services.AddScoped<ServiceBusSender>(svc =>
         {
             var client = svc.GetRequiredService<ServiceBusClient>();
-            var options = svc.GetRequiredService<IOptions<OrderQueueOptions>>();
-            return client.CreateSender(options.Value.QueueName);
+            var options = svc.GetRequiredService<IOptions<TopicSubscriptionOptions>>();
+            return client.CreateSender(options.Value.TopicName);
         });
         services.AddScoped<Azure.Messaging.ServiceBus.ServiceBusProcessor>(svc =>
         {
             var client = svc.GetRequiredService<ServiceBusClient>();
-            var options = svc.GetRequiredService<IOptions<OrderQueueOptions>>();
-            return client.CreateProcessor(options.Value.QueueName);
+            var options = svc.GetRequiredService<IOptions<TopicSubscriptionOptions>>();
+            return client.CreateProcessor(options.Value.TopicName, options.Value.SubscriptionName);
         });
 
         return services;
     }
 }
 
-public class OrderQueueOptions
+public class TopicSubscriptionOptions
 {
     [Required]
-    public string QueueName { get; set; }
+    public string TopicName { get; set; }
+    
+    [Required]
+    public string SubscriptionName { get; set; }
+    
     [Required]
     public string FullyQualifiedNamespace { get; set;}
 }

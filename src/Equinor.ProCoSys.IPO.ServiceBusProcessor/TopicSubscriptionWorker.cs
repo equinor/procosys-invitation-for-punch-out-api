@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.ServiceBusProcessor;
 
-public abstract class QueueWorker<TMessage>(Azure.Messaging.ServiceBus.ServiceBusProcessor processor, ILogger<QueueWorker<TMessage>> logger) : BackgroundService
+public abstract class TopicSubscriptionWorker<TMessage>(Azure.Messaging.ServiceBus.ServiceBusProcessor processor, ILogger<TopicSubscriptionWorker<TMessage>> logger) : BackgroundService
 {
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -14,7 +14,7 @@ public abstract class QueueWorker<TMessage>(Azure.Messaging.ServiceBus.ServiceBu
         processor.ProcessMessageAsync += HandleMessageAsync;
         processor.ProcessErrorAsync += HandleReceivedExceptionAsync;
 
-        logger.LogInformation($"Starting message pump on queue {processor.EntityPath} in namespace {processor.FullyQualifiedNamespace}");
+        logger.LogInformation($"Starting message pump on topic {processor.EntityPath} in namespace {processor.FullyQualifiedNamespace}");
         await processor.StartProcessingAsync(stoppingToken);
         logger.LogInformation("Message pump started");
 
@@ -38,10 +38,10 @@ public abstract class QueueWorker<TMessage>(Azure.Messaging.ServiceBus.ServiceBu
             logger.LogInformation("Received message {MessageId} with body {MessageBody}",
                 processMessageEventArgs.Message.MessageId, rawMessageBody);
 
-            var order = JsonSerializer.Deserialize<TMessage>(rawMessageBody);
-            if (order != null)
+            var message = JsonSerializer.Deserialize<TMessage>(rawMessageBody);
+            if (message != null)
             {
-                await ProcessMessage(order, processMessageEventArgs.Message.MessageId,
+                await ProcessMessage(message, processMessageEventArgs.Message.MessageId,
                     processMessageEventArgs.Message.ApplicationProperties,
                     processMessageEventArgs.CancellationToken);
             }
@@ -68,5 +68,5 @@ public abstract class QueueWorker<TMessage>(Azure.Messaging.ServiceBus.ServiceBu
         return Task.CompletedTask;
     }
 
-    protected abstract Task ProcessMessage(TMessage order, string messageId, IReadOnlyDictionary<string, object> userProperties, CancellationToken cancellationToken);
+    protected abstract Task ProcessMessage(TMessage message, string messageId, IReadOnlyDictionary<string, object> userProperties, CancellationToken cancellationToken);
 }

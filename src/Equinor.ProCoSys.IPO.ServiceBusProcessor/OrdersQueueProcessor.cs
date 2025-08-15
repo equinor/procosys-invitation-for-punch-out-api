@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Equinor.ProCoSys.IPO.ServiceBusProcessor;
 
-public class OrdersQueueProcessor(Azure.Messaging.ServiceBus.ServiceBusProcessor processor, ILogger<OrdersQueueProcessor> logger) : QueueWorker<Order>(processor, logger)
+public class OrdersTopicProcessor(Azure.Messaging.ServiceBus.ServiceBusProcessor processor, ILogger<OrdersTopicProcessor> logger) : TopicSubscriptionWorker<Order>(processor, logger)
 {
     protected override async Task ProcessMessage(Order order, string messageId, IReadOnlyDictionary<string, object> userProperties, CancellationToken cancellationToken)
     {

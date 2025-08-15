@@ -332,3 +332,5 @@ ASALocalRun/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+**/*.local.json
