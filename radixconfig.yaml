@@ -72,7 +72,7 @@ spec:
   # Service Bus Processor 
   #--------------------
   - name: processor
-    src: src/Equinor.ProCoSys.IPO.ServiceBusProcessor
+    src: src
     dockerfileName: Dockerfile
 
     environmentConfig:
