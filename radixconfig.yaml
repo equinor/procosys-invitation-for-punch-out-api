@@ -1,12 +1,10 @@
 apiVersion: radix.equinor.com/v1
 kind: RadixApplication
 metadata:
-  name: procosys-ipo-api
+  name: procosys-ipo-api-play
 spec:
   environments:
   - name: dev
-  - name: test
-  - name: prod
 
   components:
   # ---------
@@ -14,7 +12,7 @@ spec:
   #---------- 
 
   - name: backend
-    image: procosys.azurecr.io/ipo/api:{imageTagName}
+    image: procosys.azurecr.io/ipo/api:latest
     ports:
     - name: http
       port: 5000
@@ -42,46 +40,6 @@ spec:
         limits:
           memory: '1024Mi'
           cpu: '250m'
-    # Test environment
-    - environment: test
-      identity:
-        azure:
-          clientId: 11325fb8-4b0f-4a20-8d25-9251b8fd8990 # Managed identity: pcs-ipo-test-mi
-      variables:
-        Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
-        Application__UseAzureAppConfiguration: 'true'
-        ApplicationInsights__ConnectionString: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
-        ASPNETCORE_ENVIRONMENT: 'Test'
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
-      monitoring: true
-      replicas: 2
-      resources:
-        requests:
-          memory: '1024Mi'
-          cpu: '100m'
-        limits:
-          memory: '1024Mi'
-          cpu: '250m'
-    # Prod environment
-    - environment: prod
-      identity:
-        azure:
-          clientId: 858de06a-eecf-49f1-ab64-de6d2be03613 # Managed identity: pcs-ipo-prod-mi
-      variables:
-        Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
-        Application__UseAzureAppConfiguration: 'true'
-        ApplicationInsights__ConnectionString: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
-        ASPNETCORE_ENVIRONMENT: 'Production'
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
-      monitoring: false
-      replicas: 3
-      resources:
-        requests:
-          memory: '2048Mi'
-          cpu: '200m'
-        limits:
-          memory: '8000Mi'
-          cpu: '500m'
 
   #--------------------
   # LeaderElector 
@@ -107,34 +65,7 @@ spec:
         limits:
           memory: '128Mi'
           cpu: '100m'
-    # Test environment
-    - environment: test
-      imageTagName: latest
-      variables:
-        LEASE_TIME: 5
-      monitoring: false
-      replicas: 1
-      resources:
-        requests:
-          memory: '128Mi'
-          cpu: '100m'
-        limits:
-          memory: '128Mi'
-          cpu: '100m'
-    # Prod environment
-    - environment: prod
-      imageTagName: latest
-      variables:
-         LEASE_TIME: 5
-      replicas: 1
-      resources:
-        requests:
-          memory: '128Mi'
-          cpu: '100m'
-        limits:
-          memory: '128Mi'
-          cpu: '100m'
-      monitoring: false
+
   #--------------------------------
   # External docker image registry
   #--------------------------------
