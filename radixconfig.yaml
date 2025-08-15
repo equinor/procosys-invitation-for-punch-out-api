@@ -68,40 +68,40 @@ spec:
           memory: '128Mi'
           cpu: '100m'
 
-    #--------------------
-    # LeaderElector 
-    #--------------------
-    - name: processor
-      src: src/Equinor.ProCoSys.IPO.ServiceBusProcessor
-      dockerfileName: Dockerfile
+  #--------------------
+  # Service Bus Processor 
+  #--------------------
+  - name: processor
+    src: src/Equinor.ProCoSys.IPO.ServiceBusProcessor
+    dockerfileName: Dockerfile
 
-      environmentConfig:
-        - environment: dev
+    environmentConfig:
+      - environment: dev
 
-      # Workload Identity for the running application:
-      identity:
-        azure:
-          clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
+    # Workload Identity for the running application:
+    identity:
+      azure:
+        clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
 
-      variables:
-        ASPNETCORE_ENVIRONMENT: Development
-        TopicSubscriptionOptions__SubscriptionName: temp-subscription.servicebus.windows.net
+    variables:
+      ASPNETCORE_ENVIRONMENT: Development
+      TopicSubscriptionOptions__SubscriptionName: temp-subscription.servicebus.windows.net
 
-      horizontalScaling:
-        maxReplicas: 1
-        minReplicas: 0
-        triggers:
-          - name: azure-sb
-            azureServiceBus:
-              namespace: sb-pcs-sandbox #.servicebus.windows.net  # FIXME
-              topicName: temp-topic
-              subscription: temp-subscription
+    horizontalScaling:
+      maxReplicas: 1
+      minReplicas: 0
+      triggers:
+        - name: azure-sb
+          azureServiceBus:
+            namespace: sb-pcs-sandbox #.servicebus.windows.net  # FIXME
+            topicName: temp-topic
+            subscription: temp-subscription
 
-              # Workload Identity for KEDA to access service bus
-              authentication:
-                identity:
-                  azure:
-                    clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
+            # Workload Identity for KEDA to access service bus
+            authentication:
+              identity:
+                azure:
+                  clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
 
   #--------------------------------
   # External docker image registry
