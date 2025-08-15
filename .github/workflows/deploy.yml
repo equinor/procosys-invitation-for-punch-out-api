@@ -19,7 +19,7 @@ permissions:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.github-environment }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,7 +43,7 @@ jobs:
   
   generate-migration-script:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.github-environment }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,7 +69,7 @@ jobs:
       - build-and-push-image
       - generate-migration-script
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.github-environment }}
     steps:
       - name: 'Login to Azure'
         uses: azure/login@v2
@@ -92,7 +92,7 @@ jobs:
       - build-and-push-image
       - migrate-database
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.github-environment }}
     steps:
       - uses: actions/checkout@v4
 
