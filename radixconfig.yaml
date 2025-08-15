@@ -95,7 +95,7 @@ spec:
           azureServiceBus:
             namespace: sb-pcs-sandbox #.servicebus.windows.net  # FIXME
             topicName: temp-topic
-            subscription: temp-subscription
+            subscriptionName: temp-subscription
 
             # Workload Identity for KEDA to access service bus
             authentication:
