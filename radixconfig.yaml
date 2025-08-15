@@ -73,7 +73,7 @@ spec:
   #--------------------
   - name: processor
     src: src
-    dockerfileName: Equinor.ProCoSys.IPO.ServiceBusProcessor/Dockerfile
+    dockerfileName: Dockerfile
 
     environmentConfig:
       - environment: dev
