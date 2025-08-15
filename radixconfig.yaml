@@ -14,7 +14,7 @@ spec:
   #---------- 
 
   - name: backend
-    image: procosys.azurecr.io/ipo/api:latest
+    image: procosys.azurecr.io/ipo/api:{imageTagName}
     ports:
     - name: http
       port: 5000
