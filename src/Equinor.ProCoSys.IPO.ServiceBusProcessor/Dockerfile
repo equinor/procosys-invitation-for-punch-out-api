@@ -1,5 +1,5 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
-WORKDIR /src/Equinor.ProCoSys.IPO.ServiceBusProcessor
+# WORKDIR /src/Equinor.ProCoSys.IPO.ServiceBusProcessor
 
 RUN ls -la
 RUN tree
