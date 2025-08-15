@@ -11,5 +11,5 @@ jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: prod-rollback
+      github-environment: prod-rollback
       radix-environment: prod

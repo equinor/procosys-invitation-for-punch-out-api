@@ -3,15 +3,14 @@ name: 🚀 Deploy to environment
 on:
   workflow_call:
     inputs:
-      environment:
-        description: 'Environment to deploy to'
+      github-environment:
+        description: 'Github environment to deploy to'
         required: true
         type: string
       radix-environment:
         description: 'Radix environment to deploy to'
         required: false
         type: string
-        default: ${{ inputs.environment }}
 
 permissions:
   id-token: write
