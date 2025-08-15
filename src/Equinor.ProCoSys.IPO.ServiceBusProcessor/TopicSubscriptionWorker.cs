@@ -38,21 +38,7 @@ public abstract class TopicSubscriptionWorker<TMessage>(Azure.Messaging.ServiceB
             logger.LogInformation("Received message {MessageId} with body {MessageBody}",
                 processMessageEventArgs.Message.MessageId, rawMessageBody);
 
-            var message = JsonSerializer.Deserialize<TMessage>(rawMessageBody);
-            if (message != null)
-            {
-                await ProcessMessage(message, processMessageEventArgs.Message.MessageId,
-                    processMessageEventArgs.Message.ApplicationProperties,
-                    processMessageEventArgs.CancellationToken);
-            }
-            else
-            {
-                logger.LogError(
-                    "Unable to deserialize to message contract {ContractName} for message {MessageBody}",
-                    typeof(TMessage), rawMessageBody);
-            }
-
-            logger.LogInformation("Message {MessageId} processed", processMessageEventArgs.Message.MessageId);
+            // TODO handle message
 
             await processMessageEventArgs.CompleteMessageAsync(processMessageEventArgs.Message);
         }
