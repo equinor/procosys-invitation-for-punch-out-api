@@ -13,4 +13,5 @@ jobs:
   deploy:
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: test
+      github-environment: test
+      radix-environment: test
