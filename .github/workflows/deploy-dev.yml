@@ -20,4 +20,5 @@ jobs:
     if: github.event.pull_request.draft == false
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: dev
+      github-environment: dev
+      radix-environment: dev
