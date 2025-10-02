@@ -51,7 +51,7 @@ spec:
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
         ASPNETCORE_ENVIRONMENT: 'Test'
-        ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db
+        ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db-tessell
         LEADERELECTOR_SERVICE: http://leader-elector:3003
       monitoring: true
       replicas: 2
