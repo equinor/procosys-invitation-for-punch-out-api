@@ -31,6 +31,7 @@ spec:
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
         ASPNETCORE_ENVIRONMENT: 'Development'
+        ConnectionStrings__IPOContext: Server=pcs-dev-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-dev-db
         LEADERELECTOR_SERVICE: http://leader-elector:3003
       monitoring: true
       resources:
@@ -50,6 +51,7 @@ spec:
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
         ASPNETCORE_ENVIRONMENT: 'Test'
+        ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db
         LEADERELECTOR_SERVICE: http://leader-elector:3003
       monitoring: true
       replicas: 2
@@ -70,6 +72,7 @@ spec:
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
         ASPNETCORE_ENVIRONMENT: 'Production'
+        ConnectionStrings__IPOContext: Server=pcs-prod-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-prod-db
         LEADERELECTOR_SERVICE: http://leader-elector:3003
       monitoring: false
       replicas: 3
