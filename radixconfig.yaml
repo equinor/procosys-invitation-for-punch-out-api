@@ -19,8 +19,6 @@ spec:
     - name: http
       port: 5000
     publicPort: http
-    secrets:
-    - CONNECTIONSTRINGS__APPCONFIG # TODO remove this once identity authentication is in use
     environmentConfig:
     # Development environment
     - environment: dev
