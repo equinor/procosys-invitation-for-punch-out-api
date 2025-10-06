@@ -67,7 +67,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateMcPkgsModel == null)
             {
@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new NotFoundResult<Unit>(error);
             }
 
-            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateCommPkgsModel == null)
             {

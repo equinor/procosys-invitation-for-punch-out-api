@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -9,10 +10,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
-        private readonly IMainApiClient _mainApiClient;
+        private readonly IMainApiClientForApplication _mainApiClient;
 
         public MainApiCertificateService(
-            IMainApiClient mainApiClient,
+            IMainApiClientForApplication mainApiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _mainApiClient = mainApiClient;
@@ -20,24 +21,24 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<PCSCertificateMcPkgsModel> TryGetCertificateMcPkgsAsync(string plant, Guid proCoSysGuid)
+        public async Task<PCSCertificateMcPkgsModel> TryGetCertificateMcPkgsAsync(string plant, Guid proCoSysGuid, CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Certificate/McPkgsByCertificateGuid" +
                       $"?plantId={plant}" +
                       $"&proCoSysGuid={proCoSysGuid.ToString("N")}" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url);
+            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(url, cancellationToken);
         }
 
-        public async Task<PCSCertificateCommPkgsModel> TryGetCertificateCommPkgsAsync(string plant, Guid proCoSysGuid)
+        public async Task<PCSCertificateCommPkgsModel> TryGetCertificateCommPkgsAsync(string plant, Guid proCoSysGuid, CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Certificate/CommPkgsByCertificateGuid" +
                       $"?plantId={plant}" +
                       $"&proCoSysGuid={proCoSysGuid.ToString("N")}" +
                       $"&api-version={_apiVersion}";
 
-            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(url);
+            return await _mainApiClient.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(url, cancellationToken);
         }
     }
 }
