@@ -37,7 +37,6 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.MassTransit;
@@ -65,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
-            services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
+            services.Configure<ApplicationOptions>(configuration.GetSection("Application"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
             services
@@ -140,10 +139,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
-            services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
             services.AddScoped<LibraryApiAuthenticator>();
             services.AddScoped<ILibraryApiAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
             services.AddScoped<ILibraryApiClient, LibraryApiClient>();
             services.AddScoped<IProjectApiService, MainApiProjectService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();

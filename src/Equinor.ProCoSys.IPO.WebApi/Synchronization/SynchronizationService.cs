@@ -12,7 +12,6 @@ using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -43,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IClaimsTransformation claimsTransformation,
             IMainApiAuthenticator mainApiAuthenticator,
             IPermissionCache permissionCache,
-            IOptionsSnapshot<IpoAuthenticatorOptions> authenticatorOptions,
+            IOptionsSnapshot<ApplicationOptions> authenticatorOptions,
             ISettingRepository settingRepository)
         {
             _logger = logger;

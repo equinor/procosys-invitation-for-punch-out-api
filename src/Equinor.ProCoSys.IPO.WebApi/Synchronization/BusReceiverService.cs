@@ -12,7 +12,6 @@ using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
 using Equinor.ProCoSys.PcsServiceBus.Topics;
@@ -48,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IReadOnlyContext context,
             IMcPkgApiService mcPkgApiService,
             IMainApiAuthenticator mainApiTokenProvider,
-            IOptionsSnapshot<IpoAuthenticatorOptions> options,
+            IOptionsSnapshot<ApplicationOptions> options,
             ICurrentUserSetter currentUserSetter,
             IProjectRepository projectRepository,
             ICertificateEventProcessorService certificateEventProcessorService)
