@@ -357,7 +357,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             };
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new CreateInvitationCommand(
@@ -488,7 +488,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             };
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new CreateInvitationCommand(
@@ -522,7 +522,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             };
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new CreateInvitationCommand(
@@ -557,7 +557,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             };
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, commPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(commPkgDetails));
 
             var command = new CreateInvitationCommand(

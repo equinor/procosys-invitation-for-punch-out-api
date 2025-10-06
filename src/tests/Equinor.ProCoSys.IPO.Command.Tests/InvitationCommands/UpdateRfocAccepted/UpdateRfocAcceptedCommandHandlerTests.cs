@@ -113,10 +113,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             _certificateApiServiceMock = new Mock<ICertificateApiService>();
             _certificateApiServiceMock
-                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
             _certificateApiServiceMock
-                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             var mcPkgDetails = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo, System = "1|2", OperationHandoverStatus = "ACCEPTED" };
@@ -134,7 +134,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             IList<ProCoSysCommPkg> pcsCommPkgs = new List<ProCoSysCommPkg> { commPkgDetails, commPkgDetails2, commPkgDetails3 };
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, new List<string> { _commPkgNo, _commPkgNo2, _commPkgNo3 }))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, new List<string> { _commPkgNo, _commPkgNo2, _commPkgNo3 }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsCommPkgs));
 
             _projectRepositoryMock = new Mock<IProjectRepository>();
@@ -182,8 +182,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
 
             Assert.AreEqual(ServiceResult.ResultType.Ok, result.ResultType);
 
-            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid), Times.Once);
-            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()), Times.Once);
+            _certificateApiServiceMock.Verify(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
@@ -203,10 +203,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             _certificateCommPkgsModel.CertificateIsAccepted = false;
             _certificateMcPkgsModel.CertificateIsAccepted = false;
             _certificateApiServiceMock
-                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateCommPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
             _certificateApiServiceMock
-                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid))
+                .Setup(c => c.TryGetCertificateMcPkgsAsync(_plant, _certificateGuid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             var result = await _dut.Handle(_command, default);
@@ -250,7 +250,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             IList<ProCoSysCommPkg> pcsCommPkgs = new List<ProCoSysCommPkg>();
 
             _commPkgApiServiceMock
-                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, new List<string> { _commPkgNo, _commPkgNo2, _commPkgNo3 }))
+                .Setup(x => x.GetCommPkgsByCommPkgNosAsync(_plant, _projectName, new List<string> { _commPkgNo, _commPkgNo2, _commPkgNo3 }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsCommPkgs));
 
             var result = await _dut.Handle(_command, default);

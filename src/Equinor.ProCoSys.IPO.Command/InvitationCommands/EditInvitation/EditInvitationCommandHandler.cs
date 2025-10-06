@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
             var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name);
-            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name);
+            var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name, cancellationToken);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
 
             invitation.EditIpo(
@@ -174,12 +174,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return new List<McPkg>();
         }
 
-        private async Task<List<CommPkg>> GetCommPkgScopeAsync(IList<string> commPkgNos, string projectName)
+        private async Task<List<CommPkg>> GetCommPkgScopeAsync(IList<string> commPkgNos, string projectName, CancellationToken cancellationToken)
         {
             if (commPkgNos.Count > 0)
             {
                 var commPkgsFromMain =
-                    await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgNos);
+                    await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgNos, cancellationToken);
 
                 if (commPkgsFromMain.Count != commPkgNos.Count)
                 {

@@ -101,7 +101,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (request.CommPkgScope.Count > 0)
             {
-                commPkgs = await GetCommPkgsToAddAsync(request.CommPkgScope, request.ProjectName);
+                commPkgs = await GetCommPkgsToAddAsync(request.CommPkgScope, request.ProjectName, cancellationToken);
             }
 
             if (request.McPkgScope.Count > 0)
@@ -391,10 +391,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             return meetingParticipants;
         }
 
-        private async Task<List<CommPkg>> GetCommPkgsToAddAsync(IList<string> commPkgScope, string projectName)
+        private async Task<List<CommPkg>> GetCommPkgsToAddAsync(IList<string> commPkgScope, string projectName, CancellationToken cancellationToken)
         {
             var commPkgDetailsList =
-                await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope);
+                await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope, cancellationToken);
 
             if (commPkgDetailsList.Count != commPkgScope.Count)
             {
