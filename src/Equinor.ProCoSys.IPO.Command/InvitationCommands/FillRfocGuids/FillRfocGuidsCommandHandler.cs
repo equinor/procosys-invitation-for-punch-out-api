@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (commPkgsInProject.Any())
             {
                 var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
-                var pcsCommPkgRfocRelations = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject);
+                var pcsCommPkgRfocRelations = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject, token);
 
                 foreach (var relation in pcsCommPkgRfocRelations)
                 {
