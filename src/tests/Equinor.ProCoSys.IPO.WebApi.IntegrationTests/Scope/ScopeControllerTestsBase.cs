@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -86,6 +87,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
                     "CommPkgNo",
+                    CancellationToken.None,
                     10,
                     0))
                 .Returns(Task.FromResult(_commPkgSearchResult));

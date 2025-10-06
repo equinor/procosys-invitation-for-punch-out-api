@@ -30,6 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
                     _plantProvider.Plant,
                     request.ProjectName,
                     request.StartsWithCommPkgNo,
+                    cancellationToken,
                     request.ItemsPerPage,
                     request.CurrentPage);
 

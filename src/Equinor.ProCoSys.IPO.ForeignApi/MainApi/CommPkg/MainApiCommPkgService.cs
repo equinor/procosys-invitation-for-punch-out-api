@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -10,12 +11,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
     public class MainApiCommPkgService : ICommPkgApiService
     {
-        private readonly IMainApiClient _apiClient;
+        private readonly IMainApiClientForUser _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
         public MainApiCommPkgService(
-            IMainApiClient apiClient,
+            IMainApiClientForUser apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _apiClient = apiClient;
@@ -27,6 +28,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             string plant,
             string projectName,
             string startsWithCommPkgNo,
+            CancellationToken cancellationToken,
             int? itemsPerPage = 10,
             int? currentPage = 0)
         {
@@ -40,7 +42,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                       $"&currentPage={currentPage}" +
                       $"&api-version={_apiVersion}";
 
-            var commPkgSearchResult = await _apiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url);
+            var commPkgSearchResult = await _apiClient.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(url, cancellationToken);
 
             return commPkgSearchResult;
         }
@@ -48,7 +50,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
         public async Task<IList<ProCoSysCommPkg>> GetCommPkgsByCommPkgNosAsync(
             string plant,
             string projectName,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}CommPkg/ByCommPkgNos" +
                       $"?plantId={plant}" +
@@ -59,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                 url += $"&commPkgNos={commPkgNo}";
             }
 
-            var commPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysCommPkg>>(url);
+            var commPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysCommPkg>>(url, cancellationToken);
 
             return commPkgs;
         }
@@ -67,7 +70,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
         public async Task<IList<ProCoSysRfocOnCommPkg>> GetRfocGuidsByCommPkgNosAsync(
             string plant,
             string projectName,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var baseUrl = $"{_baseAddress}CommPkg/RfocByCommPkgNos" +
                       $"?plantId={plant}" +
@@ -83,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
                 {
                     commPkgNosString += $"&commPkgNos={commPkgNo}";
                 }
-                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysRfocOnCommPkg>>(baseUrl + commPkgNosString);
+                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysRfocOnCommPkg>>(baseUrl + commPkgNosString, cancellationToken);
                 rfocs.AddRange(response);
             }
 
