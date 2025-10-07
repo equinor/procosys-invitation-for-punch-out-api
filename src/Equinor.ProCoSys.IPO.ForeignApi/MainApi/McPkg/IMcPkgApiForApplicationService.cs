@@ -19,5 +19,23 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             IList<string> mcPkgNos,
             IList<string> commPkgNos,
             CancellationToken cancellationToken);
+        Task ClearM01DatesAsync(string plant,
+            int? invitationId,
+            string projectName,
+            IList<string> mcPkgNos,
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken);
+        Task SetM02DatesAsync(string plant,
+            int invitationId,
+            string projectName,
+            IList<string> mcPkgNos,
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken);
+        Task ClearM02DatesAsync(string plant,
+            int invitationId,
+            string projectName,
+            IList<string> mcPkgNos,
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken);
     }
 }
