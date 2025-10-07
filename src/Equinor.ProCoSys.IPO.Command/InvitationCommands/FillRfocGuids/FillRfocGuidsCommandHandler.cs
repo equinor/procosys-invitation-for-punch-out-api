@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (mcPkgsInProject.Any())
             {
                 var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
-                var pcsMcPkgs = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
+                var pcsMcPkgs = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject, token);
 
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {

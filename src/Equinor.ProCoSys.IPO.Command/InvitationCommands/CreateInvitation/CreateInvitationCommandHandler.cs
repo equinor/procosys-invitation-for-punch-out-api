@@ -106,7 +106,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             if (request.McPkgScope.Count > 0)
             {
-                mcPkgs = await GetMcPkgsToAddAsync(request.McPkgScope, request.ProjectName);
+                mcPkgs = await GetMcPkgsToAddAsync(request.McPkgScope, request.ProjectName, cancellationToken);
             }
 
             var invitation = new Invitation(
@@ -432,10 +432,10 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 c.ProCoSysGuid)).ToList();
         }
 
-        private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName)
+        private async Task<List<McPkg>> GetMcPkgsToAddAsync(IList<string> mcPkgScope, string projectName, CancellationToken cancellationToken)
         {
             var mcPkgDetailsList =
-                await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope);
+                await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgScope, cancellationToken);
 
             if (mcPkgDetailsList.Count != mcPkgScope.Count)
             {

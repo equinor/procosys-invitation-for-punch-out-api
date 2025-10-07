@@ -81,7 +81,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
             var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
-            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name);
+            var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name, cancellationToken);
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name, cancellationToken);
             meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
 
@@ -127,12 +127,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             return new SuccessResult<string>(invitation.RowVersion.ConvertToString());
         }
 
-        private async Task<List<McPkg>> GetMcPkgScopeAsync(IList<string> mcPkgNos, string projectName)
+        private async Task<List<McPkg>> GetMcPkgScopeAsync(IList<string> mcPkgNos, string projectName, CancellationToken cancellationToken)
         {
             if (mcPkgNos.Count > 0)
             {
                 var mcPkgsFromMain =
-                    await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
+                    await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos, cancellationToken);
 
                 if (mcPkgsFromMain.Count != mcPkgNos.Count)
                 {

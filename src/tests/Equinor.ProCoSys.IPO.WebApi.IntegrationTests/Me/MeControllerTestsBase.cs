@@ -148,7 +148,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
+                    _mcPkgScope,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             TestFactory.Instance

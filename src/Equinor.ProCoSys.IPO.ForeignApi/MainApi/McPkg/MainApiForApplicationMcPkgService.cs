@@ -39,4 +39,31 @@ public class MainApiForApplicationMcPkgService : IMcPkgApiForApplicationService
         var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl, cancellationToken);
         return response;
     }
+    
+    public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
+        string plant,
+        string projectName,
+        IList<string> mcPkgNos,
+        CancellationToken cancellationToken)
+    {
+        var baseUrl = $"{_baseAddress}McPkgs/ByMcPkgNos" +
+                      $"?plantId={plant}" +
+                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                      $"&api-version={_apiVersion}";
+        var mcPkgNosChunks = mcPkgNos.Chunk(80);
+        var pcsMcPkgs = new List<ProCoSysMcPkg>();
+
+        foreach (var chunk in mcPkgNosChunks)
+        {
+            var mcPkgNosString = "";
+            foreach (var mcPkgNo in chunk)
+            {
+                mcPkgNosString += $"&mcPkgNos={mcPkgNo}";
+            }
+            var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString, cancellationToken);
+            pcsMcPkgs.AddRange(response);
+        }
+
+        return pcsMcPkgs;
+    }
 }

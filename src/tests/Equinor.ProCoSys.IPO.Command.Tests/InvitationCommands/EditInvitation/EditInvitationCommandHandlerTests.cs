@@ -172,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             IList<ProCoSysMcPkg> mcPkgDetails = new List<ProCoSysMcPkg> { mcPkgDetails1, mcPkgDetails2 };
             _mcPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             //mock person response from main API
@@ -420,7 +420,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, _mcPkgScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(
@@ -491,7 +491,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(
@@ -524,7 +524,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(
@@ -685,7 +685,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             };
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, addedScope, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var command = new EditInvitationCommand(

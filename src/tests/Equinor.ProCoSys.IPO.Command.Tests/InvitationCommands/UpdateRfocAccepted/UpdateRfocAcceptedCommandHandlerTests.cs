@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         private Mock<ILogger<UpdateRfocAcceptedCommandHandler>> _loggerMock;
         private Mock<ICertificateApiService> _certificateApiServiceMock;
         private Mock<ICommPkgApiService> _commPkgApiServiceMock;
-        private Mock<IMcPkgApiForUserService> _mcPkgApiServiceMock;
+        private Mock<IMcPkgApiForApplicationService> _mcPkgApiServiceMock;
         private Mock<IDbContextTransaction> _transactionMock;
 
         private UpdateRfocAcceptedCommand _command;
@@ -62,7 +62,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                 .Returns(_plant);
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
             _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
+            _mcPkgApiServiceMock = new Mock<IMcPkgApiForApplicationService>();
             _certificateRepositoryMock = new Mock<ICertificateRepository>();
             _certificateRepositoryMock
                 .Setup(x => x.Add(It.IsAny<Certificate>()))
@@ -125,7 +125,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             IList<ProCoSysMcPkg> pcsMcPkgs = new List<ProCoSysMcPkg> { mcPkgDetails, mcPkgDetails2, mcPkgDetails3 };
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsMcPkgs));
 
             var commPkgDetails = new ProCoSysCommPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, System = "1|2", OperationHandoverStatus = "SENT" };
@@ -244,7 +244,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
             IList<ProCoSysMcPkg> pcsMcPkgs = new List<ProCoSysMcPkg>();
 
             _mcPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(_plant, _projectName, new List<string> { _mcPkgNo, _mcPkgNo2, _mcPkgNo3 }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsMcPkgs));
 
             IList<ProCoSysCommPkg> pcsCommPkgs = new List<ProCoSysCommPkg>();

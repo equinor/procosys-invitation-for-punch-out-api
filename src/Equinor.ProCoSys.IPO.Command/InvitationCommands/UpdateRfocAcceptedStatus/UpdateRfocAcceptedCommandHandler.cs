@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
         private readonly ICertificateApiService _certificateApiService;
-        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
+        private readonly IMcPkgApiForApplicationService _mcPkgApiService;
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly ILogger<UpdateRfocAcceptedCommandHandler> _logger;
 
@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             ICertificateApiService certificateApiService,
             ILogger<UpdateRfocAcceptedCommandHandler> logger,
             ICertificateRepository certificateRepository,
-            IMcPkgApiForUserService mcPkgApiForUserService,
+            IMcPkgApiForApplicationService mcPkgApiService,
             ICommPkgApiService commPkgApiService)
         {
             _invitationRepository = invitationRepository;
@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             _certificateApiService = certificateApiService;
             _logger = logger;
             _certificateRepository = certificateRepository;
-            _mcPkgApiForUserService = mcPkgApiForUserService;
+            _mcPkgApiService = mcPkgApiService;
             _commPkgApiService = commPkgApiService;
         }
 
@@ -104,7 +104,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             var commPkgNos = certificateCommPkgsModel.CommPkgs.Select(c => c.CommPkgNo).ToList();
             var mcPkgNos = certificateMcPkgsModel.McPkgs.Select(mc => mc.McPkgNo).ToList();
 
-            var pcsMcPkgs = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
+            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos, cancellationToken);
             var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos, cancellationToken);
             if (!pcsMcPkgs.Any() && !pcsCommPkgs.Any())
             {
@@ -163,13 +163,6 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 certificate.AddCommPkgRelation(commPkg);
             }
         }
-
-        private async Task<IList<string>> GetMcPkgNosToUpdateRfocStatusAsync(IList<string> mcPkgNos, Project project)
-        {
-            var pcsMcPkgs = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
-            return pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList();
-        }
-
 
         private Certificate AddCertificate(Guid certificateGuid, Project project)
         {

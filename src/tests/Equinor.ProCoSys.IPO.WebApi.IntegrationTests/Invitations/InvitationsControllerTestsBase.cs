@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -178,8 +179,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             TestFactory.Instance
                 .McPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(
+                    TestFactory.PlantWithAccess,
+                    TestFactory.ProjectWithAccess,
+                    _mcPkgScope,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var personsInFunctionalRole = new List<ProCoSysPerson>
