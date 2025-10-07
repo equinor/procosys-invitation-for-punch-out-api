@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<IPlantSetter> _plantSetter;
         private Mock<ILogger<BusReceiverService>> _logger;
         private Mock<ITelemetryClient> _telemetryClient;
-        private Mock<IMcPkgApiService> _mcPkgApiService;
+        private Mock<IMcPkgApiForUserService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
         private Mock<IMainApiAuthenticator> _mainApiAuthenticator;
         private Mock<IProjectRepository> _projectRepository;
@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _logger = new Mock<ILogger<BusReceiverService>>();
             _unitOfWork = new Mock<IUnitOfWork>();
             _telemetryClient = new Mock<ITelemetryClient>();
-            _mcPkgApiService = new Mock<IMcPkgApiService>();
+            _mcPkgApiService = new Mock<IMcPkgApiForUserService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
             _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
             _certificationEventProcessorService = new Mock<ICertificateEventProcessorService>();

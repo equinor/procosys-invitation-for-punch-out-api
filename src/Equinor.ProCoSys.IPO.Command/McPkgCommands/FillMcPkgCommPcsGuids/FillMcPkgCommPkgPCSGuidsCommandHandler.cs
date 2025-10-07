@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
     {
         private readonly ILogger<FillMcPkgCommPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,14 +27,14 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
             ILogger<FillMcPkgCommPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            IMcPkgApiService mcPkgApiService,
+            IMcPkgApiForUserService mcPkgApiForUserService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _mcPkgApiService = mcPkgApiService;
+            _mcPkgApiForUserService = mcPkgApiForUserService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgCommPcsGuids
                     var project = await _projectRepository.GetByIdAsync(mcPkg.ProjectId);
                     IList<string> mcPkgNo = new List<string>() { mcPkg.McPkgNo };
 
-                    var mcPkgResult = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, mcPkgNo);
+                    var mcPkgResult = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, mcPkgNo);
 
                     if (mcPkgResult != null && mcPkgResult.Count == 1)
                     {

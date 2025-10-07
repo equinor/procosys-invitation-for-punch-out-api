@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -11,14 +12,14 @@ using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
-    public class MainApiMcPkgService : IMcPkgApiService
+    public class MainApiForUserMcPkgService : IMcPkgApiForUserService
     {
-        private readonly IMainApiClient _apiClient;
+        private readonly IMainApiClientForUser _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
-        public MainApiMcPkgService(
-            IMainApiClient apiClient,
+        public MainApiForUserMcPkgService(
+            IMainApiClientForUser apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _apiClient = apiClient;
@@ -29,7 +30,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
         public async Task<IList<ProCoSysMcPkgOnCommPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
             string plant,
             string projectName,
-            string commPkgNo)
+            string commPkgNo,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}CommPkg/McPkgs" +
                       $"?plantId={plant}" +
@@ -37,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
                       $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
                       $"&api-version={_apiVersion}";
 
-            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(url);
+            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(url, cancellationToken);
 
             return mcPkgs;
         }

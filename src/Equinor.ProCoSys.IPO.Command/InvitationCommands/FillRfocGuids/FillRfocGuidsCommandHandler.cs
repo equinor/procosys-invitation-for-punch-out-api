@@ -20,7 +20,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
         private readonly IInvitationRepository _invitationRepository;
         private readonly ICertificateRepository _certificateRepository;
         private readonly IProjectRepository _projectRepository;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FillRfocGuidsCommandHandler> _logger;
@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             IUnitOfWork unitOfWork,
             ILogger<FillRfocGuidsCommandHandler> logger,
             IProjectRepository projectRepository,
-            IMcPkgApiService mcPkgApiService,
+            IMcPkgApiForUserService mcPkgApiForUserService,
             ICommPkgApiService commPkgApiService,
             ICertificateRepository certificateRepository)
         {
@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             _logger = logger;
             _unitOfWork = unitOfWork;
             _projectRepository = projectRepository;
-            _mcPkgApiService = mcPkgApiService;
+            _mcPkgApiForUserService = mcPkgApiForUserService;
             _commPkgApiService = commPkgApiService;
             _certificateRepository = certificateRepository;
         }
@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (mcPkgsInProject.Any())
             {
                 var mcPkgNosInProject = mcPkgsInProject.Select(m => m.McPkgNo).Distinct().ToList();
-                var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
+                var pcsMcPkgs = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNosInProject);
 
                 foreach (var pcsMcPkg in pcsMcPkgs)
                 {

@@ -32,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly ICommPkgApiService _commPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IFusionMeetingClient meetingClient,
             IPlantProvider plantProvider,
             IUnitOfWork unitOfWork,
-            IMcPkgApiService mcPkgApiService,
+            IMcPkgApiForUserService mcPkgApiForUserService,
             ICommPkgApiService commPkgApiService,
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _meetingClient = meetingClient;
             _plantProvider = plantProvider;
             _unitOfWork = unitOfWork;
-            _mcPkgApiService = mcPkgApiService;
+            _mcPkgApiForUserService = mcPkgApiForUserService;
             _commPkgApiService = commPkgApiService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
@@ -132,7 +132,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             if (mcPkgNos.Count > 0)
             {
                 var mcPkgsFromMain =
-                    await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
+                    await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, projectName, mcPkgNos);
 
                 if (mcPkgsFromMain.Count != mcPkgNos.Count)
                 {

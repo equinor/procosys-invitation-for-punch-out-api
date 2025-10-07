@@ -29,7 +29,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITelemetryClient _telemetryClient;
         private readonly IReadOnlyContext _context;
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly IMainApiAuthenticator _mainApiTokenProvider;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IProjectRepository _projectRepository;
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IUnitOfWork unitOfWork,
             ITelemetryClient telemetryClient,
             IReadOnlyContext context,
-            IMcPkgApiService mcPkgApiService,
+            IMcPkgApiForUserService mcPkgApiForUserService,
             IMainApiAuthenticator mainApiTokenProvider,
             IOptionsSnapshot<ApplicationOptions> options,
             ICurrentUserSetter currentUserSetter,
@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _unitOfWork = unitOfWork;
             _telemetryClient = telemetryClient;
             _context = context;
-            _mcPkgApiService = mcPkgApiService;
+            _mcPkgApiForUserService = mcPkgApiForUserService;
             _mainApiTokenProvider = mainApiTokenProvider;
             _currentUserSetter = currentUserSetter;
             _projectRepository = projectRepository;
@@ -331,7 +331,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                await _mcPkgApiService.ClearM01DatesAsync(
+                await _mcPkgApiForUserService.ClearM01DatesAsync(
                     ipoEvent.Plant,
                     null,
                     project.Name,
@@ -354,7 +354,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                await _mcPkgApiService.SetM01DatesAsync(
+                await _mcPkgApiForUserService.SetM01DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
                     project.Name,
@@ -380,7 +380,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                         throw new ArgumentNullException(nameof(project));
                     }
 
-                    await _mcPkgApiService.ClearM01DatesAsync(
+                    await _mcPkgApiForUserService.ClearM01DatesAsync(
                         ipoEvent.Plant,
                         invitation.Id,
                         project.Name,
@@ -405,7 +405,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                await _mcPkgApiService.SetM02DatesAsync(
+                await _mcPkgApiForUserService.SetM02DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
                     project.Name,
@@ -429,7 +429,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                     throw new ArgumentNullException(nameof(project));
                 }
 
-                await _mcPkgApiService.ClearM02DatesAsync(
+                await _mcPkgApiForUserService.ClearM02DatesAsync(
                     ipoEvent.Plant,
                     invitation.Id,
                     project.Name,

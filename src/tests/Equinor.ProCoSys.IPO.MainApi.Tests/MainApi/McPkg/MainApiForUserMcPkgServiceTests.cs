@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
@@ -12,11 +13,11 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
 {
     [TestClass]
-    public class MainApiMcPkgServiceTests
+    public class MainApiForUserMcPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IMainApiClient> _foreignApiClient;
-        private MainApiMcPkgService _dut;
+        private Mock<IMainApiClientForUser> _foreignApiClient;
+        private MainApiForUserMcPkgService _dut;
         private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg1;
         private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg2;
         private ProCoSysMcPkgOnCommPkg _proCoSysMcPkgOnCommPkg3;
@@ -35,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IMainApiClient>();
+            _foreignApiClient = new Mock<IMainApiClientForUser>();
 
             _proCoSysMcPkgOnCommPkg1 = new ProCoSysMcPkgOnCommPkg
             {
@@ -115,25 +116,25 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
             };
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkgOnCommPkg> { _proCoSysMcPkgOnCommPkg1, _proCoSysMcPkgOnCommPkg2, _proCoSysMcPkgOnCommPkg3 }));
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg> { _proCoSysMcPkg1, _proCoSysMcPkg2, _proCoSysMcPkg3 }));
 
             _foreignApiClient
-                .Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>()))
+                .Setup(x => x.PutAsync(It.IsAny<string>(), It.IsAny<HttpContent>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
-            _dut = new MainApiMcPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
+            _dut = new MainApiForUserMcPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectNumberOfMcPkgs()
         {
             // Act
-            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project2", "C");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project2", "C", CancellationToken.None);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -143,10 +144,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkgOnCommPkg>()));
 
-            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project1", "A");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project1", "A", CancellationToken.None);
 
             Assert.AreEqual(0, result.Count);
         }
@@ -155,7 +156,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         public async Task GetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project3", "C");
+            var result = await _dut.GetMcPkgsByCommPkgNoAndProjectNameAsync(_plant, "Project3", "C", CancellationToken.None);
 
             // Assert
             var mcPkg = result.First();
@@ -196,7 +197,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.McPkg
         public async Task GetMcPkgsByMcPkgNosAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysMcPkg>()));
 
             var result =
