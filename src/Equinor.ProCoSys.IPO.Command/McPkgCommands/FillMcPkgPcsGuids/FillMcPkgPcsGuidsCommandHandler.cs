@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
     {
         private readonly ILogger<FillMcPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
+        private readonly IMcPkgApiForApplicationService _mcPkgApi;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,14 +27,14 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
             ILogger<FillMcPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            IMcPkgApiForUserService mcPkgApiForUserService,
+            IMcPkgApiForApplicationService mcPkgApi,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _mcPkgApiForUserService = mcPkgApiForUserService;
+            _mcPkgApi = mcPkgApi;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
@@ -51,11 +51,11 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
                     var project = await _projectRepository.GetByIdAsync(mcPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { mcPkg.McPkgNo };
 
-                    var mcPkgWithId = await _mcPkgApiForUserService.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
+                    var mcPkgWithId = await _mcPkgApi.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
 
                     if (mcPkgWithId != null && mcPkgWithId.Count == 1)
                     {
-                        var mcPkgDetails = await _mcPkgApiForUserService.GetMcPkgByIdAsync(_plantProvider.Plant, mcPkgWithId.First().Id);
+                        var mcPkgDetails = await _mcPkgApi.GetMcPkgByIdAsync(_plantProvider.Plant, mcPkgWithId.First().Id, cancellationToken);
                         mcPkg.McPkgGuid = mcPkgDetails.ProCoSysGuid;
                         _logger.LogInformation($"FillMcPkgPCSGuids: McPkg updated: {mcPkg.McPkgNo}");
                         count++;
