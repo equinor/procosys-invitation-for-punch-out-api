@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
@@ -38,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
             _proCoSysProject2 = new ProCoSysProject { Id = 2, Name = Project2Name, Description = Project2Description };
 
             _mainApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject> { _proCoSysProject1, _proCoSysProject2 }));
 
             _dut = new MainApiForApplicationProjectService(_mainApiClient.Object, _mainApiOptions.Object);
@@ -49,11 +50,11 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
         {
             // Arrange
             _mainApiClient
-                .SetupSequence(x => x.TryQueryAndDeserializeAsync<ProCoSysProject>(It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>()))
+                .SetupSequence(x => x.TryQueryAndDeserializeAsync<ProCoSysProject>(It.IsAny<string>(), It.IsAny<CancellationToken>(), It.IsAny<List<KeyValuePair<string, string>>>()))
                 .Returns(Task.FromResult(_proCoSysProject1));
 
             // Act
-            var result = await _dut.TryGetProjectAsync(_plant, _project1Name);
+            var result = await _dut.TryGetProjectAsync(_plant, _project1Name, CancellationToken.None);
 
             // Assert
             Assert.AreEqual(_project1Name, result.Name);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -22,14 +23,17 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
             _baseAddress = new Uri(options.CurrentValue.BaseAddress);
         }
 
-        public async Task<ProCoSysProject> TryGetProjectAsync(string plant, string name)
+        public async Task<ProCoSysProject> TryGetProjectAsync(
+            string plant,
+            string name,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}ProjectByName" +
                 $"?plantId={plant}" +
                 $"&projectName={WebUtility.UrlEncode(name)}" +
                 $"&api-version={_apiVersion}";
 
-            return await _apiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
+            return await _apiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url, cancellationToken);
         }
 
         public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant)

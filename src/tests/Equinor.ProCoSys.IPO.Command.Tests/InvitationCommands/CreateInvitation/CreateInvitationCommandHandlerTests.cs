@@ -183,10 +183,10 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
 
             _projectApiServiceMock = new Mock<IProjectApiForUsersService>();
             _projectApiServiceMock
-                .Setup(x => x.TryGetProjectAsync(_plant, _proCoSysProjectName))
+                .Setup(x => x.TryGetProjectAsync(_plant, _proCoSysProjectName, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_proCoSysProject));
             _projectApiServiceMock
-                .Setup(x => x.TryGetProjectAsync(_plant, _projectName))
+                .Setup(x => x.TryGetProjectAsync(_plant, _projectName, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_proCoSysProject2));
 
             _calendarServiceMock = new Mock<ICalendarService>();

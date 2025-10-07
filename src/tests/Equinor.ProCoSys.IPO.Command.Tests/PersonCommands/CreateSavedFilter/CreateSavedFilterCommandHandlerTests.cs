@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter;
@@ -60,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.PersonCommands.CreateSavedFilter
 
             _projectApiServiceMock = new Mock<IProjectApiForUsersService>();
             _projectApiServiceMock
-                .Setup(x => x.TryGetProjectAsync(TestPlant, _projectName))
+                .Setup(x => x.TryGetProjectAsync(TestPlant, _projectName, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(project));
 
             _command = new CreateSavedFilterCommand(_projectName, _title, _criteria, true);

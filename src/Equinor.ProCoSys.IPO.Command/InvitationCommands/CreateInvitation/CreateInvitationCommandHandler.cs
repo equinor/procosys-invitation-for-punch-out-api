@@ -180,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task<Project> AddProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            var proCoSysProject = await _projectApiForUsersService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName);
+            var proCoSysProject = await _projectApiForUsersService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName, cancellationToken);
             if (proCoSysProject is null)
             {
                 throw new IpoValidationException(
