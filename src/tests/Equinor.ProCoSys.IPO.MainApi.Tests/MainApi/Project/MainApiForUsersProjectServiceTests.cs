@@ -10,13 +10,13 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
 {
     [TestClass]
-    public class MainApiProjectServiceTests
+    public class MainApiForUsersProjectServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClient> _mainApiClient;
         private ProCoSysProject _proCoSysProject1;
         private ProCoSysProject _proCoSysProject2;
-        private MainApiProjectService _dut;
+        private MainApiForUsersProjectService _dut;
 
         private const string _plant = "PCS$TESTPLANT";
         private const string _project1Name = "NameA";
@@ -41,7 +41,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
                 .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject> { _proCoSysProject1, _proCoSysProject2 }));
 
-            _dut = new MainApiProjectService(_mainApiClient.Object, _mainApiOptions.Object);
+            _dut = new MainApiForUsersProjectService(_mainApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]

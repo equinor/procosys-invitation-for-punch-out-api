@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
     {
         private readonly ILogger<FillProjectPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IProjectApiService _projectApiService;
+        private readonly IProjectApiForUsersService _projectApiForUsersService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -25,14 +25,14 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
             ILogger<FillProjectPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            IProjectApiService projectApiService,
+            IProjectApiForUsersService projectApiForUsersService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _projectApiService = projectApiService;
+            _projectApiForUsersService = projectApiForUsersService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
             {
                 if (project.Guid == Guid.Empty)
                 {
-                    var projectDetails = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, project.Name);
+                    var projectDetails = await _projectApiForUsersService.TryGetProjectAsync(_plantProvider.Plant, project.Name);
 
                     if (projectDetails != null)
                     {

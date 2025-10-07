@@ -7,13 +7,13 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
 {
-    public class MainApiProjectService : IProjectApiService
+    public class MainApiForUsersProjectService : IProjectApiForUsersService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
         private readonly IMainApiClient _apiClient;
 
-        public MainApiProjectService(
+        public MainApiForUsersProjectService(
             IMainApiClient apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {

@@ -45,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<IOptionsMonitor<MeetingOptions>> _meetingOptionsMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
         private Mock<IPersonRepository> _personRepositoryMock;
-        private Mock<IProjectApiService> _projectApiServiceMock;
+        private Mock<IProjectApiForUsersService> _projectApiServiceMock;
         private Mock<ICalendarService> _calendarServiceMock;
         private Mock<IEmailService> _emailServiceMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
@@ -181,7 +181,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _proCoSysProject = new ProCoSysProject { Name = _proCoSysProjectName, Description = _proCoSysProjectDescription, IsClosed = false };
             _proCoSysProject2 = new ProCoSysProject { Name = _projectName, Description = "Whatever", IsClosed = false };
 
-            _projectApiServiceMock = new Mock<IProjectApiService>();
+            _projectApiServiceMock = new Mock<IProjectApiForUsersService>();
             _projectApiServiceMock
                 .Setup(x => x.TryGetProjectAsync(_plant, _proCoSysProjectName))
                 .Returns(Task.FromResult(_proCoSysProject));

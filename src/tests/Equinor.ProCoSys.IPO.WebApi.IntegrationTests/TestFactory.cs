@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IMcPkgApiForUserService> McPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
-        public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
+        public readonly Mock<IProjectApiForUsersService> ProjectApiServiceMock = new Mock<IProjectApiForUsersService>();
         public readonly Mock<IAzureBlobService> BlobStorageMock = new Mock<IAzureBlobService>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();

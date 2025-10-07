@@ -17,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
         private readonly ICurrentUserProvider _currentUserProvider;
-        private readonly IProjectApiService _projectApiService;
+        private readonly IProjectApiForUsersService _projectApiForUsersService;
         private readonly IProjectRepository _projectRepository;
 
         public CreateSavedFilterCommandHandler(
@@ -25,14 +25,14 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
             IUnitOfWork unitOfWork,
             IPlantProvider plantProvider,
             ICurrentUserProvider currentUserProvider,
-            IProjectApiService projectApiService,
+            IProjectApiForUsersService projectApiForUsersService,
             IProjectRepository projectRepository)
         {
             _personRepository = personRepository;
             _unitOfWork = unitOfWork;
             _plantProvider = plantProvider;
             _currentUserProvider = currentUserProvider;
-            _projectApiService = projectApiService;
+            _projectApiForUsersService = projectApiForUsersService;
             _projectRepository = projectRepository;
         }
 
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreateSavedFilter
         {
             try
             {
-                var project = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, projectName);
+                var project = await _projectApiForUsersService.TryGetProjectAsync(_plantProvider.Plant, projectName);
                 return project.Name;
             }
             catch (Exception e)

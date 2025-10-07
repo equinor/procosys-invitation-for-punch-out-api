@@ -44,7 +44,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IPersonRepository _personRepository;
         private readonly ICurrentUserProvider _currentUserProvider;
         private readonly IProjectRepository _projectRepository;
-        private readonly IProjectApiService _projectApiService;
+        private readonly IProjectApiForUsersService _projectApiForUsersService;
         private readonly ICalendarService _calendarService;
         private readonly IEmailService _emailService;
         private readonly IIntegrationEventPublisher _integrationEventPublisher;
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IPersonRepository personRepository,
             ICurrentUserProvider currentUserProvider,
             IProjectRepository projectRepository,
-            IProjectApiService projectApiService,
+            IProjectApiForUsersService projectApiForUsersService,
             ICalendarService calendarService,
             IEmailService emailService,
             IIntegrationEventPublisher integrationEventPublisher,
@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _personRepository = personRepository;
             _currentUserProvider = currentUserProvider;
             _projectRepository = projectRepository;
-            _projectApiService = projectApiService;
+            _projectApiForUsersService = projectApiForUsersService;
             _calendarService = calendarService;
             _emailService = emailService;
             _integrationEventPublisher = integrationEventPublisher;
@@ -180,7 +180,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
         private async Task<Project> AddProjectAsync(CreateInvitationCommand request, CancellationToken cancellationToken)
         {
-            var proCoSysProject = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName);
+            var proCoSysProject = await _projectApiForUsersService.TryGetProjectAsync(_plantProvider.Plant, request.ProjectName);
             if (proCoSysProject is null)
             {
                 throw new IpoValidationException(
