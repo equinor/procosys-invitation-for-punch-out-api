@@ -7,14 +7,14 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
 {
-    public class MainApiForUsersProjectService : IProjectApiForUsersService
+    public class MainApiForApplicationProjectService : IProjectApiForApplicationService
     {
         private readonly string _apiVersion;
         private readonly Uri _baseAddress;
-        private readonly IMainApiClientForUser _apiClient;
+        private readonly IMainApiClientForApplication _apiClient;
 
-        public MainApiForUsersProjectService(
-            IMainApiClientForUser apiClient,
+        public MainApiForApplicationProjectService(
+            IMainApiClientForApplication apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _apiClient = apiClient;
@@ -30,18 +30,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
                 $"&api-version={_apiVersion}";
 
             return await _apiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url);
-        }
-
-        public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant)
-        {
-            var url = $"{_baseAddress}Projects" +
-                      $"?plantId={plant}" +
-                      $"&api-version={_apiVersion}" +
-                      "&includeSubProjectsOnly=true";
-
-            var projects = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
-
-            return projects;
         }
     }
 }
