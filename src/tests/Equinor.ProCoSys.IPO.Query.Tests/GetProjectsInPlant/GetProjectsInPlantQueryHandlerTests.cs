@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
@@ -44,7 +45,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetProjectsInPlant
             };
 
             _projectApiServiceMock
-                .Setup(x => x.GetProjectsInPlantAsync(_testPlant))
+                .Setup(x => x.GetProjectsInPlantAsync(_testPlant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_mainApiProjects));
 
             _query = new GetProjectsInPlantQuery();
@@ -77,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetProjectsInPlant
         public async Task Handle_ShouldReturnEmptyList_WhenReturnsNull()
         {
             _projectApiServiceMock
-                .Setup(x => x.GetProjectsInPlantAsync(_testPlant))
+                .Setup(x => x.GetProjectsInPlantAsync(_testPlant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<IList<ProCoSysProject>>(null));
 
             var result = await _dut.Handle(_query, default);

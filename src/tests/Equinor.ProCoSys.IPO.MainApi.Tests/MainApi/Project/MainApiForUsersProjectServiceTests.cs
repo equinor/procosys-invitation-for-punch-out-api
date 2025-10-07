@@ -65,7 +65,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
         public async Task GetProjectsInPlant_ShouldReturnCorrectNumberOfProjects()
         {
             // Act
-            var result = await _dut.GetProjectsInPlantAsync(_plant);
+            var result = await _dut.GetProjectsInPlantAsync(_plant, It.IsAny<CancellationToken>());
 
             // Assert
             Assert.AreEqual(2, result.Count);
@@ -78,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysProject>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysProject>()));
 
-            var result = await _dut.GetProjectsInPlantAsync(_plant);
+            var result = await _dut.GetProjectsInPlantAsync(_plant, It.IsAny<CancellationToken>());
 
             Assert.AreEqual(0, result.Count);
         }
@@ -87,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Project
         public async Task GetProjectsByPlant_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetProjectsInPlantAsync(_plant);
+            var result = await _dut.GetProjectsInPlantAsync(_plant, It.IsAny<CancellationToken>());
 
             // Assert
             var project = result.First();

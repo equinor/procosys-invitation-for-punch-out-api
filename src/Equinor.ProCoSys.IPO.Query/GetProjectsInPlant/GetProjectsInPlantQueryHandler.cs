@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetProjectsInPlant
             CancellationToken cancellationToken)
         {
             var mainApiProjects = await _projectApiForUsersService
-                .GetProjectsInPlantAsync(_plantProvider.Plant) ?? new List<ProCoSysProject>();
+                .GetProjectsInPlantAsync(_plantProvider.Plant, cancellationToken) ?? new List<ProCoSysProject>();
 
             var projectDtos = mainApiProjects
                 .Select(project => new ProCoSysProjectDto(

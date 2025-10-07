@@ -36,14 +36,14 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project
             return await _apiClient.TryQueryAndDeserializeAsync<ProCoSysProject>(url, cancellationToken);
         }
 
-        public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant)
+        public async Task<IList<ProCoSysProject>> GetProjectsInPlantAsync(string plant, CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Projects" +
                       $"?plantId={plant}" +
                       $"&api-version={_apiVersion}" +
                       "&includeSubProjectsOnly=true";
 
-            var projects = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url);
+            var projects = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysProject>>(url, cancellationToken);
 
             return projects;
         }
