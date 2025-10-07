@@ -13,7 +13,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
     public class MainApiPersonServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IMainApiClient> _foreignApiClient;
+        private Mock<MainApiPersonService> _foreignApiClient;
         private MainApiPersonService _dut;
         private ProCoSysPerson _proCoSysPerson1;
         private ProCoSysPerson _proCoSysPerson2;
@@ -34,7 +34,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IMainApiClient>();
+            _foreignApiClient = new Mock<MainApiPersonService>();
 
             _proCoSysPerson1 = new ProCoSysPerson
             {

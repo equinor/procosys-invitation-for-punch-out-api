@@ -9,12 +9,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
 {
     public class MainApiPersonService : IPersonApiService
     {
-        private readonly IMainApiClient _apiClient;
+        private readonly IMainApiClientForUser _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
         public MainApiPersonService(
-            IMainApiClient apiClient,
+            IMainApiClientForUser apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _apiClient = apiClient;
