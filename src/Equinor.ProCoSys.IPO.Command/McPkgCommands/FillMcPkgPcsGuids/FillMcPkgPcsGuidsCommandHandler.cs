@@ -51,7 +51,7 @@ namespace Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids
                     var project = await _projectRepository.GetByIdAsync(mcPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { mcPkg.McPkgNo };
 
-                    var mcPkgWithId = await _mcPkgApi.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
+                    var mcPkgWithId = await _mcPkgApi.GetMcPkgsByMcPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo, cancellationToken);
 
                     if (mcPkgWithId != null && mcPkgWithId.Count == 1)
                     {
