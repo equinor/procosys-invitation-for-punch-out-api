@@ -21,7 +21,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             DateTime utcNow,
             ICurrentUserProvider currentUserProvider,
             IPermissionCache permissionCache,
-            IPlantProvider plantProvider)
+            IPlantProvider plantProvider,
+            CancellationToken cancellationToken)
         {
 
             var projectNames = new List<string>();
@@ -29,7 +30,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries
             if (projectName == null)
             {
                 var currentUserOid = currentUserProvider.GetCurrentUserOid();
-                var accessableProjects = permissionCache.GetProjectsForUserAsync(plantProvider.Plant, currentUserOid).GetAwaiter().GetResult();
+                var accessableProjects = permissionCache.GetProjectsForUserAsync(
+                    plantProvider.Plant,
+                    currentUserOid,
+                    cancellationToken)
+                    .GetAwaiter()
+                    .GetResult();
                 var accessableProjectNames = accessableProjects.Select(p => p.Name);
                 projectNames.AddRange(accessableProjectNames);
             }

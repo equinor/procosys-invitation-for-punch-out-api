@@ -41,7 +41,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
         public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
+            var invitationForQueryDtos = CreateQueryableWithFilter(
+                _context,
+                request.ProjectName,
+                request.Filter,
+                _utcNow,
+                _currentUserProvider,
+                _permissionCache,
+                _plantProvider,
+                cancellationToken);
 
 
             // count before adding sorting/paging
