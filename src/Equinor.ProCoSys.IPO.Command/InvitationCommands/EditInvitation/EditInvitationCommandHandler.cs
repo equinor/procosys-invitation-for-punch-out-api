@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
 
             var mcPkgScope = await GetMcPkgScopeAsync(request.UpdatedMcPkgScope, project.Name, cancellationToken);
             var commPkgScope = await GetCommPkgScopeAsync(request.UpdatedCommPkgScope, project.Name, cancellationToken);
-            meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation);
+            meetingParticipants = await UpdateParticipants(meetingParticipants, request.UpdatedParticipants, invitation, cancellationToken);
 
             invitation.EditIpo(
                 request.Title,
@@ -223,7 +223,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private async Task<List<BuilderParticipant>> UpdateParticipants(
             List<BuilderParticipant> meetingParticipants,
             IList<ParticipantsForEditCommand> participantsToUpdate,
-            Invitation invitation)
+            Invitation invitation,
+            CancellationToken cancellationToken)
         {
             var existingParticipants = invitation.Participants.ToList();
 
@@ -257,7 +258,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 ? await UpdateFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants, existingParticipants)
                 : meetingParticipants;
             meetingParticipants = persons.Count > 0
-                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons, existingParticipants)
+                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons, existingParticipants, cancellationToken)
                 : meetingParticipants;
             meetingParticipants = AddExternalParticipant(invitation, meetingParticipants, externalEmailParticipants, existingParticipants);
 
@@ -369,7 +370,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             Invitation invitation,
             List<BuilderParticipant> meetingParticipants,
             List<ParticipantsForEditCommand> personParticipantsWithOids,
-            IList<Participant> existingParticipants)
+            IList<Participant> existingParticipants,
+            CancellationToken cancellationToken)
         {
             var personsAdded = new List<ParticipantsForCommand>();
 
@@ -394,7 +396,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
                 .Select(p => p.InvitedPersonToEdit.AzureOid.ToString())
                 .ToList();
             var persons = oids.Count > 0
-                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids, cancellationToken)
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {

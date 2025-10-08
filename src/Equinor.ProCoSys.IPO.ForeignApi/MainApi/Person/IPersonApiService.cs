@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             string objectName,
             IList<string> privileges,
             CancellationToken cancellationToken);
-        Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids);
+        Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids, CancellationToken cancellationToken);
         Task<ProCoSysPerson> GetPersonByOidWithPrivilegesAsync(string plant, string azureOid, string objectName, IList<string> privileges);
         Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(string plant, string azureOid, string functionalRoleCode);
     }

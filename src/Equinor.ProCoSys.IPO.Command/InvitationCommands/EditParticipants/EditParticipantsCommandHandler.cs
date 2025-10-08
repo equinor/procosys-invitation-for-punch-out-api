@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
 
-            await UpdateParticipants(request.UpdatedParticipants, invitation);
+            await UpdateParticipants(request.UpdatedParticipants, invitation, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
@@ -51,7 +51,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
         private async Task UpdateParticipants(
             IList<ParticipantsForEditCommand> participantsToUpdate,
-            Invitation invitation)
+            Invitation invitation,
+            CancellationToken cancellationToken)
         {
             var existingParticipants = invitation.Participants.ToList();
 
@@ -87,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             }
             if (persons.Count > 0)
             {
-                await AddPersonParticipantsWithOidsAsync(invitation, persons, existingParticipants);
+                await AddPersonParticipantsWithOidsAsync(invitation, persons, existingParticipants, cancellationToken);
             }
 
             AddExternalParticipant(invitation, externalEmailParticipants, existingParticipants);
@@ -185,7 +186,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private async Task AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<ParticipantsForEditCommand> personParticipantsWithOids,
-            IList<Participant> existingParticipants)
+            IList<Participant> existingParticipants,
+            CancellationToken cancellationToken)
         {
             var personsAdded = new List<ParticipantsForCommand>();
 
@@ -209,7 +211,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 .Select(p => p.InvitedPersonToEdit.AzureOid.ToString())
                 .ToList();
             var persons = oids.Count > 0
-                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids, cancellationToken)
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {

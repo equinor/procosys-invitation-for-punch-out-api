@@ -58,7 +58,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url, cancellationToken);
         }
 
-        public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
+        public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids, CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Person/PersonsByOids" +
                       $"?plantId={plant}" +
@@ -68,7 +68,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&azureOids={oid}";
             }
 
-            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url, cancellationToken);
         }
 
         public async Task<ProCoSysPerson> GetPersonByOidWithPrivilegesAsync(

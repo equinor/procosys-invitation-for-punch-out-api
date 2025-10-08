@@ -122,7 +122,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 commPkgs);
             _invitationRepository.Add(invitation);
 
-            meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList());
+            meetingParticipants = await AddParticipantsAsync(invitation, meetingParticipants, request.Participants.ToList(), cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -198,7 +198,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> meetingParticipants,
-            List<ParticipantsForCommand> ipoParticipants)
+            List<ParticipantsForCommand> ipoParticipants,
+            CancellationToken cancellationToken)
         {
             var functionalRoleParticipants =
                 ipoParticipants.Where(p => p.InvitedFunctionalRole != null).ToList();
@@ -209,7 +210,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 ? await AddFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants)
                 : meetingParticipants;
             meetingParticipants = persons.Count > 0
-                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons)
+                ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons, cancellationToken)
                 : meetingParticipants;
             meetingParticipants = AddExternalParticipant(invitation, meetingParticipants, externalEmailParticipants);
 
@@ -280,7 +281,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<BuilderParticipant> meetingParticipants,
-            List<ParticipantsForCommand> personParticipantsWithOids)
+            List<ParticipantsForCommand> personParticipantsWithOids,
+            CancellationToken cancellationToken)
         {
             var personsAdded = new List<ParticipantsForCommand>();
             foreach (var participant in personParticipantsWithOids)
@@ -301,7 +303,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
 
             var oids = personParticipantsWithOids.Where(p => p.SortKey > 1).Select(p => p.InvitedPerson.AzureOid.ToString()).ToList();
             var persons = oids.Count > 0
-                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids, cancellationToken)
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
