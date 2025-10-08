@@ -164,7 +164,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance

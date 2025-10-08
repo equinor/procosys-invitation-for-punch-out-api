@@ -75,7 +75,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             string plant,
             string azureOid,
             string objectName,
-            IList<string> privileges)
+            IList<string> privileges,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Person/PersonByOidWithPrivileges" +
                       $"?plantId={plant}" +
@@ -87,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&privilegeTypes={privilege}";
             }
 
-            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url, cancellationToken);
         }
 
         public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(

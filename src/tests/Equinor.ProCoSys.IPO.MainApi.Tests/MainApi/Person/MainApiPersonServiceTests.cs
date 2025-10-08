@@ -83,7 +83,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
             var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
@@ -202,7 +202,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             // Assert
             Assert.IsNotNull(result);
@@ -215,7 +215,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
-            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             Assert.IsNull(result);
         }
@@ -227,7 +227,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var person = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var person = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             // Assert
             Assert.AreEqual("12345678-1234-123456789123", person.AzureOid);

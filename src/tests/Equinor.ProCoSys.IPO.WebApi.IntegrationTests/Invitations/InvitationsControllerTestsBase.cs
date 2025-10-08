@@ -250,7 +250,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -259,7 +260,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _contractor.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -268,7 +270,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _pernillaPlanner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_pernillaPlanner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -277,7 +280,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _andreaAdmin.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_andreaAdmin.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -286,7 +290,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),
                         "IPO",
-                        new List<string> { "SIGN" }))
+                        new List<string> { "SIGN" },
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = personParticipant.AzureOid.ToString(),

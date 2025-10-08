@@ -195,11 +195,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(personDetails));
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(newPersonDetails));
 
             //mock functional role response from main API
@@ -812,7 +812,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         {
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>

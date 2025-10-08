@@ -294,7 +294,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                         meetingParticipants,
                         participant.InvitedPerson,
                         participant.SortKey,
-                        participant.Organization);
+                        participant.Organization,
+                        cancellationToken);
                     personsAdded.Add(participant);
                 }
             }
@@ -336,13 +337,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             List<BuilderParticipant> meetingParticipants,
             IInvitedPersonForCommand invitedSigner,
             int sortKey,
-            Organization organization)
+            Organization organization,
+            CancellationToken cancellationToken)
         {
             var person = await _personApiService.GetPersonByOidWithPrivilegesAsync(
                 _plantProvider.Plant,
                 invitedSigner.AzureOid.ToString(),
                 _objectName,
-                _signerPrivileges);
+                _signerPrivileges,
+                cancellationToken);
 
             if (person != null)
             {

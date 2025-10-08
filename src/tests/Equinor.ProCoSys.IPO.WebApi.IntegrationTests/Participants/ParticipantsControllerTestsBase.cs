@@ -109,7 +109,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     TestFactory.PlantWithAccess,
                     viewer.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(), 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(viewer.AsMainProCoSysPerson()));
 
             TestFactory.Instance
