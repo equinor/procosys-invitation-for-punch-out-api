@@ -876,7 +876,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
                     _contractor.AsMainProCoSysPerson().AzureOid,
-                    participants.First().FunctionalRole.Code))
+                    participants.First().FunctionalRole.Code,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
@@ -982,7 +983,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
                     _contractor.AsMainProCoSysPerson().AzureOid,
-                    participants.First().FunctionalRole.Code))
+                    participants.First().FunctionalRole.Code,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
@@ -1054,7 +1056,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                         TestFactory.PlantWithAccess,
                         _contractor.AsMainProCoSysPerson().AzureOid,
-                        "FRCA"))
+                        "FRCA",
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act

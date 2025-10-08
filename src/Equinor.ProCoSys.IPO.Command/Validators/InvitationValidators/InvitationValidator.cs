@@ -303,7 +303,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,
                 _currentUserProvider.GetCurrentUserOid().ToString(),
-                participant.FunctionalRoleCode);
+                participant.FunctionalRoleCode,
+                cancellationToken);
             return person != null;
         }
 
@@ -356,7 +357,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                     _plantProvider.Plant,
                     _currentUserProvider.GetCurrentUserOid().ToString(),
-                    participants[0].FunctionalRoleCode);
+                    participants[0].FunctionalRoleCode,
+                    cancellationToken);
                 return person != null;
             }
 
@@ -380,7 +382,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                     _plantProvider.Plant,
                     _currentUserProvider.GetCurrentUserOid().ToString(),
-                    participants[0].FunctionalRoleCode);
+                    participants[0].FunctionalRoleCode,
+                    cancellationToken);
                 return person != null;
             }
 
@@ -434,7 +437,8 @@ namespace Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators
                 var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                     _plantProvider.Plant,
                     _currentUserProvider.GetCurrentUserOid().ToString(),
-                    participant.FunctionalRoleCode);
+                    participant.FunctionalRoleCode,
+                    cancellationToken);
                 return person != null;
             }
 

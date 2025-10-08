@@ -94,7 +94,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
         public async Task<ProCoSysPerson> GetPersonInFunctionalRoleAsync(
             string plant,
             string azureOid,
-            string functionalRoleCode)
+            string functionalRoleCode,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Person/PersonByOidInFunctionalRole" +
                       $"?plantId={plant}" +
@@ -102,7 +103,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&functionalRoleCode={WebUtility.UrlEncode(functionalRoleCode)}" +
                       $"&api-version={_apiVersion}";
 
-            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url);
+            return await _apiClient.QueryAndDeserializeAsync<ProCoSysPerson>(url, cancellationToken);
         }
 
     }
