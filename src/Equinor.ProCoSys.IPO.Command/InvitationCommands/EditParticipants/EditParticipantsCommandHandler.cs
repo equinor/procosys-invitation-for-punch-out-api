@@ -84,7 +84,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
             if (functionalRoleParticipants.Count > 0)
             {
-                await UpdateFunctionalRoleParticipantsAsync(invitation, functionalRoleParticipants, existingParticipants);
+                await UpdateFunctionalRoleParticipantsAsync(invitation, functionalRoleParticipants, existingParticipants, cancellationToken);
             }
             if (persons.Count > 0)
             {
@@ -97,11 +97,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private async Task UpdateFunctionalRoleParticipantsAsync(
             Invitation invitation,
             IList<ParticipantsForEditCommand> functionalRoleParticipants,
-            IList<Participant> existingParticipants)
+            IList<Participant> existingParticipants,
+            CancellationToken cancellationToken)
         {
             var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRoleToEdit.Code).ToList();
             var functionalRoles =
-                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
+                    _plantProvider.Plant,
+                    codes,
+                    cancellationToken
+                    );
 
             foreach (var participant in functionalRoleParticipants)
             {

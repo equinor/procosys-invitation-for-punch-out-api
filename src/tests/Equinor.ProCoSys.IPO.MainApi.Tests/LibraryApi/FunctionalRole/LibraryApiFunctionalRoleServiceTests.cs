@@ -125,7 +125,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
         public async Task GetFunctionalRolesByCode_ShouldReturnCorrectNumberOfFunctionalRoles()
         {
             // Act
-            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, _functionalRoleCodes);
+            var result = await _dut.GetFunctionalRolesByCodeAsync(
+                _plant,
+                _functionalRoleCodes,
+                CancellationToken.None);
 
             // Assert
             Assert.AreEqual(2, result.Count);
@@ -138,7 +141,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), _extraHeaders))
                 .Returns(Task.FromResult(new List<ProCoSysFunctionalRole>()));
 
-            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "not a code" });
+            var result = await _dut.GetFunctionalRolesByCodeAsync(
+                _plant,
+                new List<string> { "not a code" },
+                CancellationToken.None);
 
             Assert.AreEqual(0, result.Count);
         }
@@ -147,7 +153,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
         public async Task GetFunctionalRolesByCode_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetFunctionalRolesByCodeAsync(_plant, _functionalRoleCodes);
+            var result = await _dut.GetFunctionalRolesByCodeAsync(
+                _plant,
+                _functionalRoleCodes,
+                CancellationToken.None);
 
             // Assert
             var functionalRole = result.First();
@@ -175,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                     .Callback<string, List<KeyValuePair<string, string>>>((r, _) => url = r);
 
             // Act
-            await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "C&D" });
+            await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "C&D" }, CancellationToken.None);
 
             // Assert
             _foreignApiClient.Verify(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
@@ -238,10 +239,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
 
                 _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode1 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 },
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, new List<string> { _functionalRoleCode2 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode2 },
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails2));
 
                 _loggerMock = new Mock<ILogger<GetInvitationByIdQueryHandler>>();
@@ -635,8 +642,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        new List<string> { _functionalRoleCode1 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 },
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitationId);
@@ -684,8 +693,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        new List<string> { _functionalRoleCode1 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 },
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitationId);
@@ -753,8 +764,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        new List<string> { _functionalRoleCode1 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode1 }, 
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitationId);
@@ -810,8 +823,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        new List<string> { _functionalRoleCode2 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode2 }, 
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitationId);
@@ -877,8 +892,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
                 IList<ProCoSysFunctionalRole> frDetails = new List<ProCoSysFunctionalRole> { functionalRoleDetails };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        new List<string> { _functionalRoleCode2 }))
+                    .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        new List<string> { _functionalRoleCode2 }, 
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(frDetails));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitationId);

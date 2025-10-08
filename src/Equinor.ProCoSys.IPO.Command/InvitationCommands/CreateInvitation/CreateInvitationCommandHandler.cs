@@ -207,7 +207,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             var externalEmailParticipants = ipoParticipants.Where(p => p.InvitedExternalEmail != null).ToList();
 
             meetingParticipants = functionalRoleParticipants.Count > 0
-                ? await AddFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants)
+                ? await AddFunctionalRoleParticipantsAsync(invitation, meetingParticipants, functionalRoleParticipants, cancellationToken)
                 : meetingParticipants;
             meetingParticipants = persons.Count > 0
                 ? await AddPersonParticipantsWithOidsAsync(invitation, meetingParticipants, persons, cancellationToken)
@@ -220,11 +220,12 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<BuilderParticipant>> AddFunctionalRoleParticipantsAsync(
             Invitation invitation,
             List<BuilderParticipant> meetingParticipants,
-            List<ParticipantsForCommand> functionalRoleParticipants)
+            List<ParticipantsForCommand> functionalRoleParticipants,
+            CancellationToken cancellationToken)
         {
             var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRole.Code).ToList();
             var functionalRoles =
-                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes, cancellationToken);
             foreach (var participant in functionalRoleParticipants)
             {
                 var fr = functionalRoles.SingleOrDefault(p => p.Code == participant.InvitedFunctionalRole.Code);

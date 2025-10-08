@@ -154,8 +154,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> { FunctionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestFactory.PlantWithAccess,
+                    new List<string> { FunctionalRoleCode }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
 
             TestFactory.Instance

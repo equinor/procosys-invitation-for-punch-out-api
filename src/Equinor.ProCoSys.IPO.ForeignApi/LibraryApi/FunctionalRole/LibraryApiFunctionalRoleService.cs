@@ -42,7 +42,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
 
         public async Task<IList<ProCoSysFunctionalRole>> GetFunctionalRolesByCodeAsync(
             string plant,
-            List<string> functionalRoleCodes)
+            List<string> functionalRoleCodes,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}FunctionalRolesByCodes"
                 + $"?classification={WebUtility.UrlEncode("IPO")}";
@@ -52,7 +53,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole
             var extraHeaders =
                 new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("x-plant", plant) };
 
-            return await _apiForUserClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, extraHeaders);
+            return await _apiForUserClient.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(url, cancellationToken, extraHeaders);
         }
     }
 }

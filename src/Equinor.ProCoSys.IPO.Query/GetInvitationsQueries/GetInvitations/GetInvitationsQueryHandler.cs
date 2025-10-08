@@ -71,8 +71,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             if (functionalRoleCodes.Any())
             {
                 var functionalRoles =
-                    await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        functionalRoleCodes);
+                    await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        functionalRoleCodes,
+                        cancellationToken);
 
                 if (functionalRoles != null && functionalRoles.Any())
                 {
