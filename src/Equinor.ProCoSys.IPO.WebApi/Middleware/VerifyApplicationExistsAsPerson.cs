@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -42,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 scope.ServiceProvider
                     .GetRequiredService<ICurrentUserSetter>();
 
-            var oid = _options.CurrentValue.IpoApiObjectId;
+            var oid = _options.CurrentValue.ObjectId;
             _logger.LogInformation("Ensuring '{Oid}' exists as Person", oid);
             try
             {

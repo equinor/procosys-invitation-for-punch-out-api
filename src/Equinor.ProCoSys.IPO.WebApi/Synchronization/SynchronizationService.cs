@@ -12,6 +12,7 @@ using Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Command.McPkgCommands.FillMcPkgPcsGuids;
 using Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
@@ -53,7 +54,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _plantSetter = plantSetter;
             _mainApiAuthenticator = mainApiAuthenticator;
             _permissionCache = permissionCache;
-            _ipoApiOid = authenticatorOptions.Value.IpoApiObjectId;
+            _ipoApiOid = authenticatorOptions.Value.ObjectId;
             _settingRepository = settingRepository;
             _machine = Environment.MachineName;
         }

@@ -23,6 +23,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Fam;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -139,9 +140,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
-            services.AddScoped<LibraryApiAuthenticator>();
-            services.AddScoped<ILibraryApiAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            services.AddScoped<ILibraryApiClient, LibraryApiClient>();
+            services.AddScoped<ILibraryApiForUserClient, LibraryApiClientForUser>();
             services.AddScoped<IProjectApiForApplicationService, MainApiForApplicationProjectService>();
             services.AddScoped<IProjectApiForUsersService, MainApiForUsersProjectService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
@@ -165,6 +164,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<ICalendarService, CalendarService>();
+
+            AddHttpClients(services);
+        }
+        
+        private static void AddHttpClients(IServiceCollection services)
+        {
+            services.AddTransient<LibraryApiForUserTokenHandler>();
+
+            services.AddHttpClient(LibraryApiClientForUser.ClientName)
+                .AddHttpMessageHandler<LibraryApiForUserTokenHandler>();
         }
     }
 }

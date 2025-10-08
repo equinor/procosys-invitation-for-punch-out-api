@@ -117,7 +117,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByClassificationAsync(
                     TestFactory.PlantWithAccess,
-                    Classification))
+                    Classification,
+                    CancellationToken.None))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
         }
     }
