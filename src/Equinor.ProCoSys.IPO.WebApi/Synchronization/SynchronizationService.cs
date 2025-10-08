@@ -29,7 +29,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
         private readonly IPlantSetter _plantSetter;
         private readonly ICurrentUserSetter _currentUserSetter;
         private readonly IClaimsTransformation _claimsTransformation;
-        private readonly IMainApiAuthenticator _mainApiAuthenticator;
         private readonly IPermissionCache _permissionCache;
         private readonly ISettingRepository _settingRepository;
         private readonly string _machine;
@@ -41,7 +40,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             IPlantSetter plantSetter,
             ICurrentUserSetter currentUserSetter,
             IClaimsTransformation claimsTransformation,
-            IMainApiAuthenticator mainApiAuthenticator,
             IPermissionCache permissionCache,
             IOptionsSnapshot<ApplicationOptions> authenticatorOptions,
             ISettingRepository settingRepository)
@@ -52,7 +50,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
             _currentUserSetter = currentUserSetter;
             _claimsTransformation = claimsTransformation;
             _plantSetter = plantSetter;
-            _mainApiAuthenticator = mainApiAuthenticator;
             _permissionCache = permissionCache;
             _ipoApiOid = authenticatorOptions.Value.ObjectId;
             _settingRepository = settingRepository;
@@ -67,8 +64,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 _logger.LogInformation($"SynchronizationService: Not enabled on {_machine}. Exiting ...");
                 return;
             }
-
-            _mainApiAuthenticator.AuthenticationType = AuthenticationType.AsApplication;
 
             _currentUserSetter.SetCurrentUserOid(_ipoApiOid);
 
