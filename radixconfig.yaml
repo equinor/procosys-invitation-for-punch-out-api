@@ -29,6 +29,7 @@ spec:
       variables:
         API__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
+        Application__LibraryApiScope: api://fdf5086c-009f-4407-b7bb-d2ece26dea45/ReadWrite
         Application__ObjectId: d675f4cf-4c71-4e33-aa61-900404864819
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
@@ -57,6 +58,7 @@ spec:
       variables:
         API__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
+        Application__LibraryApiScope: api://2df224e7-32fc-4dd8-83b8-d0222327b558/ReadWrite
         Application__ObjectId: 92c17717-142a-4d59-9fea-dfd88b8747ec
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
@@ -86,6 +88,7 @@ spec:
       variables:
         API__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173
         Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
+        Application__LibraryApiScope: api://6263b7e6-155f-411b-9503-c5c841a601e0/ReadWrite
         Application__ObjectId: 11debf4b-b215-4790-9d3c-eaace6c7a27f
         Application__UseAzureAppConfiguration: 'true'
         ApplicationInsights__ConnectionString: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
