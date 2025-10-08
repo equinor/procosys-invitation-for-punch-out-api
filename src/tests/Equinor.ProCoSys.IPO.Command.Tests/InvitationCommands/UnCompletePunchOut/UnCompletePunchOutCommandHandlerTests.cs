@@ -193,7 +193,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
 
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
-                _plant, _azureOidNotForCurrentUser))
+                _plant,
+                _azureOidNotForCurrentUser, 
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);

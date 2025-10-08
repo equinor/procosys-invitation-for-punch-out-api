@@ -97,7 +97,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _permissionCacheForAdminMock = new Mock<IPermissionCache>();
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheForAdminMock.Setup(i => i.GetPermissionsForUserAsync(
-                TestPlant, CurrentUserOid))
+                    TestPlant,
+                    CurrentUserOid,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             _permissionCacheForAdmin = _permissionCacheForAdminMock.Object;
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1919,7 +1921,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1936,7 +1938,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

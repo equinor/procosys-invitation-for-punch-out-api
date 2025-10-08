@@ -959,7 +959,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider, _functionalRoleApiService);
 
                 var result = await dut.Handle(query, default);
-                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid), Times.Once);
+                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid, CancellationToken.None), Times.Once);
                 Assert.IsTrue(result.Data.Invitations.DistinctBy(x => x.ProjectName).Count() > 1);
             }
         }

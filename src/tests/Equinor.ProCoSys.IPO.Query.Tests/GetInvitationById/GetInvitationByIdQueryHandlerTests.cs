@@ -935,7 +935,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationById
             {
                 IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
                 _permissionCacheMock
-                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                    .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(ipoAdminPrivilege));
 
                 var query = new GetInvitationByIdQuery(_mdpInvitation.Id);

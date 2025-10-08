@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -69,7 +70,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
                 };
 
                 _mcPkgApiServiceMock
-                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(TestPlant, _projectName, _commPkgNo))
+                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(
+                        TestPlant,
+                        _projectName,
+                        _commPkgNo,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(_mainApiMcPkgs));
 
                 _query = new GetMcPkgsUnderCommPkgInProjectQuery(_projectName, _commPkgNo);
@@ -113,7 +118,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetMcPkgsUnderCommPkgInProject
             {
                 var dut = new GetMcPkgsUnderCommPkgInProjectQueryHandler(_mcPkgApiServiceMock.Object, _plantProvider);
                 _mcPkgApiServiceMock
-                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(TestPlant, _projectName, _commPkgNo))
+                    .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(
+                        TestPlant,
+                        _projectName,
+                        _commPkgNo,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult<IList<ProCoSysMcPkgOnCommPkg>>(null));
 
                 var result = await dut.Handle(_query, default);
