@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -25,6 +26,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
         public async Task<IList<ProCoSysPerson>> GetPersonsAsync(
             string plant,
             string searchString,
+            CancellationToken cancellationToken,
             long numberOfRows = 1000)
         {
             var url = $"{_baseAddress}Person/PersonSearch" +
@@ -33,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                       $"&numberOfRows={numberOfRows}" +
                       $"&api-version={_apiVersion}";
 
-            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url, cancellationToken);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsWithPrivilegesAsync(

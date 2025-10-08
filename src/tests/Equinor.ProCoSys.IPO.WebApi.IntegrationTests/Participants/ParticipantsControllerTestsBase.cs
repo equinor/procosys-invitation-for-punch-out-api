@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -87,6 +88,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 .Setup(x => x.GetPersonsAsync(
                     TestFactory.PlantWithAccess,
                     "p",
+                    It.IsAny<CancellationToken>(),
                     It.IsAny<long>()))
                 .Returns(Task.FromResult(_proCoSysPersons));
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -72,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -85,7 +86,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             Assert.AreEqual(0, result.Count);
         }
@@ -94,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             // Assert
             var person = result.First();
