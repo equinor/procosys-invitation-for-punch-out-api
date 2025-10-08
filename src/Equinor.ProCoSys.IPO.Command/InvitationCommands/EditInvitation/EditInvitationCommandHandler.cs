@@ -113,7 +113,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             }
             catch (Exception e)
             {
-                if (await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider))
+                if (await InvitationHelper.HasIpoAdminPrivilegeAsync(_permissionCache, _plantProvider, _currentUserProvider, cancellationToken))
                 {
                     _logger.LogInformation(e, $"Unable to edit outlook meeting for IPO as admin.");
                 }

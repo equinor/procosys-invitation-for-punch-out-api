@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
@@ -22,9 +23,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands
         public static async Task<bool> HasIpoAdminPrivilegeAsync(
             IPermissionCache permissionCache,
             IPlantProvider plantProvider,
-            ICurrentUserProvider currentUserProvider)
+            ICurrentUserProvider currentUserProvider,
+            CancellationToken cancellationToken)
         {
-            var permissions = await permissionCache.GetPermissionsForUserAsync(plantProvider.Plant, currentUserProvider.GetCurrentUserOid());
+            var permissions = await permissionCache.GetPermissionsForUserAsync(
+                plantProvider.Plant,
+                currentUserProvider.GetCurrentUserOid(),
+                cancellationToken);
             return permissions != null && permissions.Contains("IPO/ADMIN");
         }
 
