@@ -33,7 +33,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetPersonsWithPrivileges
                    _plantProvider.Plant,
                    request.SearchString,
                    request.ObjectName,
-                   request.Privileges)
+                   request.Privileges,
+                   cancellationToken)
                 ?? new List<ProCoSysPerson>();
 
             var personDtos = mainApiPersons

@@ -110,7 +110,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsWithPrivileges_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -123,7 +128,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             Assert.AreEqual(0, result.Count);
         }
@@ -132,7 +142,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsWithPrivileges_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             // Assert
             var person = result.First();

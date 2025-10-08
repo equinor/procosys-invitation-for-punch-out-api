@@ -98,7 +98,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     TestFactory.PlantWithAccess,
                     "SignersSearchString",
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_signerPersons));
 
             var viewer = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer).Profile;

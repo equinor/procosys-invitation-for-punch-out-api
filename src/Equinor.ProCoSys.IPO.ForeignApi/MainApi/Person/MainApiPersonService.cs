@@ -42,7 +42,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
             string plant,
             string searchString,
             string objectName,
-            IList<string> privileges)
+            IList<string> privileges,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}Person/PersonSearch/ByPrivileges" +
                       $"?plantId={plant}" +
@@ -54,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person
                 url += $"&privilegeTypes={privilege}";
             }
 
-            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url);
+            return await _apiClient.QueryAndDeserializeAsync<List<ProCoSysPerson>>(url, cancellationToken);
         }
 
         public async Task<IList<ProCoSysPerson>> GetPersonsByOidsAsync(string plant, IList<string> azureOids)
