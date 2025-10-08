@@ -138,7 +138,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
         public async Task GetFunctionalRolesByCode_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(It.IsAny<string>(), _extraHeaders))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysFunctionalRole>>(
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>(),
+                    _extraHeaders))
                 .Returns(Task.FromResult(new List<ProCoSysFunctionalRole>()));
 
             var result = await _dut.GetFunctionalRolesByCodeAsync(
