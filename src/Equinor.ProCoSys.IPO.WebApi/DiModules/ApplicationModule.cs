@@ -40,6 +40,7 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
+using Equinor.ProCoSys.IPO.WebApi.Extensions;
 using Equinor.ProCoSys.IPO.WebApi.MassTransit;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
@@ -50,6 +51,8 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
@@ -68,9 +71,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<ApplicationOptions>(configuration.GetSection("Application"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
-            services
-                .Configure<GraphOptions>(configuration.GetSection("Graph"))
-                .Configure<GraphOptions>(x => x.TenantId = configuration.GetValue<string>("TenantId"));
             services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
 
             services.AddDbContext<IPOContext>(options =>
@@ -162,10 +162,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
-            services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<ICalendarService, CalendarService>();
 
+            services.AddTransient<IEmailService, IpoEmailService>();
+            
             AddHttpClients(services);
+            AddMailCredential(services, configuration);
         }
         
         private static void AddHttpClients(IServiceCollection services)
@@ -174,6 +176,17 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddHttpClient(LibraryApiClientForUser.ClientName)
                 .AddHttpMessageHandler<LibraryApiForUserTokenHandler>();
+        }
+        
+        private static void AddMailCredential(IServiceCollection services, IConfiguration configuration)
+        {
+            if (configuration.IsDevOnLocalhost())
+            {
+                services.AddTransient<IMailCredential, MailCertificateCredential>();
+                return;
+            }
+            
+            services.AddTransient<IMailCredential, MailDefaultCredential>();
         }
     }
 }

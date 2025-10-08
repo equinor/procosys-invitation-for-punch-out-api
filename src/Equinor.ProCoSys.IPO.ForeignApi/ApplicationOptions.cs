@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.ForeignApi
 {
-    public class ApplicationOptions
+    public record ApplicationOptions
     {
         public Guid ObjectId { get; set; }
         public string LibraryApiScope { get; set; }
