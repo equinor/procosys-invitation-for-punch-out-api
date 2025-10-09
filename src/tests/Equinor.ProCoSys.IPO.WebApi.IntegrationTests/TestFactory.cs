@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.BlobStorage;
@@ -264,10 +265,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     .Returns(Guid.Parse(testUser.Profile.Oid));
             }
 
-            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant))
+            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(testUser.Permissions));
 
-            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant))
+            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(testUser.AccessableProjects));
         }
 
@@ -325,22 +326,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 if (testUser.AuthProCoSysPerson != null)
                 {
-                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(testUser.AuthProCoSysPerson));
                 }
                 else
                 {
-                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                         .Returns(Task.FromResult((AuthProCoSysPerson)null));
                 }
-                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid), It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(testUser.AccessablePlants));
             }
 
             // Need to mock getting info for current application from Main. This to satisfy VerifyIpoApiClientExists middelware
             var config = new ConfigurationBuilder().AddJsonFile(_configPath).Build();
             var ipoApiObjectId = config["Authenticator:IpoApiObjectId"];
-            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId)))
+            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new AuthProCoSysPerson
                 {
                     AzureOid = ipoApiObjectId,
