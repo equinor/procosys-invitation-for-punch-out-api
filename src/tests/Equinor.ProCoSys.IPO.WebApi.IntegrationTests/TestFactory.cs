@@ -340,7 +340,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             // Need to mock getting info for current application from Main. This to satisfy VerifyIpoApiClientExists middelware
             var config = new ConfigurationBuilder().AddJsonFile(_configPath).Build();
-            var ipoApiObjectId = config["Authenticator:IpoApiObjectId"];
+            var ipoApiObjectId = config["Application:ObjectId"];
             _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new AuthProCoSysPerson
                 {

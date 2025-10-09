@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 {
     /// <summary>
-    /// Ensure that IpoApiObjectId (i.e the application) exists as Person.
+    /// Ensure that Application:ObjectId (i.e the application) exists as Person.
     /// Needed when application modifies data, setting ModifiedById for changed records
     /// </summary>
     public class VerifyApplicationExistsAsPerson : IHostedService
