@@ -13,7 +13,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus

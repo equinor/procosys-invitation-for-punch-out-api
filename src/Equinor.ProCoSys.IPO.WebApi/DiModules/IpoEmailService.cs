@@ -1,4 +1,3 @@
-using Azure.Core;
 using Equinor.ProCoSys.Common.Email;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Microsoft.Extensions.Logging;

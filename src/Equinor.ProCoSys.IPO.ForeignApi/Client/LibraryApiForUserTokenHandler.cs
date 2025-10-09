@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Authentication;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 

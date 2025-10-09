@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Misc;
