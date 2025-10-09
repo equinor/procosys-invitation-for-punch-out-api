@@ -34,7 +34,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
         private Mock<ITelemetryClient> _telemetryClient;
         private Mock<IMcPkgApiForApplicationService> _mcPkgApiService;
         private Mock<IReadOnlyContext> _readOnlyContext;
-        private Mock<IMainApiAuthenticator> _mainApiAuthenticator;
         private Mock<IProjectRepository> _projectRepository;
         private Mock<ICertificateEventProcessorService> _certificationEventProcessorService;
 
@@ -99,7 +98,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
             _telemetryClient = new Mock<ITelemetryClient>();
             _mcPkgApiService = new Mock<IMcPkgApiForApplicationService>();
             _readOnlyContext = new Mock<IReadOnlyContext>();
-            _mainApiAuthenticator = new Mock<IMainApiAuthenticator>();
             _certificationEventProcessorService = new Mock<ICertificateEventProcessorService>();
 
             _invitation1 = new Invitation(plant, project1, "El invitasjån", description, DisciplineType.DP, DateTime.Now,
@@ -132,7 +130,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                                           _telemetryClient.Object,
                                           _readOnlyContext.Object,
                                           _mcPkgApiService.Object,
-                                          _mainApiAuthenticator.Object,
                                           _options.Object,
                                           _currentUserSetter.Object,
                                           _projectRepository.Object,
@@ -347,7 +344,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
                 _telemetryClient.Object,
                 _readOnlyContext.Object,
                 _mcPkgApiService.Object,
-                _mainApiAuthenticator.Object,
                 _options.Object,
                 _currentUserSetter.Object,
                 projectRepositoryTestDouble,
