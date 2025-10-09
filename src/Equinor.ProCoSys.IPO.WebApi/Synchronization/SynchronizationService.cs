@@ -74,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
 
             var saveChanges = _settingRepository.GetByCodeAsync("SaveChanges").Result;
             _logger.LogInformation($"SynchronizationService: Using oId {_ipoApiOid}");
-            var plants = await _permissionCache.GetPlantIdsWithAccessForUserAsync(_ipoApiOid);
+            var plants = await _permissionCache.GetPlantIdsWithAccessForUserAsync(_ipoApiOid, cancellationToken);
             _logger.LogInformation($"SynchronizationService: Plant count = {plants.Count}");
             _logger.LogInformation($"SynchronizationService: Plants = {string.Join(",", plants)}");
 
