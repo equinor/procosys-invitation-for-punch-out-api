@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.Common.Email;
@@ -270,6 +271,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(testUser.AccessableProjects));
+            
+            _permissionApiServiceMock.Setup(p => p.GetRestrictionRolesForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(testUser.Restrictions));
         }
 
         private void SetupTestUsers()
@@ -285,22 +289,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 new AccessableProject {Name = ProjectWithAccess, HasAccess = true},
                 new AccessableProject {Name = ProjectWithoutAccess}
             };
+            
+            var restrictions = new List<string>
+            {
+                ClaimsTransformation.NoRestrictions
+            };
 
             AddAnonymousUser();
 
-            AddSignerUser(accessablePlants, accessableProjects);
+            AddSignerUser(accessablePlants, accessableProjects, restrictions);
 
-            AddPlannerUser(accessablePlants, accessableProjects);
+            AddPlannerUser(accessablePlants, accessableProjects, restrictions);
 
-            AddViewerUser(accessablePlants, accessableProjects);
+            AddViewerUser(accessablePlants, accessableProjects, restrictions);
 
             AddHackerUser();
 
-            AddContractorUser(accessablePlants, accessableProjects);
+            AddContractorUser(accessablePlants, accessableProjects, restrictions);
 
-            AddAdminUser(accessablePlants, accessableProjects);
+            AddAdminUser(accessablePlants, accessableProjects, restrictions);
 
-            AddCreatorUser(accessablePlants, accessableProjects);
+            AddCreatorUser(accessablePlants, accessableProjects, restrictions);
 
             SetupProCoSysServiceMocks();
 
@@ -376,9 +385,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 });
 
         // Authenticated client with necessary permissions to VIEW invitations
-        private void AddViewerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddViewerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Viewer,
                 new TestUser
                 {
@@ -401,13 +409,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with necessary permissions to SIGN invitations (including completing and accepting)
-        private void AddSignerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddSignerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Signer,
                 new TestUser
                 {
@@ -431,13 +439,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with necessary permissions to CREATE, UPDATE AND CANCEL invitations
-        private void AddPlannerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddPlannerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Planner,
                 new TestUser
                 {
@@ -466,12 +474,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
-        private void AddContractorUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddContractorUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Contractor,
                 new TestUser
                 {
@@ -496,13 +504,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_WRITE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with all IPO permissions
-        private void AddAdminUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddAdminUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Admin,
             new TestUser
             {
@@ -532,12 +540,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_VOIDUNVOID,
                         Permissions.IPO_ADMIN,
                     },
-                AccessableProjects = accessableProjects
+                AccessableProjects = accessableProjects,
+                Restrictions = commonProCoSysRestrictions
             });
 
-        private void AddCreatorUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddCreatorUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Creator,
                 new TestUser
                 {
@@ -566,7 +574,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         private void AddAnonymousUser() => _testUsers.Add(UserType.Anonymous, new TestUser());
