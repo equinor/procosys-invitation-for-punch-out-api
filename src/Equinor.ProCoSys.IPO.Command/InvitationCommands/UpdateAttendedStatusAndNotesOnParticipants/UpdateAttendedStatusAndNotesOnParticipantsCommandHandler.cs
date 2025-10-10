@@ -57,7 +57,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
                                  p.FunctionalRoleCode != null &&
                                  p.Type == IpoParticipantType.FunctionalRole);
 
-                await UpdateAsPersonInFunctionalRoleAsync(invitation, functionalRole.FunctionalRoleCode, request.Participants);
+                await UpdateAsPersonInFunctionalRoleAsync(
+                    invitation,
+                    functionalRole.FunctionalRoleCode,
+                    request.Participants,
+                    cancellationToken);
             }
             else
             {
@@ -71,12 +75,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateAttendedStatusAn
         private async Task UpdateAsPersonInFunctionalRoleAsync(
             Invitation invitation,
             string functionalRoleCode,
-            IEnumerable<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants)
+            IEnumerable<UpdateAttendedStatusAndNoteOnParticipantForCommand> participants,
+            CancellationToken cancellationToken)
         {
             var person = await _personApiService.GetPersonInFunctionalRoleAsync(
                 _plantProvider.Plant,
                 _currentUserProvider.GetCurrentUserOid().ToString(),
-                functionalRoleCode);
+                functionalRoleCode,
+                cancellationToken);
 
             if (person != null)
             {

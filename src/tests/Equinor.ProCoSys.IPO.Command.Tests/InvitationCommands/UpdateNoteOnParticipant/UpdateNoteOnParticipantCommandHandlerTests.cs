@@ -70,8 +70,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateNoteOnPart
 
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
-                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
-                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                    _plant,
+                    _azureOidForCurrentUser.ToString(),
+                    _functionalRoleCode,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(personDetails));
 
             //create invitation

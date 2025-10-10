@@ -76,7 +76,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         {
             _logger.LogInformation("Export to excel. Creating queryable with filter...");
 
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
+            var invitationForQueryDtos = CreateQueryableWithFilter(
+                _context,
+                request.ProjectName,
+                request.Filter,
+                _utcNow,
+                _currentUserProvider,
+                _permissionCache,
+                _plantProvider,
+                cancellationToken);
 
             _logger.LogInformation("Export to excel. Add sorting to queryable...");
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);

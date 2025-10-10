@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
@@ -96,7 +97,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _permissionCacheForAdminMock = new Mock<IPermissionCache>();
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheForAdminMock.Setup(i => i.GetPermissionsForUserAsync(
-                TestPlant, CurrentUserOid))
+                    TestPlant,
+                    CurrentUserOid,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             _permissionCacheForAdmin = _permissionCacheForAdminMock.Object;
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1111,7 +1114,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1246,7 +1250,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1340,7 +1345,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code op"))
+                    "FR code op",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1447,7 +1453,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code op"))
+                    "FR code op",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1605,7 +1612,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                 TestPlant,
                 CurrentUserOid.ToString(),
-                "Contractor"))
+                "Contractor",
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1620,7 +1628,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         [TestMethod]
         public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsNotCreatorOfInvitationAndNotContractor_ReturnsFalse()
         {
-            _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(TestPlant, CurrentUserOid.ToString(), "Contractor")).Returns(Task.FromResult<ForeignApi.ProCoSysPerson>(null));
+            _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
+                TestPlant,
+                CurrentUserOid.ToString(),
+                "Contractor",
+                It.IsAny<CancellationToken>())).Returns(Task.FromResult<ForeignApi.ProCoSysPerson>(null));
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1675,7 +1687,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                 TestPlant,
                 CurrentUserOid.ToString(),
-                "Contractor"))
+                "Contractor",
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1781,7 +1794,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1850,7 +1864,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1906,7 +1921,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1923,7 +1938,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1952,7 +1967,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1969,7 +1985,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))

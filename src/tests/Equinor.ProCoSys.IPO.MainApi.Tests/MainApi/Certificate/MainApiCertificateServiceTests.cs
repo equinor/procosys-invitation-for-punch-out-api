@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Certificate;
@@ -14,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
     public class MainApiCertificateServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IMainApiClient> _foreignApiClient;
+        private Mock<IMainApiClientForApplication> _foreignApiClient;
         private MainApiCertificateService _dut;
 
         private PCSCertificateCommPkg _commPkg1;
@@ -32,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IMainApiClient>();
+            _foreignApiClient = new Mock<IMainApiClientForApplication>();
 
             _commPkg1 = new PCSCertificateCommPkg
             {
@@ -74,11 +75,17 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
             };
 
             _foreignApiClient
-                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>(),
+                    null))
                 .Returns(Task.FromResult(_certificateCommPkgsModel));
 
             _foreignApiClient
-                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>(),
+                    null))
                 .Returns(Task.FromResult(_certificateMcPkgsModel));
 
             _dut = new MainApiCertificateService(_foreignApiClient.Object, _mainApiOptions.Object);
@@ -88,7 +95,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateMcPkgsAsync_ShouldReturnCorrectNumberOfMcPkgs()
         {
             // Act
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateMcPkgsAsync(
+                _plant,
+                Guid.Empty,
+                CancellationToken.None);
 
             // Assert
             Assert.AreEqual(3, result.McPkgs.Count());
@@ -98,10 +108,16 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateMcPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateMcPkgsModel>(
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>(),
+                    null))
                 .Returns(Task.FromResult<PCSCertificateMcPkgsModel>(null));
 
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateMcPkgsAsync(
+                _plant,
+                Guid.Empty,
+                It.IsAny<CancellationToken>());
 
             Assert.IsNull(result);
         }
@@ -110,7 +126,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetMcPkgsByCommPkgNoAndProjectName_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.TryGetCertificateMcPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateMcPkgsAsync(
+                _plant,
+                Guid.Empty,
+                It.IsAny<CancellationToken>());
 
             // Assert
             var mcPkg = result.McPkgs.First();
@@ -123,7 +142,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateCommPkgsAsync_ShouldReturnCorrectNumberOfCommPkgs()
         {
             // Act
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateCommPkgsAsync(
+                _plant,
+                Guid.Empty, 
+                It.IsAny<CancellationToken>());
 
             // Assert
             Assert.AreEqual(3, result.CommPkgs.Count());
@@ -133,10 +155,16 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateCommPkgsAsync_ShouldReturnNull_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(It.IsAny<string>(), null))
+                .Setup(x => x.TryQueryAndDeserializeAsync<PCSCertificateCommPkgsModel>(
+                    It.IsAny<string>(),
+                    It.IsAny<CancellationToken>(),
+                    null))
                 .Returns(Task.FromResult<PCSCertificateCommPkgsModel>(null));
 
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateCommPkgsAsync(
+                _plant,
+                Guid.Empty,
+                It.IsAny<CancellationToken>());
 
             Assert.IsNull(result);
         }
@@ -145,7 +173,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Certificate
         public async Task TryGetCertificateCommPkgsAsync_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.TryGetCertificateCommPkgsAsync(_plant, new Guid());
+            var result = await _dut.TryGetCertificateCommPkgsAsync(
+                _plant,
+                Guid.Empty,
+                It.IsAny<CancellationToken>());
 
             // Assert
             var commPkg = result.CommPkgs.First();

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Common.Misc;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
             if (currentUserProvider.HasCurrentUser)
             {
                 var oid = currentUserProvider.GetCurrentUserOid();
-                if (!await personCache.ExistsAsync(oid))
+                if (!await personCache.ExistsAsync(oid, CancellationToken.None))
                 {
                     await context.WriteForbidden(logger);
                     return;

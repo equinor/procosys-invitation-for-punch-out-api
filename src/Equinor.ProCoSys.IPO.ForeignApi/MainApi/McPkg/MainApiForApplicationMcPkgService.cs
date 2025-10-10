@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
@@ -11,14 +12,14 @@ using Newtonsoft.Json;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
-    public class MainApiMcPkgService : IMcPkgApiService
+    public class MainApiForApplicationMcPkgService : IMcPkgApiForApplicationService
     {
-        private readonly IMainApiClient _apiClient;
+        private readonly IMainApiClientForApplication _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
-        public MainApiMcPkgService(
-            IMainApiClient apiClient,
+        public MainApiForApplicationMcPkgService(
+            IMainApiClientForApplication apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {
             _apiClient = apiClient;
@@ -26,43 +27,29 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        public async Task<IList<ProCoSysMcPkgOnCommPkg>> GetMcPkgsByCommPkgNoAndProjectNameAsync(
-            string plant,
-            string projectName,
-            string commPkgNo)
-        {
-            var url = $"{_baseAddress}CommPkg/McPkgs" +
-                      $"?plantId={plant}" +
-                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
-                      $"&commPkgNo={WebUtility.UrlEncode(commPkgNo)}" +
-                      $"&api-version={_apiVersion}";
-
-            var mcPkgs = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkgOnCommPkg>>(url);
-
-            return mcPkgs;
-        }
-
         public async Task<ProCoSysMcPkg> GetMcPkgByIdAsync(
             string plant,
-            long mcPkgId)
+            long mcPkgId,
+            CancellationToken cancellationToken)
         {
             var baseUrl = $"{_baseAddress}McPkg" +
-                      $"?plantId={plant}" +
-                      $"&mcPkgId={mcPkgId}" +
-                      $"&api-version={_apiVersion}";
-            var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl);
+                          $"?plantId={plant}" +
+                          $"&mcPkgId={mcPkgId}" +
+                          $"&api-version={_apiVersion}";
+            var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl, cancellationToken);
             return response;
         }
 
         public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
             string plant,
             string projectName,
-            IList<string> mcPkgNos)
+            IList<string> mcPkgNos,
+            CancellationToken cancellationToken)
         {
             var baseUrl = $"{_baseAddress}McPkgs/ByMcPkgNos" +
-                      $"?plantId={plant}" +
-                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
-                      $"&api-version={_apiVersion}";
+                          $"?plantId={plant}" +
+                          $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                          $"&api-version={_apiVersion}";
             var mcPkgNosChunks = mcPkgNos.Chunk(80);
             var pcsMcPkgs = new List<ProCoSysMcPkg>();
 
@@ -73,7 +60,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
                 {
                     mcPkgNosString += $"&mcPkgNos={mcPkgNo}";
                 }
-                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString);
+                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString, cancellationToken);
                 pcsMcPkgs.AddRange(response);
             }
 
@@ -85,7 +72,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             int invitationId,
             string projectName,
             IList<string> mcPkgNos,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}McPkgs/SetM01" +
                       $"?plantId={plant}" +
@@ -99,7 +87,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _apiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content, cancellationToken);
         }
 
         public async Task ClearM01DatesAsync(
@@ -107,7 +95,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             int? invitationId,
             string projectName,
             IList<string> mcPkgNos,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}McPkgs/ClearM01" +
                       $"?plantId={plant}" +
@@ -137,7 +126,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _apiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content, cancellationToken);
         }
 
         public async Task SetM02DatesAsync(
@@ -145,7 +134,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             int invitationId,
             string projectName,
             IList<string> mcPkgNos,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}McPkgs/SetM02" +
                       $"?plantId={plant}" +
@@ -159,7 +149,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _apiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content, cancellationToken);
         }
 
         public async Task ClearM02DatesAsync(
@@ -167,7 +157,8 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             int invitationId,
             string projectName,
             IList<string> mcPkgNos,
-            IList<string> commPkgNos)
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
         {
             var url = $"{_baseAddress}McPkgs/ClearM02" +
                       $"?plantId={plant}" +
@@ -180,7 +171,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-            await _apiClient.PutAsync(url, content);
+            await _apiClient.PutAsync(url, content, cancellationToken);
         }
     }
 }

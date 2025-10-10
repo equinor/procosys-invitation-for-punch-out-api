@@ -47,7 +47,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetOutstandingIpos
                 var invitationsByAzureOid = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByAzureOid(plantId, currentUserOid);
 
                 var currentUsersFunctionalRoleCodes =
-                        await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant);
+                        await _meApiService.GetFunctionalRoleCodesAsync(_plantProvider.Plant, cancellationToken);
 
                 var invitationsByFunctionalRole = await _outstandingIpOsRawSqlRepository.GetOutstandingIposByFunctionalRoleCodes(plantId, currentUsersFunctionalRoleCodes);
                 var allInvitations = invitationsByAzureOid.Concat(invitationsByFunctionalRole).ToList();

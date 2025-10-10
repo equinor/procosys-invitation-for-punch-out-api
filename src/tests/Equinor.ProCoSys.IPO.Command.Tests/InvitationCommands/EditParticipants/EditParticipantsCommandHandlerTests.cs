@@ -101,11 +101,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _azureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(personDetails));
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(newPersonDetails));
 
             //mock functional role response from main API
@@ -151,16 +151,28 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
             IList<ProCoSysFunctionalRole> pcsFrMultipleInformationEmailsDetails = new List<ProCoSysFunctionalRole> { frMultipleInformationEmailsDetails };
             _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant,
+                    new List<string> { _functionalRoleCode },
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFrDetails));
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _newFunctionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant,
+                    new List<string> { _newFunctionalRoleCode },
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(newPcsFrDetails));
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleEmailsCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant,
+                    new List<string> { _functionalRoleWithMultipleEmailsCode },
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFrMultipleEmailsDetails));
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(_plant, new List<string> { _functionalRoleWithMultipleInformationEmailsCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    _plant,
+                    new List<string> { _functionalRoleWithMultipleInformationEmailsCode },
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFrMultipleInformationEmailsDetails));
 
             var mcPkgs = new List<McPkg>
@@ -230,7 +242,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
         {
             _personApiServiceMock
                 .Setup(x => x.GetPersonByOidWithPrivilegesAsync(_plant,
-                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }))
+                    _newAzureOid.ToString(), "IPO", new List<string> { "SIGN" }, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>
@@ -244,7 +256,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditParticipants
             IList<ProCoSysFunctionalRole> functionalRoles = new List<ProCoSysFunctionalRole>();
             _functionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByCodeAsync(
-                    _plant, new List<string> { _newFunctionalRoleCode }))
+                    _plant,
+                    new List<string> { _newFunctionalRoleCode },
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(functionalRoles));
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>

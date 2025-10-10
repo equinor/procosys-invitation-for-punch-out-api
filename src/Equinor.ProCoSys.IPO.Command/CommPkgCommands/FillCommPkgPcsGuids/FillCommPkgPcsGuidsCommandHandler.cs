@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
                 {
                     var project = await _projectRepository.GetByIdAsync(commPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { commPkg.CommPkgNo };
-                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
+                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo, cancellationToken);
 
                     if (commPkgDetails != null && commPkgDetails.Count == 1)
                     {
