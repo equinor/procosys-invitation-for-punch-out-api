@@ -381,7 +381,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         new AccessablePlant {Id = PlantWithoutAccess, HasAccess = false}
                     },
                     Permissions = new List<string>(),
-                    AccessableProjects = new List<AccessableProject>()
+                    AccessableProjects = new List<AccessableProject>(),
+                    Restrictions = new List<string>()
                 });
 
         // Authenticated client with necessary permissions to VIEW invitations
