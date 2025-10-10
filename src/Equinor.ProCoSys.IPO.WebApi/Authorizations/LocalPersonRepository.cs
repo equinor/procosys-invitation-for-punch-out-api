@@ -23,16 +23,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.Authorizations
                                 select person).AnyAsync(cancellationToken);
             return exists;
         }
-        
+
         public async Task<ProCoSysPerson> GetAsync(Guid userOid, CancellationToken cancellationToken)
             => await (from person in _context.QuerySet<Person>()
-                where person.Guid == userOid
-                select new ProCoSysPerson
-                {
-                    AzureOid = person.Guid.ToString(),
-                    Email = person.Email,
-                    FirstName = person.FirstName,
-                    LastName = person.LastName,
-                }).SingleOrDefaultAsync(cancellationToken);
+                      where person.Guid == userOid
+                      select new ProCoSysPerson
+                      {
+                          AzureOid = person.Guid.ToString(),
+                          Email = person.Email,
+                          FirstName = person.FirstName,
+                          LastName = person.LastName,
+                      }).SingleOrDefaultAsync(cancellationToken);
     }
 }

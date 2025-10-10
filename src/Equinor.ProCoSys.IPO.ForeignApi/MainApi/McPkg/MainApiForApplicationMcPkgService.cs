@@ -10,87 +10,87 @@ using Equinor.ProCoSys.Auth.Client;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
-
-public class MainApiForApplicationMcPkgService : IMcPkgApiForApplicationService
+namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 {
-    private readonly IMainApiClientForApplication _apiClient;
-    private readonly Uri _baseAddress;
-    private readonly string _apiVersion;
+    public class MainApiForApplicationMcPkgService : IMcPkgApiForApplicationService
+    {
+        private readonly IMainApiClientForApplication _apiClient;
+        private readonly Uri _baseAddress;
+        private readonly string _apiVersion;
 
-    public MainApiForApplicationMcPkgService(
-        IMainApiClientForApplication apiClient,
-        IOptionsMonitor<MainApiOptions> options)
-    {
-        _apiClient = apiClient;
-        _baseAddress = new Uri(options.CurrentValue.BaseAddress);
-        _apiVersion = options.CurrentValue.ApiVersion;
-    }
-    
-    public async Task<ProCoSysMcPkg> GetMcPkgByIdAsync(
-        string plant,
-        long mcPkgId,
-        CancellationToken cancellationToken)
-    {
-        var baseUrl = $"{_baseAddress}McPkg" +
-                      $"?plantId={plant}" +
-                      $"&mcPkgId={mcPkgId}" +
-                      $"&api-version={_apiVersion}";
-        var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl, cancellationToken);
-        return response;
-    }
-    
-    public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
-        string plant,
-        string projectName,
-        IList<string> mcPkgNos,
-        CancellationToken cancellationToken)
-    {
-        var baseUrl = $"{_baseAddress}McPkgs/ByMcPkgNos" +
-                      $"?plantId={plant}" +
-                      $"&projectName={WebUtility.UrlEncode(projectName)}" +
-                      $"&api-version={_apiVersion}";
-        var mcPkgNosChunks = mcPkgNos.Chunk(80);
-        var pcsMcPkgs = new List<ProCoSysMcPkg>();
-
-        foreach (var chunk in mcPkgNosChunks)
+        public MainApiForApplicationMcPkgService(
+            IMainApiClientForApplication apiClient,
+            IOptionsMonitor<MainApiOptions> options)
         {
-            var mcPkgNosString = "";
-            foreach (var mcPkgNo in chunk)
-            {
-                mcPkgNosString += $"&mcPkgNos={mcPkgNo}";
-            }
-            var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString, cancellationToken);
-            pcsMcPkgs.AddRange(response);
+            _apiClient = apiClient;
+            _baseAddress = new Uri(options.CurrentValue.BaseAddress);
+            _apiVersion = options.CurrentValue.ApiVersion;
         }
 
-        return pcsMcPkgs;
-    }
-    
-    public async Task SetM01DatesAsync(
-        string plant,
-        int invitationId,
-        string projectName,
-        IList<string> mcPkgNos,
-        IList<string> commPkgNos,
-        CancellationToken cancellationToken)
-    {
-        var url = $"{_baseAddress}McPkgs/SetM01" +
-                  $"?plantId={plant}" +
-                  $"&api-version={_apiVersion}";
-        var bodyPayload = new
+        public async Task<ProCoSysMcPkg> GetMcPkgByIdAsync(
+            string plant,
+            long mcPkgId,
+            CancellationToken cancellationToken)
         {
-            ProjectName = projectName,
-            ExternalReference = "IPO-" + invitationId,
-            McPkgNos = mcPkgNos,
-            CommPkgNos = commPkgNos
-        };
+            var baseUrl = $"{_baseAddress}McPkg" +
+                          $"?plantId={plant}" +
+                          $"&mcPkgId={mcPkgId}" +
+                          $"&api-version={_apiVersion}";
+            var response = await _apiClient.QueryAndDeserializeAsync<ProCoSysMcPkg>(baseUrl, cancellationToken);
+            return response;
+        }
 
-        var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
-        await _apiClient.PutAsync(url, content, cancellationToken);
-    }
-    
-    public async Task ClearM01DatesAsync(
+        public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
+            string plant,
+            string projectName,
+            IList<string> mcPkgNos,
+            CancellationToken cancellationToken)
+        {
+            var baseUrl = $"{_baseAddress}McPkgs/ByMcPkgNos" +
+                          $"?plantId={plant}" +
+                          $"&projectName={WebUtility.UrlEncode(projectName)}" +
+                          $"&api-version={_apiVersion}";
+            var mcPkgNosChunks = mcPkgNos.Chunk(80);
+            var pcsMcPkgs = new List<ProCoSysMcPkg>();
+
+            foreach (var chunk in mcPkgNosChunks)
+            {
+                var mcPkgNosString = "";
+                foreach (var mcPkgNo in chunk)
+                {
+                    mcPkgNosString += $"&mcPkgNos={mcPkgNo}";
+                }
+                var response = await _apiClient.QueryAndDeserializeAsync<List<ProCoSysMcPkg>>(baseUrl + mcPkgNosString, cancellationToken);
+                pcsMcPkgs.AddRange(response);
+            }
+
+            return pcsMcPkgs;
+        }
+
+        public async Task SetM01DatesAsync(
+            string plant,
+            int invitationId,
+            string projectName,
+            IList<string> mcPkgNos,
+            IList<string> commPkgNos,
+            CancellationToken cancellationToken)
+        {
+            var url = $"{_baseAddress}McPkgs/SetM01" +
+                      $"?plantId={plant}" +
+                      $"&api-version={_apiVersion}";
+            var bodyPayload = new
+            {
+                ProjectName = projectName,
+                ExternalReference = "IPO-" + invitationId,
+                McPkgNos = mcPkgNos,
+                CommPkgNos = commPkgNos
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
+            await _apiClient.PutAsync(url, content, cancellationToken);
+        }
+
+        public async Task ClearM01DatesAsync(
             string plant,
             int? invitationId,
             string projectName,
@@ -173,4 +173,5 @@ public class MainApiForApplicationMcPkgService : IMcPkgApiForApplicationService
             var content = new StringContent(JsonConvert.SerializeObject(bodyPayload), Encoding.UTF8, "application/json");
             await _apiClient.PutAsync(url, content, cancellationToken);
         }
+    }
 }

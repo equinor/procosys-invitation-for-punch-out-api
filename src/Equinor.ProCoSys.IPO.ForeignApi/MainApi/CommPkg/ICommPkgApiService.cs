@@ -13,13 +13,13 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
             CancellationToken cancellationToken,
             int? itemsPerPage = 10,
             int? currentPage = 0);
-        
+
         Task<IList<ProCoSysCommPkg>> GetCommPkgsByCommPkgNosAsync(
             string plant,
             string projectName,
             IList<string> commPkgNos,
             CancellationToken cancellationToken);
-        
+
         Task<IList<ProCoSysRfocOnCommPkg>> GetRfocGuidsByCommPkgNosAsync(
             string plant,
             string projectName,

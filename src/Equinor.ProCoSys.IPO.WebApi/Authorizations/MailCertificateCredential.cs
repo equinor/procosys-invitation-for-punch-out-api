@@ -18,13 +18,13 @@ public class MailCertificateCredential : IMailCredential
     {
         var graphConfig = config.GetSection("Graph");
         _clientId = graphConfig.GetValue<string>("ClientId");
-        
+
         var credentialConfig = graphConfig.GetSection("ClientCredentials:0");
         _keyVaultCertificateName = credentialConfig.GetValue<string>("KeyVaultCertificateName");
-        
+
         var keyVaultUrl = credentialConfig.GetValue<string>("KeyVaultUrl");
         _keyVaultUri = new Uri(keyVaultUrl!);
-        
+
         var azureAdConfig = config.GetSection("AzureAd");
         _tenantId = azureAdConfig.GetValue<string>("TenantId");
     }
@@ -36,7 +36,7 @@ public class MailCertificateCredential : IMailCredential
 
         return new ClientCertificateCredential(_tenantId, _clientId, certificate);
     }
-    
+
     private KeyVaultSecret RetrieveSecret()
     {
         var defaultCredential = new DefaultAzureCredential();

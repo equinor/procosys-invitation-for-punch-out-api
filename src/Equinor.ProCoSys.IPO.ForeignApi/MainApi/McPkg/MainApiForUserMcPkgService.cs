@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
 
             return mcPkgs;
         }
-        
+
         public async Task<IList<ProCoSysMcPkg>> GetMcPkgsByMcPkgNosAsync(
             string plant,
             string projectName,
@@ -68,6 +68,6 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg
             return pcsMcPkgs;
         }
 
-        
+
     }
 }

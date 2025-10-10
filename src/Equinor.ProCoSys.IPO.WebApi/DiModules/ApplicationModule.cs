@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
             services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
             services.Configure<FamOptions>(configuration.GetSection("Fam"));
-            
+
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
             services.Configure<ApplicationOptions>(configuration.GetSection("Application"));
@@ -163,11 +163,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddSingleton<ICalendarService, CalendarService>();
 
             services.AddTransient<IEmailService, IpoEmailService>();
-            
+
             AddHttpClients(services);
             AddMailCredential(services, configuration);
         }
-        
+
         private static void AddHttpClients(IServiceCollection services)
         {
             services.AddTransient<LibraryApiForUserTokenHandler>();
@@ -175,7 +175,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddHttpClient(LibraryApiClientForUser.ClientName)
                 .AddHttpMessageHandler<LibraryApiForUserTokenHandler>();
         }
-        
+
         private static void AddMailCredential(IServiceCollection services, IConfiguration configuration)
         {
             if (configuration.IsDevOnLocalhost())
@@ -183,7 +183,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 services.AddTransient<IMailCredential, MailCertificateCredential>();
                 return;
             }
-            
+
             services.AddTransient<IMailCredential, MailDefaultCredential>();
         }
     }
