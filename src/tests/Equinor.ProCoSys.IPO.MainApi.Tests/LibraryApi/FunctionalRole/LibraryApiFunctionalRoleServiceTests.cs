@@ -184,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.LibraryApi.FunctionalRole
                     It.IsAny<string>(),
                     It.IsAny<CancellationToken>(),
                     It.IsAny<List<KeyValuePair<string, string>>>()))
-                    .Callback<string, List<KeyValuePair<string, string>>>((r, _) => url = r);
+                    .Callback<string, CancellationToken, List<KeyValuePair<string, string>>>((r, _, _) => url = r);
 
             // Act
             await _dut.GetFunctionalRolesByCodeAsync(_plant, new List<string> { "C&D" }, CancellationToken.None);
