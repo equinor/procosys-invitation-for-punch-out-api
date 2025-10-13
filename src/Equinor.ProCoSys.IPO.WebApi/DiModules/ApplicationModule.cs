@@ -180,6 +180,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
         {
             if (configuration.IsDevOnLocalhost())
             {
+                // The default credentials use federated credentials for authentication.
+                // That will not work on a local dev machine.
+                // Replacing the default authentication with a certificate authentication.
                 services.AddTransient<IMailCredential, MailCertificateCredential>();
                 return;
             }
