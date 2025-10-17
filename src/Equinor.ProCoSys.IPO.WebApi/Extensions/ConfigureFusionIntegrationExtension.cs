@@ -31,15 +31,15 @@ public static class ConfigureFusionIntegrationExtension
             options.UseDefaultTokenProvider(opts =>
             {
                 opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
-                opts.ClientAssertion = _ =>
-                {
-                    var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
-                    return aksClientAssertion.GetSignedAssertionAsync(
-                        new AssertionRequestOptions
-                        {
-                            ClientID = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId))
-                        });
-                };
+                // opts.ClientAssertion = _ =>
+                // {
+                //     var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
+                //     return aksClientAssertion.GetSignedAssertionAsync(
+                //         new AssertionRequestOptions
+                //         {
+                //             ClientID = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId))
+                //         });
+                // };
             });
             options.AddMeetings(s => s.SetHttpClientTimeout(
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionRequestTimeout")),
