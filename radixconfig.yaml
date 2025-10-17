@@ -39,7 +39,7 @@ spec:
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: ci
-        Meetings__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244
+        Meetings__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
       monitoring: true
       resources:
@@ -67,7 +67,7 @@ spec:
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: fqa
-        Meetings__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31
+        Meetings__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
       monitoring: true
       replicas: 2
@@ -96,7 +96,7 @@ spec:
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: fprd
-        Meetings__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173
+        Meetings__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
       monitoring: false
       replicas: 3
