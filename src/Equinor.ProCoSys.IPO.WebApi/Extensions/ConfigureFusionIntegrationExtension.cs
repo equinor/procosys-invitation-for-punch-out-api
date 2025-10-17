@@ -28,7 +28,7 @@ public static class ConfigureFusionIntegrationExtension
                 meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
             options.UseDefaultTokenProvider(opts =>
             {
-                opts.ClientId = configuration["Meetings:ClientId"]; // Application client ID
+                opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
                 opts.ClientSecret = configuration["Meetings:ClientSecret"]; // Application client secret
             });
             options.AddMeetings(s => s.SetHttpClientTimeout(
