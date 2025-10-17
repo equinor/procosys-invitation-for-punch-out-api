@@ -1,5 +1,6 @@
 using System;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,10 +21,11 @@ public static class ConfigureFusionIntegrationExtension
 
         builder.Services.AddFusionIntegration(options =>
         {
+            var meetingOptions = configuration.GetSection("Meetings");
+            
             options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier
             options.UseDefaultEndpointResolver(
-                configuration
-                    ["Meetings:Environment"]); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
+                meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
             options.UseDefaultTokenProvider(opts =>
             {
                 opts.ClientId = configuration["Meetings:ClientId"]; // Application client ID
