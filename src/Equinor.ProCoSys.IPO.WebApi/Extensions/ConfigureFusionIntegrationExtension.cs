@@ -30,6 +30,7 @@ public static class ConfigureFusionIntegrationExtension
                 meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
             options.UseDefaultTokenProvider(opts =>
             {
+                opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
                 opts.ClientAssertion = _ =>
                 {
                     var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
