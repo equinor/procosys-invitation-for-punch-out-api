@@ -28,19 +28,20 @@ public static class ConfigureFusionIntegrationExtension
             options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier
             options.UseDefaultEndpointResolver(
                 meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
-            options.UseDefaultTokenProvider(opts =>
-            {
-                opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
-                // opts.ClientAssertion = _ =>
-                // {
-                //     var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
-                //     return aksClientAssertion.GetSignedAssertionAsync(
-                //         new AssertionRequestOptions
-                //         {
-                //             ClientID = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId))
-                //         });
-                // };
-            });
+            // options.UseDefaultTokenProvider(opts =>
+            // {
+            //     opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
+            //     // opts.ClientAssertion = _ =>
+            //     // {
+            //     //     var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
+            //     //     return aksClientAssertion.GetSignedAssertionAsync(
+            //     //         new AssertionRequestOptions
+            //     //         {
+            //     //             ClientID = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId))
+            //     //         });
+            //     // };
+            // });
+            options.UseMsalTokenProvider();
             options.AddMeetings(s => s.SetHttpClientTimeout(
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionRequestTimeout")),
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionTotalTimeout"))));
