@@ -38,6 +38,7 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
       monitoring: true
       resources:
         requests:
@@ -63,6 +64,7 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://procosystest.equinor.com/
       monitoring: true
       replicas: 2
       resources:
@@ -89,6 +91,7 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://procosys.equinor.com/
       monitoring: false
       replicas: 3
       resources:
