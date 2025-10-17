@@ -11,24 +11,25 @@ namespace Equinor.ProCoSys.IPO.Query.GetMcPkgsUnderCommPkgInProject
 {
     public class GetMcPkgsUnderCommPkgInProjectQueryHandler : IRequestHandler<GetMcPkgsUnderCommPkgInProjectQuery, Result<List<ProCoSysMcPkgDto>>>
     {
-        private readonly IMcPkgApiService _mcPkgApiService;
+        private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly IPlantProvider _plantProvider;
 
         public GetMcPkgsUnderCommPkgInProjectQueryHandler(
-            IMcPkgApiService mcPkgApiService,
+            IMcPkgApiForUserService mcPkgApiForUserService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;
-            _mcPkgApiService = mcPkgApiService;
+            _mcPkgApiForUserService = mcPkgApiForUserService;
         }
 
         public async Task<Result<List<ProCoSysMcPkgDto>>> Handle(GetMcPkgsUnderCommPkgInProjectQuery request,
             CancellationToken cancellationToken)
         {
-            var mainApiMcPkgs = await _mcPkgApiService
+            var mainApiMcPkgs = await _mcPkgApiForUserService
                 .GetMcPkgsByCommPkgNoAndProjectNameAsync(
                    _plantProvider.Plant, request.ProjectName,
-                   request.CommPkgNo)
+                   request.CommPkgNo,
+                   cancellationToken)
                    ?? new List<ProCoSysMcPkgOnCommPkg>();
 
             var mcPkgDtos = mainApiMcPkgs

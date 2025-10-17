@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Caches;
 using Equinor.ProCoSys.Auth.Permission;
@@ -90,7 +91,10 @@ namespace Equinor.ProCoSys.IPO.Test.Common
             _eventDispatcher = eventDispatcher.Object;
 
             _permissionCacheMock = new Mock<IPermissionCache>();
-            _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(TestPlant, CurrentUserOid))
+            _permissionCacheMock.Setup(x => x.GetProjectsForUserAsync(
+                    TestPlant,
+                    CurrentUserOid,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new List<AccessableProject>
                 {
                     new() {Name = "Project1"},

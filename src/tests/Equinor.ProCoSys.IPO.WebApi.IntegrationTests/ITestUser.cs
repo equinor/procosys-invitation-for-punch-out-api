@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         List<AccessablePlant> AccessablePlants { get; set; }
         List<AccessableProject> AccessableProjects { get; set; }
         List<string> Permissions { get; set; }
+        List<string> Restrictions { get; set; }
         HttpClient HttpClient { get; set; }
     }
 }
