@@ -44,6 +44,7 @@ spec:
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
       monitoring: true
       resources:
         requests:
@@ -75,6 +76,7 @@ spec:
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://procosystest.equinor.com/
       monitoring: true
       replicas: 2
       resources:
@@ -107,6 +109,7 @@ spec:
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        Meetings__PcsBaseUrl: https://procosys.equinor.com/
       monitoring: false
       replicas: 3
       resources:
