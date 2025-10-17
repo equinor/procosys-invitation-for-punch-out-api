@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -43,7 +44,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
                 };
 
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByClassificationAsync(TestPlant, _classification))
+                    .Setup(x => x.GetFunctionalRolesByClassificationAsync(
+                        TestPlant,
+                        _classification,
+                        CancellationToken.None))
                     .Returns(Task.FromResult(_libraryApiFunctionalRoles));
 
                 _query = new GetFunctionalRolesForIpoQuery(_classification);
@@ -87,7 +91,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetFunctionalRoles
             {
                 var dut = new GetFunctionalRolesForIpoQueryHandler(_functionalRoleApiServiceMock.Object, _plantProvider);
                 _functionalRoleApiServiceMock
-                    .Setup(x => x.GetFunctionalRolesByClassificationAsync(TestPlant, _classification))
+                    .Setup(x => x.GetFunctionalRolesByClassificationAsync(
+                        TestPlant,
+                        _classification,
+                        CancellationToken.None))
                     .Returns(Task.FromResult<IList<ProCoSysFunctionalRole>>(null));
 
                 var result = await dut.Handle(_query, default);

@@ -95,12 +95,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 _logger.LogError(e, $"Fusion meeting error. MeetingId={invitation.MeetingId}.");
             }
 
-            var invitationDto = await ConvertToInvitationDtoAsync(invitation, meeting, createdBy);
+            var invitationDto = await ConvertToInvitationDtoAsync(invitation, meeting, createdBy, cancellationToken);
 
             return new SuccessResult<InvitationDto>(invitationDto);
         }
 
-        private async Task<InvitationDto> ConvertToInvitationDtoAsync(Invitation invitation, GeneralMeeting meeting, Person createdBy)
+        private async Task<InvitationDto> ConvertToInvitationDtoAsync(Invitation invitation, GeneralMeeting meeting, Person createdBy, CancellationToken cancellationToken)
         {
             var canEdit = meeting != null &&
                            (meeting.Participants.Any(p => p.Person.Id == _currentUserProvider.GetCurrentUserOid()) ||
@@ -109,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
             var canDelete = invitation.Status is IpoStatus.Canceled or IpoStatus.ScopeHandedOver && currentUserIsCreator;
             var canCancel = invitation.Status is IpoStatus.Completed or IpoStatus.Planned
                             && (currentUserIsCreator
-                                || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList()));
+                                || await CurrentUserIsAmongParticipantsAsync(invitation.Participants.Where(p => p.SortKey == 0).ToList(), cancellationToken));
 
             var project = await _context.QuerySet<Project>().SingleOrDefaultAsync(x => x.Id == invitation.ProjectId);
             if (project is null)
@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                 canDelete,
                 meeting?.IsOnlineMeeting)
             {
-                Participants = await ConvertToParticipantDtoAsync(invitation.Participants, invitation.Status),
+                Participants = await ConvertToParticipantDtoAsync(invitation.Participants, invitation.Status, cancellationToken),
                 McPkgScope = ConvertToMcPkgDto(invitation.McPkgs),
                 CommPkgScope = ConvertToCommPkgDto(invitation.CommPkgs)
             };
@@ -231,15 +231,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private static IEnumerable<McPkgScopeDto> ConvertToMcPkgDto(IEnumerable<McPkg> mcPkgs)
             => mcPkgs.Select(mcPkg => new McPkgScopeDto(mcPkg.McPkgNo, mcPkg.Description, mcPkg.CommPkgNo, mcPkg.System, mcPkg.RfocAccepted));
 
-        private async Task<IEnumerable<ParticipantDto>> ConvertToParticipantDtoAsync(IReadOnlyCollection<Participant> participants, IpoStatus ipoStatus)
+        private async Task<IEnumerable<ParticipantDto>> ConvertToParticipantDtoAsync(IReadOnlyCollection<Participant> participants, IpoStatus ipoStatus, CancellationToken cancellationToken)
         {
             var participantDtos = new List<ParticipantDto>();
             var orderedParticipants = participants.OrderBy(p => p.SortKey);
             var currentUserNextRequiredSigner =
                 (ipoStatus == IpoStatus.Planned
-                && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 0 && p.SignedAtUtc == null).ToList()))
+                && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 0 && p.SignedAtUtc == null).ToList(), cancellationToken))
                 || (ipoStatus == IpoStatus.Completed
-                && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 1 && p.SignedAtUtc == null).ToList()));
+                && await CurrentUserIsAmongParticipantsAsync(participants.Where(p => p.SortKey == 1 && p.SignedAtUtc == null).ToList(), cancellationToken));
             foreach (var participant in orderedParticipants)
             {
                 if (participant.Type == IpoParticipantType.FunctionalRole)
@@ -248,7 +248,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                         .Where(p => p.FunctionalRoleCode == participant.FunctionalRoleCode
                                     && p.SortKey == participant.SortKey
                                     && p.Type == IpoParticipantType.Person);
-                    var currentUserIsInFunctionalRole = await CurrentUserIsInFunctionalRoleAsync(participant);
+                    var currentUserIsInFunctionalRole = await CurrentUserIsInFunctionalRoleAsync(participant, cancellationToken);
                     var canSign = IsSigningParticipant(participant) && currentUserIsInFunctionalRole;
 
                     participantDtos.Add(new ParticipantDto(
@@ -349,11 +349,12 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
         private bool IsSigningParticipant(Participant participant)
             => participant.Organization != Organization.Supplier && participant.Organization != Organization.External;
 
-        private async Task<bool> CurrentUserIsInFunctionalRoleAsync(Participant participant)
+        private async Task<bool> CurrentUserIsInFunctionalRoleAsync(Participant participant, CancellationToken cancellationToken)
         {
             var functionalRoles = await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
                 _plantProvider.Plant,
-                new List<string> { participant.FunctionalRoleCode });
+                new List<string> { participant.FunctionalRoleCode },
+                cancellationToken);
             var functionalRole = functionalRoles.SingleOrDefault();
 
             return functionalRole?.Persons != null &&
@@ -362,7 +363,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
                        new Guid(person.AzureOid) == _currentUserProvider.GetCurrentUserOid());
         }
 
-        private async Task<bool> CurrentUserIsAmongParticipantsAsync(IList<Participant> participants)
+        private async Task<bool> CurrentUserIsAmongParticipantsAsync(IList<Participant> participants, CancellationToken cancellationToken)
         {
             if (participants.Any(participant => participant.AzureOid != null && participant.AzureOid == _currentUserProvider.GetCurrentUserOid()))
             {
@@ -371,7 +372,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationById
 
             foreach (var participant in participants.Where(p => p.Type == IpoParticipantType.FunctionalRole))
             {
-                if (await CurrentUserIsInFunctionalRoleAsync(participant)) { return true; }
+                if (await CurrentUserIsInFunctionalRoleAsync(participant, cancellationToken)) { return true; }
             }
 
             return false;

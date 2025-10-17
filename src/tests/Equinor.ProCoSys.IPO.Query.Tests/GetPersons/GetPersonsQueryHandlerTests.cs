@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -77,7 +78,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersons
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsAsync(TestPlant, _searchString, _numOfRows))
+                    .Setup(x => x.GetPersonsAsync(TestPlant, _searchString, It.IsAny<CancellationToken>(), _numOfRows))
                     .Returns(Task.FromResult(_mainApiPersons));
 
                 _query = new GetPersonsQuery(_searchString);
@@ -104,7 +105,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersons
 
                 var dut = new GetPersonsQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsAsync(TestPlant, _searchString, _numOfRows))
+                    .Setup(x => x.GetPersonsAsync(TestPlant, _searchString, It.IsAny<CancellationToken>(), _numOfRows))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);

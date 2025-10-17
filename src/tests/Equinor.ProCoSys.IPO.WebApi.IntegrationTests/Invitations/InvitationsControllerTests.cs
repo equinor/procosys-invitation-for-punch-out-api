@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.CreateInvitation;
 using Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations.EditInvitation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 {
@@ -539,7 +541,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         TestFactory.PlantWithAccess,
                         editInvitedPersonDto.AzureOid.ToString(),
                         "IPO",
-                        new List<string> { "SIGN" }))
+                        new List<string> { "SIGN" },
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = editInvitedPersonDto.AzureOid.ToString(),
@@ -873,7 +876,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
                     _contractor.AsMainProCoSysPerson().AzureOid,
-                    participants.First().FunctionalRole.Code))
+                    participants.First().FunctionalRole.Code,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
@@ -979,7 +983,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                     TestFactory.PlantWithAccess,
                     _contractor.AsMainProCoSysPerson().AzureOid,
-                    participants.First().FunctionalRole.Code))
+                    participants.First().FunctionalRole.Code,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act
@@ -1051,7 +1056,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                 .Setup(x => x.GetPersonInFunctionalRoleAsync(
                         TestFactory.PlantWithAccess,
                         _contractor.AsMainProCoSysPerson().AzureOid,
-                        "FRCA"))
+                        "FRCA",
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             // Act

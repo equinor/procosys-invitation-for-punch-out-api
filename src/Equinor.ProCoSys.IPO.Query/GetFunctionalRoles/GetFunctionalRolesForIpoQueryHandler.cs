@@ -28,7 +28,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetFunctionalRoles
             var mainApiFunctionalRoles = await _functionalRoleApiService
                                 .GetFunctionalRolesByClassificationAsync(
                                         _plantProvider.Plant,
-                                        request.Classification)
+                                        request.Classification,
+                                        cancellationToken)
                                 ?? new List<ProCoSysFunctionalRole>();
 
             var functionalRoleDtos = mainApiFunctionalRoles

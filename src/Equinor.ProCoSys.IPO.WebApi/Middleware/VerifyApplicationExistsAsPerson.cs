@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,18 +13,18 @@ using Microsoft.Extensions.Options;
 namespace Equinor.ProCoSys.IPO.WebApi.Middleware
 {
     /// <summary>
-    /// Ensure that IpoApiObjectId (i.e the application) exists as Person.
+    /// Ensure that Application:ObjectId (i.e the application) exists as Person.
     /// Needed when application modifies data, setting ModifiedById for changed records
     /// </summary>
     public class VerifyApplicationExistsAsPerson : IHostedService
     {
         private readonly IServiceScopeFactory _serviceProvider;
-        private readonly IOptionsMonitor<IpoAuthenticatorOptions> _options;
+        private readonly IOptionsMonitor<ApplicationOptions> _options;
         private readonly ILogger<VerifyApplicationExistsAsPerson> _logger;
 
         public VerifyApplicationExistsAsPerson(
             IServiceScopeFactory serviceProvider,
-            IOptionsMonitor<IpoAuthenticatorOptions> options,
+            IOptionsMonitor<ApplicationOptions> options,
             ILogger<VerifyApplicationExistsAsPerson> logger)
         {
             _serviceProvider = serviceProvider;
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Middleware
                 scope.ServiceProvider
                     .GetRequiredService<ICurrentUserSetter>();
 
-            var oid = _options.CurrentValue.IpoApiObjectId;
+            var oid = _options.CurrentValue.ObjectId;
             _logger.LogInformation("Ensuring '{Oid}' exists as Person", oid);
             try
             {

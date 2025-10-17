@@ -30,7 +30,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetPersons
             var mainApiPersons = await _personApiService
                 .GetPersonsAsync(
                     _plantProvider.Plant,
-                    request.SearchString)
+                    request.SearchString,
+                    cancellationToken)
                 ?? new List<ProCoSysPerson>();
 
             var personDtos = mainApiPersons

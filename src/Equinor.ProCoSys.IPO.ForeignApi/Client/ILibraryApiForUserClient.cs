@@ -2,7 +2,7 @@
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client
 {
-    public interface ILibraryApiClient : IApiClient
+    public interface ILibraryApiForUserClient : IApiClient
     {
     }
 }

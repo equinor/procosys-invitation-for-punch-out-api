@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -13,7 +14,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
     public class MainApiPersonServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IMainApiClient> _foreignApiClient;
+        private Mock<IMainApiClientForUser> _foreignApiClient;
         private MainApiPersonService _dut;
         private ProCoSysPerson _proCoSysPerson1;
         private ProCoSysPerson _proCoSysPerson2;
@@ -34,7 +35,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IMainApiClient>();
+            _foreignApiClient = new Mock<IMainApiClientForUser>();
 
             _proCoSysPerson1 = new ProCoSysPerson
             {
@@ -62,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
             };
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson> { _proCoSysPerson1, _proCoSysPerson2, _proCoSysPerson3 }));
 
             _dut = new MainApiPersonService(_foreignApiClient.Object, _mainApiOptions.Object);
@@ -72,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -82,10 +83,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             Assert.AreEqual(0, result.Count);
         }
@@ -94,7 +95,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersons_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsAsync(_plant, _searchString);
+            var result = await _dut.GetPersonsAsync(_plant, _searchString, CancellationToken.None);
 
             // Assert
             var person = result.First();
@@ -109,7 +110,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsWithPrivileges_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -119,10 +125,15 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsWithPrivileges_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             Assert.AreEqual(0, result.Count);
         }
@@ -131,7 +142,12 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsWithPrivileges_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsWithPrivilegesAsync(_plant, _searchString, _objectName, _privileges);
+            var result = await _dut.GetPersonsWithPrivilegesAsync(
+                _plant,
+                _searchString,
+                _objectName,
+                _privileges,
+                It.IsAny<CancellationToken>());
 
             // Assert
             var person = result.First();
@@ -146,7 +162,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsByOidsAsync_ShouldReturnCorrectNumberOfPersons()
         {
             // Act
-            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids);
+            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids, CancellationToken.None);
 
             // Assert
             Assert.AreEqual(3, result.Count);
@@ -156,10 +172,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsByOidsAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<List<ProCoSysPerson>>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(new List<ProCoSysPerson>()));
 
-            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids);
+            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids, CancellationToken.None);
 
             Assert.AreEqual(0, result.Count);
         }
@@ -168,7 +184,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonsByOidsAsync_ShouldReturnCorrectProperties()
         {
             // Act
-            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids);
+            var result = await _dut.GetPersonsByOidsAsync(_plant, Oids, CancellationToken.None);
 
             // Assert
             var person = result.First();
@@ -183,10 +199,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectNumberOfPersons()
         {
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             // Assert
             Assert.IsNotNull(result);
@@ -196,10 +212,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnEmptyList_WhenResultIsInvalid()
         {
             _foreignApiClient
-                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
+                .Setup(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
-            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var result = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             Assert.IsNull(result);
         }
@@ -208,10 +224,10 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.Person
         public async Task GetPersonByOidWithPrivilegesAsync_ShouldReturnCorrectProperties()
         {
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysPerson>(It.IsAny<string>(), It.IsAny<CancellationToken>(), null))
                 .Returns(Task.FromResult(_proCoSysPerson1));
             // Act
-            var person = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges);
+            var person = await _dut.GetPersonByOidWithPrivilegesAsync(_plant, Oids[0], _objectName, _privileges, CancellationToken.None);
 
             // Assert
             Assert.AreEqual("12345678-1234-123456789123", person.AzureOid);

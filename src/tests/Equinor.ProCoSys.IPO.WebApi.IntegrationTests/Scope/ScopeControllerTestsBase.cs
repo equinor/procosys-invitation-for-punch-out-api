@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
 {
@@ -86,6 +88,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
                     "CommPkgNo",
+                    CancellationToken.None,
                     10,
                     0))
                 .Returns(Task.FromResult(_commPkgSearchResult));
@@ -93,7 +96,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
             TestFactory.Instance
                 .ProjectApiServiceMock
                 .Setup(x => x.GetProjectsInPlantAsync(
-                    TestFactory.PlantWithAccess))
+                    TestFactory.PlantWithAccess,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_projects));
 
             TestFactory.Instance
@@ -101,7 +105,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Scope
                 .Setup(x => x.GetMcPkgsByCommPkgNoAndProjectNameAsync(
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
-                    "CommPkgNo"))
+                    "CommPkgNo",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_mcPkgs));
         }
     }
