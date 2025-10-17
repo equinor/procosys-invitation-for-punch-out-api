@@ -4,6 +4,7 @@ using Equinor.ProCoSys.IPO.Command;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Web;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
@@ -29,7 +30,11 @@ public static class ConfigureFusionIntegrationExtension
             options.UseDefaultTokenProvider(opts =>
             {
                 opts.ClientId = meetingOptions.GetValue<string>(nameof(MeetingOptions.ClientId)); // Application client ID
-                opts.ClientSecret = configuration["Meetings:ClientSecret"]; // Application client secret
+                opts.ClientAssertion = _ =>
+                {
+                    var aksClientAssertion = new AzureIdentityForKubernetesClientAssertion();
+                    return aksClientAssertion.GetSignedAssertionAsync(null);
+                };
             });
             options.AddMeetings(s => s.SetHttpClientTimeout(
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionRequestTimeout")),
