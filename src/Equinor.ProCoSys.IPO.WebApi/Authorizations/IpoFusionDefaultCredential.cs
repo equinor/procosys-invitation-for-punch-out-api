@@ -11,8 +11,8 @@ public class IpoFusionDefaultCredential : IIpoFusionCredential
 
     public IpoFusionDefaultCredential(IConfiguration config)
     {
-        var graphSection = config.GetSection("Fusion");
-        _fusionClientId = graphSection.GetValue<string>("ClientId");
+        var meetingConfig = config.GetSection("Meetings");
+        _fusionClientId = meetingConfig.GetValue<string>("ClientId");
     }
 
     public Task<TokenCredential> GetCredentialAsync()

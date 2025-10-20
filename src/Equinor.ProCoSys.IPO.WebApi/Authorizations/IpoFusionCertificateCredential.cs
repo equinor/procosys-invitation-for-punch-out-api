@@ -17,10 +17,10 @@ public class IpoFusionCertificateCredential : IIpoFusionCredential
 
     public IpoFusionCertificateCredential(IConfiguration config)
     {
-        var fusionConfig = config.GetSection("Fusion");
-        _clientId = fusionConfig.GetValue<string>("ClientId");
+        var meetingConfig = config.GetSection("Meetings");
+        _clientId = meetingConfig.GetValue<string>("ClientId");
 
-        var credentialConfig = fusionConfig.GetSection("ClientCredentials:0");
+        var credentialConfig = meetingConfig.GetSection("ClientCredentials:0");
         _keyVaultCertificateName = credentialConfig.GetValue<string>("KeyVaultCertificateName");
 
         var keyVaultUrl = credentialConfig.GetValue<string>("KeyVaultUrl");
