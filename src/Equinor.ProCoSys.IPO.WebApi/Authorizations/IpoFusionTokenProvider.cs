@@ -1,22 +1,35 @@
-using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
 using Fusion.Integration.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Web;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
 
-public class IpoFusionTokenProvider(IIpoFusionCredential credential) : IFusionTokenProvider
+public class IpoFusionTokenProvider : IFusionTokenProvider
 {
-    public async Task<string> GetApplicationTokenAsync(string scope) => await GetAppAccessTokenAsync(scope);
+    private readonly ITokenAcquisition _tokenAcquisition;
+    private readonly string _scope;
 
-    public async Task<string> GetDelegatedToken(string scope) => await GetAppAccessTokenAsync(scope);
-    
-    private async Task<string> GetAppAccessTokenAsync(string scope)
+    public IpoFusionTokenProvider(ITokenAcquisition tokenAcquisition, IConfiguration config)
     {
-        var ipoCredential = await credential.GetCredentialAsync();
+        _tokenAcquisition = tokenAcquisition;
 
-        var token = await ipoCredential.GetTokenAsync(new TokenRequestContext([scope]), CancellationToken.None);
-
-        return token.Token;
+        var azureAdConfig = config.GetSection("AzureAd");
+        var clientId = azureAdConfig.GetValue<string>("ClientId");
+        
+        _scope = $"{clientId}/.default";
+        
     }
+
+    public async Task<string> GetApplicationTokenAsync(string _)
+    {
+        return await _tokenAcquisition.GetAccessTokenForAppAsync(
+            _scope,
+            tokenAcquisitionOptions: new TokenAcquisitionOptions());
+    }
+
+    public async Task<string> GetDelegatedToken(string _) =>
+        await _tokenAcquisition.GetAccessTokenForUserAsync(
+            [_scope],
+            tokenAcquisitionOptions: new TokenAcquisitionOptions());
 }

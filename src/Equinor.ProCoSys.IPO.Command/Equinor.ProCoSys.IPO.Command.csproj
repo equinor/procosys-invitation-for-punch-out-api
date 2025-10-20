@@ -17,6 +17,7 @@
     <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.2" />
     <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="4.3.16" />
     <PackageReference Include="FluentValidation" Version="11.10.0" />
+    <PackageReference Include="Fusion.Infrastructure.Authentication" Version="9.0.0" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="9.1.0" />
     <PackageReference Include="MassTransit" Version="8.2.2" />
     <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.2.2" />
