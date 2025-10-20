@@ -166,6 +166,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             AddHttpClients(services);
             AddMailCredential(services, configuration);
+            AddFusionCredential(services, configuration);
         }
 
         private static void AddHttpClients(IServiceCollection services)
