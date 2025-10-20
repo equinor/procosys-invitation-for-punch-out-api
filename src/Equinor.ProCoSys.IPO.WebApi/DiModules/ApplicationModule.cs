@@ -189,5 +189,19 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddTransient<IMailCredential, MailDefaultCredential>();
         }
+        
+        private static void AddFusionCredential(IServiceCollection services, IConfiguration configuration)
+        {
+            if (configuration.IsDevOnLocalhost())
+            {
+                // The default credentials use federated credentials for authentication.
+                // That will not work on a local dev machine.
+                // Replacing the default authentication with a certificate authentication.
+                services.AddTransient<IIpoFusionCredential, IpoFusionCertificateCredential>();
+                return;
+            }
+
+            services.AddTransient<IIpoFusionCredential, IpoFusionDefaultCredential>();
+        }
     }
 }
