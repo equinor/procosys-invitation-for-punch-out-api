@@ -23,7 +23,7 @@ public static class ConfigureFusionIntegrationExtension
         builder.Services.AddFusionIntegration<IpoFusionTokenProvider>(options =>
         {
             var meetingOptions = configuration.GetSection("Meetings");
-            
+
             options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier
             options.UseDefaultEndpointResolver(
                 meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc

@@ -13,7 +13,7 @@ public class IpoFusionTokenProvider(ITokenAcquisition tokenAcquisition) : IFusio
         {
             scope = scopeV2;
         }
-        
+
         return await tokenAcquisition.GetAccessTokenForAppAsync(
             scope,
             tokenAcquisitionOptions: new TokenAcquisitionOptions());
@@ -25,7 +25,7 @@ public class IpoFusionTokenProvider(ITokenAcquisition tokenAcquisition) : IFusio
         {
             scope = scopeV2;
         }
-        
+
         return await tokenAcquisition.GetAccessTokenForUserAsync(
             [scope],
             tokenAcquisitionOptions: new TokenAcquisitionOptions());
@@ -35,14 +35,14 @@ public class IpoFusionTokenProvider(ITokenAcquisition tokenAcquisition) : IFusio
     {
         // Logic is based on DefaultFusionTokenProvider GetDefaultScope function.
         // https://github.com/equinor/fusion-integration-lib/blob/3e44d2899c8b6563f1cf8bdb132dd905b35f7df3/src/Fusion.Integration/Internals/DefaultFusionTokenProvider.cs#L154
-        
+
         v2ScopeString = string.Empty;
-        
+
         if (string.IsNullOrWhiteSpace(v1ScopeString))
         {
             return false;
         }
-        
+
         if (Guid.TryParse(v1ScopeString, out var clientId))
         {
             v2ScopeString = $"{clientId}/.default";
