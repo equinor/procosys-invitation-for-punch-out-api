@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
+using Azure.Core;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Client;
@@ -55,7 +57,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
     public static class ApplicationModule
     {
-        public static void AddApplicationModules(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApplicationModules(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            TokenCredential credential)
         {
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
@@ -87,10 +92,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     o.UseBusOutbox();
                 });
 
-                x.UsingAzureServiceBus((context, cfg) =>
+                x.UsingAzureServiceBus((_, cfg) =>
                 {
-                    var connectionString = configuration.GetConnectionString("ServiceBus");
-                    cfg.Host(connectionString);
+                    var serviceBusNamespace = configuration.GetValue<string>("ServiceBus:Namespace");
+                    var serviceUri = new Uri($"sb://{serviceBusNamespace}.servicebus.windows.net/");
+                    
+                    cfg.Host(serviceUri, host =>
+                    {
+                        host.TokenCredential = credential;
+                    });
 
                     cfg.MessageTopology.SetEntityNameFormatter(new IpoEntityNameFormatter());
                     cfg.UseRawJsonSerializer();
