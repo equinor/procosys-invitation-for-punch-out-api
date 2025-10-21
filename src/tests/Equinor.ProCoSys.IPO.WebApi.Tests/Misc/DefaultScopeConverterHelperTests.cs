@@ -11,6 +11,7 @@ public class DefaultScopeConverterHelperTests
     [DataRow("")]
     [DataRow(" ")]
     [DataRow("  ")]
+    [DataRow("\t")]
     [DataRow("invalid-guid")]
     [DataRow("www.procosys.com")]
     [DataRow("www.procosys.com/something")]
