@@ -18,6 +18,45 @@ public class DefaultScopeConverterHelperTests
 
         // Assert
         Assert.IsFalse(result);
+    }
+    
+    [DataTestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow(" ")]
+    [DataRow("  ")]
+    public void TryConvertToDefaultScope_ShouldOut_Empty_WhenNoScopeIsProvided(string scope)
+    {
+        // Act
+        TryConvertToDefaultScope(scope, out var defaultScope);
+
+        // Assert
+        Assert.AreEqual(string.Empty, defaultScope);
+    }
+    
+    [TestMethod]
+    public void TryConvertToDefaultScope_ShouldReturnFalse_WhenInvalidGuidIsProvided()
+    {
+        // Arrange
+        var scope = "invalid-guid";
+
+        // Act
+        var result = TryConvertToDefaultScope(scope, out var defaultScope);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+    
+    [TestMethod]
+    public void TryConvertToDefaultScope_ShouldOutEmpty_WhenInvalidGuidIsProvided()
+    {
+        // Arrange
+        var scope = "invalid-guid";
+
+        // Act
+        TryConvertToDefaultScope(scope, out var defaultScope);
+
+        // Assert
         Assert.AreEqual(string.Empty, defaultScope);
     }
 }
