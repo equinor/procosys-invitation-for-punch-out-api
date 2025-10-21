@@ -41,7 +41,9 @@ public class DefaultScopeConverterHelperTests
 
     [DataTestMethod]
     [DataRow("123e4567-e89b-12d3-a456-426614174000")]
-    [DataRow("http://www.procosys.no")]
+    [DataRow("http://www.foo.bar")]
+    [DataRow("https://www.foo.bar")]
+    [DataRow("https://www.foo.bar/")]
     public void TryConvertToDefaultScope_ShouldReturn_True_WhenProvidedScopeIs(string scope)
     {
         // Act
@@ -53,9 +55,9 @@ public class DefaultScopeConverterHelperTests
     
     [DataTestMethod]
     [DataRow("123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000/.default")]
-    [DataRow("http://www.procosys.no", "http://www.procosys.no/.default")]
-    [DataRow("https://www.procosys.no", "https://www.procosys.no/.default")]
-    [DataRow("https://www.procosys.no/", "https://www.procosys.no/.default")]
+    [DataRow("http://www.foo.bar", "http://www.foo.bar/.default")]
+    [DataRow("https://www.foo.bar", "https://www.foo.bar/.default")]
+    [DataRow("https://www.foo.bar/", "https://www.foo.bar/.default")]
     public void TryConvertToDefaultScope_ShouldReturn_ExpectedDefaultScope_WhenProvidedScopeIs(string scope, string expected)
     {
         // Act
