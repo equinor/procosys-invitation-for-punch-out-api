@@ -96,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 {
                     var serviceBusNamespace = configuration.GetValue<string>("ServiceBus:Namespace");
                     var serviceUri = new Uri($"sb://{serviceBusNamespace}.servicebus.windows.net/");
-                    
+
                     cfg.Host(serviceUri, host =>
                     {
                         host.TokenCredential = credential;
