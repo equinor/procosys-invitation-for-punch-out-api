@@ -10,8 +10,8 @@ public class MailDefaultCredential : IMailCredential
 
     public MailDefaultCredential(IConfiguration config)
     {
-        var graphSection = config.GetSection("Graph");
-        _graphClientId = graphSection.GetValue<string>("ClientId");
+        var graphConfig = config.GetSection("Graph");
+        _graphClientId = graphConfig.GetValue<string>("ClientId");
     }
 
     public TokenCredential GetToken()
