@@ -38,6 +38,10 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        ServiceBus__Enable: true
+        ServiceBus__LeaderElectorRenewLeaseInterval: 60000
+        ServiceBus__Namespace: sb-pcs-dev
+        ServiceBus__TopicNames: ipo
       monitoring: true
       resources:
         requests:
@@ -63,6 +67,11 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        ServiceBus__Enable: true
+        ServiceBus__LeaderElectorRenewLeaseInterval: 60000
+        ServiceBus__Namespace: sb-pcs-test
+        ServiceBus__ReadFromDeadLetterQueue: false
+        ServiceBus__TopicNames: ipo
       monitoring: true
       replicas: 2
       resources:
@@ -89,6 +98,10 @@ spec:
         Email_FakeEmail: false
         Email_Server: mrrr.statoil.com
         LEADERELECTOR_SERVICE: http://leader-elector:3003
+        ServiceBus__Enable: true
+        ServiceBus__Namespace: sb-pcs-prod
+        ServiceBus__ReadFromDeadLetterQueue: false
+        ServiceBus__TopicNames: ipo
       monitoring: false
       replicas: 3
       resources:
