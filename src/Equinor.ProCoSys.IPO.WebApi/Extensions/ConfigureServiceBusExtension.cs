@@ -1,4 +1,5 @@
 using System;
+using Azure.Core;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
@@ -11,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
 public static class ConfigureServiceBusExtension
 {
-    public static void ConfigureServiceBus(this WebApplicationBuilder builder)
+    public static void ConfigureServiceBus(this WebApplicationBuilder builder, TokenCredential credential)
     {
         if (!builder.IsServiceBusEnabled())
         {
@@ -20,6 +21,8 @@ public static class ConfigureServiceBusExtension
         }
 
         var configuration = builder.Configuration;
+        
+        var serviceBusNamespace = configuration.GetValue<string>("ServiceBus:Namespace");
 
         // Env variable used in kubernetes. Configuration is added for easier use locally
         // Url will be validated during startup of service bus integration and give a
@@ -27,7 +30,7 @@ public static class ConfigureServiceBusExtension
         var leaderElectorUrl = Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? (configuration["ServiceBus:LeaderElectorUrl"]);
 
         builder.Services.AddPcsServiceBusIntegration(options => options
-            .UseBusConnection(configuration.GetConnectionString("ServiceBus"))
+            .UseCredentialAuthentication($"{serviceBusNamespace}.servicebus.windows.net", credential)
             .WithLeaderElector(leaderElectorUrl)
             .WithRenewLeaseInterval(int.Parse(configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
             .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
@@ -42,7 +45,7 @@ public static class ConfigureServiceBusExtension
             .WithReadFromDeadLetterQueue(configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
         var topics = configuration["ServiceBus:TopicNames"];
-        builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), topics);
+        builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), [topics]);
     }
 
     private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>
