@@ -23,6 +23,7 @@ public static class ConfigureServiceBusExtension
         var configuration = builder.Configuration;
         
         var serviceBusNamespace = configuration.GetValue<string>("ServiceBus:Namespace");
+        var fullyQualifiedNamespace = $"{serviceBusNamespace}.servicebus.windows.net";
 
         // Env variable used in kubernetes. Configuration is added for easier use locally
         // Url will be validated during startup of service bus integration and give a
@@ -30,7 +31,7 @@ public static class ConfigureServiceBusExtension
         var leaderElectorUrl = Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? (configuration["ServiceBus:LeaderElectorUrl"]);
 
         builder.Services.AddPcsServiceBusIntegration(options => options
-            .UseCredentialAuthentication($"{serviceBusNamespace}.servicebus.windows.net", credential)
+            .UseCredentialAuthentication(fullyQualifiedNamespace, credential)
             .WithLeaderElector(leaderElectorUrl)
             .WithRenewLeaseInterval(int.Parse(configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
             .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
@@ -45,7 +46,7 @@ public static class ConfigureServiceBusExtension
             .WithReadFromDeadLetterQueue(configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
         var topics = configuration["ServiceBus:TopicNames"];
-        builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), [topics]);
+        builder.Services.AddTopicClients([topics], fullyQualifiedNamespace, credential);
     }
 
     private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>
