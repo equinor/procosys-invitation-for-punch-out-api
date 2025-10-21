@@ -39,7 +39,7 @@ public static class ConfigureServiceBusExtension
             .WithReadFromDeadLetterQueue(configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
         var topics = configuration["ServiceBus:TopicNames"];
-        builder.Services.AddTopicClients([topics], fullyQualifiedNamespace, credential);
+        builder.Services.AddTopicClients(topics.Split(','), fullyQualifiedNamespace, credential);
     }
 
     private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>
