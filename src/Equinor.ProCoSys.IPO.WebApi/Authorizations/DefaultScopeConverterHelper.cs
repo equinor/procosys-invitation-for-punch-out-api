@@ -10,7 +10,7 @@ public static class DefaultScopeConverterHelper
         
         if (Guid.TryParse(scope, out var clientId))
         {
-            // defaultScope = $"{clientId}/.default";
+            defaultScope = $"{clientId}/.default";
             return true;
         }
 
