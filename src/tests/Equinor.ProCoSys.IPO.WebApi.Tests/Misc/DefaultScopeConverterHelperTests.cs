@@ -14,7 +14,7 @@ public class DefaultScopeConverterHelperTests
     public void TryConvertToDefaultScope_ShouldReturnFalse_WhenNoScopeIsProvided(string scope)
     {
         // Act
-        var result = TryConvertToDefaultScope(scope, out var defaultScope);
+        var result = TryConvertToDefaultScope(scope, out _);
 
         // Assert
         Assert.IsFalse(result);
@@ -41,7 +41,7 @@ public class DefaultScopeConverterHelperTests
         var scope = "invalid-guid";
 
         // Act
-        var result = TryConvertToDefaultScope(scope, out var defaultScope);
+        var result = TryConvertToDefaultScope(scope, out _);
 
         // Assert
         Assert.IsFalse(result);
