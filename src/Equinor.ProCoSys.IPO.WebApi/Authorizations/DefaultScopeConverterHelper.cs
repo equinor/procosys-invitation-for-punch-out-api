@@ -13,6 +13,12 @@ public static class DefaultScopeConverterHelper
             defaultScope = $"{clientId}/.default";
             return true;
         }
+        
+        if (Uri.TryCreate(scope, UriKind.Absolute, out var uri))
+        {
+            defaultScope = new Uri(uri, ".default").ToString();
+            return true;
+        }
 
         return false;
     }

@@ -12,6 +12,7 @@ public class DefaultScopeConverterHelperTests
     [DataRow(" ")]
     [DataRow("  ")]
     [DataRow("invalid-guid")]
+    [DataRow("www.procosys.com")]
     public void TryConvertToDefaultScope_ShouldReturn_False_WhenProvidedScopeIs(string scope)
     {
         // Act
@@ -37,6 +38,7 @@ public class DefaultScopeConverterHelperTests
 
     [DataTestMethod]
     [DataRow("123e4567-e89b-12d3-a456-426614174000")]
+    [DataRow("http://www.procosys.no")]
     public void TryConvertToDefaultScope_ShouldReturn_True_WhenProvidedScopeIs(string scope)
     {
         // Act
@@ -48,6 +50,8 @@ public class DefaultScopeConverterHelperTests
     
     [DataTestMethod]
     [DataRow("123e4567-e89b-12d3-a456-426614174000/.default", "123e4567-e89b-12d3-a456-426614174000")]
+    [DataRow("http://www.procosys.no/.default", "http://www.procosys.no")]
+    [DataRow("https://www.procosys.no/.default", "https://www.procosys.no")]
     public void TryConvertToDefaultScope_ShouldReturn_ExpectedDefaultScope_WhenProvidedScopeIs(string expected, string scope)
     {
         // Act
