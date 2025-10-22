@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
         private readonly IPlantProvider _plantProvider;
         private readonly ICertificateApiService _certificateApiService;
         private readonly IMcPkgApiForApplicationService _mcPkgApiService;
-        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
+        private readonly ICommPkgApiForApplicationService _commPkgApiService;
         private readonly ILogger<UpdateRfocAcceptedCommandHandler> _logger;
 
         public UpdateRfocAcceptedCommandHandler(
@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             ILogger<UpdateRfocAcceptedCommandHandler> logger,
             ICertificateRepository certificateRepository,
             IMcPkgApiForApplicationService mcPkgApiService,
-            ICommPkgApiForUserService commPkgApiForUserService)
+            ICommPkgApiForApplicationService commPkgApiService)
         {
             _invitationRepository = invitationRepository;
             _projectRepository = projectRepository;
@@ -48,7 +48,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             _logger = logger;
             _certificateRepository = certificateRepository;
             _mcPkgApiService = mcPkgApiService;
-            _commPkgApiForUserService = commPkgApiForUserService;
+            _commPkgApiService = commPkgApiService;
         }
 
         public async Task<Result<Unit>> Handle(UpdateRfocAcceptedCommand request, CancellationToken cancellationToken)
@@ -104,7 +104,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             var mcPkgNos = certificateMcPkgsModel.McPkgs.Select(mc => mc.McPkgNo).ToList();
 
             var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos, cancellationToken);
-            var pcsCommPkgs = await _commPkgApiForUserService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos, cancellationToken);
+            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos, cancellationToken);
             if (!pcsMcPkgs.Any() && !pcsCommPkgs.Any())
             {
                 _logger.LogInformation($"Early exit in RfocAccepted handling. " +
