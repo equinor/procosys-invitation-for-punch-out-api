@@ -201,7 +201,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             services.AddTransient<IMailCredential, MailDefaultCredential>();
         }
-        
+
         private static void AddFamCredential(IServiceCollection services, IConfiguration configuration)
         {
             if (configuration.IsDevOnLocalhost())
