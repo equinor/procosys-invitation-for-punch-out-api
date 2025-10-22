@@ -73,9 +73,9 @@ builder.ConfigureFusionIntegration();
 builder.Services.ConfigureTelemetry(configuration, credential);
 
 builder.Services.AddMediatrModules();
-builder.Services.AddApplicationModules(configuration);
+builder.Services.AddApplicationModules(configuration, credential);
 
-builder.ConfigureServiceBus();
+builder.ConfigureServiceBus(credential);
 
 builder.Services.AddHostedService<VerifyApplicationExistsAsPerson>();
 

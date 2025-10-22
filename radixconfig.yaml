@@ -43,9 +43,11 @@ spec:
         Email__FakeEmail: false
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: ci
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
+        ServiceBus__Enable: true
+        ServiceBus__LeaderElectorUrl: http://leader-elector:3003
+        ServiceBus__Namespace: sb-pcs-dev
       monitoring: false
       resources:
         requests:
@@ -76,9 +78,12 @@ spec:
         Email__FakeEmail: false
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
+        ServiceBus__Enable: true
+        ServiceBus__LeaderElectorUrl: http://leader-elector:3003
+        ServiceBus__Namespace: sb-pcs-test
+        ServiceBus__ReadFromDeadLetterQueue: false
       monitoring: false
       replicas: 2
       resources:
@@ -110,9 +115,12 @@ spec:
         Email__FakeEmail: false
         Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
-        LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: fprd
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
+        ServiceBus__Enable: true
+        ServiceBus__LeaderElectorUrl: http://leader-elector:3003
+        ServiceBus__Namespace: sb-pcs-prod
+        ServiceBus__ReadFromDeadLetterQueue: false
       monitoring: false
       replicas: 3
       resources:

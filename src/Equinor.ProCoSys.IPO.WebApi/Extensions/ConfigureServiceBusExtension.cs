@@ -1,4 +1,5 @@
 using System;
+using Azure.Core;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
@@ -11,7 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
 
 public static class ConfigureServiceBusExtension
 {
-    public static void ConfigureServiceBus(this WebApplicationBuilder builder)
+    public static void ConfigureServiceBus(this WebApplicationBuilder builder, TokenCredential credential)
     {
         if (!builder.IsServiceBusEnabled())
         {
@@ -20,16 +21,12 @@ public static class ConfigureServiceBusExtension
         }
 
         var configuration = builder.Configuration;
-
-        // Env variable used in kubernetes. Configuration is added for easier use locally
-        // Url will be validated during startup of service bus integration and give a
-        // Uri exception if invalid.
-        var leaderElectorUrl = Environment.GetEnvironmentVariable("LEADERELECTOR_SERVICE") ?? (configuration["ServiceBus:LeaderElectorUrl"]);
+        var fullyQualifiedNamespace = $"{configuration["ServiceBus:Namespace"]}.servicebus.windows.net";
 
         builder.Services.AddPcsServiceBusIntegration(options => options
-            .UseBusConnection(configuration.GetConnectionString("ServiceBus"))
-            .WithLeaderElector(leaderElectorUrl)
-            .WithRenewLeaseInterval(int.Parse(configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]))
+            .UseCredentialAuthentication(fullyQualifiedNamespace, credential)
+            .WithLeaderElector(configuration["ServiceBus:LeaderElectorUrl"]!)
+            .WithRenewLeaseInterval(int.Parse(configuration["ServiceBus:LeaderElectorRenewLeaseInterval"]!))
             .WithSubscription(PcsTopicConstants.Ipo, "ipo_ipo")
             .WithSubscription(PcsTopicConstants.Project, "ipo_project")
             .WithSubscription(PcsTopicConstants.CommPkg, "ipo_commpkg")
@@ -42,7 +39,7 @@ public static class ConfigureServiceBusExtension
             .WithReadFromDeadLetterQueue(configuration.GetValue("ServiceBus:ReadFromDeadLetterQueue", defaultValue: false)));
 
         var topics = configuration["ServiceBus:TopicNames"];
-        builder.Services.AddTopicClients(configuration.GetConnectionString("ServiceBus"), topics);
+        builder.Services.AddTopicClients(topics.Split(','), fullyQualifiedNamespace, credential);
     }
 
     private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>

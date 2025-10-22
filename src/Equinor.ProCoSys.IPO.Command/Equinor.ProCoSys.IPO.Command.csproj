@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Equinor.ProCoSys.BlobStorage" Version="1.0.2" />
-    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="4.3.16" />
+    <PackageReference Include="Equinor.ProCoSys.PcsServiceBus" Version="4.3.39" />
     <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="Fusion.Integration.Meeting" Version="9.1.0" />
     <PackageReference Include="MassTransit" Version="8.2.2" />
