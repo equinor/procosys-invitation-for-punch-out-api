@@ -19,19 +19,19 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 {
     private readonly IFamRepository _famRepository;
     private readonly IOptions<FamOptions> _famOptions;
-    private readonly CommonLibConfig _commonLibConfig;
+    private readonly IFamCredential _famCredential;
     private readonly IEventHubProducerService _eventHubProducerService;
     private readonly ILogger _logger;
 
     public SendAllDataToFamCommandHandler(IFamRepository famRepository,
-        IOptions<CommonLibConfig> commonLibConfig,
+        IFamCredential famCredential,
         IOptions<FamOptions> famOptions,
         IEventHubProducerService eventHubProducerService,
         ILogger<SendAllDataToFamCommandHandler> logger)
     {
         _famRepository = famRepository;
         _famOptions = famOptions;
-        _commonLibConfig = commonLibConfig.Value;
+        _famCredential = famCredential;
         _eventHubProducerService = eventHubProducerService;
         _logger = logger;
     }
@@ -111,13 +111,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
     private SchemaMapper CreateCommonLibMapper()
     {
-        ISchemaSource source = new ApiSource(new ApiSourceOptions
-        {
-            TokenProviderConnectionString = "RunAs=App;" +
-            $"AppId={_commonLibConfig.ClientId};" +
-                                            $"TenantId={_commonLibConfig.TenantId};" +
-                                            $"AppKey={_commonLibConfig.ClientSecret}"
-        });
+        ISchemaSource source = new ApiSource(new ApiSourceOptions(), _famCredential.GetToken());
 
         // Adds caching functionality
         source = new CacheWrapper(
