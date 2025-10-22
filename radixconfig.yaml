@@ -46,7 +46,7 @@ spec:
         LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: ci
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
-      monitoring: true
+      monitoring: false
       resources:
         requests:
           memory: '1024Mi'
@@ -79,7 +79,7 @@ spec:
         LEADERELECTOR_SERVICE: http://leader-elector:3003
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
-      monitoring: true
+      monitoring: false
       replicas: 2
       resources:
         requests:
