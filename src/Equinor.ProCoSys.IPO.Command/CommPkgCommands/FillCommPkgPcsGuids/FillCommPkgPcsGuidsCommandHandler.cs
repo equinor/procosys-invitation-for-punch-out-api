@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
     {
         private readonly ILogger<FillCommPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
             ILogger<FillCommPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            ICommPkgApiService commPkgApiService,
+            ICommPkgApiForUserService commPkgApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {

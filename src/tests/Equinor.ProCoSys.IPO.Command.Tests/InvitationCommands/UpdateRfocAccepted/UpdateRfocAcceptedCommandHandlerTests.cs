@@ -28,7 +28,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<ILogger<UpdateRfocAcceptedCommandHandler>> _loggerMock;
         private Mock<ICertificateApiService> _certificateApiServiceMock;
-        private Mock<ICommPkgApiService> _commPkgApiServiceMock;
+        private Mock<ICommPkgApiForApplicationService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiForApplicationService> _mcPkgApiServiceMock;
         private Mock<IDbContextTransaction> _transactionMock;
 
@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateRfocAccept
                 .Setup(x => x.Plant)
                 .Returns(_plant);
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
-            _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
+            _commPkgApiServiceMock = new Mock<ICommPkgApiForApplicationService>();
             _mcPkgApiServiceMock = new Mock<IMcPkgApiForApplicationService>();
             _certificateRepositoryMock = new Mock<ICertificateRepository>();
             _certificateRepositoryMock

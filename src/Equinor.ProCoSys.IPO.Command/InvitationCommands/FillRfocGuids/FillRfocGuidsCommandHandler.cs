@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
         private readonly ICertificateRepository _certificateRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FillRfocGuidsCommandHandler> _logger;
 
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             ILogger<FillRfocGuidsCommandHandler> logger,
             IProjectRepository projectRepository,
             IMcPkgApiForUserService mcPkgApiForUserService,
-            ICommPkgApiService commPkgApiService,
+            ICommPkgApiForUserService commPkgApiService,
             ICertificateRepository certificateRepository)
         {
             _invitationRepository = invitationRepository;

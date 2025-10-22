@@ -26,7 +26,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
         private readonly IPlantProvider _plantProvider;
         private readonly ICertificateApiService _certificateApiService;
         private readonly IMcPkgApiForApplicationService _mcPkgApiService;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly ICommPkgApiForApplicationService _commPkgApiService;
         private readonly ILogger<UpdateRfocAcceptedCommandHandler> _logger;
 
         public UpdateRfocAcceptedCommandHandler(
@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             ILogger<UpdateRfocAcceptedCommandHandler> logger,
             ICertificateRepository certificateRepository,
             IMcPkgApiForApplicationService mcPkgApiService,
-            ICommPkgApiService commPkgApiService)
+            ICommPkgApiForApplicationService commPkgApiService)
         {
             _invitationRepository = invitationRepository;
             _projectRepository = projectRepository;

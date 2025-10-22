@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
         public readonly Mock<IOptionsMonitor<FamOptions>> FamOptionsMock = new Mock<IOptionsMonitor<FamOptions>>();
-        public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
+        public readonly Mock<ICommPkgApiForUserService> CommPkgApiServiceMock = new Mock<ICommPkgApiForUserService>();
         public readonly Mock<IMcPkgApiForUserService> McPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();

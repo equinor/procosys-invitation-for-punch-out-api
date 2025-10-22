@@ -12,12 +12,12 @@ using Moq;
 namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
 {
     [TestClass]
-    public class MainApiCommPkgServiceTests
+    public class MainApiForUserCommPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
         private Mock<IMainApiClientForUser> _foreignApiClient;
         private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
-        private MainApiCommPkgService _dut;
+        private MainApiForUserCommPkgService _dut;
 
         private const string _plant = "PCS$TESTPLANT";
         private const int _defaultPageSize = 10;
@@ -76,7 +76,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(),null))
                 .Returns(Task.FromResult(_searchPageWithThreeItems));
 
-            _dut = new MainApiCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
+            _dut = new MainApiForUserCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
         }
 
         [TestMethod]
