@@ -1,8 +1,4 @@
 using System;
-using System.Security.Cryptography.X509Certificates;
-using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Configuration;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;

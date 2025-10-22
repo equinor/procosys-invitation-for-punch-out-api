@@ -1,6 +1,5 @@
 using Azure.Core;
 using Azure.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
 

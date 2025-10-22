@@ -1,8 +1,4 @@
 using System;
-using System.Security.Cryptography.X509Certificates;
-using Azure.Core;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Equinor.ProCoSys.IPO.Fam;
 using Microsoft.Extensions.Configuration;
 

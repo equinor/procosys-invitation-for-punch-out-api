@@ -1,5 +1,3 @@
-using Azure.Core;
-using Azure.Identity;
 using Equinor.ProCoSys.IPO.Fam;
 using Microsoft.Extensions.Configuration;
 
