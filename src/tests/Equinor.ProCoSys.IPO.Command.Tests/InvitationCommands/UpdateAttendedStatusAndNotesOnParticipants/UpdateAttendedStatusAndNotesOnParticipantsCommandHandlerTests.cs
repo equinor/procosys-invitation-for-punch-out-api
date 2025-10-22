@@ -94,8 +94,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
 
             _personApiServiceMock = new Mock<IPersonApiService>();
             _personApiServiceMock
-                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
-                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                    _plant,
+                    _azureOidForCurrentUser.ToString(),
+                    _functionalRoleCode,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(personDetails));
 
             //create invitation
@@ -186,8 +189,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
         public async Task ChangeAttendedStatusesCommand_ShouldThrowErrorIfPersonIsNotInFunctionalRole()
         {
             _personApiServiceMock
-                .Setup(x => x.GetPersonInFunctionalRoleAsync(_plant,
-                    _azureOidForCurrentUser.ToString(), _functionalRoleCode))
+                .Setup(x => x.GetPersonInFunctionalRoleAsync(
+                    _plant,
+                    _azureOidForCurrentUser.ToString(),
+                    _functionalRoleCode,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<ProCoSysPerson>(null));
 
             var result = await Assert.ThrowsExceptionAsync<IpoValidationException>(() =>

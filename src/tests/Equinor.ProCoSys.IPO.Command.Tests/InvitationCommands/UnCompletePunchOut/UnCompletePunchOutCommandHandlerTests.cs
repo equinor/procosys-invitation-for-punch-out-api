@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IMcPkgApiForUserService> _mcPkgApiServiceMock;
         private Mock<IPermissionCache> _permissionCacheMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+            _mcPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
 
             //command
             _command = new UnCompletePunchOutCommand(
@@ -193,7 +193,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
 
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
-                _plant, _azureOidNotForCurrentUser))
+                _plant,
+                _azureOidNotForCurrentUser, 
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);
