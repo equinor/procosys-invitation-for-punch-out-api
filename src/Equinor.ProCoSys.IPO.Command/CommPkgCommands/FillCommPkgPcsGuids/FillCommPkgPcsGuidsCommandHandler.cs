@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
     {
         private readonly ILogger<FillCommPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,14 +27,14 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
             ILogger<FillCommPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            ICommPkgApiForUserService commPkgApiForUserService,
+            ICommPkgApiForUserService commPkgApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _plantProvider = plantProvider;
             _invitationRepository = invitationRepository;
-            _commPkgApiForUserService = commPkgApiForUserService;
+            _commPkgApiService = commPkgApiService;
             _projectRepository = projectRepository;
             _unitOfWork = unitOfWork;
         }
@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
                 {
                     var project = await _projectRepository.GetByIdAsync(commPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { commPkg.CommPkgNo };
-                    var commPkgDetails = await _commPkgApiForUserService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo, cancellationToken);
+                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo, cancellationToken);
 
                     if (commPkgDetails != null && commPkgDetails.Count == 1)
                     {

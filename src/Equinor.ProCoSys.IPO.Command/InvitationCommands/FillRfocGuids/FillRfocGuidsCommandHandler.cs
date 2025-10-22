@@ -21,7 +21,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
         private readonly ICertificateRepository _certificateRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
-        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<FillRfocGuidsCommandHandler> _logger;
 
@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             ILogger<FillRfocGuidsCommandHandler> logger,
             IProjectRepository projectRepository,
             IMcPkgApiForUserService mcPkgApiForUserService,
-            ICommPkgApiForUserService commPkgApiForUserService,
+            ICommPkgApiForUserService commPkgApiService,
             ICertificateRepository certificateRepository)
         {
             _invitationRepository = invitationRepository;
@@ -39,7 +39,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             _unitOfWork = unitOfWork;
             _projectRepository = projectRepository;
             _mcPkgApiForUserService = mcPkgApiForUserService;
-            _commPkgApiForUserService = commPkgApiForUserService;
+            _commPkgApiService = commPkgApiService;
             _certificateRepository = certificateRepository;
         }
 
@@ -119,7 +119,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.FillRfocGuids
             if (commPkgsInProject.Any())
             {
                 var commPkgNosInProject = commPkgsInProject.Select(c => c.CommPkgNo).Distinct().ToList();
-                var pcsCommPkgRfocRelations = await _commPkgApiForUserService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject, cancellationToken);
+                var pcsCommPkgRfocRelations = await _commPkgApiService.GetRfocGuidsByCommPkgNosAsync(project.Plant, project.Name, commPkgNosInProject, cancellationToken);
 
                 foreach (var relation in pcsCommPkgRfocRelations)
                 {

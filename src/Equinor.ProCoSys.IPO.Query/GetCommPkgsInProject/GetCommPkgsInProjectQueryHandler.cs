@@ -11,21 +11,21 @@ namespace Equinor.ProCoSys.IPO.Query.GetCommPkgsInProject
 {
     public class GetCommPkgsInProjectQueryHandler : IRequestHandler<GetCommPkgsInProjectQuery, Result<ProCoSysCommPkgSearchDto>>
     {
-        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IPlantProvider _plantProvider;
 
         public GetCommPkgsInProjectQueryHandler(
-            ICommPkgApiForUserService commPkgApiForUserService,
+            ICommPkgApiForUserService commPkgApiService,
             IPlantProvider plantProvider)
         {
             _plantProvider = plantProvider;
-            _commPkgApiForUserService = commPkgApiForUserService;
+            _commPkgApiService = commPkgApiService;
         }
 
         public async Task<Result<ProCoSysCommPkgSearchDto>> Handle(GetCommPkgsInProjectQuery request,
             CancellationToken cancellationToken)
         {
-            var mainApiCommPkgSearchResult = await _commPkgApiForUserService
+            var mainApiCommPkgSearchResult = await _commPkgApiService
                 .SearchCommPkgsByCommPkgNoAsync(
                     _plantProvider.Plant,
                     request.ProjectName,

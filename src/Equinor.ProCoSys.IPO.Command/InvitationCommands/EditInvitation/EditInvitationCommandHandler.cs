@@ -33,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
-        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
         private readonly IOptionsMonitor<MeetingOptions> _meetingOptions;
@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             IPlantProvider plantProvider,
             IUnitOfWork unitOfWork,
             IMcPkgApiForUserService mcPkgApiForUserService,
-            ICommPkgApiForUserService commPkgApiForUserService,
+            ICommPkgApiForUserService commPkgApiService,
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
             IOptionsMonitor<MeetingOptions> meetingOptions,
@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             _plantProvider = plantProvider;
             _unitOfWork = unitOfWork;
             _mcPkgApiForUserService = mcPkgApiForUserService;
-            _commPkgApiForUserService = commPkgApiForUserService;
+            _commPkgApiService = commPkgApiService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
             _meetingOptions = meetingOptions;
@@ -179,7 +179,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditInvitation
             if (commPkgNos.Count > 0)
             {
                 var commPkgsFromMain =
-                    await _commPkgApiForUserService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgNos, cancellationToken);
+                    await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgNos, cancellationToken);
 
                 if (commPkgsFromMain.Count != commPkgNos.Count)
                 {
