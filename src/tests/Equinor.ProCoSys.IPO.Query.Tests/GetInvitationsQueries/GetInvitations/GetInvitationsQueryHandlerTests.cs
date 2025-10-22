@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -352,10 +353,16 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
 
             var _functionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestPlant, new List<string> { _functionalRoleCode2 }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestPlant,
+                    new List<string> { _functionalRoleCode2 }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(fr2Details));
             _functionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestPlant, new List<string> { _functionalRoleCode1, _functionalRoleCode3 }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestPlant,
+                    new List<string> { _functionalRoleCode1, _functionalRoleCode3 }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(fr13Details));
 
             _functionalRoleApiService = _functionalRoleApiServiceMock.Object;
@@ -952,7 +959,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetInvitationsQueries.GetInvitations
                 var dut = new GetInvitationsQueryHandler(context, _permissionCache, _plantProvider, _currentUserProvider, _functionalRoleApiService);
 
                 var result = await dut.Handle(query, default);
-                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid), Times.Once);
+                _permissionCacheMock.Verify(x => x.GetProjectsForUserAsync(_plantProvider.Plant, CurrentUserOid, CancellationToken.None), Times.Once);
                 Assert.IsTrue(result.Data.Invitations.DistinctBy(x => x.ProjectName).Count() > 1);
             }
         }
