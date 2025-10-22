@@ -38,7 +38,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
         private Mock<ICreateEventHelper> _eventHelper;
         private Mock<IProjectRepository> _projectRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<ICommPkgApiService> _commPkgApiServiceMock;
+        private Mock<ICommPkgApiForUserService> _commPkgApiServiceMock;
         private Mock<IMcPkgApiForUserService> _mcPkgApiServiceMock;
         private Mock<IPersonApiService> _personApiServiceMock;
         private Mock<IFunctionalRoleApiService> _functionalRoleApiServiceMock;
@@ -195,7 +195,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CreateInvitation
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _unitOfWorkMock.Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()));
 
-            _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
+            _commPkgApiServiceMock = new Mock<ICommPkgApiForUserService>();
 
             _mcPkgDetails1 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D1", Id = 1, McPkgNo = _mcPkgNo1, System = _systemPathWithoutSection };
             _mcPkgDetails2 = new ProCoSysMcPkg { CommPkgNo = _commPkgNo, Description = "D2", Id = 2, McPkgNo = _mcPkgNo2, System = _systemPathWithoutSection };

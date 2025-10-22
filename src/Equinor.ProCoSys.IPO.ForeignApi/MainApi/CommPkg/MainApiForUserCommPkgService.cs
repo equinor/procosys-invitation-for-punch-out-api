@@ -9,13 +9,13 @@ using Microsoft.Extensions.Options;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
-    public class MainApiCommPkgService : ICommPkgApiService
+    public class MainApiForUserCommPkgService : ICommPkgApiForUserService
     {
         private readonly IMainApiClientForUser _apiClient;
         private readonly Uri _baseAddress;
         private readonly string _apiVersion;
 
-        public MainApiCommPkgService(
+        public MainApiForUserCommPkgService(
             IMainApiClientForUser apiClient,
             IOptionsMonitor<MainApiOptions> options)
         {

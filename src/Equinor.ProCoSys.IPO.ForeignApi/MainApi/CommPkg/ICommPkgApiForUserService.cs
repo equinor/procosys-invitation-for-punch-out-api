@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg
 {
-    public interface ICommPkgApiService
+    public interface ICommPkgApiForUserService
     {
         Task<ProCoSysCommPkgSearchResult> SearchCommPkgsByCommPkgNoAsync(
             string plant,

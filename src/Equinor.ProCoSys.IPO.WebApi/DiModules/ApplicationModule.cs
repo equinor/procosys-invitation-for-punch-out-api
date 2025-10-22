@@ -153,7 +153,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<IProjectApiForUsersService, MainApiForUsersProjectService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<ICertificateApiService, MainApiCertificateService>();
-            services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
+            services.AddScoped<ICommPkgApiForUserService, MainApiForUserCommPkgService>();
             services.AddScoped<IMcPkgApiForApplicationService, MainApiForApplicationMcPkgService>();
             services.AddScoped<IMcPkgApiForUserService, MainApiForUserMcPkgService>();
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();

@@ -36,7 +36,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private readonly IFusionMeetingClient _meetingClient;
         private readonly IInvitationRepository _invitationRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly ICommPkgApiForUserService _commPkgApiForUserService;
         private readonly IMcPkgApiForUserService _mcPkgApiForUserService;
         private readonly IPersonApiService _personApiService;
         private readonly IFunctionalRoleApiService _functionalRoleApiService;
@@ -55,7 +55,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             IFusionMeetingClient meetingClient,
             IInvitationRepository invitationRepository,
             IUnitOfWork unitOfWork,
-            ICommPkgApiService commPkgApiService,
+            ICommPkgApiForUserService commPkgApiForUserService,
             IMcPkgApiForUserService mcPkgApiForUserService,
             IPersonApiService personApiService,
             IFunctionalRoleApiService functionalRoleApiService,
@@ -74,7 +74,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
             _meetingClient = meetingClient;
             _invitationRepository = invitationRepository;
             _unitOfWork = unitOfWork;
-            _commPkgApiService = commPkgApiService;
+            _commPkgApiForUserService = commPkgApiForUserService;
             _mcPkgApiForUserService = mcPkgApiForUserService;
             _personApiService = personApiService;
             _functionalRoleApiService = functionalRoleApiService;
@@ -400,7 +400,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
         private async Task<List<CommPkg>> GetCommPkgsToAddAsync(IList<string> commPkgScope, string projectName, CancellationToken cancellationToken)
         {
             var commPkgDetailsList =
-                await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope, cancellationToken);
+                await _commPkgApiForUserService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, projectName, commPkgScope, cancellationToken);
 
             if (commPkgDetailsList.Count != commPkgScope.Count)
             {
