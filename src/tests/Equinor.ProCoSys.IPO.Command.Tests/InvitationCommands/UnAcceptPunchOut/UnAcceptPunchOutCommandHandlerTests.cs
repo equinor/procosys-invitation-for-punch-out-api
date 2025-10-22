@@ -178,7 +178,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
 
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
-                _plant, _azureOidNotForCurrentUser))
+                _plant,
+                _azureOidNotForCurrentUser,
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
 
             Assert.AreEqual(IpoStatus.Accepted, _invitation.Status);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -178,8 +179,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             TestFactory.Instance
                 .McPkgApiServiceMock
-                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(TestFactory.PlantWithAccess, TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
+                .Setup(x => x.GetMcPkgsByMcPkgNosAsync(
+                    TestFactory.PlantWithAccess,
+                    TestFactory.ProjectWithAccess,
+                    _mcPkgScope,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             var personsInFunctionalRole = new List<ProCoSysPerson>
@@ -230,14 +234,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> { KnownTestData.FunctionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestFactory.PlantWithAccess,
+                    new List<string> { KnownTestData.FunctionalRoleCode }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFunctionalRoles1));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> { FunctionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestFactory.PlantWithAccess,
+                    new List<string> { FunctionalRoleCode }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFunctionalRoles2));
 
             TestFactory.Instance
@@ -246,7 +254,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -255,7 +264,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _contractor.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_contractor.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -264,7 +274,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _pernillaPlanner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_pernillaPlanner.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -273,7 +284,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                     TestFactory.PlantWithAccess,
                     _andreaAdmin.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_andreaAdmin.AsMainProCoSysPerson()));
 
             TestFactory.Instance
@@ -282,7 +294,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
                         TestFactory.PlantWithAccess,
                         personParticipant.AzureOid.ToString(),
                         "IPO",
-                        new List<string> { "SIGN" }))
+                        new List<string> { "SIGN" },
+                        It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ProCoSysPerson
                 {
                     AzureOid = personParticipant.AzureOid.ToString(),

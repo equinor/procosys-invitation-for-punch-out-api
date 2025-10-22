@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Auth.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
@@ -14,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
     public class MainApiCommPkgServiceTests
     {
         private Mock<IOptionsMonitor<MainApiOptions>> _mainApiOptions;
-        private Mock<IMainApiClient> _foreignApiClient;
+        private Mock<IMainApiClientForUser> _foreignApiClient;
         private ProCoSysCommPkgSearchResult _searchPageWithThreeItems;
         private MainApiCommPkgService _dut;
 
@@ -31,7 +32,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 .Setup(x => x.CurrentValue)
                 .Returns(new MainApiOptions { ApiVersion = "4.0", BaseAddress = "http://example.com" });
 
-            _foreignApiClient = new Mock<IMainApiClient>();
+            _foreignApiClient = new Mock<IMainApiClientForUser>();
 
             _searchPageWithThreeItems = new ProCoSysCommPkgSearchResult
             {
@@ -72,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
             };
 
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(),null))
                 .Returns(Task.FromResult(_searchPageWithThreeItems));
 
             _dut = new MainApiCommPkgService(_foreignApiClient.Object, _mainApiOptions.Object);
@@ -86,6 +87,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 _plant,
                 "ProjectName",
                 "C",
+                CancellationToken.None,
                 _defaultPageSize,
                 _defaultCurrentPage);
 
@@ -103,13 +105,14 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 Items = new List<ProCoSysSearchCommPkg>()
             };
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(),null))
                 .Returns(Task.FromResult(emptyPage));
             // Act
             var result = await _dut.SearchCommPkgsByCommPkgNoAsync(
                 _plant,
                 "ProjectName",
                 "C",
+                CancellationToken.None,
                 _defaultPageSize,
                 1);
 
@@ -136,7 +139,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 }
             };
             _foreignApiClient
-                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), null))
+                .SetupSequence(x => x.QueryAndDeserializeAsync<ProCoSysCommPkgSearchResult>(It.IsAny<string>(), It.IsAny<CancellationToken>(),null))
                 .Returns(Task.FromResult(searchWithOneItem));
 
             // Act
@@ -144,6 +147,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                 _plant,
                 "ProjectName",
                 "C",
+                CancellationToken.None,
                 1,
                 _defaultCurrentPage);
 
@@ -161,6 +165,7 @@ namespace Equinor.ProCoSys.IPO.ForeignApi.Tests.MainApi.CommPkg
                     _plant,
                     "ProjectName",
                     "C",
+                    CancellationToken.None,
                     _defaultPageSize,
                     _defaultCurrentPage);
 

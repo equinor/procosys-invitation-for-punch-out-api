@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -96,7 +97,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> emptyListOfFunctionalRoleCodes = new List<string>();
             _meApiServiceMock
-                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(emptyListOfFunctionalRoleCodes));
 
             var result = await dut.Handle(_query, default);
@@ -108,7 +109,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var secondOutstandingInvitation = result.Data.Items.ElementAt(1);
             Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Id, secondOutstandingInvitation.InvitationId);
             Assert.AreEqual(_invitationWithPersonParticipantConstructionCompany.Description, secondOutstandingInvitation.Description);
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -121,13 +122,13 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
             _meApiServiceMock
-                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(listOfFunctionalRoleCodes));
 
             var result = await dut.Handle(_query, default);
 
             Assert.AreEqual(6, result.Data.Items.Count());
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -143,7 +144,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             Assert.AreEqual(0, result.Data.Items.Count());
             Assert.AreEqual(ResultType.Ok, result.ResultType);
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -157,7 +158,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             await dut.Handle(_query, default);
 
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -208,7 +209,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             Assert.AreEqual(_invitationForNotClosedProject.Description,
                 invitationWithNotClosedProject.Description);
 
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -262,7 +263,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             Assert.AreEqual(_invitationForNotClosedProject.Description,
                 invitationWithNotClosedProject.Description);
 
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
 
@@ -319,7 +320,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             Assert.AreEqual(_invitationForNotClosedProject.Description,
                 invitationWithNotClosedProject.Description);
 
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
 
         [TestMethod]
@@ -381,7 +382,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var dut = new GetOutstandingIposForCurrentPersonQueryHandler(repository, _currentUserProvider, _meApiServiceMock.Object, _plantProvider, _loggerMock.Object);
             IList<string> listOfFunctionalRoleCodes = new List<string> { "FR2", _functionalRoleCode };
             _meApiServiceMock
-                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None))
                 .Returns(Task.FromResult(listOfFunctionalRoleCodes));
 
             var result = await dut.Handle(_query, default);
@@ -389,7 +390,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
             var returnedInvitation = result.Data.Items.First();
             Assert.AreEqual(_invitationWithBothAzureOidAndFunctionalRoleParticipantContractor.Id, returnedInvitation.InvitationId);
             Assert.AreEqual(1, result.Data.Items.Count());
-            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant), Times.Once);
+            _meApiServiceMock.Verify(meApiService => meApiService.GetFunctionalRoleCodesAsync(TestPlant, CancellationToken.None), Times.Once);
         }
     }
 }

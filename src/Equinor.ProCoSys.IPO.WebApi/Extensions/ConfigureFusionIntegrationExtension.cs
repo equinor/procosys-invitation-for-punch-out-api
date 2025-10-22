@@ -1,5 +1,7 @@
 using System;
 using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command;
+using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,17 +20,13 @@ public static class ConfigureFusionIntegrationExtension
             return;
         }
 
-        builder.Services.AddFusionIntegration(options =>
+        builder.Services.AddFusionIntegration<IpoFusionTokenProvider>(options =>
         {
+            var meetingOptions = configuration.GetSection("Meetings");
+
             options.UseServiceInformation("PCS IPO", environment.EnvironmentName); // Environment identifier
             options.UseDefaultEndpointResolver(
-                configuration
-                    ["Meetings:Environment"]); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
-            options.UseDefaultTokenProvider(opts =>
-            {
-                opts.ClientId = configuration["Meetings:ClientId"]; // Application client ID
-                opts.ClientSecret = configuration["Meetings:ClientSecret"]; // Application client secret
-            });
+                meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
             options.AddMeetings(s => s.SetHttpClientTimeout(
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionRequestTimeout")),
                 TimeSpan.FromSeconds(configuration.GetValue<double>("FusionTotalTimeout"))));

@@ -139,7 +139,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
             TestFactory.Instance
                 .MeApiServiceMock
                 .Setup(x => x.GetFunctionalRoleCodesAsync(
-                    TestFactory.PlantWithAccess))
+                    TestFactory.PlantWithAccess,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_functionalRoleCodes));
 
             TestFactory.Instance
@@ -147,13 +148,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                 .Setup(x => x.GetMcPkgsByMcPkgNosAsync(
                     TestFactory.PlantWithAccess,
                     TestFactory.ProjectWithAccess,
-                    _mcPkgScope))
+                    _mcPkgScope,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(mcPkgDetails));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
-                .Setup(x => x.GetFunctionalRolesByCodeAsync(TestFactory.PlantWithAccess,
-                    new List<string> { FunctionalRoleCode }))
+                .Setup(x => x.GetFunctionalRolesByCodeAsync(
+                    TestFactory.PlantWithAccess,
+                    new List<string> { FunctionalRoleCode }, 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
 
             TestFactory.Instance
@@ -162,7 +166,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Me
                     TestFactory.PlantWithAccess,
                     _sigurdSigner.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_sigurdSigner.AsMainProCoSysPerson()));
 
             TestFactory.Instance

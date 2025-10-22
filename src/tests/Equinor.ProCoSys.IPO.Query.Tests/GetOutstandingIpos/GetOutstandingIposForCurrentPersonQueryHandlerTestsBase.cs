@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -76,7 +77,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetOutstandingIpos
 
             _meApiServiceMock = new Mock<IMeApiService>();
             _meApiServiceMock
-                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant))
+                .Setup(x => x.GetFunctionalRoleCodesAsync(TestPlant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(pcsFunctionalRoleCodes));
 
             context.SaveChangesAsync().Wait();

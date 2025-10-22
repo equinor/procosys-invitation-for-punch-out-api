@@ -12,6 +12,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public List<AccessablePlant> AccessablePlants { get; set; }
         public List<AccessableProject> AccessableProjects { get; set; }
         public List<string> Permissions { get; set; }
+        public List<string> Restrictions { get; set; }
         public HttpClient HttpClient { get; set; }
 
         public override string ToString() => Profile?.ToString();
