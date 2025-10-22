@@ -66,7 +66,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<MainApiAuthenticatorOptions>(configuration.GetSection("AzureAd"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
-            services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
             services.Configure<FamOptions>(configuration.GetSection("Fam"));
 
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
