@@ -22,7 +22,7 @@ public class UserDelegationProvider : IQueryUserDelegationProvider
             throw new ArgumentNullException(nameof(options.CurrentValue.AccountUrl));
         }
 
-        _blobServiceClient = new BlobServiceClient(new Uri($"{options.CurrentValue.AccountUrl}"), credential.GetToken());
+        _blobServiceClient = new BlobServiceClient(new Uri(options.CurrentValue.AccountUrl), credential.GetToken());
     }
 
     public UserDelegationKey GetUserDelegationKey()
