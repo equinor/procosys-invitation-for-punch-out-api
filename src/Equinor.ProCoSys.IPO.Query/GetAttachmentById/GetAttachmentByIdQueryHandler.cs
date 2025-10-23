@@ -13,22 +13,16 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
-    public class GetAttachmentByIdQueryHandler : IRequestHandler<GetAttachmentByIdQuery, Result<AttachmentDto>>
+    public class GetAttachmentByIdQueryHandler(
+        IReadOnlyContext context,
+        IAzureBlobService blobStorage,
+        IOptionsMonitor<BlobStorageOptions> blobStorageOptions,
+        IQueryUserDelegationProvider queryUserDelegationProvider)
+        : IRequestHandler<GetAttachmentByIdQuery, Result<AttachmentDto>>
     {
-        private readonly IReadOnlyContext _context;
-        private readonly IAzureBlobService _blobStorage;
-        private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
-
-        public GetAttachmentByIdQueryHandler(IReadOnlyContext context, IAzureBlobService blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
-        {
-            _context = context;
-            _blobStorage = blobStorage;
-            _blobStorageOptions = blobStorageOptions;
-        }
-
         public async Task<Result<AttachmentDto>> Handle(GetAttachmentByIdQuery request, CancellationToken cancellationToken)
         {
-            var invitation = await _context.QuerySet<Invitation>()
+            var invitation = await context.QuerySet<Invitation>()
                 .Include(i => i.Attachments)
                 .SingleOrDefaultAsync(i => i.Id == request.InvitationId, cancellationToken);
 
@@ -44,14 +38,14 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                 return new NotFoundResult<AttachmentDto>(Strings.EntityNotFound(nameof(Attachment), request.AttachmentId));
             }
 
-            var uploadedBy = await _context.QuerySet<Person>()
+            var uploadedBy = await context.QuerySet<Person>()
                 .SingleAsync(x => x.Id == attachment.UploadedById, cancellationToken);
 
             return new SuccessResult<AttachmentDto>(
                 new AttachmentDto(
                     attachment.Id,
                     attachment.FileName,
-                    attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
+                    attachment.GetAttachmentDownloadUri(blobStorage, blobStorageOptions.CurrentValue, queryUserDelegationProvider),
                     attachment.UploadedAtUtc,
                     new PersonDto(
                         uploadedBy.Id,

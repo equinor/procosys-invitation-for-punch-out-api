@@ -7,7 +7,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
 {
     public static class AttachmentExtensions
     {
-        public static Uri GetAttachmentDownloadUri(this Attachment attachment, IAzureBlobService blobStorage, BlobStorageOptions blobStorageOptions)
+        public static Uri GetAttachmentDownloadUri(this Attachment attachment, IAzureBlobService blobStorage, BlobStorageOptions blobStorageOptions, IQueryUserDelegationProvider queryUserDelegationProvider)
         {
             var fullBlobPath = attachment.GetFullBlobPath();
             var now = TimeService.UtcNow;
@@ -15,7 +15,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachmentById
                 blobStorageOptions.BlobContainer,
                 fullBlobPath,
                 new DateTimeOffset(now.AddMinutes(blobStorageOptions.BlobClockSkewMinutes * -1)),
-                new DateTimeOffset(now.AddMinutes(blobStorageOptions.BlobClockSkewMinutes)));
+                new DateTimeOffset(now.AddMinutes(blobStorageOptions.BlobClockSkewMinutes)),
+                queryUserDelegationProvider.GetUserDelegationKey());
             return uri;
         }
     }

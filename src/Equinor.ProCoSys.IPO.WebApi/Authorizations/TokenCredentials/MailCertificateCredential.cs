@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Configuration;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
+namespace Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 
 public class MailCertificateCredential(IConfiguration config) :
     BaseCertificateCredential(
