@@ -30,7 +30,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachmentById
                     It.IsAny<string>(),
                     It.IsAny<string>()
                     ))
-                .Returns((string container, string path, DateTimeOffset start, DateTimeOffset end) => new Uri($"{container}/{path}?{start.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}&{end.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}"));
+                .Returns((string container, string path, DateTimeOffset start, DateTimeOffset end, UserDelegationKey _, string _, string _) => new Uri($"{container}/{path}?{start.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}&{end.UtcDateTime:yyyy-MM-ddTHH:mm:ssZ}"));
             
             var blobStorageOptions = new BlobStorageOptions
             {
