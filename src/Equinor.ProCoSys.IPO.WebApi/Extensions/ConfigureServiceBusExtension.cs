@@ -1,4 +1,3 @@
-using System;
 using Azure.Core;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus;

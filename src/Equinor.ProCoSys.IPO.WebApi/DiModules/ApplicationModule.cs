@@ -66,7 +66,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
             services.Configure<MainApiAuthenticatorOptions>(configuration.GetSection("AzureAd"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
-            services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
             services.Configure<FamOptions>(configuration.GetSection("Fam"));
 
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
@@ -177,6 +176,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             AddHttpClients(services);
             AddMailCredential(services, configuration);
+            AddFamCredential(services, configuration);
         }
 
         private static void AddHttpClients(IServiceCollection services)
@@ -199,6 +199,20 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             }
 
             services.AddTransient<IMailCredential, MailDefaultCredential>();
+        }
+
+        private static void AddFamCredential(IServiceCollection services, IConfiguration configuration)
+        {
+            if (configuration.IsDevOnLocalhost())
+            {
+                // The default credentials use federated credentials for authentication.
+                // That will not work on a local dev machine.
+                // Replacing the default authentication with a certificate authentication.
+                services.AddTransient<IFamCredential, FamCertificateCredential>();
+                return;
+            }
+
+            services.AddTransient<IFamCredential, FamDefaultCredential>();
         }
     }
 }
