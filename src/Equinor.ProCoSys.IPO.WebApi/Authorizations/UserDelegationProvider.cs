@@ -50,7 +50,7 @@ public class UserDelegationProvider : IQueryUserDelegationProvider
         {
             return;
         }
-        
+
         _expirationTime = _userDelegationKeyCached.SignedExpiresOn;
     }
 }

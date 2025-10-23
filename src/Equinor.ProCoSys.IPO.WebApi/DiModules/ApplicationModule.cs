@@ -178,7 +178,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddTransient<IEmailService, IpoEmailService>();
 
             AddHttpClients(services);
-            
+
             services.AddTransient<ITokenCredential>(_ => new IpoTokenCredential(credential));
             AddMailCredential(services, configuration);
             AddFamCredential(services, configuration);
