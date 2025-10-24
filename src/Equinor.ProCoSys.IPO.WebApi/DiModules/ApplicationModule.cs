@@ -174,6 +174,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
             services.AddSingleton<ICalendarService, CalendarService>();
             services.AddSingleton<IQueryUserDelegationProvider, UserDelegationProvider>();
+            services.AddSingleton(credential);
 
             services.AddTransient<IEmailService, IpoEmailService>();
 
