@@ -82,7 +82,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<Stream>(),
-                    It.IsAny<string>(),
+                    "application/octet-stream",
                     false,
                     default),
                 Times.Once);
@@ -100,7 +100,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<Stream>(),
-                    It.IsAny<string>(),
+                    "application/octet-stream",
                     It.IsAny<bool>(),
                     default),
                 Times.Never);
@@ -118,7 +118,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
                     It.IsAny<string>(),
                     It.IsAny<string>(),
                     It.IsAny<Stream>(),
-                    It.IsAny<string>(),
+                    "application/octet-stream",
                     true,
                     default),
                 Times.Once);
