@@ -4,7 +4,7 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
+namespace Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 
 public abstract class BaseCertificateCredential(
     string clientId,

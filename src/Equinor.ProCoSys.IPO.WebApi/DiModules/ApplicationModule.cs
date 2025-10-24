@@ -40,7 +40,9 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
+using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
 using Equinor.ProCoSys.IPO.WebApi.Extensions;
 using Equinor.ProCoSys.IPO.WebApi.MassTransit;
@@ -171,10 +173,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
             services.AddSingleton<ICalendarService, CalendarService>();
+            services.AddSingleton<IQueryUserDelegationProvider, UserDelegationProvider>();
+            services.AddSingleton(credential);
 
             services.AddTransient<IEmailService, IpoEmailService>();
 
             AddHttpClients(services);
+
+            services.AddTransient<ITokenCredential>(_ => new IpoTokenCredential(credential));
             AddMailCredential(services, configuration);
             AddFamCredential(services, configuration);
         }

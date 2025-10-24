@@ -50,7 +50,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment
             }
 
             var fullBlobPath = attachment.GetFullBlobPath();
-            await _blobStorage.UploadAsync(_blobStorageOptions.CurrentValue.BlobContainer, fullBlobPath, request.Content, request.OverWriteIfExists, cancellationToken);
+            await _blobStorage.UploadAsync(
+                _blobStorageOptions.CurrentValue.BlobContainer,
+                fullBlobPath,
+                request.Content,
+                "application/octet-stream",
+                request.OverWriteIfExists,
+                cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<int>(attachment.Id);
         }

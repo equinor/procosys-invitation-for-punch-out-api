@@ -78,7 +78,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(2, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), false, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    false,
+                    default),
+                Times.Once);
         }
 
         [TestMethod]
@@ -89,7 +96,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Invalid, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<bool>(), default), Times.Never);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    It.IsAny<bool>(),
+                    default),
+                Times.Never);
         }
 
         [TestMethod]
@@ -100,7 +114,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), true, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    true,
+                    default),
+                Times.Once);
         }
     }
 }

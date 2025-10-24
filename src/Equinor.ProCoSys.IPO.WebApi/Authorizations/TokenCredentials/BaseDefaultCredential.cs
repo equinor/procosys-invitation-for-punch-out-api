@@ -1,7 +1,7 @@
 using Azure.Core;
 using Azure.Identity;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
+namespace Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 
 public abstract class BaseDefaultCredential(string clientId)
 {

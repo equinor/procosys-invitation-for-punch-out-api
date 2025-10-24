@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Models;
 using Equinor.ProCoSys.BlobStorage;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
@@ -20,6 +21,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
     public class GetAttachmentsQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
         private Mock<IOptionsMonitor<BlobStorageOptions>> _blobStorageOptionsMonitorMock;
+        private Mock<IQueryUserDelegationProvider> _userDelegationProviderMock;
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
         {
@@ -51,6 +53,9 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             _blobStorageOptionsMonitorMock
                 .Setup(x => x.CurrentValue)
                 .Returns(blobStorageOptions);
+            
+            _userDelegationProviderMock = new Mock<IQueryUserDelegationProvider>();
+            _userDelegationProviderMock.Setup(u => u.GetUserDelegationKey()).Returns(new Mock<UserDelegationKey>().Object);
         }
 
         [TestMethod]
@@ -59,7 +64,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IAzureBlobService>();
             var query = new GetAttachmentsQuery(1);
-            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
+            var dut = new GetAttachmentsQueryHandler(
+                context,
+                blobStorageMock.Object,
+                _blobStorageOptionsMonitorMock.Object,
+                _userDelegationProviderMock.Object);
 
             var result = await dut.Handle(query, default);
 
@@ -73,7 +82,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IAzureBlobService>();
             var query = new GetAttachmentsQuery(1);
-            var dut = new GetAttachmentsQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
+            var dut = new GetAttachmentsQueryHandler(
+                context,
+                blobStorageMock.Object,
+                _blobStorageOptionsMonitorMock.Object,
+                _userDelegationProviderMock.Object);
 
             var result = await dut.Handle(query, default);
 
@@ -90,7 +103,11 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetAttachments
             using var context = new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider);
             var blobStorageMock = new Mock<IAzureBlobService>();
             var query = new GetAttachmentByIdQuery(1, 3);
-            var dut = new GetAttachmentByIdQueryHandler(context, blobStorageMock.Object, _blobStorageOptionsMonitorMock.Object);
+            var dut = new GetAttachmentByIdQueryHandler(
+                context,
+                blobStorageMock.Object,
+                _blobStorageOptionsMonitorMock.Object,
+                _userDelegationProviderMock.Object);
 
             var result = await dut.Handle(query, default);
 

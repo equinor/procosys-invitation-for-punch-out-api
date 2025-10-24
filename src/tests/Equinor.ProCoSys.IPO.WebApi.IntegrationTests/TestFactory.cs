@@ -20,6 +20,7 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Equinor.ProCoSys.IPO.Infrastructure;
+using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
@@ -67,6 +68,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
         public readonly Mock<IProjectApiForUsersService> ProjectApiServiceMock = new Mock<IProjectApiForUsersService>();
         public readonly Mock<IAzureBlobService> BlobStorageMock = new Mock<IAzureBlobService>();
+        public readonly Mock<IQueryUserDelegationProvider> UserDelegationProviderMock = new Mock<IQueryUserDelegationProvider>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
@@ -184,6 +186,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => FunctionalRoleApiServiceMock.Object);
                 services.AddScoped(_ => ProjectApiServiceMock.Object);
                 services.AddScoped(_ => BlobStorageMock.Object);
+                services.AddScoped(_ => UserDelegationProviderMock.Object);
                 services.AddScoped(_ => PcsBusSenderMock.Object);
                 services.AddScoped(_ => MeApiServiceMock.Object);
                 services.AddScoped(_ => EmailServiceMock.Object);

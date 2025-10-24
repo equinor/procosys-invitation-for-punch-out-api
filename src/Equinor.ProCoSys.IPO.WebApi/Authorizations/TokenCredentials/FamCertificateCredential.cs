@@ -2,7 +2,7 @@ using System;
 using Equinor.ProCoSys.IPO.Fam;
 using Microsoft.Extensions.Configuration;
 
-namespace Equinor.ProCoSys.IPO.WebApi.Authorizations;
+namespace Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 
 public class FamCertificateCredential(IConfiguration config) :
     BaseCertificateCredential(
@@ -10,4 +10,4 @@ public class FamCertificateCredential(IConfiguration config) :
     config.GetValue<string>("CommonLibConfig:ClientCredentials:0:KeyVaultCertificateName"),
     new Uri(config.GetValue<string>("CommonLibConfig:ClientCredentials:0:KeyVaultUrl")!),
     config.GetValue<string>("AzureAd:TenantId")),
-    IFamCredential;
+    IFamCredential, ITokenCredential;
