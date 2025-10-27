@@ -15,10 +15,10 @@ public class EventHubProducerService : IEventHubProducerService
     public EventHubProducerService(IFamCredential credential, IConfiguration config)
     {
         _credential = credential;
-        
+
         var eventHubNamespace = config.GetValue<string>("Fam:EventHub:Namespace")!;
         _fullyQualifiedNamespace = $"{eventHubNamespace}.servicebus.windows.net";
-        
+
         _eventHubName = config.GetValue<string>("Fam:EventHub:EventHubName")!;
     }
 
@@ -30,12 +30,12 @@ public class EventHubProducerService : IEventHubProducerService
 
         await SendDataAsync(data, producerClient);
     }
-    
-    
+
+
     private static async Task SendDataAsync<T>(IEnumerable<T> data, EventHubProducerClient producerClient)
     {
         var eventData = data.Select(CreateEventData).ToList();
-        
+
         var i = 0;
         while (i < eventData.Count)
         {
@@ -47,11 +47,11 @@ public class EventHubProducerService : IEventHubProducerService
                     break;
                 }
             }
-            
+
             await producerClient.SendAsync(eventBatch);
         }
     }
-    
+
     private static EventData CreateEventData<T>(T data)
     {
         var dataAsJson = JsonConvert.SerializeObject(data);
