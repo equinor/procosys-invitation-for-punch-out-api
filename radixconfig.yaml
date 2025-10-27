@@ -40,10 +40,6 @@ spec:
         BlobStorage__AccountName: pcsdevsa
         CommonLibConfig__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         ConnectionStrings__IPOContext: Server=pcs-dev-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-dev-db
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         Meetings__Environment: ci
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
@@ -77,10 +73,6 @@ spec:
         BlobStorage__AccountName: pcsdevsa
         CommonLibConfig__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db-tessell
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
@@ -116,10 +108,6 @@ spec:
         BlobStorage__AccountName: pcsprodsa
         CommonLibConfig__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         ConnectionStrings__IPOContext: Server=pcs-prod-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-prod-db
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         Meetings__Environment: fprd
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
