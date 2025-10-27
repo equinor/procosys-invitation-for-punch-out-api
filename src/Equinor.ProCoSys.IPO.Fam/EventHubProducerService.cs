@@ -40,7 +40,7 @@ public class EventHubProducerService : IEventHubProducerService
         while (i < eventData.Count)
         {
             using var eventBatch = await producerClient.CreateBatchAsync();
-            for(; i < eventData.Count; i++)
+            for (; i < eventData.Count; i++)
             {
                 if (!eventBatch.TryAdd(eventData[i]))
                 {
