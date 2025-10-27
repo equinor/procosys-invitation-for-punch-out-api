@@ -24,23 +24,18 @@ public class EventHubProducerService : IEventHubProducerService
 
     public async Task SendDataAsync<T>(IEnumerable<T> data)
     {
-        var eventData = data.Select(CreateEventData).ToList();
         var token = _credential.GetToken();
 
         await using var producerClient = new EventHubProducerClient(_fullyQualifiedNamespace, _eventHubName, token);
 
-        await SendDataAsync(eventData, producerClient);
+        await SendDataAsync(data, producerClient);
     }
     
-    private static EventData CreateEventData<T>(T data)
-    {
-        var dataAsJson = JsonConvert.SerializeObject(data);
-        var eventData = new EventData(Encoding.UTF8.GetBytes(dataAsJson));
-        return eventData;
-    }
     
-    private static async Task SendDataAsync(IList<EventData> eventData, EventHubProducerClient producerClient)
+    private static async Task SendDataAsync<T>(IEnumerable<T> data, EventHubProducerClient producerClient)
     {
+        var eventData = data.Select(CreateEventData).ToList();
+        
         var i = 0;
         while (i < eventData.Count)
         {
@@ -55,5 +50,11 @@ public class EventHubProducerService : IEventHubProducerService
             
             await producerClient.SendAsync(eventBatch);
         }
+    }
+    
+    private static EventData CreateEventData<T>(T data)
+    {
+        var dataAsJson = JsonConvert.SerializeObject(data);
+        return new EventData(Encoding.UTF8.GetBytes(dataAsJson));
     }
 }
