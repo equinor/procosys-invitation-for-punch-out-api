@@ -50,7 +50,6 @@ using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
-using Fam.Core.EventHubs.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -115,8 +114,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                     cfg.AutoStart = true;
                 });
             });
-            services.AddEventHubProducer(configBuilder
-                => configuration.Bind("EventHubProducerConfig", configBuilder));
 
             // Hosted services
             services.AddHostedService<TimedSynchronization>();
@@ -177,6 +174,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddSingleton(credential);
 
             services.AddTransient<IEmailService, IpoEmailService>();
+            services.AddTransient<IEventHubProducerService, EventHubProducerService>();
 
             AddHttpClients(services);
 

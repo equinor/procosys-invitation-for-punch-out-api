@@ -81,6 +81,8 @@ spec:
         Email__EnableSsl: true
         Email__FakeEmail: false
         Email__Server: mrrr.statoil.com
+        Fam__EventHub__Namespace: fam-evhns-inbound-7d4a-dev
+        Fam__EventHub__EventHubName: fam-evh-procosys-dev
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
@@ -120,6 +122,8 @@ spec:
         Email__EnableSsl: true
         Email__FakeEmail: false
         Email__Server: mrrr.statoil.com
+        Fam__EventHub__Namespace: fam-evhns-inbound-6113-prod
+        Fam__EventHub__EventHubName: fam-evh-procosys-prod
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         Meetings__Environment: fprd
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
