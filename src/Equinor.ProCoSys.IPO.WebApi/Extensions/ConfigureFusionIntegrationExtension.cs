@@ -29,7 +29,7 @@ public static class ConfigureFusionIntegrationExtension
                 meetingOptions.GetValue<string>(nameof(MeetingOptions.Environment))); // Fusion environment "fprd" = prod, "fqa" = qa, "ci" = dev/test etc
             options.AddMeetings(s => s.SetHttpClientTimeout(
                 TimeSpan.FromSeconds(meetingOptions.GetValue<double>(nameof(MeetingOptions.RequestTimeout))),
-                TimeSpan.FromSeconds(meetingOptions.GetValue<double>(nameof(MeetingOptions.TotalTimeout))));
+                TimeSpan.FromSeconds(meetingOptions.GetValue<double>(nameof(MeetingOptions.TotalTimeout)))));
             options.DisableClaimsTransformation(); // Disable this - Fusion adds relevant claims
         });
     }
