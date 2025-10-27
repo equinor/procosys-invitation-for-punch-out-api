@@ -48,6 +48,7 @@ spec:
         ServiceBus__Enable: true
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-dev
+        Swagger__ClientId: 59bc59a6-9435-4b09-a763-ac16c88facea # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Dev
       monitoring: false
       resources:
         requests:
@@ -84,6 +85,7 @@ spec:
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-test
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__ClientId: 4a7b7ad5-d115-4e90-ab91-9f396cef9579 # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Test
       monitoring: false
       replicas: 2
       resources:
@@ -121,6 +123,7 @@ spec:
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-prod
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__ClientId: 22e4c601-794c-4323-8179-5265bfb7293e # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Prod
       monitoring: false
       replicas: 3
       resources:
