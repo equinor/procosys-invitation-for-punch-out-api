@@ -1,5 +1,4 @@
 using System;
-using Azure.Core;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Equinor.ProCoSys.BlobStorage;

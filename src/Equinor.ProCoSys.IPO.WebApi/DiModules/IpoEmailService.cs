@@ -1,5 +1,4 @@
 using Equinor.ProCoSys.Common.Email;
-using Equinor.ProCoSys.IPO.WebApi.Authorizations;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
