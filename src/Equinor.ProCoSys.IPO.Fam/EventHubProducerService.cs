@@ -16,7 +16,7 @@ public class EventHubProducerService : IEventHubProducerService
     {
         _credential = credential;
         
-        var eventHubNamespace = config.GetValue<string>("Fam:EventHub:Namespace");
+        var eventHubNamespace = config.GetValue<string>("Fam:EventHub:Namespace")!;
         _fullyQualifiedNamespace = $"{eventHubNamespace}.servicebus.windows.net";
         
         _eventHubName = config.GetValue<string>("Fam:EventHub:EventHubName")!;
