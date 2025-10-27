@@ -42,6 +42,7 @@ spec:
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LibraryApi__BaseAddress: https://backend-procosys-library-api-dev.radix.equinor.com/
         LibraryApi__Scope: api://fdf5086c-009f-4407-b7bb-d2ece26dea45/ReadWrite
+        MainApi__BaseAddress: https://pcs-main-api-dev.azurewebsites.net/api/
         Meetings__Environment: ci
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
         ServiceBus__Enable: true
@@ -76,6 +77,7 @@ spec:
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LibraryApi__BaseAddress: https://backend-procosys-library-api-test.radix.equinor.com/
         LibraryApi__Scope: api://2df224e7-32fc-4dd8-83b8-d0222327b558/ReadWrite
+        MainApi__BaseAddress: https://pcs-main-api-test.azurewebsites.net/api/
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
         ServiceBus__Enable: true
@@ -112,6 +114,7 @@ spec:
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
         LibraryApi__BaseAddress: https://backend-procosys-library-api-prod.radix.equinor.com/
         LibraryApi__Scope: api://6263b7e6-155f-411b-9503-c5c841a601e0/ReadWrite
+        MainApi__BaseAddress: https://procosyswebapi.equinor.com/api/
         Meetings__Environment: fprd
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
         ServiceBus__Enable: true
