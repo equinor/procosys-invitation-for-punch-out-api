@@ -13,7 +13,7 @@ public static partial class ExelStringSanitizeExtension
         {
             return null;
         }
-        
+
         return RegexExpression().Replace(input, "");
     }
 }
