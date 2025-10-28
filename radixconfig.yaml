@@ -30,7 +30,6 @@ spec:
         API__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
         Application__ObjectId: d675f4cf-4c71-4e33-aa61-900404864819 # Enterprise application: ProCoSys - Invitation for Punch-out Api - Dev
-        Application__UseAzureAppConfiguration: 'true'
         ASPNETCORE_ENVIRONMENT: 'Development'
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
@@ -67,7 +66,6 @@ spec:
         API__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
         Application__ObjectId: 92c17717-142a-4d59-9fea-dfd88b8747ec # Enterprise application: ProCoSys - Invitation for Punch-out Api - Test
-        Application__UseAzureAppConfiguration: 'true'
         ASPNETCORE_ENVIRONMENT: 'Test'
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
@@ -106,7 +104,6 @@ spec:
         API__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
         Application__ObjectId: 11debf4b-b215-4790-9d3c-eaace6c7a27f # Enterprise application: ProCoSys - Invitation for Punch-out Api - Prod
-        Application__UseAzureAppConfiguration: 'true'
         ASPNETCORE_ENVIRONMENT: 'Production'
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
