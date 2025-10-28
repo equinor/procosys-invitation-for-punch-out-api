@@ -84,9 +84,9 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 xlsxWriter.SetDefaultStyle(normalStyle)
                     .BeginRow()
                     .Write(invitation.Id)
-                .Write(history.Description)
+                .Write(history.Description.ExelSanitize())
                     .Write(history.CreatedAtUtc, dateStyle)
-                    .Write(history.CreatedBy);
+                    .Write(history.CreatedBy.ExelSanitize());
 
             }
         }
@@ -97,14 +97,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                                 .SetDefaultStyle(headerStyle)
                                 .BeginRow().Write("Export of invitation to punch-outs")
                                 .SetDefaultStyle(subHeaderStyle)
-                                .BeginRow().Write("Plant").Write(dto.UsedFilter.Plant)
-                                .BeginRow().Write("Project name").Write(dto.UsedFilter.ProjectName)
+                                .BeginRow().Write("Plant").Write(dto.UsedFilter.Plant.ExelSanitize())
+                                .BeginRow().Write("Project name").Write(dto.UsedFilter.ProjectName.ExelSanitize())
                                 .BeginRow().Write("Filter values:")
                                 .SetDefaultStyle(normalStyle)
-                                .BeginRow().Write("Ipo number starts with").Write(dto.UsedFilter.IpoIdStartsWith)
-                                .BeginRow().Write("Title starts with").Write(dto.UsedFilter.IpoTitleStartWith)
-                                .BeginRow().Write("CommPkg number starts with").Write(dto.UsedFilter.CommPkgNoStartWith)
-                                .BeginRow().Write("McPkg number starts with").Write(dto.UsedFilter.McPkgNoStartsWith);
+                                .BeginRow().Write("Ipo number starts with").Write(dto.UsedFilter.IpoIdStartsWith.ExelSanitize())
+                                .BeginRow().Write("Title starts with").Write(dto.UsedFilter.IpoTitleStartWith.ExelSanitize())
+                                .BeginRow().Write("CommPkg number starts with").Write(dto.UsedFilter.CommPkgNoStartWith.ExelSanitize())
+                                .BeginRow().Write("McPkg number starts with").Write(dto.UsedFilter.McPkgNoStartsWith.ExelSanitize());
             if (dto.UsedFilter.PunchOutDateFromUtc != null)
             {
                 xlsxWriter.BeginRow().Write("Punch out dates from").Write((DateTime)dto.UsedFilter.PunchOutDateToUtc, dateStyle);
@@ -123,7 +123,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 xlsxWriter.BeginRow().Write("Punch out dates to");
             }
 
-            xlsxWriter.BeginRow().Write("Ipo status").Write(string.Join(",", dto.UsedFilter.IpoStatuses));
+            xlsxWriter.BeginRow().Write("Ipo status").Write(string.Join(",", dto.UsedFilter.IpoStatuses).ExelSanitize());
 
             if (dto.UsedFilter.LastChangedFromUtc != null)
             {
@@ -144,8 +144,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
             }
 
             xlsxWriter
-                .BeginRow().Write("Functional role invited").Write(dto.UsedFilter.FunctionalRoleInvited)
-                .BeginRow().Write("Person invited").Write(dto.UsedFilter.PersonInvited);
+                .BeginRow().Write("Functional role invited").Write(dto.UsedFilter.FunctionalRoleInvited.ExelSanitize())
+                .BeginRow().Write("Person invited").Write(dto.UsedFilter.PersonInvited.ExelSanitize());
         }
 
         private static void GenerateParticipantsSheet(XlsxWriter xlsxWriter, XlsxStyle headerStyle, List<ExportInvitationDto> exportInvitationDtos, XlsxStyle dateStyle, XlsxStyle normalStyle)
@@ -207,12 +207,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                     xlsxWriter.SetDefaultStyle(normalStyle)
                     .BeginRow()
                         .Write(invitation.Id)
-                        .Write(participant.Organization)
-                        .Write(participant.Type)
-                        .Write(participant.Participant)
+                        .Write(participant.Organization.ExelSanitize())
+                        .Write(participant.Type.ExelSanitize())
+                        .Write(participant.Participant.ExelSanitize())
                         .Write(participant.Attended)
-                        .Write(participant.Note)
-                        .Write(participant.SignedBy);
+                        .Write(participant.Note.ExelSanitize())
+                        .Write(participant.SignedBy.ExelSanitize());
 
                     if (participant.SignedAtUtc.HasValue)
                     {
@@ -307,12 +307,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 xlsxWriter.SetDefaultStyle(normalStyle)
                 .BeginRow()
                 .Write(invitation.Id)
-                .Write(invitation.ProjectName)
+                .Write(invitation.ProjectName.ExelSanitize())
                 .Write(invitation.Status.ToString())
-                .Write(invitation.Title)
-                .Write(invitation.Description)
-                .Write(invitation.Location)
-                .Write(invitation.Type);
+                .Write(invitation.Title.ExelSanitize())
+                .Write(invitation.Description.ExelSanitize())
+                .Write(invitation.Location.ExelSanitize())
+                .Write(invitation.Type.ExelSanitize());
 
 
 
@@ -339,10 +339,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
                 }
 
                 xlsxWriter
-                .Write(string.Join(", ", invitation.McPkgs))
-                .Write(string.Join(", ", invitation.CommPkgs))
-                .Write(invitation.ContractorRep)
-                .Write(invitation.ConstructionCompanyRep);
+                .Write(string.Join(", ", invitation.McPkgs).ExelSanitize())
+                .Write(string.Join(", ", invitation.CommPkgs).ExelSanitize())
+                .Write(invitation.ContractorRep.ExelSanitize())
+                .Write(invitation.ConstructionCompanyRep.ExelSanitize());
 
                 if (invitation.CompletedAtUtc.HasValue)
                 {
@@ -366,7 +366,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Excel
 
                 var createdAtCet = TimeZoneInfo.ConvertTimeFromUtc(invitation.CreatedAtUtc, cetTimeZone);
 
-                xlsxWriter.Write(invitation.CreatedBy)
+                xlsxWriter.Write(invitation.CreatedBy.ExelSanitize())
                     .Write(createdAtCet, dateStyle);
             }
         }
