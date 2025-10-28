@@ -23,7 +23,7 @@ public static class ConfigureDatabaseExtension
             return;
         }
 
-        var migrateDatabase = builder.Configuration.GetValue<bool>("MigrateDatabase");
+        var migrateDatabase = builder.Configuration.GetValue<bool>("Application:MigrateDatabase");
         if (!migrateDatabase)
         {
             return;
