@@ -14,7 +14,7 @@ public static class ConfigureTelemetryExtension
     {
         services.AddApplicationInsightsTelemetry(options =>
         {
-            options.ConnectionString = configuration["ApplicationInsights:ConnectionString"];
+            options.ConnectionString = configuration["ConnectionStrings:ApplicationInsights"];
         });
 
         services.Configure<TelemetryConfiguration>(config =>
