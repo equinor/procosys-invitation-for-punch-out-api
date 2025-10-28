@@ -39,7 +39,7 @@ public static class ConfigureDatabaseExtension
             return;
         }
 
-        if (!builder.Configuration.GetValue<bool>("SeedDummyData"))
+        if (!builder.Configuration.GetValue<bool>("Application:SeedDummyData"))
         {
             return;
         }
