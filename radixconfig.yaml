@@ -27,29 +27,30 @@ spec:
           clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
       imageTagName: latest
       variables:
-        API__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244
+        API__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
-        Application__LibraryApiScope: api://fdf5086c-009f-4407-b7bb-d2ece26dea45/ReadWrite
         Application__ObjectId: d675f4cf-4c71-4e33-aa61-900404864819 # Enterprise application: ProCoSys - Invitation for Punch-out Api - Dev
-        Application__UseAzureAppConfiguration: 'true'
-        ApplicationInsights__ConnectionString: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
-        ASPNETCORE_ENVIRONMENT: 'Development'
+        Application__UseAzureAppConfiguration: true
+        ASPNETCORE_ENVIRONMENT: Development
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
-        AzureAd__MainApiScope: api://dd38f169-bccf-4d0e-a4ad-d830893cfa75/.default
+        AzureAd__MainApiScope: api://dd38f169-bccf-4d0e-a4ad-d830893cfa75/.default # App registration: ProCoSys - WebAPI - Dev
         BlobStorage__AccountName: pcsdevsa
+        CommonLibConfig__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
+        ConnectionStrings__ApplicationInsights: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
         ConnectionStrings__IPOContext: Server=pcs-dev-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-dev-db
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Fam__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
+        LibraryApi__BaseAddress: https://backend-procosys-library-api-dev.radix.equinor.com/
+        LibraryApi__Scope: api://fdf5086c-009f-4407-b7bb-d2ece26dea45/ReadWrite # App registration: ProCoSys - Library Api - Dev
+        MainApi__BaseAddress: https://pcs-main-api-dev.azurewebsites.net/api/
         Meetings__Environment: ci
         Meetings__PcsBaseUrl: https://dev.pcs-dev.net/
         ServiceBus__Enable: true
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-dev
+        Swagger__ClientId: 59bc59a6-9435-4b09-a763-ac16c88facea # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Dev
+        Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
       resources:
         requests:
@@ -64,32 +65,33 @@ spec:
         azure:
           clientId: 11325fb8-4b0f-4a20-8d25-9251b8fd8990 # Managed identity: pcs-ipo-test-mi
       variables:
-        API__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31
+        API__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
-        Application__LibraryApiScope: api://2df224e7-32fc-4dd8-83b8-d0222327b558/ReadWrite
         Application__ObjectId: 92c17717-142a-4d59-9fea-dfd88b8747ec # Enterprise application: ProCoSys - Invitation for Punch-out Api - Test
-        Application__UseAzureAppConfiguration: 'true'
-        ApplicationInsights__ConnectionString: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
-        ASPNETCORE_ENVIRONMENT: 'Test'
+        Application__UseAzureAppConfiguration: true
+        ASPNETCORE_ENVIRONMENT: Test
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
-        AzureAd__MainApiScope: api://2d0ed80f-3013-422d-b8bd-2b8ac70b2ce1/.default
+        AzureAd__MainApiScope: api://2d0ed80f-3013-422d-b8bd-2b8ac70b2ce1/.default # App registration: ProCoSys - WebAPI - Test
         BlobStorage__AccountName: pcsdevsa
+        CommonLibConfig__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
+        ConnectionStrings__ApplicationInsights: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
         ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db-tessell
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Fam__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Fam__EventHub__Namespace: fam-evhns-inbound-7d4a-dev
         Fam__EventHub__EventHubName: fam-evh-procosys-dev
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
+        LibraryApi__BaseAddress: https://backend-procosys-library-api-test.radix.equinor.com/
+        LibraryApi__Scope: api://2df224e7-32fc-4dd8-83b8-d0222327b558/ReadWrite # App registration: ProCoSys - Library Api - Test
+        MainApi__BaseAddress: https://pcs-main-api-test.azurewebsites.net/api/
         Meetings__Environment: fqa
         Meetings__PcsBaseUrl: https://procosystest.equinor.com/
         ServiceBus__Enable: true
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-test
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__ClientId: 4a7b7ad5-d115-4e90-ab91-9f396cef9579 # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Test
+        Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
       replicas: 2
       resources:
@@ -105,32 +107,33 @@ spec:
         azure:
           clientId: 858de06a-eecf-49f1-ab64-de6d2be03613 # Managed identity: pcs-ipo-prod-mi
       variables:
-        API__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173
+        API__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
-        Application__LibraryApiScope: api://6263b7e6-155f-411b-9503-c5c841a601e0/ReadWrite
         Application__ObjectId: 11debf4b-b215-4790-9d3c-eaace6c7a27f # Enterprise application: ProCoSys - Invitation for Punch-out Api - Prod
-        Application__UseAzureAppConfiguration: 'true'
-        ApplicationInsights__ConnectionString: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
-        ASPNETCORE_ENVIRONMENT: 'Production'
+        Application__UseAzureAppConfiguration: true
+        ASPNETCORE_ENVIRONMENT: Production
         AzureAd__ClientCredentials__0__SourceType: SignedAssertionFilePath
         AzureAd__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
-        AzureAd__MainApiScope: api://47641c40-0135-459b-8ab4-459e68dc8d08/.default
+        AzureAd__MainApiScope: api://47641c40-0135-459b-8ab4-459e68dc8d08/.default # App registration: ProCoSys - WebAPI
         BlobStorage__AccountName: pcsprodsa
+        CommonLibConfig__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
+        ConnectionStrings__ApplicationInsights: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
         ConnectionStrings__IPOContext: Server=pcs-prod-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-prod-db
-        Email__Enabled: true
-        Email__EnableSsl: true
-        Email__FakeEmail: false
-        Email__Server: mrrr.statoil.com
         Fam__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Fam__EventHub__Namespace: fam-evhns-inbound-f0de-prod
         Fam__EventHub__EventHubName: fam-evh-procosys-prod
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
+        LibraryApi__BaseAddress: https://backend-procosys-library-api-prod.radix.equinor.com/
+        LibraryApi__Scope: api://6263b7e6-155f-411b-9503-c5c841a601e0/ReadWrite # App registration: ProCoSys - Library Api - Prod
+        MainApi__BaseAddress: https://procosyswebapi.equinor.com/api/
         Meetings__Environment: fprd
         Meetings__PcsBaseUrl: https://procosys.equinor.com/
         ServiceBus__Enable: true
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-prod
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__ClientId: 22e4c601-794c-4323-8179-5265bfb7293e # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Prod
+        Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
       replicas: 3
       resources:

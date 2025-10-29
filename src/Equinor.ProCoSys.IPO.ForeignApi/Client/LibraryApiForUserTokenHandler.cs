@@ -3,20 +3,21 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Web;
 
 namespace Equinor.ProCoSys.IPO.ForeignApi.Client;
 
 public class LibraryApiForUserTokenHandler(
-    IOptionsMonitor<ApplicationOptions> options,
+    IOptionsMonitor<LibraryApiOptions> options,
     ITokenAcquisition tokenAcquisition) : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         try
         {
-            var token = await GetTokenForUser(options.CurrentValue.LibraryApiScope, cancellationToken);
+            var token = await GetTokenForUser(options.CurrentValue.Scope, cancellationToken);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return await base.SendAsync(request, cancellationToken);
         }
