@@ -19,14 +19,14 @@ public static class ConfigureMassTransitExtension
                 o.UseSqlServer();
                 o.UseBusOutbox();
             });
-            
+
             if (!builder.IsServiceBusEnabled())
             {
                 x.UsingInMemory((context, cfg) =>
                 {
                     cfg.ConfigureEndpoints(context);
                 });
-                
+
                 return;
             }
 
