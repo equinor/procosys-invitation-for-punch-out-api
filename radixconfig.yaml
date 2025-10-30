@@ -35,7 +35,6 @@ spec:
         AzureAd__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         AzureAd__MainApiScope: api://dd38f169-bccf-4d0e-a4ad-d830893cfa75/.default # App registration: ProCoSys - WebAPI - Dev
         BlobStorage__AccountName: pcsdevsa
-        CommonLibConfig__ClientId: 2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         ConnectionStrings__ApplicationInsights: InstrumentationKey=298df54f-eae4-4bee-a645-678c3b594883;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=acf2701d-97da-47c4-bab0-c6ce626e5c97
         ConnectionStrings__IPOContext: Server=pcs-dev-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-dev-db
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
@@ -72,7 +71,6 @@ spec:
         AzureAd__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         AzureAd__MainApiScope: api://2d0ed80f-3013-422d-b8bd-2b8ac70b2ce1/.default # App registration: ProCoSys - WebAPI - Test
         BlobStorage__AccountName: pcsdevsa
-        CommonLibConfig__ClientId: b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         ConnectionStrings__ApplicationInsights: InstrumentationKey=ddae94dd-503b-49a6-a54c-e9ece95e4ba4;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=5a16040d-6c1f-4b45-9312-0be4caf68fb9
         ConnectionStrings__IPOContext: Server=pcs-test-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-test-db-tessell
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
@@ -111,7 +109,6 @@ spec:
         AzureAd__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         AzureAd__MainApiScope: api://47641c40-0135-459b-8ab4-459e68dc8d08/.default # App registration: ProCoSys - WebAPI
         BlobStorage__AccountName: pcsprodsa
-        CommonLibConfig__ClientId: b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         ConnectionStrings__ApplicationInsights: InstrumentationKey=e8b5ce0a-590d-49ea-8001-f693267fb332;IngestionEndpoint=https://northeurope-3.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/;ApplicationId=422e8eac-3815-40dd-a46a-d0d5379146e0
         ConnectionStrings__IPOContext: Server=pcs-prod-sqlserver.database.windows.net;Authentication=Active Directory Workload Identity;Encrypt=True;Database=pcs-ipo-prod-db
         Graph__ClientId: 0ae66748-e5b8-418b-8f4f-291c368312df # App registration: ProCoSys - Mail
