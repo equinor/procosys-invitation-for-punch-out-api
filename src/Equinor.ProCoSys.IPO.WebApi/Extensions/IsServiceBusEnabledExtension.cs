@@ -1,0 +1,25 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+
+namespace Equinor.ProCoSys.IPO.WebApi.Extensions;
+
+public static class IsServiceBusEnabledExtension
+{
+    public static bool IsServiceBusEnabled(this WebApplicationBuilder builder) => IsServiceBusEnabled(builder.Configuration, builder.Environment);
+
+    private static bool IsServiceBusEnabled(IConfiguration config, IHostEnvironment environment)
+    {
+        if (!config.GetValue<bool>("ServiceBus:Enable"))
+        {
+            return false;
+        }
+
+        if (!environment.IsDevelopment())
+        {
+            return true;
+        }
+
+        return config.GetValue<bool>("ServiceBus:EnableInDevelopment");
+    }
+}

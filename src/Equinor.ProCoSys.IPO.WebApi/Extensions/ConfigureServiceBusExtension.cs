@@ -40,8 +40,4 @@ public static class ConfigureServiceBusExtension
         var topics = configuration["ServiceBus:TopicNames"];
         builder.Services.AddTopicClients(topics.Split(','), fullyQualifiedNamespace, credential);
     }
-
-    private static bool IsServiceBusEnabled(this WebApplicationBuilder builder) =>
-        builder.Configuration.GetValue<bool>("ServiceBus:Enable") &&
-        (!builder.Environment.IsDevelopment() || builder.Configuration.GetValue<bool>("ServiceBus:EnableInDevelopment"));
 }

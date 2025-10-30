@@ -82,39 +82,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
-            services.AddMassTransit(x =>
-            {
-                x.AddEntityFrameworkOutbox<IPOContext>(o =>
-                {
-                    o.UseSqlServer();
-                    o.UseBusOutbox();
-                });
-
-                x.UsingAzureServiceBus((_, cfg) =>
-                {
-                    var serviceBusNamespace = configuration.GetValue<string>("ServiceBus:Namespace");
-                    var serviceUri = new Uri($"sb://{serviceBusNamespace}.servicebus.windows.net/");
-
-                    cfg.Host(serviceUri, host =>
-                    {
-                        host.TokenCredential = credential;
-                    });
-
-                    cfg.MessageTopology.SetEntityNameFormatter(new IpoEntityNameFormatter());
-                    cfg.UseRawJsonSerializer();
-                    cfg.ConfigureJsonSerializerOptions(opts =>
-                    {
-                        opts.Converters.Add(new JsonStringEnumConverter());
-
-                        // Set it to null to use the default .NET naming convention (PascalCase)
-                        opts.PropertyNamingPolicy = null;
-                        return opts;
-                    });
-
-                    cfg.AutoStart = true;
-                });
-            });
-
             // Hosted services
             services.AddHostedService<TimedSynchronization>();
 
