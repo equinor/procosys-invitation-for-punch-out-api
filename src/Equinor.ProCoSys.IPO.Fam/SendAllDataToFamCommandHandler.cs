@@ -5,8 +5,6 @@ using Equinor.ProCoSys.IPO.MessageContracts;
 using Equinor.TI.Common.Messaging;
 using Equinor.TI.CommonLibrary.Mapper;
 using Equinor.TI.CommonLibrary.Mapper.Core;
-using Fam.Core.EventHubs.Contracts;
-using Fam.Models.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -129,10 +127,6 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         try
         {
             await _eventHubProducerService.SendDataAsync(messages);
-        }
-        catch (FamConfigException e)
-        {
-            throw new Exception("Configuration error: Could not send message.", e);
         }
         catch (Exception e)
         {

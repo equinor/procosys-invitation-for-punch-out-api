@@ -30,6 +30,6 @@ public abstract class BaseCertificateCredential(
     private static X509Certificate2 ParseCertificate(KeyVaultSecret secret)
     {
         var certificateBytes = Convert.FromBase64String(secret.Value);
-        return new X509Certificate2(certificateBytes, (string)null, X509KeyStorageFlags.MachineKeySet);
+        return new X509Certificate2(certificateBytes);
     }
 }
