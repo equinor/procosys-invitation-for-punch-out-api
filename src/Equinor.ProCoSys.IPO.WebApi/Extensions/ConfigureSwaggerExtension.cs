@@ -66,7 +66,7 @@ public static class ConfigureSwaggerExtension
             c.OAuthClientId(configuration["Swagger:ClientId"]);
             c.OAuthAppName("ProCoSys IPO API V1");
             c.OAuthScopeSeparator(" ");
-            c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> { { "resource", configuration["API:Audience"] } });
+            c.OAuthAdditionalQueryStringParams(new Dictionary<string, string> { { "resource", configuration["Swagger:Audience"] } });
         });
     }
 

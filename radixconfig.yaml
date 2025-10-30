@@ -27,7 +27,6 @@ spec:
           clientId: 98cb737b-5c00-4ae6-962b-29c562b7ea21 # Managed identity: pcs-ipo-dev-mi
       imageTagName: latest
       variables:
-        API__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
         Application__ObjectId: d675f4cf-4c71-4e33-aa61-900404864819 # Enterprise application: ProCoSys - Invitation for Punch-out Api - Dev
         Application__UseAzureAppConfiguration: true
@@ -48,6 +47,7 @@ spec:
         ServiceBus__Enable: true
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-dev
+        Swagger__Audience: api://2e1868db-3024-45a9-b3f1-568e85586244 # App registration: ProCoSys - Invitation for Punch-out Api - Dev
         Swagger__ClientId: 59bc59a6-9435-4b09-a763-ac16c88facea # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Dev
         Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
@@ -64,7 +64,6 @@ spec:
         azure:
           clientId: 11325fb8-4b0f-4a20-8d25-9251b8fd8990 # Managed identity: pcs-ipo-test-mi
       variables:
-        API__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Application__AppConfigurationUrl: https://pcs-ipo-non-prod-config.azconfig.io
         Application__ObjectId: 92c17717-142a-4d59-9fea-dfd88b8747ec # Enterprise application: ProCoSys - Invitation for Punch-out Api - Test
         Application__UseAzureAppConfiguration: true
@@ -86,6 +85,7 @@ spec:
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-test
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__Audience: api://b2b8b455-f2c5-4db9-bce5-62202e64fb31 # App registration: ProCoSys - Invitation for Punch-out Api - Test
         Swagger__ClientId: 4a7b7ad5-d115-4e90-ab91-9f396cef9579 # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Test
         Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
@@ -103,7 +103,6 @@ spec:
         azure:
           clientId: 858de06a-eecf-49f1-ab64-de6d2be03613 # Managed identity: pcs-ipo-prod-mi
       variables:
-        API__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Application__AppConfigurationUrl: https://pcs-ipo-prod-config.azconfig.io
         Application__ObjectId: 11debf4b-b215-4790-9d3c-eaace6c7a27f # Enterprise application: ProCoSys - Invitation for Punch-out Api - Prod
         Application__UseAzureAppConfiguration: true
@@ -125,6 +124,7 @@ spec:
         ServiceBus__LeaderElectorUrl: http://leader-elector:3003
         ServiceBus__Namespace: sb-pcs-prod
         ServiceBus__ReadFromDeadLetterQueue: false
+        Swagger__Audience: api://b3399356-b2b6-44d4-a7b6-323eefc8a173 # App registration: ProCoSys - Invitation for Punch-out Api - Prod
         Swagger__ClientId: 22e4c601-794c-4323-8179-5265bfb7293e # App registration: ProCoSys - Invitation for Punch-out Api - Swagger Client - Prod
         Synchronization__UserOid: 701F56A3-9176-4E73-B63E-141F2964A898 # Enterprise application: ProCoSys - WebAPI
       monitoring: false
