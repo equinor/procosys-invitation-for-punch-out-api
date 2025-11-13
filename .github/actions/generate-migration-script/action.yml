@@ -23,10 +23,12 @@ runs:
       with:
         dotnet-version: '8.0.x'
 
+    # TODO remove --version when bug has been fixed
+    # https://github.com/dotnet/efcore/issues/37125
     - name: Setup EF Tools 
       shell: bash
       run: | 
-        dotnet tool install --global dotnet-ef 
+        dotnet tool install --global dotnet-ef --version 9.0.11
 
     - name: Configure user secrets
       shell: bash
