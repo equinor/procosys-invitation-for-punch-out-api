@@ -5,6 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 using MediatR;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+
 internal class IpoAttendedStatusEventHandler : INotificationHandler<AttendedStatusUpdatedEvent>
 {
     private readonly IIntegrationEventPublisher _integrationEventPublisher;
