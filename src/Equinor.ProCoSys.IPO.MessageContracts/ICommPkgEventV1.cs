@@ -1,4 +1,5 @@
 ﻿namespace Equinor.ProCoSys.IPO.MessageContracts;
+
 public interface ICommPkgEventV1 : IIntegrationEvent
 {
     Guid ProCoSysGuid { get; }
