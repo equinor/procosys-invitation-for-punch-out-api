@@ -8,6 +8,8 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local (private setters needed for Entity Framework)
+
 namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 {
     public class Invitation : PlantEntityBase, IAggregateRoot, ICreationAuditable, IModificationAuditable, IHaveGuid
@@ -19,11 +21,11 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
         public const int LocationMaxLength = 250;
         public const int DescriptionMaxLength = 4096;
 
-        private readonly List<McPkg> _mcPkgs = new List<McPkg>();
-        private readonly List<CommPkg> _commPkgs = new List<CommPkg>();
-        private readonly List<Participant> _participants = new List<Participant>();
-        private readonly List<Comment> _comments = new List<Comment>();
-        private readonly List<Attachment> _attachments = new List<Attachment>();
+        private readonly List<McPkg> _mcPkgs = new();
+        private readonly List<CommPkg> _commPkgs = new();
+        private readonly List<Participant> _participants = new();
+        private readonly List<Comment> _comments = new();
+        private readonly List<Attachment> _attachments = new();
 
         protected Invitation()
             : base(null)
@@ -43,8 +45,8 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             List<CommPkg> commPkgs)
             : base(plant)
         {
-            mcPkgs ??= new List<McPkg>();
-            commPkgs ??= new List<CommPkg>();
+            mcPkgs ??= [];
+            commPkgs ??= [];
 
             if (project is null)
             {
@@ -65,7 +67,6 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             Title = title;
             Description = description;
             Guid = Guid.NewGuid();
-            ObjectGuid = Guid;
 
             SetScope(type, mcPkgs, commPkgs);
 
@@ -76,10 +77,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddDomainEvent(new IpoCreatedEvent(plant, Guid));
         }
 
-        // private setters needed for Entity Framework
         public Guid Guid { get; private set; }
-        [Obsolete("Keep for migration only. To be removed in next version")]
-        public Guid ObjectGuid { get; private set; }
         public int ProjectId { get; private set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -252,25 +250,25 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
             AddPostSaveDomainEvent(new Events.PostSave.IpoCompletedEvent(Plant, Guid));
         }
 
-        private List<string> SplitEmailAddressBySemicolon(List<string> unsplittedEmails)
+        private List<string> SplitEmailAddressBySemicolon(List<string> emails)
         {
-            var splittedEmails = new List<string>();
-            unsplittedEmails.ForEach(x =>
+            var allEmails = new List<string>();
+            emails.ForEach(x =>
             {
-                var emailsArray = x.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                splittedEmails.AddRange(emailsArray.Select(y => y.Trim()));
+                var emailsArray = x.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+                allEmails.AddRange(emailsArray.Select(y => y.Trim()));
 
             });
-            return splittedEmails;
+            return allEmails;
         }
 
         public List<string> GetCompleterEmails()
         {
-            var unsplittedEmails = this.Participants.Where(
+            var emails = Participants.Where(
                     p => p.Organization == Organization.ConstructionCompany && p.SortKey == 1 && p.Email != null)
                 .Select(p => p.Email).ToList();
 
-            return SplitEmailAddressBySemicolon(unsplittedEmails);
+            return SplitEmailAddressBySemicolon(emails);
         }
 
         public void UnCompleteIpo(Participant participant, string participantRowVersion)
@@ -543,7 +541,7 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate
 
             if (Type == DisciplineType.DP)
             {
-                throw new ArgumentException($"Can't add comm pkg to invitation with type DP");
+                throw new ArgumentException("Can't add comm pkg to invitation with type DP");
             }
 
             if (_commPkgs.Any(c => c.CommPkgNo == commPkg.CommPkgNo))
