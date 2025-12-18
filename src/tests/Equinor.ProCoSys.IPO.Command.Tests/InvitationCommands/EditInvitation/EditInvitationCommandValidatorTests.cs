@@ -140,6 +140,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
+        public void Validate_ShouldFail_WhenDescriptionHasHtml()
+        {
+            var result = _dut.Validate(new EditInvitationCommand(
+                _id,
+                _title,
+                "<b>Desc</b>",
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion));
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Description cannot contain HTML!"));
+        }
+
+        [TestMethod]
         public async Task Validate_ShouldFail_WhenStartDateIsAfterEndDate()
         {
             var result = await _dut.ValidateAsync(new EditInvitationCommand(
@@ -224,6 +245,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
         }
 
         [TestMethod]
+        public void Validate_ShouldFail_WhenTitleHasHtml()
+        {
+            var result = _dut.Validate(new EditInvitationCommand(
+                _id,
+                "<b>Title</b>",
+                _description,
+                _location,
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion));
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Title cannot contain HTML!"));
+        }
+
+        [TestMethod]
         public async Task Validate_ShouldFail_LocationIsTooLong()
         {
             var result = await _dut.ValidateAsync(new EditInvitationCommand(
@@ -242,6 +284,27 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.EditInvitation
             Assert.IsFalse(result.IsValid);
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith($"Location cannot be more than {Invitation.LocationMaxLength} characters!"));
+        }
+
+        [TestMethod]
+        public void Validate_ShouldFail_WhenLocationHasHtml()
+        {
+            var result = _dut.Validate(new EditInvitationCommand(
+                _id,
+                _title,
+                _description,
+                "<b>Location</b>",
+                new DateTime(2020, 9, 1, 12, 0, 0, DateTimeKind.Utc),
+                new DateTime(2020, 9, 1, 13, 0, 0, DateTimeKind.Utc),
+                _type,
+                _editParticipants,
+                null,
+                _commPkgScope,
+                _rowVersion));
+
+            Assert.IsFalse(result.IsValid);
+            Assert.AreEqual(1, result.Errors.Count);
+            Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Location cannot contain HTML!"));
         }
 
         [TestMethod]

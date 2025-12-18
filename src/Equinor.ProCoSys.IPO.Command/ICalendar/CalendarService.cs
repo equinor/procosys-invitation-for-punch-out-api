@@ -1,13 +1,12 @@
 ﻿using System;
-using Equinor.ProCoSys.IPO.Command.InvitationCommands;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using System.Text;
 using System.Linq;
+using System.Text;
+using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Microsoft.Graph.Models;
 using Invitation = Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate.Invitation;
 using Person = Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate.Person;
-using System.Collections.Generic;
 
 namespace Equinor.ProCoSys.IPO.Command.ICalendar
 {
@@ -22,29 +21,27 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
 
             var message = new Message
             {
-                Subject = InvitationHelper.GenerateMeetingTitle(invitation, projectName, request.Type,
-                            request.Type == DisciplineType.DP ? request.McPkgScope : request.CommPkgScope),
+                Subject = subject,
                 Body = new ItemBody
                 {
                     ContentType = BodyType.Html,
                     Content = InvitationHelper.GenerateMeetingFallbackDescription()
                 },
-                ToRecipients = new List<Recipient> { 
-                    new () { 
-                            EmailAddress = new EmailAddress { 
-                            Address = organizer.Email, 
-                            Name = $"{organizer.FirstName} {organizer.LastName}" 
-                        } 
-                    } 
-                }
+                ToRecipients =
+                [
+                    new()
+                    {
+                        EmailAddress = new EmailAddress
+                        {
+                            Address = organizer.Email, Name = $"{organizer.FirstName} {organizer.LastName}"
+                        }
+                    }
+                ]
             };
 
             var invitationString = CreateInvitation(organizer, subject, content, invitation);
             var attachment = CreateICalendarInvitationAttachment(invitationString);
-            message.Attachments = new List<Microsoft.Graph.Models.Attachment> 
-            { 
-                attachment 
-            };
+            message.Attachments = [attachment];
             return message;
         }
 
@@ -58,12 +55,12 @@ namespace Equinor.ProCoSys.IPO.Command.ICalendar
             str.AppendLine($"DTSTART:{invitation.StartTimeUtc:yyyyMMddTHHmmssZ}");
             str.AppendLine($"DTSTAMP:{DateTime.UtcNow:yyyyMMddTHHmmssZ}");
             str.AppendLine($"DTEND:{invitation.EndTimeUtc:yyyyMMddTHHmmssZ}");
-            str.AppendLine($"LOCATION: {invitation.Location}");
+            str.AppendLine($"LOCATION: {invitation.Location.StripHtml()}");
             str.AppendLine($"UID:{Guid.NewGuid()}");
-            str.AppendLine($"DESCRIPTION:{content}");
+            str.AppendLine($"DESCRIPTION:{content.StripHtml()}");
             str.AppendLine($"X-ALT-DESC;FMTTYPE=text/html:{content}");
-            str.AppendLine($"SUMMARY:{subject}");
-            str.AppendLine($"STATUS:CONFIRMED");
+            str.AppendLine($"SUMMARY:{subject.StripHtml()}");
+            str.AppendLine("STATUS:CONFIRMED");
             str.AppendLine($"ORGANIZER;CN=\"{organizer.FirstName} {organizer.LastName}\":mailto:{organizer.Email}");
 
             invitation.Participants.ToList().ForEach(y =>

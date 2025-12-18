@@ -27,9 +27,13 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                 .Must(command => command.Description == null || command.Description.Length < Invitation.DescriptionMaxLength)
                 .WithMessage(command =>
                     $"Description cannot be more than {Invitation.DescriptionMaxLength} characters! Description={command.Description}")
+                .Must(command => !command.Description.ContainsHtml())
+                .WithMessage("Description cannot contain HTML!")
                 .Must(command => command.Location == null || command.Location.Length < Invitation.LocationMaxLength)
                 .WithMessage(command =>
                     $"Location cannot be more than {Invitation.LocationMaxLength} characters! Location={command.Location}")
+                .Must(command => !command.Location.ContainsHtml())
+                .WithMessage("Location cannot contain HTML!")
                 .Must(command => command.StartTime < command.EndTime)
                 .WithMessage(command =>
                     $"Start time must be before end time! Start={command.StartTime} End={command.EndTime}")
@@ -39,6 +43,9 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.CreateInvitation
                     command.Title.Length < Invitation.TitleMaxLength)
                 .WithMessage(command =>
                     $"Title must be between {Invitation.TitleMinLength} and {Invitation.TitleMaxLength} characters! Title={command.Title}")
+                .Must(command => !command.Title.ContainsHtml())
+                .WithMessage("Title cannot contain HTML!")
+
                 //business validators
                 .Must(command => MustHaveValidScope(command.Type, command.McPkgScope, command.CommPkgScope))
                 .WithMessage("Not a valid scope! Choose either DP with mc scope or MDP with comm pkg scope")
