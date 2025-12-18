@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -14,7 +15,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
         protected const string FunctionalRoleCode2 = "FRC2";
         private const string Classification = "IPO";
         private const string AzureOid = "47ff6258-0906-4849-add8-aada76ee0b0d";
-       
+
         private IList<ProCoSysFunctionalRole> _pcsFunctionalRoles;
         private List<ProCoSysPerson> _personsInFunctionalRole;
         private IList<ProCoSysPerson> _signerPersons;
@@ -87,6 +88,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                 .Setup(x => x.GetPersonsAsync(
                     TestFactory.PlantWithAccess,
                     "p",
+                    It.IsAny<CancellationToken>(),
                     It.IsAny<long>()))
                 .Returns(Task.FromResult(_proCoSysPersons));
 
@@ -96,7 +98,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     TestFactory.PlantWithAccess,
                     "SignersSearchString",
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(_signerPersons));
 
             var viewer = TestFactory.Instance.GetTestUserForUserType(UserType.Viewer).Profile;
@@ -106,14 +109,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Participants
                     TestFactory.PlantWithAccess,
                     viewer.Oid,
                     "IPO",
-                    It.IsAny<List<string>>()))
+                    It.IsAny<List<string>>(), 
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(viewer.AsMainProCoSysPerson()));
 
             TestFactory.Instance
                 .FunctionalRoleApiServiceMock
                 .Setup(x => x.GetFunctionalRolesByClassificationAsync(
                     TestFactory.PlantWithAccess,
-                    Classification))
+                    Classification,
+                    CancellationToken.None))
                 .Returns(Task.FromResult(_pcsFunctionalRoles));
         }
     }

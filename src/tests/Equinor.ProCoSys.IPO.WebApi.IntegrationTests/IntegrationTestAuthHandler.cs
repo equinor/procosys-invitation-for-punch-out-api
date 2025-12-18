@@ -23,10 +23,10 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         }
 
         public IntegrationTestAuthHandler(
-            IOptionsMonitor<IntegrationTestAuthOptions> options, 
-            ILoggerFactory logger, 
-            UrlEncoder encoder, 
-            ISystemClock clock) 
+            IOptionsMonitor<IntegrationTestAuthOptions> options,
+            ILoggerFactory logger,
+            UrlEncoder encoder,
+            ISystemClock clock)
             : base(options, logger, encoder, clock)
         {
         }
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
             var authType = profile.IsAppToken ? AuthType.Application : AuthType.Delegated;
 
-            var claims = new List<Claim> {new Claim(ClaimsExtensions.Oid, profile.Oid)};
+            var claims = new List<Claim> { new Claim(ClaimsExtensions.Oid, profile.Oid) };
 
             switch (authType)
             {

@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         {
             var invitation = await _invitationRepository.GetByIdAsync(request.InvitationId);
 
-            await UpdateParticipants(request.UpdatedParticipants, invitation);
+            await UpdateParticipants(request.UpdatedParticipants, invitation, cancellationToken);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             return new SuccessResult<Unit>(Unit.Value);
@@ -51,7 +51,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
         private async Task UpdateParticipants(
             IList<ParticipantsForEditCommand> participantsToUpdate,
-            Invitation invitation)
+            Invitation invitation,
+            CancellationToken cancellationToken)
         {
             var existingParticipants = invitation.Participants.ToList();
 
@@ -83,11 +84,11 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
 
             if (functionalRoleParticipants.Count > 0)
             {
-                await UpdateFunctionalRoleParticipantsAsync(invitation, functionalRoleParticipants, existingParticipants);
+                await UpdateFunctionalRoleParticipantsAsync(invitation, functionalRoleParticipants, existingParticipants, cancellationToken);
             }
             if (persons.Count > 0)
             {
-                await AddPersonParticipantsWithOidsAsync(invitation, persons, existingParticipants);
+                await AddPersonParticipantsWithOidsAsync(invitation, persons, existingParticipants, cancellationToken);
             }
 
             AddExternalParticipant(invitation, externalEmailParticipants, existingParticipants);
@@ -96,11 +97,16 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private async Task UpdateFunctionalRoleParticipantsAsync(
             Invitation invitation,
             IList<ParticipantsForEditCommand> functionalRoleParticipants,
-            IList<Participant> existingParticipants)
+            IList<Participant> existingParticipants,
+            CancellationToken cancellationToken)
         {
             var codes = functionalRoleParticipants.Select(p => p.InvitedFunctionalRoleToEdit.Code).ToList();
             var functionalRoles =
-                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant, codes);
+                await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
+                    _plantProvider.Plant,
+                    codes,
+                    cancellationToken
+                    );
 
             foreach (var participant in functionalRoleParticipants)
             {
@@ -185,7 +191,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
         private async Task AddPersonParticipantsWithOidsAsync(
             Invitation invitation,
             List<ParticipantsForEditCommand> personParticipantsWithOids,
-            IList<Participant> existingParticipants)
+            IList<Participant> existingParticipants,
+            CancellationToken cancellationToken)
         {
             var personsAdded = new List<ParticipantsForCommand>();
 
@@ -198,7 +205,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                         existingParticipants,
                         participant.InvitedPersonToEdit,
                         participant.SortKey,
-                        participant.Organization);
+                        participant.Organization,
+                        cancellationToken);
                     personsAdded.Add(participant);
                 }
             }
@@ -209,7 +217,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
                 .Select(p => p.InvitedPersonToEdit.AzureOid.ToString())
                 .ToList();
             var persons = oids.Count > 0
-                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids)
+                ? await _personApiService.GetPersonsByOidsAsync(_plantProvider.Plant, oids, cancellationToken)
                 : new List<ProCoSysPerson>();
             if (persons.Any())
             {
@@ -258,10 +266,15 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.EditParticipants
             IList<Participant> existingParticipants,
             InvitedPersonForEditCommand person,
             int sortKey,
-            Organization organization)
+            Organization organization,
+            CancellationToken cancellationToken)
         {
-            var personFromMain = await _personApiService.GetPersonByOidWithPrivilegesAsync(_plantProvider.Plant,
-                person.AzureOid.ToString(), _objectName, _signerPrivileges);
+            var personFromMain = await _personApiService.GetPersonByOidWithPrivilegesAsync(
+                _plantProvider.Plant,
+                person.AzureOid.ToString(),
+                _objectName,
+                _signerPrivileges,
+                cancellationToken);
             if (personFromMain != null)
             {
                 var existingParticipant = existingParticipants.SingleOrDefault(p => p.Id == person.Id);

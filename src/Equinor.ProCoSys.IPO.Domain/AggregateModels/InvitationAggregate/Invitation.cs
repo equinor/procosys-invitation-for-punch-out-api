@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Audit;
 using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using Equinor.ProCoSys.Common.Time;
-using Equinor.ProCoSys.Common;
 
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local (private setters needed for Entity Framework)
 

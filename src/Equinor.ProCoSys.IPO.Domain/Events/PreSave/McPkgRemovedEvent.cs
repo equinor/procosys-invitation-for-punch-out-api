@@ -1,5 +1,5 @@
-﻿using Equinor.ProCoSys.Common;
-using System;
+﻿using System;
+using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.Domain.Events.PreSave;
 

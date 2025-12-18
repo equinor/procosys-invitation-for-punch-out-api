@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,7 +13,7 @@ public class StringToGuidConverter : JsonConverter<Guid>
             var stringGuid = reader.GetString();
 
             // Try parsing with hyphens (D format).
-            if (Guid.TryParseExact(stringGuid, "D", out Guid guid))
+            if (Guid.TryParseExact(stringGuid, "D", out var guid))
             {
                 return guid;
             }

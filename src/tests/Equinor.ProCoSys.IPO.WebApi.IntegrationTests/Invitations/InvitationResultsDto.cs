@@ -6,5 +6,5 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Invitations
     {
         public int MaxAvailable { get; set; }
         public IList<Query.GetInvitationsQueries.InvitationForQueryDto> Invitations { get; set; }
-}
+    }
 }

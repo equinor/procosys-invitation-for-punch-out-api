@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Test.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Common.Misc;
 
 namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
 {
@@ -64,7 +64,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Setup(x => x.GetCurrentUserOid())
                 .Returns(_currentUserOid);
             var newInvitation = new Invitation(Plant, project, "Title", "Desc", DisciplineType.DP,
-                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
+                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> { _mcPkg }, null);
             dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();
@@ -89,7 +89,7 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Tests
                 .Returns(_currentUserOid);
 
             var newInvitation = new Invitation(Plant, project, "Title", "Desc", DisciplineType.DP,
-                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> {_mcPkg}, null);
+                _currentTime.AddDays(1), _currentTime.AddDays(2), "Loc", new List<McPkg> { _mcPkg }, null);
             dut.Invitations.Add(newInvitation);
 
             await dut.SaveChangesAsync();

@@ -13,7 +13,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStatus
@@ -26,8 +25,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPlantProvider _plantProvider;
         private readonly ICertificateApiService _certificateApiService;
-        private readonly IMcPkgApiService _mcPkgApiService;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly IMcPkgApiForApplicationService _mcPkgApiService;
+        private readonly ICommPkgApiForApplicationService _commPkgApiService;
         private readonly ILogger<UpdateRfocAcceptedCommandHandler> _logger;
 
         public UpdateRfocAcceptedCommandHandler(
@@ -38,8 +37,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             ICertificateApiService certificateApiService,
             ILogger<UpdateRfocAcceptedCommandHandler> logger,
             ICertificateRepository certificateRepository,
-            IMcPkgApiService mcPkgApiService,
-            ICommPkgApiService commPkgApiService)
+            IMcPkgApiForApplicationService mcPkgApiService,
+            ICommPkgApiForApplicationService commPkgApiService)
         {
             _invitationRepository = invitationRepository;
             _projectRepository = projectRepository;
@@ -60,14 +59,14 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 _logger.LogInformation($"Early exit in RfocAccepted handling. Project {request.ProjectName} does not exists in IPO module");
                 return new SuccessResult<Unit>(Unit.Value);
             }
-            
+
             if (project.IsClosed)
             {
                 _logger.LogInformation($"Early exit in RfocAccepted handling. Project {request.ProjectName} is closed in IPO module");
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateMcPkgsModel == null)
             {
@@ -76,7 +75,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
                 return new NotFoundResult<Unit>(error);
             }
 
-            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateCommPkgsModel == null)
             {
@@ -104,8 +103,8 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
             var commPkgNos = certificateCommPkgsModel.CommPkgs.Select(c => c.CommPkgNo).ToList();
             var mcPkgNos = certificateMcPkgsModel.McPkgs.Select(mc => mc.McPkgNo).ToList();
 
-            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
-            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos);
+            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos, cancellationToken);
+            var pcsCommPkgs = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(project.Plant, project.Name, commPkgNos, cancellationToken);
             if (!pcsMcPkgs.Any() && !pcsCommPkgs.Any())
             {
                 _logger.LogInformation($"Early exit in RfocAccepted handling. " +
@@ -139,33 +138,30 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocAcceptedStat
         private void AddCertificateMcPkgRelations(IList<string> mcPkgNos, Project project, Certificate certificate)
         {
             var mcPkgs = _invitationRepository.GetMcPkgs(project.Name, mcPkgNos);
-            if (!mcPkgs.IsNullOrEmpty())
+            if (mcPkgs == null || !mcPkgs.Any())
             {
-                foreach (var mcPkg in mcPkgs)
-                {
-                    certificate.AddMcPkgRelation(mcPkg);
-                }
+                return;
+            }
+
+            foreach (var mcPkg in mcPkgs)
+            {
+                certificate.AddMcPkgRelation(mcPkg);
             }
         }
 
         private void AddCertificateCommPkgRelations(IList<string> commPkgNos, Project project, Certificate certificate)
         {
             var commPkgs = _invitationRepository.GetCommPkgs(project.Name, commPkgNos);
-            if (!commPkgs.IsNullOrEmpty())
+            if (commPkgs == null || !commPkgs.Any())
             {
-                foreach (var commPkg in commPkgs)
-                {
-                    certificate.AddCommPkgRelation(commPkg);
-                }
+                return;
+            }
+
+            foreach (var commPkg in commPkgs)
+            {
+                certificate.AddCommPkgRelation(commPkg);
             }
         }
-
-        private async Task<IList<string>> GetMcPkgNosToUpdateRfocStatusAsync(IList<string> mcPkgNos, Project project)
-        {
-            var pcsMcPkgs = await _mcPkgApiService.GetMcPkgsByMcPkgNosAsync(project.Plant, project.Name, mcPkgNos);
-            return pcsMcPkgs.Where(mc => mc.OperationHandoverStatus == "ACCEPTED").Select(mc => mc.McPkgNo).ToList();
-        }
-
 
         private Certificate AddCertificate(Guid certificateGuid, Project project)
         {

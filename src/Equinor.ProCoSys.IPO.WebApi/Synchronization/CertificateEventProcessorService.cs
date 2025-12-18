@@ -88,7 +88,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Synchronization
                 {
                     LogRfocUnhandled(certificateEvent);
                 }
-                
+
             }
         }
 

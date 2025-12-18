@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.BlobStorage;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UploadAttachment;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -43,7 +43,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
                 new DateTime(),
                 new DateTime(),
                 null,
-                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                 null);
             _invitation.AddAttachment(new Attachment(_plant, "ExistingFile.txt"));
             _invitationRepositoryMock = new Mock<IInvitationRepository>();
@@ -78,7 +78,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(2, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), false, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    false,
+                    default),
+                Times.Once);
         }
 
         [TestMethod]
@@ -89,7 +96,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Invalid, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), It.IsAny<bool>(), default), Times.Never);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    It.IsAny<bool>(),
+                    default),
+                Times.Never);
         }
 
         [TestMethod]
@@ -100,7 +114,14 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UploadAttachment
 
             Assert.AreEqual(ResultType.Ok, result.ResultType);
             Assert.AreEqual(1, _invitation.Attachments.Count);
-            _blobStorageMock.Verify(x => x.UploadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Stream>(), true, default), Times.Once);
+            _blobStorageMock.Verify(x => x.UploadAsync(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<Stream>(),
+                    "application/octet-stream",
+                    true,
+                    default),
+                Times.Once);
         }
     }
 }

@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UpdateAttendedSt
             Assert.AreEqual(1, result.Errors.Count);
             Assert.IsTrue(result.Errors[0].ErrorMessage.StartsWith("Cannot update participant to its current attendedStatus."));
         }
-        
+
         [TestMethod]
         public async Task Validate_ShouldFail_WhenInvitationIsCancelled()
         {

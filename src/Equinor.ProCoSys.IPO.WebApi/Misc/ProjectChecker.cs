@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
-using MediatR;
 using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using MediatR;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Misc
 {
@@ -22,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
             _permissionCache = permissionCache;
         }
 
-        public async Task EnsureValidProjectAsync<TRequest>(TRequest request) where TRequest : IBaseRequest
+        public async Task EnsureValidProjectAsync<TRequest>(TRequest request, CancellationToken cancellationToken) where TRequest : IBaseRequest
         {
             if (request == null)
             {
@@ -32,7 +33,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.Misc
             var plant = _plantProvider.Plant;
             var userOid = _currentUserProvider.GetCurrentUserOid();
 
-            if (request is IProjectRequest projectRequest && projectRequest.ProjectName != null && !await _permissionCache.IsAValidProjectForUserAsync(plant, userOid, projectRequest.ProjectName))
+            if (request is IProjectRequest projectRequest && projectRequest.ProjectName != null && !await _permissionCache.IsAValidProjectForUserAsync(plant, userOid, projectRequest.ProjectName, cancellationToken))
             {
                 throw new InValidProjectException($"Project '{projectRequest.ProjectName}' is not a valid project in '{plant}'");
             }

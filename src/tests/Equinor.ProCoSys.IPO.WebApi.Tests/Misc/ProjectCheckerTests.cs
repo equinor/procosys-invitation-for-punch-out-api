@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.Common;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
 {
@@ -43,25 +43,29 @@ namespace Equinor.ProCoSys.IPO.WebApi.Tests.Misc
         public async Task EnsureValidProjectAsync_ShouldValidateOK()
         {
             // Arrange
-            _permissionCacheMock.Setup(p => p.IsAValidProjectForUserAsync(Plant, _currentUserOid, Project)).Returns(Task.FromResult(true));
+            _permissionCacheMock.Setup(p => p.IsAValidProjectForUserAsync(
+                Plant,
+                _currentUserOid,
+                Project,
+                It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
 
             // Act
-            await _dut.EnsureValidProjectAsync(_testRequest);
+            await _dut.EnsureValidProjectAsync(_testRequest, CancellationToken.None);
         }
 
         [TestMethod]
         public async Task EnsureValidProjectAsync_ShouldThrowInvalidException_WhenProjectIsNotValid()
         {
             // Arrange
-            _permissionCacheMock.Setup(p => p.IsAValidProjectForUserAsync(Plant, _currentUserOid, Project)).Returns(Task.FromResult(false));
+            _permissionCacheMock.Setup(p => p.IsAValidProjectForUserAsync(Plant, _currentUserOid, Project, It.IsAny<CancellationToken>())).Returns(Task.FromResult(false));
 
             // Act
-            await Assert.ThrowsExceptionAsync<InValidProjectException>(() => _dut.EnsureValidProjectAsync(_testRequest));
+            await Assert.ThrowsExceptionAsync<InValidProjectException>(() => _dut.EnsureValidProjectAsync(_testRequest, CancellationToken.None));
         }
 
         [TestMethod]
         public async Task EnsureValidProjectAsync_ShouldThrowException_WhenRequestIsNull()
-            => await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _dut.EnsureValidProjectAsync((IBaseRequest)null));
+            => await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _dut.EnsureValidProjectAsync((IBaseRequest)null, CancellationToken.None));
 
         private class TestRequest : IBaseRequest, IProjectRequest
         {

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnAcceptPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -13,7 +14,6 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
 {
@@ -80,9 +80,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                    null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
             var participant1 = new Participant(
                 _plant,
@@ -178,7 +178,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnAcceptPunchOut
 
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
-                _plant, _azureOidNotForCurrentUser))
+                _plant,
+                _azureOidNotForCurrentUser,
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
 
             Assert.AreEqual(IpoStatus.Accepted, _invitation.Status);

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.Common.Time;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ServiceResult;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Common;
 using Microsoft.Extensions.Logging;
-using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
+using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExport
 {
@@ -76,7 +76,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
         {
             _logger.LogInformation("Export to excel. Creating queryable with filter...");
 
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
+            var invitationForQueryDtos = CreateQueryableWithFilter(
+                _context,
+                request.ProjectName,
+                request.Filter,
+                _utcNow,
+                _currentUserProvider,
+                _permissionCache,
+                _plantProvider,
+                cancellationToken);
 
             _logger.LogInformation("Export to excel. Add sorting to queryable...");
             var orderedInvitations = await AddSorting(request.Sorting, invitationForQueryDtos).ToListAsync(cancellationToken);

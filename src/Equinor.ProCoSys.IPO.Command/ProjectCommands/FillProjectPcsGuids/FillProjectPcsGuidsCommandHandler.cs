@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
-using System.Collections.Generic;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 
 namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
 {
@@ -19,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
     {
         private readonly ILogger<FillProjectPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly IProjectApiService _projectApiService;
+        private readonly IProjectApiForApplicationService _projectApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
             ILogger<FillProjectPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            IProjectApiService projectApiService,
+            IProjectApiForApplicationService projectApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
@@ -48,18 +45,21 @@ namespace Equinor.ProCoSys.IPO.Command.ProjectCommands.FillProjectPcsGuids
             {
                 if (project.Guid == Guid.Empty)
                 {
-                    var projectDetails = await _projectApiService.TryGetProjectAsync(_plantProvider.Plant, project.Name);
+                    var projectDetails = await _projectApiService.TryGetProjectAsync(
+                        _plantProvider.Plant,
+                        project.Name,
+                        cancellationToken);
 
                     if (projectDetails != null)
                     {
                         project.Guid = projectDetails.ProCoSysGuid;
-                       _logger.LogInformation($"FillProjectPCSGuids: Project updated: {project.Name}");
-                       count++;
+                        _logger.LogInformation($"FillProjectPCSGuids: Project updated: {project.Name}");
+                        count++;
                     }
                 }
             }
 
-          if (request.SaveChanges && count > 0)
+            if (request.SaveChanges && count > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation($"FillProjectPCSGuids: {count} Projects updated");

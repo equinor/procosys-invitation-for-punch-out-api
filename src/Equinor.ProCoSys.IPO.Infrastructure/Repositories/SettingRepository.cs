@@ -9,8 +9,8 @@ namespace Equinor.ProCoSys.IPO.Infrastructure.Repositories
         public SettingRepository(IPOContext context) : base(context, context.Setting)
         {
         }
-        
-        public Task<Setting> GetByCodeAsync(string settingCode) 
+
+        public Task<Setting> GetByCodeAsync(string settingCode)
             => DefaultQuery.SingleOrDefaultAsync(r => r.Code == settingCode);
     }
 }

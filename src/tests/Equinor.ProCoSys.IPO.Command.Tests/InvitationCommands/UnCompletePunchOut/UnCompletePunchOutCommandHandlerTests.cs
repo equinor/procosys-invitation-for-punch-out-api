@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.UnCompletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
@@ -14,7 +15,6 @@ using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.Test.Common.ExtensionMethods;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
 
 namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchOut
 {
@@ -25,7 +25,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
         private Mock<IInvitationRepository> _invitationRepositoryMock;
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<ICurrentUserProvider> _currentUserProviderMock;
-        private Mock<IMcPkgApiService> _mcPkgApiServiceMock;
+        private Mock<IMcPkgApiForUserService> _mcPkgApiServiceMock;
         private Mock<IPermissionCache> _permissionCacheMock;
         private Mock<IIntegrationEventPublisher> _integrationEventPublisherMock;
 
@@ -82,9 +82,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
             var participant1 = new Participant(
                 _plant,
@@ -133,7 +133,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
                 .Setup(x => x.GetByIdAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult(_invitation));
 
-            _mcPkgApiServiceMock = new Mock<IMcPkgApiService>();
+            _mcPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
 
             //command
             _command = new UnCompletePunchOutCommand(
@@ -193,7 +193,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.UnCompletePunchO
 
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheMock.Setup(i => i.GetPermissionsForUserAsync(
-                _plant, _azureOidNotForCurrentUser))
+                _plant,
+                _azureOidNotForCurrentUser, 
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             Assert.AreEqual(IpoStatus.Completed, _invitation.Status);
             var participant = _invitation.Participants.First(p => p.Organization == Organization.Contractor);

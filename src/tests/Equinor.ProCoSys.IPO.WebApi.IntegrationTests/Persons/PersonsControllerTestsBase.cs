@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
 {
@@ -11,14 +13,18 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests.Persons
         {
             var project = new ProCoSysProject
             {
-                Description = "description", Id = 1, IsClosed = false, Name = TestFactory.ProjectWithAccess
+                Description = "description",
+                Id = 1,
+                IsClosed = false,
+                Name = TestFactory.ProjectWithAccess
             };
 
             TestFactory.Instance
                 .ProjectApiServiceMock
                 .Setup(x => x.TryGetProjectAsync(
                     TestFactory.PlantWithAccess,
-                    TestFactory.ProjectWithAccess))
+                    TestFactory.ProjectWithAccess,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(project));
         }
     }

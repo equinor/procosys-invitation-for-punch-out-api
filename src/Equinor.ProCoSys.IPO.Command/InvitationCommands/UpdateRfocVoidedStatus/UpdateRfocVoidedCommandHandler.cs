@@ -49,7 +49,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 _logger.LogInformation($"Early exit in RfocVoided handling. Project {request.ProjectName} does not exists in IPO module");
                 return new SuccessResult<Unit>(Unit.Value);
             }
-            
+
             if (project.IsClosed)
             {
                 _logger.LogInformation($"Early exit in RfocVoided handling. Project {request.ProjectName} is closed in IPO module");
@@ -63,7 +63,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new SuccessResult<Unit>(Unit.Value);
             }
 
-            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateMcPkgsModel = await _certificateApiService.TryGetCertificateMcPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateMcPkgsModel != null)
             {
@@ -73,7 +73,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 return new UnexpectedResult<Unit>(error);
             }
 
-            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid);
+            var certificateCommPkgsModel = await _certificateApiService.TryGetCertificateCommPkgsAsync(_plantProvider.Plant, request.ProCoSysGuid, cancellationToken);
 
             if (certificateCommPkgsModel != null)
             {
@@ -90,7 +90,7 @@ namespace Equinor.ProCoSys.IPO.Command.InvitationCommands.UpdateRfocVoidedStatus
                 certificate.CertificateMcPkgs.Select(c => c.McPkgNo).ToList());
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            
+
             return new SuccessResult<Unit>(Unit.Value);
         }
     }

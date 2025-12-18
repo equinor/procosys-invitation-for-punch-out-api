@@ -61,7 +61,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         [TestMethod]
         public async Task Validate_ShouldFail_WhenParticipantIdIsNonExisting()
         {
-            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync( _participantId, _invitationId, default)).Returns(Task.FromResult(false));
+            _invitationValidatorMock.Setup(inv => inv.ParticipantExistsAsync(_participantId, _invitationId, default)).Returns(Task.FromResult(false));
 
             var result = await _dut.ValidateAsync(_command);
 
@@ -99,7 +99,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.SignPunchOut
         public async Task Validate_ShouldFail_WhenParticipantRowVersionIsInvalid()
         {
             _rowVersionValidatorMock.Setup(r => r.IsValid(_participantRowVersion)).Returns(false);
-            
+
             var result = await _dut.ValidateAsync(_command);
 
             Assert.IsFalse(result.IsValid);

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Common.Time;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ServiceResult;
-using Equinor.ProCoSys.Auth.Caches;
-using Equinor.ProCoSys.Common.Misc;
-using Equinor.ProCoSys.Common;
-using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 
 namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 {
@@ -41,7 +41,15 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
 
         public async Task<Result<InvitationsResult>> Handle(GetInvitationsQuery request, CancellationToken cancellationToken)
         {
-            var invitationForQueryDtos = CreateQueryableWithFilter(_context, request.ProjectName, request.Filter, _utcNow, _currentUserProvider, _permissionCache, _plantProvider);
+            var invitationForQueryDtos = CreateQueryableWithFilter(
+                _context,
+                request.ProjectName,
+                request.Filter,
+                _utcNow,
+                _currentUserProvider,
+                _permissionCache,
+                _plantProvider,
+                cancellationToken);
 
 
             // count before adding sorting/paging
@@ -71,8 +79,10 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitations
             if (functionalRoleCodes.Any())
             {
                 var functionalRoles =
-                    await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(_plantProvider.Plant,
-                        functionalRoleCodes);
+                    await _functionalRoleApiService.GetFunctionalRolesByCodeAsync(
+                        _plantProvider.Plant,
+                        functionalRoleCodes,
+                        cancellationToken);
 
                 if (functionalRoles != null && functionalRoles.Any())
                 {

@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.DeletePunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
-using Equinor.ProCoSys.IPO.MessageContracts;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -53,9 +51,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.DeletePunchOut
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2",Guid.Empty, Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
 
             _invitationRepositoryMock = new Mock<IInvitationRepository>();

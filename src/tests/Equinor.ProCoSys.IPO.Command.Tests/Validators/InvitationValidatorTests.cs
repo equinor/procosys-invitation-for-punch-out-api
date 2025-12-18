@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.Auth.Caches;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands;
 using Equinor.ProCoSys.IPO.Command.Validators.InvitationValidators;
-using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
@@ -97,7 +97,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _permissionCacheForAdminMock = new Mock<IPermissionCache>();
             IList<string> permissions = new List<string> { "IPO/ADMIN" };
             _permissionCacheForAdminMock.Setup(i => i.GetPermissionsForUserAsync(
-                TestPlant, CurrentUserOid))
+                    TestPlant,
+                    CurrentUserOid,
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(permissions));
             _permissionCacheForAdmin = _permissionCacheForAdminMock.Object;
             using (var context = new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -357,7 +359,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(commissioningParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(additionalContractorParticipant);
                 invitationWithValidAndNonValidSignerParticipants.AddParticipant(supplierParticipant);
-   
+
                 context.SaveChangesAsync().Wait();
 
                 // Add invitation with another currentuserprovider
@@ -1112,7 +1114,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1199,7 +1202,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
-        
+
         [TestMethod]
         public async Task ParticipantExistsAsync_ParticipantDoesNotExistOnInvitation_ReturnsFalse()
         {
@@ -1226,7 +1229,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsTrue(result);
             }
         }
-        
+
         [TestMethod]
         public async Task BeSignedParticipantAsync_ParticipantIsNotSigned_ReturnsFalse()
         {
@@ -1247,7 +1250,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1341,7 +1345,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code op"))
+                    "FR code op",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1441,14 +1446,15 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 Assert.IsFalse(result);
             }
         }
-        
+
         [TestMethod]
         public async Task CurrentUserIsAdminOrValidUnsigningParticipantAsync_FunctionalRoleAsUnsigner_ReturnsTrue()
         {
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code op"))
+                    "FR code op",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1606,7 +1612,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                 TestPlant,
                 CurrentUserOid.ToString(),
-                "Contractor"))
+                "Contractor",
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1621,7 +1628,11 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
         [TestMethod]
         public async Task CurrentUserIsAllowedToCancelIpo_CurrentUserIsNotCreatorOfInvitationAndNotContractor_ReturnsFalse()
         {
-            _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(TestPlant, CurrentUserOid.ToString(), "Contractor")).Returns(Task.FromResult<ForeignApi.ProCoSysPerson>(null));
+            _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
+                TestPlant,
+                CurrentUserOid.ToString(),
+                "Contractor",
+                It.IsAny<CancellationToken>())).Returns(Task.FromResult<ForeignApi.ProCoSysPerson>(null));
 
             using (var context =
                 new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1676,7 +1687,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                 TestPlant,
                 CurrentUserOid.ToString(),
-                "Contractor"))
+                "Contractor",
+                It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1782,7 +1794,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1851,7 +1864,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
 
             using (var context =
@@ -1907,7 +1921,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1924,7 +1938,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             var permissionCacheMock = new Mock<IPermissionCache>();
             IList<string> ipoAdminPrivilege = new List<string> { "IPO/ADMIN" };
             permissionCacheMock
-                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid))
+                .Setup(x => x.GetPermissionsForUserAsync(_plantProvider.Plant, CurrentUserOid, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(ipoAdminPrivilege));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1953,7 +1967,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code"))
+                    "FR code",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -1970,7 +1985,8 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
             _personApiServiceMock.Setup(i => i.GetPersonInFunctionalRoleAsync(
                     TestPlant,
                     CurrentUserOid.ToString(),
-                    "FR code 2"))
+                    "FR code 2",
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new ForeignApi.ProCoSysPerson() { AzureOid = CurrentUserOid.ToString() }));
             using (var context =
                    new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
@@ -2290,7 +2306,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2341,7 +2357,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey < 2)
@@ -2350,7 +2366,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                     }
                 }
                 var dut = new InvitationValidator(context, _currentUserProvider, _personApiService, _plantProvider, _permissionCache);
-   
+
                 var result = await dut.SignedParticipantsCannotBeAlteredAsync(
                     participantsToUpdate,
                     _invitationIdWithCurrentUserOidAsParticipantsAndAcceptedStatus,
@@ -2372,7 +2388,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     participantsToUpdate.Add(participantsForEditCommand);
@@ -2421,7 +2437,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)
@@ -2460,7 +2476,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.Validators
                 foreach (var participant in invitation.Participants)
                 {
                     // We know that there are only three person participants
-                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid) participant.AzureOid, true, participant.RowVersion.ConvertToString());
+                    var person = new InvitedPersonForEditCommand(participant.Id, (Guid)participant.AzureOid, true, participant.RowVersion.ConvertToString());
                     var participantsForEditCommand = new ParticipantsForEditCommand(participant.Organization, null, person, null,
                         participant.SortKey);
                     if (participant.SortKey > 1)

@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Equinor.ProCoSys.Auth.Authorization;
+using Equinor.ProCoSys.Auth.Permission;
 using Equinor.ProCoSys.BlobStorage;
+using Equinor.ProCoSys.Common.Email;
+using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command;
+using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
+using Equinor.ProCoSys.IPO.Command.EventPublishers;
+using Equinor.ProCoSys.IPO.Fam;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.McPkg;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Me;
-using Equinor.ProCoSys.IPO.Infrastructure;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Project;
+using Equinor.ProCoSys.IPO.Infrastructure;
+using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.Middleware;
 using Equinor.ProCoSys.PcsServiceBus.Sender.Interfaces;
 using Fusion.Integration.Meeting;
@@ -25,23 +33,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using Equinor.ProCoSys.Auth.Permission;
-using Equinor.ProCoSys.Common.Misc;
+using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
 using IAuthPersonApiService = Equinor.ProCoSys.Auth.Person.IPersonApiService;
 using IMainPersonApiService = Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person.IPersonApiService;
-using AuthProCoSysPerson = Equinor.ProCoSys.Auth.Person.ProCoSysPerson;
-using Equinor.ProCoSys.Common.Email;
-using Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
-using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.Domain.Events.PreSave;
-using Equinor.ProCoSys.IPO.Fam;
-using MediatR;
-using Microsoft.Data.SqlClient;
 
 namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 {
-    public sealed class TestFactory : WebApplicationFactory<Startup>
+    public sealed class TestFactory : WebApplicationFactory<Program>
     {
         private const string SignerOid = "00000000-0000-0000-0000-000000000001";
         private const string PlannerOid = "00000000-0000-0000-0000-000000000002";
@@ -64,12 +62,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         public readonly Mock<IFusionMeetingClient> FusionMeetingClientMock = new Mock<IFusionMeetingClient>();
         public readonly Mock<IOptionsMonitor<MeetingOptions>> MeetingOptionsMock = new Mock<IOptionsMonitor<MeetingOptions>>();
         public readonly Mock<IOptionsMonitor<FamOptions>> FamOptionsMock = new Mock<IOptionsMonitor<FamOptions>>();
-        public readonly Mock<ICommPkgApiService> CommPkgApiServiceMock = new Mock<ICommPkgApiService>();
-        public readonly Mock<IMcPkgApiService> McPkgApiServiceMock = new Mock<IMcPkgApiService>();
+        public readonly Mock<ICommPkgApiForUserService> CommPkgApiServiceMock = new Mock<ICommPkgApiForUserService>();
+        public readonly Mock<IMcPkgApiForUserService> McPkgApiServiceMock = new Mock<IMcPkgApiForUserService>();
         public readonly Mock<IMainPersonApiService> MainPersonApiServiceMock = new Mock<IMainPersonApiService>();
         public readonly Mock<IFunctionalRoleApiService> FunctionalRoleApiServiceMock = new Mock<IFunctionalRoleApiService>();
-        public readonly Mock<IProjectApiService> ProjectApiServiceMock = new Mock<IProjectApiService>();
+        public readonly Mock<IProjectApiForUsersService> ProjectApiServiceMock = new Mock<IProjectApiForUsersService>();
         public readonly Mock<IAzureBlobService> BlobStorageMock = new Mock<IAzureBlobService>();
+        public readonly Mock<IQueryUserDelegationProvider> UserDelegationProviderMock = new Mock<IQueryUserDelegationProvider>();
         public readonly Mock<IPcsBusSender> PcsBusSenderMock = new Mock<IPcsBusSender>();
         public readonly Mock<IMeApiService> MeApiServiceMock = new Mock<IMeApiService>();
         public readonly Mock<IEmailService> EmailServiceMock = new Mock<IEmailService>();
@@ -164,16 +163,16 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-              builder.UseEnvironment(IntegrationTestEnvironment); 
-              builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath)); 
-              builder.ConfigureTestServices(services =>
-              {
+            builder.UseEnvironment(IntegrationTestEnvironment);
+            builder.ConfigureAppConfiguration((context, conf) => conf.AddJsonFile(_configPath));
+            builder.ConfigureTestServices(services =>
+            {
                 services.AddAuthentication()
-                    .AddScheme<IntegrationTestAuthOptions, IntegrationTestAuthHandler>(
-                        IntegrationTestAuthHandler.TestAuthenticationScheme, opts => { });
+                      .AddScheme<IntegrationTestAuthOptions, IntegrationTestAuthHandler>(
+                          IntegrationTestAuthHandler.TestAuthenticationScheme, opts => { });
 
                 services.PostConfigureAll<JwtBearerOptions>(jwtBearerOptions =>
-                    jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
+                      jwtBearerOptions.ForwardAuthenticate = IntegrationTestAuthHandler.TestAuthenticationScheme);
 
                 // Add mocks to all external resources here
                 services.AddScoped(_ => _authPersonApiServiceMock.Object);
@@ -187,6 +186,7 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 services.AddScoped(_ => FunctionalRoleApiServiceMock.Object);
                 services.AddScoped(_ => ProjectApiServiceMock.Object);
                 services.AddScoped(_ => BlobStorageMock.Object);
+                services.AddScoped(_ => UserDelegationProviderMock.Object);
                 services.AddScoped(_ => PcsBusSenderMock.Object);
                 services.AddScoped(_ => MeApiServiceMock.Object);
                 services.AddScoped(_ => EmailServiceMock.Object);
@@ -245,25 +245,11 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
         private void EnsureTestDatabaseDeletedAtTeardown(IServiceCollection services)
             => _teardownList.Add(() =>
             {
-                using (var dbContext = DatabaseContext(services))
-                {
-                    dbContext.Database.EnsureDeleted();
-                }
+                using var sp = services.BuildServiceProvider();
+                using var dbContext = sp.GetRequiredService<IPOContext>();
+                    
+                dbContext.Database.EnsureDeleted();
             });
-
-        private IPOContext DatabaseContext(IServiceCollection services)
-        {
-            services.AddDbContext<IPOContext>(options
-                => options.UseSqlServer(_connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
-
-            var sp = services.BuildServiceProvider();
-            _disposables.Add(sp);
-
-            var spScope = sp.CreateScope();
-            _disposables.Add(spScope);
-
-            return spScope.ServiceProvider.GetRequiredService<IPOContext>();
-        }
 
         private string GetTestDbConnectionString(string projectDir)
         {
@@ -283,11 +269,14 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                     .Returns(Guid.Parse(testUser.Profile.Oid));
             }
 
-            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant))
+            _permissionApiServiceMock.Setup(p => p.GetPermissionsForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(testUser.Permissions));
 
-            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant))
+            _permissionApiServiceMock.Setup(p => p.GetAllOpenProjectsForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(testUser.AccessableProjects));
+            
+            _permissionApiServiceMock.Setup(p => p.GetRestrictionRolesForCurrentUserAsync(plant, It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(testUser.Restrictions));
         }
 
         private void SetupTestUsers()
@@ -303,22 +292,27 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                 new AccessableProject {Name = ProjectWithAccess, HasAccess = true},
                 new AccessableProject {Name = ProjectWithoutAccess}
             };
+            
+            var restrictions = new List<string>
+            {
+                ClaimsTransformation.NoRestrictions
+            };
 
             AddAnonymousUser();
 
-            AddSignerUser(accessablePlants, accessableProjects);
+            AddSignerUser(accessablePlants, accessableProjects, restrictions);
 
-            AddPlannerUser(accessablePlants, accessableProjects);
+            AddPlannerUser(accessablePlants, accessableProjects, restrictions);
 
-            AddViewerUser(accessablePlants, accessableProjects);
+            AddViewerUser(accessablePlants, accessableProjects, restrictions);
 
             AddHackerUser();
 
-            AddContractorUser(accessablePlants, accessableProjects);
+            AddContractorUser(accessablePlants, accessableProjects, restrictions);
 
-            AddAdminUser(accessablePlants, accessableProjects);
+            AddAdminUser(accessablePlants, accessableProjects, restrictions);
 
-            AddCreatorUser(accessablePlants, accessableProjects);
+            AddCreatorUser(accessablePlants, accessableProjects, restrictions);
 
             SetupProCoSysServiceMocks();
 
@@ -344,22 +338,22 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
             {
                 if (testUser.AuthProCoSysPerson != null)
                 {
-                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(testUser.AuthProCoSysPerson));
                 }
                 else
                 {
-                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid)))
+                    _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(testUser.Profile.Oid), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                         .Returns(Task.FromResult((AuthProCoSysPerson)null));
                 }
-                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid)))
+                _permissionApiServiceMock.Setup(p => p.GetAllPlantsForUserAsync(new Guid(testUser.Profile.Oid), It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(testUser.AccessablePlants));
             }
 
             // Need to mock getting info for current application from Main. This to satisfy VerifyIpoApiClientExists middelware
             var config = new ConfigurationBuilder().AddJsonFile(_configPath).Build();
-            var ipoApiObjectId = config["Authenticator:IpoApiObjectId"];
-            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId)))
+            var ipoApiObjectId = config["Application:ObjectId"];
+            _authPersonApiServiceMock.Setup(p => p.TryGetPersonByOidAsync(new Guid(ipoApiObjectId), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(new AuthProCoSysPerson
                 {
                     AzureOid = ipoApiObjectId,
@@ -390,13 +384,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         new AccessablePlant {Id = PlantWithoutAccess, HasAccess = false}
                     },
                     Permissions = new List<string>(),
-                    AccessableProjects = new List<AccessableProject>()
+                    AccessableProjects = new List<AccessableProject>(),
+                    Restrictions = new List<string>()
                 });
 
         // Authenticated client with necessary permissions to VIEW invitations
-        private void AddViewerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddViewerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Viewer,
                 new TestUser
                 {
@@ -419,13 +413,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.USER_READ,
                         Permissions.IPO_READ
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with necessary permissions to SIGN invitations (including completing and accepting)
-        private void AddSignerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddSignerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Signer,
                 new TestUser
                 {
@@ -449,13 +443,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_READ,
                         Permissions.IPO_SIGN
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with necessary permissions to CREATE, UPDATE AND CANCEL invitations
-        private void AddPlannerUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddPlannerUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Planner,
                 new TestUser
                 {
@@ -484,12 +478,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
-        private void AddContractorUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddContractorUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Contractor,
                 new TestUser
                 {
@@ -514,13 +508,13 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_WRITE,
                         Permissions.IPO_VOIDUNVOID,
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         // Authenticated user with all IPO permissions
-        private void AddAdminUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddAdminUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Admin,
             new TestUser
             {
@@ -550,12 +544,12 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_VOIDUNVOID,
                         Permissions.IPO_ADMIN,
                     },
-                AccessableProjects = accessableProjects
+                AccessableProjects = accessableProjects,
+                Restrictions = commonProCoSysRestrictions
             });
 
-        private void AddCreatorUser(
-            List<AccessablePlant> accessablePlants,
-            List<AccessableProject> accessableProjects)
+        private void AddCreatorUser(List<AccessablePlant> accessablePlants,
+            List<AccessableProject> accessableProjects, List<string> commonProCoSysRestrictions)
             => _testUsers.Add(UserType.Creator,
                 new TestUser
                 {
@@ -584,7 +578,8 @@ namespace Equinor.ProCoSys.IPO.WebApi.IntegrationTests
                         Permissions.IPO_DETACHFILE,
                         Permissions.IPO_VOIDUNVOID
                     },
-                    AccessableProjects = accessableProjects
+                    AccessableProjects = accessableProjects,
+                    Restrictions = commonProCoSysRestrictions
                 });
 
         private void AddAnonymousUser() => _testUsers.Add(UserType.Anonymous, new TestUser());

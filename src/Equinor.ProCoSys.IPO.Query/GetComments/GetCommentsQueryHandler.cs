@@ -16,7 +16,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
     {
         private readonly IReadOnlyContext _context;
 
-        public GetCommentsQueryHandler(IReadOnlyContext context) 
+        public GetCommentsQueryHandler(IReadOnlyContext context)
             => _context = context;
 
         public async Task<Result<List<CommentDto>>> Handle(
@@ -35,8 +35,8 @@ namespace Equinor.ProCoSys.IPO.Query.GetComments
             }
             var personIds = invitation.Comments.Select(x => x.CreatedById).Distinct();
             var persons = await (from p in _context.QuerySet<Person>()
-                where personIds.Contains(p.Id)
-                select p).ToListAsync(cancellationToken);
+                                 where personIds.Contains(p.Id)
+                                 select p).ToListAsync(cancellationToken);
 
             var comments = invitation.Comments
                 .Select(c => new CommentDto(

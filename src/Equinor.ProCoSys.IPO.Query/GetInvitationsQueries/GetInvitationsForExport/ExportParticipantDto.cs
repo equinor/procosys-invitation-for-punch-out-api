@@ -5,7 +5,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetInvitationsQueries.GetInvitationsForExpo
     public class ExportParticipantDto
     {
         public ExportParticipantDto(
-            int id, 
+            int id,
             string organization,
             string type,
             string participant,

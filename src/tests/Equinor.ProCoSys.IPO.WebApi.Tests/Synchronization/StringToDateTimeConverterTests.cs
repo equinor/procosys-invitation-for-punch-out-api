@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Text.Json;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Equinor.ProCoSys.IPO.WebApi.Tests.Synchronization
 {

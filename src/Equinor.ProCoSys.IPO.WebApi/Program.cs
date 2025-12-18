@@ -1,56 +1,122 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using Azure.Identity;
+using Equinor.ProCoSys.Auth;
+using Equinor.ProCoSys.Common.Misc;
+using Equinor.ProCoSys.IPO.Command;
+using Equinor.ProCoSys.IPO.Query;
+using Equinor.ProCoSys.IPO.WebApi.DIModules;
+using Equinor.ProCoSys.IPO.WebApi.Extensions;
+using Equinor.ProCoSys.IPO.WebApi.Middleware;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.AzureAppConfiguration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 
-namespace Equinor.ProCoSys.IPO.WebApi
+var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+var environment = builder.Environment;
+
+var credential = new DefaultAzureCredential();
+builder.ConfigureAzureAppConfig(credential);
+
+builder.WebHost.UseKestrel(options =>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
-            host.Run();
-        }
+    options.AddServerHeader = false;
+    options.Limits.MaxRequestBodySize = null;
+});
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) =>
-                {
-                    var settings = config.Build();
-                    var azConfig = settings.GetValue<bool>("UseAzureAppConfiguration");
-                    if (azConfig)
-                    {
-                        config.AddAzureAppConfiguration(options =>
-                        {
-                            var connectionString = settings["ConnectionStrings:AppConfig"];
-                            options.Connect(connectionString)
-                                .ConfigureKeyVault(kv =>
-                                {
-                                    kv.SetCredential(new ManagedIdentityCredential());
-                                    // Use DefaultAzureCredential in local dev env.
-                                    // kv.SetCredential(new DefaultAzureCredential());
-                                })
-                                .Select(KeyFilter.Any)
-                                .Select(KeyFilter.Any, context.HostingEnvironment.EnvironmentName)
-                                .ConfigureRefresh(refreshOptions =>
-                                {
-                                    refreshOptions.Register("Sentinel", true);
-                                    refreshOptions.SetCacheExpiration(TimeSpan.FromSeconds(30));
-                                });
-                        });
-                    }
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseKestrel(options =>
-                    {
-                        options.AddServerHeader = false;
-                        options.Limits.MaxRequestBodySize = null;
-                    });
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+builder.ConfigureDatabase();
+
+if (environment.IsDevelopment())
+{
+    DebugOptions.DebugEntityFrameworkInDevelopment = configuration.GetValue<bool>("DebugEntityFrameworkInDevelopment");
 }
+
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(configuration)
+    .EnableTokenAcquisitionToCallDownstreamApi()
+    .AddInMemoryTokenCaches();
+
+builder.ConfigureHttp();
+
+if (configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
+{
+    builder.Services.AddAzureAppConfiguration();
+}
+
+builder.Services.AddFluentValidationAutoValidation(fv =>
+{
+    fv.DisableDataAnnotationsValidation = true;
+});
+
+builder.Services.AddValidatorsFromAssemblies(new List<Assembly>
+{
+    typeof(IQueryMarker).GetTypeInfo().Assembly,
+    typeof(ICommandMarker).GetTypeInfo().Assembly,
+    typeof(Program).Assembly
+});
+
+builder.ConfigureSwagger();
+
+builder.Services.AddFluentValidationRulesToSwagger();
+
+builder.Services.AddPcsAuthIntegration();
+
+builder.ConfigureFusionIntegration();
+
+builder.Services.ConfigureTelemetry(configuration, credential);
+
+builder.Services.AddMediatrModules();
+builder.Services.AddApplicationModules(configuration, credential);
+
+builder.ConfigureMassTransit(credential);
+builder.ConfigureServiceBus(credential);
+
+builder.Services.AddHostedService<VerifyApplicationExistsAsPerson>();
+
+// Build the application
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (configuration.GetValue<bool>("Application:UseAzureAppConfiguration"))
+{
+    app.UseAzureAppConfiguration();
+}
+
+if (environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseGlobalExceptionHandling();
+
+app.UseCors(ConfigureHttpExtension.AllowAllOriginsCorsPolicy);
+
+app.ConfigureSwagger(configuration);
+
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
+// Order of adding middlewares is crucial. Some depend that other has been run in advance
+app.UseCurrentPlant();
+app.UseAuthentication();
+app.UseCurrentUser();
+app.UsePersonValidator();
+app.UsePlantValidator();
+app.UseVerifyOidInDb();
+app.UseAuthorization();
+
+app.UseResponseCompression();
+
+app.MapControllers();
+
+// Run the application
+app.Run();
+
+public partial class Program;

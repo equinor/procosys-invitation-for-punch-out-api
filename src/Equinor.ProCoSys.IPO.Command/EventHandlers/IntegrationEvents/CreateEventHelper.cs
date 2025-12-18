@@ -5,9 +5,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.MessageContracts;
 using JetBrains.Annotations;
-using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 
 namespace Equinor.ProCoSys.IPO.Command.EventHandlers.IntegrationEvents;
 
@@ -97,11 +95,11 @@ public class CreateEventHelper : ICreateEventHelper
         var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
         var createdBy = await _personRepository.GetByIdAsync(invitation.CreatedById);
 
-        return new CommentEvent(comment.Guid, 
-            comment.CommentText, 
-            comment.CreatedAtUtc, 
-            createdBy.Guid, 
-            invitation.Guid, 
+        return new CommentEvent(comment.Guid,
+            comment.CommentText,
+            comment.CreatedAtUtc,
+            createdBy.Guid,
+            invitation.Guid,
             comment.Plant,
             project.Name);
     }
@@ -110,11 +108,11 @@ public class CreateEventHelper : ICreateEventHelper
     {
         var project = await _projectRepository.GetByIdAsync(invitation.ProjectId);
 
-        return new CommPkgEvent( 
-            commPkg.Guid, 
-            commPkg.Plant, 
-            project.Name, 
-            commPkg.Guid, 
+        return new CommPkgEvent(
+            commPkg.Guid,
+            commPkg.Plant,
+            project.Name,
+            commPkg.Guid,
             invitation.Guid,
             commPkg.CreatedAtUtc);
     }

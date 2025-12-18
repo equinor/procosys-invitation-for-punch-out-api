@@ -15,24 +15,18 @@ using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Query.GetAttachments
 {
-    public class GetAttachmentsQueryHandler : IRequestHandler<GetAttachmentsQuery, Result<List<AttachmentDto>>>
+    public class GetAttachmentsQueryHandler(
+        IReadOnlyContext context,
+        IAzureBlobService blobStorage,
+        IOptionsMonitor<BlobStorageOptions> blobStorageOptions,
+        IQueryUserDelegationProvider queryUserDelegationProvider)
+        : IRequestHandler<GetAttachmentsQuery, Result<List<AttachmentDto>>>
     {
-        private readonly IReadOnlyContext _context;
-        private readonly IAzureBlobService _blobStorage;
-        private readonly IOptionsMonitor<BlobStorageOptions> _blobStorageOptions;
-
-        public GetAttachmentsQueryHandler(IReadOnlyContext context, IAzureBlobService blobStorage, IOptionsMonitor<BlobStorageOptions> blobStorageOptions)
-        {
-            _context = context;
-            _blobStorage = blobStorage;
-            _blobStorageOptions = blobStorageOptions;
-        }
-
         public async Task<Result<List<AttachmentDto>>> Handle(GetAttachmentsQuery request, CancellationToken cancellationToken)
         {
             // Get invitation with all attachments
             var invitation = await
-                (from i in _context.QuerySet<Invitation>()
+                (from i in context.QuerySet<Invitation>()
                         .Include(i => i.Attachments)
                  where i.Id == request.InvitationId
                  select i).SingleOrDefaultAsync(cancellationToken);
@@ -43,7 +37,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
             }
 
             var uploadedByIds = invitation.Attachments.Select(a => a.UploadedById).ToList();
-            var uploadedBys = await _context.QuerySet<Person>().Where(x => uploadedByIds.Contains(x.Id)).ToListAsync(cancellationToken);
+            var uploadedBys = await context.QuerySet<Person>().Where(x => uploadedByIds.Contains(x.Id)).ToListAsync(cancellationToken);
             var uploadedByDtos = uploadedBys
                 .Select(x =>
                     new PersonDto(
@@ -62,7 +56,7 @@ namespace Equinor.ProCoSys.IPO.Query.GetAttachments
                     => new AttachmentDto(
                         attachment.Id,
                         attachment.FileName,
-                        attachment.GetAttachmentDownloadUri(_blobStorage, _blobStorageOptions.CurrentValue),
+                        attachment.GetAttachmentDownloadUri(blobStorage, blobStorageOptions.CurrentValue, queryUserDelegationProvider),
                         attachment.UploadedAtUtc,
                         uploadedByDtos[attachment.UploadedById],
                         attachment.RowVersion.ConvertToString())).ToList();

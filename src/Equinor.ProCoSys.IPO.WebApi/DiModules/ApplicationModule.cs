@@ -1,5 +1,6 @@
-﻿using System.Text.Json;
+﻿using System;
 using System.Text.Json.Serialization;
+using Azure.Core;
 using Equinor.ProCoSys.Auth.Authentication;
 using Equinor.ProCoSys.Auth.Authorization;
 using Equinor.ProCoSys.Auth.Client;
@@ -24,6 +25,7 @@ using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.SettingAggregate;
 using Equinor.ProCoSys.IPO.Fam;
+using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.Client;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi;
 using Equinor.ProCoSys.IPO.ForeignApi.LibraryApi.FunctionalRole;
@@ -38,15 +40,16 @@ using Equinor.ProCoSys.IPO.Infrastructure.Repositories;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.ExportIPOs;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.Fam;
 using Equinor.ProCoSys.IPO.Infrastructure.Repositories.OutstandingIPOs;
-using Equinor.ProCoSys.IPO.WebApi.Authentication;
+using Equinor.ProCoSys.IPO.Query;
 using Equinor.ProCoSys.IPO.WebApi.Authorizations;
+using Equinor.ProCoSys.IPO.WebApi.Authorizations.TokenCredentials;
 using Equinor.ProCoSys.IPO.WebApi.Excel;
+using Equinor.ProCoSys.IPO.WebApi.Extensions;
 using Equinor.ProCoSys.IPO.WebApi.MassTransit;
 using Equinor.ProCoSys.IPO.WebApi.Misc;
 using Equinor.ProCoSys.IPO.WebApi.Synchronization;
 using Equinor.ProCoSys.PcsServiceBus.Receiver;
 using Equinor.ProCoSys.PcsServiceBus.Receiver.Interfaces;
-using Fam.Core.EventHubs.Extensions;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -56,22 +59,21 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 {
     public static class ApplicationModule
     {
-        public static void AddApplicationModules(this IServiceCollection services, IConfiguration configuration)
+        public static void AddApplicationModules(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            TokenCredential credential)
         {
             services.Configure<MainApiOptions>(configuration.GetSection("MainApi"));
+            services.Configure<MainApiAuthenticatorOptions>(configuration.GetSection("AzureAd"));
             services.Configure<LibraryApiOptions>(configuration.GetSection("LibraryApi"));
-            services.Configure<CommonLibConfig>(configuration.GetSection("CommonLibConfig"));
             services.Configure<FamOptions>(configuration.GetSection("Fam"));
-
 
             services.Configure<CacheOptions>(configuration.GetSection("CacheOptions"));
             services.Configure<BlobStorageOptions>(configuration.GetSection("BlobStorage"));
-            services.Configure<IpoAuthenticatorOptions>(configuration.GetSection("Authenticator"));
+            services.Configure<ApplicationOptions>(configuration.GetSection("Application"));
             services.Configure<MeetingOptions>(configuration.GetSection("Meetings"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
-            services
-                .Configure<GraphOptions>(configuration.GetSection("Graph"))
-                .Configure<GraphOptions>(x => x.TenantId = configuration.GetValue<string>("TenantId"));
             services.Configure<SynchronizationOptions>(configuration.GetSection("Synchronization"));
 
             services.AddDbContext<IPOContext>(options =>
@@ -79,36 +81,6 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
                 var connectionString = configuration.GetConnectionString("IPOContext");
                 options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
-
-            services.AddMassTransit(x =>
-            {
-                x.AddEntityFrameworkOutbox<IPOContext>(o =>
-                {
-                    o.UseSqlServer();
-                    o.UseBusOutbox();
-                });
-
-                x.UsingAzureServiceBus((context, cfg) =>
-                {
-                    var connectionString = configuration.GetConnectionString("ServiceBus");
-                    cfg.Host(connectionString);
-
-                    cfg.MessageTopology.SetEntityNameFormatter(new IpoEntityNameFormatter());
-                    cfg.UseRawJsonSerializer();
-                    cfg.ConfigureJsonSerializerOptions(opts =>
-                    {
-                        opts.Converters.Add(new JsonStringEnumConverter());
-                        
-                        // Set it to null to use the default .NET naming convention (PascalCase)
-                        opts.PropertyNamingPolicy = null;
-                        return opts;
-                    });
-
-                    cfg.AutoStart = true;
-                });
-            });
-            services.AddEventHubProducer(configBuilder
-                => configuration.Bind("EventHubProducerConfig", configBuilder));
 
             // Hosted services
             services.AddHostedService<TimedSynchronization>();
@@ -141,16 +113,15 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
             services.AddScoped<ICreateEventHelper, CreateEventHelper>();
 
             services.AddScoped<ISynchronizationService, SynchronizationService>();
-            services.AddScoped<IAuthenticatorOptions, AuthenticatorOptions>();
-            services.AddScoped<LibraryApiAuthenticator>();
-            services.AddScoped<ILibraryApiAuthenticator>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            services.AddScoped<IBearerTokenSetter>(x => x.GetRequiredService<LibraryApiAuthenticator>());
-            services.AddScoped<ILibraryApiClient, LibraryApiClient>();
-            services.AddScoped<IProjectApiService, MainApiProjectService>();
+            services.AddScoped<ILibraryApiForUserClient, LibraryApiClientForUser>();
+            services.AddScoped<IProjectApiForApplicationService, MainApiForApplicationProjectService>();
+            services.AddScoped<IProjectApiForUsersService, MainApiForUsersProjectService>();
             services.AddScoped<IAzureBlobService, AzureBlobService>();
             services.AddScoped<ICertificateApiService, MainApiCertificateService>();
-            services.AddScoped<ICommPkgApiService, MainApiCommPkgService>();
-            services.AddScoped<IMcPkgApiService, MainApiMcPkgService>();
+            services.AddScoped<ICommPkgApiForApplicationService, MainApiForApplicationCommPkgService>();
+            services.AddScoped<ICommPkgApiForUserService, MainApiForUserCommPkgService>();
+            services.AddScoped<IMcPkgApiForApplicationService, MainApiForApplicationMcPkgService>();
+            services.AddScoped<IMcPkgApiForUserService, MainApiForUserMcPkgService>();
             services.AddScoped<IFunctionalRoleApiService, LibraryApiFunctionalRoleService>();
             services.AddScoped<IPersonApiService, MainApiPersonService>();
             services.AddScoped<IMeApiService, MainApiMeService>();
@@ -165,8 +136,54 @@ namespace Equinor.ProCoSys.IPO.WebApi.DIModules
 
             // Singleton - Created the first time they are requested
             services.AddSingleton<IBusReceiverServiceFactory, ScopedBusReceiverServiceFactory>();
-            services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<ICalendarService, CalendarService>();
+            services.AddSingleton<IQueryUserDelegationProvider, UserDelegationProvider>();
+            services.AddSingleton(credential);
+
+            services.AddTransient<IEmailService, IpoEmailService>();
+            services.AddTransient<IEventHubProducerService, EventHubProducerService>();
+
+            AddHttpClients(services);
+
+            services.AddTransient<ITokenCredential>(_ => new IpoTokenCredential(credential));
+            AddMailCredential(services, configuration);
+            AddFamCredential(services, configuration);
+        }
+
+        private static void AddHttpClients(IServiceCollection services)
+        {
+            services.AddTransient<LibraryApiForUserTokenHandler>();
+
+            services.AddHttpClient(LibraryApiClientForUser.ClientName)
+                .AddHttpMessageHandler<LibraryApiForUserTokenHandler>();
+        }
+
+        private static void AddMailCredential(IServiceCollection services, IConfiguration configuration)
+        {
+            if (configuration.IsDevOnLocalhost())
+            {
+                // The default credentials use federated credentials for authentication.
+                // That will not work on a local dev machine.
+                // Replacing the default authentication with a certificate authentication.
+                services.AddTransient<IMailCredential, MailCertificateCredential>();
+                return;
+            }
+
+            services.AddTransient<IMailCredential, MailDefaultCredential>();
+        }
+
+        private static void AddFamCredential(IServiceCollection services, IConfiguration configuration)
+        {
+            if (configuration.IsDevOnLocalhost())
+            {
+                // The default credentials use federated credentials for authentication.
+                // That will not work on a local dev machine.
+                // Replacing the default authentication with a certificate authentication.
+                services.AddTransient<IFamCredential, FamCertificateCredential>();
+                return;
+            }
+
+            services.AddTransient<IFamCredential, FamDefaultCredential>();
         }
     }
 }

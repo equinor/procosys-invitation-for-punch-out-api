@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using Equinor.ProCoSys.IPO.Infrastructure;
@@ -16,7 +17,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
     [TestClass]
     public class SearchCommPkgsByCommPkgNoQueryHandlerTests : ReadOnlyTestsBaseInMemory
     {
-        private Mock<ICommPkgApiService> _commPkgApiServiceMock;
+        private Mock<ICommPkgApiForUserService> _commPkgApiServiceMock;
         private IList<ProCoSysSearchCommPkg> _mainApiCommPkgs;
         private GetCommPkgsInProjectQuery _query;
 
@@ -30,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
         {
             using (new IPOContext(dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
-                _commPkgApiServiceMock = new Mock<ICommPkgApiService>();
+                _commPkgApiServiceMock = new Mock<ICommPkgApiForUserService>();
                 _mainApiCommPkgs = new List<ProCoSysSearchCommPkg>
                 {
                     new ProCoSysSearchCommPkg
@@ -47,10 +48,10 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
                     }
                 };
 
-                var result = new ProCoSysCommPkgSearchResult {MaxAvailable = 3, Items = _mainApiCommPkgs};
+                var result = new ProCoSysCommPkgSearchResult { MaxAvailable = 3, Items = _mainApiCommPkgs };
 
                 _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, CancellationToken.None, _defaultPageSize, _defaultCurrentPage))
                     .Returns(Task.FromResult(result));
 
                 _query = new GetCommPkgsInProjectQuery(_projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage);
@@ -95,7 +96,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetCommPkgsInProject
             {
                 var dut = new GetCommPkgsInProjectQueryHandler(_commPkgApiServiceMock.Object, _plantProvider);
                 _commPkgApiServiceMock
-                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, _defaultPageSize, _defaultCurrentPage))
+                    .Setup(x => x.SearchCommPkgsByCommPkgNoAsync(TestPlant, _projectName, _commPkgStartsWith, CancellationToken.None, _defaultPageSize, _defaultCurrentPage))
                     .Returns(Task.FromResult(new ProCoSysCommPkgSearchResult
                     {
                         MaxAvailable = 0,

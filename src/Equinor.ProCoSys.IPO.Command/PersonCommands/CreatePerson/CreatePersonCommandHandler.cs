@@ -31,7 +31,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson
 
             if (person == null)
             {
-                var pcsPerson = await _personCache.GetAsync(request.Oid);
+                var pcsPerson = await _personCache.GetAsync(request.Oid, cancellationToken);
                 if (pcsPerson == null)
                 {
                     throw new Exception($"Details for user with oid {request.Oid:D} not found in ProCoSys");
@@ -40,7 +40,7 @@ namespace Equinor.ProCoSys.IPO.Command.PersonCommands.CreatePerson
                 _personRepository.Add(person);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
-            
+
             return new SuccessResult<Unit>(Unit.Value);
         }
     }

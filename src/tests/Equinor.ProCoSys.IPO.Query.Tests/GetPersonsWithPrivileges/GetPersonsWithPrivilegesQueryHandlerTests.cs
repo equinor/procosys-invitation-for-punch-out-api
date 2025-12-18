@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.IPO.ForeignApi;
 using Equinor.ProCoSys.IPO.ForeignApi.MainApi.Person;
@@ -22,7 +23,7 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
         private GetPersonsWithPrivilegesQuery _query;
 
         private readonly string _objectName = "IPO";
-        private List<string> _privileges = new List<string> { "SIGN"};
+        private List<string> _privileges = new List<string> { "SIGN" };
         private readonly string _searchString = "A";
 
         protected override void SetupNewDatabase(DbContextOptions<IPOContext> dbContextOptions)
@@ -109,7 +110,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(
+                        TestPlant,
+                        _searchString,
+                        _objectName,
+                        _privileges,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(_mainApiContractorPersons));
 
                 _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
@@ -136,7 +142,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
 
                 var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(
+                        TestPlant,
+                        _searchString,
+                        _objectName,
+                        _privileges,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);
@@ -152,7 +163,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
             using (new IPOContext(_dbContextOptions, _plantProvider, _eventDispatcher, _currentUserProvider))
             {
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(
+                        TestPlant,
+                        _searchString,
+                        _objectName,
+                        _privileges,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult(_mainApiConstructionPersons));
 
                 _query = new GetPersonsWithPrivilegesQuery(_searchString, _objectName, _privileges);
@@ -179,7 +195,12 @@ namespace Equinor.ProCoSys.IPO.Query.Tests.GetPersonsWithPrivileges
             {
                 var dut = new GetPersonsWithPrivilegesQueryHandler(_personApiServiceMock.Object, _plantProvider);
                 _personApiServiceMock
-                    .Setup(x => x.GetPersonsWithPrivilegesAsync(TestPlant, _searchString, _objectName, _privileges))
+                    .Setup(x => x.GetPersonsWithPrivilegesAsync(
+                        TestPlant,
+                        _searchString,
+                        _objectName,
+                        _privileges,
+                        It.IsAny<CancellationToken>()))
                     .Returns(Task.FromResult<IList<ProCoSysPerson>>(null));
 
                 var result = await dut.Handle(_query, default);

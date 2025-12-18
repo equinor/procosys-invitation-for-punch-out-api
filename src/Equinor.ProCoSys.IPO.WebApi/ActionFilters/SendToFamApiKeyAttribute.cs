@@ -23,7 +23,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
 
         var famOptions = context.HttpContext.RequestServices.GetRequiredService<IOptionsMonitor<FamOptions>>();
         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<SendToFamApiKeyAttribute>>();
-        
+
         if (famOptions is null)
         {
             logger.LogError($"Failed to retrieve configuration for {FamApiKeyHeader}");
@@ -36,7 +36,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
         if (string.IsNullOrWhiteSpace(famApiKeyFromConfig))
         {
             logger.LogError($"The configured value for Api key {FamApiKeyHeader} is empty.");
-            context.Result = new ForbidResult(); 
+            context.Result = new ForbidResult();
             return;
         }
 
@@ -44,7 +44,7 @@ public class SendToFamApiKeyAttribute : Attribute, IAsyncActionFilter
         if (famApiKeyFromConfig != apiKeyFromRequest)
         {
             logger.LogError($"The value sent in for Api key {FamApiKeyHeader} does not match configured value.");
-            context.Result = new ForbidResult(); 
+            context.Result = new ForbidResult();
             return;
         }
 

@@ -2,6 +2,7 @@
 using Equinor.ProCoSys.IPO.MessageContracts;
 
 namespace Equinor.ProCoSys.IPO.Command.Events;
+
 public class CommPkgEvent : ICommPkgEventV1
 {
     public CommPkgEvent(Guid guid,
@@ -19,8 +20,8 @@ public class CommPkgEvent : ICommPkgEventV1
         CreatedAtUtc = createdAtUtc;
     }
 
-    public Guid Guid { get;  }
-    public string Plant { get;  }
+    public Guid Guid { get; }
+    public string Plant { get; }
     public string ProjectName { get; }
     public Guid CommPkgGuid { get; }
     public Guid InvitationGuid { get; }

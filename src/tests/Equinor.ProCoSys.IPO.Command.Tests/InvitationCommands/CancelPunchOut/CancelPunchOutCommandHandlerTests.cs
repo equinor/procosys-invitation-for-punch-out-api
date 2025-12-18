@@ -5,14 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Command.EventPublishers;
-using Equinor.ProCoSys.IPO.Command.Events;
 using Equinor.ProCoSys.IPO.Command.InvitationCommands.CancelPunchOut;
 using Equinor.ProCoSys.IPO.Domain;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
 using Equinor.ProCoSys.IPO.Domain.Events.PostSave;
-using Equinor.ProCoSys.IPO.MessageContracts;
 using Fusion.Integration.Meeting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -88,9 +86,9 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
                     new DateTime(),
                     new DateTime(),
                     null,
-                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty)},
+                    new List<McPkg> { new McPkg(_plant, _project, "Comm", "Mc", "d", "1|2", Guid.Empty, Guid.Empty) },
                     null)
-                { MeetingId = _meetingId };
+            { MeetingId = _meetingId };
 
             var participant = new Participant(_plant,
                 Organization.Contractor,
@@ -174,7 +172,7 @@ namespace Equinor.ProCoSys.IPO.Command.Tests.InvitationCommands.CancelPunchOut
             // Setup exception in Delete meeting.
             _fusionMeetingClient.Setup(c => c.DeleteMeetingAsync(_meetingId))
                 .Throws(new MeetingApiException(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.Forbidden), ""));
-                        
+
             // Act
             var result = await _dut.Handle(_command, default);
 

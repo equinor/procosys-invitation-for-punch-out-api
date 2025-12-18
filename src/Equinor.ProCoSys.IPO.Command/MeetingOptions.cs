@@ -2,9 +2,9 @@
 {
     public class MeetingOptions
     {
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
         public string Environment { get; set; }
         public string PcsBaseUrl { get; set; }
+        public string RequestTimeout { get; set; }
+        public string TotalTimeout { get; set; }
     }
 }

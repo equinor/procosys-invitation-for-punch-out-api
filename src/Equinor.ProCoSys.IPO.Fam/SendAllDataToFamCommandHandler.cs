@@ -5,13 +5,11 @@ using Equinor.ProCoSys.IPO.MessageContracts;
 using Equinor.TI.Common.Messaging;
 using Equinor.TI.CommonLibrary.Mapper;
 using Equinor.TI.CommonLibrary.Mapper.Core;
-using Fam.Core.EventHubs.Contracts;
-using Fam.Models.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ServiceResult;
 using MoreLinq;
+using ServiceResult;
 
 namespace Equinor.ProCoSys.IPO.Fam;
 
@@ -19,19 +17,19 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 {
     private readonly IFamRepository _famRepository;
     private readonly IOptions<FamOptions> _famOptions;
-    private readonly CommonLibConfig _commonLibConfig;
+    private readonly IFamCredential _famCredential;
     private readonly IEventHubProducerService _eventHubProducerService;
     private readonly ILogger _logger;
 
     public SendAllDataToFamCommandHandler(IFamRepository famRepository,
-        IOptions<CommonLibConfig> commonLibConfig,
+        IFamCredential famCredential,
         IOptions<FamOptions> famOptions,
         IEventHubProducerService eventHubProducerService,
         ILogger<SendAllDataToFamCommandHandler> logger)
     {
         _famRepository = famRepository;
         _famOptions = famOptions;
-        _commonLibConfig = commonLibConfig.Value;
+        _famCredential = famCredential;
         _eventHubProducerService = eventHubProducerService;
         _logger = logger;
     }
@@ -45,7 +43,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         statusResult += await SendEventsToFam<ICommPkgEventV1>(
             _famRepository.GetCommPkgs, CommonLibClassConstants.CommPkg, mapper);
 
-        statusResult += await SendEventsToFam<IParticipantEventV1>( 
+        statusResult += await SendEventsToFam<IParticipantEventV1>(
             _famRepository.GetParticipants, CommonLibClassConstants.Participant, mapper);
 
         statusResult += await SendEventsToFam<IInvitationEventV1>(
@@ -111,13 +109,7 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
 
     private SchemaMapper CreateCommonLibMapper()
     {
-        ISchemaSource source = new ApiSource(new ApiSourceOptions
-        {
-            TokenProviderConnectionString = "RunAs=App;" +
-            $"AppId={_commonLibConfig.ClientId};" +
-                                            $"TenantId={_commonLibConfig.TenantId};" +
-                                            $"AppKey={_commonLibConfig.ClientSecret}"
-        });
+        ISchemaSource source = new ApiSource(new ApiSourceOptions(), _famCredential.GetToken());
 
         // Adds caching functionality
         source = new CacheWrapper(
@@ -135,10 +127,6 @@ public class SendAllDataToFamCommandHandler : IRequestHandler<SendAllDataToFamCo
         try
         {
             await _eventHubProducerService.SendDataAsync(messages);
-        }
-        catch (FamConfigException e)
-        {
-            throw new Exception("Configuration error: Could not send message.", e);
         }
         catch (Exception e)
         {

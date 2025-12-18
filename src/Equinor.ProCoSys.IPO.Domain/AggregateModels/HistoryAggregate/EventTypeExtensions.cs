@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Equinor.ProCoSys.Common.Misc;
+﻿using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.PersonAggregate;
 
@@ -9,9 +8,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
     {
         public static string GetDescription(this EventType eventType, Participant participant)
         {
-            string user = $"{participant.FirstName} {participant.LastName}";
-            string functionalRole = participant.FunctionalRoleCode;
-            string organization = participant.Organization.GetDescription();
+            var user = $"{participant.FirstName} {participant.LastName}";
+            var functionalRole = participant.FunctionalRoleCode;
+            var organization = participant.Organization.GetDescription();
 
             if (string.IsNullOrEmpty(functionalRole))
             {
@@ -25,9 +24,9 @@ namespace Equinor.ProCoSys.IPO.Domain.AggregateModels.HistoryAggregate
 
         public static string GetDescription(this EventType eventType, Participant participant, Person person)
         {
-            string user = $"{person.FirstName} {person.LastName}";
-            string functionRole = participant.FunctionalRoleCode;
-            string organization = participant.Organization.GetDescription();
+            var user = $"{person.FirstName} {person.LastName}";
+            var functionRole = participant.FunctionalRoleCode;
+            var organization = participant.Organization.GetDescription();
 
             if (string.IsNullOrEmpty(functionRole))
             {

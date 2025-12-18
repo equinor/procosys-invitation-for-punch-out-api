@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Equinor.ProCoSys.Common.Misc;
 using Equinor.ProCoSys.IPO.Domain;
+using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
 using Equinor.ProCoSys.IPO.Domain.AggregateModels.ProjectAggregate;
+using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ServiceResult;
-using Equinor.ProCoSys.IPO.Domain.AggregateModels.InvitationAggregate;
-using Equinor.ProCoSys.IPO.ForeignApi.MainApi.CommPkg;
-using System.Collections.Generic;
 
 namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
 {
@@ -18,7 +18,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
     {
         private readonly ILogger<FillCommPkgPCSGuidsCommand> _logger;
         private readonly IInvitationRepository _invitationRepository;
-        private readonly ICommPkgApiService _commPkgApiService;
+        private readonly ICommPkgApiForUserService _commPkgApiService;
         private readonly IProjectRepository _projectRepository;
         private readonly IPlantProvider _plantProvider;
         private readonly IUnitOfWork _unitOfWork;
@@ -27,7 +27,7 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
             ILogger<FillCommPkgPCSGuidsCommand> logger,
             IPlantProvider plantProvider,
             IInvitationRepository invitationRepository,
-            ICommPkgApiService commPkgApiService,
+            ICommPkgApiForUserService commPkgApiService,
             IProjectRepository projectRepository,
             IUnitOfWork unitOfWork)
         {
@@ -49,18 +49,18 @@ namespace Equinor.ProCoSys.IPO.Command.CommPkgCommands.FillCommPkgPcsGuids
                 {
                     var project = await _projectRepository.GetByIdAsync(commPkg.ProjectId);
                     IList<string> commPkgNo = new List<string>() { commPkg.CommPkgNo };
-                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo);
+                    var commPkgDetails = await _commPkgApiService.GetCommPkgsByCommPkgNosAsync(_plantProvider.Plant, project.Name, commPkgNo, cancellationToken);
 
                     if (commPkgDetails != null && commPkgDetails.Count == 1)
                     {
                         commPkg.CommPkgGuid = commPkgDetails.First().ProCoSysGuid;
-                       _logger.LogInformation($"FillCommPkgPCSGuids: CommPkg updated: {commPkg.CommPkgNo}");
-                       count++;
+                        _logger.LogInformation($"FillCommPkgPCSGuids: CommPkg updated: {commPkg.CommPkgNo}");
+                        count++;
                     }
                 }
             }
 
-          if (request.SaveChanges && count > 0)
+            if (request.SaveChanges && count > 0)
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 _logger.LogInformation($"FillCommPkgPCSGuids: {count} CommPks updated");
